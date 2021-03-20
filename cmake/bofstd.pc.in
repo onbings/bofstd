@@ -1,0 +1,9 @@
+libdir=@CMAKE_INSTALL_PREFIX@/@BLD_COMPILER_ID@/lib
+includedir=@CMAKE_INSTALL_PREFIX@/include
+
+Name: @PROJECT_NAME@
+Description: @PROJECT_NAME@
+Version: @PROJECT_VERSION@
+URL: https://github.com/onbings
+Libs: -L${libdir} -l@PROJECT_NAME@
+Cflags: -I${includedir} 

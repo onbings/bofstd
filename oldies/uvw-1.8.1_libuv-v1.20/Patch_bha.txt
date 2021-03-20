@@ -1,0 +1,231 @@
+Modification pour ajouter la feature read-only buffer:
+
+udp.hpp
+
+line 33:
+AFTER
+struct UDPDataEvent {
+    explicit UDPDataEvent(Addr sndr, std::unique_ptr<const char[]> buf, std::size_t len, bool part) noexcept
+        : data{std::move(buf)}, length{len}, sender{std::move(sndr)}, partial{part}
+    {}
+
+    std::unique_ptr<const char[]> data; /*!< A bunch of data read on the stream. */
+    std::size_t length;  /*!< The amount of data read on the stream. */
+    Addr sender; /*!< A valid instance of Addr. */
+    bool partial; /*!< True if the message was truncated, false otherwise. */
+};
+ADD
+	//BHA
+	struct UDPDataPreAllocatedEvent {
+	  explicit UDPDataPreAllocatedEvent(Addr sndr, const char *buf, std::size_t len, bool part) noexcept
+		: data{ buf }, length{ len }, sender{ std::move(sndr) }, partial{ part }
+	  {}
+
+	  const char *data; /*!< A bunch of data read on the stream. */
+	  std::size_t length;  /*!< The amount of data read on the stream. */
+	  Addr sender; /*!< A valid instance of Addr. */
+	  bool partial; /*!< True if the message was truncated, false otherwise. */
+	};
+
+line 109:
+
+AFTER
+class UDPHandle final: public Handle<UDPHandle, uv_udp_t> {
+    template<typename I>
+    static void recvCallback(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const sockaddr *addr, unsigned flags) {
+        const typename details::IpTraits<I>::Type *aptr = reinterpret_cast<const typename details::IpTraits<I>::Type *>(addr);
+
+        UDPHandle &udp = *(static_cast<UDPHandle*>(handle->data));
+        // data will be destroyed no matter of what the value of nread is
+        std::unique_ptr<const char[]> data{buf->base};
+
+        if(nread > 0) {
+            // data available (can be truncated)
+            udp.publish(UDPDataEvent{details::address<I>(aptr), std::move(data), static_cast<std::size_t>(nread), !(0 == (flags & UV_UDP_PARTIAL))});
+        } else if(nread == 0 && addr == nullptr) {
+            // no more data to be read, doing nothing is fine
+        } else if(nread == 0 && addr != nullptr) {
+            // empty udp packet
+            udp.publish(UDPDataEvent{details::address<I>(aptr), std::move(data), static_cast<std::size_t>(nread), false});
+        } else {
+            // transmission error
+            udp.publish(ErrorEvent(nread));
+        }
+    }
+ADD:	
+	//BHA
+		template<typename I>
+		static void recvPreAllocatedCallback(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const sockaddr *addr, unsigned flags) {
+		  const typename details::IpTraits<I>::Type *aptr = reinterpret_cast<const typename details::IpTraits<I>::Type *>(addr);
+
+		  UDPHandle &udp = *(static_cast<UDPHandle*>(handle->data));
+		  const char *data{ buf->base };
+
+		  if (nread > 0) {
+			// data available (can be truncated)
+			udp.publish(UDPDataPreAllocatedEvent{ details::address<I>(aptr), data, static_cast<std::size_t>(nread), !(0 == (flags & UV_UDP_PARTIAL)) });
+		  }
+		  else if (nread == 0 && addr == nullptr) {
+			// no more data to be read, doing nothing is fine
+		  }
+		  else if (nread == 0 && addr != nullptr) {
+			// empty udp packet
+			udp.publish(UDPDataPreAllocatedEvent{ details::address<I>(aptr), data, static_cast<std::size_t>(nread), false });
+		  }
+		  else {
+			// transmission error
+			udp.publish(ErrorEvent(nread));
+		  }
+		}
+
+line 617:
+
+AFTER:
+	template<typename I = IPv4>
+    void recv() {
+        invoke(&uv_udp_recv_start, get(), &allocCallback, &recvCallback<I>);
+    }
+ADD:	
+//BHA
+    typedef void(*UVALLOCCB)(uv_handle_t *, std::size_t suggested, uv_buf_t *buf);
+    template<typename I = IPv4>
+    void recvPreAllocated(UVALLOCCB _ExternalAllocator) {
+      invoke(&uv_udp_recv_start, get(), _ExternalAllocator, &recvPreAllocatedCallback<I>);
+    }
+
+	
+stream.hpp
+
+line 63:
+
+AFTER:
+struct DataEvent {
+    explicit DataEvent(std::unique_ptr<char[]> buf, std::size_t len) noexcept
+        : data{std::move(buf)}, length{len}
+    {}
+
+    std::unique_ptr<char[]> data; /*!< A bunch of data read on the stream. */
+    std::size_t length; /*!< The amount of data read on the stream. */
+};
+
+ADD:
+	//BHA
+	struct DataPreAllocatedEvent {
+	  explicit DataPreAllocatedEvent(char *buf, std::size_t len) noexcept
+		: data{ buf }, length{ len }
+	  {}
+
+	  char *data; /*!< A bunch of data read on the stream. */
+	  std::size_t length; /*!< The amount of data read on the stream. */
+	};
+
+line 137:
+
+AFTER:
+template<typename T, typename U>
+class StreamHandle: public Handle<T, U> {
+    static constexpr unsigned int DEFAULT_BACKLOG = 128;
+
+    static void readCallback(uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf) {
+        T &ref = *(static_cast<T*>(handle->data));
+        // data will be destroyed no matter of what the value of nread is
+        std::unique_ptr<char[]> data{buf->base};
+
+        // nread == 0 is ignored (see http://docs.libuv.org/en/v1.x/stream.html)
+        // equivalent to EAGAIN/EWOULDBLOCK, it shouldn't be treated as an error
+        // for we don't have data to emit though, it's fine to suppress it
+
+        if(nread == UV_EOF) {
+            // end of stream
+            ref.publish(EndEvent{});
+        } else if(nread > 0) {
+            // data available
+            ref.publish(DataEvent{std::move(data), static_cast<std::size_t>(nread)});
+        } else if(nread < 0) {
+            // transmission error
+            ref.publish(ErrorEvent(nread));
+        }
+    }
+	
+ADD:
+		
+	//BHA
+		static void readPreAllocatedCallback(uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf) {
+		  T &ref = *(static_cast<T*>(handle->data));
+		  char *data{ buf->base };
+
+		  // nread == 0 is ignored (see http://docs.libuv.org/en/v1.x/stream.html)
+		  // equivalent to EAGAIN/EWOULDBLOCK, it shouldn't be treated as an error
+		  // for we don't have data to emit though, it's fine to suppress it
+
+		  if (nread == UV_EOF) {
+			// end of stream
+			ref.publish(EndEvent{});
+		  }
+		  else if (nread > 0) {
+			// data available
+			ref.publish(DataPreAllocatedEvent{ data, static_cast<std::size_t>(nread) });
+		  }
+		  else if (nread < 0) {
+			// transmission error
+			ref.publish(ErrorEvent(nread));
+		  }
+		}
+		
+line 260:
+
+AFTER:
+
+    void read() {
+        this->invoke(&uv_read_start, this->template get<uv_stream_t>(), &this->allocCallback, &readCallback);
+    }
+	
+	ADD:
+	
+	//BHA
+		typedef void(*UVALLOCCB)(uv_handle_t *, std::size_t suggested, uv_buf_t *buf);
+		void readPreAllocated(UVALLOCCB _ExternalAllocator) {
+		  this->invoke(&uv_read_start, this->template get<uv_stream_t>(), _ExternalAllocator, &readPreAllocatedCallback);
+		}		
+		
+Modification pour compiler sous linux multiplatforme la feature read-only buffer:
+		
+fs.hpp
+for linux compilation
+		line 221/240/257
+			: path{ pathname }, stat(std::move(curr))
+			//BHA		: path{ pathname }, stat{ std::move(curr) }
+	
+fs_poll.hpp
+line 24:
+			: prev( std::move(previous) ), curr( std::move(current) )
+		//BHA	: prev{ std::move(previous) }, curr{ std::move(current) }
+
+udp.hpp	
+line 35:
+        : data(std::move(buf)), length{len}, sender(std::move(sndr)), partial{part}
+		//BHA		: data{ std::move(buf) }, length{ len }, sender{ std::move(sndr) }, partial{ part }
+		
+line 47:
+    : data{ buf }, length{ len }, sender( std::move(sndr) ), partial{ part }
+	//BHA	: data{ buf }, length{ len }, sender{ std::move(sndr) }, partial{ part }
+	
+line 78:
+					buf( uv_buf_init(data.get(), len) )
+		//BHA			buf{ uv_buf_init(data.get(), len) }
+
+util.hpp:
+line 15:
+#ifdef _WIN32
+// MSVC doesn't have C++14 relaxed constexpr support yet. Hence the jugglery.
+#define CONSTEXPR_SPECIFIER
+#else
+//#define CONSTEXPR_SPECIFIER constexpr
+#define CONSTEXPR_SPECIFIER
+#endif
+		
+
+	
+		
+		
+		

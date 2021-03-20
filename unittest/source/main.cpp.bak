@@ -1,0 +1,165 @@
+#if defined(_WIN32)
+//#define _CRTDBG_MAP_ALLOC  
+//#include <stdlib.h>  
+//#include <crtdbg.h> 
+#else
+#include <malloc.h>
+#endif
+
+#include "../include/gtestrunner.h"
+#include <iostream>
+#include <bofstd/bofstd.h>
+#include <bofstd/bofsystem.h>
+#include <bofstd/bofsocket.h>
+//#define _CrtSetReportHook(f)                ((_CRT_REPORT_HOOK)0)
+
+USE_BOF_NAMESPACE()
+
+BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rMasg_S)
+{
+	printf("Assert in %s line %d Msg %s\r\n", _rFile_S.c_str(), _Line_U32, _rMasg_S.c_str());
+	return BOF_ERR_NO_ERROR;
+}
+//#define assert(expression) (void) assert(expression) (void)((!!(expression)) || (DbgBreakpoint()) )
+
+
+
+#if 1
+int main(int argc, char *argv[])
+{
+	BOFERR Sts_E;
+	uint32_t i_U32;
+	BOF_NAMESPACE::BOF_DATE_TIME Now_X;
+	//  float z = 65536.1f; // 1.3e22; //  0.01f;
+	//  printf("z=%8.6f\n", z*100);
+	//  printf("z*2=%f\n", z*2);
+
+#if defined(_WIN32)
+	//	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//	_CrtSetBreakAlloc(3024);
+#endif
+
+#if defined (_WIN32)
+#else
+	mallopt(M_CHECK_ACTION, 3);
+	signal(SIGPIPE, SIG_IGN);
+#endif
+	BOFSTDPARAM StdParam_X;
+	StdParam_X.AssertInRelease_B = true;
+	StdParam_X.AssertCallback = AppBofAssertCallback;
+	Sts_E = Bof_Initialize(StdParam_X);
+	BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+	std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
+
+#if 0
+	BOF_ASSERT(0 == 3);
+#endif
+
+	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
+	//::testing::GTEST_FLAG(filter) = "BofCircularBuffer_Test.StdString";
+#if defined(_WIN32)
+	//	::testing::GTEST_FLAG(filter) = "BofIo_Test.SendPollSocketCommand";
+//	::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseCmdSession";
+//	::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseCmdDataSession";
+	::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseCmdDataSession";
+ //::testing::GTEST_FLAG(filter) = "BofIo_Test.ClientOpenCloseCmdDataSession";
+	//::testing::GTEST_FLAG(filter) = "BofIo_Test.ClientForH4X";
+	//::testing::GTEST_FLAG(filter) = "SocketUdp_Test.ScatterGatherIo";
+//	::testing::GTEST_FLAG(filter) = "BofCircularBuffer_Test.PopExternalStorage";
+	//::testing::GTEST_FLAG(filter) = "BofIo_Test.UcodeServer";
+	//::testing::GTEST_FLAG(filter) = "BofIo_Test.ClientForUcode";
+
+#else
+	//	::testing::GTEST_FLAG(filter) = "BofIo_Test.SendPollSocketCommand";
+		//::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseCmdSession";
+	//::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseCmdDataSession";
+	//::testing::GTEST_FLAG(filter) = "BofIo_Test.ServerOnH4X";
+	::testing::GTEST_FLAG(filter) = "BofIo_Test.UcodeServer";
+#endif
+	//	::testing::GTEST_FLAG(filter) = "ConIo_Test.Input";
+	//  ::testing::GTEST_FLAG(filter) = "Logger_Test.*:Sprintf_Test.*:PrintfTest.*:StringViewTest.*:WriterTest.*:FormatToTest.*:FormatterTest.*:BoolTest.*:FormatIntTest.*:FormatTest.*:StrTest.*:LiteralsTest.*";
+	//  ::testing::GTEST_FLAG(filter) = "Sprintf_Test.*:PrintfTest.*:StringViewTest.*:WriterTest.*:FormatToTest.*:FormatterTest.*:BoolTest.*:FormatIntTest.*:FormatTest.*:StrTest.*:LiteralsTest.*";
+	//  ::testing::GTEST_FLAG(filter) = "Logger_Test.LoggerInit";
+	//  ::testing::GTEST_FLAG(filter) = "Logger_Test.LoggerMultiChannel";
+	//  ::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseSessionWithoutSessionManager";
+	//  ::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseSessionWithSessionManager";
+	//  ::testing::GTEST_FLAG(filter) = "TimerEventReactor_Test.TicketTimerEventNoReset";
+
+	//  ::testing::GTEST_FLAG(filter) = "Threading_Test.*";
+	//  ::testing::GTEST_FLAG(filter) = "Fs_Test.FileLayout:Fs_Test.DirEnum";
+	//  ::testing::GTEST_FLAG(filter) = "Fs_Test.DirEnum";
+
+	//  ::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.AsyncCommand";
+	//  ::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.TcpConnectIo";
+	//::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.AsyncCommand";
+	//  ::testing::GTEST_FLAG(filter) = "Fs_Test.PathConstructorDestructorWindows";
+	//  ::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.ConstructorDestuctor:SocketChannelManager_Test.AddRemoveChannel:SocketChannelManager_Test.TcpConnectIo";
+	//  ::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.ConstructorDestuctor:SocketChannelManager_Test.AddRemoveChannel:SocketChannelManager_Test.AsyncCommand:SocketChannelManager_Test.TcpConnectIo";
+	//::testing::GTEST_FLAG(filter) = "Timecode_Test.*";
+	// ::testing::GTEST_FLAG(filter) = "System_Test.DiffDateTime";
+	//    ::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.TcpListenConnectIo";
+	//::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.TcpConnectIo";
+	//::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.*";
+	// ::testing::GTEST_FLAG(filter) = "SocketChannelManager_Test.UdpConnectIo";
+	//	::testing::GTEST_FLAG(filter) = "XmlParser_Test.*:XmlWriter_Test.*";
+
+	testing::InitGoogleTest(&argc, argv);
+	int    Rts_i;
+	i_U32 = 0;
+	while (1)
+	{
+		//    assert(0);
+		//    BOF_ASSERT(0);
+		//   abort();
+		//    exit(3);
+		//for (int i = 0; i < 0x7FFFFFFF; i++)
+		//  for (int i = 0; i < 3; i++)
+		{
+			i_U32++;
+			BOF_NAMESPACE::Bof_Now(Now_X);
+			BOF_DBG_PRINTF("@@@### Loop %d Now: %s\r\n", i_U32, BOF_NAMESPACE::Bof_DateTimeToString(Now_X).c_str());
+
+			Rts_i = RUN_ALL_TESTS();
+			if (Rts_i)
+			{
+				BOF_DBG_PRINTF("@@@### Error on Loop %d Now: %s\r\n", i_U32, BOF_NAMESPACE::Bof_DateTimeToString(Now_X).c_str());
+				break;
+			}
+//			BOF_NAMESPACE::Bof_Sleep(10000);
+
+		}
+//		BOF_NAMESPACE::Bof_Sleep(1000);
+
+	//	Rts_i = BOF_NAMESPACE::BofSocket::S_BofSocketBalance();
+	//	BOF_ASSERT(Rts_i == 0);
+		
+	}
+
+
+	Sts_E = Bof_Shutdown();
+	BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+
+#if defined(DEBUG)
+	std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
+	std::cin.ignore();
+#endif
+
+	return Rts_i;
+}
+
+#else
+int main(int argc, char *argv[])
+{
+	BOFSTDPARAM StdParam_X;
+	StdParam_X.AssertInRelease_B = true;
+	StdParam_X.AssertCallback = AppBofAssertCallback;
+	BOFERR Sts_E = Bof_Initialize(StdParam_X);
+	BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+	std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
+
+	testing::InitGoogleTest(&argc, argv);
+
+	printf("hello\n");
+	return 0;
+}
+#endif
