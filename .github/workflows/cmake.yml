@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Onbings Cmake Helpers 
+      - name: Checkout Onbings Cmake Helpers 1
         uses: actions/checkout@v2
         with:
           repository: onbings/cmake
           path: cmake
         
-      - name: Checkout Onbings BofStd source 
+      - name: Checkout Onbings BofStd source 2
         uses: actions/checkout@v2
 
       - name: Create Build Environment
