@@ -24,6 +24,14 @@ jobs:
           repository: onbings/cmake
           path: cmake
 
+      - name: Finally, download onbings's artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: assets-for-download
+    
+      - name: Display structure of downloaded files
+        run: ls -R
+        
       - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
       # We'll use this as our working directory for all subsequent commands
