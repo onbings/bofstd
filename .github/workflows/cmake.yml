@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: onbings/cmake
-          path: bofstd/cmake
+          path: ../cmake
         
       - name: Checkout Onbings BofStd source 3
         uses: actions/checkout@v2
