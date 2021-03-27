@@ -45,9 +45,16 @@ jobs:
   #        password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
         
     steps:
-    - name: Checkout googletest source
+    - name: First, checkout bofstd source
       uses: actions/checkout@v2 
-        
+      
+    - name: Then checkout cmake support
+      uses: actions/checkout@v2     
+      with:
+        repository: onbings/cmake
+        #token: ${{ secrets.GitHub_PAT }} # `GitHub_PAT` is a secret that contains your PAT
+        path: cmake
+      
  #   - name: Docker build or not, set build env to ${{ matrix.BUILD_TARGET_IMAGE }}
  #     if: ${{ matrix.BUILD_TARGET_IMAGE != '' }}
  #     uses: docker://onbings/debian_stretch_builder:latest  #${{ matrix.BUILD_TARGET_IMAGE }}
