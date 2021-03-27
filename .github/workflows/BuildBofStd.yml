@@ -92,7 +92,7 @@ jobs:
         echo "BUILD_INSTALL_DIR      $BUILD_INSTALL_DIR"
         echo "BUILD_ARTIFACT         $BUILD_ARTIFACT"
         cd ${{ env.BUILD_BIN_DIR }}
-        cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.BUILD_INSTALL_DIR }} -DCMAKE_FIND_ROOT_PATH=/tmp ../..
+        cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.BUILD_INSTALL_DIR }} -DCMAKE_FIND_ROOT_PATH=${{ env.BUILD_INSTALL_DIR }} ../..
         cmake --build . --config ${{ env.BUILD_TYPE }}        
 
     - name: Test
