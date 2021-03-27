@@ -124,7 +124,7 @@ source_group("StateMachine"       FILES ${STATEMACHINE_FILES})
 
 add_executable(${PROJECT_NAME}  ${THIS_PROJECT_SOURCE_FILES})
 add_test(NAME ${PROJECT_NAME} COMMAND $<TARGET_FILE_NAME:${PROJECT_NAME}> --gtest_output=xml:${CMAKE_BINARY_DIR}/GTestResult/$<CONFIG>/${PROJECT_NAME}.xml ${ARGV1} 
-             WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}> )
+             WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}> ) 
 bld_find_package("GTest" "1.8.0" "5dadbab")
 
 bld_std_cxx_compile_link_setting()
