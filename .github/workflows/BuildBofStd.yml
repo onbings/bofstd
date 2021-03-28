@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        BUILD_TYPE: [Debug] #, Release] #[Debug] #
+        BUILD_TYPE: [Debug, Release] #[Debug] #
         BUILD_TARGET: [DESKTOP_DEBIAN64] #[DESKTOP_LINUX64]  #[DESKTOP_LINUX64, DESKTOP_DEBIAN64]
         BUILD_TARGET_IMAGE: ['onbings/debian_stretch_builder:latest']  #[''] 
         #BUILD_TARGET_OPTION: ['-v /home/runner/work:/__w'] 
@@ -71,13 +71,20 @@ jobs:
 #Native ubuntu 
 #pwd:       /home/runner/work/googletest/googletest 
 #uname -a:  Linux fv-az163-623 5.4.0-1041-azure #43-Ubuntu SMP Fri Feb 26 10:21:20 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
+#        echo ::set-env name=BUILD_INSTALL_DIR::${{ env.BUILD_BIN_DIR }}/install/${{matrix.BUILD_TARGET}}/${{ env.BUILD_PACKAGE_NAME }}/${{ env.BUILD_PACKAGE_VERSION }}/${{ env.BUILD_PACKAGE_COMPILER }}
+
       run: |
         pwd 
         uname -a
-        echo ::set-env name=BUILD_INSTALL_DIR::${{ env.BUILD_BIN_DIR }}/install/${{matrix.BUILD_TARGET}}/${{ env.BUILD_PACKAGE_NAME }}/${{ env.BUILD_PACKAGE_VERSION }}/${{ env.BUILD_PACKAGE_COMPILER }}
+        echo ::set-env name=BUILD_INSTALL_DIR::${{ env.BUILD_BIN_DIR }}/install
         echo ::set-env name=BUILD_UPLOAD_PATH::${{ env.BUILD_BIN_DIR }}/install
         echo ::set-env name=BUILD_ARTIFACT::${{ matrix.BUILD_TARGET }}@${{ env.BUILD_PACKAGE_NAME }}@${{ env.BUILD_PACKAGE_VERSION }}@${{ env.BUILD_PACKAGE_COMPILER }}
         cmake -E make_directory $BUILD_BIN_DIR
+        
+    - name: Remove previous artifact
+      uses: geekyeggo/delete-artifact@v1
+      with:
+        name: ${{env.BUILD_ARTIFACT}}
         
     - name: Build
       shell: bash
@@ -116,7 +123,7 @@ jobs:
         cmake --build . --target install --config $BUILD_TYPE #-DCMAKE_INSTALL_PREFIX=$BUILD_INSTALL_DIR made above
         #cmake 3.15 
         #cmake --install . --config $BUILD_TYPE --prefix $BUILD_INSTALL_DIR 
-
+    
     - name: Upload Artifact on GitHub
       uses: actions/upload-artifact@v2
       with: 
