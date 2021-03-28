@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        BUILD_TYPE: [Debug] #, Release] #[Debug] #
+        BUILD_TYPE: [Debug, Release] #[Debug] #
         BUILD_TARGET: [DESKTOP_DEBIAN64] #[DESKTOP_LINUX64]  #[DESKTOP_LINUX64, DESKTOP_DEBIAN64]
         BUILD_TARGET_IMAGE: ['onbings/debian_stretch_builder:latest']  #[''] 
         #BUILD_TARGET_OPTION: ['-v /home/runner/work:/__w']  
