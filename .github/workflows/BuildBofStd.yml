@@ -25,7 +25,7 @@ jobs:
         BUILD_TYPE: [Debug] #, Release] #[Debug] #
         BUILD_TARGET: [DESKTOP_DEBIAN64] #[DESKTOP_LINUX64]  #[DESKTOP_LINUX64, DESKTOP_DEBIAN64]
         BUILD_TARGET_IMAGE: ['onbings/debian_stretch_builder:latest']  #[''] 
-        #BUILD_TARGET_OPTION: ['-v /home/runner/work:/__w'] 
+        #BUILD_TARGET_OPTION: ['-v /home/runner/work:/__w']  
   
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true' #to be able to execute echo ::set-env name=  The `set-env` command is disabled. Please upgrade to using Environment Files or opt into unsecure command execution by setting the `ACTIONS_ALLOW_UNSECURE_COMMANDS`
