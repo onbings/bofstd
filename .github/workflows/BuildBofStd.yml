@@ -135,4 +135,4 @@ jobs:
       if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
       with:
-        sudo: true    #false for docker true for ubuntu      
+        sudo: false    #false for docker true for ubuntu      
