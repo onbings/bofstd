@@ -33,6 +33,7 @@ set(API_FILES
 	include/bofstd/bofcallbackcollection.h
 )
 #if 0
+kfqsjkljsd
 set(BOFIO_FILES
 	include/bofstd/bofsocketserver.h
 	source/bofsocketserver.cpp
