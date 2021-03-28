@@ -117,6 +117,11 @@ jobs:
         #cmake 3.15 
         #cmake --install . --config $BUILD_TYPE --prefix $BUILD_INSTALL_DIR 
 
+    - name: Remove previous artifact
+      uses: geekyeggo/delete-artifact@v1
+      with:
+        name: ${{env.BUILD_ARTIFACT}}
+    
     - name: Upload Artifact on GitHub
       uses: actions/upload-artifact@v2
       with: 
