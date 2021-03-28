@@ -1,3 +1,4 @@
+#onbings@gmail.com (a) b.harmel@gmail.com
 #https://www.docker.com/blog/docker-github-actions/
 #https://stackoverflow.com/questions/60735334/github-continuous-integration-cmake-c
 #https://dev.to/mihinduranasinghe/using-docker-containers-in-jobs-github-actions-3eof
@@ -25,20 +26,18 @@ jobs:
         BUILD_TYPE: [Debug, Release] #[Debug] #
         BUILD_TARGET: [DESKTOP_DEBIAN64] #[DESKTOP_LINUX64]  #[DESKTOP_LINUX64, DESKTOP_DEBIAN64]
         BUILD_TARGET_IMAGE: ['onbings/debian_stretch_builder:latest']  #[''] 
-        #BUILD_TARGET_OPTION: ['-v /home/runner/work:/__w'] 
+        #BUILD_TARGET_OPTION: ['-v /home/runner/work:/__w']  
   
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true' #to be able to execute echo ::set-env name=  The `set-env` command is disabled. Please upgrade to using Environment Files or opt into unsecure command execution by setting the `ACTIONS_ALLOW_UNSECURE_COMMANDS`
       BUILD_PACKAGE_NAME: bofstd
-      BUILD_PACKAGE_VERSION: 4.2.2.bha
-      BUILD_PACKAGE_COMPILER: GNU_6.3.0 # GNU_9.3.0
       BUILD_TYPE: ${{matrix.BUILD_TYPE}}
       BUILD_BIN_DIR:  /__w/bofstd/bofstd/build/${{matrix.BUILD_TYPE}} #${{ github.workspace }}/build/${{matrix.BUILD_TYPE}} #can't do this at that level .... BUILD_BIN_DIR: $BUILD_ROOT/build/$BUILD_TYPE
 #      BUILD_BIN_DIR:  ${{ github.workspace }}/build/${{matrix.BUILD_TYPE}} #can't do this at that level .... BUILD_BIN_DIR: $BUILD_ROOT/build/$BUILD_TYPE
-      BUILD_PACKAGE_TARGET:  ${{matrix.BUILD_TARGET}}  
+      BLD_TARGET_PLATFORM:  ${{matrix.BUILD_TARGET}}  
 
     container:
-      image: ${{matrix.BUILD_TARGET_IMAGE}} #onbings/debian_stretch_builder:latest
+      image: ${{matrix.BUILD_TARGET_IMAGE}} 
   #      options: ${{matrix.BUILD_TARGET_OPTION}} #-v "/home/runner/work/googletest/googletest":"/github/workspace"
   #      credentials:
   #        username: ${{secrets.DOCKER_HUB_USERNAME}}
@@ -61,45 +60,31 @@ jobs:
  #     with:
  #       args: uname -a
         
-
-        
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
-#Not with a container      working-directory: $BUILD_BIN_DIR    #${{github.workspace}}/build//${{env.BUILD_TYPE}}
 #Native ubuntu 
 #pwd:       /home/runner/work/googletest/googletest 
 #uname -a:  Linux fv-az163-623 5.4.0-1041-azure #43-Ubuntu SMP Fri Feb 26 10:21:20 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-#        echo ::set-env name=BUILD_INSTALL_DIR::${{ env.BUILD_BIN_DIR }}/install/${{matrix.BUILD_TARGET}}/${{ env.BUILD_PACKAGE_NAME }}/${{ env.BUILD_PACKAGE_VERSION }}/${{ env.BUILD_PACKAGE_COMPILER }}
 
       run: |
         pwd 
         uname  -a
         echo ::set-env name=BUILD_INSTALL_DIR::${{ env.BUILD_BIN_DIR }}/install
-        echo ::set-env name=BUILD_UPLOAD_PATH::${{ env.BUILD_BIN_DIR }}/install
-        echo ::set-env name=BUILD_ARTIFACT::${{ matrix.BUILD_TARGET }}@${{ env.BUILD_PACKAGE_NAME }}@${{ env.BUILD_PACKAGE_VERSION }}@${{ env.BUILD_PACKAGE_COMPILER }}
         cmake -E make_directory $BUILD_BIN_DIR
-        
-    - name: Remove previous artifact
-      uses: geekyeggo/delete-artifact@v1
-      with:
-        name: ${{env.BUILD_ARTIFACT}}
-        
+      
     - name: Build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: |
-        echo "BUILD_PACKAGE_TARGET   $BUILD_PACKAGE_TARGET"
+        echo "BLD_TARGET_PLATFORM    $BLD_TARGET_PLATFORM"
         echo "BUILD_PACKAGE_NAME     $BUILD_PACKAGE_NAME"
-        echo "BUILD_PACKAGE_VERSION  $BUILD_PACKAGE_VERSION"
-        echo "BUILD_PACKAGE_COMPILER $BUILD_PACKAGE_COMPILER"
         echo "BUILD_TYPE             $BUILD_TYPE"
         echo "BUILD_BIN_DIR          $BUILD_BIN_DIR"
         echo "BUILD_INSTALL_DIR      $BUILD_INSTALL_DIR"
-        echo "BUILD_ARTIFACT         $BUILD_ARTIFACT"
         cd ${{ env.BUILD_BIN_DIR }}
-        cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.BUILD_INSTALL_DIR }} -DCMAKE_FIND_ROOT_PATH=${{ env.BUILD_INSTALL_DIR }} ../..
+        cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.BUILD_INSTALL_DIR }} -DCMAKE_FIND_ROOT_PATH=${{ env.BUILD_INSTALL_DIR }} -DBLD_TARGET_PLATFORM=${{ env.BLD_TARGET_PLATFORM }} ../..
         cmake --build . --config ${{ env.BUILD_TYPE }}        
 
     - name: Test
@@ -121,6 +106,11 @@ jobs:
       run: |
         cd $BUILD_BIN_DIR
         cmake --build . --target install --config $BUILD_TYPE #-DCMAKE_INSTALL_PREFIX=$BUILD_INSTALL_DIR made above
+        pwd
+        BLD_CMAKE_INFO=$(cat BLD_CMAKE_INFO.TXT)
+        echo "BLD_CMAKE_INFO=$BLD_CMAKE_INFO" #>> $GITHUB_ENV  
+        echo ::set-env name=BUILD_ARTIFACT::${{ matrix.BUILD_TARGET }}@${{ env.BUILD_PACKAGE_NAME }}@$BLD_CMAKE_INFO
+#Write info 3.1.0.1@GNU_6.3.0 in /__w/bofstd/bofstd/build/Debug/BLD_CMAKE_INFO.TXT file.      
         #cmake 3.15 
         #cmake --install . --config $BUILD_TYPE --prefix $BUILD_INSTALL_DIR 
     
@@ -128,11 +118,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with: 
           name: ${{env.BUILD_ARTIFACT}}
-          path: ${{env.BUILD_UPLOAD_PATH }} #${{env.BUILD_INSTALL_DIR}}
+          path: ${{env.BUILD_INSTALL_DIR }}
           if-no-files-found: error
-          
-    - name: Setup tmate session #https://github.com/mxschmitt/action-tmate
-      if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
-      with:
-        sudo: true    #false for docker true for ubuntu      
+
+#remote access to the build machine in case of failure, press q in the 'black' screen
+#    - name: Setup tmate session #https://github.com/mxschmitt/action-tmate
+#      if: ${{ failure() }}
+#      uses: mxschmitt/action-tmate@v3
+#      with:
+#        sudo: false    #false for docker true for ubuntu      
