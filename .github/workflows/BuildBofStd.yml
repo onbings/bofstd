@@ -79,6 +79,11 @@ jobs:
         echo ::set-env name=BUILD_ARTIFACT::${{ matrix.BUILD_TARGET }}@${{ env.BUILD_PACKAGE_NAME }}@${{ env.BUILD_PACKAGE_VERSION }}@${{ env.BUILD_PACKAGE_COMPILER }}
         cmake -E make_directory $BUILD_BIN_DIR
         
+    - name: Remove previous artifact
+      uses: geekyeggo/delete-artifact@v1
+      with:
+        name: ${{env.BUILD_ARTIFACT}}
+        
     - name: Build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
@@ -116,11 +121,6 @@ jobs:
         cmake --build . --target install --config $BUILD_TYPE #-DCMAKE_INSTALL_PREFIX=$BUILD_INSTALL_DIR made above
         #cmake 3.15 
         #cmake --install . --config $BUILD_TYPE --prefix $BUILD_INSTALL_DIR 
-
-    - name: Remove previous artifact
-      uses: geekyeggo/delete-artifact@v1
-      with:
-        name: ${{env.BUILD_ARTIFACT}}
     
     - name: Upload Artifact on GitHub
       uses: actions/upload-artifact@v2
