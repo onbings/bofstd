@@ -32,7 +32,7 @@ set(API_FILES
 	source/bofdaemonservice.cpp
 	include/bofstd/bofcallbackcollection.h
 )
-
+#if 0
 set(BOFIO_FILES
 	include/bofstd/bofsocketserver.h
 	source/bofsocketserver.cpp
@@ -504,7 +504,7 @@ set(GRAPH_FILES
 	include/bofstd/bof2d.h
 	source/bof2d.cpp
 )
-
+#endif
 set(THIS_PROJECT_SOURCE_FILES
 	${API_FILES}
 	${BOFIO_FILES}
@@ -613,7 +613,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 enable_testing()
 
-add_subdirectory(unittest)
+#add_subdirectory(unittest)
 
 bld_std_cxx_install_setting()
 
