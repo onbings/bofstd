@@ -12,7 +12,7 @@
 # Remarks: 
 # None
 # 
-# History:		05 June 2014: Initial version
+# History:		05 June 2014: Initial version 
 #               06 March 2021 remove dependency on third party and cmake helpers
 
 cmake_minimum_required(VERSION 3.0.2)
