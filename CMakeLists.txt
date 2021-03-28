@@ -32,7 +32,7 @@ set(API_FILES
 	source/bofdaemonservice.cpp
 	include/bofstd/bofcallbackcollection.h
 )
-#if 0
+if (0)
 kfqsjkljsd
 set(BOFIO_FILES
 	include/bofstd/bofsocketserver.h
@@ -505,7 +505,8 @@ set(GRAPH_FILES
 	include/bofstd/bof2d.h
 	source/bof2d.cpp
 )
-#endif
+endif()
+
 set(THIS_PROJECT_SOURCE_FILES
 	${API_FILES}
 	${BOFIO_FILES}
