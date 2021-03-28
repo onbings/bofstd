@@ -32,7 +32,9 @@ set(API_FILES
 	source/bofdaemonservice.cpp
 	include/bofstd/bofcallbackcollection.h
 )
-if (0)
+if(variable)
+    # If variable is `ON`, `YES`, `TRUE`, `Y`, or non zero number
+else()
 kfqsjkljsd
 set(BOFIO_FILES
 	include/bofstd/bofsocketserver.h
