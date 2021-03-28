@@ -18,7 +18,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 #Launch from a Visual Studio x64 Command Prompt Console or a unix console
 #cmake -DCMAKE_INSTALL_PREFIX=D:/repo //For cross compile -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_windows.cmake .. 
-include("./cmake/bld_toolbox.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/bld_toolbox.cmake")
 
 project(bofstd VERSION 3.1.0)
 
