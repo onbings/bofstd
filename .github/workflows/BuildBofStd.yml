@@ -30,8 +30,8 @@ jobs:
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true' #to be able to execute echo ::set-env name=  The `set-env` command is disabled. Please upgrade to using Environment Files or opt into unsecure command execution by setting the `ACTIONS_ALLOW_UNSECURE_COMMANDS`
       BUILD_PACKAGE_NAME: bofstd
-      BUILD_PACKAGE_VERSION: 4.2.2.bha
-      BUILD_PACKAGE_COMPILER: GNU_6.3.0 # GNU_9.3.0
+#      BUILD_PACKAGE_VERSION: 4.2.2.bha
+#      BUILD_PACKAGE_COMPILER: GNU_6.3.0 # GNU_9.3.0
       BUILD_TYPE: ${{matrix.BUILD_TYPE}}
       BUILD_BIN_DIR:  /__w/bofstd/bofstd/build/${{matrix.BUILD_TYPE}} #${{ github.workspace }}/build/${{matrix.BUILD_TYPE}} #can't do this at that level .... BUILD_BIN_DIR: $BUILD_ROOT/build/$BUILD_TYPE
 #      BUILD_BIN_DIR:  ${{ github.workspace }}/build/${{matrix.BUILD_TYPE}} #can't do this at that level .... BUILD_BIN_DIR: $BUILD_ROOT/build/$BUILD_TYPE
@@ -77,27 +77,17 @@ jobs:
         pwd 
         uname  -a
         echo ::set-env name=BUILD_INSTALL_DIR::${{ env.BUILD_BIN_DIR }}/install
-        echo ::set-env name=BUILD_UPLOAD_PATH::${{ env.BUILD_BIN_DIR }}/install
-        echo ::set-env name=BUILD_ARTIFACT::${{ matrix.BUILD_TARGET }}@${{ env.BUILD_PACKAGE_NAME }}@${{ env.BUILD_PACKAGE_VERSION }}@${{ env.BUILD_PACKAGE_COMPILER }}
         cmake -E make_directory $BUILD_BIN_DIR
-        
-    - name: Remove previous artifact
-      uses: geekyeggo/delete-artifact@v1
-      with:
-        name: ${{env.BUILD_ARTIFACT}}
-        
+      
     - name: Build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: |
         echo "BUILD_PACKAGE_TARGET   $BUILD_PACKAGE_TARGET"
         echo "BUILD_PACKAGE_NAME     $BUILD_PACKAGE_NAME"
-        echo "BUILD_PACKAGE_VERSION  $BUILD_PACKAGE_VERSION"
-        echo "BUILD_PACKAGE_COMPILER $BUILD_PACKAGE_COMPILER"
         echo "BUILD_TYPE             $BUILD_TYPE"
         echo "BUILD_BIN_DIR          $BUILD_BIN_DIR"
         echo "BUILD_INSTALL_DIR      $BUILD_INSTALL_DIR"
-        echo "BUILD_ARTIFACT         $BUILD_ARTIFACT"
         cd ${{ env.BUILD_BIN_DIR }}
         cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ env.BUILD_INSTALL_DIR }} -DCMAKE_FIND_ROOT_PATH=${{ env.BUILD_INSTALL_DIR }} ../..
         cmake --build . --config ${{ env.BUILD_TYPE }}        
@@ -121,14 +111,20 @@ jobs:
       run: |
         cd $BUILD_BIN_DIR
         cmake --build . --target install --config $BUILD_TYPE #-DCMAKE_INSTALL_PREFIX=$BUILD_INSTALL_DIR made above
+        pwd
+        BLD_CMAKE_INFO=$(cat BLD_CMAKE_INFO.TXT)
+        echo "BLD_CMAKE_INFO=$BLD_CMAKE_INFO" #>> $GITHUB_ENV  
+        echo ::set-env name=BUILD_ARTIFACT::${{ matrix.BUILD_TARGET }}@${{ env.BUILD_PACKAGE_NAME }}@$BLD_CMAKE_INFO
+#Write info 3.1.0.1@GNU_6.3.0 in /__w/bofstd/bofstd/build/Debug/BLD_CMAKE_INFO.TXT file.      
         #cmake 3.15 
         #cmake --install . --config $BUILD_TYPE --prefix $BUILD_INSTALL_DIR 
+
     
     - name: Upload Artifact on GitHub
       uses: actions/upload-artifact@v2
       with: 
           name: ${{env.BUILD_ARTIFACT}}
-          path: ${{env.BUILD_UPLOAD_PATH }} #${{env.BUILD_INSTALL_DIR}}
+          path: ${{env.BUILD_INSTALL_DIR }}
           if-no-files-found: error
           
     - name: Setup tmate session #https://github.com/mxschmitt/action-tmate
