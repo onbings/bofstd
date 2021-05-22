@@ -844,7 +844,7 @@ TEST(Fs_Test, FileLayout)
 				Sts_E = Bof_RenameFile(File, NewFile);
 				EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-				Sts_E = Bof_CopyFile(NewFile,File);
+				Sts_E = Bof_CopyFile(true, NewFile,File);
 				EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 				Size2_U64 = Bof_GetFileSize(NewFile);

@@ -936,21 +936,33 @@ BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath)
 	return Rts_E;
 }
 
+bool Bof_IsFileExist(const BofPath &_rPath)
+{
+	return _rPath.IsExist();
+	//ifstream infile(fileName);
+	//return infile.good();
+}
 
-BOFERR Bof_CopyFile(const BofPath &_rSrcPath, const BofPath &_rDstPath)
+BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const BofPath &_rDstPath)
 {
 	BOFERR Rts_E = BOF_ERR_ENOENT;
+	bool CreateOut_B;
 
 	std::ifstream Ifs(_rSrcPath.FullPathName(false).c_str());
 	// ios::trunc means that the output file will be overwritten if exists
 	if (Ifs)
 	{
-		Rts_E = BOF_ERR_CREATE;
-		std::ofstream Ofs(_rDstPath.FullPathName(false).c_str(), std::ios::trunc);
-		if (Ofs)
+		Rts_E = BOF_ERR_EXIST;
+		CreateOut_B = _OverwriteIfExists_B ? true:Bof_IsFileExist(_rSrcPath);
+		if (CreateOut_B)
 		{
-			Ofs << Ifs.rdbuf();
-			Rts_E = BOF_ERR_NO_ERROR;
+			Rts_E = BOF_ERR_CREATE;
+			std::ofstream Ofs(_rDstPath.FullPathName(false).c_str(), std::ios::trunc);
+			if (Ofs)
+			{
+				Ofs << Ifs.rdbuf();
+				Rts_E = BOF_ERR_NO_ERROR;
+			}
 		}
 	}
 	return Rts_E;

@@ -236,7 +236,9 @@ BOFERR Bof_DeleteFile(const BofPath &_rPath);
 
 BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath);
 
-BOFERR Bof_CopyFile(const BofPath &_rSrcPath, const BofPath &_rDstPath);
+bool Bof_IsFileExist(const BofPath &_rPath);
+
+BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const BofPath &_rDstPath);
 
 BOFERR Bof_ResetFileContent(const BofPath &_rPath, bool _ReOpenMode_B, int64_t _Offset_S64);
 // bool Bof_IsFileOpened(const char *_pName_c);

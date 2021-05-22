@@ -275,6 +275,9 @@ BEGIN_BOF_NAMESPACE()
       _pOptVal_c = "0"; //0 is good for bool and integral type bus is it good for string (side effect) ? //(_rBofParameter_X.ArgType_E==BOFPARAMETER_ARG_TYPE::BOOL)
       ShortOpt_B = true;
     }
+		pIpAddress_c = pAllTheIpAddress_c;
+		Len_i=0;
+		LenMax_i=0;
     if ((_pOptVal_c) && ((Len_i = static_cast<int>(strlen(_pOptVal_c))) < static_cast<int>(sizeof(pAllTheOptVal_c))))
     {
       pTheOptVal_c = _pOptVal_c;
