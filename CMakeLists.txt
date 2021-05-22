@@ -18,11 +18,11 @@
 cmake_minimum_required(VERSION 3.0.2)
 #Launch from a Visual Studio x64 Command Prompt Console or a unix console
 #cmake -DCMAKE_INSTALL_PREFIX=D:/repo //For cross compile -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_windows.cmake .. 
-include("./cmake/bld_toolbox.cmake")
+include("../cmake/bld_toolbox.cmake")
 
 project(bofstd VERSION 3.1.0)
 
-bld_cxx_init()
+bld_cxx_init(DESKTOP_DEBIAN)
 
 set(API_FILES
 	include/bofstd/boferr.h
@@ -599,11 +599,11 @@ target_include_directories(
 
 	#Header path used when installed
 	$<INSTALL_INTERFACE:include>
-	$<INSTALL_INTERFACE:include/fmt>  
-	$<INSTALL_INTERFACE:include/spdlog>  
-	$<INSTALL_INTERFACE:include/jsoncpp>  
-	$<INSTALL_INTERFACE:include/async>
-	$<INSTALL_INTERFACE:include/libyuv>
+#	$<INSTALL_INTERFACE:include/fmt>
+#	$<INSTALL_INTERFACE:include/spdlog>
+#	$<INSTALL_INTERFACE:include/jsoncpp>
+#	$<INSTALL_INTERFACE:include/asyncmulticastdelegate>
+#	$<INSTALL_INTERFACE:include/libyuv>
 )
 
 #target_link_libraries of a lib will be added when linking app to this lib
@@ -613,15 +613,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 enable_testing()
 
-#add_subdirectory(unittest)
+add_subdirectory(unittest)
 
 bld_std_cxx_install_setting()
 
 install (DIRECTORY "./include/."													DESTINATION include					FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include/.			DESTINATION include/fmt				FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
+install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include/fmt/.		DESTINATION include/fmt		 		FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog-1.3.1/include/.			DESTINATION include/spdlog			FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/jsoncpp-1.8.0/include/json/.	DESTINATION include/jsoncpp/json	FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include/asyncmulticastdelegate/.	DESTINATION include/async/asyncmulticastdelegate			FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
+install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include/asyncmulticastdelegate/.	DESTINATION include/asyncmulticastdelegate			FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/libyuv/include/.	DESTINATION include/libyuv			FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
 
 set_target_properties(${PROJECT_NAME}  PROPERTIES FOLDER Lib)

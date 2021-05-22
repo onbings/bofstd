@@ -17,11 +17,11 @@
 cmake_minimum_required(VERSION 3.0.2)
 #Launch from a Visual Studio x64 Command Prompt Console or a unix console
 #cmake -DCMAKE_INSTALL_PREFIX=D:/repo //For cross compile -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_windows.cmake ..
-include("../cmake/bld_toolbox.cmake")
+include("../../cmake/bld_toolbox.cmake")
 
 project(ut_bofstd VERSION 2.2.6)
 
-bld_cxx_init()
+bld_cxx_init(DESKTOP_DEBIAN)
 
 set(API_FILES
 	include/gtestrunner.h
@@ -125,7 +125,7 @@ source_group("StateMachine"       FILES ${STATEMACHINE_FILES})
 add_executable(${PROJECT_NAME}  ${THIS_PROJECT_SOURCE_FILES})
 add_test(NAME ${PROJECT_NAME} COMMAND $<TARGET_FILE_NAME:${PROJECT_NAME}> --gtest_output=xml:${CMAKE_BINARY_DIR}/GTestResult/$<CONFIG>/${PROJECT_NAME}.xml ${ARGV1} 
              WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}> ) 
-bld_find_package("GTest" "1.8.0" "5dadbab")
+bld_find_package("googletest" "1.8.0.5dadbab" 1)
 
 bld_std_cxx_compile_link_setting()
 
@@ -146,7 +146,8 @@ target_include_directories(
 
 target_link_libraries(
   ${PROJECT_NAME} 
-  GTest::gtest
+#  GTest::gtest
+  gtest
   bofstd
   ${BLD_STANDARD_LINK_LIBRARIES}
 )

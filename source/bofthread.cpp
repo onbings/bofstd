@@ -579,6 +579,7 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
     do
     {
       Rts_E = BOF_ERR_PARSER;
+			ConsiderVirtualCore_B = false;
 
       pColon_c      = strchr(_pThreadParameter_c, ':');
       OptionLen_U32 = pColon_c ? static_cast<uint32_t>(pColon_c - _pThreadParameter_c) : static_cast<uint32_t>(strlen(_pThreadParameter_c));
@@ -604,7 +605,6 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
             break;
 
           case 'C':
-            ConsiderVirtualCore_B = false;
 //            Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParam_X.NbActiveCore_U32 / 2, CoreAffinity_U64);
             Rts_E = S_AffinityMaskFromString(pOption_c, 0xFFFFFFFF, CoreAffinity_U64);
             break;
@@ -685,7 +685,7 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
               }
               else
               {
-                Core_U32 = Core_U32 + i_U32;
+                Core_U32 = i_U32;
               }
               CoreAffinity_U64 = (uint64_t) 1 << Core_U32;
             }
