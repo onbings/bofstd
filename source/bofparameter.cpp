@@ -31,7 +31,9 @@
 #include <inttypes.h>
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofpath.h>
-//#include <bofstd/bofflag.h>
+#include <bofstd/bofvideostandard.h>
+#include <bofstd/boftimecode.h>
+#include <bofstd/bof2d.h>
 
 #if defined (_WIN32)
 //#include <ws2tcpip.h>                                                                               // for sockaddrin_6
@@ -259,12 +261,16 @@ BEGIN_BOF_NAMESPACE()
     struct in6_addr    IpV6_X;
     BofGuid            Guid;
     BofPath            Path;
+    BofVideoStandard	 VideoStandard;
+		BofTimecode			   TimeCode;
     BOF_SOCKET_ADDRESS *pIpV6_X;
     BOF_SOCKET_ADDRESS *pIpV4_X;
     int                Len_i, LenMin_i, LenMax_i;
     bool               InsertInStdVector_B = false, ShortOpt_B, LastArrayArg_B;
     void               *pValue;
     BOF_SOCKET_ADDRESS Ip_X;
+		BOF_SIZE					 Size_X;
+		int Width_i,Height_i;
 
     // std::get_time not present in gcc 4.9
     std::tm Tm_X;
@@ -539,6 +545,31 @@ BEGIN_BOF_NAMESPACE()
                 }
               }
               break;
+
+						case BOFPARAMETER_ARG_TYPE::TC:
+							TimeCode      = BofTimecode(pTheOptVal_c);
+							if (TimeCode.IsTimecodeValid())
+							{
+								Rts_E = BOF_ERR_NO_ERROR;
+							}
+							break;
+
+						case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
+							VideoStandard      = BofVideoStandard(pTheOptVal_c);
+							if (VideoStandard.Valid())
+							{
+								Rts_E = BOF_ERR_NO_ERROR;
+							}
+							break;
+
+						case BOFPARAMETER_ARG_TYPE::SIZE2D:
+							if (sscanf(pTheOptVal_c,"%dx%d",&Width_i,&Height_i)==2)
+							{
+								Size_X.Width_U32=static_cast<uint32_t>(Width_i);
+								Size_X.Height_U32=static_cast<uint32_t>(Height_i);
+								Rts_E = BOF_ERR_NO_ERROR;
+							}
+							break;
 
             default:
               Rts_E     = BOF_ERR_INTERNAL;
@@ -874,6 +905,7 @@ BEGIN_BOF_NAMESPACE()
                     *static_cast<BofGuid *> (pValue) = Guid;
                   }
                   break;
+
                 case BOFPARAMETER_ARG_TYPE::PATH:
                   if (InsertInStdVector_B)
                   {
@@ -887,7 +919,45 @@ BEGIN_BOF_NAMESPACE()
                   }
                   break;
 
-                default:
+								case BOFPARAMETER_ARG_TYPE::TC:
+									if (InsertInStdVector_B)
+									{
+										std::vector<BofTimecode> *pVectorTimeCode;
+										pVectorTimeCode = reinterpret_cast<std::vector<BofTimecode> *>(pValue);
+										pVectorTimeCode->push_back(TimeCode);
+									}
+									else
+									{
+										*static_cast<BofTimecode *> (pValue) = TimeCode;
+									}
+									break;
+
+								case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
+									if (InsertInStdVector_B)
+									{
+										std::vector<BofVideoStandard> *pVectorVideoStandard;
+										pVectorVideoStandard = reinterpret_cast<std::vector<BofVideoStandard> *>(pValue);
+										pVectorVideoStandard->push_back(VideoStandard);
+									}
+									else
+									{
+										*static_cast<BofVideoStandard *> (pValue) = VideoStandard;
+									}
+									break;
+
+								case BOFPARAMETER_ARG_TYPE::SIZE2D:
+									if (InsertInStdVector_B)
+									{
+										std::vector<BOF_SIZE> *pVectorSize;
+										pVectorSize = reinterpret_cast<std::vector<BOF_SIZE> *>(pValue);
+										pVectorSize->push_back(Size_X);
+									}
+									else
+									{
+										*static_cast<BOF_SIZE *> (pValue) = Size_X;
+									}
+									break;
+								default:
                   Rts_E = BOF_ERR_INTERNAL;
                   break;
               } // switch (_rBofParameter_X.ArgType_E)
@@ -1066,7 +1136,24 @@ BEGIN_BOF_NAMESPACE()
       {
         return "PATH";
       }
-      default:
+			case BOFPARAMETER_ARG_TYPE::TC:
+			{
+				return "TIMECODE";
+			}
+				break;
+
+			case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
+			{
+				return "VIDEOSTANDARD";
+			}
+
+			case BOFPARAMETER_ARG_TYPE::SIZE2D:
+			{
+				return "SIZE2D";
+			}
+
+				break;
+			default:
         return "???";
 
     }
@@ -1772,6 +1859,62 @@ DateTimeToString:
             }
           }
             break;
+
+					case BOFPARAMETER_ARG_TYPE::TC:
+					{
+						BofTimecode TimeCode;
+						if (GetFromStdVector_B)
+						{
+							std::vector<BofTimecode> *pVectorTimeCode;
+							pVectorTimeCode          = reinterpret_cast<std::vector<BofTimecode> *>(pValue);
+							_rVectorCapacity_U32 = static_cast<uint32_t>(pVectorTimeCode->size());
+							if (_Index_U32 < _rVectorCapacity_U32)
+							{
+								TimeCode = pVectorTimeCode->operator[](_Index_U32);
+							}
+							else
+							{
+								pRts_c = nullptr;
+							}
+						}
+						else
+						{
+							TimeCode = *static_cast<BofTimecode *> (pValue);
+						}
+						if (pRts_c)
+						{
+							snprintf(_pToString_c, _MaxSize_U32, "%s", TimeCode.ToString((pFormat_c[0] != 0) ? false : true).c_str());
+						}
+					}
+						break;
+
+					case BOFPARAMETER_ARG_TYPE::SIZE2D:
+					{
+						BOF_SIZE Size_X;
+						if (GetFromStdVector_B)
+						{
+							std::vector<BOF_SIZE> *pVectorSize;
+							pVectorSize          = reinterpret_cast<std::vector<BOF_SIZE> *>(pValue);
+							_rVectorCapacity_U32 = static_cast<uint32_t>(pVectorSize->size());
+							if (_Index_U32 < _rVectorCapacity_U32)
+							{
+								Size_X = pVectorSize->operator[](_Index_U32);
+							}
+							else
+							{
+								pRts_c = nullptr;
+							}
+						}
+						else
+						{
+							Size_X = *static_cast<BOF_SIZE *> (pValue);
+						}
+						if (pRts_c)
+						{
+							snprintf(_pToString_c, _MaxSize_U32, "%dx%d", Size_X.Width_U32,Size_X.Height_U32);
+						}
+					}
+					case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
 
           default:
           {

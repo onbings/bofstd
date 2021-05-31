@@ -122,7 +122,7 @@ public:
   {
     return (mIndex_i >= 0) ? S_mpTable_X[mIndex_i].Id_U32 : 0;
   }
-  inline const char* IdText() const
+  inline const char* IdTxt() const
   {
     return (mIndex_i >= 0) ? S_mpTable_X[mIndex_i].pIdText_c : 0;
   }

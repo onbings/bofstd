@@ -90,7 +90,8 @@ TEST(Timecode_Test, Construct)
   TcInMs_U64=Tc1.ToMs();
   EXPECT_EQ(TcInMs_U64, 0);
   Tc1.FromMs(Tc1.IsNtsc(), TcInMs_U64);
-  EXPECT_STREQ(Tc1.ToString(true, "%Y-%b-%d",true,"%H:%M:%S", true).c_str(), "1970-Jan-01 00:00:00:00  Pal");
+	EXPECT_STREQ(Tc1.ToString(true, "%Y-%b-%d",true,"%H:%M:%S", true).c_str(), "1970-Jan-01 00:00:00:00  @1000/25");
+	EXPECT_STREQ(Tc1.ToString(true, "",true,"", true).c_str(), "1970-01-01 00:00:00:00  @1000/25");
 
   TcInMs_U64 = (static_cast<uint64_t>(367) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(1 * 60 * 60 * 1000) + static_cast<uint64_t>(2 * 60 * 1000) + static_cast<uint64_t>(3 * 1000) + static_cast<uint64_t>(16.6667f * 9);
   BofTimecode Tc2(true, TcInMs_U64);
@@ -106,7 +107,8 @@ TEST(Timecode_Test, Construct)
   }
   EXPECT_LE(DifMs_S64, 2);
   Tc2.FromMs(Tc2.IsNtsc(), TcValInMs_U64);
-  EXPECT_STREQ(Tc2.ToString(true, "%Y-%b-%d", true, "%H:%M:%S", true).c_str(), "1971-Jan-03 01:02:03:04. Ntsc");
+	EXPECT_STREQ(Tc2.ToString(true, "%Y-%b-%d", true, "%H:%M:%S", true).c_str(), "1971-Jan-03 01:02:03:04. @1000/30");
+	EXPECT_STREQ(Tc2.ToString(true, "", true, "", true).c_str(), "1971-01-03 01:02:03:04. @1000/30");
 
   BofTimecode Tc3(false, DateTime_X);
   EXPECT_FALSE(Tc3.IsNtsc());
@@ -117,7 +119,14 @@ TEST(Timecode_Test, Construct)
   TcValInMs_U64 = (static_cast<uint64_t>(17677) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(8 * 60 * 60 * 1000) + static_cast<uint64_t>(16 * 60 * 1000) + static_cast<uint64_t>(32 * 1000) + static_cast<uint64_t>(40);
   EXPECT_EQ(TcInMs_U64, TcValInMs_U64);
   Tc3.FromMs(Tc3.IsNtsc(), TcValInMs_U64);
-  EXPECT_STREQ(Tc3.ToString(true, "%Y-%b-%d", true, "%H:%M:%S", true).c_str(), "2018-May-26 08:16:32:01  Pal");
+	EXPECT_STREQ(Tc3.ToString(true, "%Y-%b-%d", true, "%H:%M:%S", true).c_str(), "2018-May-26 08:16:32:01  @1000/25");
+	EXPECT_STREQ(Tc3.ToString(true, "", true, "", true).c_str(), "2018-05-26 08:16:32:01  @1000/25");
+
+	Tc1=BofTimecode("2018-05-26 08:16:32;01. @1000/30");
+	EXPECT_TRUE(Tc1.IsNtsc());
+	EXPECT_TRUE(Tc1.IsOddField());
+	EXPECT_EQ(Tc1.FrameTime(), 1000.0f / 30.0f);
+
 }
 TEST(Timecode_Test, Operator)
 {

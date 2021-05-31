@@ -99,6 +99,7 @@ public:
 		BofTimecode(bool _Ntsc_B, uint64_t _Ms_U64);
 		BofTimecode(const BOF_TIMECODE &_rBofTimeCodeStruct_X);
 		BofTimecode(bool _Ntsc_B, const BOF_DATE_TIME &_rDateTime_X);
+	  BofTimecode(const char *_pTc_c);
 		bool IsNextTimecodeDrop() const;
   	bool IsTimecodeValid() const;
 	  bool IsNtsc() const;

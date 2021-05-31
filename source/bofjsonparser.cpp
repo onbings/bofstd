@@ -29,12 +29,89 @@
 
 BEGIN_BOF_NAMESPACE()
 
-/*** Global variables ********************************************************/
+#if 0
+		const char *p,*q;
+			Json::Value a,b,c;
+			a=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"];
+			b=mRoot_O["MmgwSetting"]["Board"][0]["InHr"];
+			c=mRoot_O["MmgwSetting"]["Board"];
 
-/*** Definitions *************************************************************/
 
-/*** Class *******************************************************************/
+			p=c[0]["InHr"][0]["AudioIpAddress"][0].asCString();
+			q=c[0]["InHr"][0]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=c[0]["InHr"][1]["AudioIpAddress"][0].asCString();
+			q=c[0]["InHr"][1]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=c[0]["InHr"][2]["AudioIpAddress"][0].asCString();
+			q=c[0]["InHr"][2]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=c[1]["InHr"][0]["AudioIpAddress"][0].asCString();
+			q=c[1]["InHr"][0]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=c[1]["InHr"][1]["AudioIpAddress"][0].asCString();
+			q=c[1]["InHr"][1]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=c[1]["InHr"][2]["AudioIpAddress"][0].asCString();
+			q=c[1]["InHr"][2]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
 
+
+			p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][0].asCString();
+			q=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][1]["AudioIpAddress"][0].asCString();
+			q=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][1]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][2]["AudioIpAddress"][0].asCString();
+			q=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][2]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+
+			p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][0]["AudioIpAddress"][0].asCString();
+			q=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][0]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][1]["AudioIpAddress"][0].asCString();
+			q=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][1]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+			p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][2]["AudioIpAddress"][0].asCString();
+			q=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][2]["AudioIpAddress"][1].asCString();
+			printf("%s/%s\n",p,q);
+
+			p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["VideoStandard"].asCString();
+			printf("%s\n",p);
+			p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][1]["VideoStandard"].asCString();
+			printf("%s\n",p);
+			p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][2]["VideoStandard"].asCString();
+			printf("%s\n",p);
+
+			p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][0]["VideoStandard"].asCString();
+			printf("%s\n",p);
+			p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][1]["VideoStandard"].asCString();
+			printf("%s\n",p);
+			p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][2]["VideoStandard"].asCString();
+			printf("%s\n",p);
+#endif
+
+
+struct JSON_OID_TAG
+{
+	uint32_t CrtArrayIndex_U32;
+	uint32_t ArraySize_U32;
+	uint32_t ArrayMaxSize_U32;
+	uint32_t ElemSize_U32;
+	std::string SubOid_S;
+	std::string ArrayElem_S;
+	JSON_OID_TAG()	{	}
+	JSON_OID_TAG(const std::string &_rSubOid_S, const std::string &_rArrayElem_S)
+	{
+		ArraySize_U32=0;	//Init in GetFirstElementFromOid and in GetNExtArray
+		ArrayMaxSize_U32=0;	//Init in ToByte
+		SubOid_S=_rSubOid_S;
+		CrtArrayIndex_U32=0;
+		ElemSize_U32=0;	//Init in ToByte
+		ArrayElem_S=_rArrayElem_S;	//If this is "" it is a raw array else [n].ArrayElem_S
+	}
+};
 // Opaque pointer design pattern: defined privately here all private data and functions: all of these can now change without recompiling callers ...
 class BofJsonParser::JsonParserImplementation
 {
@@ -43,11 +120,13 @@ public:
 		bool mJsonFileOk_B;
 		std::string mLastError_S;
 		char *mpJsonBuffer_c;
-		Json::Value mLastParentJsonValue_O;
+		Json::Value mLastJsonArray_O;
 		Json::Value mLastJsonValue_O;
-		uint32_t mCrtJsonIndex_U32;
-		char mpTag_c[1024];
-		std::vector<std::string> mSubTagList;
+  	std::string mJsonArrayElem_S;
+		uint32_t mCrtJsonArrayTagIndex_U32;
+		uint32_t mFirstJsonArrayTagIndex_U32;
+		uint32_t mSecondJsonArrayTagIndex_U32;
+		std::vector<JSON_OID_TAG> mJsonOidTagCollection;
 
 		JsonParserImplementation(const std::string &_rJsonInput_S)
 		{
@@ -65,8 +144,6 @@ public:
 			int BufferLength_i = static_cast<int>(_rJsonInput_S.size() + 1);
 
 			mpJsonBuffer_c = nullptr;
-			mCrtJsonIndex_U32 = 0;
-
 			mpJsonBuffer_c = new char[BufferLength_i];
 
 			if (mpJsonBuffer_c)
@@ -89,7 +166,8 @@ public:
 		BOFERR ToByte(const std::vector<BOFPARAMETER> &_rJsonSchema_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFJSONPARSER_ERROR_CALLBACK _ErrorCallback_O)
 		{
 			BOFERR Rts_E = BOF_ERR_INVALID_STATE;
-			uint32_t i_U32, Index_U32;
+			uint32_t i_U32, j_U32, k_U32, Index_U32, ArrayIndex_U32;
+			uint8_t *pArrayBaseAddress_U8;
 			char pOid_c[1024];
 			bool Finish_B;
 			const char *pJsonValue_c;
@@ -99,48 +177,202 @@ public:
 			{
 				for (i_U32 = 0; i_U32 < _rJsonSchema_X.size(); i_U32++)
 				{
-					Index_U32 = 0;
+					JsonParam_X = _rJsonSchema_X[i_U32];
+					JsonParam_X.ArgFlag_E |= BOFPARAMETER_ARG_FLAG::COMA_IS_NOT_A_SEPARATOR;
+
 					snprintf(pOid_c, sizeof(pOid_c), "%s.%s", _rJsonSchema_X[i_U32].Path_S.c_str(), _rJsonSchema_X[i_U32].Name_S.c_str());
 					pJsonValue_c = GetFirstElementFromOid(pOid_c);
-					Finish_B = false;
-					Rts_E = BOF_ERR_NO_ERROR;
-					while ((!Finish_B) && (pJsonValue_c) && (Rts_E == BOF_ERR_NO_ERROR))
+					ArrayIndex_U32 = 1;	//0 is nbmaxmultiarrayentry in BOF_PARAM_DEF_MULTI_ARRAY
+					for (j_U32 = 0; j_U32 < mJsonOidTagCollection.size(); j_U32++)
 					{
-						Finish_B = true;
-						JsonParam_X = _rJsonSchema_X[i_U32];
-						JsonParam_X.ArgFlag_E |= BOFPARAMETER_ARG_FLAG::COMA_IS_NOT_A_SEPARATOR;
-						Rts_E = BofParameter::S_Parse(Index_U32, JsonParam_X, pJsonValue_c, _ParseCallback_O);
-
-						if (Rts_E != BOF_ERR_NO_ERROR)
+						if (mJsonOidTagCollection[j_U32].ArraySize_U32)
 						{
-							if (_ErrorCallback_O != nullptr)
+							if (mJsonOidTagCollection[j_U32].ArraySize_U32 > JsonParam_X.ArrayCapacity_U32)
 							{
-								_ErrorCallback_O(Rts_E, _rJsonSchema_X[i_U32], pJsonValue_c);
+								mJsonOidTagCollection[j_U32].ArraySize_U32 = JsonParam_X.ArrayCapacity_U32;
 							}
-						}
-						else
-						{
-							if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32) // NbEntry is 0 for non array descriptor
-							{
-								pJsonValue_c = GetNextElementFromOid();
+							mJsonOidTagCollection[j_U32].ArrayMaxSize_U32 = JsonParam_X.ArrayCapacity_U32;
 
-								if (pJsonValue_c)
-								{
-									Index_U32++;
-									Finish_B = false;
-								}
+							if (j_U32 == static_cast<uint32_t>(mJsonOidTagCollection.size() - 1))
+							{
+								mJsonOidTagCollection[j_U32].ElemSize_U32 = JsonParam_X.ArrayElementSize_U32;
 							}
 							else
 							{
-								Rts_E = BOF_ERR_NO_ERROR;                               // End of array
+								if (ArrayIndex_U32 < 3)	//BOF_NB_ELEM_IN_ARRAY(JsonParam_X.pExtraParam_U32))
+								{
+									mJsonOidTagCollection[j_U32].ElemSize_U32 = JsonParam_X.pExtraParam_U32[ArrayIndex_U32++];
+								}
 							}
 						}
-					}                                                            // while
-					if (Rts_E != BOF_ERR_NO_ERROR)
+					} //for (j_U32 = 0; j_U32 < mJsonOidTagCollection.size(); j_U32++)
+
+/*
+ * At this point you should have:
+ * mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>}
+ [0] = {onbings::bof::JSON_OID_TAG}
+  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+  ArraySize_U32 = {uint32_t} 0 [0x0]
+  ElemSize_U32 = {uint32_t} 0 [0x0]
+  SubOid_S = {std::__cxx11::string} "MmgwSetting"
+  ArrayElem_S = {std::__cxx11::string} ""
+ [1] = {onbings::bof::JSON_OID_TAG}
+  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+  ArraySize_U32 = {uint32_t} 2 [0x2]
+  ElemSize_U32 = {uint32_t} 13116 [0x333c]
+  SubOid_S = {std::__cxx11::string} "Board"
+  ArrayElem_S = {std::__cxx11::string} ""
+ [2] = {onbings::bof::JSON_OID_TAG}
+  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+  ArraySize_U32 = {uint32_t} 3 [0x3]
+  ElemSize_U32 = {uint32_t} 1076 [0x434]
+  SubOid_S = {std::__cxx11::string} "InHr"
+  ArrayElem_S = {std::__cxx11::string} "VideoStandard"
+
+mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>}
+ [0] = {onbings::bof::JSON_OID_TAG}
+  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+  ArraySize_U32 = {uint32_t} 0 [0x0]
+  ElemSize_U32 = {uint32_t} 0 [0x0]
+  SubOid_S = {std::__cxx11::string} "MmgwSetting"
+  ArrayElem_S = {std::__cxx11::string} ""
+ [1] = {onbings::bof::JSON_OID_TAG}
+  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+  ArraySize_U32 = {uint32_t} 2 [0x2]
+  ElemSize_U32 = {uint32_t} 13116 [0x333c]
+  SubOid_S = {std::__cxx11::string} "Board"
+  ArrayElem_S = {std::__cxx11::string} ""
+ [2] = {onbings::bof::JSON_OID_TAG}
+  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+  ArraySize_U32 = {uint32_t} 3 [0x3]
+  ElemSize_U32 = {uint32_t} 1076 [0x434]
+  SubOid_S = {std::__cxx11::string} "InHr"
+  ArrayElem_S = {std::__cxx11::string} ""
+ [3] = {onbings::bof::JSON_OID_TAG}
+  CrtArrayIndex_U32 = {uint32_t} 1 [0x1]
+  ArraySize_U32 = {uint32_t} 2 [0x2]
+  ElemSize_U32 = {uint32_t} 56 [0x38]
+  SubOid_S = {std::__cxx11::string} "AudioIpAddress"
+  ArrayElem_S = {std::__cxx11::string} ""
+ */
+
+//Compatibility with non BOF_PARAM_DEF_MULTI_ARRAY type
+					if (JsonParam_X.ArrayCapacity_U32 == 0)
 					{
-						break;
+						JsonParam_X.ArrayCapacity_U32 = 1;
 					}
-				}                                                              // for
+					if (JsonParam_X.pExtraParam_U32[0] == 0)
+					{
+						JsonParam_X.pExtraParam_U32[0] = 1;
+					}
+					//printf("GetFirstElementFromOid %s='%s' base %p elemsz %d\n", pOid_c, pJsonValue_c, JsonParam_X.pValue, mJsonOidTagCollection[(mFirstJsonArrayTagIndex_U32 == 0xFFFFFFFF) ? 0 : mFirstJsonArrayTagIndex_U32].ElemSize_U32);
+
+					for (k_U32=0;k_U32 < JsonParam_X.pExtraParam_U32[0];k_U32++)
+					{
+						Index_U32 = 0;
+						for (j_U32 = 0; j_U32 < JsonParam_X.ArrayCapacity_U32; j_U32++)
+						{
+							Finish_B = false;
+							Rts_E = BOF_ERR_NO_ERROR;
+
+							while ((!Finish_B) && (pJsonValue_c) && (Rts_E == BOF_ERR_NO_ERROR))
+							{
+								Finish_B = true;
+								//printf("Parse %s base at %p j %d sz %d Index_U32 %d\n", pJsonValue_c, JsonParam_X.pValue, j_U32, JsonParam_X.ArrayElementSize_U32, Index_U32);
+								Rts_E = BofParameter::S_Parse(Index_U32, JsonParam_X, pJsonValue_c, _ParseCallback_O);
+
+								if (Rts_E != BOF_ERR_NO_ERROR)
+								{
+									if (_ErrorCallback_O != nullptr)
+									{
+										_ErrorCallback_O(Rts_E, _rJsonSchema_X[i_U32], pJsonValue_c);
+									}
+								}
+								else
+								{
+									if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32) // NbEntry is 0 for non array descriptor
+									{
+										pJsonValue_c = GetNextElementFromOid();
+										//printf("GetNextElementFromOid %s\n", pJsonValue_c ? pJsonValue_c : "null");
+
+										if (pJsonValue_c)
+										{
+											Index_U32++;
+											Finish_B = false;
+										}
+										else
+										{
+											if (mSecondJsonArrayTagIndex_U32 == 0xFFFFFFFF)
+											{
+												Finish_B = true;
+											}
+											else
+											{
+												ResetAllLowerLevelIndex(mSecondJsonArrayTagIndex_U32);
+												Finish_B = !GetNextArray(mSecondJsonArrayTagIndex_U32);
+											}
+											//printf("GetNextArray %s\n", Finish_B ? "No more" : "Ok got next");
+
+											if (Finish_B)
+											{
+												break;
+											}
+											else
+											{
+												Index_U32 = 0;
+												pJsonValue_c = mLastJsonValue_O.asCString();
+												//printf("GetNextArray val %s\n", pJsonValue_c ? pJsonValue_c : "null");
+
+												if (JsonParam_X.ArrayCapacity_U32 != 0xFFFFFFFF)
+												{
+													//Go to next array address, mSecondJsonArrayTagIndex_U32 is different from 0
+													pArrayBaseAddress_U8 = reinterpret_cast<uint8_t *>(JsonParam_X.pValue) + mJsonOidTagCollection[mSecondJsonArrayTagIndex_U32].ElemSize_U32;
+													//printf("GetNextArray ptr %p elemsize %d\n", pArrayBaseAddress_U8, mJsonOidTagCollection[mSecondJsonArrayTagIndex_U32].ElemSize_U32);
+													JsonParam_X.pValue = pArrayBaseAddress_U8;
+												}
+											}
+										} //else if if (pJsonValue_c)
+									}
+									else //if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32)
+									{
+										Rts_E = BOF_ERR_NO_ERROR;                               // End of array
+									}
+								}
+							}  // while ((!Finish_B) && (pJsonValue_c) && (Rts_E == BOF_ERR_NO_ERROR))                                                          // while
+							if ((Rts_E != BOF_ERR_NO_ERROR) || (pJsonValue_c == nullptr))
+							{
+								break;
+							}
+						} //for (j_U32 = 0; j_U32 < JsonParam_X.ArrayCapacity_U32; j_U32++)
+
+						if (mJsonOidTagCollection.size())
+						{
+							ResetAllLowerLevelIndex(mFirstJsonArrayTagIndex_U32);
+							Finish_B = (mFirstJsonArrayTagIndex_U32 == 0xFFFFFFFF) ? true : !GetNextArray(mFirstJsonArrayTagIndex_U32);
+
+							if (!Finish_B)
+							{
+								if ((mLastJsonValue_O.isNull()) || (!mLastJsonValue_O.asCString()))
+								{
+									Finish_B = true;
+								}
+							}
+							//printf("Inner loop GetNextArray %s\n", Finish_B ? "No more" : "Ok got next");
+							if (Finish_B)
+							{
+								break;
+							}
+							else
+							{
+								JsonParam_X.pValue = _rJsonSchema_X[i_U32].pValue;
+								pArrayBaseAddress_U8 = reinterpret_cast<uint8_t *>(JsonParam_X.pValue) + ((k_U32+1) * mJsonOidTagCollection[(mFirstJsonArrayTagIndex_U32 == 0xFFFFFFFF) ? 0 : mFirstJsonArrayTagIndex_U32].ElemSize_U32);
+								JsonParam_X.pValue = pArrayBaseAddress_U8;
+
+								pJsonValue_c = mLastJsonValue_O.asCString();
+							}
+						}
+					}
+				} //for (i_U32 = 0; i_U32 < _rJsonSchema_X.size(); i_U32++)
 			}
 			return Rts_E;
 		}
@@ -174,7 +406,6 @@ public:
 							if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32) // NbEntry is 0 for non array descriptor
 							{
 								pJsonValue_c = GetNextElementFromOid();
-
 								if (pJsonValue_c)
 								{
 									Index_U32++;
@@ -196,112 +427,134 @@ public:
 			return Rts_E;
 		}
 
-		// Description is an oid (. separated path) to the json element->oid leave between () is a root element
-
-		/*
-		 * _pOid_c is a string containing a dot separated list of json tags which describe the path to reach a JSON element from the mRoot_O node
-		 * ex: MulFtpUserSetting.ToolChainBaseDirectory points to the first occurrence of  "ToolChainBaseDirectory": "D:\\SysGCC\\",
-		 *
-		 * {
-		 * "MulFtpUserSetting": {
-		 *       "ToolChainBaseDirectory": "D:\\SysGCC\\",
-		 *       "TemplateProjectBaseDirectory": "D:\\cloudstation\\pro\\vsmake-project-template\\",
-		 *       "book": "bha",
-		 *       "catalog": {
-		 *               "book": [
-		 *               {
-		 *               "id": "bk101",
-		 *               "publish_date": "2016-05-26",
-		 *
-		 */
-
+//New enhanced json parser with multi array def
+//"MmgwSetting.Board.%.InHr.%" "VideoStandard"
+//"MmgwSetting.Board%.InHr.%.AudioIpAddress.%" ""
+//const char *p;
+//p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][0].asCString();
+//p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][1].asCString();
+//p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["VideoStandard"].asCString();
+//p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][1]["VideoStandard"].asCString();
 		const char *GetFirstElementFromOid(const char *_pOid_c)
 		{
 			const char *pRts_c = nullptr;
-			uint32_t i_U32;
+			uint32_t i_U32, NbArrayDetected_U32;
+			std::string NextArrayElem_S, SubOid_S;
+			Json::Value NextValue;
+			std::vector<std::string> SubOidCollection;
 
-			if ((mJsonFileOk_B) && (_pOid_c) && (strlen(_pOid_c) < sizeof(mpTag_c)))
+			if ((mJsonFileOk_B) && (_pOid_c))
 			{
-				mCrtJsonIndex_U32 = 0;
-				strcpy(mpTag_c, _pOid_c);
+				mCrtJsonArrayTagIndex_U32 = 0xFFFFFFFF;
+				mFirstJsonArrayTagIndex_U32 = 0xFFFFFFFF;
+				mSecondJsonArrayTagIndex_U32 = 0xFFFFFFFF;
+				NbArrayDetected_U32=0;
+				mJsonArrayElem_S="";
+				mJsonOidTagCollection.clear();
+				mLastJsonValue_O = Json::Value();
+				mLastJsonArray_O = Json::Value();
+				SubOidCollection = Bof_StringSplit(_pOid_c, ".");
 
-				mSubTagList = Bof_StringSplit(mpTag_c, ".");
-				if (mSubTagList.size() > 0)
+				if (SubOidCollection.size() > 0)
 				{
-					mLastJsonValue_O = mRoot_O[mSubTagList[0]];
-					mLastParentJsonValue_O = mLastJsonValue_O;
-
-					if (!mLastJsonValue_O.isNull())
+					mLastJsonValue_O = mRoot_O;
+					for (i_U32 = 0; i_U32 < SubOidCollection.size(); i_U32++)
 					{
-						for (i_U32 = 1; i_U32 < mSubTagList.size(); i_U32++)
+		//				if (SubOidCollection[i_U32][SubOidCollection[i_U32].size() - 1] == '%')
+		//				{
+		//					SubOidCollection[i_U32].pop_back();
+		//				}
+						mLastJsonValue_O = mLastJsonValue_O[SubOidCollection[i_U32]];
+						if (mLastJsonValue_O.isNull())
 						{
-							if ((i_U32 == (mSubTagList.size() - 1))) //|| (mSubTagList[i_U32] == ""))	//Pure array
+							break;
+						}
+						else
+						{
+							if (mLastJsonValue_O.isArray())
 							{
-								/*
-								Json::Value xx, yy,zz;
-								xx = mRoot_O["status_senders"];
-								yy = mRoot_O["status_senders"]["ip"];
-								zz = mRoot_O["status_senders"]["ip"][""];
-								pRts_c = yy.asCString();
-								*/
-								if (mLastJsonValue_O.isArray())
+								mLastJsonArray_O = mLastJsonValue_O;
+								NextArrayElem_S = "";
+								SubOid_S = "NotEmpty";
+								//printf("mJsonOidTagCollection push array sz %d of %s\n",mLastJsonArray_O.size(),SubOidCollection[i_U32-1].c_str());
+//Last entry
+								NbArrayDetected_U32++;
+								if (NbArrayDetected_U32 > 3)
 								{
-									if (mSubTagList[i_U32] == "")  //Pure array
+									break;	//We only handle a max of 3 array and if the thirs one exist it must be a the last raw item in the suboid list
+								}
+								if (i_U32 == (SubOidCollection.size() - 1))
+								{
+									break;  //Not possible in our case raw array have a "" element name just after (see after)
+								}
+
+								if (i_U32 < (SubOidCollection.size() - 1))
+								{
+									SubOid_S = SubOidCollection[i_U32 + 1];
+					//				if (SubOid_S[SubOid_S.size() - 1] == '%')
+					//				{
+					//					SubOid_S.pop_back();
+					//				}
+									if (SubOid_S != "")
 									{
-										mLastJsonValue_O = mLastJsonValue_O[0];
+										NextValue = mLastJsonArray_O[0][SubOid_S];
+										if ((!NextValue.isNull()) && (NextValue.isString()))
+										{
+											NextArrayElem_S = SubOid_S;
+										}
 									}
-									else
-									{
-										mLastJsonValue_O = mLastJsonValue_O[0][mSubTagList[i_U32]];
-									}
-									mCrtJsonIndex_U32 = 1;
+								}
+
+								mJsonArrayElem_S = NextArrayElem_S;
+								mCrtJsonArrayTagIndex_U32 = static_cast<uint32_t>(mJsonOidTagCollection.size());
+								if (mFirstJsonArrayTagIndex_U32==0xFFFFFFFF)
+								{
+									mFirstJsonArrayTagIndex_U32=mCrtJsonArrayTagIndex_U32;
 								}
 								else
 								{
-									mLastJsonValue_O = mLastJsonValue_O[mSubTagList[i_U32]];
-									/*
-									if (mLastJsonValue_O.isArray())
+									if (mSecondJsonArrayTagIndex_U32==0xFFFFFFFF)
 									{
-										//mLastParentJsonValue_O = mLastJsonValue_O;
-										mLastJsonValue_O = mLastJsonValue_O[0];
-										mCrtJsonIndex_U32 = 1;
+										mSecondJsonArrayTagIndex_U32=mCrtJsonArrayTagIndex_U32;
 									}
-									*/
 								}
+								mJsonOidTagCollection.push_back(JSON_OID_TAG(SubOidCollection[i_U32], mJsonArrayElem_S));
+								mJsonOidTagCollection[i_U32].ArraySize_U32 = mLastJsonArray_O.size();
 
-								// We only manage pure text json file->convertion to binary is made by bofparameter
-								if (mLastJsonValue_O.isString())
+								if ((NextArrayElem_S != "") || (SubOid_S == ""))
 								{
-									pRts_c = mLastJsonValue_O.asCString();
+									i_U32++;
 								}
-								/* Start of native type integration but we need to refactor serializer -W not now
-								if (mLastJsonValue_O.isBool())
+								if (mJsonArrayElem_S == "")
 								{
-									pRts_c = mLastJsonValue_O.asBool() ? "true":"false";
+									mLastJsonValue_O = mLastJsonArray_O[0];
 								}
-								*/
+								else
+								{
+									mLastJsonValue_O = mLastJsonArray_O[0][mJsonArrayElem_S];
+								}
 							}
 							else
 							{
-								if (mLastJsonValue_O.isArray())
-								{
-									mLastJsonValue_O = mLastJsonValue_O[0][mSubTagList[i_U32]];
-								}
-								else
-								{
-									mLastJsonValue_O = mLastJsonValue_O[mSubTagList[i_U32]];
-								}
-								mLastParentJsonValue_O = mLastJsonValue_O;
+								mJsonOidTagCollection.push_back(JSON_OID_TAG(SubOidCollection[i_U32], ""));
 							}
+						}
+					} //for (i_U32 = 0; i_U32 < mSubTagList.size(); i_U32++)
 
-							if (mLastJsonValue_O.isNull())
+					if (i_U32 == SubOidCollection.size())
+					{
+					// We only manage pure text json file->convertion to binary is made by bofparameter
+						if ((!mLastJsonValue_O.isNull()) && (mLastJsonValue_O.isString()))
+						{
+							if (mCrtJsonArrayTagIndex_U32!=0xFFFFFFFF)
 							{
-								break;
+								mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32++;
 							}
-						}                            // for (i_U32 = 0; i_U32 < NbSubTag_U32; i_U32++)
+							pRts_c = mLastJsonValue_O.asCString();
+						}
 					}
-				}                                // if (Bof_SplitString(pTag_c, '.', &NbSubTag_U32, &ppSubTag_c, &Attribute_B) == 0)
-			}                                  // if ((mpXmlDoc_X) && (_pOid_c) && (strlen(_pOid_c) < sizeof(pTag_c)) && (_ppNode_X))
+				}
+			}
 			return pRts_c;
 		}
 
@@ -309,44 +562,129 @@ public:
 		{
 			const char *pRts_c = nullptr;
 
-
-			if ((mJsonFileOk_B) && (!mLastJsonValue_O.isNull()) && (!mLastParentJsonValue_O.isNull()))
+			if ((mJsonFileOk_B) && (!mLastJsonValue_O.isNull()) && (!mLastJsonArray_O.isNull()))
 			{
-				mLastJsonValue_O = mLastParentJsonValue_O;
-
-				if (mLastJsonValue_O.isArray())
+				if (mLastJsonArray_O.isArray())
 				{
-					if (mCrtJsonIndex_U32 < mLastJsonValue_O.size())
+					if (mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32 < mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].ArraySize_U32)
 					{
-						if (mSubTagList[mSubTagList.size() - 1] == "")  //Pure array
+						if (mJsonArrayElem_S=="")
 						{
-							mLastJsonValue_O = mLastParentJsonValue_O[mCrtJsonIndex_U32];
+							mLastJsonValue_O = mLastJsonArray_O[mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32];
 						}
 						else
 						{
-							mLastJsonValue_O = mLastParentJsonValue_O[mCrtJsonIndex_U32][mSubTagList[mSubTagList.size() - 1]];
+							mLastJsonValue_O = mLastJsonArray_O[mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32][mJsonArrayElem_S];
 						}
-						if (!mLastJsonValue_O.isNull())
+						if ((!mLastJsonValue_O.isNull()) && (mLastJsonValue_O.isString()))
 						{
+							mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32++;
 							pRts_c = mLastJsonValue_O.asCString();
-							/* Start of native type integration but we need to refactor serializer -W not now
-							if (mLastJsonValue_O.isString())
-							{
-								pRts_c = mLastJsonValue_O.asCString();
-							}
-							if (mLastJsonValue_O.isBool())
-							{
-								pRts_c = mLastJsonValue_O.asBool() ? "true" : "false";
-							}
-							*/
 						}
-						mCrtJsonIndex_U32++;
 					}
 				}
 			}
 			return pRts_c;
 		}
 
+		void ResetAllLowerLevelIndex(uint32_t _Level_U32)
+		{
+			uint32_t i_U32;
+			JSON_OID_TAG JsonTagArray_X;
+
+			if (_Level_U32 != 0xFFFFFFFF)
+			{
+				for (i_U32 = _Level_U32 + 1; i_U32 < mJsonOidTagCollection.size(); i_U32++)
+				{
+					JsonTagArray_X = mJsonOidTagCollection[i_U32];
+					JsonTagArray_X.CrtArrayIndex_U32 = 0;
+					mJsonOidTagCollection[i_U32] = JsonTagArray_X;
+					/*
+					if (JsonTagArray_X.ArrayElem_S=="")
+					{
+						JsonTagArray_X = mJsonOidTagCollection[i_U32-1];
+						JsonTagArray_X.CrtArrayIndex_U32 = 0;
+						mJsonOidTagCollection[i_U32-1] = JsonTagArray_X;
+					}
+					 */
+				}
+			}
+		}
+		bool GetNextArray(uint32_t _Level_U32)
+		{
+			bool Rts_B=false;
+			JSON_OID_TAG JsonTagArray_X;
+			uint32_t i_U32;
+
+			if ((_Level_U32 < mJsonOidTagCollection.size()) && (mJsonOidTagCollection[_Level_U32].ArraySize_U32))
+			{
+				/*
+				if ((mJsonOidTagCollection[_Level_U32].ArrayElem_S=="") && (_Level_U32))
+				{
+					_Level_U32--;
+				}
+				 */
+				JsonTagArray_X = mJsonOidTagCollection[_Level_U32];
+				JsonTagArray_X.CrtArrayIndex_U32++;
+//printf("%d<%d\n",JsonTagArray_X.CrtArrayIndex_U32, JsonTagArray_X.ArraySize_U32);
+
+				if (JsonTagArray_X.CrtArrayIndex_U32 < JsonTagArray_X.ArraySize_U32)
+				{
+					mJsonOidTagCollection[_Level_U32] = JsonTagArray_X;
+					mLastJsonValue_O=mRoot_O;	//[mJsonOidTagCollection[0].SubOid_S];
+					for (i_U32 = 0; i_U32 < mJsonOidTagCollection.size(); i_U32++)
+					{
+						mLastJsonValue_O = mLastJsonValue_O[mJsonOidTagCollection[i_U32].SubOid_S];
+						//printf("[%s]", mJsonOidTagCollection[i_U32].SubOid_S.c_str());
+						if (mLastJsonValue_O.isNull())
+						{
+							break;
+						}
+						else
+						{
+							if (mLastJsonValue_O.isArray())
+							{
+								mLastJsonArray_O = mLastJsonValue_O;
+								mJsonOidTagCollection[i_U32].ArraySize_U32 = mLastJsonArray_O.size();
+								if (mJsonOidTagCollection[i_U32].ArraySize_U32 > mJsonOidTagCollection[i_U32].ArrayMaxSize_U32)
+								{
+									mJsonOidTagCollection[i_U32].ArraySize_U32 = mJsonOidTagCollection[i_U32].ArrayMaxSize_U32;
+								}
+
+								if (i_U32 == _Level_U32)
+								{
+									mLastJsonValue_O = mLastJsonValue_O[JsonTagArray_X.CrtArrayIndex_U32];
+									//printf("[%d]", JsonTagArray_X.CrtArrayIndex_U32);
+								}
+								else
+								{
+									mLastJsonValue_O = mLastJsonValue_O[mJsonOidTagCollection[i_U32].CrtArrayIndex_U32];
+									//printf("[%d]", mJsonOidTagCollection[i_U32].CrtArrayIndex_U32);
+								}
+								if (mJsonOidTagCollection[i_U32].ArrayElem_S=="")
+								{
+								}
+								else
+								{
+									mLastJsonValue_O = mLastJsonValue_O[mJsonOidTagCollection[i_U32].ArrayElem_S];
+									//printf("[%s]", mJsonOidTagCollection[i_U32].ArrayElem_S.c_str());
+								}
+							}
+						}
+					}
+					if (i_U32 == mJsonOidTagCollection.size())
+					{
+						if ((!mLastJsonValue_O.isNull()) && (mLastJsonValue_O.isString()))
+						{
+							mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32=1;
+							Rts_B = true;
+						}
+					}
+				}
+			}
+			//printf("%s", Rts_B ? " Ok\n":" Bad\n");
+			return Rts_B;
+		}
 		bool IsValid()
 		{
 			return mJsonFileOk_B;

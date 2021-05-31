@@ -34,10 +34,12 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Definitions *************************************************************/
 
-#define BOF_PARAM_DEF_VARIABLE(varname, typevar, minval, maxval)                                 BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0
-#define BOF_PARAM_DEF_ARRAY(varname, typevar, minval, maxval)                                    BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)
-#define BOF_PARAM_DEF_VECTOR(varname, typevar, minval, maxval)                                   BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, 0,  0xFFFFFFFF, 0xFFFFFFFF
-#define BOF_PARAM_DEF_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval)    BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)
+#define BOF_PARAM_DEF_VARIABLE(varname, typevar, minval, maxval)                                 BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																			,0,0,0,0
+#define BOF_PARAM_DEF_ARRAY(varname, typevar, minval, maxval)                                    BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)						,0,0,0,0
+#define BOF_PARAM_DEF_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval)    BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname),0,0,0,0
+#define BOF_PARAM_DEF_VECTOR(varname, typevar, minval, maxval)                                   BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, 0,  0xFFFFFFFF, 0xFFFFFFFF																																	,0,0,0,0
+#define BOF_PARAM_DEF_MULTI_ARRAY(varname, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)                                    BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)						,nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused
+#define BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)    BOF_NAMESPACE::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname),nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused \
 
 /*** Class *******************************************************************/
 enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
@@ -81,7 +83,10 @@ enum class BOFPARAMETER_ARG_TYPE : uint32_t
 		IPV4,
 		IPV6,
 		GUID,
-		PATH
+		PATH,
+		TC,
+		VIDEOSTANDARD,
+		SIZE2D,
 };
 
 struct BOFPARAMETER
@@ -99,6 +104,7 @@ struct BOFPARAMETER
 		uint32_t ArrayElementSize_U32;
 		uint32_t ArrayCapacity_U32;
 		uint32_t ActiveArrayEntry_U32;
+		uint32_t pExtraParam_U32[4];	//Used for example with Json ToByte method and new enhanced json parser with multi array def"MmgwSetting.Board.%.InHr.%" "VideoStandard" or "MmgwSetting.Board%.InHr.%.AudioIpAddress.%" "
 
 		BOFPARAMETER()
 		{
@@ -107,7 +113,7 @@ struct BOFPARAMETER
 
 		BOFPARAMETER(void *_pUser, const std::string &_rName_S, const std::string &_rDescription_S, const std::string &_rFormat_S, const std::string &_rPath_S,
 		             BOFPARAMETER_ARG_FLAG _ArgFlag_E, BOFPARAMETER_ARG_TYPE _ArgType_E, double _Min_lf, double _Max_lf, void *_pValue, uint32_t _ArrayElementSize_U32,
-		             uint32_t _ArrayCapacity_U32, uint32_t _ActiveArrayEntry_U32)
+		             uint32_t _ArrayCapacity_U32, uint32_t _ActiveArrayEntry_U32, uint32_t _ExtraParam1_U32, uint32_t _ExtraParam2_U32, uint32_t _ExtraParam3_U32, uint32_t _ExtraParam4_U32)
 		{
 			pUser = _pUser;
 			Name_S = _rName_S;
@@ -122,10 +128,15 @@ struct BOFPARAMETER
 			ArrayElementSize_U32 = _ArrayElementSize_U32;
 			ArrayCapacity_U32 = _ArrayCapacity_U32;
 			ActiveArrayEntry_U32 = _ActiveArrayEntry_U32;
+			pExtraParam_U32[0]=_ExtraParam1_U32;
+			pExtraParam_U32[1]=_ExtraParam2_U32;
+			pExtraParam_U32[2]=_ExtraParam3_U32;
+			pExtraParam_U32[3]=_ExtraParam4_U32;
 		}
 
 		void Reset()
 		{
+			uint32_t i_U32;
 			pUser = nullptr;
 			Name_S = "";
 			Description_S = "";
@@ -139,6 +150,10 @@ struct BOFPARAMETER
 			ArrayElementSize_U32 = 0;
 			ArrayCapacity_U32 = 0;
 			ActiveArrayEntry_U32 = 0;
+			for (i_U32=0;i_U32<BOF_NB_ELEM_IN_ARRAY(pExtraParam_U32);i_U32++)
+			{
+				pExtraParam_U32[i_U32]=0;
+			}
 		}
 };
 

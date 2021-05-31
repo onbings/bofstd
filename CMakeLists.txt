@@ -23,7 +23,7 @@ include("../cmake/bld_toolbox.cmake")
 
 project(bofstd VERSION 3.1.0)
 
-bld_cxx_init(DESKTOP_DEBIAN)
+bld_cxx_init()
 
 set(API_FILES
 	include/bofstd/boferr.h

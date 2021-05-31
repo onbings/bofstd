@@ -89,6 +89,8 @@ int main(int argc, char *argv[])
 
 	//::testing::GTEST_FLAG(filter) = "Async_Test.*";
 	//::testing::GTEST_FLAG(filter) = "SocketUdp_Test.ScatterGatherIo";
+
+
 #if defined (_WIN32)
 #else
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*";   //No hw
@@ -96,6 +98,12 @@ int main(int argc, char *argv[])
 	testing::InitGoogleTest(&argc, argv);
 	int    Rts_i;
 
+	::testing::GTEST_FLAG(filter) = "JsonParser_Test.JsonCfg";
+	::testing::GTEST_FLAG(filter) = "JsonParser_Test.IpSenderDeser";
+	::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:JsonWriter_Test.*"; //JsonCfg";
+//	::testing::GTEST_FLAG(filter) ="JsonParser_Test.JsonCfg";
+//	::testing::GTEST_FLAG(filter) = "JsonWriter_Test.IpSwitcherSerDeser";
+//	::testing::GTEST_FLAG(filter) ="Timecode_Test.*";
 	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
 	Rts_i = RUN_ALL_TESTS();
 
@@ -104,7 +112,7 @@ int main(int argc, char *argv[])
 
 #if defined(DEBUG)
 	std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
-	std::cin.ignore();
+//	std::cin.ignore();
 #endif
 
 	return Rts_i;

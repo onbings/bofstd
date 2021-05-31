@@ -40,7 +40,46 @@ BofTimecode::BofTimecode(bool _Ntsc_B, const BOF_DATE_TIME &_rDateTime_X)
 		}
 	}
 }
+BofTimecode::BofTimecode(const char *_pTc_c)
+{
+// 01234567890123456789012345678901
+//"2018-05-26 08:16:32;01. @1000/25"
+	int NbScanField_i, Num_i, Den_i, Year_i,Month_i,Day_i,Hour_i,Minute_i,Second_i,Frame_i;
+	BOF_TIMECODE BofTimeCodeStruct_X;
+	BOF_DATE_TIME DateTime_X;
+	time_t DateInDaySince1970;
+	char Drop_c, Parity_c;
 
+	mTcValid_B=false;
+	if (_pTc_c)
+	{
+		if (strlen(_pTc_c) == 32)
+		{
+			NbScanField_i = sscanf(_pTc_c, "%04d-%02d-%02d %02d:%02d:%02d%c%02d%c @%d/%d", &Year_i, &Month_i, &Day_i, &Hour_i, &Minute_i, &Second_i, &Drop_c, &Frame_i, &Parity_c, &Num_i, &Den_i);
+			if (NbScanField_i == 11)
+			{
+				DateTime_X.Year_U16=static_cast<uint16_t>(Year_i);
+				DateTime_X.Month_U8=static_cast<uint8_t>(Month_i);
+				DateTime_X.Day_U8=static_cast<uint8_t>(Day_i);
+
+				if (Bof_BofDateTime_To_DateInDaySince1970(DateTime_X, DateInDaySince1970) == BOF_ERR_NO_ERROR)
+				{
+					BofTimeCodeStruct_X.Hour_U8=static_cast<uint8_t>(Hour_i);
+					BofTimeCodeStruct_X.Minute_U8=static_cast<uint8_t>(Minute_i);
+					BofTimeCodeStruct_X.Second_U8=static_cast<uint8_t>(Second_i);
+					BofTimeCodeStruct_X.Frame_U8=static_cast<uint8_t>(Frame_i);
+
+					BofTimeCodeStruct_X.TcFlag_U8 = 0;
+					BofTimeCodeStruct_X.TcFlag_U8 |= (Parity_c == '.') ? BOF_TIMECODE_FLAG_PARITY_ODD : 0;
+					BofTimeCodeStruct_X.TcFlag_U8 |= (Drop_c == ';') ? BOF_TIMECODE_FLAG_DROP : 0;
+					BofTimeCodeStruct_X.TcFlag_U8 |= ((Num_i == 1000) && (Den_i == 30)) ? BOF_TIMECODE_FLAG_NTSC : 0;
+					BofTimeCodeStruct_X.NbDay_U16 = static_cast<uint16_t>(DateInDaySince1970);
+					mTcValid_B = (FromByteStruct(BofTimeCodeStruct_X) == BOF_ERR_NO_ERROR);
+				}
+			}
+		}
+	}
+}
 /*
  DROP FRAME TIMECODE
 
@@ -138,7 +177,7 @@ std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatD
 	if (_ShowDate_B)
 	{
 		Bof_DateInDaySince1970_To_BofDateTime(mTc_X.NbDay_U16, BofDateTime_X);
-		Rts_S += Bof_DateTimeToString(BofDateTime_X, (_rFormatDate_S == "") ? "%Y-%b-%d" : _rFormatDate_S);
+		Rts_S += Bof_DateTimeToString(BofDateTime_X, (_rFormatDate_S == "") ? "%Y-%m-%d" : _rFormatDate_S);
 	}
 	if (_ShowTime_B)
 	{
@@ -147,6 +186,7 @@ std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatD
 			Rts_S += " ";
 		}
 		BOF_SET_DATE_TIME(BofDateTime_X, 1, 1, 1970, mTc_X.Hour_U8, mTc_X.Minute_U8, mTc_X.Second_U8, 0);
+		//"2018-05-26 08:16:32;01. @1000/25"
 		if (_rFormatTime_S == "")
 		{
 			Rts_S += Bof_DateTimeToString(BofDateTime_X, (mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_DROP) ? "%H:%M:%S;" : "%H:%M:%S:");
@@ -165,7 +205,7 @@ std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatD
 		{
 			Rts_S += " ";
 		}
-		Rts_S += IsNtsc() ? "Ntsc" : "Pal";
+		Rts_S += IsNtsc() ? "@1000/30" : "@1000/25";
 	}
 	return Rts_S;
 }
