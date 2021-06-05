@@ -278,7 +278,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 							while ((!Finish_B) && (pJsonValue_c) && (Rts_E == BOF_ERR_NO_ERROR))
 							{
 								Finish_B = true;
-								//printf("Parse %s base at %p j %d sz %d Index_U32 %d\n", pJsonValue_c, JsonParam_X.pValue, j_U32, JsonParam_X.ArrayElementSize_U32, Index_U32);
+//								printf("Parse %s base at %p j %d elemsz %d Index %d->Add %p\n", pJsonValue_c, JsonParam_X.pValue, j_U32, JsonParam_X.ArrayElementSize_U32, Index_U32, (char *)JsonParam_X.pValue+(Index_U32*JsonParam_X.ArrayElementSize_U32));
 								Rts_E = BofParameter::S_Parse(Index_U32, JsonParam_X, pJsonValue_c, _ParseCallback_O);
 
 								if (Rts_E != BOF_ERR_NO_ERROR)

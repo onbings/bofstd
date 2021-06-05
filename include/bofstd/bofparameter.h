@@ -30,6 +30,7 @@
 #include <bofstd/bofaudiostandard.h>
 #include <bofstd/boftimecode.h>
 #include <bofstd/bof2d.h>
+#include <bofstd/bofsocketos.h>
 #include <functional>
 #include <vector>
 #include <cstdint>

@@ -787,6 +787,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
 
 typedef void *MMGW_API_HANDLE;
+typedef void *demux_t;
 typedef enum
 {
 	MMGWDRV_BOARD_TYPE_SDI_3G = 0,
@@ -801,21 +802,42 @@ typedef enum
 #define MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE 16 //Total audio channel size is MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE * MMGWDRV_AUDIO_CHANNEL_BUFFER_SIZE = 64KB
 
 
-struct MMGW_BOARD_HR_INPUT
+struct VLC_BOARD
 {
-	BofVideoStandard				VideoStandard;
+	pthread_t thread;
+	int evfd;
+	VLC_BOARD()
+	{
+		Reset();
+	}
+	void Reset()
+	{
+		thread=-1;
+		evfd=-1;
+	}
+};
+struct VLC_CHANNEL
+{
+	/* picture decoding */
+//	mtime_t      i_next_vdate, i_next_adate;
+	int          i_incr, i_aincr;
+	/* ES stuff */
+	//es_out_id_t *p_es_video;
+	//es_out_id_t *p_es[MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE];
+#if defined(METATITLE)
+	unsigned int i_title;
+	unsigned int i_longest_title;
+	input_title_t **pp_title;
 
-//Sdi specific
-
-//IP specific
-	BOF_SOCKET_ADDRESS    VideoIpAddress_X;
-	BOF_SOCKET_ADDRESS    pAudioIpAddress_X[MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE];
-	BOF_SOCKET_ADDRESS    AncIpAddress_X;
-
-	uint32_t 	Bit_U32;
-	BOF_SIZE  ProxyRes_X;
-
-	MMGW_BOARD_HR_INPUT()
+	int i_attachments;
+	input_attachment_t **attachments;
+	int i_cover_idx;
+	float f_fps;
+	const META_DL *p_meta;
+/* Used to store bluray disc path */
+	char *psz_bd_path;
+#endif
+	VLC_CHANNEL()
 	{
 		Reset();
 	}
@@ -823,6 +845,66 @@ struct MMGW_BOARD_HR_INPUT
 	{
 		uint32_t i_U32;
 
+//		i_next_vdate=0;
+//		i_next_adate=0;
+		i_incr=0;
+		i_aincr=0;
+	//	p_es_video=nullptr;
+		for (i_U32=0;i_U32<MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE;i_U32++)
+		{
+		//	p_es[i_U32]=nullptr;
+		}
+	}
+};
+
+struct MMGW_VLC_STREAM_PARAM;
+struct MMGW_BOARD_CHANNEL
+{
+	//Not exported in .json cfg file
+	VLC_CHANNEL VlcChannel_X;
+	uint32_t Index_U32;
+	bool Input_B;
+	//MMGW_CHANNEL_HANDLE     *ppChannelHandle_X[MMGWDRV_STREAM_CHANNEL_TYPE_MAX];
+	//MMGW_STREAM_HANDLE      *pStreamHandle_X;
+	MMGW_VLC_STREAM_PARAM		*pMmgwVlcStreamParam_X;
+
+//Exported in .json cfg file
+	bool IoActive_B;
+	char pIoName_c[32];
+	BOF_NAMESPACE::BofVideoStandard				VideoStandard;
+	BOF_NAMESPACE::BofAudioStandard				AudioStandard;
+//Sdi specific
+
+//IP specific
+	BOF_NAMESPACE::BOF_SOCKET_ADDRESS    VideoIpAddress_X;
+	BOF_NAMESPACE::BOF_SOCKET_ADDRESS    pAudioIpAddress_X[MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE];
+	BOF_NAMESPACE::BOF_SOCKET_ADDRESS    AncIpAddress_X;
+
+	uint32_t 	Bit_U32;
+	BOF_NAMESPACE::BOF_SIZE  ProxyRes_X;
+
+	MMGW_BOARD_CHANNEL()
+	{
+		Reset();
+	}
+	void Reset()
+	{
+		uint32_t i_U32;
+
+		VlcChannel_X.Reset();
+		Index_U32=0;
+		Input_B = false;
+		/*
+		for (i_U32=0;i_U32<MMGWDRV_STREAM_CHANNEL_TYPE_MAX;i_U32++)
+		{
+			ppChannelHandle_X[i_U32] = nullptr;
+		}
+		pStreamHandle_X=nullptr;
+		 */
+		pMmgwVlcStreamParam_X=nullptr;
+		IoActive_B=false;
+		pIoName_c[0]=0;
+		VideoIpAddress_X.Reset();
 		VideoIpAddress_X.Reset();
 		for (i_U32=0;i_U32<MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE;i_U32++)
 		{
@@ -833,53 +915,33 @@ struct MMGW_BOARD_HR_INPUT
 		ProxyRes_X.Reset();
 	}
 };
-struct MMGW_BOARD_HR_OUTPUT
-{
-	BofVideoStandard				VideoStandard;
 
-//Sdi specific
-
-//IP specific
-	BOF_SOCKET_ADDRESS    VideoIpAddress_X;
-	BOF_SOCKET_ADDRESS    pAudioIpAddress_X[MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE];
-	BOF_SOCKET_ADDRESS    AncIpAddress_X;
-
-	uint32_t 	Bit_U32;
-	BOF_SIZE  ProxyRes_X;
-
-
-	MMGW_BOARD_HR_OUTPUT()
-	{
-		Reset();
-	}
-	void Reset()
-	{
-		uint32_t i_U32;
-
-		VideoIpAddress_X.Reset();
-		for (i_U32=0;i_U32<MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE;i_U32++)
-		{
-			pAudioIpAddress_X[i_U32].Reset();
-		}
-		AncIpAddress_X.Reset();
-		Bit_U32=0;
-		ProxyRes_X.Reset();
-	}
-};
 struct MMGW_BOARD_STATE
 {
-	BofVideoStandard				VideoStandard;
-	MMGWDRV_BOARD_TYPE  BoardType_E;
+//Not exported in .json cfg file
+	VLC_BOARD		VlcBoard_X;
+	uint32_t Index_U32;
+/*
+	MMGW_BOARD_HANDLE        *pBoardHandle_X;
+	MMGW_BOARD_STATIC_INFO   BoardStaticInfo_X;
+	MMGW_PTP_INFO            PtpInfo_X;
+*/
+//Exported in .json cfg file
+	bool BrdActive_B;
+	char pBrdName_c[32];
+	BOF_NAMESPACE::BofVideoStandard				VideoStandard;
+	MMGWDRV_BOARD_TYPE  BoardType_E;		//Used as it by simulator OR overwritten by Mmgw_OpenBoard
 
 //Sdi specific
 
 //IP specific
-	BOF_SOCKET_ADDRESS    PtpIpAddress_X;
-	BOF_SOCKET_ADDRESS    PtpIpMask_X;
-	BOF_SOCKET_ADDRESS    PtpIpGw_X;
+	BOF_NAMESPACE::BOF_SOCKET_ADDRESS    PtpIpAddress_X;
+	BOF_NAMESPACE::BOF_SOCKET_ADDRESS    PtpIpMask_X;
+	BOF_NAMESPACE::BOF_SOCKET_ADDRESS    PtpIpGw_X;
+	uint8_t															 PtpDomain_U8;
 
-	MMGW_BOARD_HR_INPUT pHrInput_X[MMGWDRV_MAX_NUMBER_OF_INPUT];
-	MMGW_BOARD_HR_OUTPUT pHrOutput_X[MMGWDRV_MAX_NUMBER_OF_OUTPUT];
+	MMGW_BOARD_CHANNEL pHrInput_X[MMGWDRV_MAX_NUMBER_OF_INPUT];
+	MMGW_BOARD_CHANNEL pHrOutput_X[MMGWDRV_MAX_NUMBER_OF_OUTPUT];
 	MMGW_BOARD_STATE()
 	{
 		Reset();
@@ -887,10 +949,14 @@ struct MMGW_BOARD_STATE
 	void Reset()
 	{
 		uint32_t i_U32;
+		VlcBoard_X.Reset();
+		Index_U32=0;
+
 		BoardType_E=MMGWDRV_BOARD_TYPE::MMGWDRV_BOARD_TYPE_UNKNOWN;
 		PtpIpAddress_X.Reset();
 		PtpIpMask_X.Reset();
 		PtpIpGw_X.Reset();
+		PtpDomain_U8=0;
 		for (i_U32=0;i_U32<MMGWDRV_MAX_NUMBER_OF_INPUT;i_U32++)
 		{
 			pHrInput_X[i_U32].Reset();
@@ -902,16 +968,19 @@ struct MMGW_BOARD_STATE
 
 	}
 };
-
 struct MMGW_API_STATE
 {
+//Not exported in .json cfg file
 	bool 						SimulatorOn_B;
 	bool 						LogOn_B;
 	MMGW_API_HANDLE *pApiHandle_X;
 	char            pVersion_c[0x100];
 	uint32_t NbBoard_U32;
-	BofVideoStandard	VideoStandard;
+
+//Exported in .json cfg file
+	BOF_NAMESPACE::BofVideoStandard	VideoStandard;
 	MMGW_BOARD_STATE  pBoardState_X[MMGWDRV_MAX_NUMBER_OF_DEVICE];
+
 
 	MMGW_API_STATE()
 	{
@@ -932,63 +1001,265 @@ struct MMGW_API_STATE
 	}
 };
 
-//pRts_c=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["VideoStandard"][0].asCString();
-//pRts_c=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][2]["AudioIpAddress"][1].asCString();
 
-
-static MMGW_API_STATE S_MmgwApiState_X;
-static std::vector< BOFPARAMETER > S_CfgJsonCollection =
+struct demux_sys_t
 {
-//MmgwSetting
-	{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting", BOFPARAMETER_ARG_FLAG::NONE,
-		BOF_PARAM_DEF_VARIABLE(S_MmgwApiState_X.VideoStandard, VIDEOSTANDARD, 0, 0 ) },
+	MMGW_API_STATE *pMmgwApiState_X;
 
-//MmgwSetting.Board
-	{ nullptr, "BoardType", "BoardType", "", "MmgwSetting.Board", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, BoardType_E, UINT32, MMGWDRV_BOARD_TYPE_SDI_3G, MMGWDRV_BOARD_TYPE_UNKNOWN) },
 
-	{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting.Board", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_HR_INPUT, S_MmgwApiState_X.pBoardState_X, VideoStandard, VIDEOSTANDARD, 0, 0) },
+#if 0
+	/* video device reader */
+	 int          i_vfd;
+	 unsigned int i_link;
+	 unsigned int i_standard;
+#ifdef HAVE_MMAP_SDIVIDEO
+	 uint8_t      **pp_vbuffers;
+    unsigned int i_vbuffers, i_current_vbuffer;
+#endif
+	 unsigned int i_vbuffer_size;
 
-	{ nullptr, "PtpIpAddress", "PtpIpAddress", "", "MmgwSetting.Board", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, PtpIpAddress_X, IPV4, 0, 0) },
+	 /* audio device reader */
+	 int          i_afd;
+	 int          i_max_channel;
+	 unsigned int i_sample_rate;
+#ifdef HAVE_MMAP_SDIAUDIO
+	 uint8_t      **pp_abuffers;
+    unsigned int i_abuffers, i_current_abuffer;
+#endif
+	 unsigned int i_abuffer_size;
 
-	{ nullptr, "PtpIpMask", "PtpIpMask", "", "MmgwSetting.Board", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, PtpIpMask_X, IPV4, 0, 0) },
+	 /* picture decoding */
+	 unsigned int i_frame_rate, i_frame_rate_base;
+	 unsigned int i_width, i_height, i_aspect, i_forced_aspect;
+	 unsigned int i_vblock_size, i_ablock_size;
+	 mtime_t      i_next_vdate, i_next_adate;
+	 int          i_incr, i_aincr;
 
-	{ nullptr, "PtpIpGw", "PtpIpGw", "", "MmgwSetting.Board", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, PtpIpGw_X, IPV4, 0, 0) },
+	 /* ES stuff */
+	 int          i_id_video;
+	 es_out_id_t  *p_es_video;
+	 hdsdi_audio_t p_audios[MAX_AUDIOS];
 
-//MmgwSetting.Board.InHr
-	{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting.Board.InHr", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_INPUT, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, VideoStandard, VIDEOSTANDARD, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_INPUT,0) },
-	{ nullptr, "VideoIpAddress", "VideoIpAddress", "", "MmgwSetting.Board.InHr", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_INPUT, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, VideoIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_INPUT,0) },
-	{ nullptr, "", "", "", "MmgwSetting.Board.InHr.AudioIpAddress", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_MULTI_ARRAY(S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[0].pAudioIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_INPUT,0) },
-	{ nullptr, "AncIpAddress", "AncIpAddress", "", "MmgwSetting.Board.InHr", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_INPUT, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, AncIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_INPUT,0) },
-	{ nullptr, "Bit", "Bit", "", "MmgwSetting.Board.InHr", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_INPUT, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, Bit_U32, UINT32, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_INPUT,0) },
-	{ nullptr, "ProxyRes", "ProxyRes", "", "MmgwSetting.Board.InHr", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_INPUT, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, ProxyRes_X, SIZE2D, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_INPUT,0) },
+	 pthread_t thread;
+	 int evfd;
 
-//MmgwSetting.Board.OutHr
-	{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting.Board.OutHr", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_OUTPUT, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, VideoStandard, VIDEOSTANDARD, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_OUTPUT,0) },
-	{ nullptr, "VideoIpAddress", "VideoIpAddress", "", "MmgwSetting.Board.OutHr", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_OUTPUT, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, VideoIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_OUTPUT,0) },
-	{ nullptr, "", "", "", "MmgwSetting.Board.OutHr.AudioIpAddress", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_MULTI_ARRAY(S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X[0].pAudioIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_OUTPUT,0) },
-	{ nullptr, "AncIpAddress", "AncIpAddress", "", "MmgwSetting.Board.OutHr", BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_OUTPUT, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, AncIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_OUTPUT,0) },
-	{ nullptr, "Bit", "Bit", "", "MmgwSetting.Board.OutHr", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_OUTPUT, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, Bit_U32, UINT32, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_OUTPUT,0) },
-	{ nullptr, "ProxyRes", "ProxyRes", "", "MmgwSetting.Board.OutHr", BOFPARAMETER_ARG_FLAG::NONE,
-					BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_HR_OUTPUT, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, ProxyRes_X, SIZE2D, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_HR_OUTPUT,0) },
+	 unsigned int        i_title;
+	 unsigned int        i_longest_title;
+	 input_title_t       **pp_title;
+
+	 int                 i_attachments;
+	 input_attachment_t  **attachments;
+	 int                 i_cover_idx;
+	 float f_fps;
+	 const META_DL       *p_meta;
+
+	 /* Used to store bluray disc path */
+	 char                *psz_bd_path;
+#endif
 };
 
+struct MMGW_VLC_STREAM_PARAM
+{
+	demux_t *pDemux_X;
+	demux_sys_t *pDemuxSys_X;
+	MMGW_API_STATE *pMmgwApiState_X;
+	MMGW_BOARD_STATE  *pBoardState_X;
+	MMGW_BOARD_CHANNEL *pBoardChannel_X;
+	VLC_CHANNEL *pVlcChannel_X;
 
+	MMGW_VLC_STREAM_PARAM()
+	{
+		pDemux_X=nullptr;
+		pDemuxSys_X=nullptr;
+		pMmgwApiState_X=nullptr;
+		pBoardState_X=nullptr;
+		pBoardChannel_X=nullptr;
+		pVlcChannel_X=nullptr;
+	}
+	MMGW_VLC_STREAM_PARAM(uint32_t _BoardIndex_U32, bool _Input_B, uint32_t _Channel_U32, demux_t *_pDemux_X)
+	{
+		Reset(_BoardIndex_U32, _Input_B, _Channel_U32, _pDemux_X);
+	}
+	void Reset(uint32_t _BoardIndex_U32, bool _Input_B, uint32_t _Channel_U32, demux_t *_pDemux_X)
+	{
+		pDemux_X=_pDemux_X;
+		BOF_ASSERT(pDemux_X);
+//		pDemuxSys_X=pDemux_X->p_sys;
+//		BOF_ASSERT(pDemuxSys_X);
+		pMmgwApiState_X=pDemuxSys_X->pMmgwApiState_X;
+		BOF_ASSERT(pMmgwApiState_X);
+		BOF_ASSERT(_BoardIndex_U32 < MMGWDRV_MAX_NUMBER_OF_DEVICE);
+		pBoardState_X=&pMmgwApiState_X->pBoardState_X[_BoardIndex_U32];
+		BOF_ASSERT(pBoardState_X);
+		if (_Input_B)
+		{
+			BOF_ASSERT(_Channel_U32 < MMGWDRV_MAX_NUMBER_OF_INPUT);
+			pBoardChannel_X = &pBoardState_X->pHrInput_X[_Channel_U32];
+			BOF_ASSERT(pBoardChannel_X);
+		}
+		else
+		{
+			BOF_ASSERT(_Channel_U32 < MMGWDRV_MAX_NUMBER_OF_OUTPUT);
+			pBoardChannel_X = &pBoardState_X->pHrOutput_X[_Channel_U32];
+			BOF_ASSERT(pBoardChannel_X);
+		}
+		pVlcChannel_X=&pBoardChannel_X->VlcChannel_X;
+		BOF_ASSERT(pVlcChannel_X);
+	}
+};
+
+static MMGW_API_STATE S_MmgwApiState_X;
+static std::vector< BOF_NAMESPACE::BOFPARAMETER > S_CfgJsonCollection2 =
+				{
+								{nullptr, "AudioStandard", "AudioStandard", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+								 BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, AudioStandard, AUDIOSTANDARD, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL, 0)},
+				};
+static std::vector< BOF_NAMESPACE::BOFPARAMETER > S_CfgJsonCollection =
+				{
+//MmgwSetting
+								{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_VARIABLE(S_MmgwApiState_X.VideoStandard, VIDEOSTANDARD, 0, 0 ) },
+
+//MmgwSetting.Board
+								{ nullptr, "Active", "Active", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, BrdActive_B, BOOL, 0, 0) },
+								{ nullptr, "Name", "Name", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, pBrdName_c, CHARSTRING, 0, sizeof(S_MmgwApiState_X.pBoardState_X[0].pBrdName_c)-1) },
+
+								{ nullptr, "BoardType", "BoardType", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, BoardType_E, UINT32, MMGWDRV_BOARD_TYPE_SDI_3G, MMGWDRV_BOARD_TYPE_UNKNOWN) },
+
+								{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X, VideoStandard, VIDEOSTANDARD, 0, 0) },
+
+								{ nullptr, "PtpIpAddress", "PtpIpAddress", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, PtpIpAddress_X, IPV4, 0, 0) },
+
+								{ nullptr, "PtpIpMask", "PtpIpMask", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, PtpIpMask_X, IPV4, 0, 0) },
+
+								{ nullptr, "PtpIpGw", "PtpIpGw", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, PtpIpGw_X, IPV4, 0, 0) },
+
+								{ nullptr, "PtpDomain", "PtpDomain", "", "MmgwSetting.Board", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_ARRAY_OF_STRUCT(MMGW_BOARD_STATE, S_MmgwApiState_X.pBoardState_X, PtpDomain_U8, UINT8, 0, 127) },
+
+//MmgwSetting.Board.InHr
+								{ nullptr, "Active", "Active", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, IoActive_B, BOOL, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "Name", "Name", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, pIoName_c, CHARSTRING, 0, sizeof(S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[0].pIoName_c)-1, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+
+								{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, VideoStandard, VIDEOSTANDARD, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "VideoIpAddress", "VideoIpAddress", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, VideoIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+
+								{ nullptr, "AudioStandard", "AudioStandard", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, AudioStandard, AUDIOSTANDARD, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "", "", "", "MmgwSetting.Board.InHr.AudioIpAddress", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_MULTI_ARRAY(S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[0].pAudioIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+
+								{ nullptr, "AncIpAddress", "AncIpAddress", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, AncIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "Bit", "Bit", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, Bit_U32, UINT32, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "ProxyRes", "ProxyRes", "", "MmgwSetting.Board.InHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrInput_X, ProxyRes_X, SIZE2D, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+
+//MmgwSetting.Board.OutHr
+								{ nullptr, "Active", "Active", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, IoActive_B, BOOL, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "Name", "Name", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, pIoName_c, CHARSTRING, 0, sizeof(S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X[0].pIoName_c)-1, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+
+								{ nullptr, "VideoStandard", "VideoStandard", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, VideoStandard, VIDEOSTANDARD, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "VideoIpAddress", "VideoIpAddress", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, VideoIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+
+								{ nullptr, "AudioStandard", "AudioStandard", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, AudioStandard, AUDIOSTANDARD, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "", "", "", "MmgwSetting.Board.OutHr.AudioIpAddress", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_MULTI_ARRAY(S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X[0].pAudioIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+
+								{ nullptr, "AncIpAddress", "AncIpAddress", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, AncIpAddress_X, IPV4, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "Bit", "Bit", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, Bit_U32, UINT32, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+								{ nullptr, "ProxyRes", "ProxyRes", "", "MmgwSetting.Board.OutHr", BOF_NAMESPACE::BOFPARAMETER_ARG_FLAG::NONE,
+												BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(MMGW_BOARD_CHANNEL, S_MmgwApiState_X.pBoardState_X[0].pHrOutput_X, ProxyRes_X, SIZE2D, 0, 0, MMGWDRV_MAX_NUMBER_OF_DEVICE, MMGW_BOARD_STATE, MMGW_BOARD_CHANNEL,0) },
+				};
+
+#define MMGWVLC_DBG_LOG printf
+BOFERR DisplayConfig()
+{
+	BOFERR Rts_E=BOF_ERR_NO_ERROR;
+
+	uint32_t i_U32,j_U32,k_U32;
+	char pTxt_c[0x400];
+
+	MMGWVLC_DBG_LOG("Simul    %s\n", S_MmgwApiState_X.SimulatorOn_B ? "True":"False");
+	MMGWVLC_DBG_LOG("Log      %s\n", S_MmgwApiState_X.LogOn_B ? "True":"False");
+	MMGWVLC_DBG_LOG("ApiHndl  %p\n", static_cast<void *>(S_MmgwApiState_X.pApiHandle_X));
+	MMGWVLC_DBG_LOG("Version  '%s'\n", S_MmgwApiState_X.pVersion_c);
+	MMGWVLC_DBG_LOG("Nb Board %d\n", S_MmgwApiState_X.NbBoard_U32);
+	MMGWVLC_DBG_LOG("Vs       %s: %s\n", S_MmgwApiState_X.VideoStandard.IdTxt(), S_MmgwApiState_X.VideoStandard.Description());
+
+	for (i_U32=0;i_U32<MMGWDRV_MAX_NUMBER_OF_DEVICE;i_U32++)
+	{
+		MMGWVLC_DBG_LOG("Board %d Name %s Active %d Vs %s: %s\n", i_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pBrdName_c,S_MmgwApiState_X.pBoardState_X[i_U32].BrdActive_B, S_MmgwApiState_X.pBoardState_X[i_U32].VideoStandard.IdTxt(), S_MmgwApiState_X.pBoardState_X[i_U32].VideoStandard.Description());
+		MMGWVLC_DBG_LOG("        Type   %d\n", static_cast<int>(S_MmgwApiState_X.pBoardState_X[i_U32].BoardType_E));
+		MMGWVLC_DBG_LOG("        PtpIp  %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].PtpIpAddress_X,true,true).c_str());
+		MMGWVLC_DBG_LOG("        PtpMsk %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].PtpIpMask_X,true,true).c_str());
+		MMGWVLC_DBG_LOG("        PtpGw  %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].PtpIpGw_X,true,true).c_str());
+
+		for (j_U32=0;j_U32< MMGWDRV_MAX_NUMBER_OF_INPUT;j_U32++)
+		{
+			MMGWVLC_DBG_LOG("   Inp %d Name %s Active %d Vs  %s: %s\n", j_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].pIoName_c,S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].IoActive_B,S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].VideoStandard.IdTxt(), S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].VideoStandard.Description());
+			MMGWVLC_DBG_LOG("         Vip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].VideoIpAddress_X,true,true).c_str());
+
+			MMGWVLC_DBG_LOG("         As  %s\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].AudioStandard.ToString().c_str());
+			pTxt_c[0]=0;
+			for (k_U32=0;k_U32< MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE;k_U32++)
+			{
+				if (Bof_IsIpAddressNull(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].pAudioIpAddress_X[k_U32]))
+				{
+					break;
+				}
+				strcat(pTxt_c, Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].pAudioIpAddress_X[k_U32],true,true).c_str());
+			}
+			MMGWVLC_DBG_LOG("%s\n", pTxt_c);
+
+			MMGWVLC_DBG_LOG("         aip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].AncIpAddress_X,true,true).c_str());
+			MMGWVLC_DBG_LOG("         Bit %d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].Bit_U32);
+			MMGWVLC_DBG_LOG("         Sz  %dx%d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].ProxyRes_X.Width_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].ProxyRes_X.Height_U32);
+		}
+
+		for (j_U32=0;j_U32< MMGWDRV_MAX_NUMBER_OF_OUTPUT;j_U32++)
+		{
+			MMGWVLC_DBG_LOG("   Out %d Name %s Active %d Vs  %s: %s\n", j_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].pIoName_c,S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].IoActive_B, S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].VideoStandard.IdTxt(), S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].VideoStandard.Description());
+			MMGWVLC_DBG_LOG("         Vip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].VideoIpAddress_X,true,true).c_str());
+
+			MMGWVLC_DBG_LOG("         As  %s\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].AudioStandard.ToString().c_str());
+			pTxt_c[0]=0;
+			for (k_U32=0;k_U32< MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE;k_U32++)
+			{
+				if (Bof_IsIpAddressNull(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].pAudioIpAddress_X[k_U32]))
+				{
+					break;
+				}
+				strcat(pTxt_c, Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].pAudioIpAddress_X[k_U32],true,true).c_str());
+			}
+			MMGWVLC_DBG_LOG("%s\n", pTxt_c);
+
+			MMGWVLC_DBG_LOG("         aip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].AncIpAddress_X,true,true).c_str());
+			MMGWVLC_DBG_LOG("         Bit %d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].Bit_U32);
+			MMGWVLC_DBG_LOG("         Sz  %dx%d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].ProxyRes_X.Width_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].ProxyRes_X.Height_U32);
+		}
+	}
+	return Rts_E;
+}
 TEST(JsonParser_Test, JsonCfg)
 {
 	BofJsonParser *pBofJsonParser_O;
@@ -997,9 +1268,13 @@ TEST(JsonParser_Test, JsonCfg)
 	std::string JsonData_S, JsonOut_S;
 	BofJsonWriter BofJsonWriter_O;
 	std::string Cfg_S;
-	uint32_t i_U32, j_U32, k_U32;
 
-//	printf("sz MMGW_API_STATE %d MMGW_BOARD_STATE %d MMGW_BOARD_HR_INPUT %d MMGW_BOARD_HR_OUTPUT %d BOF_SOCKET_ADDRESS %d\n",sizeof(MMGW_API_STATE), sizeof(MMGW_BOARD_STATE),sizeof(MMGW_BOARD_HR_INPUT),sizeof(MMGW_BOARD_HR_OUTPUT),sizeof(BOF_SOCKET_ADDRESS));
+	printf("sz MMGW_API_STATE %d MMGW_BOARD_STATE %d MMGW_BOARD_CHANNEL %d BOF_SOCKET_ADDRESS %d\n",sizeof(MMGW_API_STATE), sizeof(MMGW_BOARD_STATE),sizeof(MMGW_BOARD_CHANNEL),sizeof(BOF_SOCKET_ADDRESS));
+	printf("ONE O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[1].IoActive_B,
+				&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[3].IoActive_B);
+	printf("TWO O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[1].IoActive_B,
+				 &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[3].IoActive_B);
+
 
 	S_MmgwApiState_X.Reset();
 	Bof_GetCurrentDirectory(CrtDir);
@@ -1011,63 +1286,7 @@ TEST(JsonParser_Test, JsonCfg)
 	Sts_i            = pBofJsonParser_O->ToByte(S_CfgJsonCollection, JsonParseResultUltimateCheck, JsonParseError);
 	EXPECT_EQ(Sts_i, 0);
 
-	printf("Simul    %s\n", S_MmgwApiState_X.SimulatorOn_B ? "True":"False");
-	printf("Log      %s\n", S_MmgwApiState_X.LogOn_B ? "True":"False");
-	printf("ApiHndl  %p\n", static_cast<void *>(S_MmgwApiState_X.pApiHandle_X));
-	printf("Version  '%s'\n", S_MmgwApiState_X.pVersion_c);
-	printf("Nb Board %d\n", S_MmgwApiState_X.NbBoard_U32);
-	printf("Vs       %s: %s\n", S_MmgwApiState_X.VideoStandard.IdTxt(), S_MmgwApiState_X.VideoStandard.Description());
-
-	for (i_U32=0;i_U32<MMGWDRV_MAX_NUMBER_OF_DEVICE;i_U32++)
-	{
-		printf("Board %d Vs %s: %s\n", i_U32, S_MmgwApiState_X.pBoardState_X[i_U32].VideoStandard.IdTxt(), S_MmgwApiState_X.pBoardState_X[i_U32].VideoStandard.Description());
-		printf("        Type   %d\n", static_cast<int>(S_MmgwApiState_X.pBoardState_X[i_U32].BoardType_E));
-		printf("        PtpIp  %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].PtpIpAddress_X,true,true).c_str());
-		printf("        PtpMsk %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].PtpIpMask_X,true,true).c_str());
-		printf("        PtpGw  %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].PtpIpGw_X,true,true).c_str());
-
-		for (j_U32=0;j_U32< MMGWDRV_MAX_NUMBER_OF_INPUT;j_U32++)
-		{
-			printf("   Inp %d Vs  %s: %s\n", j_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].VideoStandard.IdTxt(), S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].VideoStandard.Description());
-			printf("         Vip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].VideoIpAddress_X,true,true).c_str());
-
-			printf("         Aip ");
-			for (k_U32=0;k_U32< MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE;k_U32++)
-			{
-				if (Bof_IsIpAddressNull(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].pAudioIpAddress_X[k_U32]))
-				{
-					break;
-				}
-				printf("%s ", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].pAudioIpAddress_X[k_U32],true,true).c_str());
-			}
-			printf("\n");
-
-			printf("         aip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].AncIpAddress_X,true,true).c_str());
-			printf("         Bit %d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].Bit_U32);
-			printf("         Sz  %dx%d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].ProxyRes_X.Width_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrInput_X[j_U32].ProxyRes_X.Height_U32);
-		}
-
-		for (j_U32=0;j_U32< MMGWDRV_MAX_NUMBER_OF_OUTPUT;j_U32++)
-		{
-			printf("   Out %d Vs  %s: %s\n", j_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].VideoStandard.IdTxt(), S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].VideoStandard.Description());
-			printf("         Vip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].VideoIpAddress_X,true,true).c_str());
-
-			printf("         Aip ");
-			for (k_U32=0;k_U32< MMGWDRV_MAX_AUDIO_CHANNEL_PER_PAGE;k_U32++)
-			{
-				if (Bof_IsIpAddressNull(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].pAudioIpAddress_X[k_U32]))
-				{
-					break;
-				}
-				printf("%s ", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].pAudioIpAddress_X[k_U32],true,true).c_str());
-			}
-			printf("\n");
-
-			printf("         aip %s\n", Bof_SocketAddressToString(S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].AncIpAddress_X,true,true).c_str());
-			printf("         Bit %d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].Bit_U32);
-			printf("         Sz  %dx%d\n", S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].ProxyRes_X.Width_U32, S_MmgwApiState_X.pBoardState_X[i_U32].pHrOutput_X[j_U32].ProxyRes_X.Height_U32);
-		}
-	}
+	DisplayConfig();
 
 
 //	EXPECT_EQ(BofJsonWriter_O.FromByte(false, S_CfgJsonCollection, JsonOut_S), BOF_ERR_NO_ERROR);
