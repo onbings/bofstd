@@ -2,11 +2,11 @@
 #include <bofstd/bofstringformatter.h>
 
 BEGIN_BOF_NAMESPACE()
-
-
-
-//default BofTimecode::BofTimecode()
-//default BofTimecode::~BofTimecode()
+BofTimecode::BofTimecode()
+{
+	mRate=BofRational(1000,25, false);
+	mTcValid_B=true;
+}
 
 BofTimecode::BofTimecode(bool _Ntsc_B, uint64_t _Ms_U64)
 {
@@ -33,6 +33,7 @@ BofTimecode::BofTimecode(bool _Ntsc_B, const BOF_DATE_TIME &_rDateTime_X)
 		mTc_X.Second_U8 = _rDateTime_X.Second_U8;
 		mTc_X.Frame_U8 = static_cast<uint8_t>(static_cast<double>(_rDateTime_X.Millisecond_U16) / FrameTime());
 		mTc_X.TcFlag_U8 = _Ntsc_B ? BOF_TIMECODE_FLAG_NTSC : 0x00;
+		mRate=(mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_NTSC) ? BofRational(1000,30,false):BofRational(1000,25,false);
 		Remain_lf = static_cast<double>(_rDateTime_X.Millisecond_U16) - (static_cast<uint32_t>(mTc_X.Frame_U8) * FrameTime());
 		if (Remain_lf > (0.9f * FieldTime()))
 		{
@@ -53,7 +54,7 @@ BofTimecode::BofTimecode(const char *_pTc_c)
 	mTcValid_B=false;
 	if (_pTc_c)
 	{
-		if (strlen(_pTc_c) == 32)
+		if (strlen(_pTc_c) >= 28)
 		{
 			NbScanField_i = sscanf(_pTc_c, "%04d-%02d-%02d %02d:%02d:%02d%c%02d%c @%d/%d", &Year_i, &Month_i, &Day_i, &Hour_i, &Minute_i, &Second_i, &Drop_c, &Frame_i, &Parity_c, &Num_i, &Den_i);
 			if (NbScanField_i == 11)
@@ -70,11 +71,12 @@ BofTimecode::BofTimecode(const char *_pTc_c)
 					BofTimeCodeStruct_X.Frame_U8=static_cast<uint8_t>(Frame_i);
 
 					BofTimeCodeStruct_X.TcFlag_U8 = 0;
-					BofTimeCodeStruct_X.TcFlag_U8 |= (Parity_c == '.') ? BOF_TIMECODE_FLAG_PARITY_ODD : 0;
-					BofTimeCodeStruct_X.TcFlag_U8 |= (Drop_c == ';') ? BOF_TIMECODE_FLAG_DROP : 0;
-					BofTimeCodeStruct_X.TcFlag_U8 |= ((Num_i == 1000) && (Den_i == 30)) ? BOF_TIMECODE_FLAG_NTSC : 0;
+					BofTimeCodeStruct_X.TcFlag_U8 |= static_cast<uint8_t>((Parity_c == '.') ? BOF_TIMECODE_FLAG_PARITY_ODD : 0);
+					BofTimeCodeStruct_X.TcFlag_U8 |= static_cast<uint8_t>((Drop_c == ';') ? BOF_TIMECODE_FLAG_DROP : 0);
+					BofTimeCodeStruct_X.TcFlag_U8 |= static_cast<uint8_t>(((Num_i == 1000) && (Den_i == 30)) ? BOF_TIMECODE_FLAG_NTSC : 0);
 					BofTimeCodeStruct_X.NbDay_U16 = static_cast<uint16_t>(DateInDaySince1970);
 					mTcValid_B = (FromByteStruct(BofTimeCodeStruct_X) == BOF_ERR_NO_ERROR);
+					mRate=BofRational(Num_i,Den_i, false);	//Modified in FromByteStruct
 				}
 			}
 		}
@@ -148,6 +150,7 @@ void BofTimecode::FromMs(bool _Ntsc_B, uint64_t _Ms_U64)
 {
 	double Remain_lf;
 	mTc_X.TcFlag_U8 = _Ntsc_B ? BOF_TIMECODE_FLAG_NTSC : 0x00;
+	mRate=_Ntsc_B ? BofRational(1000,30,false):BofRational(1000,25,false);
 
 	mTc_X.NbDay_U16 = static_cast<uint16_t>(_Ms_U64 / static_cast<uint64_t>(24 * 60 * 60 * 1000));
 	_Ms_U64 = _Ms_U64 - (static_cast<uint64_t>(mTc_X.NbDay_U16) * static_cast<uint64_t>(24 * 60 * 60 * 1000));
@@ -205,12 +208,13 @@ std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatD
 		{
 			Rts_S += " ";
 		}
-		Rts_S += IsNtsc() ? "@1000/30" : "@1000/25";
+//		Rts_S += IsNtsc() ? "@1000/30" : "@1000/25";
+		Rts_S += "@" + std::to_string(mRate.Num()) + "/" + std::to_string(mRate.Den());
 	}
 	return Rts_S;
 }
 
-//ISO-8601
+//ISO-8601: no
 std::string BofTimecode::ToString(bool _ShowDate_B)
 {
 	std::string Rts_S;
@@ -219,9 +223,9 @@ std::string BofTimecode::ToString(bool _ShowDate_B)
 	{
 		Rts_S = ToString(true, "", false, "", false);
 	}
-	Rts_S += "T";
-	Rts_S += ToString(false, "", true, "", false);
-	Rts_S += IsNtsc() ? "@60" : "@50";
+	Rts_S += " ";
+	Rts_S += ToString(false, "", true, "", true);
+//	Rts_S += IsNtsc() ? "@60" : "@50";
 
 	return Rts_S;
 
@@ -317,6 +321,7 @@ BOFERR BofTimecode::FromByteStruct(const BOF_TIMECODE &_rBofTimeCodeStruct_X)
 	if (Rts_E == BOF_ERR_NO_ERROR)
 	{
 		mTc_X = _rBofTimeCodeStruct_X;
+		mRate=(mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_NTSC) ? BofRational(1000,30,false):BofRational(1000,25,false);
 	}
 	return Rts_E;
 }

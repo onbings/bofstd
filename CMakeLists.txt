@@ -463,6 +463,7 @@ set(SYSTEM_FILES
 	include/bofstd/boftimecode.h
 	include/bofstd/bofasync.h
 	include/bofstd/bofvideostandard.h
+	include/bofstd/bofaudiostandard.h
 	include/bofstd/bofrational.h
 
 	source/bofsystem.cpp
@@ -473,6 +474,7 @@ set(SYSTEM_FILES
 	source/boftimecode.cpp
 	source/bofasync.cpp
 	source/bofvideostandard.cpp
+	source/bofaudiostandard.cpp
 	source/bofrational.cpp
 )
 

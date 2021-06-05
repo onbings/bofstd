@@ -30,10 +30,7 @@
 
 #include <inttypes.h>
 #include <bofstd/bofsystem.h>
-#include <bofstd/bofpath.h>
-#include <bofstd/bofvideostandard.h>
-#include <bofstd/boftimecode.h>
-#include <bofstd/bof2d.h>
+
 
 #if defined (_WIN32)
 //#include <ws2tcpip.h>                                                                               // for sockaddrin_6
@@ -261,7 +258,8 @@ BEGIN_BOF_NAMESPACE()
     struct in6_addr    IpV6_X;
     BofGuid            Guid;
     BofPath            Path;
-    BofVideoStandard	 VideoStandard;
+		BofVideoStandard	 VideoStandard;
+		BofAudioStandard	 AudioStandard;
 		BofTimecode			   TimeCode;
     BOF_SOCKET_ADDRESS *pIpV6_X;
     BOF_SOCKET_ADDRESS *pIpV4_X;
@@ -557,6 +555,14 @@ BEGIN_BOF_NAMESPACE()
 						case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
 							VideoStandard      = BofVideoStandard(pTheOptVal_c);
 							if (VideoStandard.Valid())
+							{
+								Rts_E = BOF_ERR_NO_ERROR;
+							}
+							break;
+
+						case BOFPARAMETER_ARG_TYPE::AUDIOSTANDARD:
+							AudioStandard      = BofAudioStandard(pTheOptVal_c);
+							if (AudioStandard.Valid())
 							{
 								Rts_E = BOF_ERR_NO_ERROR;
 							}
@@ -945,6 +951,19 @@ BEGIN_BOF_NAMESPACE()
 									}
 									break;
 
+								case BOFPARAMETER_ARG_TYPE::AUDIOSTANDARD:
+									if (InsertInStdVector_B)
+									{
+										std::vector<BofAudioStandard> *pVectorAudioStandard;
+										pVectorAudioStandard = reinterpret_cast<std::vector<BofAudioStandard> *>(pValue);
+										pVectorAudioStandard->push_back(AudioStandard);
+									}
+									else
+									{
+										*static_cast<BofAudioStandard *> (pValue) = AudioStandard;
+									}
+									break;
+
 								case BOFPARAMETER_ARG_TYPE::SIZE2D:
 									if (InsertInStdVector_B)
 									{
@@ -1145,6 +1164,11 @@ BEGIN_BOF_NAMESPACE()
 			case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
 			{
 				return "VIDEOSTANDARD";
+			}
+
+			case BOFPARAMETER_ARG_TYPE::AUDIOSTANDARD:
+			{
+				return "AUDIOSTANDARD";
 			}
 
 			case BOFPARAMETER_ARG_TYPE::SIZE2D:
@@ -1859,7 +1883,6 @@ DateTimeToString:
             }
           }
             break;
-
 					case BOFPARAMETER_ARG_TYPE::TC:
 					{
 						BofTimecode TimeCode;
@@ -1884,6 +1907,62 @@ DateTimeToString:
 						if (pRts_c)
 						{
 							snprintf(_pToString_c, _MaxSize_U32, "%s", TimeCode.ToString((pFormat_c[0] != 0) ? false : true).c_str());
+						}
+					}
+						break;
+
+					case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
+					{
+						BofVideoStandard VideoStandard;
+						if (GetFromStdVector_B)
+						{
+							std::vector<BofVideoStandard> *pVectorVideoStandard;
+							pVectorVideoStandard          = reinterpret_cast<std::vector<BofVideoStandard> *>(pValue);
+							_rVectorCapacity_U32 = static_cast<uint32_t>(pVectorVideoStandard->size());
+							if (_Index_U32 < _rVectorCapacity_U32)
+							{
+								VideoStandard = pVectorVideoStandard->operator[](_Index_U32);
+							}
+							else
+							{
+								pRts_c = nullptr;
+							}
+						}
+						else
+						{
+							VideoStandard = *static_cast<BofVideoStandard *> (pValue);
+						}
+						if (pRts_c)
+						{
+							snprintf(_pToString_c, _MaxSize_U32, "%s", VideoStandard.IdTxt());
+						}
+					}
+						break;
+
+					case BOFPARAMETER_ARG_TYPE::AUDIOSTANDARD:
+					{
+						BofAudioStandard AudioStandard;
+						if (GetFromStdVector_B)
+						{
+							std::vector<BofAudioStandard> *pVectorAudioStandard;
+							pVectorAudioStandard          = reinterpret_cast<std::vector<BofAudioStandard> *>(pValue);
+							_rVectorCapacity_U32 = static_cast<uint32_t>(pVectorAudioStandard->size());
+							if (_Index_U32 < _rVectorCapacity_U32)
+							{
+								AudioStandard = pVectorAudioStandard->operator[](_Index_U32);
+							}
+							else
+							{
+								pRts_c = nullptr;
+							}
+						}
+						else
+						{
+							AudioStandard = *static_cast<BofAudioStandard *> (pValue);
+						}
+						if (pRts_c)
+						{
+							snprintf(_pToString_c, _MaxSize_U32, "%s", AudioStandard.ToString().c_str());
 						}
 					}
 						break;
@@ -1913,8 +1992,8 @@ DateTimeToString:
 						{
 							snprintf(_pToString_c, _MaxSize_U32, "%dx%d", Size_X.Width_U32,Size_X.Height_U32);
 						}
+						break;
 					}
-					case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
 
           default:
           {

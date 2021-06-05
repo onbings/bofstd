@@ -98,12 +98,13 @@ int main(int argc, char *argv[])
 	testing::InitGoogleTest(&argc, argv);
 	int    Rts_i;
 
-	::testing::GTEST_FLAG(filter) = "JsonParser_Test.JsonCfg";
-	::testing::GTEST_FLAG(filter) = "JsonParser_Test.IpSenderDeser";
-	::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:JsonWriter_Test.*"; //JsonCfg";
+//	::testing::GTEST_FLAG(filter) = "JsonParser_Test.JsonCfg";
+//	::testing::GTEST_FLAG(filter) = "JsonParser_Test.IpSenderDeser";
+//	::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:JsonWriter_Test.*"; //JsonCfg";
 //	::testing::GTEST_FLAG(filter) ="JsonParser_Test.JsonCfg";
 //	::testing::GTEST_FLAG(filter) = "JsonWriter_Test.IpSwitcherSerDeser";
-//	::testing::GTEST_FLAG(filter) ="Timecode_Test.*";
+//	::testing::GTEST_FLAG(filter) ="Timecode_Test.*:CmdLineParser_Test.CmdLine";
+//	::testing::GTEST_FLAG(filter) ="CmdLineParser_Test.CmdLine";
 	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
 	Rts_i = RUN_ALL_TESTS();
 

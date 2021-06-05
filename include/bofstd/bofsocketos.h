@@ -327,6 +327,18 @@ BEGIN_BOF_NAMESPACE()
       uint16_t Rts_U16 = IpV6_B ? IpV6Address_X.sin6_port : IpV4Address_X.sin_port;
       return ntohs(Rts_U16);
     }
+		void Port(uint16_t _Port_U16)
+		{
+    	if (IpV6_B)
+			{
+				IpV6Address_X.sin6_port        = htons(_Port_U16);
+			}
+    	else
+			{
+				IpV4Address_X.sin_port        = htons(_Port_U16);
+			}
+		}
+
     uint32_t IpV4Address() const
     {
       uint32_t Rts_U32 = IpV4Address_X.sin_addr.s_addr;

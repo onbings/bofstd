@@ -103,6 +103,11 @@ struct APPPARAM
   int64_t            Val_S64;
   float              Val_f;
   double             Val_lf;
+	BofVideoStandard	 Vs;
+	BofAudioStandard	 As;
+	BofTimecode		   	 Tc;
+	BOF_SIZE					 Size_X;
+
   APPPARAM()
   {
     AskHelp_B     = false;
@@ -131,6 +136,7 @@ struct APPPARAM
     Val_S64 = 0;
     Val_f   = 0;
     Val_lf  = 0;
+    Size_X.Reset();
   }
 };
 
@@ -197,6 +203,11 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
                                      {nullptr, std::string("datetime"), std::string("Specifies a datetime."),                                             std::string("%d/%m/%Y %H:%M:%S"), std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.DateTime_X, DATETIME, 0, 0)},
                                      {nullptr, std::string("path"),     std::string("Specifies a path."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Path, PATH, 0, 0)},
 
+																		 {nullptr, std::string("vs"),     std::string("Specifies a video standard."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Vs, VIDEOSTANDARD, 0, 0)},
+																		 {nullptr, std::string("as"),     std::string("Specifies an audio standard."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.As, AUDIOSTANDARD, 0, 0)},
+																		 {nullptr, std::string("tc"),     std::string("Specifies a timecode."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Tc, TC, 0, 0)},
+																		 {nullptr, std::string("sz"),     std::string("Specifies a size."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Size_X, SIZE2D, 0, 0)},
+
                                    };
 
 /*** Factory functions called at the beginning/end of each test case **********/
@@ -225,7 +236,7 @@ void CmdLineParser_Test::TearDown()
 TEST_F(CmdLineParser_Test, CmdLine)
 {
   int                  Argc_i, Sts_i;
-  char                 ppArgument_c[32][128], *pArgv_c[32];
+  char                 ppArgument_c[64][128], *pArgv_c[64];
   std::string          HelpString_S, Ip_S;
   BofCommandLineParser *pBofCommandLineParser_O;
 
@@ -351,6 +362,23 @@ TEST_F(CmdLineParser_Test, CmdLine)
   strcpy(ppArgument_c[Argc_i], "--path=C:/tmp/babar/file.txt");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
+
+	strcpy(ppArgument_c[Argc_i], "--vs=1920x1080_59i");
+	pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+	Argc_i++;
+
+	strcpy(ppArgument_c[Argc_i], "--as=16x48000_S24L32");
+	pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+	Argc_i++;
+
+	strcpy(ppArgument_c[Argc_i], "--tc=1977-07-16 01:02:03:04  @1001/60");
+	pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+	Argc_i++;
+
+	strcpy(ppArgument_c[Argc_i], "--sz=123x456");
+	pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+	Argc_i++;
+
 //l:
 
   pBofCommandLineParser_O = new BofCommandLineParser();
@@ -443,10 +471,16 @@ TEST_F(CmdLineParser_Test, CmdLine)
   Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[2].IpV4_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "udp://10.20.30.40:50");
 
-  /*
+	EXPECT_STREQ(S_AppParam_X.Vs.IdTxt(), "1920x1080_59i");
+	EXPECT_STREQ(S_AppParam_X.As.ToString().c_str(), "16x48000_S24L32");
+	EXPECT_STREQ(S_AppParam_X.Tc.ToString(true).c_str(), "1977-07-16 01:02:03:04  @1001/60");
+	EXPECT_EQ(S_AppParam_X.Size_X.Width_U32, 123);
+	EXPECT_EQ(S_AppParam_X.Size_X.Height_U32, 456);
 
-  char                pVal_c[7][256];
-  */
+	/*
+
+	char                pVal_c[7][256];
+	*/
   pBofCommandLineParser_O->BuildHelpString(S_pCommandLineOption_X, ppArgument_c[0], HelpString_S);
   printf("%s", HelpString_S.c_str());
 

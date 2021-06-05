@@ -33,7 +33,7 @@ BEGIN_BOF_NAMESPACE()
 
 typedef uint32_t VideoStandardId;
 
-static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1280,  720, 60, 'p');
+static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1920,  1080, 50, 'p');
 
 class BofVideoStandard
 {
@@ -88,7 +88,7 @@ public:
   inline BofRational AudioClockRate() const
   {
     return (mIndex_i >= 0)
-           ? BofRational(S_mpTable_X[mIndex_i].AudioClockRateNum_S64, S_mpTable_X[mIndex_i].AudioClockRateDen_i)
+           ? BofRational(S_mpTable_X[mIndex_i].AudioClockRateNum_S64, S_mpTable_X[mIndex_i].AudioClockRateDen_i,true)
            : BofRational();
   }
   inline const char* Description() const
@@ -97,21 +97,15 @@ public:
   }
   inline BofRational EffectiveFrameRate() const
   {
-    return (mIndex_i >= 0)
-           ? (BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i) * ((S_mpTable_X[mIndex_i].Type_c == 'i') ? 2 : 1))
-           : BofRational();
+    return (mIndex_i >= 0)  ? (BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i, true) * ((S_mpTable_X[mIndex_i].Type_c == 'i') ? 2 : 1)) : BofRational();
   }
   inline int FieldsPerFrame() const
   {
-    return (mIndex_i >= 0)
-           ? (((S_mpTable_X[mIndex_i].Type_c == 'i') || (S_mpTable_X[mIndex_i].Type_c == 's')) ? 2 : 1)
-           : 0;
+    return (mIndex_i >= 0) ? (((S_mpTable_X[mIndex_i].Type_c == 'i') || (S_mpTable_X[mIndex_i].Type_c == 's')) ? 2 : 1) : 0;
   }
   inline BofRational FrameRate() const
   {
-    return (mIndex_i >= 0)
-           ? BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i)
-           : BofRational();
+    return (mIndex_i >= 0) ? BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i,true) : BofRational();
   }
   static BofVideoStandard FromIndex(const int index);
   inline bool Hdtv() const
@@ -129,8 +123,7 @@ public:
   inline BofRational ImageAspectRatio() const
   {
     return (mIndex_i >= 0)
-           ? BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i)
-           : BofRational(1);
+           ? BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i,true) : BofRational(1);
   }
   inline bool Interlaced() const
   {
@@ -138,16 +131,12 @@ public:
   }
   inline BofRational PixelAspectRatio() const
   {
-    return (mIndex_i >= 0)
-           ? PixelAspectRatio(S_mpTable_X[mIndex_i].ActiveCols_i, S_mpTable_X[mIndex_i].ActiveRows_i, BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i))
-           : BofRational(1);
+    return (mIndex_i >= 0) ? PixelAspectRatio(S_mpTable_X[mIndex_i].ActiveCols_i, S_mpTable_X[mIndex_i].ActiveRows_i, BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i,true)) : BofRational(1);
   }
   // imageA is 4:3 or 16:9
   inline BofRational PixelAspectRatio(const BofRational imageA) const
   {
-    return (mIndex_i >= 0)
-           ? PixelAspectRatio(S_mpTable_X[mIndex_i].ActiveCols_i, S_mpTable_X[mIndex_i].ActiveRows_i, imageA)
-           : BofRational(1);
+    return (mIndex_i >= 0) ? PixelAspectRatio(S_mpTable_X[mIndex_i].ActiveCols_i, S_mpTable_X[mIndex_i].ActiveRows_i, imageA) : BofRational(1);
   }
   static BofRational PixelAspectRatio(const int imageW, const int imageH, const BofRational imageA)
   {

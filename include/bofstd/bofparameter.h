@@ -25,6 +25,11 @@
 /*** Include files ***********************************************************/
 #include <bofstd/bofstd.h>
 #include <bofstd/bofflag.h>
+#include <bofstd/bofpath.h>
+#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofaudiostandard.h>
+#include <bofstd/boftimecode.h>
+#include <bofstd/bof2d.h>
 #include <functional>
 #include <vector>
 #include <cstdint>
@@ -86,6 +91,7 @@ enum class BOFPARAMETER_ARG_TYPE : uint32_t
 		PATH,
 		TC,
 		VIDEOSTANDARD,
+		AUDIOSTANDARD,
 		SIZE2D,
 };
 

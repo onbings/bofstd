@@ -14,6 +14,7 @@
 
 #include <bofstd/bofstd.h>
 #include <bofstd/bofsystem.h>
+#include <bofstd/bofrational.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -87,9 +88,10 @@ class BofTimecode
 private:
 		BOF_TIMECODE mTc_X;
 	  bool mTcValid_B=false;
+	  BofRational mRate;
 
 public:
-		BofTimecode() = default;    //Default constructor
+		BofTimecode();
 		BofTimecode(const BofTimecode &) = default; //Copy constructor
 		BofTimecode(BofTimecode &&) = default; //Move constructor
 		BofTimecode &operator=(const BofTimecode &) = default;  //Copy assignment operator
