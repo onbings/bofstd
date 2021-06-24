@@ -127,7 +127,7 @@ bool BofAudioStandard::S_Parse(const char *_pStandard_c, uint32_t &_rNbMonoChann
 	{
 		_rNbMonoChannel_U32=NbMonoChannel_i;
 		_rSamplingRateInHz_U32=SamplingRateInHz_i;
-		if (sscanf(_pStandard_c,"%c%d%c%d",&SignedSample_c,&ResolutionBit_i,&LittleEndian_c,&BitPerSample_i)==4)
+		if (sscanf(pAudioFormat_c,"%c%d%c%d",&SignedSample_c,&ResolutionBit_i,&LittleEndian_c,&BitPerSample_i)==4)
 		{
 			_rNbBitPerSample_U32=BitPerSample_i;
 			_rSampleFormat_E = S_AudioSampleFormatConverter().ToEnum(pAudioFormat_c);

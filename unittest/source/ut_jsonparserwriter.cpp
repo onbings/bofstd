@@ -1268,14 +1268,14 @@ TEST(JsonParser_Test, JsonCfg)
 	std::string JsonData_S, JsonOut_S;
 	BofJsonWriter BofJsonWriter_O;
 	std::string Cfg_S;
-
+/*
 	printf("sz MMGW_API_STATE %d MMGW_BOARD_STATE %d MMGW_BOARD_CHANNEL %d BOF_SOCKET_ADDRESS %d\n",sizeof(MMGW_API_STATE), sizeof(MMGW_BOARD_STATE),sizeof(MMGW_BOARD_CHANNEL),sizeof(BOF_SOCKET_ADDRESS));
 	printf("ONE O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[1].IoActive_B,
 				&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[3].IoActive_B);
 	printf("TWO O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[1].IoActive_B,
 				 &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[3].IoActive_B);
 
-
+*/
 	S_MmgwApiState_X.Reset();
 	Bof_GetCurrentDirectory(CrtDir);
 	Path = CrtDir + "jsonparser.json";
