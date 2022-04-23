@@ -1,0 +1,36 @@
+include(CMakeFindDependencyMacro)
+
+macro(find_package_dependency)
+
+  # When loading the *Config.cmake we should
+  # call find_dependency which is just a wrapper
+  # around find_package to display better
+  # messages to the user. When directly dealing
+  # with our CMakeLists.txt, we should call
+  # find_package directly
+  if(FROM_CONFIG_FILE)
+     find_dependency(${ARGN})
+  else()
+     find_package(${ARGN})
+  endif()
+
+endmacro()
+
+# =========================
+# == PUBLIC DEPENDENCIES ==
+# =========================
+
+# if(NOT TARGET ONBINGS::onbings-somelib)
+#   find_package_dependency(onbings-somelib REQUIRED)
+# endif()
+
+# ==========================
+# == PRIVATE DEPENDENCIES ==
+# ==========================
+
+#find_package_dependency(Qt5 REQUIRED Core Gui Widgets)
+
+# if(NOT TARGET ONBINGS::onbings-anotherlib)
+#   find_package_dependency(onbings-anotherlib REQUIRED)
+# endif()
+

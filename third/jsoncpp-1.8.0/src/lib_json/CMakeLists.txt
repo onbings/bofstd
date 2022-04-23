@@ -57,8 +57,8 @@ SET(jsoncpp_sources
                 json_reader.cpp
                 json_valueiterator.inl
                 json_value.cpp
-                json_writer.cpp
-                version.h.in)
+                json_writer.cpp)
+#                version.h.in)
 
 # Install instructions for this target
 IF(JSONCPP_WITH_CMAKE_PACKAGE)

@@ -1,0 +1,8 @@
+{
+  "name": "bofstd",
+  "version": "4.0.0",
+  "description": "The onbings general purpose C++ Multiplatform library",
+  "dependencies": [
+    { "name": "gtest"                         }
+  ]
+}
