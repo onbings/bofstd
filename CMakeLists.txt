@@ -51,15 +51,14 @@ option(BOFSTD_BUILD_EXAMPLES "Build examples of bofstd"         ON)
 option(BOFSTD_ENABLE_VERSIONING "Enable library versioning naming scheme for bofstd"          ON)
 option(BOFSTD_FORCE_EXPORT_ALL  "Force exporting all symbols of bofstd (for shared library)" OFF)
 
-option(BOFSTD_GENERATE_HELP  "Generate doxygen documentation" OFF)
-find_package(Doxygen)
-if (DOXYGEN_FOUND AND NOT TARGET documentation)
+#option(BOFSTD_GENERATE_HELP  "Generate doxygen documentation" OFF)
+#find_package(Doxygen)
+#if (DOXYGEN_FOUND AND NOT TARGET documentation)
 #	message("CMAKE_CURRENT_BINARY_DIR" ${CMAKE_CURRENT_BINARY_DIR})
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile @ONLY)
-	add_custom_target(documentation ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
-endif()
-
-option(BUILD_SHARED_LIBS "If ON, all libraries will be built shared unless the library was explicitly added as a static library"          ON)
+#	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile @ONLY)
+#	add_custom_target(documentation ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
+#endif()
+#option(BUILD_SHARED_LIBS "If ON, all libraries will be built shared unless the library was explicitly added as a static library"          ON)
 
 
 SET(CMAKE_COLOR_MAKEFILE ON)
