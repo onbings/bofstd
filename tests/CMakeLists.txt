@@ -171,7 +171,7 @@ if(MEMORYCHECK_SUPPRESSIONS_FILE)
 endif()
 
 
-message("copy file to " ${CMAKE_CURRENT_BINARY_DIR})
+message("copy test files to " ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY data/xmlparser.xml DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY data/xmlvectorparser.xml DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY data/jsonparser.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

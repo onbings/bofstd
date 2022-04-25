@@ -7,6 +7,7 @@ set(PUBLIC_INCLUDES_FILES
 
 
 set(API_FILES
+	bofversioninfo.h   #generated in binary build dir with configure_file
 	include/bofstd/boferr.h
 	include/bofstd/bofstd.h
 	src/bofstd.cpp
@@ -557,6 +558,8 @@ source_group("Zmq"				FILES ${ZMQ_FILES})
 source_group("CZmq"				FILES ${CZMQ_FILES})
 source_group("IXml"				FILES ${IXML_FILES})
 
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd/bofversioninfo.h.in ${CMAKE_CURRENT_BINARY_DIR}/bofversioninfo.h @ONLY)
+
 # ===========
 # == BUILD ==
 # ===========
@@ -598,7 +601,7 @@ target_include_directories(bofstd-objects
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/czmq/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below) and bofversioninfo.h (above)
 	
 	#Header path used when installed
 	$<INSTALL_INTERFACE:include>

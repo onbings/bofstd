@@ -26,7 +26,7 @@
 #include <bofstd/bofsocket.h>
 #include <map>
 #include <locale.h>
-
+#include <bofversioninfo.h>
 
 #if defined(_WIN32)
 DWORD  S_ModeIn_DW=0, S_ModeOut_DW=0;
@@ -269,7 +269,12 @@ static BofStdInitializer S_BofStdInitializer;		//Just to call Bof_Initialize/Bof
 */
 uint32_t GL_BofDbgPrintfStartTime_U32 = 0;
 bool  GL_BofLoggerHasBeenDeleted_B = false;
-/*** Class *************************************************************************************************************************/
+
+std::string Bof_GetVersion()
+{
+	return std::to_string(BOFSTD_VERSION_MAJOR ) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH);
+}
+
 BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
 {
 	BOFERR Rts_E;
@@ -401,10 +406,6 @@ BOFERR Bof_Shutdown()
 	return Rts_E;
 }
 
-std::string Bof_GetVersion()
-{
-	return "4.2.2.nodep.bha";
-}
 
 /*!
  * Check Cpu endianness.
