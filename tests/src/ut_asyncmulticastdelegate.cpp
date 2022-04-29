@@ -2700,7 +2700,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
 {
   BofMsgThread testThread;
 
-  testThread.LaunchThread("DelegateUnitTestsThread",  BOF_NAMESPACE::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_NAMESPACE::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY,0);
+  testThread.LaunchThread("DelegateUnitTestsThread",  BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY,0);
 
   // Run unit tests repeatedly to expose problems (e.g. deadlocks, memory leaks) a
   // with async delegates.
@@ -2727,19 +2727,19 @@ TEST(Async_Test, MulticastDelegatePerf)
   struct StructParam structParam;
   uint32_t           StartInMs_U32, i_U32;
 
-  testThread.LaunchThread("DelegateUnitTestsThread",BOF_NAMESPACE::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_NAMESPACE::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY,0);
+  testThread.LaunchThread("DelegateUnitTestsThread",BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY,0);
 
   MulticastDelegateSafe1<const StructParam *> MemberFuncStructConstPtr1MulticastDelegate;
   MemberFuncStructConstPtr1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
 
-  StartInMs_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+  StartInMs_U32 = BOF::Bof_GetMsTickCount();
   // MulticastDelegateSafeAsyncTests();
   for (i_U32    = 0; i_U32 < 100000; i_U32++)
   {
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
   }
-  printf("%d notif in %d ms\n", i_U32, BOF_NAMESPACE::Bof_ElapsedMsTime(StartInMs_U32));
+  printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
   MemberFuncStructConstPtr1MulticastDelegate.Clear();
 
 
@@ -2747,13 +2747,13 @@ TEST(Async_Test, MulticastDelegatePerf)
   MemberFuncStructConstPtr1MulticastDelegate += MakeDelegate(psTestClass1, &TestClass1::MemberFuncStructConstPtr2Bha, &testThread);
 
   //auto DelegateMemberAsyncSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
-  StartInMs_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+  StartInMs_U32 = BOF::Bof_GetMsTickCount();
   for (i_U32    = 0; i_U32 < 100000; i_U32++)
   {
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
   }
-  printf("%d notif in %d ms\n", i_U32, BOF_NAMESPACE::Bof_ElapsedMsTime(StartInMs_U32));
+  printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
 }
 
 struct NOTIFY_ARG
@@ -2779,11 +2779,11 @@ static int c=0x87654321;
 //#include <type_traits>
 TEST(Async_Test, AsyncNotifier)
 {
-  BOF_NAMESPACE::BOF_MULTICAST_ASYNC_NOTIFIER_PARAM MulticastAsyncNotifierParam_X;
+  BOF::BOF_MULTICAST_ASYNC_NOTIFIER_PARAM MulticastAsyncNotifierParam_X;
   uint32_t                                 StartInMs_U32, i_U32;
   NOTIFY_ARG                         MulticastNotifyArg_X;
-  MulticastAsyncNotifierParam_X.ThreadSchedulerPolicy_E   = BOF_NAMESPACE::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  MulticastAsyncNotifierParam_X.ThreadPriority_E          = BOF_NAMESPACE::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY;
+  MulticastAsyncNotifierParam_X.ThreadSchedulerPolicy_E   = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+  MulticastAsyncNotifierParam_X.ThreadPriority_E          = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY;
   MulticastAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
 //  MulticastAsyncNotifierParam_X.MaxPendingRequest_U32     = 100;
 
@@ -2797,13 +2797,13 @@ TEST(Async_Test, AsyncNotifier)
   FreeFuncStructRef1MulticastDelegate += MakeDelegate(&FreeFuncStructRef1, &testThread);
   FreeFuncStructRef1MulticastDelegate(structParam);
 */
-  BOF_NAMESPACE::BofMulticastAsyncNotifier<NOTIFY_ARG> MulticastAsyncNotifier(MulticastAsyncNotifierParam_X);
+  BOF::BofMulticastAsyncNotifier<NOTIFY_ARG> MulticastAsyncNotifier(MulticastAsyncNotifierParam_X);
 
   ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback,&a), BOF_ERR_NO_ERROR);
   ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
   ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
 
-  StartInMs_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+  StartInMs_U32 = BOF::Bof_GetMsTickCount();
   for (i_U32    = 0; i_U32 < 100000; i_U32++)
   {
     MulticastNotifyArg_X.Cpt_U32=i_U32;
@@ -2813,23 +2813,23 @@ TEST(Async_Test, AsyncNotifier)
 
   ASSERT_EQ(MulticastAsyncNotifier.Unregister(&MulticastNotifyCallback), BOF_ERR_NO_ERROR);
 
-  printf("%d notif in %d ms %d still pending, wait for the end\n", i_U32, BOF_NAMESPACE::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
+  printf("%d notif in %d ms %d still pending, wait for the end\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
   ASSERT_EQ(MulticastAsyncNotifier.WaitForNoMoreNotificationPending(10, 5000), BOF_ERR_NO_ERROR);
-  printf("Terminated in %d ms %d still pending\n", BOF_NAMESPACE::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
+  printf("Terminated in %d ms %d still pending\n", BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
 }
 
 TEST(Async_Test, SyncNotifier)
 {
-  BOF_NAMESPACE::BOF_MULTICAST_SYNC_NOTIFIER_PARAM MulticastSyncNotifierParam_X;
+  BOF::BOF_MULTICAST_SYNC_NOTIFIER_PARAM MulticastSyncNotifierParam_X;
   uint32_t                                 StartInMs_U32, i_U32;
   NOTIFY_ARG                         MulticastNotifyArg_X;
-  BOF_NAMESPACE::BofMulticastSyncNotifier<NOTIFY_ARG> MulticastSyncNotifier(MulticastSyncNotifierParam_X);
+  BOF::BofMulticastSyncNotifier<NOTIFY_ARG> MulticastSyncNotifier(MulticastSyncNotifierParam_X);
 
   ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback,&a), BOF_ERR_NO_ERROR);
   ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
   ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
 
-  StartInMs_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+  StartInMs_U32 = BOF::Bof_GetMsTickCount();
   for (i_U32    = 0; i_U32 < 100000; i_U32++)
   {
     MulticastNotifyArg_X.Cpt_U32=i_U32;

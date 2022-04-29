@@ -26,7 +26,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-using AudioSampleFormatEnumConverter = BOF_NAMESPACE::BofEnum<BOF_AUDIO_SAMPLE_FORMAT>;
+using AudioSampleFormatEnumConverter = BOF::BofEnum<BOF_AUDIO_SAMPLE_FORMAT>;
 static AudioSampleFormatEnumConverter &S_AudioSampleFormatConverter()
 {
 	static AudioSampleFormatEnumConverter S_TheAudioSampleFormatConverter

@@ -128,13 +128,13 @@ static std::vector< BOFPARAMETER > S_IpSenderOptionCollection =
 	{ nullptr,  "version",              "",              "",         "add_sender",                    BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_VARIABLE(S_IpSenderParam_X.Version_S,               STDSTRING,                  0,              0) },
 };
 static IPMANIFEST                  S_IpManifestParam_X;
-static std::vector< BOF_NAMESPACE::BOFPARAMETER > S_IpManifestOptionCollection =
+static std::vector< BOF::BOFPARAMETER > S_IpManifestOptionCollection =
 {
 	{ nullptr,  "",                 "",              "",         "add_manifest.sdp",                    BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY(S_IpManifestParam_X.pSdpLine_S,   STDSTRING,                  0,              0) },
 	{ nullptr,  "sender_id",            "",              "",         "add_manifest",                    BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_VARIABLE(S_IpManifestParam_X.SenderId_S,               STDSTRING,                  0,              0) },
 };
 static IPCONNECT                   S_IpConnectParam_X;
-static std::vector< BOF_NAMESPACE::BOFPARAMETER > S_IpConnectOptionCollection =
+static std::vector< BOF::BOFPARAMETER > S_IpConnectOptionCollection =
 {
 	{ nullptr,  "receiver_id",            "",              "",         "connect",                    BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_VARIABLE(S_IpConnectParam_X.ReceiverId_S,               STDSTRING,                  0,              0) },
 	{ nullptr,  "",                 "",              "",         "connect.sdp",                    BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_VECTOR(S_IpConnectParam_X.SdpCollection,   STDSTRING,                  0,              0) },

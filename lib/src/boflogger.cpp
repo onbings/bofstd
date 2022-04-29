@@ -389,9 +389,9 @@ BOFERR BofLogger::S_FormatMaskLogMsg(const char *_pChannelName_c, uint32_t _Mask
 					{
 						strcpy(pFile_c, "UNKNOWN");
 					}
-					if (BOF_NAMESPACE::BofLogger::S_Instance().GetOnErrorCodeToStringCallback())
+					if (BOF::BofLogger::S_Instance().GetOnErrorCodeToStringCallback())
 					{
-						pErrorCodeString_c = (BOF_NAMESPACE::BofLogger::S_Instance().GetOnErrorCodeToStringCallback())(_Sts_U32);
+						pErrorCodeString_c = (BOF::BofLogger::S_Instance().GetOnErrorCodeToStringCallback())(_Sts_U32);
 					}
 					else
 					{

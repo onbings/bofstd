@@ -54,7 +54,7 @@ enum class BOF_SOCKET_IO_NOTIFY_TYPE :uint32_t
 	WHEN_FULL_OR_CLOSED,
 	WHEN_FULL_OR_DELIMITER_FOUND,
 };
-typedef std::function<BOFERR(BOF_SOCKET_IO_DATA_REQ _IoDataReq_E, BOFERR Sts_E, BOF_NAMESPACE::BOF_BUFFER &_rDataBuffer_X, void *_pUserArg)> ON_SOCKET_DATA_IO_CALLBACK;
+typedef std::function<BOFERR(BOF_SOCKET_IO_DATA_REQ _IoDataReq_E, BOFERR Sts_E, BOF::BOF_BUFFER &_rDataBuffer_X, void *_pUserArg)> ON_SOCKET_DATA_IO_CALLBACK;
 const uint32_t BOF_SOCKETIO_MIN_NOTIFY_RCV_BUFFER_SIZE = 0x200;
 
 
@@ -215,7 +215,7 @@ private:
 	std::shared_ptr<BofSocketIo>	mpsChildDataChannel=nullptr;
 	std::weak_ptr<BofSocketIo>		mpwParentCmdChannel;
 	BofSocketServer *mpBofSocketServer = nullptr;
-	BOF_NAMESPACE::BOF_BUFFER mDataBuffer_X;
+	BOF::BOF_BUFFER mDataBuffer_X;
 
 	//use mConnected_B bool											mChannelConnected_B = false;
 	BofCvSetter<bool>					mChannelConnectedCvSetter = [&](bool _ChannelConnected_B) { mConnected_B = _ChannelConnected_B; };

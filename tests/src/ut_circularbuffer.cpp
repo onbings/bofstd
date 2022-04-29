@@ -172,7 +172,7 @@ BOFERR PushValue(uint32_t _Id_U32, uint32_t _NbLoop_U32, BofCircularBuffer<uint6
   //  printf("%03d:Push[%d]=%lld n=%d Rts %X\n", _Id_U32, i_U32, Val_U64, NbElem_U32, Rts_E);
     if (Rts_E)
     {
-      printf("%03d:Push[%d]->%d\n", _Id_U32, i_U32, BOF_NAMESPACE::Bof_GetMsTickCount());
+      printf("%03d:Push[%d]->%d\n", _Id_U32, i_U32, BOF::Bof_GetMsTickCount());
     }
     EXPECT_EQ(Rts_E, 0);
   }  
@@ -537,7 +537,7 @@ TEST(BofCircularBuffer_Test, BlockingMode)
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
   BOFERR Sts_E;
   uint32_t i_U32, j_U32;
-  BOF_NAMESPACE::BOF_DATE_TIME Now_X;
+  BOF::BOF_DATE_TIME Now_X;
   std::string Now_S;
 
   BofCircularBuffer<uint64_t>    *pBofCollection;
@@ -557,8 +557,8 @@ TEST(BofCircularBuffer_Test, BlockingMode)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   for (i_U32 = 0; i_U32 < 3; i_U32++)
   {
-    BOF_NAMESPACE::Bof_Now(Now_X);
-    Now_S = BOF_NAMESPACE::Bof_DateTimeToString(Now_X);
+    BOF::Bof_Now(Now_X);
+    Now_S = BOF::Bof_DateTimeToString(Now_X);
 
     printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
 
@@ -566,7 +566,7 @@ TEST(BofCircularBuffer_Test, BlockingMode)
     {
       pPushThread[j_U32] = std::thread(&PushValue, j_U32, NB_PUSH_PER_CLIENT, pBofCollection);
     }
-    BOF_NAMESPACE::Bof_MsSleep(50);
+    BOF::Bof_MsSleep(50);
     PopThread = std::thread(&PopValue, 0, NB_MAX_CLIENT*NB_PUSH_PER_CLIENT, pBofCollection);
 
     for (j_U32 = 0; j_U32 < NB_MAX_CLIENT; j_U32++)

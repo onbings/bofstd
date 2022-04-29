@@ -111,10 +111,10 @@ namespace std {
 #endif
 #endif
 
-#define BOF_NAMESPACE               onbings::bof
+#define BOF                         onbings::bof
 #define BEGIN_BOF_NAMESPACE()       namespace onbings { namespace bof {
 #define END_BOF_NAMESPACE()         } }
-#define USE_BOF_NAMESPACE()         using namespace BOF_NAMESPACE;
+#define USE_BOF_NAMESPACE()         using namespace BOF;
 
 #if defined( _WIN32 )
 #define BOF_LITTLE_ENDIAN
@@ -214,7 +214,7 @@ inline std::shared_ptr<To> reinterpret_pointer_cast(std::shared_ptr<From> const 
 #define BOF_EXTERN_C_BEGIN          extern "C" {
 #define BOF_EXTERN_C_END            };
 extern uint32_t GL_BofDbgPrintfStartTime_U32;
-#define BOF_DBG_PRINTF(Format, ...)   {printf("%10d [%08X] " Format, BOF_NAMESPACE::Bof_GetMsTickCount()-BOF_NAMESPACE::GL_BofDbgPrintfStartTime_U32,BOF_NAMESPACE::Bof_CurrentThreadId(),  ##__VA_ARGS__);}
+#define BOF_DBG_PRINTF(Format, ...)   {printf("%10d [%08X] " Format, BOF::Bof_GetMsTickCount()-BOF::GL_BofDbgPrintfStartTime_U32,BOF::Bof_CurrentThreadId(),  ##__VA_ARGS__);}
 
 #if defined (DEBUG)
 // #define BOF_ASSERT(_Expression)																													assert( (_Expression) )

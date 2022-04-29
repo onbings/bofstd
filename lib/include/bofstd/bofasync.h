@@ -200,7 +200,7 @@ BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _
   Rts_E = BOF_ERR_EINVAL;
   if (_PollTimeInMs_U32 <= _TimeoutInMs_U32)
   {
-    StartInMs_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+    StartInMs_U32 = BOF::Bof_GetMsTickCount();
     Rts_E         = BOF_ERR_FULL;
     do
     {
@@ -211,8 +211,8 @@ BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _
         //StartInMs_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
       }
 
-      BOF_NAMESPACE::Bof_MsSleep(_PollTimeInMs_U32);
-      DeltaInMs_U32 = BOF_NAMESPACE::Bof_ElapsedMsTime(StartInMs_U32);
+      BOF::Bof_MsSleep(_PollTimeInMs_U32);
+      DeltaInMs_U32 = BOF::Bof_ElapsedMsTime(StartInMs_U32);
     } while (DeltaInMs_U32 < _TimeoutInMs_U32);
   }
   return Rts_E;

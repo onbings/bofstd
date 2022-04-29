@@ -627,7 +627,7 @@ std::shared_ptr<BofSocketIo> BofSocketServer::ConnectedCmdSession(uint32_t _Inde
 	std::shared_ptr<BofSocketIo> psRts = nullptr;
 	uint32_t Start_U32, Delta_U32;
 
-	Start_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+	Start_U32 = BOF::Bof_GetMsTickCount();
 	do
 	{
 		if (_Index_U32 < mConnectedSessionCollection.size())
@@ -639,12 +639,12 @@ std::shared_ptr<BofSocketIo> BofSocketServer::ConnectedCmdSession(uint32_t _Inde
 		{
 			if (_PollTimeInMs_U32)
 			{
-        BOF_NAMESPACE::Bof_MsSleep(_PollTimeInMs_U32);
+        BOF::Bof_MsSleep(_PollTimeInMs_U32);
 			}
 		}
 		if (_TimeoutInMs_U32)
 		{
-			Delta_U32 = BOF_NAMESPACE::Bof_ElapsedMsTime(Start_U32);
+			Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
 		}
 		else
 		{

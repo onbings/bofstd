@@ -402,7 +402,7 @@ TEST_F(BofPot_Test, BlockingMode)
   BOF_POT_PARAM BofPotParam_X;
   BOFERR Sts_E;
   uint32_t i_U32, j_U32;
-  BOF_NAMESPACE::BOF_DATE_TIME Now_X;
+  BOF::BOF_DATE_TIME Now_X;
   std::string Now_S;
 
   BofPot<uint64_t>    *pBofCollection;
@@ -427,8 +427,8 @@ TEST_F(BofPot_Test, BlockingMode)
   for (i_U32 = 0; i_U32 < 3; i_U32++)
   {
     S_pValCollection.clear();
-    BOF_NAMESPACE::Bof_Now(Now_X);
-    Now_S = BOF_NAMESPACE::Bof_DateTimeToString(Now_X);
+    BOF::Bof_Now(Now_X);
+    Now_S = BOF::Bof_DateTimeToString(Now_X);
 
     printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
 
@@ -436,7 +436,7 @@ TEST_F(BofPot_Test, BlockingMode)
     {
       pPushThread[j_U32] = std::thread(&GetValue, j_U32, NB_GET_PER_CLIENT, pBofCollection);
     }
-    BOF_NAMESPACE::Bof_MsSleep(50);
+    BOF::Bof_MsSleep(50);
     EXPECT_NE((int)S_pValCollection.size(), 0);
 
     PopThread = std::thread(&ReleaseValue, 0, NB_MAX_CLIENT*NB_GET_PER_CLIENT, pBofCollection);

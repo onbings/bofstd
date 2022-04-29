@@ -2976,7 +2976,7 @@ std::string Bof_Random(bool _Reset_B, uint32_t _Size_U32, char _MinValue_c, char
   {
     BOFERR            Rts_E=BOF_ERR_NOT_SUPPORTED;
 
-    memset(&_rSystemUsageInfo_X, 0, sizeof(BOF_NAMESPACE::BOF_SYSTEM_USAGE_INFO));
+    memset(&_rSystemUsageInfo_X, 0, sizeof(BOF::BOF_SYSTEM_USAGE_INFO));
 #if defined (_WIN32)
 #else
     struct rusage  Usage_X;

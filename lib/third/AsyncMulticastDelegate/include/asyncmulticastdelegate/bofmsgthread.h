@@ -12,7 +12,7 @@
 
 class ThreadMsg;
 
-class BofMsgThread : public BOF_NAMESPACE::BofThread, public DelegateLib::DelegateThread
+class BofMsgThread : public BOF::BofThread, public DelegateLib::DelegateThread
 {
 public:
 	/// Constructor
@@ -23,7 +23,7 @@ public:
 
 	/// Called once to create the worker thread
 	/// @return TRUE if thread is created. FALSE otherise. 
-	bool LaunchThread(const char* threadName, BOF_NAMESPACE::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E,BOF_NAMESPACE::BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreMaskAffinity_U64);
+	bool LaunchThread(const char* threadName, BOF::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E,BOF::BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreMaskAffinity_U64);
 
 	uint32_t GetNbPendingRequest();
 

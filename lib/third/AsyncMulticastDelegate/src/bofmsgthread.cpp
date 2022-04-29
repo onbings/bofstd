@@ -13,7 +13,7 @@
 //----------------------------------------------------------------------------
 // BofMsgThread
 //----------------------------------------------------------------------------
-BofMsgThread::BofMsgThread() : BOF_NAMESPACE::BofThread()
+BofMsgThread::BofMsgThread() : BOF::BofThread()
 {
 }
 
@@ -28,7 +28,7 @@ BofMsgThread::~BofMsgThread()
 //----------------------------------------------------------------------------
 // CreateThread
 //----------------------------------------------------------------------------
-bool BofMsgThread::LaunchThread(const char *threadName, BOF_NAMESPACE::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_NAMESPACE::BOF_THREAD_PRIORITY _ThreadPriority_E,  uint64_t _ThreadCpuCoreMaskAffinity_U64)
+bool BofMsgThread::LaunchThread(const char *threadName, BOF::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF::BOF_THREAD_PRIORITY _ThreadPriority_E,  uint64_t _ThreadCpuCoreMaskAffinity_U64)
 {
   return (LaunchBofProcessingThread(threadName, false, 0, _ThreadSchedulerPolicy_E, _ThreadPriority_E, _ThreadCpuCoreMaskAffinity_U64, 1000, 0) == BOF_ERR_NO_ERROR);
 }

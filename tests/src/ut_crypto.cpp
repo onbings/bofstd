@@ -83,7 +83,7 @@ protected:
 	virtual void                SetUp();
 	virtual void                TearDown();
 
-	BOF_NAMESPACE::BofCryptoMd5 *mpBofCryptoMd5_O;
+	BOF::BofCryptoMd5 *mpBofCryptoMd5_O;
 };
 
 USE_BOF_NAMESPACE()

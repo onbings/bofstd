@@ -756,7 +756,7 @@ bool Bof_AlignedMemCpy8(volatile void *_pDst, const volatile void *_pSrc, uint32
 bool Bof_AlignedMemCpy16(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
 bool Bof_AlignedMemCpy32(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
 BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X);
-BOFERR Bof_AlignedMemFree(BOF_NAMESPACE::BOF_BUFFER &_rBuffer_X);
+BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
 
 std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZoneParam_X);
 

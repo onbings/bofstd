@@ -225,9 +225,9 @@ struct IPCONNECT
 */
 struct ADD_DEVICE
 {
-	BOF_NAMESPACE::BofGuid Id;
+	BOF::BofGuid Id;
 	std::string Label_S;
-	BOF_NAMESPACE::BofGuid NodeId;
+	BOF::BofGuid NodeId;
 	std::vector<std::string> ReceiverCollection;
 	std::vector<std::string> SenderCollection;
 	std::string Type_S;
@@ -257,9 +257,9 @@ struct ADD_SOURCE
 {
 	std::string Caps_S;
 	std::string Description_S;
-	BOF_NAMESPACE::BofGuid DeviceId;
+	BOF::BofGuid DeviceId;
 	std::string Format_S;
-	BOF_NAMESPACE::BofGuid Id;
+	BOF::BofGuid Id;
 	std::string Label_S;
 	std::vector<std::string> ParentCollection;
 	std::vector<std::string> TagCollection;
@@ -290,10 +290,10 @@ struct ADD_FLOW
 {
 	std::string Description_S;
 	std::string Format_S;
-	BOF_NAMESPACE::BofGuid Id;
+	BOF::BofGuid Id;
 	std::string Label_S;
 	std::vector<std::string> ParentCollection;
-	BOF_NAMESPACE::BofGuid SourceId;
+	BOF::BofGuid SourceId;
 	std::vector<std::string> TagCollection;
 	std::string Version_S;
 	ADD_FLOW()
@@ -322,9 +322,9 @@ struct ADD_FLOW
 struct ADD_SENDER
 {
 	std::string Description_S;
-	BOF_NAMESPACE::BofGuid DeviceId;
-	BOF_NAMESPACE::BofGuid FlowId;
-	BOF_NAMESPACE::BofGuid Id;
+	BOF::BofGuid DeviceId;
+	BOF::BofGuid FlowId;
+	BOF::BofGuid Id;
 	std::string Label_S;
 	std::string HrefManifest_S;
 	std::vector<std::string> TagCollection;
@@ -357,11 +357,11 @@ struct ADD_RECEIVER
 {
 	std::string Caps_S;
 	std::string Description_S;
-	BOF_NAMESPACE::BofGuid DeviceId;
+	BOF::BofGuid DeviceId;
 	std::string Format_S;
-	BOF_NAMESPACE::BofGuid Id;
+	BOF::BofGuid Id;
 	std::string Label_S;
-	BOF_NAMESPACE::BofGuid SubscriptionSenderId;
+	BOF::BofGuid SubscriptionSenderId;
 	std::vector<std::string> TagCollection;
 	std::string Transport_S;
 	std::string Version_S;
@@ -390,7 +390,7 @@ struct ADD_RECEIVER
 */
 struct ADD_MANIFEST
 {
-	BOF_NAMESPACE::BofGuid SenderId;
+	BOF::BofGuid SenderId;
 	std::vector<std::string> SdpLineCollection;
 	ADD_MANIFEST()
 	{
@@ -409,7 +409,7 @@ struct ADD_MANIFEST
 */
 struct CMD_CONNECT
 {
-	BOF_NAMESPACE::BofGuid  ReceiverId;
+	BOF::BofGuid  ReceiverId;
 	std::vector<std::string> SdpLineCollection;
 
 	CMD_CONNECT()
@@ -444,8 +444,8 @@ struct CMD_STATUS_RECEIVERS
 */
 struct REPLY_STATUS_RECEIVERS
 {
-	std::vector<BOF_NAMESPACE::BofGuid> IdCollection;
-	std::vector<BOF_NAMESPACE::BOF_SOCKET_ADDRESS> IpCollection;
+	std::vector<BOF::BofGuid> IdCollection;
+	std::vector<BOF::BOF_SOCKET_ADDRESS> IpCollection;
 	std::vector<std::string> PresentCollection;
 	std::vector<bool> ImpairedCollection;
 	std::vector<std::string> StateCollection;
@@ -484,8 +484,8 @@ struct CMD_STATUS_SENDERS
 */
 struct REPLY_STATUS_SENDERS
 {
-	std::vector<BOF_NAMESPACE::BofGuid> IdCollection;
-	std::vector<BOF_NAMESPACE::BOF_SOCKET_ADDRESS> IpCollection;
+	std::vector<BOF::BofGuid> IdCollection;
+	std::vector<BOF::BOF_SOCKET_ADDRESS> IpCollection;
 	std::vector<std::string> PresentCollection;
 	std::vector<bool> ImpairedCollection;
 	std::vector<std::string> StateCollection;

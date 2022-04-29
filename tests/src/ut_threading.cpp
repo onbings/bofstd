@@ -1083,20 +1083,20 @@ TEST(Threading_Test, CriticalSection)
 class Channel
 {
 private:
-	BOF_NAMESPACE::BofCvSetter<bool> mChannelOpenedCvSetter = [&](bool _ChannelOpened_B) {mChannelOpened_B= _ChannelOpened_B; };
-	BOF_NAMESPACE::BofCvPredicateAndReset<> mChannelOpenedCvPredicateAndReset = [&]()->bool {return mChannelOpened_B; };
+	BOF::BofCvSetter<bool> mChannelOpenedCvSetter = [&](bool _ChannelOpened_B) {mChannelOpened_B= _ChannelOpened_B; };
+	BOF::BofCvPredicateAndReset<> mChannelOpenedCvPredicateAndReset = [&]()->bool {return mChannelOpened_B; };
 	bool     mChannelOpened_B=false;
-	BOF_NAMESPACE::BOF_CONDITIONAL_VARIABLE mChannelOpenedCv_X;
+	BOF::BOF_CONDITIONAL_VARIABLE mChannelOpenedCv_X;
 
 public:
 	Channel()
 	{
-		BOF_ASSERT(BOF_NAMESPACE::Bof_CreateConditionalVariable("ChannelName",true, mChannelOpenedCv_X)==BOF_ERR_NO_ERROR);
+		BOF_ASSERT(BOF::Bof_CreateConditionalVariable("ChannelName",true, mChannelOpenedCv_X)==BOF_ERR_NO_ERROR);
 	}
 
 	~Channel()
 	{
-		BOF_ASSERT(BOF_NAMESPACE::Bof_DestroyConditionalVariable(mChannelOpenedCv_X)==BOF_ERR_NO_ERROR);
+		BOF_ASSERT(BOF::Bof_DestroyConditionalVariable(mChannelOpenedCv_X)==BOF_ERR_NO_ERROR);
 	}
 
 	BOFERR OpenChannel()
@@ -1105,7 +1105,7 @@ public:
 
 		if (!mChannelOpened_B)
 		{
-			BOF_NAMESPACE::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, true);
+			BOF::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, true);
 			Rts_E=BOF_ERR_NO_ERROR;
 		}
 		return Rts_E;
@@ -1117,7 +1117,7 @@ public:
 
 		if (mChannelOpened_B)
 		{
-			BOF_NAMESPACE::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, false);
+			BOF::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, false);
 			Rts_E=BOF_ERR_NO_ERROR;
 		}
 		return Rts_E;
@@ -1134,7 +1134,7 @@ public:
 
 		if (!Rts_B)
 		{
-			Rts_B = (BOF_NAMESPACE::Bof_WaitForConditionalVariable(mChannelOpenedCv_X, _TimeoutInMs_U32, mChannelOpenedCvPredicateAndReset)==BOF_ERR_NO_ERROR);
+			Rts_B = (BOF::Bof_WaitForConditionalVariable(mChannelOpenedCv_X, _TimeoutInMs_U32, mChannelOpenedCvPredicateAndReset)==BOF_ERR_NO_ERROR);
 		}
 		return Rts_B;
 	}

@@ -158,7 +158,7 @@ BOFERR BofSocketIo::MemCpyInDataBuffer(uint64_t _BufferSize_U64, const uint8_t *
 {
 	return (mDataBuffer_X.MemCpy(_BufferSize_U64, _pData_U8) != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_TOO_BIG;
 }
-BOF_NAMESPACE::BOF_BUFFER &BofSocketIo::DataBuffer()
+BOF::BOF_BUFFER &BofSocketIo::DataBuffer()
 {
 	return mDataBuffer_X;
 }

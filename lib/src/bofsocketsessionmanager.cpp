@@ -133,7 +133,7 @@ BofSocketSessionManager::BofSocketSessionManager(IBofSocketSessionFactory *_pIBo
 						{
 							for (i_U32 = 0; i_U32 < mNbMaxPollEntry_U32; i_U32++)
 							{
-								mpPollOp_X[i_U32].Fd = static_cast<BOF_NAMESPACE::BOFSOCKET>(-1);
+								mpPollOp_X[i_U32].Fd = static_cast<BOF::BOFSOCKET>(-1);
 							}
 						}
 						//DP https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor 
@@ -604,7 +604,7 @@ BOFERR BofSocketSessionManager::SendPollSocketCommand(uint32_t _OptionalAnswerTi
 			if (_OptionalAnswerTimeoutInMs_U32)
 			{
 				Rts_E = BOF_ERR_ETIMEDOUT;
-				Start_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+				Start_U32 = BOF::Bof_GetMsTickCount();
 				do
 				{
 					Nb_U32 = sizeof(BOF_POLL_SOCKET_CMD);
@@ -621,7 +621,7 @@ BOFERR BofSocketSessionManager::SendPollSocketCommand(uint32_t _OptionalAnswerTi
 					{
 						break;
 					}
-					Delta_U32 = BOF_NAMESPACE::Bof_ElapsedMsTime(Start_U32);
+					Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
 				} while (Delta_U32 < _OptionalAnswerTimeoutInMs_U32);
 			}
 		}
