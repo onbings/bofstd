@@ -755,11 +755,11 @@ install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/bofstd_export.h
         COMPONENT   bofstd-devel
 )
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include/fmt/.		
-		 DESTINATION include/fmt
+		 DESTINATION include/fmt-5.3.0
          COMPONENT   bofstd-devel
 )
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog-1.3.1/include/.			
-         DESTINATION include/spdlog		
+         DESTINATION include/spdlog-1.3.1		
          COMPONENT   bofstd-devel
 )
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/jsoncpp-1.8.0/include/json/.	
