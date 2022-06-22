@@ -1279,12 +1279,12 @@ BOFERR Bof_BgraToUyvy(uint32_t _Width_U32, int _Height_i, uint32_t _BrgaStride_U
         {
 /*
           intptr_t Io;
-          BOFERR Sts_E = Bof_CreateFile(BOF_NAMESPACE::BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_NAMESPACE::BOF_FILE_PERMISSION_WRITE_FOR_ALL, "./crop.raw", false, Io);
+          BOFERR Sts_E = Bof_CreateFile(BOF::BOF_FILE_PERMISSION_READ_FOR_ALL | BOF::BOF_FILE_PERMISSION_WRITE_FOR_ALL, "./crop.raw", false, Io);
           if (Sts_E == BOF_ERR_NO_ERROR)
           {
             uint32_t Size_U32=_pCrop_X->Width()*_pCrop_X->Height()*4;
-            Sts_E    = BOF_NAMESPACE::Bof_WriteFile(Io, Size_U32, pBgra_U8);
-            Sts_E    = BOF_NAMESPACE::Bof_CloseFile(Io);
+            Sts_E    = BOF::Bof_WriteFile(Io, Size_U32, pBgra_U8);
+            Sts_E    = BOF::Bof_CloseFile(Io);
           }
           */
           Sts_i = libyuv::ARGBToUYVY(pBgra_U8, DstStrideBgra_i, _pUyvy_U8, DstStrideUyvy_i, DstWidth_i,DstHeight_i);

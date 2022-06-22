@@ -49,7 +49,7 @@ typedef struct tagTHREADNAME_INFO
 
 #endif
 //#include <bofstd/boflogger.h>
-//BofLogger::S_Instance().Log("IpSwitcherLog", BOF_NAMESPACE::BOF_LOG_CHANNEL_LEVEL::CRITICAL, "BofSocketIo[%d] DoINeedToConnect_B", BOF_NAMESPACE::Bof_GetMsTickCount());
+//BofLogger::S_Instance().Log("IpSwitcherLog", BOF::BOF::CRITICAL, "BofSocketIo[%d] DoINeedToConnect_B", BOF::Bof_GetMsTickCount());
 
 BEGIN_BOF_NAMESPACE()
 #if defined (_WIN32)

@@ -270,7 +270,7 @@ void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonSer
 			}
 			// Register action to detect the "stop daemon"
 			memset(&SigAction_X, 0, sizeof(struct sigaction));
-			SigAction_X.sa_handler = &BOF_NAMESPACE::SignalHandler;
+			SigAction_X.sa_handler = &BOF::SignalHandler;
 			if (sigaction(SIGTERM, &SigAction_X, NULL) == -1)
 			{
 				mDaemonServiceParam_X.Sts_E = BOF_ERR_INTERNAL;

@@ -167,7 +167,7 @@ BOFERR PushValue(uint32_t _Id_U32, uint32_t _NbLoop_U32, BofCircularBuffer<uint6
   {
     Val_U64++;
 //    NbElem_U32 = _pBofCollection->GetNbElement();
-  //  sprintf(GL_pDbgPush_c, "%03d:Push[%d] %d\n", _Id_U32, i_U32, BOF_NAMESPACE::Bof_GetMsTickCount());
+  //  sprintf(GL_pDbgPush_c, "%03d:Push[%d] %d\n", _Id_U32, i_U32, BOF::Bof_GetMsTickCount());
     Rts_E = _pBofCollection->Push(&Val_U64,2000,nullptr);
   //  printf("%03d:Push[%d]=%lld n=%d Rts %X\n", _Id_U32, i_U32, Val_U64, NbElem_U32, Rts_E);
     if (Rts_E)
@@ -192,7 +192,7 @@ BOFERR PopValue(uint32_t /*_Id_U32*/, uint32_t _NbLoop_U32, BofCircularBuffer<ui
 //    NbElem_U32 = _pBofCollection->GetNbElement();
 //    printf("   %03d:Pop[%d] n=%d\n", _Id_U32, i_U32, NbElem_U32);
     Rts_E = _pBofCollection->Pop(&Val_U64, 2000, nullptr, nullptr);
-//    sprintf(GL_pDbgPop_c,"   %03d:Pop[%d]=%lld n=%d Rts %X at %d\n", _Id_U32, i_U32, Val_U64, NbElem_U32, Rts_E, BOF_NAMESPACE::Bof_GetMsTickCount());
+//    sprintf(GL_pDbgPop_c,"   %03d:Pop[%d]=%lld n=%d Rts %X at %d\n", _Id_U32, i_U32, Val_U64, NbElem_U32, Rts_E, BOF::Bof_GetMsTickCount());
     EXPECT_EQ(Rts_E, 0);
 //    EXPECT_EQ(ExpectedVal_U64, Val_U64);
   }

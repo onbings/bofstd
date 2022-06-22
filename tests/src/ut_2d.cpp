@@ -58,7 +58,7 @@ TEST(Bof2d_Test, UyvyToBgra)
     for (i_U32 = 0; i_U32 < 100; i_U32++)
     {
       Sts_E=BOF::Bof_UyvyToBgra(SAMPLE_WIDTH, SAMPLE_HEIGHT, SAMPLE_WIDTH * 2, GL_pFileData_U8, SAMPLE_WIDTH * 4,nullptr,BOF_ROTATION_0, GL_ConvertedData_U8);
-//      Sts_E=BOF_NAMESPACE::Bof_UyvyToBgra(SAMPLE_WIDTH, SAMPLE_HEIGHT, SAMPLE_WIDTH * 2, GL_pFileData_U8, SAMPLE_WIDTH * 4,&Crop_X,BOF_ROTATION_90, GL_ConvertedData_U8);
+//      Sts_E=BOF::Bof_UyvyToBgra(SAMPLE_WIDTH, SAMPLE_HEIGHT, SAMPLE_WIDTH * 2, GL_pFileData_U8, SAMPLE_WIDTH * 4,&Crop_X,BOF_ROTATION_90, GL_ConvertedData_U8);
       if (Sts_E!=BOF_ERR_NO_ERROR)
       {
         break;
@@ -102,7 +102,7 @@ TEST(Bof2d_Test, BgraToUyvy)
     for (i_U32 = 0; i_U32 < 100; i_U32++)
     {
       Sts_E=BOF::Bof_BgraToUyvy(SAMPLE_WIDTH, SAMPLE_HEIGHT, SAMPLE_WIDTH * 4, GL_pFileData_U8, SAMPLE_WIDTH * 2, nullptr,BOF_ROTATION_0, GL_ConvertedData_U8);
-//      Sts_E=BOF_NAMESPACE::Bof_BgraToUyvy(SAMPLE_WIDTH, SAMPLE_HEIGHT, SAMPLE_WIDTH * 4, GL_pFileData_U8, SAMPLE_WIDTH * 2, &Crop_X,BOF_ROTATION_90, GL_ConvertedData_U8);
+//      Sts_E=BOF::Bof_BgraToUyvy(SAMPLE_WIDTH, SAMPLE_HEIGHT, SAMPLE_WIDTH * 4, GL_pFileData_U8, SAMPLE_WIDTH * 2, &Crop_X,BOF_ROTATION_90, GL_ConvertedData_U8);
       if (Sts_E!=BOF_ERR_NO_ERROR)
       {
         break;

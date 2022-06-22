@@ -2791,7 +2791,7 @@ TEST(Async_Test, AsyncNotifier)
 //  std::cout << std::is_pointer<StructParam>::value << '\n';
 /*
   BofMsgThread       testThread;
-  testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF_NAMESPACE::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_NAMESPACE::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY);
+  testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY);
   StructParam structParam;
   MulticastDelegateSafe1<StructParam &> FreeFuncStructRef1MulticastDelegate;
   FreeFuncStructRef1MulticastDelegate += MakeDelegate(&FreeFuncStructRef1, &testThread);

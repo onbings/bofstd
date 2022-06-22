@@ -28,9 +28,9 @@ BEGIN_BOF_NAMESPACE()
 /*
 uint64_t GreatestCommonDivisor(const uint64_t a, const uint64_t b)
 {
-  register uint64_t u = a;
-  register uint64_t v = b;
-  register uint64_t tmp;
+  uint64_t u = a;
+  uint64_t v = b;
+  uint64_t tmp;
   while (u > 0) {
     tmp = u;
     u = v % u;
@@ -54,9 +54,9 @@ BofRational BofRational::FromFloat(const float val)
 // see http://www.linux-related.de/index.html?/coding/alg_euklid.htm
 void BofRational::Normalize()
 {
-  register uint64_t u = (mNumerator_S64 >= 0) ? mNumerator_S64 : (-mNumerator_S64);
-  register uint64_t v = mDenominator_U64;
-  register uint64_t tmp;
+  uint64_t u = (mNumerator_S64 >= 0) ? mNumerator_S64 : (-mNumerator_S64);
+  uint64_t v = mDenominator_U64;
+  uint64_t tmp;
   while (u > 0) {
     tmp = u;
     u = v % u;

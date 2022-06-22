@@ -106,7 +106,8 @@ int main(int argc, char *argv[])
 //	::testing::GTEST_FLAG(filter) ="Timecode_Test.*:CmdLineParser_Test.CmdLine";
 //	::testing::GTEST_FLAG(filter) ="CmdLineParser_Test.CmdLine";
 //	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
-	Rts_i = RUN_ALL_TESTS();
+	::testing::GTEST_FLAG(filter) = "Enum_Test.*";
+		Rts_i = RUN_ALL_TESTS();
 
 	Sts_E = Bof_Shutdown();
 	BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);

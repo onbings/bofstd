@@ -208,7 +208,7 @@ BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _
       {
         Rts_E = BOF_ERR_NO_ERROR;
         break;
-        //StartInMs_U32 = BOF_NAMESPACE::Bof_GetMsTickCount();
+        //StartInMs_U32 = BOF::Bof_GetMsTickCount();
       }
 
       BOF::Bof_MsSleep(_PollTimeInMs_U32);

@@ -483,7 +483,7 @@ TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
 	ASSERT_TRUE(puBofSocketServer != nullptr);
 	ASSERT_NE(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
 
-	BofSocketServerParam_X.Name_S = BOF_NAMESPACE::Bof_Sprintf("NoNbMaxSession");
+	BofSocketServerParam_X.Name_S = BOF::Bof_Sprintf("NoNbMaxSession");
 	puBofSocketServer = std::make_unique<MyTcpServer>(BofSocketServerParam_X);
 	ASSERT_TRUE(puBofSocketServer != nullptr);
 	ASSERT_NE(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
@@ -544,7 +544,7 @@ TEST(BofIo_Test, SendPollSocketCommand)
 		PollSocketCommand_X.SessionId = i_U32;
 		ASSERT_EQ(puBofSocketClientServer->SendPollSocketCommand(SEND_CMD_ANSWER_TIMEOUT_IN_MS, PollSocketCommand_X), BOF_ERR_NO_ERROR);
 	}
-	//BOF_NAMESPACE::Bof_MsSleep(5555555);
+	//BOF::Bof_MsSleep(5555555);
 	ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NB_MAX_CLIENT + 1));
 	ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
 	ASSERT_EQ(puBofSocketClientServer->NbPollChannel(),NB_MAX_CLIENT + 1);
@@ -617,7 +617,7 @@ TEST(BofIo_Test, OpenCloseCmdSession)
 
 	//	ASSERT_EQ(puBofSocketClientServer->OpenDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, true, "", psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
 
-//		ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF_NAMESPACE::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
+//		ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
 	}
 
 
@@ -631,8 +631,8 @@ TEST(BofIo_Test, OpenCloseCmdSession)
 	ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_CLIENT);
 	ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_CLIENT * 1));
 
-//	ASSERT_GE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (1 + 1 + (NB_MAX_CLIENT * 1)) + (1 + (NB_MAX_CLIENT * 1)));
-//	ASSERT_LE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (1 + 1 + (NB_MAX_CLIENT * 1)) * 2);
+//	ASSERT_GE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (1 + 1 + (NB_MAX_CLIENT * 1)) + (1 + (NB_MAX_CLIENT * 1)));
+//	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (1 + 1 + (NB_MAX_CLIENT * 1)) * 2);
 
 	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (7 + (NB_MAX_CLIENT * 1)) * 2);
 
@@ -797,8 +797,8 @@ TEST(BofIo_Test, OpenCloseCmdDataSession)
 	DebugInfo_S=puBofSocketServer->SocketServerDebugInfo();
 	BOF_DBG_PRINTF("puBofSocketServer\n%s", DebugInfo_S.c_str());
 	*/
-	//ASSERT_GE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (((1 + 1 + 1 + (NB_MAX_CLIENT * 1)) * 2) - 1));
-	//ASSERT_LE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (((1 + 1 + 1 + (NB_MAX_CLIENT * 1)) * 2)));
+	//ASSERT_GE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (((1 + 1 + 1 + (NB_MAX_CLIENT * 1)) * 2) - 1));
+	//ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (((1 + 1 + 1 + (NB_MAX_CLIENT * 1)) * 2)));
 	ASSERT_GE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (7 + (NbMaxClient_U32 * 4)));
 	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (8 + (NbMaxClient_U32 * 4)));
 
@@ -897,7 +897,7 @@ TEST(BofIo_Test, ServerOpenCloseCmdDataSession)
 
 	puBofSocketServer.reset(nullptr);
 	psBofSocketClient.reset();
-	ASSERT_EQ(BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), 0);
+	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 	*/
 }
 #if 0
@@ -934,7 +934,7 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
 	puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
 	ASSERT_TRUE(puBofSocketClientServer != nullptr);
 	ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-	ASSERT_EQ(BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), 3);
+	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
 
 	NotConnected_U32 = 0;
 	for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
@@ -953,7 +953,7 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
 		//		ASSERT_EQ(puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
 		if (puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]) == BOF_ERR_NO_ERROR)
 		{
-			ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF_NAMESPACE::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
+			ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
 
 			ASSERT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 2);
 		}
@@ -977,14 +977,14 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
 		{
 			if (psDataBofSocketIo[i_U32])	//NbMaxClient_U32
 			{
-				ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF_NAMESPACE::Bof_Sprintf("Data Message %03d From Client %03d", j_U32, i_U32), nullptr), BOF_ERR_NO_ERROR);
+				ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message %03d From Client %03d", j_U32, i_U32), nullptr), BOF_ERR_NO_ERROR);
 			}
 		}
 	}
 
 
-	ASSERT_GE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (3 + (NbMaxClient_U32 * 2)));
-	ASSERT_LE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (4 + (NbMaxClient_U32 * 2)));
+	ASSERT_GE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (3 + (NbMaxClient_U32 * 2)));
+	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (4 + (NbMaxClient_U32 * 2)));
 
 
 	for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
@@ -1005,8 +1005,8 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
 		psDataBofSocketIo[i_U32].reset();
 	}
 
-	ASSERT_EQ(BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), 0);
-	//BOF_NAMESPACE::Bof_MsSleep(2000); //Leave time for server to detect end of session
+	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+	//BOF::Bof_MsSleep(2000); //Leave time for server to detect end of session
 }
 
 TEST(BofIo_Test, ClientForH4X)
@@ -1021,7 +1021,7 @@ TEST(BofIo_Test, ClientForH4X)
 	uint32_t ReplyCode_U32, i_U32, j_U32;
 	std::string Reply_S, DebugInfo_S;
 	std::shared_ptr<MyTcpClient> psTcpClient;
-	BOF_NAMESPACE::BOF_BUFFER DataBuffer_X;
+	BOF::BOF_BUFFER DataBuffer_X;
 	std::vector<BOF_FTP_FILE> FtpFileCollection;
 	std::vector<XT_FILE> XtFileCollection;
 
@@ -1044,7 +1044,7 @@ TEST(BofIo_Test, ClientForH4X)
 	puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
 	ASSERT_TRUE(puBofSocketClientServer != nullptr);
 	ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-	ASSERT_EQ(BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), 3);
+	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
 
 	for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
 	{
@@ -1096,8 +1096,8 @@ TEST(BofIo_Test, ClientForH4X)
 	ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_H4X_CLIENT);
 	ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_H4X_CLIENT));
 
-	ASSERT_EQ((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
-//	ASSERT_LE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (4 + (NB_MAX_H4X_CLIENT)));
+	ASSERT_EQ((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
+//	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (4 + (NB_MAX_H4X_CLIENT)));
 
 	for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
 	{
@@ -1116,7 +1116,7 @@ TEST(BofIo_Test, ClientForH4X)
 		psDataBofSocketIo[i_U32].reset();
 	}
 
-	ASSERT_EQ(BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), 0);
+	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 }
 
 
@@ -1124,17 +1124,17 @@ TEST(BofIo_Test, ClientForH4X)
 TEST(BofIo_Test, UcodeServer)
 {
 	std::unique_ptr<UcodeProxyServer>  mpuUcodeProxyServer = nullptr;
-	BOF_NAMESPACE::BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
+	BOF::BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
 	bool Finish_B=false;
 	uint32_t i_U32,Start_U32, Periodic_U32, Delta_U32;
 
 	BofSocketServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
-	BofSocketServerParam_X.Name_S = BOF_NAMESPACE::Bof_Sprintf("UcodeProxyServer");
-	BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_NAMESPACE::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-	BofSocketServerParam_X.ThreadPriority_E = BOF_NAMESPACE::BOF_THREAD_DEFAULT_PRIORITY;
+	BofSocketServerParam_X.Name_S = BOF::Bof_Sprintf("UcodeProxyServer");
+	BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+	BofSocketServerParam_X.ThreadPriority_E = BOF::BOF_THREAD_DEFAULT_PRIORITY;
 	BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;;
-	BofSocketServerParam_X.Address_S = BOF_NAMESPACE::Bof_Sprintf("tcp://%s:%d", "127.0.0.1", 60000);
-	BofSocketServerParam_X.Address_S = BOF_NAMESPACE::Bof_Sprintf("tcp://%s:%d", "10.129.170.200", 60000);	//On ubuntu vm
+	BofSocketServerParam_X.Address_S = BOF::Bof_Sprintf("tcp://%s:%d", "127.0.0.1", 60000);
+	BofSocketServerParam_X.Address_S = BOF::Bof_Sprintf("tcp://%s:%d", "10.129.170.200", 60000);	//On ubuntu vm
 	BofSocketServerParam_X.NbMaxSession_U32 = NB_MAX_H4X_CLIENT;
 	BofSocketServerParam_X.MinPortValue_U16 = 55000;
 	BofSocketServerParam_X.MaxPortValue_U16 = 55099;
@@ -1149,13 +1149,13 @@ TEST(BofIo_Test, UcodeServer)
 	{
 		mpuUcodeProxyServer->BgTaskUcodeProxyServer();
     Bof_MsSleep(10);
-		Delta_U32 = BOF_NAMESPACE::Bof_ElapsedMsTime(Periodic_U32);
+		Delta_U32 = BOF::Bof_ElapsedMsTime(Periodic_U32);
 		if (Delta_U32 > 1000)
 		{
 			Periodic_U32 = Bof_GetMsTickCount();
 			BOF_DBG_PRINTF("SERVER LOOP[%d] Con %d Poll %d\n", i_U32++,mpuUcodeProxyServer->NbConnectedSession(), mpuUcodeProxyServer->NbPollChannel());
 		}
-		Delta_U32 = BOF_NAMESPACE::Bof_ElapsedMsTime(Start_U32);
+		Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
 		if ((Delta_U32 > 30000))	//|| (mpuUcodeProxyServer->NbConnectedSession() >= 10))
 		{
 			Finish_B=true;
@@ -1175,7 +1175,7 @@ TEST(BofIo_Test, ClientForUcode)
 	uint32_t ReplyCode_U32, i_U32, j_U32;
 	std::string Reply_S, DebugInfo_S;
 	std::shared_ptr<MyTcpClient> psTcpClient;
-	BOF_NAMESPACE::BOF_BUFFER DataBuffer_X;
+	BOF::BOF_BUFFER DataBuffer_X;
 	std::vector<BOF_FTP_FILE> FtpFileCollection;
 	std::vector<XT_FILE> XtFileCollection;
 
@@ -1198,7 +1198,7 @@ TEST(BofIo_Test, ClientForUcode)
 	puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
 	ASSERT_TRUE(puBofSocketClientServer != nullptr);
 	ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-	ASSERT_EQ(BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), 3);
+	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
 
 	for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
 	{
@@ -1252,8 +1252,8 @@ TEST(BofIo_Test, ClientForUcode)
 	ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_H4X_CLIENT);
 	ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_H4X_CLIENT));
 
-	ASSERT_EQ((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
-	//	ASSERT_LE((uint32_t)BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), (4 + (NB_MAX_H4X_CLIENT)));
+	ASSERT_EQ((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
+	//	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (4 + (NB_MAX_H4X_CLIENT)));
 
 	for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
 	{
@@ -1272,7 +1272,7 @@ TEST(BofIo_Test, ClientForUcode)
 		psDataBofSocketIo[i_U32].reset();
 	}
 
-	ASSERT_EQ(BOF_NAMESPACE::BofSocket::S_BofSocketBalance(), 0);
+	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 }
 
 #endif

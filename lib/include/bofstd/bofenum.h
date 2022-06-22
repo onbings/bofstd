@@ -49,7 +49,7 @@ ROOT_TREE_NODE_MAX,
 UNDEF,
 };
 
-using RootTreeNodeEnumConverter = BOF_NAMESPACE::BofEnum<ROOT_TREE_NODE>;
+using RootTreeNodeEnumConverter = BOF::BofEnum<ROOT_TREE_NODE>;
 static RootTreeNodeEnumConverter &S_RootTreeNodeConverter()
 {
   static RootTreeNodeEnumConverter  S_TheRootTreeNodeConverter
