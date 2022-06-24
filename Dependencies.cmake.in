@@ -46,23 +46,23 @@ if(NOT TARGET jsoncpp_object)
   endif()
 endif()
 
-if(NOT TARGET spdlog::spdlog)
+if(NOT TARGET spdlog)
   find_package_dependency(spdlog REQUIRED)
 endif()
 
-if(NOT TARGET zeromq::zeromq)
-  find_package_dependency(zeromq REQUIRED)
+if(NOT TARGET ZeroMQ)
+  find_package_dependency(ZeroMQ REQUIRED)
 endif()
 
-if(NOT TARGET czmq::czmq)
+if(NOT TARGET czmq)
   find_package_dependency(czmq REQUIRED)
 endif()
 
-#if(NOT TARGET linenoise-ng::linenoise-ng)
+#if(NOT TARGET linenoise-ng)
 #  find_package_dependency(linenoise-ng REQUIRED)
 #endif()
 
-if(NOT TARGET libyuv::libyuv)
+if(NOT TARGET libyuv)
   find_package_dependency(libyuv REQUIRED)
 endif()
 
