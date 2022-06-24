@@ -208,7 +208,8 @@ void ramcircularbuffer_sink<Mutex>::sink_it_(const spdlog::details::log_msg &msg
 	if (mpBofStringCircularBuffer)
 	{
     fmt::memory_buffer formatted;
-		spdlog::sinks::sink::formatter_->format(msg, formatted);
+#pragma Message("Please fix me sink_it_")
+//		spdlog::sinks::sink::formatter_->format(msg, formatted);
 		mpBofStringCircularBuffer->PushBinary(static_cast<uint32_t>(formatted.size()), formatted.data(), 0);
 	}
 }

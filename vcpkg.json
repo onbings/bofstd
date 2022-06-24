@@ -3,6 +3,12 @@
   "version": "5.1.5",
   "description": "The onbings general purpose C++ Multiplatform library",
   "dependencies": [
-    { "name": "gtest"                         }
+    { "name": "gtest" },
+    { "name": "jsoncpp" },
+    { "name": "spdlog" },
+    { "name": "zeromq" },
+    { "name": "czmq" },
+    { "name": "linenoise-ng" },
+    { "name": "libyuv" }
   ]
 }

@@ -457,7 +457,7 @@ BOFERR MyTcpClientServer::V_CloseSession(std::shared_ptr<BofSocketIo> _psSession
 }
 
 
-TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
+TEST(BofIo_Test, DISABLED_CreateAndDestroyBofSocketServer)
 {
 	uint32_t i_U32;
 	BOF_POLL_SOCKET_CMD PollSocketCmd_X;
@@ -505,7 +505,7 @@ TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
 }
 
 
-TEST(BofIo_Test, SendPollSocketCommand)
+TEST(BofIo_Test, DISABLED_SendPollSocketCommand)
 {
 	BOF_POLL_SOCKET_CMD PollSocketCommand_X;
 
@@ -554,7 +554,7 @@ TEST(BofIo_Test, SendPollSocketCommand)
 	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 }
 
-TEST(BofIo_Test, OpenCloseCmdSession) 
+TEST(BofIo_Test, DISABLED_OpenCloseCmdSession)
 {
 	std::unique_ptr<MyTcpServer> puBofSocketServer;
 	BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
@@ -663,7 +663,7 @@ TEST(BofIo_Test, OpenCloseCmdSession)
 	ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 }
 
-TEST(BofIo_Test, OpenCloseCmdDataSession)
+TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
 {
 	std::unique_ptr<MyTcpServer> puBofSocketServer;
 	BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
@@ -857,7 +857,7 @@ TEST(BofIo_Test, OpenCloseCmdDataSession)
 }
 
 
-TEST(BofIo_Test, ServerOpenCloseCmdDataSession)
+TEST(BofIo_Test, DISABLED_ServerOpenCloseCmdDataSession)
 {
 	std::unique_ptr<MyTcpServer> puBofSocketServer;
 	BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;

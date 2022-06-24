@@ -47,24 +47,6 @@ set(SERDER_FILES
 	src/bofjsonwriter.cpp	
 )
 
-SET( JSONCPP_VERSION 1.8.0 )
-SET( JSONCPP_USE_SECURE_MEMORY 0) # CACHE STRING "-D...=1 to use memory-wiping allocator for STL" )
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/third/jsoncpp-1.8.0/src/lib_json/version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/third/jsoncpp-1.8.0/include/json/version.h @ONLY)
-set(JSONCPP_FILES
-	third/jsoncpp-1.8.0/src/lib_json/json_tool.h
-	third/jsoncpp-1.8.0/src/lib_json/json_reader.cpp
-	third/jsoncpp-1.8.0/src/lib_json/json_valueiterator.inl
-	third/jsoncpp-1.8.0/src/lib_json/json_value.cpp
-	third/jsoncpp-1.8.0/src/lib_json/json_writer.cpp
-#see comment just below	third/jsoncpp-1.8.0/src/lib_json/version.h
-)
-# remove third/jsoncpp-1.8.0/src/lib_json/version.h from above list. If you don't you get:
-#  Policy CMP0115 is not set: Source file extensions must be explicit.  Run
-#  "cmake --help-policy CMP0115" for policy details.  Use the cmake_policy
-#  command to set the policy and suppress this warning.
-#  File:
-#    C:/pro/github/bofstd/lib/third/jsoncpp-1.8.0/src/lib_json/version.h.in
-
 set(ASYNCMULTICASTDELEGATE_FILES
 		third/AsyncMulticastDelegate/src/Allocator.cpp
 		third/AsyncMulticastDelegate/src/DelegateAsync.cpp
@@ -101,7 +83,7 @@ set(ASYNCMULTICASTDELEGATE_FILES
 		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/bofmsgthread.h
 		)
 
-set(YUV_FILES
+set(TBDYUV_FILES
 		third/libyuv/src/compare.cc
 		third/libyuv/src/compare_common.cc
 		third/libyuv/src/compare_gcc.cc
@@ -184,7 +166,7 @@ set(COMMANDLINE_FILES
 )
 
 #add_subdirectory(third/zeromq)
-set (ZMQ_FILES
+set (TBDZMQ_FILES
     third/zeromq/src/address.cpp
     third/zeromq/src/client.cpp
     third/zeromq/src/clock.cpp
@@ -274,7 +256,7 @@ set (ZMQ_FILES
     third/zeromq/src/gather.cpp
 )
 
-set(CZMQ_FILES
+set(TBDCZMQ_FILES
     third/czmq/include/czmq_library.h
     third/czmq/include/czmq_prelude.h
     third/czmq/include/czmq.h
@@ -366,7 +348,7 @@ set(IXML_FILES
 	third/ixml/src/inc/ixmlmembuf.h
 	third/ixml/src/inc/ixmlparser.h	
 )
-set(FMT_FILES
+set(TBDFMT_FILES
 	third/fmt-5.3.0/src/format.cc
 	third/fmt-5.3.0/src/posix.cc
 	third/fmt-5.3.0/include/fmt/chrono.h
@@ -382,11 +364,11 @@ set(FMT_FILES
 	third/fmt-5.3.0/include/fmt/time.h
 )
 
-set(SPDLOG_FILES
+set(TBDSPDLOG_FILES
 	third/spdlog-1.3.1/include/spdlog/spdlog.h
 )
 
-set(LOG_FILES
+set(TO_BE_FIXED_LOG_FILES
 	include/bofstd/iboflogchannel.h
 	include/bofstd/boflogchannel_spdlog.h
 	include/bofstd/boflogsink_spdlog.h
@@ -517,7 +499,6 @@ set(SOURCES_FILES
 	${SPDLOG_FILES}
 	${FS_FILES}
 	${COMMANDLINE_FILES}
-	${JSONCPP_FILES}
 	${ASYNCMULTICASTDELEGATE_FILES}
 	${YUV_FILES}
 	${ZMQ_FILES}
@@ -545,7 +526,6 @@ source_group("Graphic"					FILES ${GRAPH_FILES})
 source_group("Pattern"					FILES ${PATTERN_FILES})
 source_group("Parameter"				FILES ${PARAMETER_FILES})
 source_group("Ser_Deser"				FILES ${SERDER_FILES})
-source_group("Ser_Deser\\JsonCpp"		FILES ${JSONCPP_FILES})
 source_group("AsyncMulticastDelegate"	FILES ${ASYNCMULTICASTDELEGATE_FILES})
 source_group("Yuv"						FILES 				${YUV_FILES})
 source_group("Pattern"					FILES ${PATTERN_FILES})
@@ -591,14 +571,13 @@ target_include_directories(bofstd-objects
   PUBLIC
 	#Header path used at build time
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include>  
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog-1.3.1/include>  
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/jsoncpp-1.8.0/include>  
+	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include>  
+	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog-1.3.1/include>  
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/cpp-linenoise-master>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/libyuv/include>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/zeromq/include>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/czmq/include>
+	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/libyuv/include>
+	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/zeromq/include>
+	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/czmq/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below) and bofversioninfo.h (above)
@@ -615,6 +594,11 @@ target_link_libraries(bofstd-objects
 
   PRIVATE
 #    Qt5::Widgets
+    jsoncpp::jsoncpp
+    spdlog::spdlog
+	libzmq-static
+	czmq-static
+	yuv
 )
 
 	
@@ -637,18 +621,18 @@ endif()
 #disable exception in spd log and replace thme by assert(false) to avoid try around every sprintf
 target_compile_definitions(bofstd-objects
   PUBLIC
-	$<BUILD_INTERFACE:SPDLOG_FMT_EXTERNAL>		#can also be set in tweakme.h
-	$<BUILD_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
-	$<BUILD_INTERFACE:FMT_EXCEPTIONS>  
-	$<BUILD_INTERFACE:ZMQ_DEFINED_STDINT>  
-	$<BUILD_INTERFACE:ZMQ_STATIC>
-	$<BUILD_INTERFACE:CZMQ_STATIC>
+	# $<BUILD_INTERFACE:SPDLOG_FMT_EXTERNAL>		#can also be set in tweakme.h
+	# $<BUILD_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
+	# $<BUILD_INTERFACE:FMT_EXCEPTIONS>  
+	# $<BUILD_INTERFACE:ZMQ_DEFINED_STDINT>  
+	# $<BUILD_INTERFACE:ZMQ_STATIC>
+	# $<BUILD_INTERFACE:CZMQ_STATIC>
 	$<BUILD_INTERFACE:IXML_STATIC_LIB>
 	$<BUILD_INTERFACE:_CRT_SECURE_NO_WARNINGS>
 	$<BUILD_INTERFACE:_CRT_NONSTDC_NO_DEPRECATE>
 	$<BUILD_INTERFACE:_WINSOCK_DEPRECATED_NO_WARNINGS>
 
-	$<INSTALL_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
+	# $<INSTALL_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
 
   PRIVATE
     # Make directives export
@@ -754,26 +738,22 @@ install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/bofstd_export.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         COMPONENT   bofstd-devel
 )
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include/fmt/.		
-		 DESTINATION include/fmt-5.3.0
-         COMPONENT   bofstd-devel
-)
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog-1.3.1/include/.			
-         DESTINATION include/spdlog-1.3.1		
-         COMPONENT   bofstd-devel
-)
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/jsoncpp-1.8.0/include/json/.	
-         DESTINATION include/jsoncpp/json
-         COMPONENT   bofstd-devel
-)
+# install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include/fmt/.		
+# 		 DESTINATION include/fmt-5.3.0
+#          COMPONENT   bofstd-devel
+# )
+# install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog-1.3.1/include/.			
+#          DESTINATION include/spdlog-1.3.1		
+#          COMPONENT   bofstd-devel
+# )
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include/asyncmulticastdelegate/.	
          DESTINATION include/asyncmulticastdelegate
          COMPONENT   bofstd-devel
 )
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/libyuv/include/.	
-         DESTINATION include/libyuv
-         COMPONENT   bofstd-devel
-)
+# install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/libyuv/include/.	
+#          DESTINATION include/libyuv
+#          COMPONENT   bofstd-devel
+# )
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/help/html/. DESTINATION doc COMPONENT doc OPTIONAL)
 
