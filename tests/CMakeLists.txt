@@ -24,7 +24,7 @@ set(SERDER_FILES
 	data/jsonparser.json	
 )
 
-set(TO_BE_FIXED_LOG_FILES
+set(LOG_FILES
 	src/ut_stringformatter.cpp
 	src/ut_logger.cpp
 )

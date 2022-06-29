@@ -368,7 +368,7 @@ set(TBDSPDLOG_FILES
 	third/spdlog-1.3.1/include/spdlog/spdlog.h
 )
 
-set(TO_BE_FIXED_LOG_FILES
+set(LOG_FILES
 	include/bofstd/iboflogchannel.h
 	include/bofstd/boflogchannel_spdlog.h
 	include/bofstd/boflogsink_spdlog.h
@@ -622,6 +622,7 @@ endif()
 target_compile_definitions(bofstd-objects
   PUBLIC
 	# $<BUILD_INTERFACE:SPDLOG_FMT_EXTERNAL>		#can also be set in tweakme.h
+	# $<BUILD_INTERFACE:SPDLOG_USE_STD_FORMAT>
 	# $<BUILD_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
 	# $<BUILD_INTERFACE:FMT_EXCEPTIONS>  
 	# $<BUILD_INTERFACE:ZMQ_DEFINED_STDINT>  

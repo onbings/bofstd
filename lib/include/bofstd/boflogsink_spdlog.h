@@ -90,6 +90,7 @@ private:
 		spdlog::details::file_helper _file_helper;
 		uint32_t mMaxLogSizeInByte_U32;
 		uint32_t mCrtFileSizeInByte_U32;
+		std::string mLogFileName_S;
 };
 
 typedef simple_limitedfile_sink<std::mutex> simple_limitedfile_sink_mt;
@@ -127,6 +128,7 @@ private:
 		spdlog::details::file_helper _file_helper;
 		uint32_t mMaxLogSizeInByte_U32;
 		uint32_t mCrtFileSizeInByte_U32;
+		std::string mLogFileName_S;
 
 };
 
@@ -208,8 +210,7 @@ void ramcircularbuffer_sink<Mutex>::sink_it_(const spdlog::details::log_msg &msg
 	if (mpBofStringCircularBuffer)
 	{
     fmt::memory_buffer formatted;
-#pragma Message("Please fix me sink_it_")
-//		spdlog::sinks::sink::formatter_->format(msg, formatted);
+		spdlog::sinks::sink::formatter_->format(msg, formatted);
 		mpBofStringCircularBuffer->PushBinary(static_cast<uint32_t>(formatted.size()), formatted.data(), 0);
 	}
 }
@@ -224,7 +225,8 @@ simple_limitedfile_sink<Mutex>::simple_limitedfile_sink(const spdlog::filename_t
 {
 	mMaxLogSizeInByte_U32 = _MaxLogSizeInByte;
 	_file_helper.open(filename, truncate);
-	this->LogChannelPathName(filename);
+//#pragma message("Please fix me simple_limitedfile_sink")
+	mLogFileName_S = filename;
   flush_();  //To be sure that _file_helper.size() is ok
 	mCrtFileSizeInByte_U32 = static_cast<uint32_t>(_file_helper.size());
 }
@@ -249,7 +251,8 @@ void simple_limitedfile_sink<Mutex>::sink_it_(const spdlog::details::log_msg &ms
 
   if (CheckIfLimitedSizeIsReached(_file_helper, formatted, mCrtFileSizeInByte_U32, mMaxLogSizeInByte_U32))
   {
-    _file_helper.open(this->LogChannelPathName(), true);
+//#pragma message("Please fix me simple_limitedfile_sink")
+    _file_helper.open(mLogFileName_S, true);
     _file_helper.write(formatted);
     flush_(); //To be sure that _file_helper.size() is ok
     mCrtFileSizeInByte_U32 = static_cast<uint32_t>(_file_helper.size());;
@@ -275,8 +278,9 @@ limited_daily_file_sink<Mutex, FileNameCalc>::limited_daily_file_sink(const spdl
 	_rotation_tp = next_rotation_tp_();
   filename = spdlog::sinks::daily_filename_calculator::calc_filename(_base_filename, spdlog::details::os::localtime());
 	_file_helper.open(filename);
-	LogChannelPathName(filename);
+//#pragma message("Please fix me limited_daily_file_sink")
   flush_(); //To be sure that _file_helper.size() is ok
+	mLogFileName_S = filename;
 	mCrtFileSizeInByte_U32 = static_cast<uint32_t>(_file_helper.size());
 }
 
@@ -304,7 +308,9 @@ void limited_daily_file_sink<Mutex, FileNameCalc>::sink_it_(const spdlog::detail
       || (std::chrono::system_clock::now() >= _rotation_tp))
 	{
 		filename = FileNameCalc::calc_filename(_base_filename, spdlog::details::os::localtime());
-    LogChannelPathName(filename);
+#pragma message("Please fix me limited_daily_file_sink")
+		mLogFileName_S = filename;
+//    LogChannelPathName(filename);
     _file_helper.open(filename);
     _file_helper.write(formatted);
     flush_(); //To be sure that _file_helper.size() is ok
