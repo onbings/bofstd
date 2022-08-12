@@ -10,6 +10,7 @@
 #include <iostream>
 #include <bofstd/bofstd.h>
 #include <bofstd/bofsystem.h>
+#include "fmt/format.h"
 
 USE_BOF_NAMESPACE()
 
@@ -19,12 +20,14 @@ BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, con
 	return BOF_ERR_NO_ERROR;
 }
 
-
-
 int main(int argc, char *argv[])
 {
 	BOFERR Sts_E;
-
+	//Still this issue https://github.com/fmtlib/fmt/issues/
+	//look for #if 00 in ut_stringformatter and active them when fixed
+	//link fails with 
+	// 1>fmtd.lib(fmtd.dll) : error LNK2005: "protected: __cdecl fmt::v8::detail::buffer<char>::buffer<char>(char *,unsigned __int64,unsigned __int64)" (??0?$buffer@D@detail@v8@fmt@@IEAA@PEAD_K1@Z) already defined in boflogchannel_spdlog.obj
+	//if you activate the following line
 
 #if defined (_WIN32)
 #else

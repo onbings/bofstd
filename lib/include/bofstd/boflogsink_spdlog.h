@@ -38,7 +38,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Definitions *************************************************************/
 
-bool CheckIfLimitedSizeIsReached(spdlog::details::file_helper &_rFileHelper, const fmt::memory_buffer &_rFormatted, uint32_t &_rCrtFileSizeInByte_U32, uint32_t _MaxLogSizeInByte_U32);
+bool CheckIfLimitedSizeIsReached(spdlog::details::file_helper &_rFileHelper, uint32_t _LogLineSiwze_U32, uint32_t &_rCrtFileSizeInByte_U32, uint32_t _MaxLogSizeInByte_U32);
 
 /*** Class *******************************************************************/
 
@@ -209,9 +209,13 @@ void ramcircularbuffer_sink<Mutex>::sink_it_(const spdlog::details::log_msg &msg
 {
 	if (mpBofStringCircularBuffer)
 	{
+#if 0 //spdlog 1.3.1
     fmt::memory_buffer formatted;
 		spdlog::sinks::sink::formatter_->format(msg, formatted);
 		mpBofStringCircularBuffer->PushBinary(static_cast<uint32_t>(formatted.size()), formatted.data(), 0);
+#else
+		mpBofStringCircularBuffer->PushBinary(static_cast<uint32_t>(msg.payload.size()), msg.payload.data(), 0);
+#endif
 	}
 }
 
@@ -246,10 +250,14 @@ void simple_limitedfile_sink<Mutex>::flush_()
 template<typename Mutex>
 void simple_limitedfile_sink<Mutex>::sink_it_(const spdlog::details::log_msg &msg)
 {
-  fmt::memory_buffer formatted,last;
-  spdlog::sinks::sink::formatter_->format(msg, formatted);
-
-  if (CheckIfLimitedSizeIsReached(_file_helper, formatted, mCrtFileSizeInByte_U32, mMaxLogSizeInByte_U32))
+#if 0 //spdlog 1.3.1
+	fmt::memory_buffer formatted;
+	spdlog::sinks::sink::formatter_->format(msg, formatted);
+#else
+	spdlog::memory_buf_t formatted;
+	base_sink<Mutex>::formatter_->format(msg, formatted);
+#endif
+  if (CheckIfLimitedSizeIsReached(_file_helper, formatted.size(), mCrtFileSizeInByte_U32, mMaxLogSizeInByte_U32))
   {
 //#pragma message("Please fix me simple_limitedfile_sink")
     _file_helper.open(mLogFileName_S, true);
@@ -301,14 +309,20 @@ void limited_daily_file_sink<Mutex, FileNameCalc>::sink_it_(const spdlog::detail
 {
 	spdlog::filename_t filename;
 
-  fmt::memory_buffer formatted, last;
-  sink::formatter_->format(msg, formatted);
 
-  if (   (CheckIfLimitedSizeIsReached(_file_helper, formatted, mCrtFileSizeInByte_U32, mMaxLogSizeInByte_U32))
+#if 0 //spdlog 1.3.1
+	fmt::memory_buffer formatted;
+	sink::formatter_->format(msg, formatted);
+#else
+	spdlog::memory_buf_t formatted;
+	base_sink<Mutex>::formatter_->format(msg, formatted);
+#endif
+
+  if (   (CheckIfLimitedSizeIsReached(_file_helper, formatted.size(), mCrtFileSizeInByte_U32, mMaxLogSizeInByte_U32))
       || (std::chrono::system_clock::now() >= _rotation_tp))
 	{
 		filename = FileNameCalc::calc_filename(_base_filename, spdlog::details::os::localtime());
-#pragma message("Please fix me limited_daily_file_sink")
+//#pragma message("Please fix me limited_daily_file_sink")
 		mLogFileName_S = filename;
 //    LogChannelPathName(filename);
     _file_helper.open(filename);

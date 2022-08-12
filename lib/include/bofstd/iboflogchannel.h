@@ -189,10 +189,12 @@ struct BOF_LOG_CHANNEL_PARAM
 			DailyRotationTimeInMinuteAfterMidnight_U32 = 0;
 		}
 };
-
-//typedef std::function<void(void)> BOF_LOG_ASYNC_START_STOP_CALLBACK;
+#if 0 //spdlog 1.3.1
 typedef std::function<void(const std::string &_rErr_S)> BOF_LOG_ASYNC_ERROR_CALLBACK;
-//typedef void (*BOF_LOG_ASYNC_ERROR_CALLBACK)(const std::string &_rErr_S);
+#else
+typedef void (*BOF_LOG_ASYNC_ERROR_CALLBACK)(const std::string &_rErr_S);
+#endif
+//typedef std::function<void(void)> BOF_LOG_ASYNC_START_STOP_CALLBACK;
 typedef std::function<const char *(uint32_t _ErrorCode_U32)> BOF_LOG_ERROR_CODE_TOSTRING_CALLBACK;
 
 /*

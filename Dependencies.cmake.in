@@ -50,6 +50,10 @@ if(NOT TARGET spdlog)
   find_package_dependency(spdlog REQUIRED)
 endif()
 
+if(NOT TARGET fmt)
+  find_package_dependency(fmt REQUIRED)
+endif()
+
 if(NOT TARGET ZeroMQ)
   find_package_dependency(ZeroMQ REQUIRED)
 endif()

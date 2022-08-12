@@ -663,7 +663,8 @@ add_library(bofstd
 target_link_libraries(bofstd
   PUBLIC
     ONBINGS::bofstd-objects
-
+#PRIVATE 
+#	fmt::fmt   # Or use the header-only version   target_link_libraries(main PRIVATE fmt::fmt-header-only)
 )
 
 # Create alias
