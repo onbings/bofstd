@@ -31,6 +31,8 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/common.h>
 #include <spdlog/details/file_helper.h>
+#include <spdlog/sinks/base_sink.h>
+
 #include <fmt/format.h>
 BEGIN_BOF_NAMESPACE()
 
@@ -255,7 +257,7 @@ void simple_limitedfile_sink<Mutex>::sink_it_(const spdlog::details::log_msg &ms
 	spdlog::sinks::sink::formatter_->format(msg, formatted);
 #else
 	spdlog::memory_buf_t formatted;
-	base_sink<Mutex>::formatter_->format(msg, formatted);
+  spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
 #endif
   if (CheckIfLimitedSizeIsReached(_file_helper, formatted.size(), mCrtFileSizeInByte_U32, mMaxLogSizeInByte_U32))
   {
