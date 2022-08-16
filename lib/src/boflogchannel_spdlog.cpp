@@ -673,7 +673,8 @@ public:
 #if defined(_WIN32)
     WORD Color = 0;
 #else
-    std::string Color = "";
+//    std::string Color = "";
+    spdlog::string_view_t Color = "";
 #endif
 
     psLogger = spdlog::details::registry::instance().get(mLogChannelParam_X.ChannelName_S);
@@ -746,6 +747,7 @@ public:
             break;
           case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
             Color |= BACKGROUND_GREEN | BACKGROUND_BLUE;
+          mpsStdOutColorSink->set_color(LogLevel_E, Color);
             break;
           case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
             Color |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
@@ -758,6 +760,7 @@ public:
           {
             Color |= FOREGROUND_INTENSITY;
           }
+          mpsStdOutColorSink->set_color(LogLevel_E, Color);
 #else
           switch (Fore_E)
           {
@@ -790,44 +793,47 @@ public:
               Color = mpsStdOutColorSink->white;
               break;
           }
+          mpsStdOutColorSink->set_color(LogLevel_E, Color);
           switch (Back_E)
           {
             case LOG_COLOR_NO_CHANGE:
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK:
-              Color += mpsStdOutColorSink->on_black;
+              Color = mpsStdOutColorSink->on_black;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_RED:
-              Color += mpsStdOutColorSink->on_red;
+              Color = mpsStdOutColorSink->on_red;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_GREEN:
-              Color += mpsStdOutColorSink->on_green;
+              Color = mpsStdOutColorSink->on_green;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_YELLOW:
-              Color += mpsStdOutColorSink->on_yellow;
+              Color = mpsStdOutColorSink->on_yellow;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLUE:
-              Color += mpsStdOutColorSink->on_blue;
+              Color = mpsStdOutColorSink->on_blue;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_MAGENTA:
-              Color += mpsStdOutColorSink->on_magenta;
+              Color = mpsStdOutColorSink->on_magenta;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
-              Color += mpsStdOutColorSink->on_cyan;
+              Color = mpsStdOutColorSink->on_cyan;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
-              Color += mpsStdOutColorSink->on_white;
+              Color = mpsStdOutColorSink->on_white;
               break;
 
             default:
               break;
           }
+
+          mpsStdOutColorSink->set_color(LogLevel_E, Color);
           if (Bold_B)
           {
-            Color += mpsStdOutColorSink->bold;
+            Color = mpsStdOutColorSink->bold;
+            mpsStdOutColorSink->set_color(LogLevel_E, Color);
           }
 #endif
-          mpsStdOutColorSink->set_color(LogLevel_E, Color);
           Rts_E = BOF_ERR_NO_ERROR;
         }
       }
@@ -905,10 +911,12 @@ public:
             break;
           }
 
+          mpsStdErrColorSink->set_color(LogLevel_E, Color);
 #else
           if (Bold_B)
           {
-            Color += mpsStdErrColorSink->bold;
+            Color = mpsStdErrColorSink->bold;
+            mpsStdErrColorSink->set_color(LogLevel_E, Color);
           }
           switch (Fore_E)
           {
@@ -942,42 +950,44 @@ public:
               Color = mpsStdErrColorSink->white;
               break;
           }
+          mpsStdErrColorSink->set_color(LogLevel_E, Color);
+
           switch (Back_E)
           {
             case LOG_COLOR_NO_CHANGE:
               break;
 
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK:
-              Color += mpsStdErrColorSink->on_black;
+              Color = mpsStdErrColorSink->on_black;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_RED:
-              Color += mpsStdErrColorSink->on_red;
+              Color = mpsStdErrColorSink->on_red;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_GREEN:
-              Color += mpsStdErrColorSink->on_green;
+              Color = mpsStdErrColorSink->on_green;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_YELLOW:
-              Color += mpsStdErrColorSink->on_yellow;
+              Color = mpsStdErrColorSink->on_yellow;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLUE:
-              Color += mpsStdErrColorSink->on_blue;
+              Color = mpsStdErrColorSink->on_blue;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_MAGENTA:
-              Color += mpsStdErrColorSink->on_magenta;
+              Color = mpsStdErrColorSink->on_magenta;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
-              Color += mpsStdErrColorSink->on_cyan;
+              Color = mpsStdErrColorSink->on_cyan;
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
-              Color += mpsStdErrColorSink->on_white;
+              Color = mpsStdErrColorSink->on_white;
               break;
 
             default:
               break;
           }
+          mpsStdErrColorSink->set_color(LogLevel_E, Color);
 
 #endif
-          mpsStdErrColorSink->set_color(LogLevel_E, Color);
           Rts_E = BOF_ERR_NO_ERROR;
         }
       }
