@@ -96,7 +96,7 @@ enum class BOFPARAMETER_ARG_TYPE : uint32_t
 		SIZE2D,
 };
 
-struct BOFPARAMETER
+struct BOFSTD_EXPORT BOFPARAMETER
 {
 		void *pUser;
 		std::string Name_S;
@@ -166,7 +166,7 @@ struct BOFPARAMETER
 
 typedef std::function<BOFERR(uint32_t _Index_U32, const BOFPARAMETER &_rBofCommandlineOption_X, BOFERR _Err_E, const char *_pOptNewVal_c)> BOFPARAMETER_PARSE_CALLBACK;
 
-class BofParameter
+class BOFSTD_EXPORT BofParameter
 {
 public:
 		static BOFERR S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParameter_X, const char *_pOptVal_c, const BOFPARAMETER_PARSE_CALLBACK _pParseCallback_O);

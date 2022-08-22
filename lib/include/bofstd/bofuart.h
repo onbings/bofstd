@@ -78,7 +78,7 @@ const uint32_t UART_LISTENCONNECT_SIGN_REV = 0x55AA9669;
 
 /*** Structures *************************************************************/
 
-struct BOF_UART_PARAM
+struct BOFSTD_EXPORT BOF_UART_PARAM
 {
 		BOF_COM_CHANNEL_PARAM BaseChannelParam_X;           // Base properties of each channel
 
@@ -145,7 +145,7 @@ struct BOF_UART_PARAM
  *
  */
 
-class BofUart : public BofComChannel, public BofThread
+class BOFSTD_EXPORT BofUart : public BofComChannel, public BofThread
 {
 private:
 		BOF_UART_PARAM mUartParam_X;

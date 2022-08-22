@@ -39,7 +39,7 @@ BEGIN_BOF_NAMESPACE()
 
 typedef std::function<BOFERR(const char *_pError_c)> BOFCOMMANDLINEPARSER_ERROR_CALLBACK;
 
-class BofCommandLineParser
+class BOFSTD_EXPORT BofCommandLineParser
 {
 private:
 public:

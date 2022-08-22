@@ -67,7 +67,7 @@ BEGIN_BOF_NAMESPACE()
  *
  * These parameters are used to keep track of BofCryptoMd5 object state
  */
-struct BOF_MD5_CONTEXT
+struct BOFSTD_EXPORT BOF_MD5_CONTEXT
 {
 		uint32_t pState_U32[4];                                                    /*! State (ABCD) */
 		uint32_t pCount_U32[2];                                                    /*! Number of bits, modulo 2^64 (lsb first) */
@@ -97,7 +97,7 @@ struct BOF_MD5_CONTEXT
  * This class defines the interface for the BofCryptoMd5 object.
  */
 
-class BofCryptoMd5
+class BOFSTD_EXPORT BofCryptoMd5
 {
 private:
 		BOF_MD5_CONTEXT mMd5_X;

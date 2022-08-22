@@ -39,7 +39,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-class BofJsonWriter
+class BOFSTD_EXPORT BofJsonWriter
 {
 // Opaque pointer design pattern: all public and protected stuff goes here ...
 public:

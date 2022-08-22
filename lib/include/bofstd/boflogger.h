@@ -76,7 +76,7 @@ typedef std::map<std::string, std::shared_ptr<IBofLogChannel> >::iterator LogFct
 
 /*** Class *************************************************************************************************************************/
 // Singleton http://stackoverflow.com/questions/11711920/how-to-implement-multithread-safe-singleton-in-c11-without-using-mutex
-class BofLogger final
+class BOFSTD_EXPORT BofLogger final
 {
 private:
 		BOF_LOGGER_PARAM mLoggerParam_X;

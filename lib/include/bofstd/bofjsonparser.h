@@ -38,7 +38,7 @@
 BEGIN_BOF_NAMESPACE()
 typedef std::function<bool(BOFERR _Sts_E, const BOFPARAMETER &rJsonEntry_X, const char *_pValue_c)> BOFJSONPARSER_ERROR_CALLBACK;
 
-class BofJsonParser
+class BOFSTD_EXPORT BofJsonParser
 {
 // Opaque pointer design pattern: all public and protected stuff goes here ...
 public:

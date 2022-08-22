@@ -52,7 +52,7 @@ enum class BOF_COM_CHANNEL_LOCK
 
 /*** Structures *************************************************************/
 
-struct BOF_COM_CHANNEL_STATUS
+struct BOFSTD_EXPORT BOF_COM_CHANNEL_STATUS
 {
 		uint32_t NbIn_U32;
 		uint32_t NbOut_U32;
@@ -75,7 +75,7 @@ struct BOF_COM_CHANNEL_STATUS
 		}
 };
 
-struct BOF_COM_CHANNEL_PARAM
+struct BOFSTD_EXPORT BOF_COM_CHANNEL_PARAM
 {
 		std::string ChannelName_S;
 		bool Blocking_B;
@@ -100,7 +100,7 @@ struct BOF_COM_CHANNEL_PARAM
 
 /*** Function **************************************************************/
 
-class BofComChannel
+class BOFSTD_EXPORT BofComChannel
 {
 protected:
 		BOF_COM_CHANNEL_TYPE mComType_E;

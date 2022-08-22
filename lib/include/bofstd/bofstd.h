@@ -54,7 +54,7 @@ using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint
 #endif
 #endif
 
-struct BOFSTDPARAM
+struct BOFSTD_EXPORT BOFSTDPARAM
 {
 		bool AssertInRelease_B;
 		BofAssertCallback AssertCallback;

@@ -38,7 +38,7 @@ BEGIN_BOF_NAMESPACE()
 /*** Enum *****************************************************************/
 
 /*** Structure **************************************************************/
-  struct BOF_THREAD_PARAM
+  struct BOFSTD_EXPORT BOF_THREAD_PARAM
   {
     //bool SpreadCpuCore_B;
     //std::string ThreadParamToString_S
@@ -85,7 +85,7 @@ typedef std::function<BOFERR()> BOF_THREAD_CALLBACK;
  * See thread Microsoft MSDN documentation for more details
  */
 
-class BofThread
+class BOFSTD_EXPORT BofThread
 {
 private:
   BOFERR mThreadErrorCode_E = BOF_ERR_NO_ERROR;
@@ -122,53 +122,37 @@ public:
 #endif
 #endif
 
-		BOFSTD_EXPORT BofThread();
+		BofThread();
 
 		//	BofThread(const std::string &_rName_S);
 
-		BOFSTD_EXPORT virtual ~BofThread();
-
-		BOFSTD_EXPORT BOFERR InitThreadErrorCode();
-
-		BOFSTD_EXPORT BofThread &operator=(const BofThread &) = delete; // Disallow copying
-		BOFSTD_EXPORT BofThread(const BofThread &) = delete;
-
-		BOFSTD_EXPORT BOFERR SignalThreadWakeUpEvent();
-
-		BOFSTD_EXPORT BOFERR WaitForThreadWakeUpEvent(uint32_t _TimeoutInMs_U32);
-
-		BOFSTD_EXPORT BOFERR LockThreadCriticalSection(const char *_pLocker_c);
-
-		BOFSTD_EXPORT BOFERR UnlockThreadCriticalSection();
-
-		BOFSTD_EXPORT const char *LockInfo(int32_t &_rLockBalance_S32) const;
-
-		BOFSTD_EXPORT BOFERR SetThreadWakeUpInterval(uint32_t _WakeUpIntervalInMs_U32);
-
-		BOFSTD_EXPORT bool IsThreadLoopMustExit();
+		virtual ~BofThread();
+		BOFERR InitThreadErrorCode();
+		BofThread &operator=(const BofThread &) = delete; // Disallow copying
+		BofThread(const BofThread &) = delete;
+		BOFERR SignalThreadWakeUpEvent();
+		BOFERR WaitForThreadWakeUpEvent(uint32_t _TimeoutInMs_U32);
+		BOFERR LockThreadCriticalSection(const char *_pLocker_c);
+		BOFERR UnlockThreadCriticalSection();
+		const char *LockInfo(int32_t &_rLockBalance_S32) const;
+		BOFERR SetThreadWakeUpInterval(uint32_t _WakeUpIntervalInMs_U32);
+		bool IsThreadLoopMustExit();
 
 		//!!! Do not call this method in an intermediate caller object constructor such as in class B or C constructor. You can put it in A
 		//!!! class A:public B
 		//!!! class B:public C
 		//!!! If you do that you will receive "pure virtual method called" abort message as when you are in an intermediate constructor the virtual table is not ready
-		BOFSTD_EXPORT BOFERR LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32,BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E,BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32);
+		BOFERR LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32,BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E,BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32);
+		BOFERR DestroyBofProcessingThread(const char *_pUser_c);
+		bool   IsThreadRunning();
+		BOFERR PostThreatExit(const char *_pUser_c);
+		void SetThreadCallback(BOF_THREAD_CALLBACK _OnCreate, BOF_THREAD_CALLBACK _OnProcessing, BOF_THREAD_CALLBACK _OnStop);
 
-		BOFSTD_EXPORT BOFERR DestroyBofProcessingThread(const char *_pUser_c);
-
-		BOFSTD_EXPORT bool   IsThreadRunning();
-
-		BOFSTD_EXPORT BOFERR PostThreatExit(const char *_pUser_c);
-
-		BOFSTD_EXPORT void SetThreadCallback(BOF_THREAD_CALLBACK _OnCreate, BOF_THREAD_CALLBACK _OnProcessing, BOF_THREAD_CALLBACK _OnStop);
-
-		virtual BOFSTD_EXPORT BOFERR V_OnCreate();
-
-		virtual BOFSTD_EXPORT BOFERR V_OnProcessing();
-
-		virtual BOFSTD_EXPORT BOFERR V_OnStop();
-
-    static BOFSTD_EXPORT std::string S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool _ShowChosenCore_B);
-    static BOFSTD_EXPORT BOFERR S_ThreadParameterFromString(const char *_pThreadParameter_c, BOF_THREAD_PARAM &_rThreadParam_X);
+		virtual BOFERR V_OnCreate();
+		virtual BOFERR V_OnProcessing();
+		virtual BOFERR V_OnStop();
+    static std::string S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool _ShowChosenCore_B);
+    static BOFERR S_ThreadParameterFromString(const char *_pThreadParameter_c, BOF_THREAD_PARAM &_rThreadParam_X);
 private:
 		void BofThread_Thread();
 

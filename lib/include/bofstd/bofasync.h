@@ -27,7 +27,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-struct BOF_COMMAND_QUEUE_PARAM
+struct BOFSTD_EXPORT BOF_COMMAND_QUEUE_PARAM
 {
 	uint64_t                    ThreadCpuCoreAffinityMask_U64;
 	BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
@@ -48,7 +48,7 @@ struct BOF_COMMAND_QUEUE_PARAM
 		PollTimeoutInMs_U32=0;
 	}
 };
-struct BOF_COMMAND_QUEUE_ENTRY
+struct BOFSTD_EXPORT BOF_COMMAND_QUEUE_ENTRY
 {
 	std::string Name_S;
 	std::function<void ()> Cmd;
@@ -64,7 +64,7 @@ struct BOF_COMMAND_QUEUE_ENTRY
 		Cmd = _Cmd;
 	}
 };
-class BofCommandQueue
+class BOFSTD_EXPORT BofCommandQueue
 {
 public:
 	BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueueParam_X);
@@ -89,7 +89,7 @@ template<class T>
 using BOF_MULTICAST_ASYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
 //typedef void (*BOF_MULTICAST_ASYNC_NOTIFY_FCT)(const BOF_MULTICAST_ASYNC_NOTIFY_ARG *_pNotifyArg_X);
 
-struct BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
+struct BOFSTD_EXPORT BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
 {
 	uint64_t                    ThreadCpuCoreAffinityMask_U64;
 	BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
@@ -222,7 +222,7 @@ BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _
 template<class T>
 using BOF_MULTICAST_SYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
 
-struct BOF_MULTICAST_SYNC_NOTIFIER_PARAM
+struct BOFSTD_EXPORT BOF_MULTICAST_SYNC_NOTIFIER_PARAM
 {
   uint32_t                    Dummy_U32;
 

@@ -31,7 +31,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Structure **************************************************************/
 
-struct BOF_RAW_CIRCULAR_BUFFER_PARAM
+struct BOFSTD_EXPORT BOF_RAW_CIRCULAR_BUFFER_PARAM
 {
   bool     MultiThreadAware_B;                                            /*! true if the object is used in a multi threaded application (use mCs)*/
   uint32_t BufferSizeInByte_U32;                                          /*!	Specifies the maximum number of byte inside inside the queue*/
@@ -91,7 +91,7 @@ struct BOF_RAW_CIRCULAR_BUFFER_PARAM
  * None
  */
 
-class BofRawCircularBuffer
+class BOFSTD_EXPORT BofRawCircularBuffer
 {
 private:
   BOF_RAW_CIRCULAR_BUFFER_PARAM mRawCircularBufferParam_X;

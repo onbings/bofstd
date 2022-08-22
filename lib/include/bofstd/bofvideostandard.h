@@ -35,7 +35,7 @@ typedef uint32_t VideoStandardId;
 
 static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1920,  1080, 50, 'p');
 
-class BofVideoStandard
+class BOFSTD_EXPORT BofVideoStandard
 {
 public:
   BofVideoStandard() : mIndex_i(-1)

@@ -44,7 +44,7 @@ BEGIN_BOF_NAMESPACE()
 /*** BofStack *****************************************************************/
 
 
-struct BOF_STACK_PARAM
+struct BOFSTD_EXPORT BOF_STACK_PARAM
 {
 		bool MultiThreadAware_B;                                /*! true if the object is used in a multi threaded application (use mCs)*/
 		uint32_t MaxStackSize_U32;
@@ -73,7 +73,7 @@ struct BOF_STACK_PARAM
  * - Pop operations on basic type: byte, word, long, float, string,...
  */
 
-class BofStack
+class BOFSTD_EXPORT BofStack
 {
 private:
 		bool mDataPreAllocated_B;                       /*! true if mpData_U8 is provided by the caller*/

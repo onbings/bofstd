@@ -60,7 +60,7 @@ BEGIN_BOF_NAMESPACE()
   typedef struct iovec SCATTER_GATHER_BUFFER;
 #endif
 
-  struct BOF_POLL_SOCKET
+  struct BOFSTD_EXPORT BOF_POLL_SOCKET
   {
     BOFSOCKET Fd;
     uint16_t  Event_U16;
@@ -91,7 +91,7 @@ BEGIN_BOF_NAMESPACE()
 
 #pragma pack(1)
 
-  struct BOF_POLL_SOCKET_CMD
+  struct BOFSTD_EXPORT BOF_POLL_SOCKET_CMD
   {
     BOF_POLL_SOCKET_OP SocketOp_E;
     uint8_t            pSpare_U8[3];
@@ -167,7 +167,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Structures ********************************************************************************************************************/
 
-  struct BOF_SOCKET_ADDRESS_COMPONENT
+  struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
   {
     std::string Protocol_S;
     std::string IpAddress_S;
@@ -186,7 +186,7 @@ BEGIN_BOF_NAMESPACE()
     }
   };
 
-  struct BOF_SOCKET_ADDRESS
+  struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
   {
     bool              IpV6_B;
     BOF_SOCK_TYPE     SocketType_E;
@@ -403,7 +403,7 @@ BEGIN_BOF_NAMESPACE()
 
   };
 
-  struct BOF_INTERFACE_INFO
+  struct BOFSTD_EXPORT BOF_INTERFACE_INFO
   {
     std::string                IpGateway_S;
     BOF_NETWORK_INTERFACE_FLAG InterfaceFlag_E;
@@ -424,7 +424,7 @@ BEGIN_BOF_NAMESPACE()
     }
   };
 
-  struct BOF_NETWORK_INTERFACE_PARAM
+  struct BOFSTD_EXPORT BOF_NETWORK_INTERFACE_PARAM
   {
     bool        IpV6_B;        // Only ipV4 supported for now
     std::string Name_S;        // 16:IF_NAMESIZE linux 260: MAX_ADAPTER_NAME_LENGTH+4 win3�
@@ -453,66 +453,35 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Prototypes ********************************************************************************************************************/
 
-  BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X);
-
-  BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X);  //TODO IpV6 version
-
-  BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X); //TODO IpV6 version
-  BOFERR Bof_GetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X); //TODO IpV6 version
-
-  int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S);  //TODO IpV6 version
-  std::string Bof_ProtocolTypeToString(BOF_PROTOCOL_TYPE _ProtocolType_E);
-
-  std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowType_B, bool _ShowPortNumber_B);
-
-//std::string Bof_SockAddrInToString(const struct sockaddr &_rSockAddress_X, bool _ShowPortNumber_B);
-
-  std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN &_rSockAddressIn_X, bool _ShowPortNumber_B);
-
-  std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN6 &_rSockAddressIn_X, bool _ShowPortNumber_B);
-
-  BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string &_rIpOrUrlAddress_S, std::vector<BOF_SOCKET_ADDRESS> &_rListOfIpAddress_X);
-
-  BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X, std::string *_pIpAddress_S= nullptr);
-
-  BOFERR Bof_SocketAddressToBin(BOF_SOCKET_ADDRESS &_rIpAddress_X, std::vector<uint16_t> &_rBinFormat);
-
-  BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, BOF_SOCKET_ADDRESS &_rIpAddress_X);
-
-  BOFERR Bof_ProtocolType(const std::string &_rIpAddress_S, BOF_PROTOCOL_TYPE &_rProtocolType_E);
-
-  BOFERR Bof_IpAddressToBin(const std::string &_rIpAddress_S, bool &_rIsIpV6_B, std::vector<uint16_t> &_rIpBinDigitCollection);
-
-  BOF_SOCK_TYPE Bof_ProtocolToSocketType(BOF_PROTOCOL_TYPE _Protocol_E);
-
-  BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
-
-  BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
-
-  BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
-
-  BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
-
-  BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
-
-  std::string Bof_BuildIpAddress(const BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X);
-
-  bool Bof_IsMulticastIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddressComponent_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddressComponent_X);
-
-  bool Bof_IsIpAddressEqual(bool CheckType_i, bool _CheckFamily_B, bool _CheckPort_B, const BOF_SOCKET_ADDRESS &_rSrcIpAddress_X, const BOF_SOCKET_ADDRESS &_rDstIpAddress_X);
-
-  bool Bof_IsIpAddressNull(const BOF_SOCKET_ADDRESS &_rIpAddress_X);
-
-  bool Bof_IsIpAddressNull(const std::string &_rIpAddress_S);
-
-  bool Bof_IsIpAddressLocalHost(const BOF_SOCKET_ADDRESS &_rIpAddress_X);
-
-  bool Bof_IsIpAddressLocalHost(const std::string &_rIpAddress_S);
-
-  BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rCompatibleIpAddress_X);
-
-  BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32);
-
-/*** Classes ***********************************************************************************************************************/
+  BOFSTD_EXPORT  BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X);
+  BOFSTD_EXPORT BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X);  //TODO IpV6 version
+  BOFSTD_EXPORT BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X); //TODO IpV6 version
+  BOFSTD_EXPORT BOFERR Bof_GetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X); //TODO IpV6 version
+  BOFSTD_EXPORT int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S);  //TODO IpV6 version
+  BOFSTD_EXPORT std::string Bof_ProtocolTypeToString(BOF_PROTOCOL_TYPE _ProtocolType_E);
+  BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowType_B, bool _ShowPortNumber_B);
+  BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN &_rSockAddressIn_X, bool _ShowPortNumber_B);
+  BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN6 &_rSockAddressIn_X, bool _ShowPortNumber_B);
+  BOFSTD_EXPORT BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string &_rIpOrUrlAddress_S, std::vector<BOF_SOCKET_ADDRESS> &_rListOfIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X, std::string *_pIpAddress_S= nullptr);
+  BOFSTD_EXPORT BOFERR Bof_SocketAddressToBin(BOF_SOCKET_ADDRESS &_rIpAddress_X, std::vector<uint16_t> &_rBinFormat);
+  BOFSTD_EXPORT BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, BOF_SOCKET_ADDRESS &_rIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_ProtocolType(const std::string &_rIpAddress_S, BOF_PROTOCOL_TYPE &_rProtocolType_E);
+  BOFSTD_EXPORT BOFERR Bof_IpAddressToBin(const std::string &_rIpAddress_S, bool &_rIsIpV6_B, std::vector<uint16_t> &_rIpBinDigitCollection);
+  BOFSTD_EXPORT BOF_SOCK_TYPE Bof_ProtocolToSocketType(BOF_PROTOCOL_TYPE _Protocol_E);
+  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
+  BOFSTD_EXPORT std::string Bof_BuildIpAddress(const BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X);
+  BOFSTD_EXPORT bool Bof_IsMulticastIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddressComponent_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddressComponent_X);
+  BOFSTD_EXPORT bool Bof_IsIpAddressEqual(bool CheckType_i, bool _CheckFamily_B, bool _CheckPort_B, const BOF_SOCKET_ADDRESS &_rSrcIpAddress_X, const BOF_SOCKET_ADDRESS &_rDstIpAddress_X);
+  BOFSTD_EXPORT bool Bof_IsIpAddressNull(const BOF_SOCKET_ADDRESS &_rIpAddress_X);
+  BOFSTD_EXPORT bool Bof_IsIpAddressNull(const std::string &_rIpAddress_S);
+  BOFSTD_EXPORT bool Bof_IsIpAddressLocalHost(const BOF_SOCKET_ADDRESS &_rIpAddress_X);
+  BOFSTD_EXPORT bool Bof_IsIpAddressLocalHost(const std::string &_rIpAddress_S);
+  BOFSTD_EXPORT BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rCompatibleIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32);
 
 END_BOF_NAMESPACE()

@@ -70,7 +70,7 @@ enum BOF_ROTATION
 * Summary
 * Definition of a size entity
 */
-struct BOF_SIZE
+struct BOFSTD_EXPORT BOF_SIZE
 {
 		uint32_t Width_U32;               /*! Width value*/
 		uint32_t Height_U32;              /*! Height value*/
@@ -98,7 +98,7 @@ struct BOF_RECT;
 * Summary
 * Definition of a 2D point entity
 */
-struct BOF_POINT_2D
+struct BOFSTD_EXPORT BOF_POINT_2D
 {
 		int32_t x_S32;                    /*! Point x coordinate*/
 		int32_t y_S32;                    /*! Point y coordinate*/
@@ -129,7 +129,7 @@ struct BOF_POINT_2D
 * Summary
 * Definition of a 3D point entity
 */
-struct BOF_POINT_3D
+struct BOFSTD_EXPORT BOF_POINT_3D
 {
 		int32_t x_S32;                    /*! Point x coordinate*/
 		int32_t y_S32;                    /*! Point y coordinate*/
@@ -155,7 +155,7 @@ struct BOF_POINT_3D
 };
 
 #if 0
-struct BOF_SIZE_FLOAT
+struct BOFSTD_EXPORT BOF_SIZE_FLOAT
 {
 	float    Width_f;                    /*! Width value*/
 	float    Height_f;                   /*! Height value*/
@@ -180,7 +180,7 @@ struct BOF_SIZE_FLOAT
 * Summary
 * Definition of a rectangle zone
 */
-struct BOF_RECT
+struct BOFSTD_EXPORT BOF_RECT
 {
 		int32_t Left_S32;                 /*! Rectangle zone left x position*/
 		int32_t Right_S32;                /*! Rectangle zone right x position outside of rect: Width_U32  = (_rRect_X.Right_S32 - _rRect_X.Left_S32)*/
@@ -241,7 +241,7 @@ struct BOF_RECT
 * Summary
 * Definition of a color in the RGBA color space
 */
-struct BOF_RGBA
+struct BOFSTD_EXPORT BOF_RGBA
 {
 		uint8_t r_U8;                     /*! Color R component(Red)*/
 		uint8_t g_U8;                     /*! Color G component(Greeen)*/
@@ -273,7 +273,7 @@ struct BOF_RGBA
 * Summary
 * Definition of a color in the YUVA color space
 */
-struct BOF_YUVA
+struct BOFSTD_EXPORT BOF_YUVA
 {
 		uint8_t y_U8;                     /*! Color Y component(Luminance)*/
 		uint8_t u_U8;                     /*! Color U component(Chrominance)*/
@@ -323,7 +323,7 @@ struct BOF_YUVA
 		extern const BOF_YUVA GL_YuvNeg2_X;
 #pragma pack(2)
 
-struct BOF_BITMAP_FILE_HEADER
+struct BOFSTD_EXPORT BOF_BITMAP_FILE_HEADER
 {
 		uint16_t Type_U16;
 		uint32_t Size_U32;
@@ -350,7 +350,7 @@ struct BOF_BITMAP_FILE_HEADER
 
 #pragma pack (1)
 
-struct BOF_PALETTE_ENTRY
+struct BOFSTD_EXPORT BOF_PALETTE_ENTRY
 {
 		uint8_t r_U8;
 		uint8_t g_U8;
@@ -371,7 +371,7 @@ struct BOF_PALETTE_ENTRY
 		}
 };
 
-struct BOF_BITMAP_INFO_HEADER
+struct BOFSTD_EXPORT BOF_BITMAP_INFO_HEADER
 {
 		uint32_t Size_U32;
 		int32_t Width_S32;
@@ -406,7 +406,7 @@ struct BOF_BITMAP_INFO_HEADER
 		}
 };
 
-struct BOF_TGA_FLAG
+struct BOFSTD_EXPORT BOF_TGA_FLAG
 {
 		uint8_t AttBitsPerPixel_U8 : 4;   // Bits 0-3: 4 bits, number of attribute bits per pixel
 		uint8_t Reserved_U8 : 1;   // Bit 4: 1 bit, origin: 0=left, 1=right
@@ -439,7 +439,7 @@ runlength encoding.
 33 -  Compressed color-mapped data, using Huffman, Delta, and
 runlength encoding.  4-pass quadtree-type process.
 */
-struct BOF_TGA_HEADER
+struct BOFSTD_EXPORT BOF_TGA_HEADER
 {
 		uint8_t IdentSize_U8;        // size of ID field that follows 18 uint8_t header (0 usually)
 		uint8_t ColourMapType_U8;    // type of colour map 0=none, 1=has palette

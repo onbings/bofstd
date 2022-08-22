@@ -33,15 +33,15 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Class *******************************************************************/
 
-uint8_t Bof_MostSignificantBitSetPosition(uint64_t _Val_U64);
-uint8_t Bof_LessSignificantBitSetPosition(uint64_t _Val_U64);
-uint8_t Bof_Log2(uint64_t _Val_U64);
-uint8_t Bof_FindNumberOfBitSet(uint64_t _Val_U64);
-bool Bof_IsAPowerOf2(uint64_t _Val_U64);
-uint64_t Bof_NextHighestPowerOf2(uint64_t _Val_U64);
-uint64_t Bof_RoundUpOnMultipleOf(uint64_t _Val_U64, uint64_t _Multiple_U64);
-bool Bof_IsAligned(uint64_t _Align_U64, uint64_t _Val_U64);
-bool Bof_IsAligned(uint64_t _Align_U64, void *_pData);
-std::string Bof_BitToString(uint32_t _Value_U32, uint32_t _InsertASpaceEvery_U32);
+BOFSTD_EXPORT uint8_t Bof_MostSignificantBitSetPosition(uint64_t _Val_U64);
+BOFSTD_EXPORT uint8_t Bof_LessSignificantBitSetPosition(uint64_t _Val_U64);
+BOFSTD_EXPORT uint8_t Bof_Log2(uint64_t _Val_U64);
+BOFSTD_EXPORT uint8_t Bof_FindNumberOfBitSet(uint64_t _Val_U64);
+BOFSTD_EXPORT bool Bof_IsAPowerOf2(uint64_t _Val_U64);
+BOFSTD_EXPORT uint64_t Bof_NextHighestPowerOf2(uint64_t _Val_U64);
+BOFSTD_EXPORT uint64_t Bof_RoundUpOnMultipleOf(uint64_t _Val_U64, uint64_t _Multiple_U64);
+BOFSTD_EXPORT bool Bof_IsAligned(uint64_t _Align_U64, uint64_t _Val_U64);
+BOFSTD_EXPORT bool Bof_IsAligned(uint64_t _Align_U64, void *_pData);
+BOFSTD_EXPORT std::string Bof_BitToString(uint32_t _Value_U32, uint32_t _InsertASpaceEvery_U32);
 
 END_BOF_NAMESPACE()

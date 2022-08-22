@@ -33,7 +33,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Structure **************************************************************/
 
-struct BOF_POT_PARAM
+struct BOFSTD_EXPORT BOF_POT_PARAM
 {
   uint32_t MagicNumber_U32;                       /*! If not zero, specify the magic number to use to tag in use pot element (first uint32_t var of pot element) */
   bool     MultiThreadAware_B;                    /*! true if the object is used in a multi threaded application (use mCs)*/

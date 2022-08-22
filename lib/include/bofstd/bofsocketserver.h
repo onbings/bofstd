@@ -28,7 +28,7 @@
 BEGIN_BOF_NAMESPACE()
 
 //DP https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor and https://embeddedartistry.com/blog/2016/10/18/embedded-c-sharedfromthis
-class BofSocketServer : public BofSocketSessionManager	//, public std::enable_shared_from_this<BofSocketServer>
+class BOFSTD_EXPORT BofSocketServer : public BofSocketSessionManager	//, public std::enable_shared_from_this<BofSocketServer>
 {
 private:
   BOFERR                    mErrorCode_E = BOF_ERR_INIT;

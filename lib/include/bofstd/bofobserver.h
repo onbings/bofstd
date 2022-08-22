@@ -24,12 +24,13 @@
 
 #include <list>
 #include <mutex>
+#include "bofstd/bofstd.h"
 
 typedef int Info;
 
 class BofObservable;
 
-class BofObserver
+class BOFSTD_EXPORT BofObserver
 {
 protected:
 		std::mutex mCsObserver_O;
@@ -49,7 +50,7 @@ public:
 		void UnregisterObservable(BofObservable *_pBofObservable_O);
 };
 
-class BofObservable
+class BOFSTD_EXPORT BofObservable
 {
 private:
 		std::mutex mCsObservable_O;

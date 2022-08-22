@@ -35,7 +35,7 @@ enum class BOF_SOCKET_SERVER_MODE:uint32_t
 	BOF_SOCKET_SERVER_POLLER,
 };
 class BofSocketServer;
-struct BOF_SOCKET_SERVER_PARAM
+struct BOFSTD_EXPORT BOF_SOCKET_SERVER_PARAM
 {
 	BOF_SOCKET_SERVER_MODE      ServerMode_E;
 	std::string									Name_S;
@@ -69,7 +69,7 @@ struct BOF_SOCKET_SERVER_PARAM
 	}
 };
 
-class BofSocketSessionManager: public BofThread
+class BOFSTD_EXPORT BofSocketSessionManager: public BofThread
 {
 private:
 	BofSocketServer				*mpBofSocketServer = nullptr;

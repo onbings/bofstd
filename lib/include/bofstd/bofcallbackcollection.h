@@ -41,7 +41,7 @@ BEGIN_BOF_NAMESPACE()
 //https://stackoverflow.com/questions/6972368/stdenable-if-to-conditionally-compile-a-member-function
 //template< typename T>
 template<typename T> //,	typename = typename std::enable_if<std::is_function<typename std::remove_pointer<T>::type>::value	>::type>
-class BOFSTD_EXPORT BofCallbackCollection
+class BofCallbackCollection
 {
 
 private:

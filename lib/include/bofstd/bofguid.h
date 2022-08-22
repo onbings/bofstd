@@ -35,7 +35,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Class *******************************************************************/
 
-class BofGuid
+class BOFSTD_EXPORT BofGuid
 {
 		// Opaque pointer design pattern: all public and protected stuff goes here ...
 public:

@@ -43,7 +43,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Classes ***********************************************************************************************************************/
 
-class BofScriptLauncher
+class BOFSTD_EXPORT BofScriptLauncher
 {
 public:
 

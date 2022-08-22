@@ -28,7 +28,7 @@ BEGIN_BOF_NAMESPACE()
 
 //uint64_t GreatestCommonDivisor(const uint64_t a, const uint64_t b);
 
-class BofRational
+class BOFSTD_EXPORT BofRational
 {
 public:
   BofRational() : mNumerator_S64(0), mDenominator_U64(1)

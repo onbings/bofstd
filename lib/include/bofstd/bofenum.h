@@ -71,7 +71,7 @@ static RootTreeNodeEnumConverter &S_RootTreeNodeConverter()
 */
 ///@brief This class represent a double mapping between unique instances of @c T and strings.
 template<typename T>
-class BofEnum
+class BOFSTD_EXPORT BofEnum
 {
 public:
 		///@brief Constructor.

@@ -57,7 +57,7 @@ enum class BOF_BUFFER_ALLOCATE_ZONE : uint32_t
   BOF_BUFFER_ALLOCATE_ZONE_HUGE_PAGE,
 //	CMA,      ///< Contiguous Memory Allocator
 };
-struct BOF_BUFFER_ALLOCATE_HEADER
+struct BOFSTD_EXPORT BOF_BUFFER_ALLOCATE_HEADER
 {
 	BOF_BUFFER_ALLOCATE_ZONE AllocateZone_E;
 	//	uint32_t SizeInByte_U32;
@@ -79,7 +79,7 @@ struct BOF_BUFFER_ALLOCATE_HEADER
 		pHugePath_c[0] = 0;
 	}
 };
-struct BOF_BUFFER
+struct BOFSTD_EXPORT BOF_BUFFER
 {
 	bool MustBeDeleted_B;
 	uint64_t Size_U64;
@@ -191,7 +191,7 @@ enum class BOF_ACCESS_SIZE : uint32_t
 ///@remarks 12345688 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F ????????????????
 ///@remarks 12345698 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F  !"#$%&'()*+,-./
 ///@remarks 123456A8 30 31 32 33 34 35 36 37 38 39 3A 3B             0123456789:;
-struct BOF_DUMP_MEMORY_ZONE_PARAM
+struct BOFSTD_EXPORT BOF_DUMP_MEMORY_ZONE_PARAM
 {
 	uint32_t NbItemToDump_U32;	///< Specifies the number of item (uint8_t, uint16_t, uint32_t, uint64_t to dump.
 	const volatile void *pMemoryZone;		///< Specifies the address of the first byte of the memory zone to dump
@@ -225,7 +225,7 @@ struct BOF_DUMP_MEMORY_ZONE_PARAM
 };
 const uint32_t BOF_MUTEX_MAGIC = 0x01D654AC;
 
-struct BOF_MUTEX
+struct BOFSTD_EXPORT BOF_MUTEX
 {
 		uint32_t Magic_U32;
 		std::string Name_S;
@@ -248,7 +248,7 @@ struct BOF_MUTEX
 
 const uint32_t BOF_EVENT_MAGIC = 0x1F564864;
 
-struct BOF_EVENT
+struct BOFSTD_EXPORT BOF_EVENT
 {
 		uint32_t Magic_U32;
 		std::string Name_S;
@@ -279,7 +279,7 @@ struct BOF_EVENT
 
 const uint32_t BOF_SEMAPHORE_MAGIC = 0xABFF8974;
 
-struct BOF_SEMAPHORE
+struct BOFSTD_EXPORT BOF_SEMAPHORE
 {
 		uint32_t Magic_U32;
 		std::string Name_S;
@@ -304,7 +304,7 @@ struct BOF_SEMAPHORE
 
 const uint32_t BOF__CONDITIONAL_VARIABLE_MAGIC = 0xCBFDE456;
 
-struct BOF_CONDITIONAL_VARIABLE
+struct BOFSTD_EXPORT BOF_CONDITIONAL_VARIABLE
 {
 		uint32_t Magic_U32;
 		std::string Name_S;
@@ -327,7 +327,7 @@ struct BOF_CONDITIONAL_VARIABLE
 
 const uint32_t BOF_FILEMAPPING_MAGIC = 0x165464DE;
 
-struct BOF_SHARED_MEMORY
+struct BOFSTD_EXPORT BOF_SHARED_MEMORY
 {
 		uint32_t Magic_U32;
 		std::string Name_S;
@@ -451,7 +451,7 @@ enum BOF_THREAD_PRIORITY
 using BofThreadFunction = std::function<void *(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)>;
 const uint32_t BOF_THREAD_MAGIC = 0xCBE89448;
 
-struct BOF_THREAD
+struct BOFSTD_EXPORT BOF_THREAD
 {
 		uint32_t Magic_U32;
 		std::string Name_S;
@@ -502,14 +502,13 @@ struct BOF_THREAD
 
 struct BOF_DATE_TIME;
 
-BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
-
-BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
+BOFSTD_EXPORT BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
+BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
 
 #define BOF_SET_DATE_TIME(datetime, day, month, year, hour, minute, second, ms) {datetime.Day_U8 = day;datetime.Month_U8 = month;datetime.Year_U16 = year;datetime.DayOfWeek_U8 = 0;datetime.Hour_U8 = hour;datetime.Minute_U8 = minute;datetime.Second_U8 = second;datetime.Millisecond_U16=ms;}
 
 // Get month name by strftime.
-struct BOF_DATE_TIME
+struct BOFSTD_EXPORT BOF_DATE_TIME
 {
 		uint16_t Year_U16;                     // 2014
 		uint8_t Month_U8;                     // 1-12
@@ -598,7 +597,7 @@ struct BOF_DATE_TIME
 };
 
 
-typedef struct
+struct BOFSTD_EXPORT BOF_SYSTEM_USAGE_INFO
 {
   struct
   {
@@ -634,7 +633,7 @@ typedef struct
     uint64_t TotaHighInKB_U64; /* Total high memory size */
     uint64_t FreeHighInKB_U64;  /* Available high memory size */
   } MEMORY;
-}  BOF_SYSTEM_USAGE_INFO;
+};
 // !!! Millisecond_U16;  !! http://h30499.www3.hp.com/t5/Languages-and-Scripting/migration-to-64-bit-mode-semctl/td-p/3204127#.VUCj4XhV2zl !!!!
 typedef union semsetgetval
 {
@@ -642,143 +641,78 @@ typedef union semsetgetval
 }
 	BOF_SEM_SETGETVAL;
 
-BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_SHARED_MEMORY &_rSharedMemory_X);
-
-bool Bof_IsSharedMemoryValid(BOF_SHARED_MEMORY &_rSharedMemory_X);
-
-BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X);
-
-BOFERR Bof_DestroySharedMemory(const std::string &_rName_S);
-
-BOFERR Bof_CreateSemaphore(const std::string &_rName_S, int32_t _InitialCount_S32, BOF_SEMAPHORE &_rSem_X);
-
-bool Bof_IsSemaphoreValid(BOF_SEMAPHORE &_rSem_X);
-
-BOFERR Bof_SignalSemaphore(BOF_SEMAPHORE &_rSem_X);
-
-BOFERR Bof_WaitForSemaphore(BOF_SEMAPHORE &_rSem_X, uint32_t _TimeoutInMs_U32);
-
-BOFERR Bof_DestroySemaphore(BOF_SEMAPHORE &_rSem_X);
-
-BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _PriorityInversionAware_B, BOF_MUTEX &_rMtx_X);
-
-bool Bof_IsMutexValid(BOF_MUTEX &_rMtx_X);
-
-BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X);
-
-BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X);
-
-BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
-
-BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool _NotifyAll_B*/ uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, BOF_EVENT &_rEvent_X);
-
-bool Bof_IsEventValid(BOF_EVENT &_rEvent_X);
-
-BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, /*bool _CancelIt_B*/ uint32_t _Instance_U32);
-
-BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
-
-bool Bof_IsEventSignaled(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
-
-//bool Bof_IsEventCanceled(BOF_EVENT &_rEvent_X);
-
-BOFERR Bof_WaitForEvent(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint32_t _Instance_U32);
-
-BOFERR Bof_DestroyEvent(BOF_EVENT &_rEvent_X);
-
-BOF_THREAD_PRIORITY Bof_ThreadPriorityFromValue(int32_t _Priority_S32);
-int32_t Bof_ValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E);
-
-BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY &_rMin_E, BOF_THREAD_PRIORITY &_rMax_E);
-
-BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY &_rPolicy_E, BOF_THREAD_PRIORITY &_rPriority_E);
-
-BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E);
-
-BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFunction, void *_pUserContext, BOF_THREAD &_rThread_X);
-
-bool Bof_IsThreadValid(BOF_THREAD &_rThread_X);
-
-BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);
-
-BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X);
-
-uint32_t Bof_CurrentThreadId();
-
-BOFERR Bof_GetMemoryState(uint64_t &_rAvailableFreeMemory_U64, uint64_t &_rTotalMemorySize_U64);
-
-uint32_t Bof_InterlockedCompareExchange(uint32_t volatile *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);
-
-bool Bof_IsPidRunning(uint32_t _Pid_U32);
-
-uint32_t Bof_GetCurrentPid();
-
-BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32=nullptr);
-
-bool Bof_PatternCompare(const char *_pString_c, const char *_pPattern_c);
-
-BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTime_X);
-
-BOFERR Bof_TimeInSecSince1970_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X);
-
-BOFERR Bof_DateInDaySince1970_To_BofDateTime(time_t _DateInDaySince1970, BOF_DATE_TIME &_rDateTime_X);
-
-BOFERR Bof_BofDateTime_To_DateInDaySince1970(const BOF_DATE_TIME &_rDateTime_X, time_t &_rDateInDaySince1970);
-
-BOFERR Bof_Now(BOF_DATE_TIME &_rDateTime_X);
-
-BOFERR Bof_SetDateTime(const BOF_DATE_TIME &_rDateTime_X);
-
-bool Bof_IsLeapYear(uint16_t _Year_U16);
-
-BOFERR Bof_DateTimeToNumber(const BOF_DATE_TIME &_pDateTime_X, double &_rDayNumber_lf);
-
-BOFERR Bof_ValidateDateTime(const BOF_DATE_TIME &_rDateTime_X);
-
-BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
-
-BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
-const std::string Bof_DateTimeToString(const BOF_DATE_TIME &_rDateTime_X, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
-
-BOF_DATE_TIME Bof_DateTimeFromString(const std::string &_rDateTime_S, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
-
-BOFERR Bof_DeltaMsToHms(uint32_t _DeltaInMs_U32, uint32_t &_rDay_U32, uint32_t &_rHour_U32, uint32_t &_rMinute_U32, uint32_t &_rSecond_U32,uint32_t &_rMs_U32);
-
-BOFERR Bof_Exec(const std::string &_rCommand_S, std::string *_pCapturedOutput_S, int32_t &_rExitCode_S32);
-
-const char *Bof_GetEnvVar(const char *_pName_c);
-
-int Bof_SetEnvVar(const char *_pName_c, const char *_pValue_c, int _Overwrite_i);
-
-BOFERR Bof_LockMem(uint64_t _SizeInByte_U64, void *_pData);
-BOFERR Bof_UnlockMem(uint64_t _SizeInByte_U64, void *_pData);
-bool Bof_AlignedMemCpy8(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
-bool Bof_AlignedMemCpy16(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
-bool Bof_AlignedMemCpy32(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
-BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X);
-BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
-
-std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZoneParam_X);
-
-//void Bof_SpinYieldOrSleep(const std::chrono::time_point<std::chrono::system_clock> &_Now, const std::chrono::time_point<std::chrono::system_clock> &_LastOpTime, uint32_t _SpinLimitInMicro_U32 = 50, uint32_t _YieldLimitInMicro_U32 = 150, uint32_t _SleepLimitInMicro_U32 = 20000);
-
-BOFERR Bof_ReEvaluateTimeout(uint32_t _Start_U32, uint32_t &_rNewTimeOut_U32);
-
-void Bof_MsSleep(uint32_t _Ms_U32);
-void Bof_UsSleep(uint32_t _Us_U32);
-
-uint32_t Bof_GetMsTickCount();
-uint64_t Bof_GetUsTickCount();
-uint64_t Bof_GetNsTickCount();
-
-uint32_t Bof_ElapsedMsTime(uint32_t _StartInMs_U32);
-uint64_t Bof_ElapsedUsTime(uint64_t _StartInUs_U64);
-uint64_t Bof_ElapsedNsTime(uint64_t _StartInNs_U64);
-
-bool Bof_IsElapsedTimeInMs(uint32_t _Start_U32, uint32_t _TimeoutInMs_U32);
-
-//const char        *Bof_Eol();
-//char              Bof_FilenameSeparator();
+BOFSTD_EXPORT BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_SHARED_MEMORY &_rSharedMemory_X);
+BOFSTD_EXPORT bool Bof_IsSharedMemoryValid(BOF_SHARED_MEMORY &_rSharedMemory_X);
+BOFSTD_EXPORT BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X);
+BOFSTD_EXPORT BOFERR Bof_DestroySharedMemory(const std::string &_rName_S);
+BOFSTD_EXPORT BOFERR Bof_CreateSemaphore(const std::string &_rName_S, int32_t _InitialCount_S32, BOF_SEMAPHORE &_rSem_X);
+BOFSTD_EXPORT bool Bof_IsSemaphoreValid(BOF_SEMAPHORE &_rSem_X);
+BOFSTD_EXPORT BOFERR Bof_SignalSemaphore(BOF_SEMAPHORE &_rSem_X);
+BOFSTD_EXPORT BOFERR Bof_WaitForSemaphore(BOF_SEMAPHORE &_rSem_X, uint32_t _TimeoutInMs_U32);
+BOFSTD_EXPORT BOFERR Bof_DestroySemaphore(BOF_SEMAPHORE &_rSem_X);
+BOFSTD_EXPORT BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _PriorityInversionAware_B, BOF_MUTEX &_rMtx_X);
+BOFSTD_EXPORT bool Bof_IsMutexValid(BOF_MUTEX &_rMtx_X);
+BOFSTD_EXPORT BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X);
+BOFSTD_EXPORT BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X);
+BOFSTD_EXPORT BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
+BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool _NotifyAll_B*/ uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, BOF_EVENT &_rEvent_X);
+BOFSTD_EXPORT bool Bof_IsEventValid(BOF_EVENT &_rEvent_X);
+BOFSTD_EXPORT BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, /*bool _CancelIt_B*/ uint32_t _Instance_U32);
+BOFSTD_EXPORT BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
+BOFSTD_EXPORT bool Bof_IsEventSignaled(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
+BOFSTD_EXPORT BOFERR Bof_WaitForEvent(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint32_t _Instance_U32);
+BOFSTD_EXPORT BOFERR Bof_DestroyEvent(BOF_EVENT &_rEvent_X);
+BOFSTD_EXPORT BOF_THREAD_PRIORITY Bof_ThreadPriorityFromValue(int32_t _Priority_S32);
+BOFSTD_EXPORT int32_t Bof_ValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E);
+BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY &_rMin_E, BOF_THREAD_PRIORITY &_rMax_E);
+BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY &_rPolicy_E, BOF_THREAD_PRIORITY &_rPriority_E);
+BOFSTD_EXPORT BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E);
+BOFSTD_EXPORT BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFunction, void *_pUserContext, BOF_THREAD &_rThread_X);
+BOFSTD_EXPORT bool Bof_IsThreadValid(BOF_THREAD &_rThread_X);
+BOFSTD_EXPORT BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);
+BOFSTD_EXPORT BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X);
+BOFSTD_EXPORT uint32_t Bof_CurrentThreadId();
+BOFSTD_EXPORT BOFERR Bof_GetMemoryState(uint64_t &_rAvailableFreeMemory_U64, uint64_t &_rTotalMemorySize_U64);
+BOFSTD_EXPORT uint32_t Bof_InterlockedCompareExchange(uint32_t volatile *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);
+BOFSTD_EXPORT bool Bof_IsPidRunning(uint32_t _Pid_U32);
+BOFSTD_EXPORT uint32_t Bof_GetCurrentPid();
+BOFSTD_EXPORT BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32=nullptr);
+BOFSTD_EXPORT bool Bof_PatternCompare(const char *_pString_c, const char *_pPattern_c);
+BOFSTD_EXPORT BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOFERR Bof_TimeInSecSince1970_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOFERR Bof_DateInDaySince1970_To_BofDateTime(time_t _DateInDaySince1970, BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOFERR Bof_BofDateTime_To_DateInDaySince1970(const BOF_DATE_TIME &_rDateTime_X, time_t &_rDateInDaySince1970);
+BOFSTD_EXPORT BOFERR Bof_Now(BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOFERR Bof_SetDateTime(const BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT bool Bof_IsLeapYear(uint16_t _Year_U16);
+BOFSTD_EXPORT BOFERR Bof_DateTimeToNumber(const BOF_DATE_TIME &_pDateTime_X, double &_rDayNumber_lf);
+BOFSTD_EXPORT BOFERR Bof_ValidateDateTime(const BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
+BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
+BOFSTD_EXPORT const std::string Bof_DateTimeToString(const BOF_DATE_TIME &_rDateTime_X, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
+BOFSTD_EXPORT BOF_DATE_TIME Bof_DateTimeFromString(const std::string &_rDateTime_S, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
+BOFSTD_EXPORT BOFERR Bof_DeltaMsToHms(uint32_t _DeltaInMs_U32, uint32_t &_rDay_U32, uint32_t &_rHour_U32, uint32_t &_rMinute_U32, uint32_t &_rSecond_U32,uint32_t &_rMs_U32);
+BOFSTD_EXPORT BOFERR Bof_Exec(const std::string &_rCommand_S, std::string *_pCapturedOutput_S, int32_t &_rExitCode_S32);
+BOFSTD_EXPORT const char *Bof_GetEnvVar(const char *_pName_c);
+BOFSTD_EXPORT int Bof_SetEnvVar(const char *_pName_c, const char *_pValue_c, int _Overwrite_i);
+BOFSTD_EXPORT BOFERR Bof_LockMem(uint64_t _SizeInByte_U64, void *_pData);
+BOFSTD_EXPORT BOFERR Bof_UnlockMem(uint64_t _SizeInByte_U64, void *_pData);
+BOFSTD_EXPORT bool Bof_AlignedMemCpy8(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
+BOFSTD_EXPORT bool Bof_AlignedMemCpy16(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
+BOFSTD_EXPORT bool Bof_AlignedMemCpy32(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
+BOFSTD_EXPORT BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X);
+BOFSTD_EXPORT BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
+BOFSTD_EXPORT std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZoneParam_X);
+BOFSTD_EXPORT BOFERR Bof_ReEvaluateTimeout(uint32_t _Start_U32, uint32_t &_rNewTimeOut_U32);
+BOFSTD_EXPORT void Bof_MsSleep(uint32_t _Ms_U32);
+BOFSTD_EXPORT void Bof_UsSleep(uint32_t _Us_U32);
+BOFSTD_EXPORT uint32_t Bof_GetMsTickCount();
+BOFSTD_EXPORT uint64_t Bof_GetUsTickCount();
+BOFSTD_EXPORT uint64_t Bof_GetNsTickCount();
+BOFSTD_EXPORT uint32_t Bof_ElapsedMsTime(uint32_t _StartInMs_U32);
+BOFSTD_EXPORT uint64_t Bof_ElapsedUsTime(uint64_t _StartInUs_U64);
+BOFSTD_EXPORT uint64_t Bof_ElapsedNsTime(uint64_t _StartInNs_U64);
+BOFSTD_EXPORT bool Bof_IsElapsedTimeInMs(uint32_t _Start_U32, uint32_t _TimeoutInMs_U32);
 #if defined (_WIN32)
 inline const char        *Bof_Eol() { return "\r\n";  }
 inline char        Bof_FilenameSeparator() { return '\\'; }
@@ -793,9 +727,8 @@ void Bof_LockRam_ShowNewPagefaultCount(const char *logtext,  const char *allowed
 BOFERR Bof_LockRam(uint32_t _StackSizeInByte_U32,uint64_t _ReserveProcessMemoryInByte_U64);
 #endif
 
-int32_t Bof_Random(bool _Reset_B, int32_t _MinValue_S32, int32_t _MaxValue_S32);
-
-std::string Bof_Random(bool _Reset_B, uint32_t _Size_U32, char _MinValue_c, char _MaxValue_c);
+BOFSTD_EXPORT int32_t Bof_Random(bool _Reset_B, int32_t _MinValue_S32, int32_t _MaxValue_S32);
+BOFSTD_EXPORT std::string Bof_Random(bool _Reset_B, uint32_t _Size_U32, char _MinValue_c, char _MaxValue_c);
 
 template<typename Container, typename SearchFunc>
 auto Bof_EraseWhere(Container &_Container, SearchFunc &&_Func) -> decltype(_Container.end())
@@ -808,7 +741,7 @@ using BofCvPredicateAndReset = std::function<bool(Args...)>;
 template<typename ...Args>
 using BofCvSetter = std::function<void(Args...)>;
 
-BOFERR Bof_CreateConditionalVariable(const std::string &_rName_S, bool _NotifyAll_B, BOF_CONDITIONAL_VARIABLE &_rCv_X);
+BOFSTD_EXPORT BOFERR Bof_CreateConditionalVariable(const std::string &_rName_S, bool _NotifyAll_B, BOF_CONDITIONAL_VARIABLE &_rCv_X);
 
 template<typename ...Args>
 BOFERR Bof_SignalConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, BofCvSetter<Args...> _CvSetter, const Args &... _Args)
@@ -848,9 +781,8 @@ BOFERR Bof_WaitForConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, uint32_t
 	return Rts_E;
 }
 
-BOFERR Bof_DestroyConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X);
-
-BOFERR Bof_SystemUsageInfo(BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X);
-std::string Bof_SystemUsageInfoToString(const BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X, const BOF_SYSTEM_USAGE_INFO *_pPreviousSystemUsageInfo_X);
+BOFSTD_EXPORT BOFERR Bof_DestroyConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X);
+BOFSTD_EXPORT BOFERR Bof_SystemUsageInfo(BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X);
+BOFSTD_EXPORT std::string Bof_SystemUsageInfoToString(const BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X, const BOF_SYSTEM_USAGE_INFO *_pPreviousSystemUsageInfo_X);
 
 END_BOF_NAMESPACE()

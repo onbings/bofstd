@@ -63,7 +63,7 @@ typedef enum
 
 /*** Prototypes ********************************************************************************************************************/
 
-class BofProfiler
+class BOFSTD_EXPORT BofProfiler
 {
 public:
 
@@ -106,14 +106,14 @@ private:
 
 #define BOF_PERF_POINT_ADD_FUNCTION_LINE(perfpointmgr)   {BofPerfPointAdd(perfpointmgr, "%s at %d\n",__FUNCTION__, __LINE__ );}
 
-typedef struct
+struct BOFSTD_EXPORT BOF_PERF_POINT_ENTRY
 {
   uint64_t TimeStampInNs_U64;
   uint64_t Delta_U64;
   char     pPointName_c[BOF_PERF_POINT_NAME_MAX_CHAR];
-} BOF_PERF_POINT_ENTRY;
+};
 
-typedef struct
+struct BOFSTD_EXPORT BOF_PERF_POINT_MGR
 {
   uint32_t             MgrMagicNumber_U32;
   char                 pMgrName_c[BOF_PERF_POINT_MGR_NAME_MAX_CHAR];
@@ -126,13 +126,13 @@ typedef struct
   bool                 Started_B;
   bool                 Triggered_B;
   BOF_PERF_POINT_ENTRY pEntry_X[BOF_MAX_PERF_POINT];
-} BOF_PERF_POINT_MGR;
+};
 
-BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U32, uint64_t _MaxTimeInNs_U64);
-BOFERR BofPerfPointStart(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ResetTrigger_B);
-BOFERR BofPerfPointResetTrigger(BOF_PERF_POINT_MGR *_pPerfPointMgr_X);
-BOFERR BofPerfPointAdd(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, const char *_pPointName_c, ...);
-BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X);
-BOFERR BofPerfPointClose(BOF_PERF_POINT_MGR *_pPerfPointMgr_X);
+BOFSTD_EXPORT BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U32, uint64_t _MaxTimeInNs_U64);
+BOFSTD_EXPORT BOFERR BofPerfPointStart(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ResetTrigger_B);
+BOFSTD_EXPORT BOFERR BofPerfPointResetTrigger(BOF_PERF_POINT_MGR *_pPerfPointMgr_X);
+BOFSTD_EXPORT BOFERR BofPerfPointAdd(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, const char *_pPointName_c, ...);
+BOFSTD_EXPORT BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X);
+BOFSTD_EXPORT BOFERR BofPerfPointClose(BOF_PERF_POINT_MGR *_pPerfPointMgr_X);
 
 END_BOF_NAMESPACE()

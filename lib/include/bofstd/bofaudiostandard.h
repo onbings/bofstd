@@ -39,7 +39,7 @@ enum class BOF_AUDIO_SAMPLE_FORMAT:uint32_t //See vlc_fourcc.h VLC_CODEC_S24L32
 typedef uint64_t AudioStandardId;
 static const AudioStandardId  DefaultAudioStandard = BOF_AUDIO_STANDARD_ID(16,  48000, static_cast<uint32_t>(BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32));
 
-class BofAudioStandard
+class BOFSTD_EXPORT BofAudioStandard
 {
 public:
   BofAudioStandard();

@@ -96,51 +96,51 @@ struct IsItAnEnumBitFLag<BOF_FILE_TYPE> : std::true_type
 /// @param _rPath : Specifies the pathname of the file or directory to set
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks None
-BOFERR Bof_SetFsPermission(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_SetFsPermission(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath);
 
 /// @brief Get permission of a file or directory
 /// @param _rPath : Specifies the pathname of the file or directory to get
 /// @param _rPermission_E : Return the file or directory permissions.
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks None
-BOFERR Bof_GetFsPermission(const BofPath &_rPath, BOF_FILE_PERMISSION &_rPermission_E);
+BOFSTD_EXPORT BOFERR Bof_GetFsPermission(const BofPath &_rPath, BOF_FILE_PERMISSION &_rPermission_E);
 
 /// @brief Check if a file or directory is present on disk and returns its type
 /// @param _rPath : Specifies the path of the file or directory to check
 /// @return The typ of file
 /// @remarks None
-BOF_FILE_TYPE Bof_GetFileType(const BofPath &_rPath);
+BOFSTD_EXPORT BOF_FILE_TYPE Bof_GetFileType(const BofPath &_rPath);
 
 /// @brief Returns the current directory and its permission
 /// @param _rPath : Returns the current directory
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks A directory delimiter is inserted at the end of the path
-BOFERR Bof_GetCurrentDirectory(BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_GetCurrentDirectory(BofPath &_rPath);
 
-BOFERR Bof_GetCurrentDirectory(std::string &_rPath_S);
+BOFSTD_EXPORT BOFERR Bof_GetCurrentDirectory(std::string &_rPath_S);
 
 /// @brief Change current directory and returns its permissions
 /// @param _rNewDirectory_S : Specifies the new current directory
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks _rCurrentDirectory_S will be terminated by a / character
-BOFERR Bof_ChangeCurrentDirectory(const BofPath &_rNewDirectory_S);
+BOFSTD_EXPORT BOFERR Bof_ChangeCurrentDirectory(const BofPath &_rNewDirectory_S);
 
 /// @brief Create a new directory and its sub directories if needed with a given permission
 /// @param _Permission_E : Specifies the directory permissions.
 /// @param _rPath : Specifies the path of the new directory to create
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks None
-BOFERR Bof_CreateDirectory(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_CreateDirectory(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath);
 
 /// @brief Remove a directory including files and sub directories
 /// @param _rPath : Specifies the path of the directory to delete
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks None
-BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath);
 
-BOFERR Bof_RemoveDirectory(const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_RemoveDirectory(const BofPath &_rPath);
 
-struct BOF_FILE_FOUND
+struct BOFSTD_EXPORT BOF_FILE_FOUND
 {
 	BofPath Path;
 	uint64_t Size_U64;
@@ -199,48 +199,27 @@ BOFFILEFOUND;
 #endif
 
 using BOF_DIRECTORY_PARSER_CALLBACK = std::function<bool(const BOF_FILE_FOUND &_rFileFound_X)> ;
-BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, BOF_DIRECTORY_PARSER_CALLBACK &_rDirectoryParserCallback);
-BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, std::vector<BOF_FILE_FOUND> &_rFileCollection);
-
-bool Bof_IsFileHandleValid(intptr_t _Io);
-
-BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, intptr_t &_rIo);
-
-BOFERR Bof_CreateTempFile(const BOF_FILE_PERMISSION _Permission_E, BofPath &_rPath, const std::string &_rExt_S, intptr_t &_rIo);
-
-BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, intptr_t &_rIo);
-
-int64_t Bof_SetFileIoPosition(intptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHOD _SeekMethod_E);
-
-int64_t Bof_GetFileIoPosition(intptr_t _Io);
-
-BOFERR Bof_ReadFile(intptr_t _Io, std::string &_rLine_S);
-
-BOFERR Bof_WriteFile(intptr_t _Io, const std::string &_rLine_S);
-
-BOFERR Bof_ReadFile(intptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8);
-
-BOFERR Bof_WriteFile(intptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8);
-
-BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rBuffer_S);
-
-BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, const std::string &_rBuffer_S);
-
-BOFERR Bof_FlushFile(intptr_t _Io);
-
-BOFERR Bof_CloseFile(intptr_t &_rIo);
-
-uint64_t Bof_GetFileSize(const BofPath &_rPath);
-
-BOFERR Bof_DeleteFile(const BofPath &_rPath);
-
-BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath);
-
-bool Bof_IsFileExist(const BofPath &_rPath);
-
-BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const BofPath &_rDstPath);
-
-BOFERR Bof_ResetFileContent(const BofPath &_rPath, bool _ReOpenMode_B, int64_t _Offset_S64);
-// bool Bof_IsFileOpened(const char *_pName_c);
+BOFSTD_EXPORT BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, BOF_DIRECTORY_PARSER_CALLBACK &_rDirectoryParserCallback);
+BOFSTD_EXPORT BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, std::vector<BOF_FILE_FOUND> &_rFileCollection);
+BOFSTD_EXPORT bool Bof_IsFileHandleValid(intptr_t _Io);
+BOFSTD_EXPORT BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, intptr_t &_rIo);
+BOFSTD_EXPORT BOFERR Bof_CreateTempFile(const BOF_FILE_PERMISSION _Permission_E, BofPath &_rPath, const std::string &_rExt_S, intptr_t &_rIo);
+BOFSTD_EXPORT BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, intptr_t &_rIo);
+BOFSTD_EXPORT int64_t Bof_SetFileIoPosition(intptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHOD _SeekMethod_E);
+BOFSTD_EXPORT int64_t Bof_GetFileIoPosition(intptr_t _Io);
+BOFSTD_EXPORT BOFERR Bof_ReadFile(intptr_t _Io, std::string &_rLine_S);
+BOFSTD_EXPORT BOFERR Bof_WriteFile(intptr_t _Io, const std::string &_rLine_S);
+BOFSTD_EXPORT BOFERR Bof_ReadFile(intptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8);
+BOFSTD_EXPORT BOFERR Bof_WriteFile(intptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8);
+BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rBuffer_S);
+BOFSTD_EXPORT BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, const std::string &_rBuffer_S);
+BOFSTD_EXPORT BOFERR Bof_FlushFile(intptr_t _Io);
+BOFSTD_EXPORT BOFERR Bof_CloseFile(intptr_t &_rIo);
+BOFSTD_EXPORT uint64_t Bof_GetFileSize(const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_DeleteFile(const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath);
+BOFSTD_EXPORT bool Bof_IsFileExist(const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const BofPath &_rDstPath);
+BOFSTD_EXPORT BOFERR Bof_ResetFileContent(const BofPath &_rPath, bool _ReOpenMode_B, int64_t _Offset_S64);
 
 END_BOF_NAMESPACE()

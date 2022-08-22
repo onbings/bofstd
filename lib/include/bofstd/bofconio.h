@@ -140,7 +140,7 @@ enum CONIO_CLEAR :uint32_t
 	CONIO_CLEAR_ALL_FROM_CURSOR_TO_BEGIN,
 	CONIO_CLEAR_ALL
 };
-struct BOF_CONIO_PARAM
+struct BOFSTD_EXPORT BOF_CONIO_PARAM
 {
 	BofPath HistoryPathname;
 	uint32_t HistoryMaxLength_U32;
@@ -163,7 +163,7 @@ struct BOF_CONIO_PARAM
 
 /*** Class *******************************************************************/
 
-class BofConio final
+class BOFSTD_EXPORT BofConio final
 {
 private:
 	BOF_CONIO_PARAM mBofConioParam_X;

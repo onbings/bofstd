@@ -43,7 +43,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Class *******************************************************************/
 
-char *Bof_FastSnprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...);
+BOFSTD_EXPORT char *Bof_FastSnprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...);
 
 ///@brief Writes formatted data to a string like the C standard version (sprintf)
 ///@@param _rFormat_S Specifies the Format-control string.

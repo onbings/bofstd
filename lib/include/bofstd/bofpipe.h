@@ -40,7 +40,7 @@ enum class BOF_PIPE_TYPE:uint32_t
 };
 /*** structure **************************************************************/
 
-struct BOF_PIPE_PARAM
+struct BOFSTD_EXPORT BOF_PIPE_PARAM
 {
 	BOF_PIPE_TYPE						 PipeType_E;
 	BOF_COM_CHANNEL_PARAM    BaseChannelParam_X;                                    // Base properties of each channel
@@ -63,7 +63,7 @@ struct BOF_PIPE_PARAM
 
 /*** Pipe *********************************************************************/
 
-class BofPipe :public BofComChannel
+class BOFSTD_EXPORT BofPipe :public BofComChannel
 {
 private:
 	BOF_PIPE_PARAM mPipeParam_X;

@@ -25,7 +25,7 @@ BEGIN_BOF_NAMESPACE()
 #pragma pack(1)
 
 //8+4 bytes
-struct BOF_TIMECODE
+struct BOFSTD_EXPORT BOF_TIMECODE
 {
 		/**
 		* Returns a date information as the number of day elapsed since 1/1/1970.
@@ -83,7 +83,7 @@ struct BOF_TIMECODE
 
 #pragma pack()
 
-class BofTimecode
+class BOFSTD_EXPORT BofTimecode
 {
 private:
 		BOF_TIMECODE mTc_X;

@@ -163,7 +163,7 @@ typedef void *BOFRPCSERVERARG;
 #pragma pack(1)
 
 
-struct BOF_RPC_FUNCTION
+struct BOFSTD_EXPORT BOF_RPC_FUNCTION
 {
 		uint16_t NbArg_U16;
 		uint16_t pArg_U16[BOF_RPC_MAXFCTARG];
@@ -202,7 +202,7 @@ struct BOF_RPC_FUNCTION
 		}
 };
 
-struct BOFRPCVAR
+struct BOFSTD_EXPORT BOFRPCVAR
 {
 		union
 		{
@@ -238,7 +238,7 @@ struct BOFRPCVAR
 		}
 };
 
-struct BOF_RPC_PARSER_RESULT
+struct BOFSTD_EXPORT BOF_RPC_PARSER_RESULT
 {
 		uint32_t FctId_U32;
 		uint32_t RpcRts_U32;
@@ -272,7 +272,7 @@ struct BOF_RPC_PARSER_RESULT
 
 // class BofRpc;  //to be deleted
 
-struct BOF_RPC_PARAM
+struct BOFSTD_EXPORT BOF_RPC_PARAM
 {
 		BOFERR ErrorCode_E;        /*! Return an optional error code */
 		bool MultiThreadAware_B;
@@ -303,7 +303,7 @@ struct BOF_RPC_PARAM
 };
 
 // 212	 bytes
-struct BOF_RPC_STATE
+struct BOFSTD_EXPORT BOF_RPC_STATE
 {
 // BOFRPCPARAM
 /* 000 */  uint32_t MaxStackSize_U32;   /*! Specify the rpc stack max size*/
@@ -393,7 +393,7 @@ void DumpRpcFrame(bool Trx_B, char *pTxt_c, uint32_t Nb_U32, uint8_t *pData_U8);
 
 /*** BofRpc ****************************************************************/
 
-class BofRpc
+class BOFSTD_EXPORT BofRpc
 {
 private:
 		BOF_RPC_PARAM mBofRpcParam_X;

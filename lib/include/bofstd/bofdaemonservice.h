@@ -36,7 +36,7 @@ BEGIN_BOF_NAMESPACE()
 /*** Global variables ********************************************************/
 
 /*** Definitions *************************************************************/
-struct BOF_DAEMON_SERVICE_PARAM
+struct BOFSTD_EXPORT BOF_DAEMON_SERVICE_PARAM
 {
 		std::string Name_S;
 		BofPath PidFilePath;            //The path to where to store the PID of the daemon
@@ -64,7 +64,7 @@ struct BOF_DAEMON_SERVICE_PARAM
 
 /*** Class *******************************************************************/
 
-class BofDaemonService
+class BOFSTD_EXPORT BofDaemonService
 {
 private:
 		volatile int mDaemonPidFileHandle_i;
@@ -79,15 +79,11 @@ private:
 		void DaemonExit(const char *_pExitMsg_c, int _ExitCode_i);
 
 public:
-	BOFSTD_EXPORT void Shutdown();
-
-	BOFSTD_EXPORT void CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonServiceParam_X);
-
-	BOFSTD_EXPORT int GetSyslogPriority();
-
-	BOFSTD_EXPORT void DaemonServiceLog(const char *_pFormat_c, ...);
-
-	static BOFSTD_EXPORT BofDaemonService &S_Instance();
+	void Shutdown();
+	void CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonServiceParam_X);
+	int GetSyslogPriority();
+	void DaemonServiceLog(const char *_pFormat_c, ...);
+	static BofDaemonService &S_Instance();
 
 };
 

@@ -41,7 +41,7 @@
 BEGIN_BOF_NAMESPACE()
 typedef std::function<bool(int __Sts_i, const BOFPARAMETER &rXmlEntry_X, const char *_pValue_c)> BOFXMLPARSER_ERROR_CALLBACK;
 
-class BofXmlParser
+class BOFSTD_EXPORT BofXmlParser
 {
 		// Opaque pointer design pattern: all public and protected stuff goes here ...
 public:

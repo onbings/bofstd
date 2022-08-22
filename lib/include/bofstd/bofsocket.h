@@ -38,7 +38,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Structures *************************************************************/
 
-struct BOF_SOCKET_PARAM
+struct BOFSTD_EXPORT BOF_SOCKET_PARAM
 {
 	BOF_COM_CHANNEL_PARAM BaseChannelParam_X;       // Base properties of each channel
 	std::string BindIpAddress_S;                    /*! A string identifying the ip address to which this socket is bound. For multicast client this one should be 0.0.0.0:multicast group port*/
@@ -82,7 +82,7 @@ struct BOF_SOCKET_PARAM
 		}
 };
 
-class BofSocket : public BofComChannel
+class BOFSTD_EXPORT BofSocket : public BofComChannel
 {
 
 private:
@@ -217,7 +217,7 @@ private:
 };
 
 
-struct BOF_SOCKET_OPERATION_PARAM
+struct BOFSTD_EXPORT BOF_SOCKET_OPERATION_PARAM
 {
 		BofSocket *pSocket_O;    /*! The pointer to the socket object */
 		bool Read_B;       /*! Read data from the socket (write otherwise) */
@@ -237,7 +237,7 @@ struct BOF_SOCKET_OPERATION_PARAM
 		}
 };
 
-struct BOF_SOCKET_OPERATION_RESULT
+struct BOFSTD_EXPORT BOF_SOCKET_OPERATION_RESULT
 {
 		BOFERR Sts_E;           /*! The operation status */
 		uint32_t Size_U32;             /*! The total size transferred in bytes */
@@ -256,7 +256,7 @@ struct BOF_SOCKET_OPERATION_RESULT
 };
 
 
-class BofSocketThread : public BofThread
+class BOFSTD_EXPORT BofSocketThread : public BofThread
 {
 private:
 		BOF_SOCKET_OPERATION_PARAM mSocketOperationParam_X;     /*! The operation params */

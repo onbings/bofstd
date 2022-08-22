@@ -46,7 +46,7 @@ BEGIN_BOF_NAMESPACE()
 /// Forbidden character: <,>,:,",\ (: can only appear on index 2 of a windows pathname such as C:/... In this case the disk id (C:) is
 /// extracted from the path and stored as mDiskName_S. For linusx mDiskName_S is "";
 /// Directory . and .. are processed and reduced in the full pathname
-class BofPath
+class BOFSTD_EXPORT BofPath
 {
 private:
 		std::string mDiskName_S="";                   /*! Contains the disk name (C:,D:,.. for windows or "" for linux */

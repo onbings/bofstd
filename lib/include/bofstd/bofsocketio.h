@@ -58,7 +58,7 @@ typedef std::function<BOFERR(BOF_SOCKET_IO_DATA_REQ _IoDataReq_E, BOFERR Sts_E, 
 const uint32_t BOF_SOCKETIO_MIN_NOTIFY_RCV_BUFFER_SIZE = 0x200;
 
 
-struct BOF_SOCKET_IO_PARAM
+struct BOFSTD_EXPORT BOF_SOCKET_IO_PARAM
 {
   std::string Name_S;
   uint32_t SocketRcvBufferSize_U32;
@@ -88,7 +88,7 @@ struct BOF_SOCKET_IO_PARAM
   }
 };
 
-struct BOF_SOCKET_SESSION_STATISTIC
+struct BOFSTD_EXPORT BOF_SOCKET_SESSION_STATISTIC
 {
 	uint32_t NbOpConnect_U32;
 	uint32_t NbOpConnectError_U32;
@@ -141,7 +141,7 @@ struct BOF_SOCKET_SESSION_STATISTIC
 		NbTimerEventError_U32 = 0;
 	}
 };
-struct BOF_SOCKET_WRITE_PARAM
+struct BOFSTD_EXPORT BOF_SOCKET_WRITE_PARAM
 {
   uint32_t TimeoutInMs_U32;
   uint32_t Nb_U32;
@@ -161,7 +161,7 @@ struct BOF_SOCKET_WRITE_PARAM
   }
 };
 
-struct BOF_FTP_FILE
+struct BOFSTD_EXPORT BOF_FTP_FILE
 {
   BOF_FILE_PERMISSION Right_E;  //-rwx------
   std::string User_S;
@@ -188,7 +188,7 @@ struct BOF_FTP_FILE
 //#define PTR_TO_PARENT_SESSION(ptr)		(ptr=(ParentCmdChannel().expired()) ? nullptr : ParentCmdChannel().lock())
 //#define PTR_TO_DATA_SESSION(ptr)			(ptr=ChildDataChannel())
 
-class BofSocketIo:public IBofSocketIo, public std::enable_shared_from_this<BofSocketIo>
+class BOFSTD_EXPORT BofSocketIo:public IBofSocketIo, public std::enable_shared_from_this<BofSocketIo>
 {
 private:
   BOF_SOCKET_IO_PARAM				mSocketIoParam_X;

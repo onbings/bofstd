@@ -40,7 +40,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-class BofXmlWriter
+class BOFSTD_EXPORT BofXmlWriter
 {
 		// Opaque pointer design pattern: all public and protected stuff goes here ...
 public:
