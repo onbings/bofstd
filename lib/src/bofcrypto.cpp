@@ -23,10 +23,10 @@
  /*** Include files ***********************************************************/
 #include <cstring>
 #include <bofstd/bofcrypto.h>
-#include <sstream>
+#include <bofstd/bofstream.h>
+
 #include <iomanip>
 #include <fstream>
-#include <streambuf>
 //#include <openssl/sha.h>
 
 BEGIN_BOF_NAMESPACE()
@@ -716,30 +716,11 @@ void BofSha1::Update(const std::string &s)
   Update(is);
 }
 
-deplacer dans un fichier a part
-class BofMemoryStream : public std::streambuf
-{
-public:
-  BofMemoryStream(char const *base, size_t size) 
-  {
-    char *p(const_cast<char *>(base));
-    this->setg(p, p, p + size);
-  }
-};
-class BofIMemoryStream : virtual BofMemoryStream, public std::istream
-{
-public:
-  BofIMemoryStream(size_t size, char const *base) : BofMemoryStream(base, size), std::istream(static_cast<std::streambuf *>(this))
-  {
-  }
-}; 
-
 void BofSha1::Update(uint32_t _Nb_U32, const void *_pBuffer)
 {
   BofIMemoryStream MemoryStream(_Nb_U32, (const char *)_pBuffer);
   Update(MemoryStream);
 }
-
 
 void BofSha1::Update(std::istream &is)
 {

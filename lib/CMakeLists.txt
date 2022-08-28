@@ -144,6 +144,7 @@ set(CONTAINER_FILES
 	include/bofstd/bofstack.h
 	include/bofstd/boflist.h
 	include/bofstd/bofqueue.h
+	include/bofstd/bofstream.h
 	src/bofstack.cpp
 )
 
