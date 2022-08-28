@@ -45,36 +45,36 @@ struct TREE_NODE
 		Val_S = "";
 	}
 };
-TEST(BofTree_Test, Create)
+TEST(BofNaryTreeKv_Test, Create)
 {
-	BOF::BOF_TREE_PARAM BofTreeParam_X;
-	BofTreeParam_X.MultiThreadAware_B = true;
-	std::unique_ptr<BOF::BofTree<TREE_NODE>> puBofTree = std::make_unique<BOF::BofTree<TREE_NODE>>(BofTreeParam_X);
+	BOF::BOF_NARY_TREE_KV_PARAM BofNaryTreeKvParam_X;
+	BofNaryTreeKvParam_X.MultiThreadAware_B = true;
+	std::unique_ptr<BOF::BofNaryTreeKv<std::string, TREE_NODE>> puBofNaryTreeKv = std::make_unique<BOF::BofNaryTreeKv<std::string, TREE_NODE>>(BofNaryTreeKvParam_X);
 
 	TREE_NODE Root_X(0, "Root");
 	TREE_NODE Node_X;
 	uint32_t i_U32, j_U32, k_U32;
 #if 0
-	typedef BOF::BofTree<TREE_NODE>::Node BofTreeNode;
-	BofTreeNode Root(Root_X);
-	BofTreeNode Node;
-	//BOF::BofTree<TREE_NODE>::Node(Root_X);
-	puBofTree->SetRoot(&Root);
+	typedef BOF::BofNaryTreeKv<TREE_NODE>::Node BofNaryTreeKvNode;
+	BofNaryTreeKvNode Root(Root_X);
+	BofNaryTreeKvNode Node;
+	//BOF::BofNaryTreeKv<TREE_NODE>::Node(Root_X);
+	puBofNaryTreeKv->SetRoot(&Root);
 	for (i_U32 = 0; i_U32 < 10; i_U32++)
 	{
 		Node_X = TREE_NODE(i_U32, "Child Layer 1");
-		BofTreeNode Child(Node_X);
+		BofNaryTreeKvNode Child(Node_X);
 		Root.AddChild(std::move(Child));
 		Node = Root.Child(i_U32);
 		for (j_U32 = 0; j_U32 < i_U32; j_U32++)
 		{
 			Node_X = TREE_NODE(j_U32, "Child Layer 2");
-			BofTreeNode Child(Node_X);
+			BofNaryTreeKvNode Child(Node_X);
 			Node.AddChild(std::move(Child));
 		}
 	}
 	i_U32 = 0;
-	for (auto It = puBofTree->begin(); It != puBofTree->end(); ++It, i_U32++)
+	for (auto It = puBofNaryTreeKv->begin(); It != puBofNaryTreeKv->end(); ++It, i_U32++)
 	{
 		Node_X = *It;
 		printf("[%d] %d: %s\n", i_U32, Node_X.Val_U32, Node_X.Val_S.c_str());
