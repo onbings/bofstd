@@ -368,7 +368,7 @@ BOFERR BofPath::InitPathField(const std::string &_rPath_S)
 	return (Rts_E);
 }
 
-bool BofPath::IsWindowsPath(const std::string &_rPath_S)
+bool BofPath::IsWindowsDiskPath(const std::string &_rPath_S)
 {
 	return ((std::isalpha(_rPath_S[0])) && (_rPath_S[1] == ':') && ((_rPath_S[2] == '/') || (_rPath_S[2] == '\\')));
 }
@@ -383,7 +383,7 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
 	BOFERR Rts_E;
 	std::vector<std::string> ListOfDir_S;
 	std::string Pwd_S;
-  std::string::size_type SlashDelimiterPos;
+  std::string::size_type SlashDelimiterPos, SlashPrevDelimiterPos;
 
 	_rDiskName_S = "";
 	// Remove bad char on the left and rigth side
@@ -406,56 +406,105 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
 
       // Replace \ by /
       _rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
-      SlashDelimiterPos  = _rNormalizedPath_S.find('/');
-
-      if (SlashDelimiterPos == std::string::npos)
-      {
-        Rts_E = Bof_GetCurrentDirectory(Pwd_S);
-        if (Rts_E == BOF_ERR_NO_ERROR)
-        {
-          _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
-          _rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
-        }
-      }
-      else
-      {
-        if ((_rNormalizedPath_S[0] == '.') && (_rNormalizedPath_S[1] == '/'))
-        {
-          Rts_E = Bof_GetCurrentDirectory(Pwd_S);
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-            _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S.substr(2);
-            _rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
-          }
-        }
-        else if ((_rNormalizedPath_S[0] == '.') && (_rNormalizedPath_S[1] == '.'))
-        {
-          Rts_E = Bof_GetCurrentDirectory(Pwd_S);
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-            _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;  //.substr(2);
-            _rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
-          }
-        }
+			SlashDelimiterPos = _rNormalizedPath_S.find('/');
+			Rts_E = Bof_GetCurrentDirectory(Pwd_S);
+			Pwd_S = Bof_StringReplace(Pwd_S, "\\", '/');
+			if (Rts_E == BOF_ERR_NO_ERROR)
+			{
+				if (SlashDelimiterPos == std::string::npos)
+				{
+					_rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
+					//_rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
+				}
+				else
+				{
+#if 1
+					if ((!_rNormalizedPath_S.empty()) && (_rNormalizedPath_S[0] == '.'))
+					{
+						while ((Rts_E == BOF_ERR_NO_ERROR) && (!_rNormalizedPath_S.empty()) && (_rNormalizedPath_S[0] == '.'))
+						{
+							if (_rNormalizedPath_S[1] == '/')
+							{
+								_rNormalizedPath_S = _rNormalizedPath_S.substr(2);
+							}
+							else if (_rNormalizedPath_S[1] == '.')
+							{
+								Rts_E = BOF_ERR_TOO_SMALL;
+								if (Pwd_S.size() > 2)
+								{
+									SlashPrevDelimiterPos = Pwd_S.rfind('/', Pwd_S.size() - 2);
+									if (SlashPrevDelimiterPos == std::string::npos)
+									{
+										Rts_E = BOF_ERR_TOO_BIG;
+									}
+									else
+									{
+										Pwd_S = Pwd_S.substr(0, SlashPrevDelimiterPos + 1);
+										_rNormalizedPath_S = _rNormalizedPath_S.substr(3);
+										Rts_E = BOF_ERR_NO_ERROR;
+									}
+								}
+							}
+						}
+						if (Rts_E == BOF_ERR_NO_ERROR)
+						{
+							_rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
+						}
+					}
+#else
+					if ((_rNormalizedPath_S[0] == '.') && (_rNormalizedPath_S[1] == '/'))
+					{
+						_rNormalizedPath_S = Pwd_S + _rNormalizedPath_S.substr(2);
+						//_rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
+					}
+					else if ((_rNormalizedPath_S[0] == '.') && (_rNormalizedPath_S[1] == '.'))
+					{
+						Rts_E = BOF_ERR_TOO_SMALL;
+						if (Pwd_S.size() > 2)
+						{
+							SlashPrevDelimiterPos = Pwd_S.rfind('/', Pwd_S.size() - 2);
+							if (SlashPrevDelimiterPos == std::string::npos)
+							{
+								Rts_E = BOF_ERR_TOO_BIG;
+							}
+							else
+							{
+								Pwd_S = Pwd_S.substr(0, SlashPrevDelimiterPos + 1);
+								_rNormalizedPath_S = Pwd_S + _rNormalizedPath_S.substr(3);
+								Rts_E = BOF_ERR_NO_ERROR;
+								//_rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
+							}
+						}
+					}
+#endif
+				}
       }
     }
   }
 	if (Rts_E == BOF_ERR_NO_ERROR)
 	{
 		// Extract disk name for windows path
-		if (IsWindowsPath(_rNormalizedPath_S))
+		if (IsWindowsDiskPath(_rNormalizedPath_S))
 		{
 			_rDiskName_S = _rNormalizedPath_S.substr(0, 2);
 			_rNormalizedPath_S = _rNormalizedPath_S.substr(2);
 		}
-
+		if (_rNormalizedPath_S[0] != '/')	// data/dir/file without ./ or ../
+		{
+			_rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
+			if (IsWindowsDiskPath(_rNormalizedPath_S))
+			{
+				_rDiskName_S = _rNormalizedPath_S.substr(0, 2);
+				_rNormalizedPath_S = _rNormalizedPath_S.substr(2);
+			}
+		}
 // Reject relative path
 		if (_rNormalizedPath_S[0] != '/')
 		{
 			if (mCurrentDirectoryName_S != "")
 			{
 				_rNormalizedPath_S = mCurrentDirectoryName_S + _rNormalizedPath_S;
-				if (IsWindowsPath(_rNormalizedPath_S))
+				if (IsWindowsDiskPath(_rNormalizedPath_S))
 				{
 					_rDiskName_S = _rNormalizedPath_S.substr(0, 2);
 					_rNormalizedPath_S = _rNormalizedPath_S.substr(2);

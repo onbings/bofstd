@@ -5,7 +5,6 @@
 set(PUBLIC_INCLUDES_FILES
 )
 
-
 set(API_FILES
 	bofversioninfo.h   #generated in binary build dir with configure_file
 	include/bofstd/boferr.h
@@ -83,81 +82,6 @@ set(ASYNCMULTICASTDELEGATE_FILES
 		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/bofmsgthread.h
 		)
 
-set(TBDYUV_FILES
-		third/libyuv/src/compare.cc
-		third/libyuv/src/compare_common.cc
-		third/libyuv/src/compare_gcc.cc
-		third/libyuv/src/compare_mmi.cc
-		third/libyuv/src/compare_msa.cc
-		third/libyuv/src/compare_neon.cc
-		third/libyuv/src/compare_neon64.cc
-		third/libyuv/src/compare_win.cc
-		third/libyuv/src/convert.cc
-		third/libyuv/src/convert_argb.cc
-		third/libyuv/src/convert_from.cc
-		third/libyuv/src/convert_from_argb.cc
-		third/libyuv/src/convert_jpeg.cc
-		third/libyuv/src/convert_to_argb.cc
-		third/libyuv/src/convert_to_i420.cc
-		third/libyuv/src/cpu_id.cc
-		third/libyuv/src/mjpeg_decoder.cc
-		third/libyuv/src/mjpeg_validate.cc
-		third/libyuv/src/planar_functions.cc
-		third/libyuv/src/rotate.cc
-		third/libyuv/src/rotate_any.cc
-		third/libyuv/src/rotate_argb.cc
-		third/libyuv/src/rotate_common.cc
-		third/libyuv/src/rotate_gcc.cc
-		third/libyuv/src/rotate_mmi.cc
-		third/libyuv/src/rotate_msa.cc
-		third/libyuv/src/rotate_neon.cc
-		third/libyuv/src/rotate_neon64.cc
-		third/libyuv/src/rotate_win.cc
-		third/libyuv/src/row_any.cc
-		third/libyuv/src/row_common.cc
-		third/libyuv/src/row_gcc.cc
-		third/libyuv/src/row_mmi.cc
-		third/libyuv/src/row_msa.cc
-		third/libyuv/src/row_neon.cc
-		third/libyuv/src/row_neon64.cc
-		third/libyuv/src/row_win.cc
-		third/libyuv/src/scale.cc
-		third/libyuv/src/scale_any.cc
-		third/libyuv/src/scale_argb.cc
-		third/libyuv/src/scale_common.cc
-		third/libyuv/src/scale_gcc.cc
-		third/libyuv/src/scale_mmi.cc
-		third/libyuv/src/scale_msa.cc
-		third/libyuv/src/scale_neon.cc
-		third/libyuv/src/scale_neon64.cc
-		third/libyuv/src/scale_uv.cc
-		third/libyuv/src/scale_win.cc
-		third/libyuv/src/test.sh
-		third/libyuv/src/video_common.cc
-
-		third/libyuv/include/libyuv.h
-		third/libyuv/include/libyuv/basic_types.h
-		third/libyuv/include/libyuv/compare.h
-		third/libyuv/include/libyuv/compare_row.h
-		third/libyuv/include/libyuv/convert.h
-		third/libyuv/include/libyuv/convert_argb.h
-		third/libyuv/include/libyuv/convert_from.h
-		third/libyuv/include/libyuv/convert_from_argb.h
-		third/libyuv/include/libyuv/cpu_id.h
-		third/libyuv/include/libyuv/macros_msa.h
-		third/libyuv/include/libyuv/mjpeg_decoder.h
-		third/libyuv/include/libyuv/planar_functions.h
-		third/libyuv/include/libyuv/rotate.h
-		third/libyuv/include/libyuv/rotate_argb.h
-		third/libyuv/include/libyuv/rotate_row.h
-		third/libyuv/include/libyuv/row.h
-		third/libyuv/include/libyuv/scale.h
-		third/libyuv/include/libyuv/scale_argb.h
-		third/libyuv/include/libyuv/scale_row.h
-		third/libyuv/include/libyuv/scale_uv.h
-		third/libyuv/include/libyuv/version.h
-		third/libyuv/include/libyuv/video_common.h
-		)
 set(COMMANDLINE_FILES
 	include/bofstd/bofcommandlineparser.h
 	src/bofcommandlineparser.cpp
@@ -165,173 +89,7 @@ set(COMMANDLINE_FILES
 	src/bofgetopt.cpp	
 )
 
-#add_subdirectory(third/zeromq)
-set (TBDZMQ_FILES
-    third/zeromq/src/address.cpp
-    third/zeromq/src/client.cpp
-    third/zeromq/src/clock.cpp
-    third/zeromq/src/ctx.cpp
-    third/zeromq/src/curve_client.cpp
-    third/zeromq/src/curve_server.cpp
-    third/zeromq/src/dealer.cpp
-    third/zeromq/src/devpoll.cpp
-    third/zeromq/src/dgram.cpp
-    third/zeromq/src/dist.cpp
-    third/zeromq/src/epoll.cpp
-    third/zeromq/src/err.cpp
-    third/zeromq/src/fq.cpp
-    third/zeromq/src/io_object.cpp
-    third/zeromq/src/io_thread.cpp
-    third/zeromq/src/ip.cpp
-    third/zeromq/src/ipc_address.cpp
-    third/zeromq/src/ipc_connecter.cpp
-    third/zeromq/src/ipc_listener.cpp
-    third/zeromq/src/kqueue.cpp
-    third/zeromq/src/lb.cpp
-    third/zeromq/src/mailbox.cpp
-    third/zeromq/src/mailbox_safe.cpp
-    third/zeromq/src/mechanism.cpp
-    third/zeromq/src/metadata.cpp
-    third/zeromq/src/msg.cpp
-    third/zeromq/src/mtrie.cpp
-    third/zeromq/src/object.cpp
-    third/zeromq/src/options.cpp
-    third/zeromq/src/own.cpp
-    third/zeromq/src/null_mechanism.cpp
-    third/zeromq/src/pair.cpp
-    third/zeromq/src/pgm_receiver.cpp
-    third/zeromq/src/pgm_sender.cpp
-    third/zeromq/src/pgm_socket.cpp
-    third/zeromq/src/pipe.cpp
-    third/zeromq/src/plain_client.cpp
-    third/zeromq/src/plain_server.cpp
-    third/zeromq/src/poll.cpp
-    third/zeromq/src/poller_base.cpp
-    third/zeromq/src/pollset.cpp
-    third/zeromq/src/precompiled.cpp
-    third/zeromq/src/proxy.cpp
-    third/zeromq/src/pub.cpp
-    third/zeromq/src/pull.cpp
-    third/zeromq/src/push.cpp
-    third/zeromq/src/random.cpp
-    third/zeromq/src/raw_encoder.cpp
-    third/zeromq/src/raw_decoder.cpp
-    third/zeromq/src/reaper.cpp
-    third/zeromq/src/rep.cpp
-    third/zeromq/src/req.cpp
-    third/zeromq/src/router.cpp
-    third/zeromq/src/select.cpp
-    third/zeromq/src/server.cpp
-    third/zeromq/src/session_base.cpp
-    third/zeromq/src/signaler.cpp
-    third/zeromq/src/socket_base.cpp
-    third/zeromq/src/socks.cpp
-    third/zeromq/src/socks_connecter.cpp
-    third/zeromq/src/stream.cpp
-    third/zeromq/src/stream_engine.cpp
-    third/zeromq/src/sub.cpp
-    third/zeromq/src/tcp.cpp
-    third/zeromq/src/tcp_address.cpp
-    third/zeromq/src/tcp_connecter.cpp
-    third/zeromq/src/tcp_listener.cpp
-    third/zeromq/src/thread.cpp
-    third/zeromq/src/trie.cpp
-    third/zeromq/src/v1_decoder.cpp
-    third/zeromq/src/v1_encoder.cpp
-    third/zeromq/src/v2_decoder.cpp
-    third/zeromq/src/v2_encoder.cpp
-    third/zeromq/src/xpub.cpp
-    third/zeromq/src/xsub.cpp
-    third/zeromq/src/zmq.cpp
-    third/zeromq/src/zmq_utils.cpp
-    third/zeromq/src/decoder_allocators.cpp
-    third/zeromq/src/socket_poller.cpp
-    third/zeromq/src/timers.cpp
-    third/zeromq/src/config.hpp
-    third/zeromq/src/radio.cpp
-    third/zeromq/src/dish.cpp
-    third/zeromq/src/udp_engine.cpp
-    third/zeromq/src/udp_address.cpp
-    third/zeromq/src/scatter.cpp
-    third/zeromq/src/gather.cpp
-)
 
-set(TBDCZMQ_FILES
-    third/czmq/include/czmq_library.h
-    third/czmq/include/czmq_prelude.h
-    third/czmq/include/czmq.h
-    third/czmq/include/zactor.h
-    third/czmq/include/zarmour.h
-    third/czmq/include/zcert.h
-    third/czmq/include/zcertstore.h
-    third/czmq/include/zchunk.h
-    third/czmq/include/zclock.h
-    third/czmq/include/zconfig.h
-    third/czmq/include/zdigest.h
-    third/czmq/include/zdir.h
-    third/czmq/include/zdir_patch.h
-    third/czmq/include/zfile.h
-    third/czmq/include/zframe.h
-    third/czmq/include/zhash.h
-    third/czmq/include/zhashx.h
-    third/czmq/include/ziflist.h
-    third/czmq/include/zlist.h
-    third/czmq/include/zlistx.h
-    third/czmq/include/zloop.h
-    third/czmq/include/zmsg.h
-    third/czmq/include/zpoller.h
-    third/czmq/include/zsock.h
-    third/czmq/include/zstr.h
-    third/czmq/include/zuuid.h
-    third/czmq/include/zauth.h
-    third/czmq/include/zbeacon.h
-    third/czmq/include/zgossip.h
-    third/czmq/include/zmonitor.h
-    third/czmq/include/zproxy.h
-    third/czmq/include/zrex.h
-    third/czmq/include/zsys.h
-    third/czmq/src/zgossip_msg.h
-    third/czmq/src/zsock_option.inc
-    third/czmq/src/zgossip_engine.inc
-    third/czmq/src/zhash_primes.inc
-    third/czmq/src/foreign/sha1/sha1.inc_c
-    third/czmq/src/foreign/sha1/sha1.h
-    third/czmq/src/foreign/slre/slre.inc_c
-    third/czmq/src/foreign/slre/slre.h
-    third/czmq/src/foreign/slre/readme.txt
-
-    third/czmq/src/zactor.c
-    third/czmq/src/zarmour.c
-    third/czmq/src/zcert.c
-    third/czmq/src/zcertstore.c
-    third/czmq/src/zchunk.c
-    third/czmq/src/zclock.c
-    third/czmq/src/zconfig.c
-    third/czmq/src/zdigest.c
-    third/czmq/src/zdir.c
-    third/czmq/src/zdir_patch.c
-    third/czmq/src/zfile.c
-    third/czmq/src/zframe.c
-    third/czmq/src/zhash.c
-    third/czmq/src/zhashx.c
-    third/czmq/src/ziflist.c
-    third/czmq/src/zlist.c
-    third/czmq/src/zlistx.c
-    third/czmq/src/zloop.c
-    third/czmq/src/zmsg.c
-    third/czmq/src/zpoller.c
-    third/czmq/src/zsock.c
-    third/czmq/src/zstr.c
-    third/czmq/src/zuuid.c
-    third/czmq/src/zauth.c
-    third/czmq/src/zbeacon.c
-    third/czmq/src/zgossip.c
-    third/czmq/src/zmonitor.c
-    third/czmq/src/zproxy.c
-    third/czmq/src/zrex.c
-    third/czmq/src/zsys.c
-    third/czmq/src/zgossip_msg.c
-)
 set(IXML_FILES
 	third/ixml/inc/ixml.h
 	third/ixml/inc/ixmldebug.h
@@ -348,25 +106,7 @@ set(IXML_FILES
 	third/ixml/src/inc/ixmlmembuf.h
 	third/ixml/src/inc/ixmlparser.h	
 )
-set(TBDFMT_FILES
-	third/fmt-5.3.0/src/format.cc
-	third/fmt-5.3.0/src/posix.cc
-	third/fmt-5.3.0/include/fmt/chrono.h
-	third/fmt-5.3.0/include/fmt/color.h
-	third/fmt-5.3.0/include/fmt/core.h
-	third/fmt-5.3.0/include/fmt/format.h
-	third/fmt-5.3.0/include/fmt/format-inl.h
-	third/fmt-5.3.0/include/fmt/locale.h
-	third/fmt-5.3.0/include/fmt/ostream.h
-	third/fmt-5.3.0/include/fmt/posix.h
-	third/fmt-5.3.0/include/fmt/printf.h
-	third/fmt-5.3.0/include/fmt/ranges.h
-	third/fmt-5.3.0/include/fmt/time.h
-)
 
-set(TBDSPDLOG_FILES
-	third/spdlog-1.3.1/include/spdlog/spdlog.h
-)
 
 set(LOG_FILES
 	include/bofstd/iboflogchannel.h
@@ -399,6 +139,7 @@ set(CONTAINER_FILES
 	src/bofstringcircularbuffer.cpp
 	include/bofstd/bofrawcircularbuffer.h
 	src/bofrawcircularbuffer.cpp
+	include/bofstd/bofnarytreekv.h
 	include/bofstd/bofpot.h
 	include/bofstd/bofstack.h
 	include/bofstd/boflist.h
@@ -581,7 +322,8 @@ target_include_directories(bofstd-objects
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below) and bofversioninfo.h (above)
-	
+	#$<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}
+	#$<BUILD_INTERFACE:${FFMPEG_INCLUDE_DIRS}
 	#Header path used when installed
 	$<INSTALL_INTERFACE:include>
 #   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -599,9 +341,15 @@ target_link_libraries(bofstd-objects
 	libzmq-static
 	czmq-static
 	yuv
+#	OpenSSL::SSL 
+#	OpenSSL::Crypto
+#	${Boost_LIBRARIES}
+#	${FFMPEG_LIBRARIES}
 )
-
-	
+#message("=Boost_INCLUDE_DIRS==============>"${Boost_INCLUDE_DIRS})
+#message("=Boost_LIBRARIES==============>"${Boost_LIBRARIES})
+#message("=FFMPEG_INCLUDE_DIRS==============>"${FFMPEG_INCLUDE_DIRS})
+#message("=FFMPEG_LIBRARIES==============>"${FFMPEG_LIBRARIES})	
 if(WIN32)
 target_link_libraries(bofstd-objects
   PUBLIC

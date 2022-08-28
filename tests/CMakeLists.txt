@@ -37,6 +37,7 @@ set(CRYPTO_FILES
 )
 
 set(CONTAINER_FILES
+	src/ut_narytreekv.cpp
 	src/ut_circularbuffer.cpp
 	src/ut_rawcircularbuffer.cpp
 	src/ut_stringcircularbuffer.cpp
@@ -136,7 +137,6 @@ target_link_libraries(bofstd-tests
     ONBINGS::bofstd-objects
     GTest::GTest
 )
-
 
 # Object library is not a shared library
 # void import directive only for linking

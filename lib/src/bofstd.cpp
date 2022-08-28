@@ -28,6 +28,11 @@
 #include <locale.h>
 #include <bofversioninfo.h>
 
+//Just to check: see std::string Bof_GetVersion()
+//#include <libavutil/avutil.h>
+//#include <openssl/crypto.h>
+//#include <boost/version.hpp>
+
 #if defined(_WIN32)
 DWORD  S_ModeIn_DW=0, S_ModeOut_DW=0;
 #else
@@ -268,10 +273,16 @@ public:
 static BofStdInitializer S_BofStdInitializer;		//Just to call Bof_Initialize/Bof_Shutdown when the app linked with this lib is started/stopped
 */
 uint32_t GL_BofDbgPrintfStartTime_U32 = 0;
-bool  GL_BofLoggerHasBeenDeleted_B = false;
+//bool  GL_BofLoggerHasBeenDeleted_B = false;
+
 
 std::string Bof_GetVersion()
 {
+  //Just to check
+  //const char *pFfmpegVersion_c = av_version_info();
+  //const char *pOpenSslVersion_c = OpenSSL_version(OPENSSL_VERSION); 
+  //const char *pBoostVersion_c = BOOST_LIB_VERSION;
+    
 	return std::to_string(BOFSTD_VERSION_MAJOR ) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH);
 }
 

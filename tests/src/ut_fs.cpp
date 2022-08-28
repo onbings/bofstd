@@ -38,9 +38,20 @@ USE_BOF_NAMESPACE()
 
 TEST(Fs_Test, PathConstructorDestructorWindows)
 {
-  std::string Pwd_S;
+  std::string Pwd_S, PrevPwd_S;
+	std::string::size_type SlashPrevDelimiterPos;
+
   EXPECT_EQ(Bof_GetCurrentDirectory(Pwd_S),BOF_ERR_NO_ERROR);
   Pwd_S = Bof_StringReplace(Pwd_S, "\\", '/');
+	PrevPwd_S = "";
+	if (Pwd_S.size() > 2)
+	{
+		SlashPrevDelimiterPos = Pwd_S.rfind('/', Pwd_S.size() - 2);
+		if (SlashPrevDelimiterPos != std::string::npos)
+		{
+			PrevPwd_S = Pwd_S.substr(0, SlashPrevDelimiterPos + 1);
+		}
+	}
 
   BofPath Empty("");
   EXPECT_EQ(Empty.IsDirectory(), false);
@@ -69,6 +80,24 @@ TEST(Fs_Test, PathConstructorDestructorWindows)
   EXPECT_STREQ(b.FileNameWithExtension().c_str(), "file");
   EXPECT_STREQ(b.FileNameWithoutExtension().c_str(), "file");
 
+	BofPath aa("data/dir/");
+	EXPECT_EQ(aa.IsDirectory(), true);
+	EXPECT_EQ(aa.IsFile(), false);
+	EXPECT_STREQ(aa.FullPathName(false).c_str(), (Pwd_S + "data/dir/").c_str());
+	EXPECT_STREQ(aa.DirectoryName(false).c_str(), (Pwd_S + "data/dir/").c_str());
+	EXPECT_STREQ(aa.Extension().c_str(), "");
+	EXPECT_STREQ(aa.FileNameWithExtension().c_str(), "");
+	EXPECT_STREQ(aa.FileNameWithoutExtension().c_str(), "");
+
+	BofPath bb("data/file");
+	EXPECT_EQ(bb.IsDirectory(), false);
+	EXPECT_EQ(bb.IsFile(), true);
+	EXPECT_STREQ(bb.FullPathName(false).c_str(), (Pwd_S + "data/file").c_str());
+	EXPECT_STREQ(bb.DirectoryName(false).c_str(), (Pwd_S + "data/").c_str());
+	EXPECT_STREQ(bb.Extension().c_str(), "");
+	EXPECT_STREQ(bb.FileNameWithExtension().c_str(), "file");
+	EXPECT_STREQ(bb.FileNameWithoutExtension().c_str(), "file");
+
 
   BofPath d(".\\data\\dir\\");
   EXPECT_EQ(d.IsDirectory(), true);
@@ -87,6 +116,85 @@ TEST(Fs_Test, PathConstructorDestructorWindows)
   EXPECT_STREQ(e.Extension().c_str(), "");
   EXPECT_STREQ(e.FileNameWithExtension().c_str(), "file");
   EXPECT_STREQ(e.FileNameWithoutExtension().c_str(), "file");
+
+	BofPath f("../data/dir/");
+	EXPECT_EQ(f.IsDirectory(), true);
+	EXPECT_EQ(f.IsFile(), false);
+	EXPECT_STREQ(f.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+	EXPECT_STREQ(f.DirectoryName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+	EXPECT_STREQ(f.Extension().c_str(), "");
+	EXPECT_STREQ(f.FileNameWithExtension().c_str(), "");
+	EXPECT_STREQ(f.FileNameWithoutExtension().c_str(), "");
+
+	if (PrevPwd_S.size() > 2)
+	{
+		SlashPrevDelimiterPos = PrevPwd_S.rfind('/', PrevPwd_S.size() - 2);
+		if (SlashPrevDelimiterPos != std::string::npos)
+		{
+			PrevPwd_S = PrevPwd_S.substr(0, SlashPrevDelimiterPos + 1);
+		}
+		BofPath g("../../data/dir/");
+		EXPECT_EQ(g.IsDirectory(), true);
+		EXPECT_EQ(g.IsFile(), false);
+		EXPECT_STREQ(g.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+		EXPECT_STREQ(g.DirectoryName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+		EXPECT_STREQ(g.Extension().c_str(), "");
+		EXPECT_STREQ(g.FileNameWithExtension().c_str(), "");
+		EXPECT_STREQ(g.FileNameWithoutExtension().c_str(), "");
+		if (PrevPwd_S.size() > 2)
+		{
+			SlashPrevDelimiterPos = PrevPwd_S.rfind('/', PrevPwd_S.size() - 2);
+			if (SlashPrevDelimiterPos != std::string::npos)
+			{
+				PrevPwd_S = PrevPwd_S.substr(0, SlashPrevDelimiterPos + 1);
+			}
+			BofPath h("../../../data/dir/");
+			EXPECT_EQ(h.IsDirectory(), true);
+			EXPECT_EQ(h.IsFile(), false);
+			EXPECT_STREQ(h.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+			EXPECT_STREQ(h.DirectoryName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+			EXPECT_STREQ(h.Extension().c_str(), "");
+			EXPECT_STREQ(h.FileNameWithExtension().c_str(), "");
+			EXPECT_STREQ(h.FileNameWithoutExtension().c_str(), "");
+		}
+	}
+
+	BofPath i(R"(Z:\a\b\c\d\e\f\g\file.abc)");
+	EXPECT_EQ(i.IsDirectory(), false);
+	EXPECT_EQ(i.IsFile(), true);
+	EXPECT_STREQ(i.FullPathName(true).c_str(), R"(Z:\a\b\c\d\e\f\g\file.abc)");
+	EXPECT_STREQ(i.DirectoryName(true).c_str(), R"(Z:\a\b\c\d\e\f\g\)");
+	EXPECT_STREQ(i.Extension().c_str(), "abc");
+	EXPECT_STREQ(i.FileNameWithExtension().c_str(), "file.abc");
+	EXPECT_STREQ(i.FileNameWithoutExtension().c_str(), "file");
+
+	i = BofPath (R"(Z:\a\b\c\d\e\f\g\..\file.abc)");
+	EXPECT_STREQ(i.FullPathName(true).c_str(), R"(Z:\a\b\c\d\e\f\file.abc)");
+	i = BofPath(R"(Z:\a\b\c\d\e\f\..\.\.\..\h\file.abc)");
+	EXPECT_STREQ(i.FullPathName(true).c_str(), R"(Z:\a\b\c\d\h\file.abc)");
+	i = BofPath(R"(Z:\a\b\c\d\e\f\..\F\..\G\h\file.abc)");
+	EXPECT_STREQ(i.FullPathName(true).c_str(), R"(Z:\a\b\c\d\e\G\h\file.abc)");
+
+
+	BofPath j(R"(Z:\a\b\c\d\e\f\g\dir\)");
+	EXPECT_EQ(j.IsDirectory(), true);
+	EXPECT_EQ(j.IsFile(), false);
+	EXPECT_STREQ(j.FullPathName(true).c_str(), R"(Z:\a\b\c\d\e\f\g\dir\)");
+	EXPECT_STREQ(j.DirectoryName(true).c_str(), R"(Z:\a\b\c\d\e\f\g\dir\)");
+	EXPECT_STREQ(j.Extension().c_str(), "");
+	EXPECT_STREQ(j.FileNameWithExtension().c_str(), "");
+	EXPECT_STREQ(j.FileNameWithoutExtension().c_str(), "");
+	/*
+	BofPath i("data/dir/./../hello.");
+	printf("i %s %s\n", Pwd_S.c_str(), i.FullPathName(false).c_str());
+	BofPath j("data/dir/../../abc");
+	printf("j %s %s\n", Pwd_S.c_str(), j.FullPathName(false).c_str());
+
+	BofPath k("data/../dir/");
+	printf("k %s %s\n", Pwd_S.c_str(), k.FullPathName(false).c_str());
+	BofPath l("data/../../dir/");
+	printf("l %s %s\n", Pwd_S.c_str(), l.FullPathName(false).c_str());
+	*/
 
 	BofPath Path0("C:\\");
 	EXPECT_EQ(Path0.IsValid(), true);
@@ -419,7 +527,7 @@ TEST(Fs_Test, PathParsing)
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 	Path  = "CD/tmp/";
-	EXPECT_EQ(Path.IsValid(), false);
+	EXPECT_EQ(Path.IsValid(), true);
 
 	Path  = "C:Ktmp/";
 	EXPECT_EQ(Path.IsValid(), false);

@@ -110,8 +110,9 @@ int main(int argc, char *argv[])
 //	::testing::GTEST_FLAG(filter) ="CmdLineParser_Test.CmdLine";
 //	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
 	::testing::GTEST_FLAG(filter) = "Enum_Test.*";
-//	::testing::GTEST_FLAG(filter) = "BofThread_Test.VirtualThreadTrue";
-//	::testing::GTEST_FLAG(filter) = "Logger_Test.LoggerMultiChannel";
+	::testing::GTEST_FLAG(filter) = "BofTree_Test.*";
+	::testing::GTEST_FLAG(filter) = "BofCrypto_Test.*";
+	//	::testing::GTEST_FLAG(filter) = "Logger_Test.LoggerMultiChannel";
 		Rts_i = RUN_ALL_TESTS();
 
 	Sts_E = Bof_Shutdown();

@@ -13,7 +13,7 @@
  * Author:      Bernard HARMEL: onbings@dscloud.me
  * Revision:    1.0
  *
- * Rem:         Nothing
+ * Rem:         https://github.com/vog/sha1/blob/master/sha1.hpp
  *
  * History:
  *
@@ -28,38 +28,6 @@
 #include <bofstd/bofstd.h>
 
 BEGIN_BOF_NAMESPACE()
-/*** Define *****************************************************************/
-
-#define S11     7
-#define S12     12
-#define S13     17
-#define S14     22
-#define S21     5
-#define S22     9
-#define S23     14
-#define S24     20
-#define S31     4
-#define S322    11
-#define S33     16
-#define S34     23
-#define S41     6
-#define S42     10
-#define S43     15
-#define S44     21
-
-/*! F,G,H and I are basic MD5 functions.*/
-#define F(x, y, z)                  ( ( (x) & (y) ) | ( (~x) & (z) ) )
-#define G(x, y, z)                  ( ( (x) & (z) ) | ( (y) & (~z) ) )
-#define H(x, y, z)                  ( (x) ^ (y) ^ (z) )
-#define I(x, y, z)                  ( (y) ^ ( (x) | (~z) ) )
-
-#define ROTATE_LEFT(x, n)           ( ( (x) << (n) ) | ( (x) >> (32 - (n) ) ) ) // ROTATE_LEFT rotates x left n bits.
-
-/*! FF,GG,HH,and II transformations for rounds 1,2,3,and 4. Rotation is separate from addition to prevent recomputation.*/
-#define FF(a, b, c, d, x, s, ac)    { (a) += F( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
-#define GG(a, b, c, d, x, s, ac)    { (a) += G( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
-#define HH(a, b, c, d, x, s, ac)    { (a) += H( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
-#define II(a, b, c, d, x, s, ac)    { (a) += I( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
 
 /*** Structure **************************************************************/
 
@@ -119,4 +87,24 @@ public:
 
 		bool Hash(uint32_t _NbIn_U32, uint8_t *_pDataIn_U8, uint32_t *_pNbOut_U32, uint8_t *_pDataOut_U8);
 };
+
+class BOFSTD_EXPORT BofSha1
+{
+public:
+	BofSha1();
+	void Update(const std::string &s);
+	void Update(uint32_t _Nb_U32, const void *_pBuffer);
+	void Update(std::istream &is);
+	std::string Final();
+	static std::string S_FromFile(const std::string &_rFilename_S);
+	static std::string S_FromBuffer(uint32_t _Nb_U32, const void *_pBuffer);
+	static std::string S_FromString(const std::string &_Input_S);
+private:
+	uint32_t mpDigest_U32[5];
+	std::string mBuffer_S;
+	uint64_t mTransform_U64;
+};
+//BOFSTD_EXPORT std::string Bof_ComputeSha1(uint32_t _Nb_U32, const void *_pBuffer);
+//BOFSTD_EXPORT std::string Bof_ComputeSha1(const std::string &_Input_S);
+
 END_BOF_NAMESPACE()

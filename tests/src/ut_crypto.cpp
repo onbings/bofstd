@@ -146,3 +146,21 @@ TEST_P(BofCrypto_Test, HashBad)
 	Sts_B     = mpBofCryptoMd5_O->Hash(NbIn_U32, (uint8_t *)pIn_c, &NbOut_U32, nullptr);
 	EXPECT_FALSE(Sts_B);
 }
+
+//https://www.di-mgt.com.au/sha_testvectors.html
+TEST(BofCrypto_Test, Sha1)
+{
+	EXPECT_STREQ(BofSha1::S_FromString("").c_str(), "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+	EXPECT_STREQ(BofSha1::S_FromString("abc").c_str(), "a9993e364706816aba3e25717850c26c9cd0d89d");
+	EXPECT_STREQ(BofSha1::S_FromString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq").c_str(), "84983e441c3bd26ebaae4aa1f95129e5e54670f1");
+	EXPECT_STREQ(BofSha1::S_FromString("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu").c_str(), "a49b2446a02c645bf419f995b67091253a04a259");
+	EXPECT_STREQ(BofSha1::S_FromString(std::string(1000000, 'a')).c_str(), "34aa973cd4c4daa4f61eeb2bdbad27316534016f");
+
+	EXPECT_STREQ(BofSha1::S_FromBuffer(56, "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq").c_str(), "84983e441c3bd26ebaae4aa1f95129e5e54670f1");
+
+	EXPECT_STREQ(BofSha1::S_FromBuffer(0,   "").c_str(), "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+	EXPECT_STREQ(BofSha1::S_FromBuffer(3,   "abc").c_str(), "a9993e364706816aba3e25717850c26c9cd0d89d");
+	EXPECT_STREQ(BofSha1::S_FromBuffer(56,  "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq").c_str(), "84983e441c3bd26ebaae4aa1f95129e5e54670f1");
+	EXPECT_STREQ(BofSha1::S_FromBuffer(112, "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu").c_str(), "a49b2446a02c645bf419f995b67091253a04a259");
+
+}

@@ -234,7 +234,7 @@ private:
 		/// @param _rPath_S : Specifies the path to check
 		/// @return true if the path is a windows one
 		/// @remarks None
-		bool IsWindowsPath(const std::string &_rPath_S);
+		bool IsWindowsDiskPath(const std::string &_rPath_S);
 
 		/// @brief Check if a path contains forbidden char such as "<>:\"\\|?*\a\f\n\r\t\v"
 		/// @param _rPath_S : Specifies the path to check
