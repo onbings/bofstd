@@ -25,6 +25,7 @@
 #include <bofstd/bofnarytreekv.h>
 
 #include <memory>
+#include <iostream>
 
 struct TREE_NODE
 {
@@ -47,37 +48,32 @@ struct TREE_NODE
 };
 TEST(BofNaryTreeKv_Test, Create)
 {
+	uint32_t i_U32;
+	std::string ToString_S;
 	BOF::BOF_NARY_TREE_KV_PARAM BofNaryTreeKvParam_X;
 	BofNaryTreeKvParam_X.MultiThreadAware_B = true;
 	std::unique_ptr<BOF::BofNaryTreeKv<std::string, TREE_NODE>> puBofNaryTreeKv = std::make_unique<BOF::BofNaryTreeKv<std::string, TREE_NODE>>(BofNaryTreeKvParam_X);
+	BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle RootHandle, pChildHandle[32];
 
 	TREE_NODE Root_X(0, "Root");
+	RootHandle = reinterpret_cast<BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle>(0x12345678);
+	//EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(RootHandle));
+	RootHandle = nullptr;
+	EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(RootHandle));
+	EXPECT_EQ(puBofNaryTreeKv->SetRoot(&Root_X, &RootHandle), BOF_ERR_NO_ERROR);
+	EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(RootHandle));
+
 	TREE_NODE Node_X;
-	uint32_t i_U32, j_U32, k_U32;
-#if 0
-	typedef BOF::BofNaryTreeKv<TREE_NODE>::Node BofNaryTreeKvNode;
-	BofNaryTreeKvNode Root(Root_X);
-	BofNaryTreeKvNode Node;
-	//BOF::BofNaryTreeKv<TREE_NODE>::Node(Root_X);
-	puBofNaryTreeKv->SetRoot(&Root);
 	for (i_U32 = 0; i_U32 < 10; i_U32++)
 	{
 		Node_X = TREE_NODE(i_U32, "Child Layer 1");
-		BofNaryTreeKvNode Child(Node_X);
-		Root.AddChild(std::move(Child));
-		Node = Root.Child(i_U32);
-		for (j_U32 = 0; j_U32 < i_U32; j_U32++)
-		{
-			Node_X = TREE_NODE(j_U32, "Child Layer 2");
-			BofNaryTreeKvNode Child(Node_X);
-			Node.AddChild(std::move(Child));
-		}
+		pChildHandle[i_U32] = nullptr;
+		EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(pChildHandle[i_U32]));
+		EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, &Node_X, &pChildHandle[i_U32]), BOF_ERR_NO_ERROR);
+		EXPECT_NE(pChildHandle[i_U32], nullptr);
+		EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(pChildHandle[i_U32]));
 	}
-	i_U32 = 0;
-	for (auto It = puBofNaryTreeKv->begin(); It != puBofNaryTreeKv->end(); ++It, i_U32++)
-	{
-		Node_X = *It;
-		printf("[%d] %d: %s\n", i_U32, Node_X.Val_U32, Node_X.Val_S.c_str());
-	}
-#endif
+	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
+	std::cout << ToString_S;
+
 }
