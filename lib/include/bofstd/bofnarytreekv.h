@@ -14,8 +14,8 @@
 *
 * Rem:         https://www.codeproject.com/Articles/12822/A-Tree-Template-Class-in-C
 *              https://technoteshelp.com/c-creating-a-n-ary-tree/
-*              https://kalkicode.com/n-ary-tree-node-insertion-in-cpp
-* https://www.geeksforgeeks.org/list-of-nodes-of-given-n-ary-tree-with-number-of-children-in-range-0-n/
+*              https://www.geeksforgeeks.org/list-of-nodes-of-given-n-ary-tree-with-number-of-children-in-range-0-n/
+*              https://www.geeksforgeeks.org/print-n-ary-tree-graphically/
 *
 *
 * History:
@@ -26,7 +26,9 @@
 #pragma once
 
 #include <bofstd/bofsystem.h>
-#include <map>
+#include <list>
+#include <algorithm>
+#include <string>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -60,8 +62,6 @@ struct BOFSTD_EXPORT BOF_NARY_TREE_KV_PARAM
 * None
 */
 
-#if 1
-
 template<typename KeyType, typename DataType>
 class BofNaryTreeKv
 {
@@ -70,22 +70,35 @@ private:
   {
   private:
     const uint32_t mMagicNumber_U32 = BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER;
-    std::map<KeyType, Node>	    mChildrenCollection;
-    Node *mpParent;
-    DataType			        mData;
+    //std::map<KeyType, Node>	    mChildCollection;
+    //Node *mpParent;
+    KeyType			        mKey;
+    DataType            mData;
+    std::list<Node *>   mChildCollection;  //better than vector for iterator as it is not invalidated when we add/remove eleme
 
   public:
-    Node();
-    Node(const DataType &_rData, Node *_pParent);
+    Node(const KeyType &_rKey, const DataType &_rData);
     ~Node();
+//    inline bool operator==(const Node &_rLhs, const Node &_rRhs) { return(_rLhs.Key() == _rRhs.Key()); } /* do actual comparison */
+//    inline bool operator!=(const Node &_rLhs, const Node &_rRhs) { return !(_rLhs == _rRhs); }
+//    inline bool operator==(const Node &_rOther) { return(this->Key() == _rOther.Key()); } /* do actual comparison */
+//    inline bool operator!=(const Node &_rOther) { return ! this->==(_rOther); }
+//    inline bool operator==(const Node *_pOther) { return(this->Key() == _pOther->Key()); } /* do actual comparison */
+//    inline bool operator!=(const Node *_pOther) { return !this-> == (_pOther); }
 
     uint32_t MagicNumber() const;
-    DataType &Data() const;
-    uint32_t NumberOfChild() const;
-    const Node *Child(const KeyType &_rKey) const;
-    const Node *Parent() const;
-    bool  HasChildren() const;
-    const Node *AddChild(const KeyType &_rKey, const Node &_rChild);
+    const KeyType &Key() const;
+    const DataType &Data() const;
+    //uint32_t NumberOfChild() const;
+    const std::list<Node *> &ChildCollection() const;
+    BOFERR AddChild(Node *_pNode);
+
+    /*
+        const Node *Child(const KeyType &_rKey) const;
+        const Node *Parent() const;
+        bool  HasChildren() const;
+        const Node *AddChild(const KeyType &_rKey, const Node &_rChild);
+        */
   };
 
 private:
@@ -112,16 +125,352 @@ public:
 
   bool IsNodeValid(const BofNaryTreeKvNodeHandle _NodeHandle) const;
 
-  BOFERR SetRoot(const DataType *_pRoot, BofNaryTreeKvNodeHandle *_pRootHandle);
-  BOFERR AddChild(const BofNaryTreeKvNodeHandle _ParentHandle, const DataType *_pChild, BofNaryTreeKvNodeHandle *_pChildHandle);
-  std::string ToString(const BofNaryTreeKvNodeHandle _ParentHandle);
+  BOFERR SetRoot(const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pRootHandle);
+  BOFERR AddChild(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pChildHandle);
+  const std::string ToString(const BofNaryTreeKvNodeHandle _ParentHandle);    //No const (mutex)
 
 private:
   void BrowseTree(const BofNaryTreeKvNodeHandle _NodeHandle) const;
+  void BofNaryTreeKv<KeyType, DataType>::printNTree(const BofNaryTreeKvNodeHandle _NodeHandle, std::vector<bool> &flag, int depth = 0, bool isLast = false) const;
 };
 
+//--- BofNaryTreeKv<KeyType, DataType>::Node Class --------------------------------------------------------------------
 
-#else
+template<typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::Node::Node(const KeyType &_rKey, const DataType &_rData) : mKey(_rKey), mData(_rData)
+{
+}
+
+template<typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::Node::~Node()
+{
+  // { for (uint32_t i_U32 = 0; i_U32 < NumberOfChild(); i_U32++) { delete (mChildCollection[i_U32]); } }
+}
+
+template<typename KeyType, typename DataType>
+uint32_t BofNaryTreeKv<KeyType, DataType>::Node::MagicNumber() const
+{
+  return mMagicNumber_U32;
+}
+
+template<typename KeyType, typename DataType>
+const KeyType &BofNaryTreeKv<KeyType, DataType>::Node::Key() const
+{
+  return mKey;
+}
+
+template<typename KeyType, typename DataType>
+const DataType &BofNaryTreeKv<KeyType, DataType>::Node::Data() const
+{
+  return mData;
+}
+
+template<typename KeyType, typename DataType>
+typename const std::list<typename BofNaryTreeKv<KeyType, DataType>::Node *> &BofNaryTreeKv<KeyType, DataType>::Node::ChildCollection() const
+{
+  return (mChildCollection);
+}
+class node
+{
+public:
+  std::string Key;
+  int val;
+public:
+      inline bool operator==(const node &_rOther) { return(this->Key == _rOther.Key); } /* do actual comparison */
+      inline bool operator!=(const node &_rOther) { return !(this->operator ==(_rOther)); }
+};
+
+template<typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Node::AddChild(Node *_pNode)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  if (_pNode)
+  {
+    Rts_E = BOF_ERR_DUPLICATE;
+    std::list<node *>   c;
+    auto e = c.begin();
+    auto f = c.end();
+    node r;
+    //auto d = std::find(c.begin(), c.end(), r);
+    auto iter = std::find_if(c.begin(),
+                             c.end(),
+                             [&](node *s) -> bool { return (s->Key == r.Key); });
+    
+    printf("jj");
+    //auto d = std::find(c.begin(), c.end(), "_pNode->Key()");
+    /*
+    auto It = std::find(mChildCollection.begin(), mChildCollection.end(), _pNode->Key());
+
+    if (It == mChildCollection.end())
+    {
+      mChildCollection.push_back(_pNode);
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    */
+  }
+  return Rts_E;
+}
+
+/*
+template<typename KeyType, typename DataType>
+typename const BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::Child(const KeyType &_rKey) const
+{
+  BOF_ERR Sts_E;
+
+  BOF_NARY_TREE_KV_LOCK(Sts_E);
+  auto It = mChildCollection.find(_rKey);
+  BOF_NARY_TREE_KV_UNLOCK();
+  return (It != mChildCollection.end()) & mChildCollection[_rKey]:nullptr;
+}
+
+template<typename KeyType, typename DataType>
+typename const BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::Parent() const
+{
+  return (mpParent);
+}
+
+template<typename KeyType, typename DataType>
+bool BofNaryTreeKv<KeyType, DataType>::Node::HasChildren() const
+{
+  return (NumberOfChild() != 0);
+}
+
+template<typename KeyType, typename DataType>
+typename const BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::AddChild(const KeyType &_rKey, const Node &_rChild)
+{
+  const BofNaryTreeKv<KeyType, DataType>::Node *pRts = nullptr;
+  BOF_ERR Sts_E;
+
+  BOF_NARY_TREE_KV_LOCK(Sts_E);
+  auto It = mChildCollection.find(_rKey);
+  if (It == mChildCollection.end())
+  {
+    _rChild.SetParent(this);
+    mChildCollection[_rKey] = _rChild;
+    It = mChildCollection.find(_rKey);
+    pRts = It;
+  }
+  BOF_NARY_TREE_KV_UNLOCK();
+  return pRts;
+}
+*/
+
+//--- BofNaryTreeKv<KeyType, DataType>: class --------------------------------------------------------------------
+template<typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::BofNaryTreeKv(const BOF_NARY_TREE_KV_PARAM &_rNaryTreeKvParam_X)
+{
+  mNaryTreeKvParam_X = _rNaryTreeKvParam_X;
+  mpRoot = nullptr;
+  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", true, true, mTreeMtx_X) : BOF_ERR_NO_ERROR;
+  if (mErrorCode_E == BOF_ERR_NO_ERROR)
+  {
+  }
+}
+
+template<typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::~BofNaryTreeKv()
+{
+  //TODO
+  Bof_DestroyMutex(mTreeMtx_X);
+}
+
+template<typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::LockTree()
+{
+  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+
+  if (mNaryTreeKvParam_X.MultiThreadAware_B)
+  {
+    Rts_E = Bof_LockMutex(mTreeMtx_X);
+  }
+  return Rts_E;
+}
+
+template<typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::UnlockTree()
+{
+  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+
+  if (mNaryTreeKvParam_X.MultiThreadAware_B)
+  {
+    Rts_E = Bof_UnlockMutex(mTreeMtx_X);
+  }
+  return Rts_E;
+}
+
+
+template<typename KeyType, typename DataType>
+bool BofNaryTreeKv<KeyType, DataType>::IsNodeValid(const BofNaryTreeKvNodeHandle _NodeHandle) const
+{
+  bool Rts_B = false;
+  const Node *pNode = reinterpret_cast<Node *>(_NodeHandle);
+  if (pNode)
+  {
+    Rts_B = (pNode->MagicNumber() == BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER);
+  }
+  return Rts_B;
+}
+
+template<typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::SetRoot(const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pRootHandle)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+
+  if (_pRootHandle)
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+
+    if (mpRoot)
+    {
+      BOF_SAFE_DELETE(mpRoot);  //TODO not enough
+    }
+    mpRoot = new Node(_rKey, _rData);
+    if (!mpRoot)
+    {
+      Rts_E = BOF_ERR_ENOMEM;
+    }
+
+    *_pRootHandle = mpRoot;
+  }
+  return Rts_E;
+}
+
+template<typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::AddChild(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pChildHandle)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  Node *pNode, *pParent;
+
+  if ((IsNodeValid(_ParentHandle)) && (_pChildHandle))
+  {
+    *_pChildHandle = nullptr;
+    BOF_NARY_TREE_KV_LOCK(Rts_E);
+    if (Rts_E == BOF_ERR_NO_ERROR)
+    {
+      Rts_E = BOF_ERR_ENOMEM;
+      pParent = reinterpret_cast<Node *>(_ParentHandle);
+      pNode = new Node(_rKey, _rData);
+      if (pNode)
+      {
+        Rts_E = pParent->AddChild(pNode);
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          *_pChildHandle = pNode;
+        }
+      }
+      BOF_NARY_TREE_KV_UNLOCK();
+    }
+  }
+  return Rts_E;
+}
+
+template<typename KeyType, typename DataType>
+void BofNaryTreeKv<KeyType, DataType>::BrowseTree(const BofNaryTreeKvNodeHandle _NodeHandle) const
+{
+  uint32_t i_U32 = 0;
+  const Node *pNode;
+  Node *pChildNode = nullptr;
+
+  if (IsNodeValid(_NodeHandle))
+  {
+    pNode = reinterpret_cast<const Node *>(_NodeHandle);
+    //std::cout << "  " << pNode->Data();
+    // iterating the child of given node
+    while (i_U32 < pNode->NumberOfChild())
+    {
+      BofNaryTreeKv<KeyType, DataType>::Node::mpParent = nullptr;
+      //Node::mChildCollection;
+     //pChildNode = pNode->child.at(i);
+      this->BrowseTree(pChildNode);
+      i_U32++;
+    }
+  }
+}
+
+template<typename KeyType, typename DataType>
+void BofNaryTreeKv<KeyType, DataType>::printNTree(const BofNaryTreeKvNodeHandle _NodeHandle, std::vector<bool> &flag, int depth = 0, bool isLast = false) const
+{
+  // Condition when node is None
+  const Node *pNode = reinterpret_cast<const Node *>(_NodeHandle);
+  if (pNode == NULL)
+    return;
+
+  // Loop to print the depths of the
+  // current node
+  for (int i = 1; i < depth; ++i) {
+
+    // Condition when the depth
+    // is exploring
+    if (flag[i] == true) {
+      std::cout << "| "
+        << " "
+        << " "
+        << " ";
+    }
+
+    // Otherwise print
+    // the blank spaces
+    else {
+      std::cout << " "
+        << " "
+        << " "
+        << " ";
+    }
+  }
+
+  // Condition when the current
+  // node is the root node
+  if (depth == 0)
+    std::cout << pNode->Key() << '\n';
+  // Condition when the node is
+  // the last node of
+  // the exploring depth
+  else if (isLast) {
+    std::cout << "+--- " << pNode->Key() << '\n';
+
+    // No more childrens turn it
+    // to the non-exploring depth
+    flag[depth] = false;
+  }
+  else {
+    std::cout << "+--- " << pNode->Key() << '\n';
+  }
+  int it = 0;
+  for (auto i = pNode->ChildCollection().begin(); i != pNode->ChildCollection().end(); ++i, ++it)
+  {
+    // Recursive call for the children nodes
+    printNTree(*i, flag, depth + 1, it == (pNode->ChildCollection().size()) - 1);
+  }
+
+  flag[depth] = true;
+}
+
+template<typename KeyType, typename DataType>
+const std::string BofNaryTreeKv<KeyType, DataType>::ToString(const BofNaryTreeKvNodeHandle _NodeHandle)
+{
+  BOFERR Sts_E;
+  std::string Rts_S;
+  std::vector<bool> flag(255, true);
+
+  if (IsNodeValid(_NodeHandle))
+  {
+    BOF_NARY_TREE_KV_LOCK(Sts_E);
+    if (Sts_E == BOF_ERR_NO_ERROR)
+    {
+      //      BrowseTree(_ParentHandle);
+      printNTree(_NodeHandle, flag);
+      BOF_NARY_TREE_KV_UNLOCK();
+    }
+  }
+  return Rts_S;
+}
+
+END_BOF_NAMESPACE()
+
+
+
+
+#if 0
 
 template<typename DataType>
 class BofNaryTreeKv
@@ -129,7 +478,7 @@ class BofNaryTreeKv
 public:
   class Node
   {
-    std::vector<Node>	    mChildrenCollection;
+    std::vector<Node>	    mChildCollection;
     Node *mpParent;
     DataType			        mData;
 
@@ -139,15 +488,15 @@ public:
     Node(DataType _Data, Node *_pParent) : mData(_Data), mpParent(_pParent) {}
 
     DataType &Data() { return (mData); }
-    uint32_t NumberOfChild() const { return (mChildrenCollection.size()); }
-    Node &Child(uint32_t _Index_U32) { BOF_ASSERT(_Index_U32 < NumberOfChild()); return mChildrenCollection[_Index_U32]; }
+    uint32_t NumberOfChild() const { return (mChildCollection.size()); }
+    Node &Child(uint32_t _Index_U32) { BOF_ASSERT(_Index_U32 < NumberOfChild()); return mChildCollection[_Index_U32]; }
     Node *Parent() { return (mpParent); }
     void     SetParent(Node *_pParent) { mpParent = _pParent; }
     bool     HasChildren() const { return (NumberOfChild != 0); }
 
-    void     AddChild(Node &&_rChild) { _rChild.SetParent(this);  mChildrenCollection.push_back(_rChild); }
+    void     AddChild(Node &&_rChild) { _rChild.SetParent(this);  mChildCollection.push_back(_rChild); }
 
-    ~Node() {}  // { for (uint32_t i_U32 = 0; i_U32 < NumberOfChild(); i_U32++) { delete (mChildrenCollection[i_U32]); } }
+    ~Node() {}  // { for (uint32_t i_U32 = 0; i_U32 < NumberOfChild(); i_U32++) { delete (mChildCollection[i_U32]); } }
   };
   // define a DFS iterator (in-order, most commonly used one)
   class Node_Iterator_Dfs
@@ -265,229 +614,3 @@ public:
 };
 #endif
 
-
-//--- BofNaryTreeKv<KeyType, DataType>::Node Class --------------------------------------------------------------------
-template<typename KeyType, typename DataType>
-BofNaryTreeKv<KeyType, DataType>::Node::Node() : mpParent(nullptr)
-{
-}
-
-template<typename KeyType, typename DataType>
-BofNaryTreeKv<KeyType, DataType>::Node::Node(const DataType &_rData, Node *_pParent) : mData(_rData), mpParent(_pParent)
-{
-}
-
-template<typename KeyType, typename DataType>
-BofNaryTreeKv<KeyType, DataType>::Node::~Node()
-{
-  // { for (uint32_t i_U32 = 0; i_U32 < NumberOfChild(); i_U32++) { delete (mChildrenCollection[i_U32]); } }
-}
-
-template<typename KeyType, typename DataType>
-uint32_t BofNaryTreeKv<KeyType, DataType>::Node::MagicNumber() const
-{
-  return mMagicNumber_U32;
-}
-
-template<typename KeyType, typename DataType>
-DataType &BofNaryTreeKv<KeyType, DataType>::Node::Data() const
-{
-  return mData;
-}
-
-template<typename KeyType, typename DataType>
-uint32_t BofNaryTreeKv<KeyType, DataType>::Node::NumberOfChild() const
-{
-  return (mChildrenCollection.size());
-}
-
-template<typename KeyType, typename DataType>
-typename const BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::Child(const KeyType &_rKey) const
-{
-  BOF_ERR Sts_E;
-
-  BOF_NARY_TREE_KV_LOCK(Sts_E);
-  auto It = mChildrenCollection.find(_rKey);
-  BOF_NARY_TREE_KV_UNLOCK();
-  return (It != mChildrenCollection.end()) & mChildrenCollection[_rKey]:nullptr;
-}
-
-template<typename KeyType, typename DataType>
-typename const BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::Parent() const
-{
-  return (mpParent);
-}
-
-template<typename KeyType, typename DataType>
-bool BofNaryTreeKv<KeyType, DataType>::Node::HasChildren() const
-{
-  return (NumberOfChild() != 0);
-}
-
-template<typename KeyType, typename DataType>
-typename const BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::AddChild(const KeyType &_rKey, const Node &_rChild)
-{
-  const BofNaryTreeKv<KeyType, DataType>::Node *pRts = nullptr;
-  BOF_ERR Sts_E;
-
-  BOF_NARY_TREE_KV_LOCK(Sts_E);
-  auto It = mChildrenCollection.find(_rKey);
-  if (It == mChildrenCollection.end())
-  {
-    _rChild.SetParent(this);
-    mChildrenCollection[_rKey] = _rChild;
-    It = mChildrenCollection.find(_rKey);
-    pRts = It;
-  }
-  BOF_NARY_TREE_KV_UNLOCK();
-  return pRts;
-}
-
-
-//--- BofNaryTreeKv<KeyType, DataType>: class --------------------------------------------------------------------
-template<typename KeyType, typename DataType>
-BofNaryTreeKv<KeyType, DataType>::BofNaryTreeKv(const BOF_NARY_TREE_KV_PARAM &_rNaryTreeKvParam_X)
-{
-  mNaryTreeKvParam_X = _rNaryTreeKvParam_X;
-  mpRoot = nullptr;
-  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", true, true, mTreeMtx_X) : BOF_ERR_NO_ERROR;
-  if (mErrorCode_E == BOF_ERR_NO_ERROR)
-  {
-  }
-}
-
-template<typename KeyType, typename DataType>
-BofNaryTreeKv<KeyType, DataType>::~BofNaryTreeKv()
-{
-  SetRoot(nullptr, nullptr);
-  Bof_DestroyMutex(mTreeMtx_X);
-}
-
-template<typename KeyType, typename DataType>
-BOFERR BofNaryTreeKv<KeyType, DataType>::LockTree()
-{
-  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
-
-  if (mNaryTreeKvParam_X.MultiThreadAware_B)
-  {
-    Rts_E = Bof_LockMutex(mTreeMtx_X);
-  }
-  return Rts_E;
-}
-
-template<typename KeyType, typename DataType>
-BOFERR BofNaryTreeKv<KeyType, DataType>::UnlockTree()
-{
-  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
-
-  if (mNaryTreeKvParam_X.MultiThreadAware_B)
-  {
-    Rts_E = Bof_UnlockMutex(mTreeMtx_X);
-  }
-  return Rts_E;
-}
-
-
-template<typename KeyType, typename DataType>
-bool BofNaryTreeKv<KeyType, DataType>::IsNodeValid(const BofNaryTreeKvNodeHandle _NodeHandle) const
-{
-  bool Rts_B = false;
-  const Node *pNode = reinterpret_cast<Node *>(_NodeHandle);
-  if (pNode)
-  {
-    Rts_B = (pNode->MagicNumber() == BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER);
-  }
-  return Rts_B;
-}
-
-template<typename KeyType, typename DataType>
-BOFERR BofNaryTreeKv<KeyType, DataType>::SetRoot(const DataType *_pRoot, BofNaryTreeKvNodeHandle *_pRootHandle)
-{
-  BOFERR Rts_E = BOF_ERR_EINVAL;
-
-  if (_pRootHandle)
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-
-    if (mpRoot)
-    {
-      BOF_SAFE_DELETE(mpRoot);  //TODO not enough
-    }
-    if (_pRoot)
-    {
-      mpRoot = new Node(*_pRoot, nullptr);
-      if (!mpRoot)
-      {
-        Rts_E = BOF_ERR_ENOMEM;
-      }
-    }
-    *_pRootHandle = mpRoot;
-  }
-  return Rts_E;
-}
-
-template<typename KeyType, typename DataType>
-BOFERR BofNaryTreeKv<KeyType, DataType>::AddChild(const BofNaryTreeKvNodeHandle _ParentHandle, const DataType *_pChild, BofNaryTreeKvNodeHandle *_pChildHandle)
-{
-  BOFERR Rts_E = BOF_ERR_EINVAL;
-  Node *pNode, *pParent;
-
-  if ((IsNodeValid(_ParentHandle)) && (_pChild) && (_pChildHandle))
-  {
-    BOF_NARY_TREE_KV_LOCK(Rts_E);
-    if (Rts_E == BOF_ERR_NO_ERROR)
-    {
-      Rts_E = BOF_ERR_ENOMEM;
-      pParent = reinterpret_cast<Node *>(_ParentHandle);
-      pNode = new Node(*_pChild, pParent);
-      if (pNode)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-        *_pChildHandle = pNode;
-      }
-      BOF_NARY_TREE_KV_UNLOCK();
-    }
-  }
-  return Rts_E;
-}
-
-template<typename KeyType, typename DataType>
-void BofNaryTreeKv<KeyType, DataType>::BrowseTree(const BofNaryTreeKvNodeHandle _NodeHandle) const
-{
-  uint32_t i_U32 = 0;
-  const Node *pNode;
-  Node *pChildNode = nullptr;
-
-  if (IsNodeValid(_NodeHandle))
-  {
-    pNode = reinterpret_cast<const Node *>(_NodeHandle);
-    //std::cout << "  " << pNode->Data();
-    // iterating the child of given node
-    while (i_U32 < pNode->NumberOfChild())
-    {
-      BofNaryTreeKv<KeyType, DataType>::Node::mpParent = nullptr;
-       //Node::mChildrenCollection;
-      //pChildNode = pNode->child.at(i);
-      this->BrowseTree(pChildNode);
-      i_U32++;
-    }
-  }
-}
-template<typename KeyType, typename DataType>
-std::string BofNaryTreeKv<KeyType, DataType>::ToString(const BofNaryTreeKvNodeHandle _ParentHandle)
-{
-  BOFERR Sts_E;
-  std::string Rts_S;
-
-  if (IsNodeValid(_ParentHandle))
-  {
-    BOF_NARY_TREE_KV_LOCK(Sts_E);
-    if (Sts_E == BOF_ERR_NO_ERROR)
-    {
-      BrowseTree(_ParentHandle);
-      BOF_NARY_TREE_KV_UNLOCK();
-    }
-  }
-  return Rts_S;
-}
-END_BOF_NAMESPACE()

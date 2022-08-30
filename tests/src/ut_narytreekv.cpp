@@ -23,7 +23,7 @@
 
 #include <gtest/gtest.h>
 #include <bofstd/bofnarytreekv.h>
-
+ 
 #include <memory>
 #include <iostream>
 
@@ -46,6 +46,7 @@ struct TREE_NODE
 		Val_S = "";
 	}
 };
+
 TEST(BofNaryTreeKv_Test, Create)
 {
 	uint32_t i_U32;
@@ -58,11 +59,32 @@ TEST(BofNaryTreeKv_Test, Create)
 	TREE_NODE Root_X(0, "Root");
 	RootHandle = reinterpret_cast<BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle>(0x12345678);
 	//EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(RootHandle));
+	int nv = 10;
+	TREE_NODE r(0,"Root"), n1(1,"Un"), n2(2,"Deux"),
+		n3(3,"Trois"), n4(4,"Quatre"), n5(5,"Cinq"),
+		n6(6,"Six"), n7(7,"Sept"), n8(8,"Huit"), n9(9,"Neuf");
+
 	RootHandle = nullptr;
 	EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(RootHandle));
-	EXPECT_EQ(puBofNaryTreeKv->SetRoot(&Root_X, &RootHandle), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->SetRoot("/", r, &RootHandle), BOF_ERR_NO_ERROR);
 	EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(RootHandle));
 
+	// Tree Formation
+	puBofNaryTreeKv->AddChild(RootHandle, "dir1", n1, &pChildHandle[0]);
+	puBofNaryTreeKv->AddChild(RootHandle, "dir2", n2, &pChildHandle[1]);
+	puBofNaryTreeKv->AddChild(RootHandle, "dir3", n3, &pChildHandle[2]);
+	/*
+	r.root.push_back(&n1);
+	n1.root.push_back(&n4);
+	n1.root.push_back(&n5);
+	r.root.push_back(&n2);
+	r.root.push_back(&n3);
+	n3.root.push_back(&n6);
+	n3.root.push_back(&n7);
+	n7.root.push_back(&n9);
+	n3.root.push_back(&n8);
+	*/
+	/*
 	TREE_NODE Node_X;
 	for (i_U32 = 0; i_U32 < 10; i_U32++)
 	{
@@ -73,7 +95,7 @@ TEST(BofNaryTreeKv_Test, Create)
 		EXPECT_NE(pChildHandle[i_U32], nullptr);
 		EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(pChildHandle[i_U32]));
 	}
+	*/
 	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
 	std::cout << ToString_S;
-
 }
