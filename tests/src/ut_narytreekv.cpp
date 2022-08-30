@@ -45,57 +45,62 @@ struct TREE_NODE
 		Val_U32 = 0;
 		Val_S = "";
 	}
+
 };
+
+std::ostream &operator<<(std::ostream &_rOs, TREE_NODE const &_rArg)
+{
+	_rOs << "Val = " << _rArg.Val_U32 << ", Sts = " << _rArg.Val_S;
+	return _rOs;
+}
 
 TEST(BofNaryTreeKv_Test, Create)
 {
-	uint32_t i_U32;
+	uint32_t i_U32, HandleIndex_U32;
 	std::string ToString_S;
 	BOF::BOF_NARY_TREE_KV_PARAM BofNaryTreeKvParam_X;
 	BofNaryTreeKvParam_X.MultiThreadAware_B = true;
 	std::unique_ptr<BOF::BofNaryTreeKv<std::string, TREE_NODE>> puBofNaryTreeKv = std::make_unique<BOF::BofNaryTreeKv<std::string, TREE_NODE>>(BofNaryTreeKvParam_X);
-	BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle RootHandle, pChildHandle[32];
+	BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle RootHandle, ParentHandle, pNodeHandle[32];
+	TREE_NODE r(0, "Root"), n1(1, "Un"), n2(2, "Deux"),n3(3, "Trois"), n4(4, "Quatre"), n5(5, "Cinq"),n6(6, "Six"), n7(7, "Sept"), n8(8, "Huit"), n9(9, "Neuf");
 
-	TREE_NODE Root_X(0, "Root");
-	RootHandle = reinterpret_cast<BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle>(0x12345678);
-	//EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(RootHandle));
-	int nv = 10;
-	TREE_NODE r(0,"Root"), n1(1,"Un"), n2(2,"Deux"),
-		n3(3,"Trois"), n4(4,"Quatre"), n5(5,"Cinq"),
-		n6(6,"Six"), n7(7,"Sept"), n8(8,"Huit"), n9(9,"Neuf");
-
+/*
+MountPoint
++--- Dir1
+|    +--- FileA
+|    +--- FileB
++--- Dir2
++--- Dir3
+		+--- FileC
+		+--- Dir4
+		|    +--- FileE
+		+--- FileD
+*/
+	HandleIndex_U32 = 0;
 	RootHandle = nullptr;
 	EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(RootHandle));
-	EXPECT_EQ(puBofNaryTreeKv->SetRoot("/", r, &RootHandle), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->SetRoot("MountPoint", r, &RootHandle), BOF_ERR_NO_ERROR);
+	pNodeHandle[HandleIndex_U32++] = RootHandle;
 	EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(RootHandle));
 
-	// Tree Formation
-	puBofNaryTreeKv->AddChild(RootHandle, "dir1", n1, &pChildHandle[0]);
-	puBofNaryTreeKv->AddChild(RootHandle, "dir2", n2, &pChildHandle[1]);
-	puBofNaryTreeKv->AddChild(RootHandle, "dir3", n3, &pChildHandle[2]);
-	/*
-	r.root.push_back(&n1);
-	n1.root.push_back(&n4);
-	n1.root.push_back(&n5);
-	r.root.push_back(&n2);
-	r.root.push_back(&n3);
-	n3.root.push_back(&n6);
-	n3.root.push_back(&n7);
-	n7.root.push_back(&n9);
-	n3.root.push_back(&n8);
-	*/
-	/*
-	TREE_NODE Node_X;
-	for (i_U32 = 0; i_U32 < 10; i_U32++)
-	{
-		Node_X = TREE_NODE(i_U32, "Child Layer 1");
-		pChildHandle[i_U32] = nullptr;
-		EXPECT_FALSE(puBofNaryTreeKv->IsNodeValid(pChildHandle[i_U32]));
-		EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, &Node_X, &pChildHandle[i_U32]), BOF_ERR_NO_ERROR);
-		EXPECT_NE(pChildHandle[i_U32], nullptr);
-		EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(pChildHandle[i_U32]));
-	}
-	*/
+
+	EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, "Dir1", n1, &ParentHandle), BOF_ERR_NO_ERROR);
+	pNodeHandle[HandleIndex_U32++] = ParentHandle;
+	puBofNaryTreeKv->AddChild(ParentHandle, "FileA", n1, &pNodeHandle[HandleIndex_U32++]);
+	puBofNaryTreeKv->AddChild(ParentHandle, "FileB", n1, &pNodeHandle[HandleIndex_U32++]);
+
+	EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, "Dir2", n2, &ParentHandle), BOF_ERR_NO_ERROR);
+	pNodeHandle[HandleIndex_U32++] = ParentHandle;
+
+	EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, "Dir3", n3, &ParentHandle), BOF_ERR_NO_ERROR);
+	pNodeHandle[HandleIndex_U32++] = ParentHandle;
+	EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "FileC", n6, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "Dir4", n7, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "FileD", n8, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
+
+	ParentHandle = pNodeHandle[HandleIndex_U32-2];
+	EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "FileE", n9, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
+		
 	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
 	std::cout << ToString_S;
 }
