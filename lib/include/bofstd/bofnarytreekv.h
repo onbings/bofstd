@@ -92,7 +92,7 @@ private:
   BOF_NARY_TREE_KV_PARAM mNaryTreeKvParam_X;
   BOF_MUTEX      mTreeMtx_X;                            /*! Provide a serialized access to shared resources in a multi threaded environment*/
   BOFERR         mErrorCode_E;
-  Node           *mpRoot = nullptr;		// the root node of the tree
+  Node *mpRoot = nullptr;		// the root node of the tree
   uint32_t            mMaxDepth_U32 = 0;
 public:
   template<typename KeyType, typename DataType>
@@ -141,6 +141,7 @@ BofNaryTreeKv<KeyType, DataType>::Node::~Node()
     BOF_SAFE_DELETE(pNode);
     mChildCollection.pop_front();
   }
+  mMagicNumber_U32 = ~BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER; //invalid the usage of external user handle
 }
 
 template<typename KeyType, typename DataType>
@@ -283,7 +284,7 @@ BOFERR BofNaryTreeKv<KeyType, DataType>::AddChild(const BofNaryTreeKvNodeHandle 
       Rts_E = BOF_ERR_ENOMEM;
       pParent = reinterpret_cast<Node *>(_ParentHandle);
       pNode = new Node(_rKey, _rData);
-      if (pNode)
+      if (pNode) 
       {
         Rts_E = pParent->AddChild(pNode);
         if (Rts_E == BOF_ERR_NO_ERROR)
@@ -324,30 +325,50 @@ void BofNaryTreeKv<KeyType, DataType>::ClearTree(const BofNaryTreeKvNodeHandle _
 {
   const Node *pStartNode = reinterpret_cast<const Node *>(_NodeHandle), *pNode;
   BOFERR Sts_E;
-  uint32_t NbChild_U32;
+  //const std::list<Node *> &ChildCollection;
+  //uint32_t NbChild_U32;
 
   if (IsNodeValid(_NodeHandle))
   {
     BOF_NARY_TREE_KV_LOCK(Sts_E);
     if (Sts_E == BOF_ERR_NO_ERROR)
     {
-      while (pStartNode) 
+#pragma message("--------------------------------->continue here")
+#if 0
+      while (pStartNode)
       {
-// if this node has any children, start by "descending" to the highest numbered child and kill that first.
-          if (pStartNode->nchild--) 
-          {
-            pStartNode = pStartNode->child[pStartNode->nchild];
-            continue;
-          }
-// When we arrive here, *pStartNode has no more children left, so kill it, and step up to its parent
-          pNode = node->parent;
-// if pStartNode->child was obtained via malloc() uncomment next line
-// free (pStartNode->child);
-          free(pStartNode);
-          pStartNode = pNode;
+        // if this node has any children, start by "descending" to the highest numbered child and kill that first.
+        ChildCollection = pStartNode->ChildCollection();
+        NbChild_U32 = ChildCollection.size();
+        if (NbChild_U32--)    pq --: dans l'original il affecte le contenu du node !!!'
+        {
+          pStartNode = pStartNode->ChildCollection[pStartNode->nchild];
+          continue;
         }
+        // When we arrive here, *pStartNode has no more children left, so kill it, and step up to its parent
+        pNode = node->parent;
+        // if pStartNode->child was obtained via malloc() uncomment next line
+        // free (pStartNode->child);
+        free(pStartNode);
+        pStartNode = pNode;
+
+        node = root; do {
+          if (node->noofchild) { node = node->child[noofchild - 1]; else { node->parent->noofchild--; curr = node->parent; free(node); node = curr; } }while (node->parent || (node == root && node)) –
+            Peter
+            Feb 23, 2012 at 14:23
+            An iterative algorithm :
+
+          Start at the parent node.
+
+            Then do the following actions as long as possible :
+          if the current node has one or more children :
+          set one of the children nodes as the(next) current node
+          else
+            delete the current node anduse its parent as the(next) current node.
+            if the current node was the root node(which
       }
-      BOF_NARY_TREE_KV_UNLOCK();
+#endif
+        BOF_NARY_TREE_KV_UNLOCK();
     }
   }
 }

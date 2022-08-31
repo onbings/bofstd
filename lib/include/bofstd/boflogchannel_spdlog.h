@@ -35,7 +35,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Class *******************************************************************/
 
-class BofLogChannelSpdLog final : public IBofLogChannel
+class BOFSTD_EXPORT BofLogChannelSpdLog final : public IBofLogChannel
 {
 		// Opaque pointer design pattern: all public and protected stuff goes here ...
 
