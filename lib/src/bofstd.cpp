@@ -464,4 +464,8 @@ const char *BofException::what() //throw ()
   mMessage_S = Msg.str(); return mMessage_S.c_str();
 }
 
+int BofException::f(int a)
+{
+  return a * 2;
+}
 END_BOF_NAMESPACE()
