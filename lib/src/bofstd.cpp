@@ -440,5 +440,28 @@ bool Bof_IsCpuLittleEndian()
 }
 
 
+BofException::BofException(std::string _Header_S, std::string _Context_S, std::string _Where_S, int32_t _ErrorCode_S32) : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32) 
+{
+}
+
+const char *BofException::what() //throw ()
+{
+  std::ostringstream Msg;
+  Msg << mHeader_S;
+
+  if (mErrorCode_E)
+  {
+    Msg << mErrorCode_E << ": " << BOF::Bof_ErrorCode(mErrorCode_E);
+  }
+  if (mContext_S != "")
+  {
+    Msg << mContext_S;
+  }
+  if (mWhere_S != "")
+  {
+    Msg << " at " << mWhere_S;
+  }
+  mMessage_S = Msg.str(); return mMessage_S.c_str();
+}
 
 END_BOF_NAMESPACE()

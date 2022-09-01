@@ -343,27 +343,8 @@ BOFERR Bof_StringToBin(uint32_t _Base_U32, const char *_pAsciiNumber_c, T &_rCon
 class BOFSTD_EXPORT BofException : public std::exception
 {
 public:
-  BofException(std::string _Header_S, std::string _Context_S = "", std::string _Where_S = "", int32_t _ErrorCode_S32 = 0) : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32) {}
-
-  const char *what() //throw ()
-  {
-    std::ostringstream Msg;
-    Msg << mHeader_S;
-    
-    if (mErrorCode_E)
-    {
-      Msg << mErrorCode_E << ": " << BOF::Bof_ErrorCode(mErrorCode_E);
-    }
-    if (mContext_S != "")
-    {
-      Msg << mContext_S;
-    }
-    if (mWhere_S != "")
-    {
-      Msg << " at " << mWhere_S;
-    }
-    mMessage_S = Msg.str(); return mMessage_S.c_str();
-  }
+  BofException(std::string _Header_S, std::string _Context_S = "", std::string _Where_S = "", int32_t _ErrorCode_S32 = 0);
+  const char *what(); //throw ();
 
 private:
   std::string mHeader_S;
