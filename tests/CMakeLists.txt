@@ -7,6 +7,7 @@ include(GoogleTest)
 set(API_FILES
 	include/gtestrunner.h
 	src/main.cpp
+	src/ut_api.cpp
 	src/ut_callbackcollection.cpp 
 	src/ut_2d.cpp
 )

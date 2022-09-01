@@ -237,14 +237,10 @@ set(SOURCES_FILES
 	${PARAMETER_FILES}
 	${SERDER_FILES}
 	${LOG_FILES}
-	${FMT_FILES}
-	${SPDLOG_FILES}
 	${FS_FILES}
 	${COMMANDLINE_FILES}
 	${ASYNCMULTICASTDELEGATE_FILES}
 	${YUV_FILES}
-	${ZMQ_FILES}
-	${CZMQ_FILES}
 	${IXML_FILES}
 )
 
@@ -272,12 +268,8 @@ source_group("AsyncMulticastDelegate"	FILES ${ASYNCMULTICASTDELEGATE_FILES})
 source_group("Yuv"						FILES 				${YUV_FILES})
 source_group("Pattern"					FILES ${PATTERN_FILES})
 source_group("Log"						FILES ${LOG_FILES})
-source_group("Log\\Fmt"					FILES ${FMT_FILES})
-source_group("Log\\SpdLog"				FILES ${SPDLOG_FILES})
 source_group("FileSystem"				FILES ${FS_FILES})
 source_group("CommandLine"				FILES ${COMMANDLINE_FILES})
-source_group("Zmq"				FILES ${ZMQ_FILES})
-source_group("CZmq"				FILES ${CZMQ_FILES})
 source_group("IXml"				FILES ${IXML_FILES})
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd/bofversioninfo.h.in ${CMAKE_CURRENT_BINARY_DIR}/bofversioninfo.h @ONLY)

@@ -21,12 +21,13 @@
  */
 #pragma once
 
-/*** Include files ***********************************************************/
+ /*** Include files ***********************************************************/
 #include <string>
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <string.h>
+#include <sstream>
 #include "boferr.h"
 
 /*** Global variables ********************************************************/
@@ -56,19 +57,19 @@ using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint
 
 struct BOFSTD_EXPORT BOFSTDPARAM
 {
-		bool AssertInRelease_B;
-		BofAssertCallback AssertCallback;
+  bool AssertInRelease_B;
+  BofAssertCallback AssertCallback;
 
-		BOFSTDPARAM()
-		{
-			Reset();
-		}
+  BOFSTDPARAM()
+  {
+    Reset();
+  }
 
-		void Reset()
-		{
-			AssertInRelease_B = false;
-			AssertCallback = nullptr;
-		}
+  void Reset()
+  {
+    AssertInRelease_B = false;
+    AssertCallback = nullptr;
+  }
 };
 
 extern BOFSTDPARAM GL_BofStdParam_X;
@@ -79,34 +80,37 @@ extern BOFSTDPARAM GL_BofStdParam_X;
 #if ((__GNUC__ < 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ < 9)))  //For H3XP platform for example
 #include<memory>
 namespace std {
-		template< typename T> struct _Unique_if {
-				typedef unique_ptr<T> _Single_object;
-		};
+  template< typename T> struct _Unique_if
+  {
+    typedef unique_ptr<T> _Single_object;
+  };
 
-		template< typename T> struct _Unique_if<T[]> {
-				typedef unique_ptr<T[]> _Unknown_bound;
-		};
+  template< typename T> struct _Unique_if<T[]>
+  {
+    typedef unique_ptr<T[]> _Unknown_bound;
+  };
 
-		template< typename T, size_t N> struct _Unique_if<T[N]> {
-				typedef void _Known_bound;
-		};
+  template< typename T, size_t N> struct _Unique_if<T[N]>
+  {
+    typedef void _Known_bound;
+  };
 
-		template< typename T, class... Args>
-				typename _Unique_if<T>::_Single_object
-				make_unique(Args&&... args) {
-						return unique_ptr<T>(new T(std::forward<Args>(args)...));
-				}
+  template< typename T, class... Args>
+  typename _Unique_if<T>::_Single_object
+    make_unique(Args&&... args) {
+    return unique_ptr<T>(new T(std::forward<Args>(args)...));
+  }
 
-		template< typename T>
-				typename _Unique_if<T>::_Unknown_bound
-				make_unique(size_t n) {
-						typedef typename remove_extent<T>::type U;
-						return unique_ptr<T>(new U[n]());
-				}
+  template< typename T>
+  typename _Unique_if<T>::_Unknown_bound
+    make_unique(size_t n) {
+    typedef typename remove_extent<T>::type U;
+    return unique_ptr<T>(new U[n]());
+  }
 
-		template< typename T, class... Args>
-				typename _Unique_if<T>::_Known_bound
-				make_unique(Args&&...) = delete;
+  template< typename T, class... Args>
+  typename _Unique_if<T>::_Known_bound
+    make_unique(Args&&...) = delete;
 }
 #endif
 #endif
@@ -196,8 +200,8 @@ const intptr_t BOF_FS_INVALID_HANDLE = -1;
 /*https://stackoverflow.com/questions/15832301/understanding-container-of-macro-in-the-linux-kernel
 Taking this container for example:
 struct container {
-	int some_other_data;
-	int this_data; 
+  int some_other_data;
+  int this_data;
 }
 And a pointer int *my_ptr to the this_data member you'd use the macro to get a pointer to struct container *my_container by using:
 struct container *my_container;	my_container = container_of(my_ptr, struct container, this_data);
@@ -208,7 +212,7 @@ struct container *my_container;	my_container = container_of(my_ptr, struct conta
 // Note that std::reinterpret_pointer_cast is not available in C++11 and C++14, as it was only proposed by N3920 and adopted into Library Fundamentals TS in February 2014.
 // However, it can be implemented as follows:
 template <typename To, typename From>
-inline std::shared_ptr<To> reinterpret_pointer_cast(std::shared_ptr<From> const & ptr) noexcept { return std::shared_ptr<To>(ptr, reinterpret_cast<To *>(ptr.get())); }
+inline std::shared_ptr<To> reinterpret_pointer_cast(std::shared_ptr<From> const &ptr) noexcept { return std::shared_ptr<To>(ptr, reinterpret_cast<To *>(ptr.get())); }
 
 #define BOF_EXTERN_C                extern "C"
 #define BOF_EXTERN_C_BEGIN          extern "C" {
@@ -315,25 +319,60 @@ BOFSTD_EXPORT bool Bof_IsCpuLittleEndian();
 template<typename T>
 BOFERR Bof_StringToBin(uint32_t _Base_U32, const char *_pAsciiNumber_c, T &_rConvertedValue)
 {
-	BOFERR Rts_E = BOF_ERR_EINVAL;
-	char * p_c;
-	int64_t Nb_S64;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  char *p_c;
+  int64_t Nb_S64;
 
-	_rConvertedValue = 0;
-	if ((_pAsciiNumber_c) && ((_Base_U32 == 0) || ((_Base_U32 >= 2) && (_Base_U32 <= 36))))
-	{
-		Nb_S64 = strtol(_pAsciiNumber_c, &p_c, _Base_U32);
-		if (*p_c == 0) //else not a number
-		{
-			Rts_E = BOF_ERR_NO_ERROR;
-			_rConvertedValue = static_cast<T>(Nb_S64);
-		}
-		else
-		{
-			Rts_E = BOF_ERR_ENOKEY;
-		}
-	}
-	return Rts_E;
+  _rConvertedValue = 0;
+  if ((_pAsciiNumber_c) && ((_Base_U32 == 0) || ((_Base_U32 >= 2) && (_Base_U32 <= 36))))
+  {
+    Nb_S64 = strtol(_pAsciiNumber_c, &p_c, _Base_U32);
+    if (*p_c == 0) //else not a number
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+      _rConvertedValue = static_cast<T>(Nb_S64);
+    }
+    else
+    {
+      Rts_E = BOF_ERR_ENOKEY;
+    }
+  }
+  return Rts_E;
 }
+
+class BOFSTD_EXPORT BofException : public std::exception
+{
+public:
+  BofException(std::string _Header_S, std::string _Context_S = "", std::string _Where_S = "", int32_t _ErrorCode_S32 = 0) : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32) {}
+
+  const char *what() throw ()
+  {
+    std::ostringstream Msg;
+    Msg << mHeader_S;
+    
+    if (mErrorCode_E)
+    {
+      Msg << mErrorCode_E << ": " << BOF::Bof_ErrorCode(mErrorCode_E);
+    }
+    if (mContext_S != "")
+    {
+      Msg << mContext_S;
+    }
+    if (mWhere_S != "")
+    {
+      Msg << " at " << mWhere_S;
+    }
+    mMessage_S = Msg.str(); return mMessage_S.c_str();
+  }
+
+private:
+  std::string mHeader_S;
+  BOFERR mErrorCode_E;
+  std::string mContext_S;
+  std::string mWhere_S;	
+
+  std::string mMessage_S;
+};
+#define THROW_BOF_EXCEPTION(Header,Context,ErrorCode)      {std::ostringstream Where; Where << __FILE__ << ':' << __LINE__ << " (" << __FUNCTION__ << ')'; BOF::BofException Exception(Header,Context, Where.str(),ErrorCode); throw Exception; }
 
 END_BOF_NAMESPACE()

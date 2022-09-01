@@ -283,7 +283,7 @@ std::string Bof_GetVersion()
   //const char *pOpenSslVersion_c = OpenSSL_version(OPENSSL_VERSION); 
   //const char *pBoostVersion_c = BOOST_LIB_VERSION;
     
-	return std::to_string(BOFSTD_VERSION_MAJOR ) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH);
+	return std::to_string(BOFSTD_VERSION_MAJOR ) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH) + "." + std::to_string(BOFSTD_VERSION_BUILD);
 }
 
 BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)

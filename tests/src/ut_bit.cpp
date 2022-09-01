@@ -52,8 +52,3 @@ TEST(Bit_Test, BitSetPosition)
   }
 }
 
-TEST(Bit_Test, ErrorCode)
-{
-	EXPECT_STREQ(Bof_ErrorCode(BOF_ERR_NO_ERROR), "No error");
-	EXPECT_STREQ(Bof_ErrorCode(static_cast<BOFERR>(236996)),"Unknown error (236996/0x39DC4)");
-}
