@@ -1,6 +1,6 @@
 {
   "name": "bofstd",
-  "version": "5.1.15",
+  "version": "5.1.15.1",
   "description": "The onbings general purpose C++ Multiplatform library",
   "dependencies": [
     { "name": "czmq" },
