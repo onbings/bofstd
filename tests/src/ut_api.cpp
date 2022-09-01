@@ -41,7 +41,7 @@ TEST(Api_Test, Exception)
   BOFERR Err_E = BOF_ERR_ALREADY_OPENED;
 
   //Check exception type
-  EXPECT_THROW(THROW_BOF_EXCEPTION("[BofException]","File '/tmp/log' is already opened", Err_E), BOF::BofException);
+  EXPECT_THROW(THROW_BOF_EXCEPTION("[BofException] ","->File '/tmp/log' is already opened", Err_E), BOF::BofException);
   //Check that exception is thrown and the exception content
   try
   {
