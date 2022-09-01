@@ -451,15 +451,18 @@ const char *BofException::what() //throw ()
 
   if (mErrorCode_E)
   {
-    Msg << mErrorCode_E << ": " << BOF::Bof_ErrorCode(mErrorCode_E);
+    Msg << ": " << mErrorCode_E << ": " << BOF::Bof_ErrorCode(mErrorCode_E);
   }
+  Msg << " ";
+  
   if (mContext_S != "")
   {
-    Msg << mContext_S;
+    Msg << '>' << mContext_S << '<';
   }
+  
   if (mWhere_S != "")
   {
-    Msg << " at " << mWhere_S;
+    Msg << " @ " << mWhere_S;
   }
   mMessage_S = Msg.str(); return mMessage_S.c_str();
 }

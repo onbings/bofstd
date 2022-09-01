@@ -41,11 +41,11 @@ TEST(Api_Test, Exception)
   BOFERR Err_E = BOF_ERR_ALREADY_OPENED;
 
   //Check exception type
-  EXPECT_THROW(THROW_BOF_EXCEPTION("[BofException] ","->File '/tmp/log' is already opened", Err_E), BOF::BofException);
+  EXPECT_THROW(THROW_BOF_EXCEPTION("[BofException] ","File '/tmp/log' is already opened", Err_E), BOF::BofException);
   //Check that exception is thrown and the exception content
   try
   {
-    THROW_BOF_EXCEPTION("[BofException] ", "->File '/tmp/log' is already opened", Err_E);
+    THROW_BOF_EXCEPTION("[BofException]", "File '/tmp/log' is already opened", Err_E);
   }
   catch (BOF::BofException &e)
   {
@@ -53,9 +53,9 @@ TEST(Api_Test, Exception)
 
     ExceptionThrown_B = true;
     Msg_S = e.what();
-//  printf("throw: '%s'\n", Msg_S.c_str());
-//'[BofException] 10001: Already opened->File '/tmp/log' is already opened at C:\pro\github\bofstd\tests\src\ut_api.cpp:48 (Api_Test_Exception_Test::TestBody)'
-    EXPECT_STREQ(Msg_S.substr(0, 75).c_str(), "[BofException] 10001: Already opened->File '/tmp/log' is already opened at "); //The rest of the txt is os and file dependant
+//   printf("throw: '%s'\n", Msg_S.c_str());
+    //[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ C:\pro\github\bofstd\tests\src\ut_api.cpp:48 (Api_Test_Exception_Test::TestBody)
+    EXPECT_STREQ(Msg_S.substr(0, 76).c_str(), "[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ "); //The rest of the txt is os and file dependant
   }
   EXPECT_TRUE(ExceptionThrown_B);
 }
