@@ -45,6 +45,8 @@ struct TREE_NODE
 		Val_U32 = 0;
 		Val_S = "";
 	}
+	bool operator == (const TREE_NODE &_rIt) const { return ((Val_U32 == _rIt.Val_U32) && (Val_S == _rIt.Val_S)); }
+	bool operator != (const TREE_NODE &_rIt) const { return (!operator == (_rIt)); }
 
 };
 
@@ -57,14 +59,15 @@ std::ostream &operator<<(std::ostream &_rOs, TREE_NODE const &_rArg)
 TEST(BofNaryTreeKv_Test, Create)
 {
 	uint32_t i_U32, HandleIndex_U32;
-	std::string ToString_S;
+	std::string ToString_S, Key_S;
 	BOF::BOF_NARY_TREE_KV_PARAM BofNaryTreeKvParam_X;
 	BofNaryTreeKvParam_X.MultiThreadAware_B = true;
 
 	std::unique_ptr<BOF::BofNaryTreeKv<std::string, TREE_NODE>> puBofNaryTreeKv = std::make_unique<BOF::BofNaryTreeKv<std::string, TREE_NODE>>(BofNaryTreeKvParam_X);
 
 	BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle RootHandle, ParentHandle, pNodeHandle[32];
-	TREE_NODE r(0, "Root"), n1(1, "Un"), n2(2, "Deux"),n3(3, "Trois"), n4(4, "Quatre"), n5(5, "Cinq"),n6(6, "Six"), n7(7, "Sept"), n8(8, "Huit"), n9(9, "Neuf");
+	BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle SearchHandle1, SearchHandle2, SearchHandle3, ChildHandle;
+	TREE_NODE Value_X, r(0, "Root"), n1(1, "Un"), n2(2, "Deux"),n3(3, "Trois"), n4(4, "Quatre"), n5(5, "Cinq"),n6(6, "Six"), n7(7, "Sept"), n8(8, "Huit"), n9(9, "Neuf");
 
 	std::vector<std::string> KeyCollection;
 	TREE_NODE TheNode_X;
@@ -87,7 +90,6 @@ MountPoint
 	pNodeHandle[HandleIndex_U32++] = RootHandle;
 	EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(RootHandle));
 
-
 	EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, "Dir1", n1, &ParentHandle), BOF_ERR_NO_ERROR);
 	pNodeHandle[HandleIndex_U32++] = ParentHandle;
 	puBofNaryTreeKv->AddChild(ParentHandle, "FileA", n1, &pNodeHandle[HandleIndex_U32++]);
@@ -105,21 +107,88 @@ MountPoint
 	ParentHandle = pNodeHandle[HandleIndex_U32-2];
 	EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "FileE", n9, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
 		
-	KeyCollection.clear();
-	KeyCollection.push_back("MountPoint");
-	KeyCollection.push_back("Dir4");
-	KeyCollection.push_back("FileE");
-
-	EXPECT_EQ(puBofNaryTreeKv->Search(KeyCollection, TheNode_X), BOF_ERR_NO_ERROR);
-	BOFERR IsChildExist(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType & _rKey, BofNaryTreeKvNodeHandle * _pChildHandle, const DataType & _rData);
 
 	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
 	std::cout << ToString_S;
 
 	ParentHandle = pNodeHandle[HandleIndex_U32 - 3];
-	puBofNaryTreeKv->ClearTree();
+	puBofNaryTreeKv->ClearTree(ParentHandle);
 
 	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
 	std::cout << ToString_S;
 
+	puBofNaryTreeKv->ClearTree(RootHandle);
+
+	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
+	std::cout << ToString_S;
+
+
+
+	KeyCollection.clear();
+	KeyCollection.push_back("MountPoint");
+	KeyCollection.push_back("Dir3");
+	KeyCollection.push_back("Dir4");
+	KeyCollection.push_back("FileE");
+
+	EXPECT_EQ(puBofNaryTreeKv->Search(RootHandle, KeyCollection, &SearchHandle1), BOF_ERR_NO_ERROR);
+	EXPECT_TRUE(SearchHandle1 != nullptr);
+
+	KeyCollection.clear();
+	KeyCollection.push_back("Dir4");
+	KeyCollection.push_back("FileE");
+	ParentHandle = pNodeHandle[HandleIndex_U32 - 3];
+
+	EXPECT_EQ(puBofNaryTreeKv->Search(ParentHandle, KeyCollection, &SearchHandle2), BOF_ERR_NO_ERROR);
+	EXPECT_TRUE(SearchHandle1 == SearchHandle2);
+
+	KeyCollection.clear();
+	KeyCollection.push_back("MountPoint");
+	KeyCollection.push_back("Dir3");
+	KeyCollection.push_back("Dir4");
+	KeyCollection.push_back("FileE");
+	KeyCollection.push_back("FileZ");
+	EXPECT_NE(puBofNaryTreeKv->Search(RootHandle, KeyCollection, &SearchHandle3), BOF_ERR_NO_ERROR);
+	EXPECT_TRUE(SearchHandle1 == SearchHandle3);
+
+	EXPECT_EQ(puBofNaryTreeKv->Key(RootHandle, Key_S), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->Value(RootHandle, Value_X), BOF_ERR_NO_ERROR);
+	EXPECT_STREQ(Key_S.c_str(), "MountPoint");
+	EXPECT_EQ(Value_X, r);
+
+	EXPECT_EQ(puBofNaryTreeKv->IsChildExist(RootHandle, "Dir3", &ChildHandle), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->SetKey(ChildHandle, "Dir_3"), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->Key(ChildHandle, Key_S), BOF_ERR_NO_ERROR);
+	EXPECT_NE(puBofNaryTreeKv->SetKey(ChildHandle, "Dir4"), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->Value(ChildHandle, Value_X), BOF_ERR_NO_ERROR);
+	EXPECT_STREQ(Key_S.c_str(), "Dir_3");
+	EXPECT_EQ(Value_X, n3);
+
+	EXPECT_EQ(puBofNaryTreeKv->IsChildExist(ChildHandle, "Dir4", &ChildHandle), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->SetKey(ChildHandle, "Dir_4"), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->Key(ChildHandle, Key_S), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->Value(ChildHandle, Value_X), BOF_ERR_NO_ERROR);
+	EXPECT_STREQ(Key_S.c_str(), "Dir_4");
+	EXPECT_EQ(Value_X, n7);
+
+	EXPECT_EQ(puBofNaryTreeKv->IsChildExist(ChildHandle, "FileE", &ChildHandle), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->Key(ChildHandle, Key_S), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(puBofNaryTreeKv->Value(ChildHandle, Value_X), BOF_ERR_NO_ERROR);
+	EXPECT_STREQ(Key_S.c_str(), "FileE");
+	EXPECT_EQ(Value_X, n9);
+
+	EXPECT_NE(puBofNaryTreeKv->IsChildExist(ChildHandle, "FileZ", &ChildHandle), BOF_ERR_NO_ERROR);
+
+	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
+	std::cout << ToString_S;
+
+	ParentHandle = pNodeHandle[HandleIndex_U32 - 3];
+	puBofNaryTreeKv->ClearTree(ParentHandle);
+
+	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
+	std::cout << ToString_S;
+
+	puBofNaryTreeKv->ClearTree(RootHandle);
+
+	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
+	std::cout << ToString_S;
 }
