@@ -124,6 +124,8 @@ set(LOG_FILES
 set(FS_FILES
 	include/bofstd/bofpath.h
 	src/bofpath.cpp
+	include/bofstd/bofuri.h
+	src/bofuri.cpp
 	include/bofstd/boffs.h
 	src/boffs.cpp
 )

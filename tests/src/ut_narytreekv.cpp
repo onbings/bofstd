@@ -60,10 +60,14 @@ TEST(BofNaryTreeKv_Test, Create)
 	std::string ToString_S;
 	BOF::BOF_NARY_TREE_KV_PARAM BofNaryTreeKvParam_X;
 	BofNaryTreeKvParam_X.MultiThreadAware_B = true;
+
 	std::unique_ptr<BOF::BofNaryTreeKv<std::string, TREE_NODE>> puBofNaryTreeKv = std::make_unique<BOF::BofNaryTreeKv<std::string, TREE_NODE>>(BofNaryTreeKvParam_X);
+
 	BOF::BofNaryTreeKv<std::string, TREE_NODE>::BofNaryTreeKvNodeHandle RootHandle, ParentHandle, pNodeHandle[32];
 	TREE_NODE r(0, "Root"), n1(1, "Un"), n2(2, "Deux"),n3(3, "Trois"), n4(4, "Quatre"), n5(5, "Cinq"),n6(6, "Six"), n7(7, "Sept"), n8(8, "Huit"), n9(9, "Neuf");
 
+	std::vector<std::string> KeyCollection;
+	TREE_NODE TheNode_X;
 /*
 MountPoint
 +--- Dir1
@@ -101,6 +105,21 @@ MountPoint
 	ParentHandle = pNodeHandle[HandleIndex_U32-2];
 	EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "FileE", n9, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
 		
+	KeyCollection.clear();
+	KeyCollection.push_back("MountPoint");
+	KeyCollection.push_back("Dir4");
+	KeyCollection.push_back("FileE");
+
+	EXPECT_EQ(puBofNaryTreeKv->Search(KeyCollection, TheNode_X), BOF_ERR_NO_ERROR);
+	BOFERR IsChildExist(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType & _rKey, BofNaryTreeKvNodeHandle * _pChildHandle, const DataType & _rData);
+
 	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
 	std::cout << ToString_S;
+
+	ParentHandle = pNodeHandle[HandleIndex_U32 - 3];
+	puBofNaryTreeKv->ClearTree();
+
+	ToString_S = puBofNaryTreeKv->ToString(RootHandle);
+	std::cout << ToString_S;
+
 }

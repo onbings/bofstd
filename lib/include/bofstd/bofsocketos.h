@@ -184,6 +184,10 @@ BEGIN_BOF_NAMESPACE()
       IpAddress_S = "";
       Port_U16    = 0;
     }
+    int operator==(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const 
+    {
+      return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16);
+    }
   };
 
   struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS

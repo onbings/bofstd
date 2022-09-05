@@ -30,6 +30,8 @@ set(LOG_FILES
 	src/ut_logger.cpp
 )
 set(FS_FILES
+	src/ut_path.cpp
+	src/ut_uri.cpp
 	src/ut_fs.cpp
 )
 

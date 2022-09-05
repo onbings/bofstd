@@ -111,12 +111,14 @@ public:
 
   bool IsNodeValid(const BofNaryTreeKvNodeHandle _NodeHandle) const;
 
+  void ClearTree(const BofNaryTreeKvNodeHandle _NodeHandle);
   BOFERR SetRoot(const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pRootHandle);
   BOFERR AddChild(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pChildHandle);
+  BOFERR Search(const std::vector<KeyType> &_rKeyCollection, BofNaryTreeKvNodeHandle *_pNodeHandle);
+  BOFERR IsChildExist(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, BofNaryTreeKvNodeHandle *_pChildHandle);
   const std::string ToString(const BofNaryTreeKvNodeHandle _ParentHandle);    //No const (mutex)
 
 private:
-  void ClearTree(const BofNaryTreeKvNodeHandle _NodeHandle);
   void BrowseTree(const BofNaryTreeKvNodeHandle _NodeHandle) const;
   void BrowseTree(const BofNaryTreeKvNodeHandle _NodeHandle, std::ostringstream &_rToString, std::vector<bool> &_rNodeVisitedCollection, uint32_t _Depth_U32 = 0, bool _IsLast_B = false) const;
 };
@@ -297,7 +299,19 @@ BOFERR BofNaryTreeKv<KeyType, DataType>::AddChild(const BofNaryTreeKvNodeHandle 
   }
   return Rts_E;
 }
+template<typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Search(const std::vector<KeyType> &_rKeyCollection, BofNaryTreeKvNodeHandle *_pNodeHandle)
+{
+  BOFERR Rts_E = BOF_ERR_NOT_FOUND;
+  return Rts_E;
+}
+template<typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::IsChildExist(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, BofNaryTreeKvNodeHandle *_pChildHandle)
+{
+  BOFERR Rts_E = BOF_ERR_DONT_EXIST;
+  return Rts_E;
 
+}
 template<typename KeyType, typename DataType>
 void BofNaryTreeKv<KeyType, DataType>::BrowseTree(const BofNaryTreeKvNodeHandle _NodeHandle) const
 {

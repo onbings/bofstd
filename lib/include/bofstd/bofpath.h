@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Onbings. All rights reserved.
+ * Copyright (c) 2013-2033, Onbings. All rights reserved.
  *
  * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
  * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
@@ -13,9 +13,7 @@
  * Web:			    onbings.dscloud.me
  * Revision:    1.0
  *
- * Rem:         Based on uriparser lib
- *								http://uriparser.sourceforge.net/
- *								http://uriparser.sourceforge.net/doc/html/
+ * Rem:         None
  *
  * History:
  *
