@@ -37,6 +37,7 @@ void TestSocketAddress(bool _IsIpV6_B)
 {
 	BOFERR                            Sts_E;
   BOF_SOCKET_ADDRESS                pIpAddress_X[2], HostIpAddress_X, InterfaceIpAddress_X, IpAddress_X;
+	BOF_SOCKET_ADDRESS								InterfaceIp_X, Ip_X;
 	bool                              Sts_B, IsIpV6_B;
 	std::string                       Ip_S, HostName_S;
 	uint32_t                          pIp_U32[4];
@@ -44,7 +45,7 @@ void TestSocketAddress(bool _IsIpV6_B)
 	BOF_PROTOCOL_TYPE                 ProtocolType_E;
 	std::vector< BOF_SOCKET_ADDRESS > ListOfIp_X;
 	uint16_t                          Port_U16;
-	BOF_SOCKET_ADDRESS_COMPONENT InterfaceIpAddressComponent_X, IpAddressComponent_X;
+	BOF_SOCKET_ADDRESS_COMPONENT			InterfaceIpAddressComponent_X, IpAddressComponent_X;
   std::vector<uint16_t> IpDigitCollection;
 //	Sts_E=Bof_IpAddressToSocketAddressCollection("tcp://[102:3c0:405:6a8:708:901:a0b:c01]:1234", HostIpAddress_X);
 
@@ -412,7 +413,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   Sts_E = Bof_SplitIpAddress( "10.131.125.ab", HostIpAddress_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_SplitIpAddress("tcp://192.168.1.1:1234", InterfaceIpAddressComponent_X, IpAddressComponent_X);
+	Sts_E = Bof_SplitIpAddress("tcp://192.168.1.1:1234", InterfaceIpAddressComponent_X, InterfaceIp_X, IpAddressComponent_X, Ip_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.Protocol_S.c_str(), "");
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.IpAddress_S.c_str(), "");
@@ -420,8 +421,12 @@ void TestSocketAddress(bool _IsIpV6_B)
 	EXPECT_STREQ(IpAddressComponent_X.Protocol_S.c_str(), "tcp");
 	EXPECT_STREQ(IpAddressComponent_X.IpAddress_S.c_str(), "192.168.1.1");
 	EXPECT_EQ(IpAddressComponent_X.Port_U16, 1234);
+	Ip_S = Bof_SocketAddressToString(InterfaceIp_X, false, true);
+	EXPECT_EQ(Ip_S, "0.0.0.0:0");
+	Ip_S = Bof_SocketAddressToString(Ip_X, false, true);
+	EXPECT_EQ(Ip_S, "192.168.1.1:1234");
 
-	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:456;194.170.3.4:7", InterfaceIpAddressComponent_X, IpAddressComponent_X);
+	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:456;194.170.3.4:7", InterfaceIpAddressComponent_X, InterfaceIp_X, IpAddressComponent_X, Ip_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.IpAddress_S.c_str(), "193.169.2.3");
@@ -429,8 +434,12 @@ void TestSocketAddress(bool _IsIpV6_B)
 	EXPECT_STREQ(IpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(IpAddressComponent_X.IpAddress_S.c_str(), "194.170.3.4");
 	EXPECT_EQ(IpAddressComponent_X.Port_U16, 7);
+	Ip_S = Bof_SocketAddressToString(InterfaceIp_X, false, true);
+	EXPECT_EQ(Ip_S, "193.169.2.3:456");
+	Ip_S = Bof_SocketAddressToString(Ip_X, false, true);
+	EXPECT_EQ(Ip_S, "194.170.3.4:7");
 
-	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3;194.170.3.4:7", InterfaceIpAddressComponent_X, IpAddressComponent_X);
+	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3;194.170.3.4:7", InterfaceIpAddressComponent_X, InterfaceIp_X, IpAddressComponent_X, Ip_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.IpAddress_S.c_str(), "193.169.2.3");
@@ -438,8 +447,12 @@ void TestSocketAddress(bool _IsIpV6_B)
 	EXPECT_STREQ(IpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(IpAddressComponent_X.IpAddress_S.c_str(), "194.170.3.4");
 	EXPECT_EQ(IpAddressComponent_X.Port_U16, 7);
+	Ip_S = Bof_SocketAddressToString(InterfaceIp_X, false, true);
+	EXPECT_EQ(Ip_S, "193.169.2.3:0");
+	Ip_S = Bof_SocketAddressToString(Ip_X, false, true);
+	EXPECT_EQ(Ip_S, "194.170.3.4:7");
 
-	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:456;194.170.3.4", InterfaceIpAddressComponent_X, IpAddressComponent_X);
+	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:456;194.170.3.4", InterfaceIpAddressComponent_X, InterfaceIp_X, IpAddressComponent_X, Ip_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.IpAddress_S.c_str(), "193.169.2.3");
@@ -447,8 +460,12 @@ void TestSocketAddress(bool _IsIpV6_B)
 	EXPECT_STREQ(IpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(IpAddressComponent_X.IpAddress_S.c_str(), "194.170.3.4");
 	EXPECT_EQ(IpAddressComponent_X.Port_U16, 0);
+	Ip_S = Bof_SocketAddressToString(InterfaceIp_X, false, true);
+	EXPECT_EQ(Ip_S, "193.169.2.3:456");
+	Ip_S = Bof_SocketAddressToString(Ip_X, false, true);
+	EXPECT_EQ(Ip_S, "194.170.3.4:0");
 
-	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:0;194.170.3.4:0", InterfaceIpAddressComponent_X, IpAddressComponent_X);
+	Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:0;194.170.3.4:0", InterfaceIpAddressComponent_X, InterfaceIp_X, IpAddressComponent_X, Ip_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(InterfaceIpAddressComponent_X.IpAddress_S.c_str(), "193.169.2.3");
@@ -456,6 +473,10 @@ void TestSocketAddress(bool _IsIpV6_B)
 	EXPECT_STREQ(IpAddressComponent_X.Protocol_S.c_str(), "udp");
 	EXPECT_STREQ(IpAddressComponent_X.IpAddress_S.c_str(), "194.170.3.4");
 	EXPECT_EQ(IpAddressComponent_X.Port_U16, 0);
+	Ip_S = Bof_SocketAddressToString(InterfaceIp_X, false, true);
+	EXPECT_EQ(Ip_S, "193.169.2.3:0");
+	Ip_S = Bof_SocketAddressToString(Ip_X, false, true);
+	EXPECT_EQ(Ip_S, "194.170.3.4:0");
 
 	Sts_E                                          = Bof_ResolveIpAddress( "tcp://192.168.1.1:1234", InterfaceIpAddress_X, IpAddress_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -577,7 +598,7 @@ void TestSocketAddress(bool _IsIpV6_B)
 	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
 	Sts_E                                          = Bof_ResolveIpAddress( "PGM://192.168.10.1:1235;239.192.1.1:5555", InterfaceIpAddress_X, IpAddress_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 	Sts_E                                          = Bof_ResolveIpAddress( "pgm://192.168.10.1:1235239.192.1.1:5555", InterfaceIpAddress_X, IpAddress_X);
 	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);

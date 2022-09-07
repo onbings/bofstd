@@ -1322,8 +1322,8 @@ BOFERR Bof_ProtocolType(const std::string &_rIpAddress_S, BOF_PROTOCOL_TYPE &_rP
   if (It != S_ToProtocolType.end())
   {
     _rProtocolType_E = It->second;
-    Rts_E            = BOF_ERR_NO_ERROR;
   }
+  Rts_E = BOF_ERR_NO_ERROR;   //Default case is unknown
   return Rts_E;
 }
 
@@ -1374,8 +1374,9 @@ bool Bof_IsMulticastIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRE
   std::vector<uint16_t> IpDigitCollection;
   bool                  IsIpV6_B;
   BOF_PROTOCOL_TYPE     InterfaceProtocolType_E, ProtocolType_E;
+  BOF_SOCKET_ADDRESS    IpInterface_X, Ip_X;
 
-  Sts_E = Bof_SplitIpAddress(_rIpAddress_S, _rInterfaceIpAddressComponent_X, _rIpAddressComponent_X);
+  Sts_E = Bof_SplitIpAddress(_rIpAddress_S, _rInterfaceIpAddressComponent_X, IpInterface_X, _rIpAddressComponent_X, Ip_X);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
     Sts_E = BOF_ERR_INTERFACE;
@@ -1423,13 +1424,14 @@ bool Bof_IsMulticastIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRE
    pgm://192.168.1.1:1234;239.192.1.1:5555"		multicast address from local interface 192.168.1.1 port 1234 to group 239.192.1.1 on port 5555
  */
 //TODO faire ipv6 version : is sep for port and :: is for ipv6
-BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X)
+BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rInterfaceIp_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rIp_X)
 {
   BOFERR                 Rts_E = BOF_ERR_TOO_SMALL;
   std::string            Protocol_S, Address_S, Interface_S, TheAddress_S;
-  std::string::size_type PosEop, PosAfter, PosSemiColon, PosColon;
+  std::string::size_type PosEop, PosAfter, PosSemiColon, PosColon, PosAt;
   BOF_PROTOCOL_TYPE      Protocol_E;
-  BOF_SOCKET_ADDRESS     IpAddress_X;
+//  BOF_SOCKET_ADDRESS     IpAddress_X;
+  std::vector< BOF_SOCKET_ADDRESS > ListOfIp_X;
 
   _rInterfaceIpAddress_X.Reset();
   _rIpAddress_X.Reset();
@@ -1475,9 +1477,20 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
       if (Interface_S != "")
       {
         _rInterfaceIpAddress_X.Protocol_S = Protocol_S;
+        PosAt = Interface_S.find('@');
         PosColon = Interface_S.rfind(':');
         if (PosColon != std::string::npos)
         {
+          if (PosAt != std::string::npos)
+          {
+            _rInterfaceIpAddress_X.User_S = Interface_S.substr(0, PosAt);
+            _rInterfaceIpAddress_X.IpAddress_S = Interface_S.substr(PosAt + 1, PosColon - PosAt - 1);
+          }
+          else
+          {
+            _rInterfaceIpAddress_X.IpAddress_S = Interface_S.substr(0, PosColon);
+          }
+
           _rInterfaceIpAddress_X.IpAddress_S = Interface_S.substr(0, PosColon);
           try
           {
@@ -1491,11 +1504,24 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
         else
         {
           _rInterfaceIpAddress_X.IpAddress_S = Interface_S.substr(0, PosColon);
+          _rInterfaceIpAddress_X.User_S = "";
           _rInterfaceIpAddress_X.Port_U16    = 0;
         }
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          Rts_E = Bof_IpAddressToSocketAddress(_rInterfaceIpAddress_X.IpAddress_S, IpAddress_X);
+           Rts_E = Bof_IpAddressToSocketAddress(_rInterfaceIpAddress_X.IpAddress_S, _rInterfaceIp_X);
+           _rInterfaceIp_X.Port(_rInterfaceIpAddress_X.Port_U16);
+
+           if (Rts_E != BOF_ERR_NO_ERROR)
+           {
+             Rts_E = Bof_UrlAddressToSocketAddressCollection(_rInterfaceIpAddress_X.IpAddress_S, ListOfIp_X);
+             if (Rts_E == BOF_ERR_NO_ERROR)
+             {
+               _rInterfaceIp_X = ListOfIp_X[0];
+               _rInterfaceIp_X.Port(_rInterfaceIpAddress_X.Port_U16);
+             }
+           }
+
         }
       }
     }
@@ -1505,10 +1531,19 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
       if (Address_S != "")
       {
         _rIpAddress_X.Protocol_S = Protocol_S;
+        PosAt = Address_S.find('@');
         PosColon = Address_S.rfind(':');
         if (PosColon != std::string::npos)
         {
-          _rIpAddress_X.IpAddress_S = Address_S.substr(0, PosColon);
+          if (PosAt != std::string::npos)
+          {
+            _rIpAddress_X.User_S = Address_S.substr(0, PosAt);
+            _rIpAddress_X.IpAddress_S = Address_S.substr(PosAt + 1, PosColon - PosAt - 1);
+          }
+          else
+          {
+            _rIpAddress_X.IpAddress_S = Address_S.substr(0, PosColon);
+          }
           try
           {
             _rIpAddress_X.Port_U16 = static_cast<uint16_t>(std::stoi(Address_S.substr(PosColon + 1)));
@@ -1521,11 +1556,22 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
         else
         {
           _rIpAddress_X.IpAddress_S = Address_S.substr(0, PosColon);
+          _rIpAddress_X.User_S = "";
           _rIpAddress_X.Port_U16    = 0;
         }
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          Rts_E = Bof_IpAddressToSocketAddress(_rIpAddress_X.IpAddress_S, IpAddress_X);
+          Rts_E = Bof_IpAddressToSocketAddress(_rIpAddress_X.IpAddress_S, _rIp_X);
+          _rIp_X.Port(_rIpAddress_X.Port_U16);
+          if (Rts_E != BOF_ERR_NO_ERROR)
+          {
+            Rts_E = Bof_UrlAddressToSocketAddressCollection(_rIpAddress_X.IpAddress_S, ListOfIp_X);
+            if (Rts_E == BOF_ERR_NO_ERROR)
+            {
+              _rIp_X = ListOfIp_X[0];
+              _rIp_X.Port(_rIpAddress_X.Port_U16);
+            }
+          }
         }
       }
     }
@@ -1542,8 +1588,9 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &
   BOF_SOCK_TYPE                InterfaceSockType_E, SockType_E;
   std::vector<uint16_t>        IpDigitCollection;
   uint32_t                     i_U32, Index_U32, pIp_U32[4];
+  BOF_SOCKET_ADDRESS           InterfaceIp_X, Ip_X;
 
-  Rts_E = Bof_SplitIpAddress(_rIpAddress_S, InterfaceIpAddressComponent_X, IpAddressComponent_X);
+  Rts_E = Bof_SplitIpAddress(_rIpAddress_S, InterfaceIpAddressComponent_X, InterfaceIp_X, IpAddressComponent_X, Ip_X);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     if (InterfaceIpAddressComponent_X.IpAddress_S != "")
@@ -1631,11 +1678,12 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &
   return Rts_E;
 }
 
-BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X)
+BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rIp_X)
 {
   BOF_SOCKET_ADDRESS_COMPONENT InterfaceIpAddress_X;
+  BOF_SOCKET_ADDRESS           InterfaceIp_X;
 
-  return Bof_SplitIpAddress(_rIpAddress_S, InterfaceIpAddress_X, _rIpAddress_X);
+  return Bof_SplitIpAddress(_rIpAddress_S, InterfaceIpAddress_X, InterfaceIp_X, _rIpAddress_X, _rIp_X);
 }
 
 BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X)

@@ -72,7 +72,6 @@ private:
   {
   private:
     uint32_t            mMagicNumber_U32 = BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER;
-    uint32_t            mDepth_U32;
     Node *mpParent;
     KeyType			        mKey;
     DataType            mValue;
@@ -87,6 +86,7 @@ private:
     const DataType &Value() const;
     BOFERR SetKey(const KeyType &);
     BOFERR SetValue(const DataType &);
+    uint32_t NumberOfChild() const;
     const std::list<Node *> &ChildCollection() const;
     BOFERR AddChild(Node *_pNode);
     Node *PopLastChild();
@@ -127,19 +127,19 @@ public:
   BOFERR Search(const BofNaryTreeKvNodeHandle _ParentHandle, const std::vector<KeyType> &_rKeyCollection, BofNaryTreeKvNodeHandle *_pNodeHandle);
   bool IsNodeValid(const BofNaryTreeKvNodeHandle _NodeHandle) const;
   BOFERR GetNodeHandle(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, BofNaryTreeKvNodeHandle *_pNodeHandle);
-  const std::string ToString(bool _ShowParent_B, const BofNaryTreeKvNodeHandle _ParentHandle);    //No const (mutex)
+  const std::string ToString(bool _ShowExtraInfo_B, const BofNaryTreeKvNodeHandle _ParentHandle);    //No const (mutex)
 
 private:
-  void BrowseTree(bool _ShowParent_B, const BofNaryTreeKvNodeHandle _NodeHandle, std::ostringstream &_rToString, std::vector<bool> &_rNodeVisitedCollection, uint32_t _Depth_U32 = 0, bool _IsLast_B = false) const;
+  void BrowseTree(bool _ShowExtraInfo_B, const BofNaryTreeKvNodeHandle _NodeHandle, std::ostringstream &_rToString, std::vector<bool> &_rNodeVisitedCollection, uint32_t _Depth_U32 = 0, bool _IsLast_B = false) const;
 };
 
 //--- BofNaryTreeKv<KeyType, DataType>::Node Class --------------------------------------------------------------------
 
 template<typename KeyType, typename DataType>
-BofNaryTreeKv<KeyType, DataType>::Node::Node(const KeyType &_rKey, const DataType &_rData) : mKey(_rKey), mValue(_rData), mpParent(nullptr), mDepth_U32(0)
+BofNaryTreeKv<KeyType, DataType>::Node::Node(const KeyType &_rKey, const DataType &_rData) : mKey(_rKey), mValue(_rData), mpParent(nullptr)
 {
   mChildCollection.clear();
-  std::cout << "Create " << this << " Key '" << this->Key() << "' Value " << this->Value() << std::endl;
+//  std::cout << "Create " << this << " Key '" << this->Key() << "' Value " << this->Value() << std::endl;
 }
 
 template<typename KeyType, typename DataType>
@@ -147,16 +147,7 @@ BofNaryTreeKv<KeyType, DataType>::Node::~Node()
 {
   BofNaryTreeKv<KeyType, DataType>::Node *pNode;
 
-  std::cout << "         DelNode " << this << " Key '" << this->Key() << "' Value " << this->Value() << " NbChild " << mChildCollection.size() << std::endl;
-/* no done by BOFERR BofNaryTreeKv<KeyType, DataType>::ClearTree(const BofNaryTreeKvNodeHandle _NodeHandle)
-  while (!mChildCollection.empty())
-  {
-    pNode = mChildCollection.front();
-    std::cout << "             Child " << pNode << " Key '" << pNode->Key() << "' Value " << pNode->Value() << std::endl;
-    BOF_SAFE_DELETE(pNode);
-    mChildCollection.pop_front();
-  }
-  */
+//  std::cout << "         DelNode " << this << " Key '" << this->Key() << "' Value " << this->Value() << " NbChild " << mChildCollection.size() << std::endl;
   mMagicNumber_U32 = ~BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER; //invalid the usage of external user handle
 }
 
@@ -207,6 +198,12 @@ typename const std::list<typename BofNaryTreeKv<KeyType, DataType>::Node *> &Bof
 }
 
 template<typename KeyType, typename DataType>
+uint32_t BofNaryTreeKv<KeyType, DataType>::Node::NumberOfChild() const
+{
+  return (mChildCollection.size());
+}
+
+template<typename KeyType, typename DataType>
 BOFERR BofNaryTreeKv<KeyType, DataType>::Node::AddChild(Node *_pNode)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
@@ -220,15 +217,15 @@ BOFERR BofNaryTreeKv<KeyType, DataType>::Node::AddChild(Node *_pNode)
     {
       _pNode->SetParent(this);
       mChildCollection.push_back(_pNode);
-      std::cout << "   AddChild " << _pNode << " Key '" << _pNode->Key() << "' Value " << _pNode->Value() << std::endl;
-      std::cout << "      Container " << this << " Key '" << this->Key() << "' Value " << this->Value() << std::endl;
+ //     std::cout << "   AddChild " << _pNode << " Key '" << _pNode->Key() << "' Value " << _pNode->Value() << std::endl;
+ //     std::cout << "      Container " << this << " Key '" << this->Key() << "' Value " << this->Value() << std::endl;
       if (mpParent)
       {
-        std::cout << "      Parent " << mpParent << " Key '" << mpParent->Key() << "' Value " << mpParent->Value() << std::endl;
+ //       std::cout << "      Parent " << mpParent << " Key '" << mpParent->Key() << "' Value " << mpParent->Value() << std::endl;
       }
       else
       {
-        std::cout << "      Parent is root" << std::endl;
+ //       std::cout << "      Parent is root" << std::endl;
       }
       Rts_E = BOF_ERR_NO_ERROR;
     }
@@ -553,20 +550,20 @@ BOFERR BofNaryTreeKv<KeyType, DataType>::ClearTree(const BofNaryTreeKvNodeHandle
       while (pNode)
       {
         pLast = pNode->PopLastChild();
-        std::cout << "PopLastChild " << pNode << " Key '" << pNode->Key() << "' Value " << pNode->Value() << std::endl;
+//        std::cout << "PopLastChild " << pNode << " Key '" << pNode->Key() << "' Value " << pNode->Value() << std::endl;
 
         if (pLast)
         {
-          std::cout << "   Last " << pLast << " Key '" << pLast->Key() << "' Value " << pLast->Value() << std::endl;
+//          std::cout << "   Last " << pLast << " Key '" << pLast->Key() << "' Value " << pLast->Value() << std::endl;
           if (pLast == pStartNode)
           {
             pFather = pLast->Parent();
             if (pFather)
             {
-              std::cout << "      PopAndDeleteChild from " << pFather << " Key '" << pFather->Key() << "' Value " << pFather->Value() << std::endl;
+//              std::cout << "      PopAndDeleteChild from " << pFather << " Key '" << pFather->Key() << "' Value " << pFather->Value() << std::endl;
               pFather->PopAndDeleteChild(pLast);
             }
-            std::cout << "      BOF_SAFE_DELETE LAST " << pLast << " Key '" << pLast->Key() << "' Value " << pLast->Value() << std::endl;
+//            std::cout << "      BOF_SAFE_DELETE LAST " << pLast << " Key '" << pLast->Key() << "' Value " << pLast->Value() << std::endl;
             BOF_SAFE_DELETE(pLast);
             break;
           }
@@ -577,24 +574,24 @@ BOFERR BofNaryTreeKv<KeyType, DataType>::ClearTree(const BofNaryTreeKvNodeHandle
           pFather = pNode->Parent();
           if (pFather)
           {
-            std::cout << "   Father " << pFather << " Key '" << pFather->Key() << "' Value " << pFather->Value() << std::endl;
+//            std::cout << "   Father " << pFather << " Key '" << pFather->Key() << "' Value " << pFather->Value() << std::endl;
           }
           else
           {
-            std::cout << "   No Father" << std::endl;
+//            std::cout << "   No Father" << std::endl;
           }
           if (pNode == pStartNode)
           {
             if (pFather)
             {
-              std::cout << "      PopAndDeleteChild from " << pFather << " Key '" << pFather->Key() << "' Value " << pFather->Value() << std::endl;
+//              std::cout << "      PopAndDeleteChild from " << pFather << " Key '" << pFather->Key() << "' Value " << pFather->Value() << std::endl;
               pFather->PopAndDeleteChild(pNode);
             }
-            std::cout << "      BOF_SAFE_DELETE LAST " << pNode << " Key '" << pNode->Key() << "' Value " << pNode->Value() << std::endl;
+//            std::cout << "      BOF_SAFE_DELETE LAST " << pNode << " Key '" << pNode->Key() << "' Value " << pNode->Value() << std::endl;
             BOF_SAFE_DELETE(pNode);
             break;
           }
-          std::cout << "      BOF_SAFE_DELETE " << pNode << " Key '" << pNode->Key() << "' Value " << pNode->Value() << std::endl;
+//          std::cout << "      BOF_SAFE_DELETE " << pNode << " Key '" << pNode->Key() << "' Value " << pNode->Value() << std::endl;
           BOF_SAFE_DELETE(pNode);
           pNode = pFather;
         }
@@ -618,21 +615,21 @@ and then similarly, traverse the sibling nodes.
 - Similarly, explore all the child nodes with the recursive call.
 */
 template<typename KeyType, typename DataType>
-void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowParent_B, const BofNaryTreeKvNodeHandle _NodeHandle, std::ostringstream &_rToString, std::vector<bool> &_rNodeVisitedCollection, uint32_t _Depth_U32 = 0, bool _IsLast_B = false) const
+void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowExtraInfo_B, const BofNaryTreeKvNodeHandle _NodeHandle, std::ostringstream &_rToString, std::vector<bool> &_rNodeVisitedCollection, uint32_t _Depth_U32 = 0, bool _IsLast_B = false) const
 {
   uint32_t i_U32, Index_U32;
 
   Node *pNode = reinterpret_cast<Node *>(_NodeHandle);
 
-  std::cout << "Node " << pNode << " val " << pNode->Key() << " Depth " << _Depth_U32 << " Visited " <<
-    _rNodeVisitedCollection[0] << " " << _rNodeVisitedCollection[1] << " " << _rNodeVisitedCollection[2] << " " << _rNodeVisitedCollection[3] <<
-    " " << _rNodeVisitedCollection[4] << " " << _rNodeVisitedCollection[5] << " " << _rNodeVisitedCollection[6] << " " << _rNodeVisitedCollection[7] << std::endl;
+//  std::cout << "Node " << pNode << " val " << pNode->Key() << " Depth " << _Depth_U32 << " Visited " <<
+//    _rNodeVisitedCollection[0] << " " << _rNodeVisitedCollection[1] << " " << _rNodeVisitedCollection[2] << " " << _rNodeVisitedCollection[3] <<
+//    " " << _rNodeVisitedCollection[4] << " " << _rNodeVisitedCollection[5] << " " << _rNodeVisitedCollection[6] << " " << _rNodeVisitedCollection[7] << std::endl;
   if (pNode)
   {
     // Loop to print the depths of the current node
     for (i_U32 = 1; i_U32 < _Depth_U32; i_U32++)
     {
-      std::cout << "  Loop " << i_U32 << "/" << _Depth_U32 << " Visited " << _rNodeVisitedCollection[i_U32] << " Last " << _IsLast_B << std::endl;
+//      std::cout << "  Loop " << i_U32 << "/" << _Depth_U32 << " Visited " << _rNodeVisitedCollection[i_U32] << " Last " << _IsLast_B << std::endl;
 
       // Condition when the depth is exploring
       if (_rNodeVisitedCollection[i_U32] == true)
@@ -650,11 +647,11 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowParent_B, const BofN
     if (_Depth_U32 == 0)
     {
       _rToString << pNode->Key();
-      if (_ShowParent_B)
+      if (_ShowExtraInfo_B)
       {
         if (pNode->Parent())
         {
-          _rToString << " [" << pNode->Parent()->Key() << ']';
+          _rToString << " [" << pNode->Parent()->Key() << ':' << pNode->NumberOfChild() << ']';
         }
         else
         {
@@ -667,11 +664,11 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowParent_B, const BofN
     else if (_IsLast_B)
     {
       _rToString << "+--- " << pNode->Key();
-      if (_ShowParent_B)
+      if (_ShowExtraInfo_B)
       {
         if (pNode->Parent())
         {
-          _rToString << " [" << pNode->Parent()->Key() << ']';
+          _rToString << " [" << pNode->Parent()->Key() << ':' << pNode->NumberOfChild() << ']';
         }
         else
         {
@@ -685,11 +682,11 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowParent_B, const BofN
     else
     {
       _rToString << "+--- " << pNode->Key();
-      if (_ShowParent_B)
+      if (_ShowExtraInfo_B)
       {
         if (pNode->Parent())
         {
-          _rToString << " [" << pNode->Parent()->Key() << ']';
+          _rToString << " [" << pNode->Parent()->Key() << ':' << pNode->NumberOfChild() << ']';
         }
         else
         {
@@ -701,25 +698,23 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowParent_B, const BofN
     Index_U32 = 0;
     for (auto It = pNode->ChildCollection().begin(); It != pNode->ChildCollection().end(); ++It, Index_U32++)
     {
-      std::cout << "  LoopRec " << Index_U32 << " Depth " << _Depth_U32 + 1 << " Index " << Index_U32 << " vs " << (pNode->ChildCollection().size() - 1) << "->Last " << (Index_U32 == (pNode->ChildCollection().size() - 1)) << std::endl;
-
-
+//      std::cout << "  LoopRec " << Index_U32 << " Depth " << _Depth_U32 + 1 << " Index " << Index_U32 << " vs " << (pNode->ChildCollection().size() - 1) << "->Last " << (Index_U32 == (pNode->ChildCollection().size() - 1)) << std::endl;
       // Recursive call for the children nodes
-      BrowseTree(_ShowParent_B , *It, _rToString, _rNodeVisitedCollection, _Depth_U32 + 1, Index_U32 == (pNode->ChildCollection().size() - 1));
+      BrowseTree(_ShowExtraInfo_B, *It, _rToString, _rNodeVisitedCollection, _Depth_U32 + 1, Index_U32 == (pNode->ChildCollection().size() - 1));
     }
 
 
     _rNodeVisitedCollection[_Depth_U32] = true;
-    std::cout << "  NoRec Depth " << _Depth_U32 << " Visited " << _rNodeVisitedCollection[_Depth_U32] << " -> true Visited " <<
-      _rNodeVisitedCollection[0] << " " << _rNodeVisitedCollection[1] << " " << _rNodeVisitedCollection[2] << " " << _rNodeVisitedCollection[3] <<
-      " " << _rNodeVisitedCollection[4] << " " << _rNodeVisitedCollection[5] << " " << _rNodeVisitedCollection[6] << " " << _rNodeVisitedCollection[7] << std::endl;
+//    std::cout << "  NoRec Depth " << _Depth_U32 << " Visited " << _rNodeVisitedCollection[_Depth_U32] << " -> true Visited " <<
+//      _rNodeVisitedCollection[0] << " " << _rNodeVisitedCollection[1] << " " << _rNodeVisitedCollection[2] << " " << _rNodeVisitedCollection[3] <<
+//      " " << _rNodeVisitedCollection[4] << " " << _rNodeVisitedCollection[5] << " " << _rNodeVisitedCollection[6] << " " << _rNodeVisitedCollection[7] << std::endl;
 
   }
 }
 
 
 template<typename KeyType, typename DataType>
-const std::string BofNaryTreeKv<KeyType, DataType>::ToString(bool _ShowParent_B, const BofNaryTreeKvNodeHandle _NodeHandle)
+const std::string BofNaryTreeKv<KeyType, DataType>::ToString(bool _ShowExtraInfo_B, const BofNaryTreeKvNodeHandle _NodeHandle)
 {
   BOFERR Sts_E;
   std::ostringstream Rts_S;
@@ -730,7 +725,7 @@ const std::string BofNaryTreeKv<KeyType, DataType>::ToString(bool _ShowParent_B,
     BOF_NARY_TREE_KV_LOCK(Sts_E);
     if (Sts_E == BOF_ERR_NO_ERROR)
     {
-      BrowseTree(_ShowParent_B, _NodeHandle, Rts_S, NodeVisitedCollection);
+      BrowseTree(_ShowExtraInfo_B, _NodeHandle, Rts_S, NodeVisitedCollection);
       BOF_NARY_TREE_KV_UNLOCK();
     }
   }

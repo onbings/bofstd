@@ -170,6 +170,7 @@ BEGIN_BOF_NAMESPACE()
   struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
   {
     std::string Protocol_S;
+    std::string User_S;
     std::string IpAddress_S;
     uint16_t    Port_U16;
 
@@ -180,13 +181,31 @@ BEGIN_BOF_NAMESPACE()
 
     void Reset()
     {
-      Protocol_S  = "";
+      Protocol_S = "";
+      User_S = "";
       IpAddress_S = "";
       Port_U16    = 0;
     }
     int operator==(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const 
     {
       return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16);
+    }
+    std::string ToString() const
+    {
+      std::ostringstream Rts;
+
+      Rts << Protocol_S << "://";
+      if (User_S != "")
+      {
+        Rts << User_S << "@";
+      }
+      Rts << IpAddress_S;
+      if (Port_U16)
+      {
+        Rts << ':' << Port_U16;
+      }
+
+      return Rts.str();
     }
   };
 
@@ -473,9 +492,9 @@ BEGIN_BOF_NAMESPACE()
   BOFSTD_EXPORT BOFERR Bof_ProtocolType(const std::string &_rIpAddress_S, BOF_PROTOCOL_TYPE &_rProtocolType_E);
   BOFSTD_EXPORT BOFERR Bof_IpAddressToBin(const std::string &_rIpAddress_S, bool &_rIsIpV6_B, std::vector<uint16_t> &_rIpBinDigitCollection);
   BOFSTD_EXPORT BOF_SOCK_TYPE Bof_ProtocolToSocketType(BOF_PROTOCOL_TYPE _Protocol_E);
-  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rInterfaceIp_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rIp_X);
   BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
-  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
+  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rIp_X);
   BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
   BOFSTD_EXPORT BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
   BOFSTD_EXPORT std::string Bof_BuildIpAddress(const BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X);

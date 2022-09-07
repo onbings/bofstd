@@ -82,11 +82,12 @@ class BOFSTD_EXPORT BofUri
 {
 private:
 	BOF_SOCKET_ADDRESS_COMPONENT				mScheme_X;
+	BOF_SOCKET_ADDRESS									mIpAddress_X;
 	BofPath															mPath;
 	std::map<std::string, std::string>	mQueryCollection;
 	std::string												  mFragment_S;
 	bool																mValid_B = false;
-
+	char																mQueryDelimiter_c = ';';
 public:
 		/// @brief Initializes a new instance of the Uri class.
 		/// @remarks Default constructor.
@@ -193,11 +194,23 @@ public:
 		/// @remarks None
 		BOFERR SetQueryCollection(const std::map<std::string, std::string> &_rQueryCollection);
 
-		/// @brief Add a key value pair to the usri query collection.
+		/// @brief Set the query collection of the uri.
+		/// @param [in] _rQueryString_S : specifies the query collection.
+		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
+		/// @remarks None
+		BOFERR SetQueryCollection(const std::string &_rQueryString_S);
+
+		/// @brief Add a key value pair to the uri query collection.
 		/// @param [in] _rQuery : specifies the query to add to the collection.
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks None
 		BOFERR AddToQueryCollection(const std::pair<std::string, std::string> &_rQuery);
+
+		/// @brief Add a key value pair to the uri query collection.
+		/// @param [in] _rQuery_S : specifies the query to add to the collection.
+		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
+		/// @remarks None
+		BOFERR AddToQueryCollection(const std::string &_rQuery_S);
 
 		/// @brief Remove a key value pair from the usri query collection.
 		/// @param [in] _rQueryKeyToRemove_S : specifies the query key to remove from the collection.
@@ -217,6 +230,12 @@ public:
 		/// @remarks None
 		const BOF_SOCKET_ADDRESS_COMPONENT &Scheme(std::string &_rScheme_S) const;
 
+		/// @brief Returns the ip address corresponding to the current scheme.
+		/// @param [out] _rIpAddress_S : returns a string representing the ip address.
+		/// @return A BOF_SOCKET_ADDRESS containing the scheme ip address.
+		/// @remarks None
+		const BOF_SOCKET_ADDRESS &IpAddress(std::string &_rIpAddress_S) const;
+
 		/// @brief Returns the path characteristics.
 		/// @param [out] _rPath_S : returns a string representing the path.
 		/// @return A BOF_SOCKET_ADDRESS_COMPONENT containing the scheme characteristics.
@@ -224,21 +243,35 @@ public:
 		const BofPath &Path(std::string &_rPath_S) const;
 
 		/// @brief Returns the path characteristics.
-		/// @param [out] _rPath_S : return a string representing the path.
+		/// @param [out] _rQueryCollection_S : return a string representing the query.
 		/// @return A map of string containing the query parameters.
 		/// @remarks None
-		const std::map<std::string, std::string> &QueryCollection() const;
+		const std::map<std::string, std::string> &QueryCollection(std::string &_rQueryCollection_S) const;
 
 		/// @brief Returns the fragment part of the uri.
 		/// @return A string containing the fragment.
 		/// @remarks None
-		const std::string	 &Fragment() const;
+		const std::string	&Fragment() const;
 
 		/// @brief Convert an uri instance into a printable string.
 		/// @param [in] _QueryDelimiter_c specify the character to use to separate the different option.
 		/// @return A string representing the uti instance.
 		/// @remarks None.
-		std::string	ToString(char _QueryDelimiter_c) const;
+		std::string	ToString() const;
+
+		/// @brief Esccape "special" characters in url
+		/// @param _rIn_S : Specifies the url to encode.
+		/// @return The encoded string
+		/// @remarks https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+		//           https://docs.microfocus.com/OMi/10.62/Content/OMi/ExtGuide/ExtApps/URL_encoding.htm
+		static std::string S_UrlEncode(const std::string &_rIn_S);
+
+		/// @brief De-Esccape "special" characters in url
+		/// @param _rIn_S : Specifies the url to decode.
+		/// @return The decoded string
+		/// @remarks https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+		//           https://docs.microfocus.com/OMi/10.62/Content/OMi/ExtGuide/ExtApps/URL_encoding.htm
+		static std::string S_UrlDecode(const std::string &_rIn_S);
 
 private:
 		/// @brief Initializes the class instance members.

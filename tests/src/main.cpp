@@ -113,7 +113,8 @@ int main(int argc, char *argv[])
 	::testing::GTEST_FLAG(filter) = "BofCrypto_Test.*";
 	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*";
 	::testing::GTEST_FLAG(filter) = "Api_Test.*";
-	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*:Path_Test.*:Uri_Test.*:Fs_Test.*";
+	::testing::GTEST_FLAG(filter) = "SocketOs_Test.*:BofNaryTreeKv_Test.*:Path_Test.*:Uri_Test.*:Fs_Test.*";
+	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*:SocketOs_Test.*:Uri_Test.*";
 	//	::testing::GTEST_FLAG(filter) = "Logger_Test.LoggerMultiChannel";
 		Rts_i = RUN_ALL_TESTS();
 
