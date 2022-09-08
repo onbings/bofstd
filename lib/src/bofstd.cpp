@@ -413,6 +413,8 @@ BOFERR Bof_Shutdown()
 	tcsetattr(STDIN_FILENO, TCSANOW, &S_SavedTermIos_X);
 	*/
 #endif
+//Give some time to thread/logger to shutdown
+  BOF::Bof_MsSleep(1000);
 
 	return Rts_E;
 }
