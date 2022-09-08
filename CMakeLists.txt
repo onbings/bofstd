@@ -51,15 +51,56 @@ option(BOFSTD_BUILD_EXAMPLES "Build examples of bofstd"         ON)
 option(BOFSTD_ENABLE_VERSIONING "Enable library versioning naming scheme for bofstd"          ON)
 option(BOFSTD_FORCE_EXPORT_ALL  "Force exporting all symbols of bofstd (for shared library)" OFF)
 
-option(BOFSTD_GENERATE_HELP  "Generate doxygen documentation" OFF)
+# option(BOFSTD_GENERATE_HELP  "Generate documentation" OFF)
+# if(BOFSTD_GENERATE_HELP)
+#   find_package(Doxygen)
+#   if (DOXYGEN_FOUND AND NOT TARGET documentation)
+# #	message("CMAKE_CURRENT_BINARY_DIR" ${CMAKE_CURRENT_BINARY_DIR})
+# 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile @ONLY)
+# 	add_custom_target(documentation ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
+#   endif()
+# endif()
+
+option(BOFSTD_GENERATE_HELP  			"Generate documentation" OFF)
+# set(IT_PM_ADDRESS "" CACHE STRING "Execute Intergration Test on PM with ip address set to... (-it_pm_address)")
 if(BOFSTD_GENERATE_HELP)
+  find_program(THRIFT_EXECUTABLE thrift)
+  message("=====================> Thrift compiler: " ${THRIFT_EXECUTABLE})
+  if(${THRIFT_EXECUTABLE} STREQUAL "thrift-NOTFOUND")
+    message(FATAL_ERROR "Could not find thrift executable. Is thrift in your dependencies ?")
+  else()
+    if (NOT TARGET DocThrift)
+      message("Create DocThrift target") 
+	  add_custom_target(DocThrift 
+        COMMAND echo Create directory ${CMAKE_CURRENT_BINARY_DIR}/help/thrift
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/help/thrift
+	    COMMAND echo "Thrift phase        " ${THRIFT_EXECUTABLE} -out ${CMAKE_CURRENT_BINARY_DIR}/help/thrift -v -r --gen html ${CMAKE_CURRENT_SOURCE_DIR}/../../bofstd/idl/main.thrift
+        COMMAND echo "   Thrift result in " ${CMAKE_CURRENT_BINARY_DIR}/help/thrift
+        COMMAND ${THRIFT_EXECUTABLE} -out ${CMAKE_CURRENT_BINARY_DIR}/help/thrift -v -r --gen html ${CMAKE_CURRENT_SOURCE_DIR}/../../bofstd/idl/main.thrift WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating bofstd thrift documentation" VERBATIM
+      )
+    endif()
+  endif()
   find_package(Doxygen)
-  if (DOXYGEN_FOUND AND NOT TARGET documentation)
-#	message("CMAKE_CURRENT_BINARY_DIR" ${CMAKE_CURRENT_BINARY_DIR})
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile @ONLY)
-	add_custom_target(documentation ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating API documentation with Doxygen" VERBATIM)
+  message("=====================> Doxygen compiler: " ${DOXYGEN_EXECUTABLE})
+  if(${DOXYGEN_EXECUTABLE} STREQUAL "doxygen-NOTFOUND")
+    message(FATAL_ERROR "Could not find doxygen executable. Is doxygen installed ?")
+  else()
+    if (DOXYGEN_FOUND AND NOT TARGET DocApi)
+	  message("Generate doxygen config file " ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile " from " ${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile.in)
+	  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/help/bofstd.Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile @ONLY)
+      message("Create DocApi target")
+	  add_custom_target(DocApi 
+        COMMAND echo "Doxygen phase        " ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile 
+        COMMAND echo "   Doxygen result in " ${CMAKE_CURRENT_BINARY_DIR}/help
+        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/help/bofstd.Doxyfile WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMENT "Generating bofstd doxygen documentation" VERBATIM
+      )
+    else()
+      message(FATAL_ERROR "DOXYGEN_FOUND ? " ${DOXYGEN_FOUND})
+    endif()
   endif()
 endif()
+
+
 #option(BUILD_SHARED_LIBS "If ON, all libraries will be built shared unless the library was explicitly added as a static library"          ON)
 
 SET(CMAKE_COLOR_MAKEFILE ON)
