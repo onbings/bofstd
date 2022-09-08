@@ -31,10 +31,10 @@ BEGIN_BOF_NAMESPACE()
 /// In brief it is a string formatted as follow:
 /// URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
 /// ex storage://10.129.4.172:11000/mnt/file/cg2/data1
-///         userinfo       host      port
-///    ┌──┴───┐ ┌──────┴──────┐ ┌┴┐
+///					    userinfo       host      port
+///             ┌──┴───┐ ┌──────┴──────┐ ┌┴┐
 ///    https ://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top
-///    └─┬─┘   └───────────┬──────────────┘└───────┬───────┘ └───────────┬─────────────┘ └┬┘
+///    └─┬─┘    └───────────┬──────────────┘└───────┬───────┘ └───────────┬─────────────┘ └┬┘
 ///    scheme          authority                  path                 query           fragment
 ///    
 ///    ldap ://[2001:db8::7]/c=GB?objectClass?one
@@ -62,8 +62,8 @@ BEGIN_BOF_NAMESPACE()
 ///    scheme                    path
 ///
 /// For bofstd it is:
-/// - a protocol string (scheme)		-> BOF_SOCKET_ADDRESS_COMPONENT
-/// - an address string (authority)	-> BOF_SOCKET_ADDRESS_COMPONENT
+/// - a protocol string (scheme)		-> scheme + authority: BOF_SOCKET_ADDRESS_COMPONENT 
+/// - an address string (authority)	-> scheme + authority: BOF_SOCKET_ADDRESS_COMPONENT
 /// - a path (path)									-> BofPath
 /// - an query parameter string			-> std::map<std::string, std::string>
 ///   Start from the last ? in the sring after the path. Its syntax is not well defined, but by 
@@ -81,13 +81,14 @@ BEGIN_BOF_NAMESPACE()
 class BOFSTD_EXPORT BofUri
 {
 private:
-	BOF_SOCKET_ADDRESS_COMPONENT				mScheme_X;
+	BOF_SOCKET_ADDRESS_COMPONENT				mSchemeAuthority_X;
 	BOF_SOCKET_ADDRESS									mIpAddress_X;
 	BofPath															mPath;
-	std::map<std::string, std::string>	mQueryCollection;
+	std::map<std::string, std::string>	mQueryParamCollection;
 	std::string												  mFragment_S;
+	char																mQueryParamDelimiter_c = ';';
 	bool																mValid_B = false;
-	char																mQueryDelimiter_c = ';';
+
 public:
 		/// @brief Initializes a new instance of the Uri class.
 		/// @remarks Default constructor.
@@ -104,12 +105,21 @@ public:
 		BofUri(const std::string &_rUri_S);
 
 		/// @brief Initializes a new instance of the Uri class.
-		/// @param _rScheme_X Specifies the scheme.
+		/// @param _rSchemeAuthority_X Specifies the scheme and the authority.
 		/// @param _rPath Specifies the path.
-		/// @param _rQueryCollection Specifies the query collection.
+		/// @param _rQueryParamCollection Specifies the query collection.
 		/// @param _rFragment_S Specifies the fragment.
 		/// @remarks None.
-		BofUri(const BOF_SOCKET_ADDRESS_COMPONENT &_rScheme_X, const BofPath &_rPath, std::map<std::string, std::string>	&_rQueryCollection, const std::string &_rFragment_S);
+		BofUri(const BOF_SOCKET_ADDRESS_COMPONENT &_rSchemeAuthority_X, const BofPath &_rPath, std::map<std::string, std::string>	&_rQueryParamCollection, const std::string &_rFragment_S);
+
+		/// @brief Initializes a new instance of the Uri class.
+		/// @param _rScheme_S Specifies the scheme.
+		/// @param _rAuthority_S Specifies the authority.
+		/// @param _rPath_S Specifies the path.
+		/// @param _rQueryParam_S Specifies the query collection.
+		/// @param _rFragment_S Specifies the fragment.
+		/// @remarks None.
+		BofUri::BofUri(const std::string &_rScheme_S, const std::string &_rAuthority_S, const std::string &_rPath_S, const std::string &_rQueryParam_S, const std::string &_rFragment_S);
 
 		/// @brief Initializes a new instance of the Uri class.
 		/// @param _rOther_O A reference to another Uri class instance.
@@ -164,17 +174,35 @@ public:
 		/// @remarks None
 		bool IsValid() const;
 
+		/// @brief Set the character used as séparator in the query string.
+		/// @param [in] _QueryDelimiter_c : specifies the character used as séparator in the query string. (Must be ';' or '&').
+		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
+		/// @remarks None
+		BOFERR BofUri::SetQueryParamDelimiter(char _QueryParamDelimiter_c);
+
 		/// @brief Set the scheme characteristics of the uri
 		/// @param [in] _rScheme_S : specifies a string representing the scheme.
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks None
 		BOFERR SetScheme(const std::string &_rScheme_S);
 
-		/// @brief Set the scheme characteristics of the uri
-		/// @param [in] _rScheme_X : specifies a BOF_SOCKET_ADDRESS_COMPONENT representing the scheme.
+		/// @brief Set the authority characteristics of the uri
+		/// @param [in] _rAuthority_S : specifies a string representing the authority.
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks None
-		BOFERR SetScheme(const BOF_SOCKET_ADDRESS_COMPONENT &_rScheme_X);
+		BOFERR SetAuthority(const std::string &_rAuthority_S);
+
+		/// @brief Set the scheme and authority characteristics of the uri
+		/// @param [in] _rSchemeAuthority_S : specifies a string representing the scheme and the authority.
+		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
+		/// @remarks None
+		BOFERR SetSchemeAuthority(const std::string &_rSchemeAuthority_S);
+
+		/// @brief Set the scheme and authority characteristics of the uri
+		/// @param [in] _rScheme_X : specifies a BOF_SOCKET_ADDRESS_COMPONENT representing the scheme and the authority.
+		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
+		/// @remarks None
+		BOFERR SetSchemeAuthority(const BOF_SOCKET_ADDRESS_COMPONENT &_rSchemeAuthority_X);
 
 		/// @brief Set the path characteristics of the usri
 		/// @param [in] _rPath_S : specifies a string representing the path.
@@ -183,40 +211,35 @@ public:
 		BOFERR SetPath(const std::string &_rPath_S);
 
 		/// @brief Set the path characteristics of the usri
-		/// @param [in] _rBofPath : specifies a BofPath representing the path.
+		/// @param [in] _rPath : specifies a BofPath representing the path.
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks Must be a linux (not windows) path type
-		BOFERR SetPath(const BofPath &_rBofPath);
+		BOFERR SetPath(const BofPath &_rPath);
+
+		/// @brief Set the query param collection of the uri.
+		/// @param [in] _rQueryParamCollection : specifies the query collection.
+		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
+		/// @remarks None
+		BOFERR SetQueryParamCollection(const std::map<std::string, std::string> &_rQueryParamCollection);
 
 		/// @brief Set the query collection of the uri.
-		/// @param [in] _rQueryCollection : specifies the query collection.
+		/// @param [in] _rQueryParam_S : specifies the query collection with each key-value element separated by ';' or '&'
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks None
-		BOFERR SetQueryCollection(const std::map<std::string, std::string> &_rQueryCollection);
-
-		/// @brief Set the query collection of the uri.
-		/// @param [in] _rQueryString_S : specifies the query collection.
-		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
-		/// @remarks None
-		BOFERR SetQueryCollection(const std::string &_rQueryString_S);
+		BOFERR SetQueryParamCollection(const std::string &_rQueryParam_S);
 
 		/// @brief Add a key value pair to the uri query collection.
-		/// @param [in] _rQuery : specifies the query to add to the collection.
+		/// @param [in] _rKey_S : specifies the query key to add to the collection.
+		/// @param [in] _rValue_S : specifies the query key to add to the collection.
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks None
-		BOFERR AddToQueryCollection(const std::pair<std::string, std::string> &_rQuery);
-
-		/// @brief Add a key value pair to the uri query collection.
-		/// @param [in] _rQuery_S : specifies the query to add to the collection.
-		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
-		/// @remarks None
-		BOFERR AddToQueryCollection(const std::string &_rQuery_S);
+		BOFERR AddToQueryParamCollection(const std::string &_rKey_S, const std::string &_rValue_S);
 
 		/// @brief Remove a key value pair from the usri query collection.
-		/// @param [in] _rQueryKeyToRemove_S : specifies the query key to remove from the collection.
+		/// @param [in] _rQueryParamKeyToRemove_S : specifies the query key to remove from the collection.
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks None
-		BOFERR RemoveFromQueryCollection(const std::string &_rQueryKeyToRemove_S);
+		BOFERR RemoveFromQueryParamCollection(const std::string &_rQueryParamKeyToRemove_S);
 
 		/// @brief Set the fragment part of the uri.
 		/// @param [in] _rFragment_S : specifies the fragment.
@@ -224,11 +247,26 @@ public:
 		/// @remarks None
 		BOFERR SetFragment(const std::string &_rFragment_S);
 
+		/// @brief Returns the character used as séparator in the query string.
+		/// @return The character used in the query string.
+		/// @remarks Must be ';' or '&'
+		char BofUri::QueryParamDelimiter() const;
+
 		/// @brief Returns the scheme characteristics.
+		/// @return A string containing the scheme characteristics.
+		/// @remarks None
+		const std::string &Scheme() const;
+
+		/// @brief Returns the authority characteristics.
+		/// @return A string containing the authority characteristics.
+		/// @remarks None
+		std::string Authority() const;
+
+		/// @brief Returns the scheme and authority characteristics.
 		/// @param [out] _rScheme_S : returns a string representing the scheme.
 		/// @return A BOF_SOCKET_ADDRESS_COMPONENT containing the scheme characteristics.
 		/// @remarks None
-		const BOF_SOCKET_ADDRESS_COMPONENT &Scheme(std::string &_rScheme_S) const;
+		const BOF_SOCKET_ADDRESS_COMPONENT &SchemeAuthority(std::string &_rSchemeAuthority_S) const;
 
 		/// @brief Returns the ip address corresponding to the current scheme.
 		/// @param [out] _rIpAddress_S : returns a string representing the ip address.
@@ -242,11 +280,11 @@ public:
 		/// @remarks None
 		const BofPath &Path(std::string &_rPath_S) const;
 
-		/// @brief Returns the path characteristics.
-		/// @param [out] _rQueryCollection_S : return a string representing the query.
+		/// @brief Returns the query characteristics.
+		/// @param [out] _rQueryParam_S : return a string representing the query.
 		/// @return A map of string containing the query parameters.
 		/// @remarks None
-		const std::map<std::string, std::string> &QueryCollection(std::string &_rQueryCollection_S) const;
+		const std::map<std::string, std::string> &QueryParamCollection(std::string &_rQueryParam_S) const;
 
 		/// @brief Returns the fragment part of the uri.
 		/// @return A string containing the fragment.
@@ -274,16 +312,18 @@ public:
 		static std::string S_UrlDecode(const std::string &_rIn_S);
 
 private:
-		/// @brief Initializes the class instance members.
-		/// @param _rUri_S A string containing the uri
+		/// @brief Initializes all the class instance members.
+		/// @param [in] _rUri_S A string containing the uri
 		/// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 		/// @remarks None
 		BOFERR InitUriField(const std::string &_rUri_S);
 
-		/// @brief Check if a uri contains forbidden char such as "<>:\"\\|?*\a\f\n\r\t\v"
-		/// @param _rUri_S : Specifies the uri to check
-		/// @return true if the uri contains forbidden char
+		/// @brief Deserialize a query param string into a map of parameter value.
+		/// @param [in] _rQueryParam_S A string containing the query param
+		/// @param [out] _rQueryParamCollection return a collection of query key values
+		/// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 		/// @remarks None
-		bool IsForbiddenChar(const std::string &_rUri_S);
+		BOFERR ExtractQueryParamIntoCollection(const std::string &_rQueryParam_S, std::map<std::string, std::string> &_rQueryParamCollection);
+
 };
 END_BOF_NAMESPACE()

@@ -57,27 +57,43 @@ TEST(Uri_Test, UrlEscape)
   EXPECT_STREQ(BofUri::S_UrlDecode(R"(title%20EQ%20"%3CMy%20title%3E")").c_str(), "title EQ \"<My title>\"");
   EXPECT_STREQ(BofUri::S_UrlEncode("title EQ \"<My title>\"").c_str(), R"(title%20EQ%20%22%3CMy%20title%3E%22)");
 }
+
 TEST(Uri_Test, UriConstructorDestructor)
 {
-  BofUri Uri;
-  BOF_SOCKET_ADDRESS_COMPONENT SchemeSocketAddressComponent_X;
-  std::string Scheme_S, Path_S, QueryCollection_S, IpAddress_S, Fragment_S;
+  BOF_SOCKET_ADDRESS_COMPONENT SchemeAuthority_X;
+  std::string SchemeAuthority_S, Path_S, QueryParamCollection_S, IpAddress_S, Fragment_S;
   BOF_SOCKET_ADDRESS IpAddress_X;
   BofPath Path;
-  std::map<std::string, std::string> QueryCollection;
+  std::map<std::string, std::string> QueryParamCollection;
 
+  BofUri Uri;
   EXPECT_FALSE(Uri.IsValid());
+
+  Uri = BofUri("myprotocol","john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
+  EXPECT_TRUE(Uri.IsValid());
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
+
+  SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
+  EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@www.google.com:123");
+  EXPECT_STREQ(SchemeAuthority_X.Protocol_S.c_str(), "myprotocol");
+  EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
+  EXPECT_STREQ(SchemeAuthority_X.IpAddress_S.c_str(), "www.google.com");
+  EXPECT_EQ(SchemeAuthority_X.Port_U16, 123);
+
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey#top");
   EXPECT_TRUE(Uri.IsValid());
   //printf("Uri: '%s'\n", Uri.ToString().c_str());
   EXPECT_STREQ(Uri.ToString().c_str(),"myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
 
-  SchemeSocketAddressComponent_X = Uri.Scheme(Scheme_S);
-  EXPECT_STREQ(Scheme_S.c_str(), "myprotocol://john.doe@www.google.com:123");
-  EXPECT_STREQ(SchemeSocketAddressComponent_X.Protocol_S.c_str(), "myprotocol");
-  EXPECT_STREQ(SchemeSocketAddressComponent_X.User_S.c_str(), "john.doe");
-  EXPECT_STREQ(SchemeSocketAddressComponent_X.IpAddress_S.c_str(), "www.google.com");
-  EXPECT_EQ(SchemeSocketAddressComponent_X.Port_U16, 123);
+  SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
+  EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@www.google.com:123");
+  EXPECT_STREQ(SchemeAuthority_X.Protocol_S.c_str(), "myprotocol");
+  EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
+  EXPECT_STREQ(SchemeAuthority_X.IpAddress_S.c_str(), "www.google.com");
+  EXPECT_EQ(SchemeAuthority_X.Port_U16, 123);
+
+  EXPECT_STREQ(Uri.Scheme().c_str(), "myprotocol");
+  EXPECT_STREQ(Uri.Authority().c_str(), "john.doe@www.google.com:123");
 
   IpAddress_X = Uri.IpAddress(IpAddress_S);
   EXPECT_STREQ(IpAddress_S.c_str(), "myprotocol://142.251.36.4:123");
@@ -93,31 +109,113 @@ TEST(Uri_Test, UriConstructorDestructor)
   EXPECT_STREQ(Path.FileNameWithoutExtension().c_str(), "file");
   EXPECT_STREQ(Path.Extension().c_str(), "txt");
 
-  QueryCollection = Uri.QueryCollection(QueryCollection_S);
-  EXPECT_STREQ(QueryCollection_S.c_str(), "justkey;order=newest;tag=networking");
-  EXPECT_EQ(QueryCollection.size(), 3);
-  EXPECT_STREQ(QueryCollection["justkey"].c_str(), "");
-  EXPECT_STREQ(QueryCollection["order"].c_str(), "newest");
-  EXPECT_STREQ(QueryCollection["tag"].c_str(), "networking");
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "justkey;order=newest;tag=networking");
+  EXPECT_EQ(QueryParamCollection.size(), 3);
+  EXPECT_STREQ(QueryParamCollection["justkey"].c_str(), "");
+  EXPECT_STREQ(QueryParamCollection["order"].c_str(), "newest");
+  EXPECT_STREQ(QueryParamCollection["tag"].c_str(), "networking");
 
   Fragment_S = Uri.Fragment();
   EXPECT_STREQ(Fragment_S.c_str(), "top");
 
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey");
   EXPECT_TRUE(Uri.IsValid());
-  //printf("Uri: '%s'\n", Uri.ToString().c_str());
   EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking");
-
 
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt#top");
   EXPECT_TRUE(Uri.IsValid());
-  //printf("Uri: '%s'\n", Uri.ToString().c_str());
   EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt#top");
 
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt");
   EXPECT_TRUE(Uri.IsValid());
-  //printf("Uri: '%s'\n", Uri.ToString().c_str());
   EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt");
+}
 
+TEST(Uri_Test, Set)
+{
+  BOF_SOCKET_ADDRESS_COMPONENT SchemeAuthority_X;
+  std::string SchemeAuthority_S, Path_S, QueryParamCollection_S, IpAddress_S, Fragment_S;
+  BOF_SOCKET_ADDRESS IpAddress_X;
+  BofPath Path;
+  std::map<std::string, std::string> QueryParamCollection;
+
+  BofUri Uri;
+  EXPECT_FALSE(Uri.IsValid());
+  EXPECT_NE(Uri.SetQueryParamDelimiter(','), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Uri.SetQueryParamDelimiter('&'), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Uri.SetQueryParamDelimiter(';'), BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(Uri.QueryParamDelimiter() == ';');
+
+  EXPECT_EQ(Uri.SetScheme("myprotocol"), BOF_ERR_NO_ERROR);
+  EXPECT_FALSE(Uri.IsValid());
+
+  EXPECT_EQ(Uri.SetAuthority("john.doe@www.google.com:123"), BOF_ERR_NO_ERROR);
+  EXPECT_FALSE(Uri.IsValid());
+
+  EXPECT_EQ(Uri.SetPath(std::string("/forum/questions/file.txt")), BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(Uri.IsValid());
+
+  EXPECT_EQ(Uri.SetQueryParamCollection("justkey;order=newest;tag=networking"), BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(Uri.IsValid());
+
+  EXPECT_EQ(Uri.SetFragment("top"), BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(Uri.IsValid());
+
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
+}
+
+TEST(Uri_Test, QueryParamCollection)
+{
+  //BOF_SOCKET_ADDRESS_COMPONENT SchemeAuthority_X;
+  std::string  QueryParamCollection_S;
+  //BOF_SOCKET_ADDRESS IpAddress_X;
+  //BofPath Path;
+  std::map<std::string, std::string> QueryParamCollection;
+  BofUri Uri;
+
+  Uri = BofUri("myprotocol", "john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
+  EXPECT_TRUE(Uri.IsValid());
+  EXPECT_EQ(Uri.SetQueryParamDelimiter('&'), BOF_ERR_NO_ERROR);
+
+  EXPECT_EQ(Uri.RemoveFromQueryParamCollection("order"), BOF_ERR_NO_ERROR);
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "justkey&tag=networking");
+  EXPECT_EQ(QueryParamCollection.size(), 2);
+  EXPECT_STREQ(QueryParamCollection["justkey"].c_str(), "");
+  EXPECT_STREQ(QueryParamCollection["tag"].c_str(), "networking");
+
+  EXPECT_EQ(Uri.RemoveFromQueryParamCollection("tag"), BOF_ERR_NO_ERROR);
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "justkey");
+  EXPECT_EQ(QueryParamCollection.size(), 1);
+  EXPECT_STREQ(QueryParamCollection["justkey"].c_str(), "");
+
+  EXPECT_NE(Uri.RemoveFromQueryParamCollection("tag"), BOF_ERR_NO_ERROR);
+
+  EXPECT_EQ(Uri.RemoveFromQueryParamCollection("justkey"), BOF_ERR_NO_ERROR);
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "");
+  EXPECT_EQ(QueryParamCollection.size(), 0);
+
+  EXPECT_EQ(Uri.AddToQueryParamCollection("a", "1"), BOF_ERR_NO_ERROR);
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "a=1");
+  EXPECT_EQ(QueryParamCollection.size(), 1);
+
+  EXPECT_NE(Uri.AddToQueryParamCollection("a", "2"), BOF_ERR_NO_ERROR);
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "a=1");
+  EXPECT_EQ(QueryParamCollection.size(), 1);
+
+  EXPECT_EQ(Uri.AddToQueryParamCollection("b", ""), BOF_ERR_NO_ERROR);
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "a=1&b");
+  EXPECT_EQ(QueryParamCollection.size(), 2);
+
+  EXPECT_EQ(Uri.AddToQueryParamCollection("c", "3"), BOF_ERR_NO_ERROR);
+  QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "a=1&b&c=3");
+  EXPECT_EQ(QueryParamCollection.size(), 3);
 
 }

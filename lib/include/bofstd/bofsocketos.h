@@ -169,10 +169,10 @@ BEGIN_BOF_NAMESPACE()
 
   struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
   {
-    std::string Protocol_S;
-    std::string User_S;
-    std::string IpAddress_S;
-    uint16_t    Port_U16;
+    std::string Protocol_S;   //Scheme  (cf BofUri)
+    std::string User_S;       //Authority (cf BofUri)
+    std::string IpAddress_S;  //Authority (cf BofUri)
+    uint16_t    Port_U16;     //Authority (cf BofUri)
 
     BOF_SOCKET_ADDRESS_COMPONENT()
     {
@@ -194,17 +194,20 @@ BEGIN_BOF_NAMESPACE()
     {
       std::ostringstream Rts;
 
-      Rts << Protocol_S << "://";
+      if (Protocol_S != "")
+      {
+        Rts << Protocol_S << "://";
+      }
       if (User_S != "")
       {
-        Rts << User_S << "@";
+        Rts << User_S << '@';
       }
       Rts << IpAddress_S;
       if (Port_U16)
       {
         Rts << ':' << Port_U16;
       }
-
+      
       return Rts.str();
     }
   };
@@ -226,8 +229,24 @@ BEGIN_BOF_NAMESPACE()
     {
       Set(_IpV6_B, _SocketType_E, _ProtocolType_E, _Ip1_U32, _Ip2_U32, _Ip3_U32, _Ip4_U32, _Port_U16);
     }
-//TODO a faire 
-//  void Set(const std::string &_rAddress);
+    int operator==(const BOF_SOCKET_ADDRESS &_rOther) const
+    {
+      int Rts_i;
+
+      Rts_i = ((IpV6_B == _rOther.IpV6_B) && (SocketType_E == _rOther.SocketType_E) && (ProtocolType_E == _rOther.ProtocolType_E));
+      if (Rts_i)
+      {
+        if (IpV6_B)
+        {
+          Rts_i = memcmp(&IpV6Address_X, &_rOther.IpV6Address_X, sizeof(IpV6Address_X));
+        }
+        else
+        {
+          Rts_i = memcmp(&IpV4Address_X, &_rOther.IpV4Address_X, sizeof(IpV4Address_X));
+        }
+      }
+      return Rts_i;
+    }
 
     void Set(bool _IpV6_B, BOF_SOCK_TYPE _SocketType_E, BOF_PROTOCOL_TYPE _ProtocolType_E, uint32_t _Ip1_U32, uint32_t _Ip2_U32, uint32_t _Ip3_U32, uint32_t _Ip4_U32, uint16_t _Port_U16)
     {

@@ -52,13 +52,32 @@ BofUri::BofUri(const std::string &_rUri_S)
   InitUriField(_rUri_S);
 }
 
-BofUri::BofUri(const BOF_SOCKET_ADDRESS_COMPONENT &_rScheme_X, const BofPath &_rPath, std::map<std::string, std::string> &_rQueryCollection, const std::string &_rFragment_S)
+BofUri::BofUri(const BOF_SOCKET_ADDRESS_COMPONENT &_rSchemeAuthority_X, const BofPath &_rPath, std::map<std::string, std::string> &_rQueryParamCollection, const std::string &_rFragment_S)
 {
-  mScheme_X = _rScheme_X;
+  mSchemeAuthority_X = _rSchemeAuthority_X;
   mPath = _rPath;
-  mQueryCollection = _rQueryCollection;
+  mQueryParamCollection = _rQueryParamCollection;
   mFragment_S = _rFragment_S;
   InitUriField(ToString());
+}
+
+BofUri::BofUri(const std::string &_rScheme_S, const std::string &_rAuthority_S, const std::string &_rPath_S, const std::string &_rQueryParam_S, const std::string &_rFragment_S)
+{
+  if (SetScheme(_rScheme_S) == BOF_ERR_NO_ERROR)
+  {
+    if (SetAuthority(_rAuthority_S) == BOF_ERR_NO_ERROR)
+    {
+      if (SetPath(_rPath_S) == BOF_ERR_NO_ERROR)
+      {
+        if (SetQueryParamCollection(_rQueryParam_S) == BOF_ERR_NO_ERROR)
+        {
+          if (SetFragment(_rFragment_S) == BOF_ERR_NO_ERROR)
+          {
+          }
+        }
+      }
+    }
+  }
 }
 
 BofUri::BofUri(const BofUri &_rOther_O)
@@ -122,7 +141,9 @@ BofUri::~BofUri()
 
 bool BofUri::operator==(const BofUri &_rOther_O) const
 {
-  return (mScheme_X == _rOther_O.mScheme_X) && (mPath == _rOther_O.mPath) && (mQueryCollection == _rOther_O.mQueryCollection) && (mFragment_S == _rOther_O.mFragment_S) && (mValid_B == _rOther_O.mValid_B);
+  return ( (mSchemeAuthority_X == _rOther_O.mSchemeAuthority_X) && (mIpAddress_X == _rOther_O.mIpAddress_X) && (mPath == _rOther_O.mPath) &&
+           (mQueryParamCollection == _rOther_O.mQueryParamCollection) && (mFragment_S == _rOther_O.mFragment_S) && 
+           (mQueryParamDelimiter_c == _rOther_O.mQueryParamDelimiter_c) && (mValid_B == _rOther_O.mValid_B));
 }
 
 bool BofUri::operator!=(const BofUri &_rOther_O) const
@@ -135,63 +156,181 @@ bool BofUri::IsValid() const
   return (mValid_B);
 }
 
-BOFERR BofUri::SetScheme(const std::string &_rScheme_S)
+BOFERR BofUri::SetQueryParamDelimiter(char _QueryParamDelimiter_c)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
+  if ((_QueryParamDelimiter_c == '&') || (_QueryParamDelimiter_c == ';'))
+  {
+    mQueryParamDelimiter_c = _QueryParamDelimiter_c;
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
   return Rts_E;
 }
 
-BOFERR BofUri::SetScheme(const BOF_SOCKET_ADDRESS_COMPONENT &_rScheme_X)
+BOFERR BofUri::SetScheme(const std::string &_rScheme_S)
+{
+  BOFERR Rts_E;
+
+  mSchemeAuthority_X.Protocol_S = _rScheme_S; //Needed by ToString below 
+  InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+  Rts_E = BOF_ERR_NO_ERROR;
+  
+  return Rts_E;
+}
+BOFERR BofUri::SetAuthority(const std::string &_rAuthority_S)
+{
+  BOFERR Rts_E;
+  BOF_SOCKET_ADDRESS_COMPONENT				SchemeAuthority_X;
+  BOF_SOCKET_ADDRESS									IpAddress_X;
+
+  Rts_E = Bof_SplitIpAddress(_rAuthority_S, SchemeAuthority_X, IpAddress_X);
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    mSchemeAuthority_X.User_S = SchemeAuthority_X.User_S; //Needed by ToString below 
+    mSchemeAuthority_X.IpAddress_S = SchemeAuthority_X.IpAddress_S; //Needed by ToString below 
+    mSchemeAuthority_X.Port_U16 = SchemeAuthority_X.Port_U16; //Needed by ToString below 
+    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+  }
+  return Rts_E;
+}
+
+BOFERR BofUri::SetSchemeAuthority(const std::string &_rSchemeAuthority_S)
+{
+  BOFERR Rts_E;
+  BOF_SOCKET_ADDRESS_COMPONENT				SchemeAuthority_X;
+  BOF_SOCKET_ADDRESS									IpAddress_X;
+
+  Rts_E = Bof_SplitIpAddress(_rSchemeAuthority_S, SchemeAuthority_X, IpAddress_X);
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    mSchemeAuthority_X = SchemeAuthority_X; //Needed by ToString below
+    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  return Rts_E;
+}
+
+BOFERR BofUri::SetSchemeAuthority(const BOF_SOCKET_ADDRESS_COMPONENT &_rSchemeAuthority_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
+  if ((_rSchemeAuthority_X.Protocol_S != "") && (_rSchemeAuthority_X.IpAddress_S != ""))
+  {
+    mSchemeAuthority_X = _rSchemeAuthority_X; //Needed by ToString below
+    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
   return Rts_E;
 }
 BOFERR BofUri::SetPath(const std::string &_rPath_S)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
+  BofPath Path(_rPath_S);
 
+  if (Path.IsValid())
+  {
+    mPath = Path; //Needed by ToString below
+    InitUriField(ToString()); //Can fail if scheme is not set for example -> Rts is ok but is valid is false
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
   return Rts_E;
 }
-BOFERR BofUri::SetPath(const BofPath &_rBofPath)
+BOFERR BofUri::SetPath(const BofPath &_rPath)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
+  BofPath Path(_rPath);
 
+  if (Path.IsValid())
+  {
+    mPath = Path; //Needed by ToString below
+    InitUriField(ToString()); //Can fail if scheme is not set for example -> Rts is ok but is valid is false
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
   return Rts_E;
 }
-BOFERR BofUri::SetQueryCollection(const std::map<std::string, std::string> &_rQueryCollection)
+BOFERR BofUri::SetQueryParamCollection(const std::map<std::string, std::string> &_rQueryParamCollection)
 {
-  BOFERR Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E;
 
+  mQueryParamCollection = _rQueryParamCollection; //Needed by ToString below
+  InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+  Rts_E = BOF_ERR_NO_ERROR;
   return Rts_E;
 }
-BOFERR BofUri::AddToQueryCollection(const std::pair<std::string, std::string> &_rQuery)
+BOFERR BofUri::SetQueryParamCollection(const std::string &_rQueryParam_S)
 {
-  BOFERR Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E;
+  std::map<std::string, std::string> QueryParamCollection;
 
+  Rts_E = ExtractQueryParamIntoCollection(_rQueryParam_S, QueryParamCollection);
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    Rts_E = SetQueryParamCollection(QueryParamCollection);
+  }
   return Rts_E;
 }
-BOFERR BofUri::RemoveFromQueryCollection(const std::string &_rQueryKeyToRemove_S)
-{
-  BOFERR Rts_E = BOF_ERR_EINVAL;
 
+BOFERR BofUri::AddToQueryParamCollection(const std::string &_rKey_S, const std::string &_rValue_S)
+{
+  BOFERR Rts_E = BOF_ERR_DUPLICATE;
+
+  const auto &_rIt = mQueryParamCollection.find(_rKey_S);
+  if (_rIt == mQueryParamCollection.cend())
+  {
+    mQueryParamCollection[_rKey_S] = _rValue_S; //Needed by ToString below
+    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  return Rts_E;
+}
+
+BOFERR BofUri::RemoveFromQueryParamCollection(const std::string &_rQueryParamKeyToRemove_S)
+{
+  BOFERR Rts_E = BOF_ERR_DONT_EXIST;
+
+  const auto &_rIt = mQueryParamCollection.find(_rQueryParamKeyToRemove_S);
+  if (_rIt != mQueryParamCollection.cend())
+  {
+    mQueryParamCollection.erase(_rQueryParamKeyToRemove_S); //Needed by ToString below
+    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
   return Rts_E;
 }
 BOFERR BofUri::SetFragment(const std::string &_rFragment_S)
 {
-  BOFERR Rts_E = BOF_ERR_EINVAL;
-
+  BOFERR Rts_E;
+  mFragment_S = _rFragment_S; //Needed by ToString below
+  InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+  Rts_E = BOF_ERR_NO_ERROR;
   return Rts_E;
 }
-const BOF_SOCKET_ADDRESS_COMPONENT &BofUri::Scheme(std::string &_rScheme_S) const
+char BofUri::QueryParamDelimiter() const
 {
-  _rScheme_S = mScheme_X.ToString();
-  return mScheme_X;
+  return mQueryParamDelimiter_c;
+}
+const BOF_SOCKET_ADDRESS_COMPONENT &BofUri::SchemeAuthority(std::string &_rSchemeAuthority_S) const
+{
+  _rSchemeAuthority_S = mSchemeAuthority_X.ToString();
+  return mSchemeAuthority_X;
+}
+const std::string &BofUri::Scheme() const
+{
+  return mSchemeAuthority_X.Protocol_S;
+}
+std::string BofUri::Authority() const
+{
+  BOF_SOCKET_ADDRESS_COMPONENT Rts_X;
+
+  Rts_X = mSchemeAuthority_X;
+  Rts_X.Protocol_S = ""; 
+ 
+  return  Rts_X.ToString();
 }
 const BOF_SOCKET_ADDRESS &BofUri::IpAddress(std::string &_rIpAddress_S) const
 {
-  _rIpAddress_S = mScheme_X.Protocol_S + "://" + Bof_SocketAddressToString(mIpAddress_X, false, true);
+  _rIpAddress_S = mSchemeAuthority_X.Protocol_S + "://" + Bof_SocketAddressToString(mIpAddress_X, false, true);
   return mIpAddress_X;
 }
 const BofPath &BofUri::Path(std::string &_rPath_S) const
@@ -199,29 +338,29 @@ const BofPath &BofUri::Path(std::string &_rPath_S) const
   _rPath_S = mPath.FullPathName(false);
   return mPath;
 }
-const std::map<std::string, std::string> &BofUri::QueryCollection(std::string &_rQueryCollection_S) const
+const std::map<std::string, std::string> &BofUri::QueryParamCollection(std::string &_rQueryParamCollection_S) const
 {
-  _rQueryCollection_S = "";
-  if (!mQueryCollection.empty())
+  _rQueryParamCollection_S = "";
+  if (!mQueryParamCollection.empty())
   {
-    for (auto &rIt = mQueryCollection.cbegin(); rIt != mQueryCollection.cend();)
+    for (auto &rIt = mQueryParamCollection.begin(); rIt != mQueryParamCollection.end();)
     {
       if (rIt->second != "")
       {
-        _rQueryCollection_S += rIt->first + '=' + rIt->second;
+        _rQueryParamCollection_S += rIt->first + '=' + rIt->second;
       }
       else
       {
-        _rQueryCollection_S += rIt->first;
+        _rQueryParamCollection_S += rIt->first;
       }
-      if (++rIt != mQueryCollection.cend())
+      if (++rIt != mQueryParamCollection.cend())
       {
-        _rQueryCollection_S += mQueryDelimiter_c;
+        _rQueryParamCollection_S += mQueryParamDelimiter_c;
       }
     }
   }
 
-  return mQueryCollection;
+  return mQueryParamCollection;
 }
 const std::string &BofUri::Fragment() const
 {
@@ -233,12 +372,12 @@ std::string	BofUri::ToString() const
 
 //  if ((mQueryDelimiter_c == '&') || (mQueryDelimiter_c == ';'))
   {
-    Rts << mScheme_X.ToString();
+    Rts << mSchemeAuthority_X.ToString();
     Rts << mPath.FullPathName(false);
-    if (!mQueryCollection.empty())
+    if (!mQueryParamCollection.empty())
     {
       Rts << '?';
-      for (auto &rIt = mQueryCollection.cbegin(); rIt != mQueryCollection.cend();)
+      for (auto &rIt = mQueryParamCollection.cbegin(); rIt != mQueryParamCollection.cend();)
       {
         if (rIt->second != "")
         {
@@ -248,9 +387,9 @@ std::string	BofUri::ToString() const
         {
           Rts << rIt->first;
         }
-        if (++rIt != mQueryCollection.cend())
+        if (++rIt != mQueryParamCollection.cend())
         {
-          Rts << mQueryDelimiter_c;
+          Rts << mQueryParamDelimiter_c;
         }
       }
     }
@@ -268,12 +407,13 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
   std::string::size_type PosEop, PosSlash, PosQuestion, PosDash, PosEqual;
   std::string Scheme_S, Path_S, Query_S, Key_S, Val_S;
   std::vector<std::string> KeyValCollection;
-
+  /*
   mScheme_X.Reset();
   mIpAddress_X.Reset();
   mPath = BofPath();
-  mQueryCollection.clear();
+  mQueryParamCollection.clear();
   mFragment_S = "";
+  */
   mValid_B = false;
 
   //printf("_rUri_S %s\n", _rUri_S.c_str());
@@ -290,6 +430,8 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
       if ((PosQuestion == std::string::npos) && (PosDash == std::string::npos))
       {
         Path_S = _rUri_S.substr(PosSlash);
+        Query_S = "";
+        mFragment_S = "";
         Rts_E = BOF_ERR_NO_ERROR;
       }
       if ((PosQuestion != std::string::npos) && (PosDash != std::string::npos))
@@ -309,12 +451,14 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
         //printf("PosQuestion2 %I64d: %s\n", PosQuestion, _rUri_S.substr(PosQuestion + 1).c_str());
         Path_S = _rUri_S.substr(PosSlash, PosQuestion - PosSlash);
         Query_S = _rUri_S.substr(PosQuestion + 1);
+        mFragment_S = "";
         Rts_E = BOF_ERR_NO_ERROR;
       }
       else if ((PosQuestion == std::string::npos) && (PosDash != std::string::npos))
       {
         //printf("PosDash %I64d: %s\n", PosDash, _rUri_S.substr(PosDash).c_str());
         Path_S = _rUri_S.substr(PosSlash, PosDash - PosSlash);
+        Query_S = "";
         mFragment_S = _rUri_S.substr(PosDash + 1);
         Rts_E = BOF_ERR_NO_ERROR;
       }
@@ -323,7 +467,7 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
         Scheme_S = _rUri_S.substr(0, PosSlash);
         //printf("Scheme_S %s\n", Scheme_S.c_str());
 
-        Rts_E = Bof_SplitIpAddress(Scheme_S, mScheme_X, mIpAddress_X);
+        Rts_E = Bof_SplitIpAddress(Scheme_S, mSchemeAuthority_X, mIpAddress_X);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
           mPath = BofPath(Path_S);
@@ -331,31 +475,11 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
           {
             if (Query_S != "")
             {
-              Query_S = S_UrlDecode(Query_S);
-              KeyValCollection = Bof_StringSplit(Query_S, "&;");
-              for (const auto &rIt : KeyValCollection)
-              {
-                PosEqual = rIt.find('=');
-                if (PosEqual != std::string::npos)
-                {
-                  Key_S = rIt.substr(0, PosEqual);
-                  Val_S = rIt.substr(PosEqual + 1);
-                }
-                else
-                {
-                  Key_S = rIt;
-                  Val_S = "";
-                }
-                if (mQueryCollection.find(Key_S) == mQueryCollection.end())
-                {
-                  mQueryCollection[Key_S] = Val_S;
-                }
-                else
-                {
-                  Rts_E = BOF_ERR_EKEYREVOKED;
-                  break;
-                }
-              }
+              Rts_E = ExtractQueryParamIntoCollection(Query_S, mQueryParamCollection);
+            }
+            else
+            {
+              mQueryParamCollection.clear();
             }
           }
           else
@@ -372,12 +496,6 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
   }
 
   return (Rts_E);
-}
-
-
-bool BofUri::IsForbiddenChar(const std::string &_rUri_S)
-{
-  return (Bof_StringIsPresent(_rUri_S, "<>:\"\\|?*\a\f\n\r\t\v"));
 }
 
 std::string BofUri::S_UrlEncode(const std::string &_rIn_S)
@@ -443,4 +561,42 @@ std::string BofUri::S_UrlDecode(const std::string &_rIn_S)
   }
   return Rts_S;
 }
+
+BOFERR BofUri::ExtractQueryParamIntoCollection(const std::string &_rQueryParam_S, std::map<std::string, std::string> &_rQueryParamCollection)
+{
+  BOFERR Rts_E;
+  std::string Query_S, Key_S, Val_S;
+  std::vector<std::string> KeyValCollection;
+  std::string::size_type PosEqual;
+
+  Query_S = S_UrlDecode(_rQueryParam_S);
+  _rQueryParamCollection.clear();
+  Rts_E = BOF_ERR_NO_ERROR;
+  KeyValCollection = Bof_StringSplit(Query_S, "&;");
+  for (const auto &rIt : KeyValCollection)
+  {
+    PosEqual = rIt.find('=');
+    if (PosEqual != std::string::npos)
+    {
+      Key_S = rIt.substr(0, PosEqual);
+      Val_S = rIt.substr(PosEqual + 1);
+    }
+    else
+    {
+      Key_S = rIt;
+      Val_S = "";
+    }
+    if (_rQueryParamCollection.find(Key_S) == _rQueryParamCollection.end())
+    {
+      _rQueryParamCollection[Key_S] = Val_S;
+    }
+    else
+    {
+      Rts_E = BOF_ERR_EKEYREVOKED;
+      break;
+    }
+  }
+  return Rts_E;
+}
+
 END_BOF_NAMESPACE()
