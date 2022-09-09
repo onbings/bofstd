@@ -140,10 +140,10 @@ MountPoint [NULL]
 		|    +--- FileG [Dir4]
 		+--- FileD [Dir3]
 */
+
 	ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
 	std::cout << ToString_S;
 
-/*
 	ParentHandle = pNodeHandle[HandleIndex_U32 - 3];	//Remove FileE
 	ToString_S = puBofNaryTreeKv->ToString(true, ParentHandle);
 	std::cout << ToString_S;
@@ -163,7 +163,7 @@ MountPoint [NULL]
 
 	ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
 	std::cout << ToString_S;
-*/
+
 	KeyCollection.clear();
 	KeyCollection.push_back("MountPoint");
 	KeyCollection.push_back("Dir3");

@@ -23,7 +23,7 @@
 #include <bofstd/bofuri.h>
 #include "bofstd/bofstring.h"
 #include <iterator>
-
+ 
 BEGIN_BOF_NAMESPACE()
 
 BofUri::BofUri()
@@ -343,17 +343,17 @@ const std::map<std::string, std::string> &BofUri::QueryParamCollection(std::stri
   _rQueryParamCollection_S = "";
   if (!mQueryParamCollection.empty())
   {
-    for (auto &rIt = mQueryParamCollection.begin(); rIt != mQueryParamCollection.end();)
+    for (auto It = mQueryParamCollection.begin(); It != mQueryParamCollection.end();)
     {
-      if (rIt->second != "")
+      if (It->second != "")
       {
-        _rQueryParamCollection_S += rIt->first + '=' + rIt->second;
+        _rQueryParamCollection_S += It->first + '=' + It->second;
       }
       else
       {
-        _rQueryParamCollection_S += rIt->first;
+        _rQueryParamCollection_S += It->first;
       }
-      if (++rIt != mQueryParamCollection.cend())
+      if (++It != mQueryParamCollection.end())
       {
         _rQueryParamCollection_S += mQueryParamDelimiter_c;
       }
@@ -377,17 +377,17 @@ std::string	BofUri::ToString() const
     if (!mQueryParamCollection.empty())
     {
       Rts << '?';
-      for (auto &rIt = mQueryParamCollection.cbegin(); rIt != mQueryParamCollection.cend();)
+      for (auto It = mQueryParamCollection.begin(); It != mQueryParamCollection.end();)
       {
-        if (rIt->second != "")
+        if (It->second != "")
         {
-          Rts << rIt->first << '=' << rIt->second;
+          Rts << It->first << '=' << It->second;
         }
         else
         {
-          Rts << rIt->first;
+          Rts << It->first;
         }
-        if (++rIt != mQueryParamCollection.cend())
+        if (++It != mQueryParamCollection.end())
         {
           Rts << mQueryParamDelimiter_c;
         }

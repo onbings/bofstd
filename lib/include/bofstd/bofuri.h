@@ -119,7 +119,7 @@ public:
 		/// @param _rQueryParam_S Specifies the query collection.
 		/// @param _rFragment_S Specifies the fragment.
 		/// @remarks None.
-		BofUri::BofUri(const std::string &_rScheme_S, const std::string &_rAuthority_S, const std::string &_rPath_S, const std::string &_rQueryParam_S, const std::string &_rFragment_S);
+		BofUri(const std::string &_rScheme_S, const std::string &_rAuthority_S, const std::string &_rPath_S, const std::string &_rQueryParam_S, const std::string &_rFragment_S);
 
 		/// @brief Initializes a new instance of the Uri class.
 		/// @param _rOther_O A reference to another Uri class instance.
@@ -178,7 +178,7 @@ public:
 		/// @param [in] _QueryDelimiter_c : specifies the character used as séparator in the query string. (Must be ';' or '&').
 		/// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
 		/// @remarks None
-		BOFERR BofUri::SetQueryParamDelimiter(char _QueryParamDelimiter_c);
+		BOFERR SetQueryParamDelimiter(char _QueryParamDelimiter_c);
 
 		/// @brief Set the scheme characteristics of the uri
 		/// @param [in] _rScheme_S : specifies a string representing the scheme.
@@ -250,7 +250,7 @@ public:
 		/// @brief Returns the character used as séparator in the query string.
 		/// @return The character used in the query string.
 		/// @remarks Must be ';' or '&'
-		char BofUri::QueryParamDelimiter() const;
+		char QueryParamDelimiter() const;
 
 		/// @brief Returns the scheme characteristics.
 		/// @return A string containing the scheme characteristics.
