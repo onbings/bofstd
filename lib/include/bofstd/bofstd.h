@@ -305,7 +305,7 @@ class BOFSTD_EXPORT BofException : public std::exception
 {
 public:
   BofException(std::string _Header_S, std::string _Context_S = "", std::string _Where_S = "", int32_t _ErrorCode_S32 = 0);
-  const char *what(); //throw ();
+  const char *what() const; //throw ();
 
 private:
   std::string mHeader_S;
