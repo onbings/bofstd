@@ -243,6 +243,7 @@ enum BOFERR : int
 		BOF_ERR_EXIST,			/* Exist */
 		BOF_ERR_DONT_EXIST,			/* Don't exist */
 		BOF_ERR_OUT_OF_RANGE,			/* Out of range */
+    BOF_ERR_EXCEPTION,			    ///< Exception
 };
 #define BOF_ERR_EWOULDBLOCK  BOF_ERR_EAGAIN
 #define BOF_ERR_EDEADLOCK    BOF_ERR_EDEADLK
