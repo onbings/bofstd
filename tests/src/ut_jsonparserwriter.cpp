@@ -281,9 +281,8 @@ TEST(JsonParser_Test, Json)
 
 	S_AppParamJson_X.Reset();
 
-	Bof_GetCurrentDirectory(CrtDir);	//"C:\\bld\\github\\bofstd\\tests\\Debug\\" and file is in "C:\\bld\\github\\bofstd\\tests\\jsonparser.json"
-	//Path = CrtDir + "../jsonparser.json";
-	Path = CrtDir + "jsonparser.json";
+	Bof_GetCurrentDirectory(CrtDir);
+	Path = CrtDir + "data/jsonparser.json";
 	EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
 
 	pBofJsonParser_O = new BofJsonParser(JsonData_S);
@@ -385,9 +384,8 @@ TEST(JsonWriter_Test, Json)
 	std::string JsonData_S;
 
 	//memset(&S_AppParam_X, 0, sizeof(S_AppParam_X) );
-	Bof_GetCurrentDirectory(CrtDir);	//"C:\\bld\\github\\bofstd\\tests\\Debug\\" and file is in "C:\\bld\\github\\bofstd\\tests\\jsonparser.json"
-//	Path = CrtDir + "../jsonparser.json";
-	Path = CrtDir + "jsonparser.json";
+	Bof_GetCurrentDirectory(CrtDir);	
+	Path = CrtDir + "data/jsonparser.json";
 	EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
 
 	pBofJsonParser_O = new BofJsonParser(JsonData_S);

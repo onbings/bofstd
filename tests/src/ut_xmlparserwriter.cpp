@@ -116,9 +116,8 @@ TEST(XmlParser_Test, Xml)
 
 	S_AppParamXml_X.Reset();
 
-	Bof_GetCurrentDirectory(CrtDir);	//"C:\\bld\\github\\bofstd\\tests\\Debug\\" and file is in "C:\\bld\\github\\bofstd\\tests\\xmlparser.xml"
-//	Path = CrtDir + "../xmlparser.xml";
-	Path = CrtDir + "xmlparser.xml";
+	Bof_GetCurrentDirectory(CrtDir);	
+	Path = CrtDir + "data/xmlparser.xml";
 	EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
 	pBofXmlParser_O = new BofXmlParser(XmlData_S);
@@ -166,9 +165,8 @@ TEST(XmlParser_Test, XmlVector)
 
 	S_AppParamVector_X.Reset();
 
-	Bof_GetCurrentDirectory(CrtDir);	//"C:\\bld\\github\\bofstd\\tests\\Debug\\" and file is in "C:\\bld\\github\\bofstd\\tests\\xmlvectorparser.xml"
-//	Path = CrtDir + "../xmlvectorparser.xml";
-	Path = CrtDir + "xmlvectorparser.xml";
+	Bof_GetCurrentDirectory(CrtDir);	
+	Path = CrtDir + "data/xmlvectorparser.xml";
 	EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
 	pBofXmlParser_O = new BofXmlParser(XmlData_S);
@@ -197,9 +195,8 @@ TEST(XmlWriter_Test, XmlVector)
 
 	S_AppParamVector_X.Reset();
 
-	Bof_GetCurrentDirectory(CrtDir);	//"C:\\bld\\github\\bofstd\\tests\\Debug\\" and file is in "C:\\bld\\github\\bofstd\\tests\\xmlvectorparser.xml"
-//	Path = CrtDir + "../xmlvectorparser.xml";
-	Path = CrtDir + "xmlvectorparser.xml";
+	Bof_GetCurrentDirectory(CrtDir);	
+	Path = CrtDir + "data/xmlvectorparser.xml";
 	EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
 	pBofXmlParser_O = new BofXmlParser(XmlData_S);
@@ -303,9 +300,8 @@ TEST(XmlWriter_Test, Xml)
 
 	S_AppParamXml_X.Reset();
 
-	Bof_GetCurrentDirectory(CrtDir);	//"C:\\bld\\github\\bofstd\\tests\\Debug\\" and file is in "C:\\bld\\github\\bofstd\\tests\\xmlparser.xml"
-//	Path = CrtDir + "../xmlparser.xml";
-	Path = CrtDir + "xmlparser.xml";
+	Bof_GetCurrentDirectory(CrtDir);	
+	Path = CrtDir + "data/xmlparser.xml";
 	EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
 	pBofXmlParser_O = new BofXmlParser(XmlData_S);

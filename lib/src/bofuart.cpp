@@ -95,13 +95,13 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
 			char pWork_c[32];
 			DCB   Dcb_X;
 			sprintf(pWork_c, "COM%d:", i_U32 + 1);
-			mId_h = CreateFile(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+			mId_h = CreateFileA(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 			if (mId_h != BOF_INVALID_HANDLE_VALUE)
 			{
 				CloseHandle(mId_h);
 
-				mId_h = CreateFile(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+				mId_h = CreateFileA(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 				// DBGOUTPUT(TEXT("BofUart::OPEN CreateFile1: %X\r\n"),mId_h);
 				if (mId_h != BOF_INVALID_HANDLE_VALUE)

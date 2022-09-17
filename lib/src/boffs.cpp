@@ -789,7 +789,36 @@ BOFERR Bof_WriteFile(intptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U
 	}
 	return (Rts_E);
 }
+BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsage_X)
+{
+	BOFERR Rts_E = BOF_ERR_ENOMEM;
+	intptr_t Io;
+	uint64_t FileSize_U64;
+	uint32_t Nb_U32;
 
+	FileSize_U64 = BOF::Bof_GetFileSize(_rPath);
+	_rBufferToDeleteAfterUsage_X.Reset();
+	_rBufferToDeleteAfterUsage_X.MustBeDeleted_B = true;
+	_rBufferToDeleteAfterUsage_X.Size_U64 = FileSize_U64;
+	_rBufferToDeleteAfterUsage_X.Capacity_U64 = FileSize_U64;
+	_rBufferToDeleteAfterUsage_X.pData_U8 = new uint8_t[FileSize_U64];
+	if (_rBufferToDeleteAfterUsage_X.pData_U8)
+	{
+		Rts_E = Bof_OpenFile(_rPath, true, Io);
+		if (Rts_E == BOF_ERR_NO_ERROR)
+		{
+			Nb_U32 = static_cast<uint32_t>(_rBufferToDeleteAfterUsage_X.Capacity_U64);
+			Rts_E = Bof_ReadFile(Io, Nb_U32, _rBufferToDeleteAfterUsage_X.pData_U8);
+			Bof_CloseFile(Io);
+		}
+		if (Rts_E != BOF_ERR_NO_ERROR)
+		{
+			BOF_SAFE_DELETE(_rBufferToDeleteAfterUsage_X.pData_U8);
+			_rBufferToDeleteAfterUsage_X.Reset();
+		}
+	}
+	return Rts_E;
+}
 BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rBuffer_S)
 {
 	BOFERR Rts_E = BOF_ERR_ENOENT;
@@ -929,7 +958,7 @@ BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath)
 	//Bof_MultiByteToWideChar(_rOldPath.FullPathName(false).c_str(), sizeof(pOldName_wc) / sizeof(pOldName_wc[0]), pOldName_wc);
 	//Bof_MultiByteToWideChar(_rNewPath.FullPathName(false).c_str(), sizeof(pNewName_wc) / sizeof(pNewName_wc[0]), pNewName_wc);
 	//Rts_E = MoveFile(pOldName_c, pNewName_c) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
-	Rts_E = MoveFile(_rOldPath.FullPathName(false).c_str(), _rNewPath.FullPathName(false).c_str()) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
+	Rts_E = MoveFileA(_rOldPath.FullPathName(false).c_str(), _rNewPath.FullPathName(false).c_str()) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
 #else
 	Rts_E = (rename(_rOldPath.FullPathName(false).c_str(), _rNewPath.FullPathName(false).c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
 #endif

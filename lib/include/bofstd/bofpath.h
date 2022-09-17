@@ -156,11 +156,17 @@ public:
 		/// @remarks It cannot contains . nor slash or backslash
 		BOFERR Extension(const std::string &_rExtension_S);
 
-		/// @brief Returns the full pathname.
+		/// @brief Returns the full pathname as a string (std::wstring).
 		/// @param _Windows_B : true if the full pathname must be returned with windows path separator (\) or unix one (/)
 		/// @return A std::string containing the full pathname.
 		/// @remarks None
 		std::string FullPathName(bool _Windows_B) const;
+
+		/// @brief Returns the full pathname as a wide string (std::wstring).
+		/// @param _Windows_B : true if the full pathname must be returned with windows path separator (\) or unix one (/)
+		/// @return A std::string containing the full pathname.
+		/// @remarks None
+		std::wstring FullWidePathName(bool _Windows_B) const;
 
 		/// @brief Build an absolute file path or directory by concataining this path (must be a directory) with a relative path or file
 		/// @param _rRelativePath_S : Specifies the directory name (must be terminated by a / or \)  or the filename to add

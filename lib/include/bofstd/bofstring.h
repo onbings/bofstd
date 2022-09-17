@@ -111,6 +111,12 @@ BOFSTD_EXPORT std::string Bof_StringJoin(const std::vector<std::string> &_rStr_S
 // @remarks None
 BOFSTD_EXPORT size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint32_t _NbWideChar_U32, wchar_t *_pWideCharStr_wc, const char *_pLocale_c = nullptr);
 
+// @brief Converts a std::string into a std::wstring.
+// @param _rUtf8Str_S : Specifies a reference to a multi byte string to convert
+// @return The std::wstring representation of _rUtf8Str_S 
+// @remarks None
+BOFSTD_EXPORT std::wstring Bof_Utf8ToUtf16(const std::string &_rUtf8Str_S);
+
 // @brief Converts a sequence of wide characters  to its narrow multi byte representation
 // @param _pWideCharStr_wc : Specifies a pointer to the first element of a null-terminated wide string to convert
 // @param _NbMultibyteChar_U32 : Specifies number of byte available in the array pointed to by _pMultiByteStr_c
@@ -120,6 +126,11 @@ BOFSTD_EXPORT size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint3
 // @remarks None
 BOFSTD_EXPORT size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, uint32_t _NbMultibyteChar_U32, char *_pMultiByteStr_c, const char *_pLocale_c = nullptr);
 
+// @brief Converts a std::wstring into a std::string.
+// @param _rUtf16Str_WS : Specifies a reference to a wide sharacter.
+// @return The std::string representation of _rUtf16Str_WS 
+// @remarks None
+BOFSTD_EXPORT std::string Bof_Utf16ToUtf8(const std::wstring &_rUtf16Str_S);
 // @brief Check if a string begin with a given string
 // @param _CaseInsensitive_B : True if the comparaison is case insensitive
 // @param _rString_S : Specifies the string which starts perhaps with _rBeginWithThis_S

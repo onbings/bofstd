@@ -27,6 +27,8 @@ V 1.00  Sep 30 2000  BHA : Initial release
 #include <cstdint>
 #include <bofstd/bofstd.h>
 #include <bofstd/bofpath.h>
+#include <bofstd/bofsystem.h>
+#include <MediaInfo/MediaInfo.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -511,4 +513,29 @@ BOFSTD_EXPORT void Bof_YuvRec2020ToRgbReference(int y, int u, int v, uint8_t *r,
 BOFSTD_EXPORT BOFERR Bof_UyvyToBgra(uint32_t _Width_U32, int _Height_i, uint32_t _UyvyStride_U32, const uint8_t *_pUyvy_U8, uint32_t _BrgaStride_U32, BOF_RECT *_pCrop_X,BOF_ROTATION _Rotation_E, uint8_t *_pBgra_U8);
 BOFSTD_EXPORT BOFERR Bof_BgraToUyvy(uint32_t _Width_U32, int _Height_i, uint32_t _BrgaStride_U32, const uint8_t *_pBgra_U8, uint32_t _UyvyStride_U32,BOF_RECT *_pCrop_X, BOF_ROTATION _Rotation_E, uint8_t *_pUyvy_U8);
 
+class BOFSTD_EXPORT BofMediaDetector
+{
+public:
+	enum class ResultFormat
+	{
+		Text, Html, Json
+	};
+	enum class MediaStreamType
+	{
+		General, Video, Audio, Text, Other, Image, Menu
+	};
+	enum class InfoType
+	{
+		Name, Text, Measure, Options, Name_Text, Measure_Text, Info, HowTo, Domain
+	};
+	BofMediaDetector();
+	virtual ~BofMediaDetector();
+
+	BOFERR ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S);
+	BOFERR ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat _ResultFormat_E, std::string &_rResult_S, uint64_t &_rOffsetInBuffer_U64);
+	BOFERR Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S);
+
+private:
+	MediaInfoLib::MediaInfo mMediaInfo;
+};
 END_BOF_NAMESPACE()

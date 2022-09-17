@@ -62,6 +62,8 @@ TEST(String_Test, WideCharToMultiByte)
 {
 	size_t Len;
 	char   pMultiByteStr_c[0x100];
+	std::wstring Str_WS;
+	std::string Str_S;
 
 	Len = Bof_WideCharToMultiByte(L"babar", 0, pMultiByteStr_c, "");
 	EXPECT_EQ(Len, 0);
@@ -84,7 +86,22 @@ TEST(String_Test, WideCharToMultiByte)
 	EXPECT_EQ(Len, 5);
 	EXPECT_STREQ(pMultiByteStr_c, "babar");
 
-// Not working in windows	Len = Bof_WideCharToMultiByte(L"z\u00df\u6c34\U0001d10b", BOF_NB_ELEM_IN_ARRAY(pMultiByteStr_c), pMultiByteStr_c, "", 0);
+
+// Not working in windows	Len = Bof_WideCharToMultiByte(L"z\u00df\u6c34\U0001d10b", BOF_NB_ELEM_IN_ARRAY(pMultiByteStr_c), pMultiByteStr_c, "");
+
+	Str_S = "Hello World !\n";
+	Str_WS = Bof_Utf8ToUtf16(Str_S);
+	//EXPECT_STREQ(Str_S.c_str(), Str_WS.c_str());
+
+	Str_WS = L"Hello World !\n";
+	Str_S = Bof_Utf16ToUtf8(Str_WS);
+	//EXPECT_STREQ(Str_S.c_str(), Str_WS.c_str());
+//From https://en.wikipedia.org/wiki/Windows-1252
+	Str_WS = L"¼½¾¿";
+	Str_S = Bof_Utf16ToUtf8(Str_WS);
+	Str_WS = L"\u0141";
+	Str_S = Bof_Utf16ToUtf8(Str_WS);
+
 }
 
 TEST(String_Test, StringTrim)

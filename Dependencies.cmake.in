@@ -70,3 +70,15 @@ if(NOT TARGET libyuv)
   find_package_dependency(libyuv REQUIRED)
 endif()
 
+if(NOT TARGET zlib)
+  find_package_dependency(ZLIB REQUIRED)
+endif()
+
+if(NOT TARGET ZenLib)
+  find_package_dependency(ZenLib REQUIRED)
+endif()
+
+if(NOT TARGET MediaInfoLib)
+  find_package_dependency(MediaInfoLib REQUIRED)
+endif()
+

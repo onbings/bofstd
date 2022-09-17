@@ -4,6 +4,22 @@ include(GoogleTest)
 # == SOURCES ==
 # =============
 
+set(DATA_FILES
+  ./data/xmlparser.xml
+  ./data/xmlvectorparser.xml
+  ./data/jsonparser.json
+  ./data/colorbar_1920x1080p59_8bit_captured_by_sdk.422
+  ./data/colorbar.jpg
+  ./data/colorbar.png
+  ./data/colorbar_in_raw_32b_194x259.raw
+  ./data/colorbar_jpg_with_bad_ext.png
+  ./data/colorbar_jpg_with_no_ext
+  ./data/colorbar_png_with_bad_ext.jpg
+  ./data/colorbar_png_with_no_ext
+  ./data/colorbar_uncompress_32b.tga
+  ./data/colorbar_rle_32b.tga
+)
+
 set(API_FILES
 	include/gtestrunner.h
 	src/main.cpp
@@ -174,8 +190,8 @@ if(MEMORYCHECK_SUPPRESSIONS_FILE)
 endif()
 
 
-message("copy test files to " ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY data/xmlparser.xml DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY data/xmlvectorparser.xml DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY data/jsonparser.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY data/colorbar_1920x1080p59_8bit_captured_by_sdk.422 DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+message("Copy test files from " ${CMAKE_CURRENT_SOURCE_DIR} "/data to " ${CMAKE_CURRENT_BINARY_DIR} "/data")
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data)
+foreach(filename ${DATA_FILES})
+  file(COPY ${filename} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
+endforeach()

@@ -24,6 +24,7 @@
 #include <iterator>
 #include <algorithm>
 #include <string.h>
+#include <codecvt>
 #include <locale>
 #include <inttypes.h>
 
@@ -274,6 +275,23 @@ size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, uint32_t _NbMult
   }
 
   return Rts;
+}
+//https://codereview.stackexchange.com/questions/419/converting-between-stdwstring-and-stdstring
+/*
+It really depends what codecs are being used with std::wstring and std::string.
+This answer assumes that the std::wstring is using a UTF - 16 encoding, andthat the conversion to std::string will use a UTF - 8 encoding.
+*/
+
+std::wstring Bof_Utf8ToUtf16(const std::string &_rUtf8Str_S)
+{
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> Converter;
+  return Converter.from_bytes(_rUtf8Str_S);
+}
+
+std::string Bof_Utf16ToUtf8(const std::wstring &_rUtf16Str_WS)
+{
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> Converter;
+  return Converter.to_bytes(_rUtf16Str_WS);
 }
 
 void Bof_RemoveDuplicateSuccessiveCharacter(std::string &_rInputString_S, char _Char_c)

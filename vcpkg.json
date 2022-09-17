@@ -10,6 +10,7 @@
     { "name": "libyuv" },
     { "name": "linenoise-ng" },
     { "name": "spdlog" },
-    { "name": "zeromq" }
+    { "name": "zeromq" },
+    { "name": "libmediainfo" }
   ]
 }

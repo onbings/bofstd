@@ -212,6 +212,14 @@ std::string BofPath::FullPathName(bool _Windows_B) const
 	return Rts_S;
 }
 
+std::wstring BofPath::FullWidePathName(bool _Windows_B) const
+{
+	std::wstring Rts_WS;
+	std::string Fn_S = FullPathName(_Windows_B);
+	Rts_WS = Bof_Utf8ToUtf16(Fn_S);
+
+	return Rts_WS;
+}
 BofPath BofPath::operator+(const std::string &_rRelativePath_S) const
 {
 	BofPath Rts_O = *this;     // Make a copy of myself.  Same as BofPath Rts_O(*this);
