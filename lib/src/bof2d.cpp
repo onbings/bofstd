@@ -993,7 +993,7 @@ BOFERR Bof_GenerateTgaFile(BofPath &_rPath, uint32_t _Width_U32, uint32_t _Heigh
       }
       Bof_CloseFile(Io);
     }
-    BOF_SAFE_DELETE(pData_UB);
+    BOF_SAFE_DELETE_ARRAY(pData_UB);
     //		delete pData_UB;
   }
   return (Rts_E);
@@ -3313,6 +3313,7 @@ BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat 
     Status = mMediaInfo.Open_Buffer_Continue(_rBuffer_X.pData_U8, _rBuffer_X.Size_U64);
     if (Status & 0x08) //Bit3=Finished
     {
+      //71    D 0001BB53 MediaInfoA_Open_Buffer_Finalize = @ILT + 109390(MediaInfoA_Open_Buffer_Finalize)
       mMediaInfo.Open_Buffer_Finalize(); //This is the end of the stream, MediaInfo must finish some work
       switch (_ResultFormat_E)
       {
