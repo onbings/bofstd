@@ -44,24 +44,25 @@ BEGIN_BOF_NAMESPACE()
 #define BOF_PARAM_DEF_ARRAY(varname, typevar, minval, maxval)                                    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)						,0,0,0,0
 #define BOF_PARAM_DEF_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval)    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname),0,0,0,0
 #define BOF_PARAM_DEF_VECTOR(varname, typevar, minval, maxval)                                   BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, 0,  0xFFFFFFFF, 0xFFFFFFFF																																	,0,0,0,0
-#define BOF_PARAM_DEF_MULTI_ARRAY(varname, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)                                    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)						,nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused
-#define BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname),nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused \
+//p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][0]["AudioIpAddress"][0].asCString();
+#define BOF_PARAM_DEF_MULTI_ARRAY(varname, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)                                    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname,             sizeof(varname[0]), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused
+#define BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused 
 
 /*** Class *******************************************************************/
 enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
 {
-		NONE = 0x00000000,  // No special option
-		CMDLINE_LONGOPT_NEED_ARG = 0x00000001,  // for cmdlineparser: if the option requires an argument,
-		XML_ATTRIBUTE = 0x00000002,  // for xmlparser if the argument is an attribute
-		IP_FORMAT_PROTOCOL = 0x00000004,  // Add protocol specification to IPV4,/IPV46 output of S_ParameterToString
-  IP_FORMAT_PORT = 0x00000008,  // Add port specification to IPV4,/IPV46 output of S_ParameterToString
-  PATH_IS_DIR = 0x00000010,  // Path must be a directory
-  PATH_IS_FILE = 0x00000020,  // Path must be a file
-  PATH_MUST_EXIST = 0x00000040,  // Path (file or dir) must exist
+	NONE = 0x00000000,  // No special option
+	CMDLINE_LONGOPT_NEED_ARG = 0x00000001,  // for cmdlineparser: if the option requires an argument,
+	XML_ATTRIBUTE = 0x00000002,							// for xml parser if the argument is an attribute
+	IP_FORMAT_PROTOCOL = 0x00000004,				// Add protocol specification to IPV4,/IPV46 output of S_ParameterToString
+  IP_FORMAT_PORT = 0x00000008,						// Add port specification to IPV4,/IPV46 output of S_ParameterToString
+  PATH_IS_DIR = 0x00000010,								// Path must be a directory
+  PATH_IS_FILE = 0x00000020,							// Path must be a file
+  PATH_MUST_EXIST = 0x00000040,						// Path (file or dir) must exist
 	COMA_IS_NOT_A_SEPARATOR= 0x00000080,
 
-		READ_ONLY = 0x80000000,       //This is a read only parameter
-//	WRITE_ONCE=0x00000020,       //Can only be written to once, after the first write op in turns into READ_ONLY
+	READ_ONLY = 0x80000000,									//This is a read only parameter
+//	WRITE_ONCE=0x00000020,								//Can only be written to once, after the first write op in turns into READ_ONLY
 };
 template<>
 struct IsItAnEnumBitFLag<BOFPARAMETER_ARG_FLAG> : std::true_type

@@ -1,4 +1,34 @@
 {
+  "JsonType": {
+    "bool": true,
+    "decimal": 10,
+    "float": 3.14,
+    "string": "Hello world !\n",
+    "employee": {
+      "name": "John",
+      "age": 30,
+      "city": "New York"
+    },
+    "strings": [ "John", "Anna", "Peter" ],
+    "employees": [
+      {
+        "name": "John",
+        "age": 30,
+        "city": "New York"
+      },
+      {
+        "name": "Anna",
+        "age": 20,
+        "city": "LosAngeles"
+      },
+      {
+        "name": "Peter",
+        "age": 10,
+        "city": "Denver"
+      }
+    ]
+  },
+
   "MulFtpUserSetting": {
     "-xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     "-xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
@@ -14,30 +44,30 @@
     "ToolChainBaseDirectory": "D:\\SysGCC\\",
     "TemplateProjectBaseDirectory": "D:\\cloudstation\\pro\\vsmake-project-template\\",
     "book": "bha",
-		"arrayofother": {
-			"other": [
-				{
-					"a": "1",
-					"b": "2",
-					"c": "3"
-				},
-				{
-					"a": "4",
-					"b": "5",
-					"c": "6"
-				},
-				{
-					"a": "7",
-					"b": "8",
-					"c": "9"
-				},
-				{
-					"a": "10",
-					"b": "11",
-					"c": "12"
-				}
-			]
-		},		
+    "arrayofother": {
+      "other": [
+        {
+          "a": "1",
+          "b": "2",
+          "c": "3"
+        },
+        {
+          "a": "4",
+          "b": "5",
+          "c": "6"
+        },
+        {
+          "a": "7",
+          "b": "8",
+          "c": "9"
+        },
+        {
+          "a": "10",
+          "b": "11",
+          "c": "12"
+        }
+      ]
+    },
     "catalog": {
       "book": [
         {
@@ -49,9 +79,11 @@
           "bha": "AZ",
           "publish_date": "2016-05-26",
           "description": "
-				An in-depth look at creating applications
-				with XML.
-			"
+          An in-depth
+          look at
+          creating applications
+          with XML.
+          "
         },
         {
           "id": "bk102",
@@ -62,10 +94,17 @@
           "bha": "QS",
           "publish_date": "2000-12-16",
           "description": "
-				A former architect battles corporate zombies,
-				an evil sorceress, and her own childhood to become queen
-				of the world.
-			"
+          A former
+          architect battles
+          corporate zombies,
+          an evil
+          sorceress,
+          and her
+          own childhood
+          to become
+          queen of
+          the world.
+          "
         },
         {
           "id": "bk103",
@@ -76,10 +115,17 @@
           "bha": "WX",
           "publish_date": "2000-11-17",
           "description": "
-				After the collapse of a nanotechnology
-				society in England, the young survivors lay the
-				foundation for a new society.
-			"
+          After the
+          collapse of
+          a nanotechnology
+          society in
+          England,
+          the young
+          survivors lay
+          the foundation
+          for a
+          new society.
+          "
         },
         {
           "id": "bk104",
@@ -89,11 +135,20 @@
           "price": "5.95",
           "publish_date": "2001-03-10",
           "description": "
-				In post-apocalypse England, the mysterious
-				agent known only as Oberon helps to create a new life
-				for the inhabitants of London. Sequel to Maeve
-				Ascendant.
-			"
+          In post-apocalypse
+          England,
+          the mysterious
+          agent known
+          only as
+          Oberon helps
+          to create
+          a new
+          life for
+          the inhabitants
+          of London.
+          Sequel to
+          Maeve Ascendant.
+          "
         },
         {
           "id": "bk105",
@@ -103,10 +158,16 @@
           "price": "5.95",
           "publish_date": "2001-09-10",
           "description": "
-				The two daughters of Maeve, half-sisters,
-				battle one another for control of England. Sequel to
-				Oberon's Legacy.
-			"
+          The two
+          daughters of
+          Maeve,
+          half-sisters,
+          battle one
+          another for
+          control of
+          England. Sequel
+          to Oberon's Legacy.
+          "
         },
         {
           "id": "bk106",
@@ -116,9 +177,14 @@
           "price": "4.95",
           "publish_date": "2000-09-02",
           "description": "
-				When Carla meets Paul at an ornithology
-				conference, tempers fly as feathers get ruffled.
-			"
+          When Carla
+          meets Paul
+          at an
+          ornithology conference,
+          tempers fly
+          as feathers
+          get ruffled.
+          "
         },
         {
           "id": "bk107",
@@ -128,9 +194,13 @@
           "price": "4.95",
           "publish_date": "2000-11-02",
           "description": "
-				A deep sea diver finds true love twenty
-				thousand leagues beneath the sea.
-			"
+          A deep
+          sea diver
+          finds true
+          love twenty
+          thousand leagues
+          beneath the
+          sea. "
         },
         {
           "id": "bk108",
@@ -140,9 +210,14 @@
           "price": "4.95",
           "publish_date": "2000-12-06",
           "description": "
-				An anthology of horror stories about roaches,
-				centipedes, scorpions  and other insects.
-			"
+          An anthology
+          of horror
+          stories about
+          roaches,
+          centipedes,
+          scorpions and
+          other insects.
+          "
         },
         {
           "id": "bk109",
@@ -152,10 +227,16 @@
           "price": "6.95",
           "publish_date": "2000-11-02",
           "description": "
-				After an inadvertant trip through a Heisenberg
-				Uncertainty Device, James Salway discovers the problems
-				of being quantum.
-			"
+          After an
+          inadvertant trip
+          through a
+          Heisenberg Uncertainty
+          Device,
+          James Salway
+          discovers the
+          problems of
+          being quantum.
+          "
         },
         {
           "id": "bk110",
@@ -165,9 +246,10 @@
           "price": "36.95",
           "publish_date": "2000-12-09",
           "description": "
-				Microsoft's .NET initiative is explored in
-				detail in this deep programmer's reference.
-			"
+          Microsoft's .NET initiative is explored in detail
+          in this
+          deep programmer's reference.
+          "
         },
         {
           "id": "bk111",
@@ -177,10 +259,16 @@
           "price": "36.95",
           "publish_date": "2000-12-01",
           "description": "
-				The Microsoft MSXML3 parser is covered in
-				detail, with attention to XML DOM interfaces, XSLT processing,
-				SAX and more.
-			"
+          The Microsoft
+          MSXML3 parser
+          is covered
+          in detail,
+          with attention
+          to XML
+          DOM interfaces,
+          XSLT processing,
+          SAX and
+          more. "
         },
         {
           "id": "bk112",
@@ -190,11 +278,20 @@
           "price": "49.95",
           "publish_date": "2001-04-16",
           "description": "
-				Microsoft Visual Studio 7 is explored in depth,
-				looking at how Visual Basic, Visual C++, C#, and ASP+ are
-				integrated into a comprehensive development
-				environment.
-			"
+          Microsoft Visual
+          Studio 7
+          is explored
+          in depth,
+          looking at
+          how Visual
+          Basic,
+          Visual C++,
+          C#,
+          and ASP+
+          are integrated
+          into a
+          comprehensive development
+          environment. "
         }
       ]
     }
@@ -207,15 +304,15 @@
         "InHr": [
           {
             "VideoStandard": "un 1920x1080_59i",
-            "AudioIpAddress": ["udp://239.131.20.1:9101", "udp://239.131.20.3:9103"]
+            "AudioIpAddress": [ "udp://239.131.20.1:9101", "udp://239.131.20.3:9103" ]
           },
           {
             "VideoStandard": "deux 1920x1080_59i",
-            "AudioIpAddress": ["udp://239.131.20.2:9102","udp://239.131.20.2:9102"]
+            "AudioIpAddress": [ "udp://239.131.20.2:9102", "udp://239.131.20.2:9102" ]
           },
           {
             "VideoStandard": "trois 1920x1080_59i",
-            "AudioIpAddress": ["udp://239.131.20.3:9103","udp://239.131.20.1:9101"]
+            "AudioIpAddress": [ "udp://239.131.20.3:9103", "udp://239.131.20.1:9101" ]
           }
         ]
       },
@@ -223,16 +320,16 @@
         "InHr": [
           {
             "VideoStandard": "UN 1920x1080_59i",
-            "AudioIpAddress": ["udp://240.131.20.1:9121", "udp://240.131.20.1:9132", "udp://240.131.20.1:9999"]
+            "AudioIpAddress": [ "udp://240.131.20.1:9121", "udp://240.131.20.1:9132", "udp://240.131.20.1:9999" ]
           },
           {
             "VideoStandard": "DEUX 1920x1080_59i",
-            "AudioIpAddress": ["udp://241.131.20.2:9122", "udp://241.131.20.2:9133"]
+            "AudioIpAddress": [ "udp://241.131.20.2:9122", "udp://241.131.20.2:9133" ]
 
           },
           {
             "VideoStandard": "TROIS 1920x1080_59i",
-            "AudioIpAddress": ["udp://242.131.20.3:9123", "udp://242.131.20.3:9134"]
+            "AudioIpAddress": [ "udp://242.131.20.3:9123", "udp://242.131.20.3:9134" ]
           }
         ]
       }
@@ -258,7 +355,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.1:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.1:9101", "udp://239.131.20.1:9102"],
+            "AudioIpAddress": [ "udp://239.131.20.1:9101", "udp://239.131.20.1:9102" ],
             "AncIpAddress": "udp://239.131.20.1:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -269,7 +366,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.2:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.2:9101","udp://239.131.20.2:9102"],
+            "AudioIpAddress": [ "udp://239.131.20.2:9101", "udp://239.131.20.2:9102" ],
             "AncIpAddress": "udp://239.131.20.2:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -280,7 +377,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.3:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.3:9101","udp://239.131.20.3:9102" ],
+            "AudioIpAddress": [ "udp://239.131.20.3:9101", "udp://239.131.20.3:9102" ],
             "AncIpAddress": "udp://239.131.20.3:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -291,7 +388,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.4:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.4:9101","udp://239.131.20.4:9102"],
+            "AudioIpAddress": [ "udp://239.131.20.4:9101", "udp://239.131.20.4:9102" ],
             "AncIpAddress": "udp://239.131.20.4:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -302,7 +399,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.5:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": [ "udp://239.131.20.5:9101","udp://239.131.20.5:9102"],
+            "AudioIpAddress": [ "udp://239.131.20.5:9101", "udp://239.131.20.5:9102" ],
             "AncIpAddress": "udp://239.131.20.5:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -313,7 +410,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.6:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.6:9101","udp://239.131.20.6:9102"],
+            "AudioIpAddress": [ "udp://239.131.20.6:9101", "udp://239.131.20.6:9102" ],
             "AncIpAddress": "udp://239.131.20.6:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -324,7 +421,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.7:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.7:9101", "udp://239.131.20.7:9102"],
+            "AudioIpAddress": [ "udp://239.131.20.7:9101", "udp://239.131.20.7:9102" ],
             "AncIpAddress": "udp://239.131.20.7:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -335,7 +432,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.8:8100",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.8:9101", "udp://239.131.20.8:9102"],
+            "AudioIpAddress": [ "udp://239.131.20.8:9101", "udp://239.131.20.8:9102" ],
             "AncIpAddress": "udp://239.131.20.8:8102",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -348,7 +445,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.1:10000",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.1:10001", "udp://239.125.250.1:10002"],
+            "AudioIpAddress": [ "udp://239.125.250.1:10001", "udp://239.125.250.1:10002" ],
             "AncIpAddress": "udp://239.125.250.1:10020",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -359,7 +456,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.2:10003",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.2:10001", "udp://239.125.250.2:10002"],
+            "AudioIpAddress": [ "udp://239.125.250.2:10001", "udp://239.125.250.2:10002" ],
             "AncIpAddress": "udp://239.125.250.2:10020",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -370,7 +467,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.3:10006",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.3:10001", "udp://239.125.250.3:10002"],
+            "AudioIpAddress": [ "udp://239.125.250.3:10001", "udp://239.125.250.3:10002" ],
             "AncIpAddress": "udp://239.125.250.3:10020",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -381,7 +478,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.4:10009",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.4:10001", "udp://239.125.250.4:10002"],
+            "AudioIpAddress": [ "udp://239.125.250.4:10001", "udp://239.125.250.4:10002" ],
             "AncIpAddress": "udp://239.125.250.4:10020",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -405,7 +502,7 @@
             "VideoStandard": "1920x1080_50p",
             "VideoIpAddress": "udp://239.131.20.1:8101",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.1:9102", "udp://239.131.20.1:9103"],
+            "AudioIpAddress": [ "udp://239.131.20.1:9102", "udp://239.131.20.1:9103" ],
             "AncIpAddress": "udp://239.131.20.1:8104",
             "Bit": "8",
             "ProxyRes": "640x360"
@@ -416,7 +513,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.2:8105",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.2:9106", "udp://239.131.20.2:9107"],
+            "AudioIpAddress": [ "udp://239.131.20.2:9106", "udp://239.131.20.2:9107" ],
             "AncIpAddress": "udp://239.131.20.2:8108",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -427,7 +524,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.3:8109",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.3:9110", "udp://239.131.20.3:9111"],
+            "AudioIpAddress": [ "udp://239.131.20.3:9110", "udp://239.131.20.3:9111" ],
             "AncIpAddress": "udp://239.131.20.3:8112",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -438,7 +535,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.4:8113",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.4:9114", "udp://239.131.20.4:9115"],
+            "AudioIpAddress": [ "udp://239.131.20.4:9114", "udp://239.131.20.4:9115" ],
             "AncIpAddress": "udp://239.131.20.4:8116",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -449,7 +546,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.5:8117",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.5:9118", "udp://239.131.20.5:9119"],
+            "AudioIpAddress": [ "udp://239.131.20.5:9118", "udp://239.131.20.5:9119" ],
             "AncIpAddress": "udp://239.131.20.5:8120",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -460,7 +557,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.6:8121",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.6:9122", "udp://239.131.20.6:9123"],
+            "AudioIpAddress": [ "udp://239.131.20.6:9122", "udp://239.131.20.6:9123" ],
             "AncIpAddress": "udp://239.131.20.6:8124",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -471,7 +568,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.7:8125",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.7:9126", "udp://239.131.20.7:9127"],
+            "AudioIpAddress": [ "udp://239.131.20.7:9126", "udp://239.131.20.7:9127" ],
             "AncIpAddress": "udp://239.131.20.7:8128",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -482,7 +579,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.8:8129",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.8:9130", "udp://239.131.20.8:9131"],
+            "AudioIpAddress": [ "udp://239.131.20.8:9130", "udp://239.131.20.8:9131" ],
             "AncIpAddress": "udp://239.131.20.8:8132",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -495,7 +592,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.1:10033",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.1:10034", "udp://239.125.250.1:10035"],
+            "AudioIpAddress": [ "udp://239.125.250.1:10034", "udp://239.125.250.1:10035" ],
             "AncIpAddress": "udp://239.125.250.1:10036",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -506,7 +603,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.2:10037",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.2:10038", "udp://239.125.250.2:10039"],
+            "AudioIpAddress": [ "udp://239.125.250.2:10038", "udp://239.125.250.2:10039" ],
             "AncIpAddress": "udp://239.125.250.2:10040",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -517,7 +614,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.3:10041",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.3:10042", "udp://239.125.250.3:10043"],
+            "AudioIpAddress": [ "udp://239.125.250.3:10042", "udp://239.125.250.3:10043" ],
             "AncIpAddress": "udp://239.125.250.3:10044",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -528,7 +625,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.4:10045",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.4:10046", "udp://239.125.250.4:10047"],
+            "AudioIpAddress": [ "udp://239.125.250.4:10046", "udp://239.125.250.4:10047" ],
             "AncIpAddress": "udp://239.125.250.4:10048",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -552,7 +649,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.1:8200",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.1:9201", "udp://239.131.20.1:9202"],
+            "AudioIpAddress": [ "udp://239.131.20.1:9201", "udp://239.131.20.1:9202" ],
             "AncIpAddress": "udp://239.131.20.1:8203",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -563,7 +660,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.2:8204",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.2:9205", "udp://239.131.20.2:9206"],
+            "AudioIpAddress": [ "udp://239.131.20.2:9205", "udp://239.131.20.2:9206" ],
             "AncIpAddress": "udp://239.131.20.2:8207",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -574,7 +671,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.3:8208",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.3:9209", "udp://239.131.20.3:9210"],
+            "AudioIpAddress": [ "udp://239.131.20.3:9209", "udp://239.131.20.3:9210" ],
             "AncIpAddress": "udp://239.131.20.3:8211",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -585,7 +682,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.4:8212",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.4:9213", "udp://239.131.20.4:9214"],
+            "AudioIpAddress": [ "udp://239.131.20.4:9213", "udp://239.131.20.4:9214" ],
             "AncIpAddress": "udp://239.131.20.4:8215",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -596,7 +693,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.5:8216",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.5:9217", "udp://239.131.20.5:9218"],
+            "AudioIpAddress": [ "udp://239.131.20.5:9217", "udp://239.131.20.5:9218" ],
             "AncIpAddress": "udp://239.131.20.5:8219",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -607,7 +704,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.6:8220",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.6:9221", "udp://239.131.20.6:9222"],
+            "AudioIpAddress": [ "udp://239.131.20.6:9221", "udp://239.131.20.6:9222" ],
             "AncIpAddress": "udp://239.131.20.6:8223",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -618,7 +715,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.7:8224",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.7:9225", "udp://239.131.20.7:9226"],
+            "AudioIpAddress": [ "udp://239.131.20.7:9225", "udp://239.131.20.7:9226" ],
             "AncIpAddress": "udp://239.131.20.7:8227",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -629,7 +726,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.131.20.8:8228",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.131.20.8:9229", "udp://239.131.20.8:9230"],
+            "AudioIpAddress": [ "udp://239.131.20.8:9229", "udp://239.131.20.8:9230" ],
             "AncIpAddress": "udp://239.131.20.8:8231",
             "Bit": "10",
             "ProxyRes": "640x360"
@@ -642,7 +739,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.1:10232",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.1:10233", "udp://239.125.250.1:10234"],
+            "AudioIpAddress": [ "udp://239.125.250.1:10233", "udp://239.125.250.1:10234" ],
             "AncIpAddress": "udp://239.125.250.1:10235",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -653,7 +750,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.2:10236",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.2:10237", "udp://239.125.250.2:10238"],
+            "AudioIpAddress": [ "udp://239.125.250.2:10237", "udp://239.125.250.2:10238" ],
             "AncIpAddress": "udp://239.125.250.2:10239",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -664,7 +761,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.3:10240",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.3:10241", "udp://239.125.250.3:10242"],
+            "AudioIpAddress": [ "udp://239.125.250.3:10241", "udp://239.125.250.3:10242" ],
             "AncIpAddress": "udp://239.125.250.3:10243",
             "Bit": "10",
             "ProxyRes": "0x0"
@@ -675,7 +772,7 @@
             "VideoStandard": "1920x1080_59i",
             "VideoIpAddress": "udp://239.125.250.4:10244",
             "AudioStandard": "16x48000_S24L32",
-            "AudioIpAddress": ["udp://239.125.250.4:10245", "udp://239.125.250.4:10246"],
+            "AudioIpAddress": [ "udp://239.125.250.4:10245", "udp://239.125.250.4:10246" ],
             "AncIpAddress": "udp://239.125.250.4:10247",
             "Bit": "10",
             "ProxyRes": "0x0"

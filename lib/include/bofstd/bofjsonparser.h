@@ -29,11 +29,108 @@
 #include <bofstd/bofstd.h>
 #include <bofstd/bofparameter.h>
 
-/*** Global variables ********************************************************/
+/*
+#include <fstream>
+#include <json/json.h>
+File:
+  "JsonType": {
+    "bool": true,
+    "decimal": 10,
+    "float": 3.14,
+    "string": "Hello world !\n",
+    "null": null,
+    "employee": {
+      "name": "John",
+      "age": 30,
+      "city": "New York"
+    },
+    "employees": [ "John", "Anna", "Peter" ]
+  }
 
-/*** Definitions *************************************************************/
+void PrintRoot(Json::Value _Root)
+{
+  Json::Value::iterator It = _Root.begin();
+  std::string name;
+  int i = 0;
 
-/*** Class *******************************************************************/
+  for (It = _Root.begin(); It != _Root.end(); It++)
+  {
+    name = _Root.getMemberNames()[i];
+    if (_Root[name].isInt())
+    {
+      std::cout << "MemberName " << name << " int " << std::endl;
+      std::cout << _Root[name].asInt() << std::endl;
+    }
+    else if (_Root[name].isDouble())
+    {
+      std::cout << "MemberName " << name << " double " << std::endl;
+      std::cout << _Root[name].asDouble() << std::endl;
+    }
+    else if (_Root[name].isBool())
+    {
+      std::cout << "MemberName " << name << " bool " << std::endl;
+      std::cout << _Root[name].asBool() << std::endl;
+    }
+    else if (_Root[name].isArray())
+    {
+      std::cout << "MemberName " << name << " array size " << _Root[name].size() << std::endl;
+      int size = _Root[name].size();
+      for (int i = 0; i < size; i++)
+      {
+        Json::Value dat1 = _Root[name];
+        PrintRoot(dat1.get(i, _Root[name]));
+      }
+      std::cout << "MemberName " << name << " array is object " << std::endl;
+    }
+    else if (_Root[name].isInt64())
+    {
+      std::cout << "MemberName " << name << " array " << std::endl;
+      std::cout << _Root[name].asInt64() << std::endl;
+    }
+    else if (_Root[name].isString())
+    {
+      std::cout << "MemberName " << name << " string " << std::endl;
+      std::cout << _Root[name].asString() << std::endl;
+    }
+    else if (_Root[name].isObject())
+    {
+      std::cout << "MemberName " << name << " object " << std::endl;
+      PrintRoot(_Root[name]);
+      //std::cout << root[name].asCString() << std::endl;
+    }
+    else
+    {
+      std::cout << "MemberName " << name << " unknown type " << std::endl;
+      //std::cout << root[name].asCString() << std::endl;
+    }
+    i++;
+  }
+}
+
+TEST(JsonParser_Test, JsonType)
+{
+  Json::Value Root, Val;
+  std::ifstream Ifs;
+  Json::CharReaderBuilder JsonReader;
+  JSONCPP_STRING JsonErr;
+
+  Ifs.open("./data/jsonparser.json");
+  JsonReader["collectComments"] = true;
+  if (!parseFromStream(JsonReader, Ifs, &Root, &JsonErr))
+  {
+    std::cout << JsonErr << std::endl;
+    Ifs.close();
+  }
+  else
+  {
+    Ifs.close();
+
+    Val = Root["JsonType"];
+    Val = Root["MmgwSetting"];
+    PrintRoot(Root);
+  }
+}
+*/
 
 BEGIN_BOF_NAMESPACE()
 typedef std::function<bool(BOFERR _Sts_E, const BOFPARAMETER &rJsonEntry_X, const char *_pValue_c)> BOFJSONPARSER_ERROR_CALLBACK;

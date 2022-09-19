@@ -172,6 +172,7 @@ public:
 			bool Finish_B;
 			const char *pJsonValue_c;
 			BOFPARAMETER JsonParam_X;
+			std::string ValueAsString_S;
 
 			if (mJsonFileOk_B)
 			{
@@ -181,7 +182,7 @@ public:
 					JsonParam_X.ArgFlag_E |= BOFPARAMETER_ARG_FLAG::COMA_IS_NOT_A_SEPARATOR;
 
 					snprintf(pOid_c, sizeof(pOid_c), "%s.%s", _rJsonSchema_X[i_U32].Path_S.c_str(), _rJsonSchema_X[i_U32].Name_S.c_str());
-					pJsonValue_c = GetFirstElementFromOid(pOid_c);
+					pJsonValue_c = GetFirstElementFromOid(pOid_c, ValueAsString_S);
 					ArrayIndex_U32 = 1;	//0 is nbmaxmultiarrayentry in BOF_PARAM_DEF_MULTI_ARRAY
 					for (j_U32 = 0; j_U32 < mJsonOidTagCollection.size(); j_U32++)
 					{
@@ -292,7 +293,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 								{
 									if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32) // NbEntry is 0 for non array descriptor
 									{
-										pJsonValue_c = GetNextElementFromOid();
+										pJsonValue_c = GetNextElementFromOid(ValueAsString_S);
 										//printf("GetNextElementFromOid %s\n", pJsonValue_c ? pJsonValue_c : "null");
 
 										if (pJsonValue_c)
@@ -384,6 +385,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 			char pOid_c[1024];
 			bool Finish_B;
 			const char *pJsonValue_c;
+			std::string ValueAsString_S;
 
 			if (mJsonFileOk_B)
 			{
@@ -391,7 +393,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 				{
 					Index_U32 = 0;
 					snprintf(pOid_c, sizeof(pOid_c), "%s.%s", _rJsonSchema_X[i_U32].Path_S.c_str(), _rJsonSchema_X[i_U32].Name_S.c_str());
-					pJsonValue_c = GetFirstElementFromOid(pOid_c);
+					pJsonValue_c = GetFirstElementFromOid(pOid_c, ValueAsString_S);
 					Finish_B = false;
 					Rts_E = BOF_ERR_NO_ERROR;
 					while ((!Finish_B) && (pJsonValue_c) && (Rts_E == BOF_ERR_NO_ERROR))
@@ -405,7 +407,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 						{
 							if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32) // NbEntry is 0 for non array descriptor
 							{
-								pJsonValue_c = GetNextElementFromOid();
+								pJsonValue_c = GetNextElementFromOid(ValueAsString_S);
 								if (pJsonValue_c)
 								{
 									Index_U32++;
@@ -435,7 +437,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 //p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][1].asCString();
 //p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["VideoStandard"].asCString();
 //p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][1]["VideoStandard"].asCString();
-		const char *GetFirstElementFromOid(const char *_pOid_c)
+		const char *GetFirstElementFromOid(const char *_pOid_c, std::string &_rValueAsString_S)
 		{
 			const char *pRts_c = nullptr;
 			uint32_t i_U32, NbArrayDetected_U32;
@@ -481,7 +483,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 								NbArrayDetected_U32++;
 								if (NbArrayDetected_U32 > 3)
 								{
-									break;	//We only handle a max of 3 array and if the thirs one exist it must be a the last raw item in the suboid list
+									break;	//We only handle a max of 3 array and if the third one exist it must be a the last raw item in the suboid list
 								}
 								if (i_U32 == (SubOidCollection.size() - 1))
 								{
@@ -498,7 +500,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 									if (SubOid_S != "")
 									{
 										NextValue = mLastJsonArray_O[0][SubOid_S];
-										if ((!NextValue.isNull()) && (NextValue.isString()))
+										if ((!NextValue.isNull()) && ((NextValue.isString()) || (NextValue.isBool()) || (NextValue.isInt64()) || (NextValue.isUInt64()) || (NextValue.isDouble())))
 										{
 											NextArrayElem_S = SubOid_S;
 										}
@@ -544,13 +546,36 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 					if (i_U32 == SubOidCollection.size())
 					{
 					// We only manage pure text json file->convertion to binary is made by bofparameter
-						if ((!mLastJsonValue_O.isNull()) && (mLastJsonValue_O.isString()))
+						if (!mLastJsonValue_O.isNull())
 						{
 							if (mCrtJsonArrayTagIndex_U32!=0xFFFFFFFF)
 							{
 								mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32++;
 							}
-							pRts_c = mLastJsonValue_O.asCString();
+							if (mLastJsonValue_O.isString())
+							{
+								pRts_c = mLastJsonValue_O.asCString();
+							} 
+							else if (mLastJsonValue_O.isBool())
+							{
+								_rValueAsString_S = mLastJsonValue_O.asBool() ? "true" : "false";
+								pRts_c = _rValueAsString_S.c_str();
+							}
+							else if (mLastJsonValue_O.isInt64())
+							{
+								_rValueAsString_S = std::to_string(mLastJsonValue_O.asInt64());
+								pRts_c = _rValueAsString_S.c_str();
+							}
+							else if (mLastJsonValue_O.isUInt64())
+							{
+								_rValueAsString_S = std::to_string(mLastJsonValue_O.asUInt64());
+								pRts_c = _rValueAsString_S.c_str();
+							}
+							else if (mLastJsonValue_O.isDouble())
+							{
+								_rValueAsString_S = std::to_string(mLastJsonValue_O.asDouble());
+								pRts_c = _rValueAsString_S.c_str();
+							}
 						}
 					}
 				}
@@ -558,7 +583,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 			return pRts_c;
 		}
 
-		const char *GetNextElementFromOid()
+		const char *GetNextElementFromOid(std::string &_rValueAsString_S)
 		{
 			const char *pRts_c = nullptr;
 
@@ -576,10 +601,33 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 						{
 							mLastJsonValue_O = mLastJsonArray_O[mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32][mJsonArrayElem_S];
 						}
-						if ((!mLastJsonValue_O.isNull()) && (mLastJsonValue_O.isString()))
+						if (!mLastJsonValue_O.isNull())
 						{
 							mJsonOidTagCollection[mCrtJsonArrayTagIndex_U32].CrtArrayIndex_U32++;
-							pRts_c = mLastJsonValue_O.asCString();
+							if (mLastJsonValue_O.isString())
+							{
+								pRts_c = mLastJsonValue_O.asCString();
+							}
+							else if (mLastJsonValue_O.isBool())
+							{
+								_rValueAsString_S = mLastJsonValue_O.asBool() ? "true" : "false";
+								pRts_c = _rValueAsString_S.c_str();
+							}
+							else if (mLastJsonValue_O.isInt64())
+							{
+								_rValueAsString_S = std::to_string(mLastJsonValue_O.asInt64());
+								pRts_c = _rValueAsString_S.c_str();
+							}
+							else if (mLastJsonValue_O.isUInt64())
+							{
+								_rValueAsString_S = std::to_string(mLastJsonValue_O.asUInt64());
+								pRts_c = _rValueAsString_S.c_str();
+							}
+							else if (mLastJsonValue_O.isDouble())
+							{
+								_rValueAsString_S = std::to_string(mLastJsonValue_O.asDouble());
+								pRts_c = _rValueAsString_S.c_str();
+							}
 						}
 					}
 				}
@@ -725,13 +773,15 @@ BOFERR BofJsonParser::ToByte(const std::vector<BOFPARAMETER> &_rJsonSchema_X, co
 
 const char *BofJsonParser::GetFirstElementFromOid(const char *_pOid_c)
 {
-	return mpuJsonParserImplementation->GetFirstElementFromOid(_pOid_c);
+	std::string ValueAsString_S;
+	return mpuJsonParserImplementation->GetFirstElementFromOid(_pOid_c, ValueAsString_S);
 }
 
 
 const char *BofJsonParser::GetNextElementFromOid()
 {
-	return mpuJsonParserImplementation->GetNextElementFromOid();
+	std::string ValueAsString_S;
+	return mpuJsonParserImplementation->GetNextElementFromOid(ValueAsString_S);
 }
 
 bool BofJsonParser::IsValid()
