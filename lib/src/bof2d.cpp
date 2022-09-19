@@ -3197,7 +3197,7 @@ BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _Resu
 #if defined(_WIN32)
   size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(true));
 #else
-  size_t Sz = mMediaInfo.Open(__T(_rPathName.FullPathName(false));
+  size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(false));
 #endif
   Rts_E = Sz ? BOF_ERR_NO_ERROR : BOF_ERR_DONT_EXIST;
   if (Rts_E == BOF_ERR_NO_ERROR)
@@ -3254,6 +3254,7 @@ BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _Resu
 //Accumulatted buffer size must be at least 48 PNG 3408 Jpeg
 BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat _ResultFormat_E, std::string &_rResult_S, uint64_t &_rOffsetInBuffer_U64)
 {
+#if 0	
   goto l;
   FILE *F = fopen("./data/colorbar.jpg", "rb");
   if (F)
@@ -3297,10 +3298,8 @@ BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat 
     //Finalizing
     mMediaInfo.Open_Buffer_Finalize(); //This is the end of the stream, MediaInfo must finnish some work
   }
-
-
-
   l:
+#endif  
   BOFERR Rts_E = BOF_ERR_EINVAL;
   MediaInfoLib::String Oss;
   size_t Status;

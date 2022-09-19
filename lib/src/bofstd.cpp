@@ -465,7 +465,7 @@ BofException::BofException(std::string _Header_S, std::string _Context_S, std::s
   mMessage_S = Msg.str();
 }
 
-char const *BofException::what() const //throw ()
+char const *BofException::what() const noexcept //throw ()
 {
   return mMessage_S.c_str();
 }

@@ -125,18 +125,21 @@ BOFERR ParseFileBuffer(BofPath &_rPathname, std::string &_rResult_S)
 TEST(Bof2d_Test, MediaDetectorParseBuffer)
 {
   std::string Result_S;
+  BOF::BofPath Path("./data/colorbar.jpg");
 
-  EXPECT_EQ(ParseFileBuffer(BOF::BofPath("./data/colorbar.jpg"), Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ParseFileBuffer(Path, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
   EXPECT_STREQ(Result_S.c_str(), "General\r\nFormat                                   : JPEG\r\nFile size                                : 9.60 KiB\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.60 KiB (100%)\r\n\r\n");
 #endif
 
-  EXPECT_EQ(ParseFileBuffer(BOF::BofPath("./data/colorbar.png"), Result_S), BOF_ERR_NO_ERROR);
+  Path = BOF::BofPath("./data/colorbar.png");
+  EXPECT_EQ(ParseFileBuffer(Path, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
   EXPECT_STREQ(Result_S.c_str(), "General\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFile size                                : 1.45 KiB\r\n\r\nImage\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFormat_Compression                       : Deflate\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossless\r\nStream size                              : 1.45 KiB (100%)\r\n\r\n");
 #endif
 
-  EXPECT_EQ(ParseFileBuffer(BOF::BofPath("./data/colorbar_rle_32b.tga"), Result_S), BOF_ERR_NO_ERROR);
+  Path = BOF::BofPath("./data/colorbar_rle_32b.tga");
+  EXPECT_EQ(ParseFileBuffer(Path, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
   EXPECT_STREQ(Result_S.c_str(), "General\r\nFormat                                   : TGA\r\nFormat version                           : Version 1\r\nFile size                                : 18.0 KiB\r\n\r\nImage\r\nFormat                                   : RLE\r\nFormat/Info                              : Run-length encoding\r\nCodec ID                                 : 10\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 32 bits\r\n\r\n");
 #endif

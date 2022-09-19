@@ -97,8 +97,8 @@ TEST(String_Test, WideCharToMultiByte)
 	Str_S = Bof_Utf16ToUtf8(Str_WS);
 	//EXPECT_STREQ(Str_S.c_str(), Str_WS.c_str());
 //From https://en.wikipedia.org/wiki/Windows-1252
-	Str_WS = L"섹씩";
-	Str_S = Bof_Utf16ToUtf8(Str_WS);
+//	Str_WS = L"섹씩";
+//	Str_S = Bof_Utf16ToUtf8(Str_WS);
 	Str_WS = L"\u0141";
 	Str_S = Bof_Utf16ToUtf8(Str_WS);
 
