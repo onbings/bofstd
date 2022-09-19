@@ -78,6 +78,10 @@ if(NOT TARGET ZenLib)
   find_package_dependency(ZenLib REQUIRED)
 endif()
 
+if(NOT TARGET OpenSSL)
+  find_package_dependency(OpenSSL REQUIRED)
+endif()
+
 if(NOT TARGET MediaInfoLib)
   find_package_dependency(MediaInfoLib REQUIRED)
 endif()
