@@ -70,7 +70,7 @@ if(NOT TARGET libyuv)
   find_package_dependency(libyuv REQUIRED)
 endif()
 
-if(NOT TARGET zlib)
+if(NOT TARGET ZLIB)
   find_package_dependency(ZLIB REQUIRED)
 endif()
 
