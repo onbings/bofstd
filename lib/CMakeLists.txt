@@ -386,16 +386,16 @@ target_compile_definitions(bofstd-objects
   PRIVATE
     # Make directives export
     -Dbofstd_EXPORTS=1	#in lower case to define the SYMBOL BOFSTD_EXPORT (upper case)in bofstd_export.h
-	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY
 )
+message("================================VCPKG_CRT_LINKAGE=>" ${VCPKG_CRT_LINKAGE})
 if (VCPKG_CRT_LINKAGE STREQUAL "static")
 target_compile_definitions(bofstd-objects
    PRIVATE
 	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY=1
 )
-message("=Build MediaInfo as static lib=>")
+message("=MediaInfoNameSpace=MediaInfoLib=Build MediaInfo as static lib=>")
 else()
-message("=Build MediaInfo as dynlib lib=>")
+message("=MediaInfoNameSpace=MediaInfoDLL=Build MediaInfo as dynlib lib=>")
 endif()
 
 # Features (We need at least C++11 support)
