@@ -536,6 +536,6 @@ public:
 	BOFERR Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S);
 
 private:
-	MediaInfoLib::MediaInfo mMediaInfo;
+//	MediaInfoLib::MediaInfo mMediaInfo;
 };
 END_BOF_NAMESPACE()

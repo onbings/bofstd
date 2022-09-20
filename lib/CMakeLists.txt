@@ -336,9 +336,9 @@ target_link_libraries(bofstd-objects
 	libzmq-static
 	czmq-static
 	yuv
-	ZLIB::ZLIB
-	zen
 	mediainfo
+#	ZLIB::ZLIB
+#	zen
 #	OpenSSL::SSL 
 #	OpenSSL::Crypto
 #	${Boost_LIBRARIES}

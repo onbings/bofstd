@@ -3187,15 +3187,22 @@ BofMediaDetector::~BofMediaDetector()
 {
 
 }
+BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S)
+{
+  MediaInfoLib::MediaInfo mMediaInfo;
+  return BOF_ERR_NO_ERROR;
+}
+#if 0
 
-
+//https://github.com/MediaArea/MediaInfoLib/issues/485
+//#include <MediaInfoDLL/MediaInfoDLL.h>
 BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S)
 {
   BOFERR Rts_E;
   MediaInfoLib::String Oss;
 
 #if defined(_WIN32)
-  size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(true));
+  size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(true)); 
 #else
   size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(false));
 #endif
@@ -3250,7 +3257,6 @@ BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _Resu
   }
   return Rts_E;
 }
-
 //Accumulatted buffer size must be at least 48 PNG 3408 Jpeg
 BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat _ResultFormat_E, std::string &_rResult_S, uint64_t &_rOffsetInBuffer_U64)
 {
@@ -3448,9 +3454,8 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     Option_WS = Bof_Utf8ToUtf16(_rOption_S);
-    //MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
-//    Oss = mMediaInfo.Get(MediaStreamType_E, 0, Option_WS, InfoType_E, InfoType_E);
     Oss = mMediaInfo.Get(MediaStreamType_E, 0, Option_WS, InfoType_E, MediaInfoLib::Info_Name);
+    //Oss = mMediaInfo.Get(MediaStreamType_E, 0, _rOption_S, InfoType_E, MediaInfoLib::Info_Name);
     //std::wcout << Oss << std::endl;
     _rResult_S = Bof_Utf16ToUtf8(Oss);
 
@@ -3459,6 +3464,16 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
   }
 
   return Rts_E;
+}
+#endif
+
+BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat _ResultFormat_E, std::string &_rResult_S, uint64_t &_rOffsetInBuffer_U64)
+{
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S)
+{
+  return BOF_ERR_NO_ERROR;
 }
 
 
