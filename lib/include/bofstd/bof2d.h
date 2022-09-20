@@ -28,7 +28,18 @@ V 1.00  Sep 30 2000  BHA : Initial release
 #include <bofstd/bofstd.h>
 #include <bofstd/bofpath.h>
 #include <bofstd/bofsystem.h>
-#include <MediaInfo/MediaInfo.h>
+
+#ifdef BOFSTD_BUILD_MEDIAINFO_AS_LIBRARY
+#include "MediaInfo/MediaInfo.h" //Staticly-loaded library (.lib or .a or .so)
+#define MediaInfoNameSpace MediaInfoLib;
+#pragma message("MediaInfoNameSpace MediaInfoLib")
+#else 
+#include <winsock2.h>	//Needed because MediaInfoDLL.h include windows.h
+#include "MediaInfoDLL/MediaInfoDLL.h" //Dynamicly-loaded library (.dll or .so)
+#define MediaInfoNameSpace MediaInfoDLL;
+#pragma message("MediaInfoNameSpace MediaInfoDLL")
+#endif
+using namespace MediaInfoNameSpace;
 
 BEGIN_BOF_NAMESPACE()
 
@@ -536,6 +547,6 @@ public:
 	BOFERR Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S);
 
 private:
-//	MediaInfoLib::MediaInfo mMediaInfo;
+	MediaInfo mMediaInfo;
 };
 END_BOF_NAMESPACE()

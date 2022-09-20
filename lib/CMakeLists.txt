@@ -333,10 +333,12 @@ target_link_libraries(bofstd-objects
 #    Qt5::Widgets
     jsoncpp::jsoncpp
     spdlog::spdlog
-	libzmq-static
-	czmq-static
+	libzmq
+	czmq
 	yuv
 	mediainfo
+#	libzmq-static
+#	czmq-static
 #	ZLIB::ZLIB
 #	zen
 #	OpenSSL::SSL 
@@ -378,14 +380,23 @@ target_compile_definitions(bofstd-objects
 	$<BUILD_INTERFACE:_CRT_SECURE_NO_WARNINGS>
 	$<BUILD_INTERFACE:_CRT_NONSTDC_NO_DEPRECATE>
 	$<BUILD_INTERFACE:_WINSOCK_DEPRECATED_NO_WARNINGS>
-	$<BUILD_INTERFACE:MEDIAINFO_DLL_EXPORT>
 
 	# $<INSTALL_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
 
   PRIVATE
     # Make directives export
     -Dbofstd_EXPORTS=1	#in lower case to define the SYMBOL BOFSTD_EXPORT (upper case)in bofstd_export.h
+	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY
 )
+if (VCPKG_CRT_LINKAGE STREQUAL "static")
+target_compile_definitions(bofstd-objects
+   PRIVATE
+	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY
+)
+message("=Build MediaInfo as static lib=>")
+else()
+message("=Build MediaInfo as dynlib lib=>")
+endif()
 
 # Features (We need at least C++11 support)
 target_compile_features(bofstd-objects

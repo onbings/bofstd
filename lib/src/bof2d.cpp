@@ -28,9 +28,7 @@
 #include <libyuv.h>
 #include <iostream>
 #include <string>
-//#include <MediaInfoDLL/MediaInfoDLL_Static.h>
-#include <MediaInfoDLL/MediaInfoDLL.h>
-//#include <MediaInfo/MediaInfo.h>
+//#include <MediaInfoDLL/MediaInfoDLL.h>
 
 BEGIN_BOF_NAMESPACE()
 //YUV Color
@@ -3190,12 +3188,16 @@ BofMediaDetector::~BofMediaDetector()
 {
 
 }
+
 BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S)
 {
-  MediaInfoDLL::MediaInfo mMediaInfo;
+  String Oss;
+  Oss = mMediaInfo.Option(__T("info_version"));
+  std::wcout << Oss << std::endl;
+  Oss = mMediaInfo.Option(__T("info_outputformats"));
+  std::wcout << Oss << std::endl;
 
-  //void *p = MediaInfoA_New();
-  //void *q = MediaInfo_New();
+
   return BOF_ERR_NO_ERROR;
 }
 #if 0
@@ -3220,15 +3222,15 @@ BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _Resu
     at C:\pro\vcpkg\buildtrees\libmediainfo\src\v21.03-c3817db36f.clean\Source\MediaInfo\MediaInfo_Config.cpp
     */
     //Oss = mMediaInfo.Option(__T("info_version"));
-    //std::wcout << Oss;
+    //std::wcout << Oss<< std::endl;
     //Oss = mMediaInfo.Option(__T("info_outputformats"));
-    //std::wcout << Oss;
+    //std::wcout << Oss<< std::endl;
     //Oss = mMediaInfo.Option(__T("info_outputformats_json"));
-    //std::wcout << Oss;
+    //std::wcout << Oss<< std::endl;
     //Oss = mMediaInfo.Option(__T("info_parameters"));
-    //std::wcout << Oss;
+    //std::wcout << Oss<< std::endl;
     //Oss = mMediaInfo.Option(__T("Info_Codecs"));
-    //std::wcout << Oss;
+    //std::wcout << Oss<< std::endl;
 
     switch (_ResultFormat_E)
     {

@@ -28,8 +28,6 @@
 #include <bofstd/bofsocket.h>
 #include <bofstd/bofpath.h>
 
-/*** Defines *****************************************************************/
-/*** Global variables ********************************************************/
 
 // To use a test fixture, derive from testing::Test class
 class CmdLineParser_Test : public testing::Test
