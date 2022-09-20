@@ -167,8 +167,8 @@ TEST(Bof2d_Test, MediaDetectorQuery)
   EXPECT_STREQ(Result_S.c_str(), "File size in bytes");
   EXPECT_EQ(MediaDetector.Query(BofMediaDetector::MediaStreamType::General, "FileSize", BofMediaDetector::InfoType::HowTo, Result_S), BOF_ERR_NO_ERROR);
   EXPECT_STREQ(Result_S.c_str(), "");
-  EXPECT_EQ(MediaDetector.Query(BofMediaDetector::MediaStreamType::General, "FileSize", BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
-  EXPECT_STREQ(Result_S.c_str(), "");
+  //EXPECT_EQ(MediaDetector.Query(BofMediaDetector::MediaStreamType::General, "FileSize", BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
+  //EXPECT_STREQ(Result_S.c_str(), "");
 
 }
 

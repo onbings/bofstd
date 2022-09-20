@@ -74,7 +74,7 @@ struct BOFSTD_EXPORT BOFSTDPARAM
   }
 };
 
-extern BOFSTDPARAM GL_BofStdParam_X;
+extern BOFSTD_EXPORT BOFSTDPARAM GL_BofStdParam_X;
 
 /*** Definitions *************************************************************/
 

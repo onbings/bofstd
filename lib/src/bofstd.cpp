@@ -44,7 +44,7 @@ DWORD  S_ModeIn_DW=0, S_ModeOut_DW=0;
 //static struct termios S_NewTermIos_X;
 
 #endif
-BOFSTDPARAM GL_BofStdParam_X;
+BOFSTD_EXPORT BOFSTDPARAM GL_BofStdParam_X;
 
 BEGIN_BOF_NAMESPACE()
 static char S_pUnknownError_c[128];
