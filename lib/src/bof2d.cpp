@@ -3215,7 +3215,7 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
 BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S)
 {
   BOFERR Rts_E;
-  MediaInfoLib::String Oss;
+  String Oss;
 
 #if defined(_WIN32)
   size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(true)); 
@@ -3323,7 +3323,7 @@ BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat 
   l:
 #endif  
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  MediaInfoLib::String Oss;
+  String Oss;
   size_t Status;
 
   if ((_rBuffer_X.Capacity_U64 >= 64) && (_rBuffer_X.Size_U64 >= 64) && (_rBuffer_X.Size_U64 <= _rBuffer_X.Capacity_U64))
@@ -3383,39 +3383,39 @@ BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat 
 BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  MediaInfoLib::String Oss;
-  MediaInfoLib::stream_t MediaStreamType_E;
-  MediaInfoLib::info_t InfoType_E;
+  String Oss;
+  stream_t MediaStreamType_E;
+  info_t InfoType_E;
   std::wstring Option_WS;
 
   switch (_MediaStreamType_E)
   {
     case MediaStreamType::General:
-      MediaStreamType_E = MediaInfoLib::Stream_General;
+      MediaStreamType_E = Stream_General;
       break;
 
     case MediaStreamType::Video:
-      MediaStreamType_E = MediaInfoLib::Stream_Video;
+      MediaStreamType_E = Stream_Video;
       break;
 
     case MediaStreamType::Audio:
-      MediaStreamType_E = MediaInfoLib::Stream_Audio;
+      MediaStreamType_E = Stream_Audio;
       break;
 
     case MediaStreamType::Text:
-      MediaStreamType_E = MediaInfoLib::Stream_Text;
+      MediaStreamType_E = Stream_Text;
       break;
 
     case MediaStreamType::Other:
-      MediaStreamType_E = MediaInfoLib::Stream_Other;
+      MediaStreamType_E = Stream_Other;
       break;
 
     case MediaStreamType::Image:
-      MediaStreamType_E = MediaInfoLib::Stream_Image;
+      MediaStreamType_E = Stream_Image;
       break;
 
     case MediaStreamType::Menu:
-      MediaStreamType_E = MediaInfoLib::Stream_Menu;
+      MediaStreamType_E = Stream_Menu;
       break;
 
     default:
@@ -3427,39 +3427,39 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
     switch (_InfoType_E)
     {
       case InfoType::Name:
-        InfoType_E = MediaInfoLib::Info_Name;
+        InfoType_E = Info_Name;
         break;
 
       case InfoType::Text:
-        InfoType_E = MediaInfoLib::Info_Text;
+        InfoType_E = Info_Text;
         break;
 
       case InfoType::Measure:
-        InfoType_E = MediaInfoLib::Info_Measure;
+        InfoType_E = Info_Measure;
         break;
 
       case InfoType::Options:
-        InfoType_E = MediaInfoLib::Info_Options;
+        InfoType_E = Info_Options;
         break;
 
       case InfoType::Name_Text:
-        InfoType_E = MediaInfoLib::Info_Name_Text;
+        InfoType_E = Info_Name_Text;
         break;
 
       case InfoType::Measure_Text:
-        InfoType_E = MediaInfoLib::Info_Measure_Text;
+        InfoType_E = Info_Measure_Text;
         break;
 
       case InfoType::Info:
-        InfoType_E = MediaInfoLib::Info_Info;
+        InfoType_E = Info_Info;
         break;
 
       case InfoType::HowTo:
-        InfoType_E = MediaInfoLib::Info_HowTo;
+        InfoType_E = Info_HowTo;
         break;
 
       case InfoType::Domain:
-        InfoType_E = MediaInfoLib::Info_Domain;
+        InfoType_E = Info_Domain;
         break;
 
       default:
@@ -3470,12 +3470,12 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     Option_WS = Bof_Utf8ToUtf16(_rOption_S);
-    Oss = mMediaInfo.Get(MediaStreamType_E, 0, Option_WS, InfoType_E, MediaInfoLib::Info_Name);
-    //Oss = mMediaInfo.Get(MediaStreamType_E, 0, _rOption_S, InfoType_E, MediaInfoLib::Info_Name);
+    Oss = mMediaInfo.Get(MediaStreamType_E, 0, Option_WS, InfoType_E, Info_Name);
+    //Oss = mMediaInfo.Get(MediaStreamType_E, 0, _rOption_S, InfoType_E, Info_Name);
     //std::wcout << Oss << std::endl;
     _rResult_S = Bof_Utf16ToUtf8(Oss);
 
-    //Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("FileSize"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+    //Oss += mMediaInfo.Get(Stream_General, 0, __T("FileSize"), Info_Text, Info_Name);
     //Ztring MediaInfo_Internal::Get(stream_t StreamKind, size_t StreamPos, const String & Parameter, info_t KindOfInfo, info_t KindOfSearch)
   }
 
@@ -3542,9 +3542,9 @@ BOFERR BofMediaDetector::Info(const BofPath &_rPathName)
 #if 0
     TEST(Muse_Storage_FileSystem_Test, MediaInfo)
     {
-      MediaInfoLib::MediaInfo mMediaInfo;
-      MediaInfoLib::toStringStream SS;
-      MediaInfoLib::String Oss;
+      MediaInfo mMediaInfo;
+      toStringStream SS;
+      String Oss;
 
       goto l;
 
@@ -3579,11 +3579,11 @@ BOFERR BofMediaDetector::Info(const BofPath &_rPathName)
       std::wcout << Oss;
 
       Oss = __T("\r\n\r\nGet with Stream=General and Parameter=\"FileSize\"\r\n");
-      Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("FileSize"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+      Oss += mMediaInfo.Get(Stream_General, 0, __T("FileSize"), Info_Text, Info_Name);
       std::wcout << Oss;
 
       Oss = __T("\r\n\r\nGetI with Stream=General and Parameter=46\r\n");
-      Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, 46, MediaInfoLib::Info_Text);
+      Oss += mMediaInfo.Get(Stream_General, 0, 46, Info_Text);
       std::wcout << Oss;
 
       Oss = __T("\r\n\r\nCount_Get with StreamKind=Stream_Audio\r\n");
@@ -3593,17 +3593,17 @@ BOFERR BofMediaDetector::Info(const BofPath &_rPathName)
       Oss += C1;
       delete[] C1;
 #else
-      SS << std::setbase(10) << mMediaInfo.Count_Get(MediaInfoLib::Stream_Audio);
+      SS << std::setbase(10) << mMediaInfo.Count_Get(Stream_Audio);
       Oss += SS.str();
 #endif
       std::wcout << Oss;
 
       Oss = __T("\r\n\r\nGet with Stream=General and Parameter=\"AudioCount\"\r\n");
-      Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("AudioCount"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+      Oss += mMediaInfo.Get(Stream_General, 0, __T("AudioCount"), Info_Text, Info_Name);
       std::wcout << Oss;
 
       Oss = __T("\r\n\r\nGet with Stream=Audio and Parameter=\"StreamCount\"\r\n");
-      Oss += mMediaInfo.Get(MediaInfoLib::Stream_Audio, 0, __T("StreamCount"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+      Oss += mMediaInfo.Get(Stream_Audio, 0, __T("StreamCount"), Info_Text, Info_Name);
       std::wcout << Oss;
 
       Oss = __T("\r\n\r\nClose\r\n");
@@ -3667,52 +3667,52 @@ l:
         std::wcout << Oss;
 
         Oss = __T("\r\n\r\nGet with Stream=General and Parameter=\"FileSize\"\r\n");
-        Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("Format"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss += mMediaInfo.Get(Stream_General, 0, __T("Format"), Info_Text, Info_Name);
         std::wcout << Oss;
         */
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("Format"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_General, 0, __T("Format"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("Format/Info"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_General, 0, __T("Format/Info"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("FileSize"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_General, 0, __T("FileSize"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("FileSize/String2"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Format"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Format/Info"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Format_Compression"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Name, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Measure, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Options, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Name_Text, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Measure_Text, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Info, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_HowTo, MediaInfoLib::Info_Name);
-        std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Width"), MediaInfoLib::Info_Domain, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_General, 0, __T("FileSize/String2"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
 
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Height"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Format"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("ColorSpace"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Format/Info"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("BitDepth"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Format_Compression"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("Compression_Mode"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Name, Info_Name);
         std::wcout << Oss << std::endl;
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_Image, 0, __T("StreamSize"), MediaInfoLib::Info_Text, MediaInfoLib::Info_Name);
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Text, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Measure, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Options, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Name_Text, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Measure_Text, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Info, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_HowTo, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Width"), Info_Domain, Info_Name);
+        std::wcout << Oss << std::endl;
+
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Height"), Info_Text, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("ColorSpace"), Info_Text, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("BitDepth"), Info_Text, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("Compression_Mode"), Info_Text, Info_Name);
+        std::wcout << Oss << std::endl;
+        Oss = mMediaInfo.Get(Stream_Image, 0, __T("StreamSize"), Info_Text, Info_Name);
         std::wcout << Oss << std::endl;
 
 
@@ -3724,11 +3724,11 @@ l:
 
 
         //Get() example
-        Oss = mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("Inform"));
-        Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("Format"));
-        Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("Width"));
-        Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("Height"));
-        Oss += mMediaInfo.Get(MediaInfoLib::Stream_General, 0, __T("PixelAspectRatio"));
+        Oss = mMediaInfo.Get(Stream_General, 0, __T("Inform"));
+        Oss += mMediaInfo.Get(Stream_General, 0, __T("Format"));
+        Oss += mMediaInfo.Get(Stream_General, 0, __T("Width"));
+        Oss += mMediaInfo.Get(Stream_General, 0, __T("Height"));
+        Oss += mMediaInfo.Get(Stream_General, 0, __T("PixelAspectRatio"));
 
 #ifdef _UNICODE
         std::wcout << Oss;
