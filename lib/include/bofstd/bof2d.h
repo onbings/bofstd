@@ -29,7 +29,7 @@ V 1.00  Sep 30 2000  BHA : Initial release
 #include <bofstd/bofpath.h>
 #include <bofstd/bofsystem.h>
 
-#ifdef BOFSTD_BUILD_MEDIAINFO_AS_LIBRARY
+#if defined(BOFSTD_BUILD_MEDIAINFO_AS_LIBRARY)
 #include "MediaInfo/MediaInfo.h" //Staticly-loaded library (.lib or .a or .so)
 #define MediaInfoNameSpace MediaInfoLib;
 #pragma message("MediaInfoNameSpace MediaInfoLib")

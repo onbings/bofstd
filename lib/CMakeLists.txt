@@ -391,7 +391,7 @@ target_compile_definitions(bofstd-objects
 if (VCPKG_CRT_LINKAGE STREQUAL "static")
 target_compile_definitions(bofstd-objects
    PRIVATE
-	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY
+	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY=1
 )
 message("=Build MediaInfo as static lib=>")
 else()
