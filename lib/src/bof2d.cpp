@@ -3189,6 +3189,7 @@ BofMediaDetector::~BofMediaDetector()
 
 }
 
+#if 0
 BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S)
 {
   String Oss;
@@ -3197,10 +3198,17 @@ BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _Resu
   Oss = mMediaInfo.Option(__T("info_outputformats"));
   std::wcout << Oss << std::endl;
 
-
   return BOF_ERR_NO_ERROR;
 }
-#if 0
+BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat _ResultFormat_E, std::string &_rResult_S, uint64_t &_rOffsetInBuffer_U64)
+{
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S)
+{
+  return BOF_ERR_NO_ERROR;
+}
+#endif
 
 //https://github.com/MediaArea/MediaInfoLib/issues/485
 //#include <MediaInfoDLL/MediaInfoDLL.h>
@@ -3472,16 +3480,6 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
   }
 
   return Rts_E;
-}
-#endif
-
-BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat _ResultFormat_E, std::string &_rResult_S, uint64_t &_rOffsetInBuffer_U64)
-{
-  return BOF_ERR_NO_ERROR;
-}
-BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S)
-{
-  return BOF_ERR_NO_ERROR;
 }
 
 
