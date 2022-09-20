@@ -328,6 +328,7 @@ target_include_directories(bofstd-objects
 target_link_libraries(bofstd-objects
   PUBLIC
     #ONBINGS::onbings-another-lib
+	mediainfo
 
   PRIVATE
 #    Qt5::Widgets
@@ -336,7 +337,7 @@ target_link_libraries(bofstd-objects
 	libzmq-static
 	czmq-static
 	yuv
-	mediainfo
+#	mediainfo
 #	ZLIB::ZLIB
 #	zen
 #	OpenSSL::SSL 
