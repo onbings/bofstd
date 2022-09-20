@@ -3192,7 +3192,8 @@ BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _Resu
 {
   MediaInfoLib::MediaInfo mMediaInfo;
 
-  //void *p=MediaInfoA_New();
+  void *p = MediaInfoA_New();
+  void *q = MediaInfo_New();
   return BOF_ERR_NO_ERROR;
 }
 #if 0

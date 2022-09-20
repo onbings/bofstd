@@ -328,7 +328,6 @@ target_include_directories(bofstd-objects
 target_link_libraries(bofstd-objects
   PUBLIC
     #ONBINGS::onbings-another-lib
-	mediainfo
 
   PRIVATE
 #    Qt5::Widgets
@@ -337,7 +336,7 @@ target_link_libraries(bofstd-objects
 	libzmq-static
 	czmq-static
 	yuv
-#	mediainfo
+	mediainfo
 #	ZLIB::ZLIB
 #	zen
 #	OpenSSL::SSL 
@@ -379,6 +378,7 @@ target_compile_definitions(bofstd-objects
 	$<BUILD_INTERFACE:_CRT_SECURE_NO_WARNINGS>
 	$<BUILD_INTERFACE:_CRT_NONSTDC_NO_DEPRECATE>
 	$<BUILD_INTERFACE:_WINSOCK_DEPRECATED_NO_WARNINGS>
+	$<BUILD_INTERFACE:MEDIAINFO_DLL_EXPORT>
 
 	# $<INSTALL_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
 
