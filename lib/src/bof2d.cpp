@@ -28,7 +28,9 @@
 #include <libyuv.h>
 #include <iostream>
 #include <string>
-#include <MediaInfoDLL/MediaInfoDLL_Static.h>
+//#include <MediaInfoDLL/MediaInfoDLL_Static.h>
+#include <MediaInfoDLL/MediaInfoDLL.h>
+//#include <MediaInfo/MediaInfo.h>
 
 BEGIN_BOF_NAMESPACE()
 //YUV Color
@@ -3190,10 +3192,10 @@ BofMediaDetector::~BofMediaDetector()
 }
 BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S)
 {
-  MediaInfoLib::MediaInfo mMediaInfo;
+  MediaInfoDLL::MediaInfo mMediaInfo;
 
-  void *p = MediaInfoA_New();
-  void *q = MediaInfo_New();
+  //void *p = MediaInfoA_New();
+  //void *q = MediaInfo_New();
   return BOF_ERR_NO_ERROR;
 }
 #if 0
