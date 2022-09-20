@@ -3459,8 +3459,8 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
         break;
 
       case InfoType::Domain:
-        InfoType_E = Info_Domain;
-        break;
+       // InfoType_E = Info_Domain;
+       // break;
 
       default:
         Rts_E = BOF_ERR_EPROTOTYPE;
