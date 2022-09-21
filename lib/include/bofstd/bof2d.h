@@ -34,7 +34,9 @@ V 1.00  Sep 30 2000  BHA : Initial release
 #define MediaInfoNameSpace MediaInfoLib;
 #pragma message("MediaInfoNameSpace MediaInfoLib")
 #else 
+#if defined(_WIN32)
 #include <winsock2.h>	//Needed because MediaInfoDLL.h include windows.h
+#endif
 #include "MediaInfoDLL/MediaInfoDLL.h" //Dynamicly-loaded library (.dll or .so)
 #define MediaInfoNameSpace MediaInfoDLL;
 #pragma message("MediaInfoNameSpace MediaInfoDLL")

@@ -369,23 +369,14 @@ endif()
 #disable exception in spd log and replace thme by assert(false) to avoid try around every sprintf
 target_compile_definitions(bofstd-objects
   PUBLIC
-	# $<BUILD_INTERFACE:SPDLOG_FMT_EXTERNAL>		#can also be set in tweakme.h
-	# $<BUILD_INTERFACE:SPDLOG_USE_STD_FORMAT>
-	# $<BUILD_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
-	# $<BUILD_INTERFACE:FMT_EXCEPTIONS>  
-	# $<BUILD_INTERFACE:ZMQ_DEFINED_STDINT>  
-	# $<BUILD_INTERFACE:ZMQ_STATIC>
-	# $<BUILD_INTERFACE:CZMQ_STATIC>
-	$<BUILD_INTERFACE:IXML_STATIC_LIB>
-	$<BUILD_INTERFACE:_CRT_SECURE_NO_WARNINGS>
-	$<BUILD_INTERFACE:_CRT_NONSTDC_NO_DEPRECATE>
-	$<BUILD_INTERFACE:_WINSOCK_DEPRECATED_NO_WARNINGS>
-	$<BUILD_INTERFACE:BOFSTD_BUILD_MEDIAINFO_AS_LIBRARY>	#MediaInfo dll is a shame -> use only the static lib version
-	# $<INSTALL_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
+	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY=1	#MediaInfo dll is a shame -> use only the static lib version
 
   PRIVATE
-    # Make directives export
     -Dbofstd_EXPORTS=1	#in lower case to define the SYMBOL BOFSTD_EXPORT (upper case)in bofstd_export.h
+	-DCRT_SECURE_NO_WARNINGS
+	-DCRT_NONSTDC_NO_DEPRECATE
+	-DWINSOCK_DEPRECATED_NO_WARNINGS
+	-DXML_STATIC_LIB
 )
 
 # Features (We need at least C++11 support)
