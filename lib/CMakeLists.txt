@@ -380,23 +380,13 @@ target_compile_definitions(bofstd-objects
 	$<BUILD_INTERFACE:_CRT_SECURE_NO_WARNINGS>
 	$<BUILD_INTERFACE:_CRT_NONSTDC_NO_DEPRECATE>
 	$<BUILD_INTERFACE:_WINSOCK_DEPRECATED_NO_WARNINGS>
-
+	$<BUILD_INTERFACE:BOFSTD_BUILD_MEDIAINFO_AS_LIBRARY>	#MediaInfo dll is a shame -> use only the static lib version
 	# $<INSTALL_INTERFACE:SPDLOG_ENABLE_MESSAGE_COUNTER>	#can also be set in tweakme.h
 
   PRIVATE
     # Make directives export
     -Dbofstd_EXPORTS=1	#in lower case to define the SYMBOL BOFSTD_EXPORT (upper case)in bofstd_export.h
 )
-message("================================VCPKG_CRT_LINKAGE=>" ${VCPKG_CRT_LINKAGE})
-if (VCPKG_CRT_LINKAGE STREQUAL "static")
-target_compile_definitions(bofstd-objects
-   PRIVATE
-	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY=1
-)
-message("=MediaInfoNameSpace=MediaInfoLib=Build MediaInfo as static lib=>")
-else()
-message("=MediaInfoNameSpace=MediaInfoDLL=Build MediaInfo as dynlib lib=>")
-endif()
 
 # Features (We need at least C++11 support)
 target_compile_features(bofstd-objects
