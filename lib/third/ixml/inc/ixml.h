@@ -45,8 +45,10 @@
 
 //BHA #include "UpnpGlobal.h" /* For EXPORT_SPEC */
 #ifdef IXML_STATIC_LIB
+
 #define EXPORT_SPEC
 #else /* UPNP_STATIC_LIB */
+
 #ifdef LIBUPNP_EXPORTS
  /*! set up declspec for dll export to make functions
  * visible to library users */

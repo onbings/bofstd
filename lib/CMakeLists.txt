@@ -376,7 +376,7 @@ target_compile_definitions(bofstd-objects
 	-DCRT_SECURE_NO_WARNINGS
 	-DCRT_NONSTDC_NO_DEPRECATE
 	-DWINSOCK_DEPRECATED_NO_WARNINGS
-	-DXML_STATIC_LIB
+	-DIXML_STATIC_LIB
 )
 
 # Features (We need at least C++11 support)
