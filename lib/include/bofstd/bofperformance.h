@@ -104,7 +104,7 @@ private:
 #define BOF_PERF_POINT_MGR_NAME_MAX_CHAR 64
 #define BOF_PERF_POINT_NAME_MAX_CHAR 256
 
-#define BOF_PERF_POINT_ADD_FUNCTION_LINE(perfpointmgr)   {BofPerfPointAdd(perfpointmgr, "%s at %d\n",__FUNCTION__, __LINE__ );}
+#define BOF_PERF_POINT_ADD_FUNCTION_LINE(perfpointmgr)   {BofPerfPointAdd(perfpointmgr, "%s at %d\n",__func__, __LINE__ );}
 
 struct BOFSTD_EXPORT BOF_PERF_POINT_ENTRY
 {

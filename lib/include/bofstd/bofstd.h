@@ -317,6 +317,6 @@ private:
 
   std::string mMessage_S;
 };
-#define THROW_BOF_EXCEPTION(Header,Context,ErrorCode)      {std::ostringstream Where; Where << __FILE__ << ':' << __LINE__ << " (" << __FUNCTION__ << ')'; BOF::BofException Exception(Header,Context, Where.str(),ErrorCode); throw Exception; }
+#define THROW_BOF_EXCEPTION(Header,Context,ErrorCode)      {std::ostringstream Where; Where << __FILE__ << ':' << __LINE__ << " (" << __func__ << ')'; BOF::BofException Exception(Header,Context, Where.str(),ErrorCode); throw Exception; }
 
 END_BOF_NAMESPACE()
