@@ -218,6 +218,7 @@ BEGIN_BOF_NAMESPACE()
 
   struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
   {
+    bool              Valid_B;
     bool              IpV6_B;
     BOF_SOCK_TYPE     SocketType_E;
     BOF_PROTOCOL_TYPE ProtocolType_E;
@@ -231,7 +232,7 @@ BEGIN_BOF_NAMESPACE()
     BOF_SOCKET_ADDRESS(const std::string &_rIpAddress_S)
     {
       Reset();
-      Bof_IpAddressToSocketAddress(_rIpAddress_S, *this);
+      Valid_B = (Bof_IpAddressToSocketAddress(_rIpAddress_S, *this) == BOF_ERR_NO_ERROR);
     }
     BOF_SOCKET_ADDRESS(bool _IpV6_B, BOF_SOCK_TYPE _SocketType_E, BOF_PROTOCOL_TYPE _ProtocolType_E, uint32_t _Ip1_U32, uint32_t _Ip2_U32, uint32_t _Ip3_U32, uint32_t _Ip4_U32, uint16_t _Port_U16)
     {
@@ -439,6 +440,7 @@ BEGIN_BOF_NAMESPACE()
 
     void Reset()
     {
+      Valid_B = true;
       IpV6_B         = false;
       SocketType_E   = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
       ProtocolType_E = BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN;
