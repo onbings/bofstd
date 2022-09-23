@@ -91,8 +91,7 @@ int main(int argc, char *argv[])
 //	::testing::GTEST_FLAG(filter) = "-BofIo_Test.*";
 
 	//::testing::GTEST_FLAG(filter) = "Async_Test.*";
-	//::testing::GTEST_FLAG(filter) = "SocketUdp_Test.ScatterGatherIo";
-
+	//::testing::GTEST_FLAG(filter) = "SocketUdp_Test.ScatterGatherIo"top
 
 #if defined (_WIN32)
 #else
@@ -115,14 +114,14 @@ int main(int argc, char *argv[])
 	//	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*";
 //	::testing::GTEST_FLAG(filter) = "Api_Test.*";
 //	::testing::GTEST_FLAG(filter) = "SocketOs_Test.*:BofNaryTreeKv_Test.*:Path_Test.*:Uri_Test.*:Fs_Test.*";
-//	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*:SocketOs_Test.*:Uri_Test.*";
+	//	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*:SocketOs_Test.*:Uri_Test.*";
 	//	::testing::GTEST_FLAG(filter) = "Logger_Test.LoggerMultiChannel";
 		Rts_i = RUN_ALL_TESTS();
 
 	Sts_E = Bof_Shutdown();
 	BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 
-#if defined(DEBUG)
+#if !defined(NDEBUG)
 	std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
 //	std::cin.ignore();
 #endif

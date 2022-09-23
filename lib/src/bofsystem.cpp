@@ -1039,14 +1039,14 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
 		if (ThreadStopTo_B)
 		{
 			Sts_B = TerminateThread(_rThread_X.pThread, 0x69696969) ? true : false;
-#if defined(DEBUG)
+#if !defined(NDEBUG)
 			printf("%d Kill thread '%s' Status %d\r\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
 #endif
 		}
 #else
 		if (ThreadStopTo_B)
 		{
-#if defined(DEBUG)
+#if !defined(NDEBUG)
 			printf("%d Should Kill thread '%s'\r\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
 #endif
 		}

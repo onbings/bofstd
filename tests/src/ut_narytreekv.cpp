@@ -141,6 +141,7 @@ MountPoint [NULL]
 		+--- FileD [Dir3]
 */
 
+#if 0
 	ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
 	std::cout << ToString_S;
 
@@ -160,6 +161,7 @@ MountPoint [NULL]
 
 	printf("%s\n", ToString_S.c_str());
 	puBofNaryTreeKv->ClearTree(RootHandle);
+#endif
 
 	ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
 	std::cout << ToString_S;

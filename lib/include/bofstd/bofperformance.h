@@ -27,21 +27,8 @@
 
 BEGIN_BOF_NAMESPACE()
 
-/*** Globals ***********************************************************************************************************************/
-
-/*** Defines ***********************************************************************************************************************/
-
-// #if !defined(DEBUG)
-//
-// #define BOF_ENTER_BENCH(PROFILER, ITEM)
-// #define BOF_LEAVE_BENCH(PROFILER, ITEM)
-//
-// #else
-
 #define BOF_ENTER_BENCH(PROFILER, ITEM)    { if ( (PROFILER) != nullptr) { (PROFILER)->V_EnterBench(ITEM); } }
 #define BOF_LEAVE_BENCH(PROFILER, ITEM)    { if ( (PROFILER) != nullptr) { (PROFILER)->V_LeaveBench(ITEM); } }
-
-// #endif
 
 /*** Enums *************************************************************************************************************************/
 

@@ -49,6 +49,10 @@ void TestSocketAddress(bool _IsIpV6_B)
   std::vector<uint16_t> IpDigitCollection;
 //	Sts_E=Bof_IpAddressToSocketAddressCollection("tcp://[102:3c0:405:6a8:708:901:a0b:c01]:1234", HostIpAddress_X);
 
+	IpAddress_X = BOF_SOCKET_ADDRESS("1.2.3.4:8765");
+	Ip_S = IpAddress_X.ToString(false,true);
+	EXPECT_STREQ(Ip_S.c_str(), "1.2.3.4:8765");
+
 	pIpAddress_X[0].Set(_IsIpV6_B, BOF_SOCK_TYPE::BOF_SOCK_TCP, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_TCP, 1, 2, 3, 4, 1234);
 	pIpAddress_X[1].Set(_IsIpV6_B, BOF_SOCK_TYPE::BOF_SOCK_UDP, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UDP, 0, 0, 0, 0, 4321);
 

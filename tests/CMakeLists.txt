@@ -190,8 +190,9 @@ if(MEMORYCHECK_SUPPRESSIONS_FILE)
 endif()
 
 
-message("Copy test files from " ${CMAKE_CURRENT_SOURCE_DIR} "/data to " ${CMAKE_CURRENT_BINARY_DIR} "/data")
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data)
-foreach(filename ${DATA_FILES})
-  file(COPY ${filename} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
+message("Copy test files from " ${CMAKE_CURRENT_SOURCE_DIR} "/data to " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} "/data")
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data)
+foreach(Filename ${DATA_FILES})
+  message("Copy " ${Filename} " to " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} "/data")
+  file(COPY ${Filename} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data)
 endforeach()

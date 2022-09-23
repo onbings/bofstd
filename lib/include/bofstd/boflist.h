@@ -35,7 +35,7 @@ History:
 // to profile this class
 //#define PROFILE_CLIST
 
-#if defined(DEBUG)
+#if !defined(NDEBUG)
 #define CHECK_LIST_INTEGRITY
 #endif
 

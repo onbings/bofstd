@@ -183,7 +183,7 @@ inline std::shared_ptr<To> reinterpret_pointer_cast(std::shared_ptr<From> const 
 extern uint32_t GL_BofDbgPrintfStartTime_U32;
 #define BOF_DBG_PRINTF(Format, ...)   {printf("%10d [%08X] " Format, BOF::Bof_GetMsTickCount()-BOF::GL_BofDbgPrintfStartTime_U32,BOF::Bof_CurrentThreadId(),  ##__VA_ARGS__);}
 
-#if defined (DEBUG)
+#if !defined (NDEBUG)
 // #define BOF_ASSERT(_Expression)																													assert( (_Expression) )
 // This one is better to use with gtest to avoid gtest aborf
 //#define BOF_ASSERT(_Expression)                                                         (void)( ( (_Expression) ) || (GL_BofStdParam_X.AssertCallback ? GL_BofStdParam_X.AssertCallback(__FILE__,__LINE__,#_Expression):printf("Assertion failed: %s, file %s, line %d\nPress any key followed by enter to abort the application...",#_Expression, __FILE__, __LINE__), getchar(), abort(), 0) )
