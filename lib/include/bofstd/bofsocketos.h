@@ -257,7 +257,7 @@ BEGIN_BOF_NAMESPACE()
       }
       return Rts_i;
     }
-    std::string ToString(bool _ShowType_B, bool _ShowPortNumber_B)
+    std::string ToString(bool _ShowType_B, bool _ShowPortNumber_B) const
     {
       return Bof_SocketAddressToString(*this, _ShowType_B, _ShowPortNumber_B);
     }
