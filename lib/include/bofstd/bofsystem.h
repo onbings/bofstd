@@ -95,6 +95,16 @@ struct BOFSTD_EXPORT BOF_BUFFER
 	{
 		SetStorage(_Capacity_U64, _Size_U64, _pData_U8);
 	}
+	~BOF_BUFFER()
+	{
+		if (MustBeDeleted_B)
+		{
+			BOF_SAFE_DELETE_ARRAY(pData_U8);
+		}
+		Reset();
+	}
+
+
 	/*
 	~BOF_BUFFER()
 	{
