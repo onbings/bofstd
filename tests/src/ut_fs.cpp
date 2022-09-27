@@ -351,9 +351,9 @@ TEST(Fs_Test, EntireFile)
 
 	Path = "BhaFile.txt";
 
-	EXPECT_EQ(Bof_WriteFile(Permission_E, Path, false, Line_S), BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Bof_WriteFile(Permission_E, Path, true, Line_S), BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Bof_ReadFile(Path, LineRead_S), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(Bof_WriteLine(Permission_E, Path, false, Line_S), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(Bof_WriteLine(Permission_E, Path, true, Line_S), BOF_ERR_NO_ERROR);
+	EXPECT_EQ(Bof_ReadLine(Path, LineRead_S), BOF_ERR_NO_ERROR);
 	Line_S = Line_S + Line_S;
 	EXPECT_STREQ(LineRead_S.c_str(), Line_S.c_str());
 }
@@ -446,7 +446,7 @@ TEST(Fs_Test, FileLayout)
 					EXPECT_EQ(NewPos_U64, Pos_U64);
 					Line_S     = Bof_Sprintf("This is line %06d%s", k_U32, Bof_Eol() );
 					Nb_U32     = static_cast<uint32_t>(Line_S.size());
-					Sts_E      = Bof_ReadFile(Io, LineRead_S);
+					Sts_E      = Bof_ReadLine(Io, LineRead_S);
 					EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 					EXPECT_EQ(Nb_U32, Line_S.size() );
 					EXPECT_STREQ(Line_S.c_str(), LineRead_S.c_str() );

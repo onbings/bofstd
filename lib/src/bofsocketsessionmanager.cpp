@@ -263,8 +263,8 @@ BOFERR BofSocketSessionManager::BofIoLog(const char *_pFormat_c, ...)
 			vsprintf(pLog_c, _pFormat_c, Arg_X);
 			va_end(Arg_X);
 			sprintf(pTime_c, "%d -> ", Bof_GetMsTickCount());
-			Rts_E = Bof_WriteFile(mIo, pTime_c);
-			Rts_E = Bof_WriteFile(mIo, pLog_c);
+			Rts_E = Bof_WriteLine(mIo, pTime_c);
+			Rts_E = Bof_WriteLine(mIo, pLog_c);
 			Bof_FlushFile(mIo);
 		}
 	}

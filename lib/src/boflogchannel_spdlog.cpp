@@ -562,7 +562,7 @@ public:
           }
           if ((mLogChannelParam_X.LogSink_E == BOF_LOG_CHANNEL_SINK::TO_FILE) || (mLogChannelParam_X.LogSink_E == BOF_LOG_CHANNEL_SINK::TO_DAILYFILE))
           {
-            Rts_E = (mIoLog != -1) ? Bof_ReadFile(mIoLog, Line_S) : BOF_ERR_CLOSE;
+            Rts_E = (mIoLog != -1) ? Bof_ReadLine(mIoLog, Line_S) : BOF_ERR_CLOSE;
           }
           if (Rts_E == BOF_ERR_NO_ERROR)
           {

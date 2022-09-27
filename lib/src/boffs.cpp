@@ -730,7 +730,7 @@ int ReadLine(intptr_t _Io, uint32_t _Max_U32, char *_pBuffer_c)
 	return (Rts_i);
 }
 
-BOFERR Bof_ReadFile(intptr_t _Io, std::string &_rLine_S)
+BOFERR Bof_ReadLine(intptr_t _Io, std::string &_rLine_S)
 {
 	BOFERR Rts_E = BOF_ERR_READ;
 	char pBuffer_c[0x10000];
@@ -744,12 +744,68 @@ BOFERR Bof_ReadFile(intptr_t _Io, std::string &_rLine_S)
 	return Rts_E;
 }
 
-BOFERR Bof_WriteFile(intptr_t _Io, const std::string &_rLine_S)
+BOFERR Bof_ReadLine(const BofPath& _rPath, std::string& _rBuffer_S)
+{
+	BOFERR Rts_E = BOF_ERR_ENOENT;
+
+	if (Bof_GetFileType(_rPath) == BOF_FILE_TYPE::BOF_FILE_REG)
+	{
+		Rts_E = BOF_ERR_NO_ERROR;
+		std::fstream In(_rPath.FullPathName(false), std::fstream::in);
+		std::getline(In, _rBuffer_S, '\0');  //There should be no \0 in text files.
+	}
+#if 0
+	BOFERR Rts_E = BOF_ERR_EOF;
+	intptr_t Io;
+	uint32_t Nb_U32;
+	uint64_t Size_U64;
+
+	Size_U64 = Bof_GetFileSize(_rPath);
+	if (Size_U64 != static_cast<uint64_t> (-1))
+	{
+		Rts_E = Bof_OpenFile(_rPath, true, Io);
+		if (Rts_E == BOF_ERR_NO_ERROR)
+		{
+			if (_rBuffer_S.capacity() <= Size_U64)
+			{
+				_rBuffer_S.reserve(static_cast<uint32_t>(Size_U64));
+			}
+			//C++11 and later do require contiguous storage for std::string
+			Nb_U32 = static_cast<uint32_t>(Size_U64);
+			//			Rts_E = Bof_ReadFile(Io, Nb_U32, reinterpret_cast<void *>(_rBuffer_S.c_str()));
+			Rts_E = Bof_ReadFile(Io, Nb_U32, &_rBuffer_S[0]);
+			if (Rts_E == BOF_ERR_NO_ERROR)
+			{
+				_rBuffer_S.size = Nb_U32;
+			}
+			Bof_CloseFile(Io);
+		}
+	}
+#endif
+	return (Rts_E);
+}
+BOFERR Bof_WriteLine(intptr_t _Io, const std::string &_rLine_S)
 {
 	uint32_t Nb_U32 = static_cast<uint32_t>(_rLine_S.size());
 
 	return Bof_WriteFile(_Io, Nb_U32, reinterpret_cast<const uint8_t *>(_rLine_S.c_str()));
 }
+BOFERR Bof_WriteLine(const BOF_FILE_PERMISSION _Permission_E, const BofPath& _rPath, bool _Append_B, const std::string& _rBuffer_S)
+{
+	BOFERR Rts_E = BOF_ERR_NO_ERROR;
+	uint32_t Nb_U32;
+	intptr_t Io;
+
+	Rts_E = Bof_CreateFile(_Permission_E, _rPath, _Append_B, Io);
+	if (Rts_E == BOF_ERR_NO_ERROR)
+	{
+		Nb_U32 = static_cast<uint32_t>(_rBuffer_S.size());
+		Rts_E = Bof_WriteFile(Io, Nb_U32, reinterpret_cast<const uint8_t*>(_rBuffer_S.c_str()));
+		Bof_CloseFile(Io);
+	}
+	return (Rts_E);
+}
+
 
 BOFERR Bof_ReadFile(intptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8)
 {
@@ -819,62 +875,28 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsag
 	}
 	return Rts_E;
 }
-BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rBuffer_S)
+
+BOFERR Bof_ReadFile(const BofPath& _rPath, std::string &_rRawData_S)
 {
-	BOFERR Rts_E = BOF_ERR_ENOENT;
+	BOFERR Rts_E = BOF_ERR_OPERATION_FAILED;
 
-	if (Bof_GetFileType(_rPath) == BOF_FILE_TYPE::BOF_FILE_REG)
-	{
-		Rts_E = BOF_ERR_NO_ERROR;
-		std::fstream In(_rPath.FullPathName(false), std::fstream::in);
-		std::getline(In, _rBuffer_S, '\0');  //There should be no \0 in text files.
-	}
-#if 0
-	BOFERR Rts_E=BOF_ERR_EOF;
-	intptr_t Io;
-	uint32_t Nb_U32;
-	uint64_t Size_U64;
-
-	Size_U64 = Bof_GetFileSize(_rPath);
-	if (Size_U64 != static_cast<uint64_t> (-1))
-	{
-		Rts_E = Bof_OpenFile(_rPath, true, Io);
-		if (Rts_E == BOF_ERR_NO_ERROR)
-		{
-			if (_rBuffer_S.capacity() <= Size_U64 )
-			{
-				_rBuffer_S.reserve(static_cast<uint32_t>(Size_U64));
-			}
-//C++11 and later do require contiguous storage for std::string
-			Nb_U32 = static_cast<uint32_t>(Size_U64);
-//			Rts_E = Bof_ReadFile(Io, Nb_U32, reinterpret_cast<void *>(_rBuffer_S.c_str()));
-			Rts_E = Bof_ReadFile(Io, Nb_U32, &_rBuffer_S[0]);
-			if (Rts_E==BOF_ERR_NO_ERROR)
-			{
-				_rBuffer_S.size = Nb_U32;
-			}
-			Bof_CloseFile(Io);
-		}
-	}
+// Open the file: Note that we have to use binary mode as we want to return a string
+// representing matching the bytes of the file on the file system.
+#if defined(_WIN32)
+	std::ifstream Io(_rPath.FullPathName(true), std::ios::in | std::ios::binary);
+#else
+	std::ifstream Io(_rPath.FullPathName(false), std::ios::in | std::ios::binary);
 #endif
-	return (Rts_E);
-}
-
-BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, const std::string &_rBuffer_S)
-{
-	BOFERR Rts_E = BOF_ERR_NO_ERROR;
-	uint32_t Nb_U32;
-	intptr_t Io;
-
-	Rts_E = Bof_CreateFile(_Permission_E, _rPath, _Append_B, Io);
-	if (Rts_E == BOF_ERR_NO_ERROR)
+	if (Io.is_open())
 	{
-		Nb_U32 = static_cast<uint32_t>(_rBuffer_S.size());
-		Rts_E = Bof_WriteFile(Io, Nb_U32, reinterpret_cast<const uint8_t *>(_rBuffer_S.c_str()));
-		Bof_CloseFile(Io);
+//		std::string content{ std::istreambuf_iterator<char>(Io), std::istreambuf_iterator<char>() };
+		_rRawData_S = std::string{ std::istreambuf_iterator<char>(Io), std::istreambuf_iterator<char>() };
+		Io.close();
+		Rts_E = BOF_ERR_NO_ERROR;
 	}
-	return (Rts_E);
+	return Rts_E;
 }
+
 
 BOFERR Bof_FlushFile(intptr_t _Io)
 {

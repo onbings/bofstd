@@ -205,17 +205,25 @@ BOFSTD_EXPORT bool Bof_IsFileHandleValid(intptr_t _Io);
 BOFSTD_EXPORT BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, intptr_t &_rIo);
 BOFSTD_EXPORT BOFERR Bof_CreateTempFile(const BOF_FILE_PERMISSION _Permission_E, BofPath &_rPath, const std::string &_rExt_S, intptr_t &_rIo);
 BOFSTD_EXPORT BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, intptr_t &_rIo);
+
 BOFSTD_EXPORT int64_t Bof_SetFileIoPosition(intptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHOD _SeekMethod_E);
 BOFSTD_EXPORT int64_t Bof_GetFileIoPosition(intptr_t _Io);
-BOFSTD_EXPORT BOFERR Bof_ReadFile(intptr_t _Io, std::string &_rLine_S);
-BOFSTD_EXPORT BOFERR Bof_WriteFile(intptr_t _Io, const std::string &_rLine_S);
+
+BOFSTD_EXPORT BOFERR Bof_ReadLine(intptr_t _Io, std::string &_rLine_S);
+BOFSTD_EXPORT BOFERR Bof_WriteLine(intptr_t _Io, const std::string &_rLine_S);
+
 BOFSTD_EXPORT BOFERR Bof_ReadFile(intptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8);
 BOFSTD_EXPORT BOFERR Bof_WriteFile(intptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8);
-BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rBuffer_S);
-BOFSTD_EXPORT BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, const std::string &_rBuffer_S);
+
+BOFSTD_EXPORT BOFERR Bof_ReadLine(const BofPath& _rPath, std::string& _rBuffer_S);
+BOFSTD_EXPORT BOFERR Bof_WriteLine(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, const std::string &_rBuffer_S);
+
 BOFSTD_EXPORT BOFERR Bof_FlushFile(intptr_t _Io);
 BOFSTD_EXPORT BOFERR Bof_CloseFile(intptr_t &_rIo);
+
 BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsage_X);
+BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S);
+
 BOFSTD_EXPORT uint64_t Bof_GetFileSize(const BofPath &_rPath);
 BOFSTD_EXPORT BOFERR Bof_DeleteFile(const BofPath &_rPath);
 BOFSTD_EXPORT BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath);
