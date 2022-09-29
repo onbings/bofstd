@@ -171,6 +171,7 @@ BEGIN_BOF_NAMESPACE()
   {
     std::string Protocol_S;   //Scheme  (cf BofUri)
     std::string User_S;       //Authority (cf BofUri)
+    std::string Password_S;       //Authority (cf BofUri)
     std::string IpAddress_S;  //Authority (cf BofUri)
     uint16_t    Port_U16;     //Authority (cf BofUri)
 
@@ -183,6 +184,7 @@ BEGIN_BOF_NAMESPACE()
     {
       Protocol_S = "";
       User_S = "";
+      Password_S = "";
       IpAddress_S = "";
       Port_U16    = 0;
     }
@@ -194,13 +196,27 @@ BEGIN_BOF_NAMESPACE()
     {
       std::ostringstream Rts;
 
-      if (Protocol_S != "")
-      {
-        Rts << Protocol_S << "://";
-      }
       if (User_S != "")
       {
-        Rts << User_S << '@';
+        if (Protocol_S != "")
+        {
+          Rts << Protocol_S << "://";
+        }
+        if (Password_S != "")
+        {
+          Rts << User_S << ':' << Password_S << '@';
+        }
+        else
+        {
+          Rts << User_S << '@';
+        }
+      }
+      else
+      {
+        if (Protocol_S != "")
+        {
+          Rts << Protocol_S << ':';
+        }
       }
       Rts << IpAddress_S;
       if (Port_U16)
