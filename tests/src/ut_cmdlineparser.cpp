@@ -60,7 +60,7 @@ struct ARRAYENTRY
   uint8_t            a_U8;
   uint16_t           b_U16;
   char               pTxt_c[32];
-  BOF_SOCKET_ADDRESS IpV4_X;
+  BOF_SOCKET_ADDRESS_COMPONENT IpV4_X;
   ARRAYENTRY()
   {
     c_U32 = 0;
@@ -80,9 +80,8 @@ struct APPPARAM
   double             Value_lf;
   uint32_t           Value_U32;
 // struct sockaddr_in6 IpV6_X;
-  BOF_SOCKET_ADDRESS IpV6_X;
-  BOF_SOCKET_ADDRESS IpV4_X;
-  //BOF_SOCKET_ADDRESS_COMPONENT
+  BOF_SOCKET_ADDRESS_COMPONENT IpV6_X;
+  BOF_SOCKET_ADDRESS_COMPONENT IpV4_X;
   uint32_t           pVal_U32[8];
   char               pVal_c[7][256];
   ARRAYENTRY         pArray_X[6];
@@ -315,8 +314,8 @@ TEST_F(CmdLineParser_Test, CmdLine)
   strcpy(ppArgument_c[Argc_i], "--i6=tcp://[0004:db8:0::1]:80");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
-//  strcpy(ppArgument_c[Argc_i], "--i4=udp://john.doe:password@192.168.1.2:23");
-  strcpy(ppArgument_c[Argc_i], "--i4=192.168.1.2:23");
+  strcpy(ppArgument_c[Argc_i], "--i4=udp://john.doe:password@192.168.1.2:23");
+  //strcpy(ppArgument_c[Argc_i], "--i4=192.168.1.2:23");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
@@ -447,10 +446,13 @@ TEST_F(CmdLineParser_Test, CmdLine)
   EXPECT_EQ(S_AppParam_X.Time_X.Second_U8, 56);
   EXPECT_EQ(S_AppParam_X.Time_X.Millisecond_U16, 0);
 
-  Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV4_X, true, true);
-  EXPECT_STREQ(Ip_S.c_str(), "???://192.168.1.2:23");
+  Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV4_X.Ip_X, true, true);
+  EXPECT_STREQ(Ip_S.c_str(), "udp://192.168.1.2:23");
 
-  Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV6_X, true, true);
+  Ip_S = S_AppParam_X.IpV4_X.ToString(true, true, true, true);
+  EXPECT_STREQ(Ip_S.c_str(), "udp://192.168.1.2:23");
+
+  Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV6_X.Ip_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "tcp://[4:db8::1]:80");
 
   EXPECT_STREQ(S_AppParam_X.pSlnPath, "\"sln file\"");
@@ -473,11 +475,11 @@ TEST_F(CmdLineParser_Test, CmdLine)
   EXPECT_STREQ(S_AppParam_X.pArray_X[3].pTxt_c, "at 3");
   EXPECT_STREQ(S_AppParam_X.pArray_X[4].pTxt_c, "");
   // m:
-  Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[0].IpV4_X, true, true);
+  Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[0].IpV4_X.Ip_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "???://1.2.3.4:0");
-  Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[1].IpV4_X, true, true);
+  Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[1].IpV4_X.Ip_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "???://5.6.7.8:9");
-  Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[2].IpV4_X, true, true);
+  Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[2].IpV4_X.Ip_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "udp://10.20.30.40:50");
 
   Uri_S = S_AppParam_X.Uri1.ToString();

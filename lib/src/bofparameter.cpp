@@ -31,7 +31,6 @@
 #include <inttypes.h>
 #include <bofstd/bofsystem.h>
 
-
 #if defined (_WIN32)
 //#include <ws2tcpip.h>                                                                               // for sockaddrin_6
 #undef max                                                                                          // Needed undex windows as winmindef #define min and max
@@ -231,12 +230,11 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   //static const std::regex S_RegExDecimal_O("[\\+\\-]?([0-9]+)[.]?([0-9]*)");                              // (*, meaning "zero or more") or a plus sign (+, meaning "one or more")
   static const std::regex S_RegExBoolTrue_O("true|True|TRUE|Y|y|1|on|On|ON");
   static const std::regex S_RegExBoolFalse_O("false|False|FALSE|N|n|0|off|Off|OFF");
-  static const std::regex S_RegExIpV4_O("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-  static const std::regex S_RegExIpV6_O(
-    "^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}:([0-9A-Fa-f]{1,4}:)?[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){4}:([0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){3}:([0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){2}:([0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(([0-9A-Fa-f]{1,4}:){0,5}:((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(::([0-9A-Fa-f]{1,4}:){0,5}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|([0-9A-Fa-f]{1,4}::([0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})|(::([0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:))$");
+  //  static const std::regex S_RegExIpV4_O("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+  //  static const std::regex S_RegExIpV6_O("^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}:([0-9A-Fa-f]{1,4}:)?[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){4}:([0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){3}:([0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){2}:([0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(([0-9A-Fa-f]{1,4}:){0,5}:((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(::([0-9A-Fa-f]{1,4}:){0,5}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|([0-9A-Fa-f]{1,4}::([0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})|(::([0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:))$");
 
   const char *pTheOptVal_c, *pComaSep_c, *pNextComaSep_c;
-  char              pAllTheOptVal_c[0x1000], pDateTimeFormat_c[0x100], pAllTheIpAddress_c[0x100], *pIpAddress_c;
+  char              pAllTheOptVal_c[0x1000], pDateTimeFormat_c[0x100];
   std::cmatch       MatchCharString_O;
 
   bool               Val_B = false;
@@ -251,20 +249,13 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   float              Val_f = 0;
   double             Val_lf = 0;
   char *p_c;
-  int16_t            IpPort_U16 = 0;
   int32_t            ScopeId_U32 = 0, FlowInfo_U32 = 0;
-  struct in_addr     IpV4_X;
-  struct in6_addr    IpV6_X;
   BofVideoStandard	 VideoStandard;
   BofAudioStandard	 AudioStandard;
   BofTimecode			   TimeCode;
-  BOF_SOCKET_ADDRESS *pIpV6_X;
-  BOF_SOCKET_ADDRESS *pIpV4_X;
   int                Len_i, LenMin_i, LenMax_i;
   bool               InsertInStdVector_B = false, ShortOpt_B, LastArrayArg_B;
   void *pValue;
-  BOF_SOCKET_ADDRESS Ip_X;
-  BOF_SOCK_TYPE      SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
   //BOF_PROTOCOL_TYPE ProtocolType_E = BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN;
   BOF_SIZE					 Size_X;
   int Width_i, Height_i;
@@ -272,6 +263,15 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   BofPath            Path;
   BofUri             Uri;
   std::string        Path_S, Query_S;
+  //struct in_addr     IpV4_X;
+  //struct in6_addr    IpV6_X;
+  //BOF_SOCKET_ADDRESS *pIpV6_X;
+  //BOF_SOCKET_ADDRESS *pIpV4_X;
+  //BOF_SOCKET_ADDRESS Ip_X;
+  //BOF_SOCK_TYPE      SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
+  //char pAllTheIpAddress_c[0x100], *pIpAddress_c;
+  //int16_t            IpPort_U16 = 0;
+  BOF_SOCKET_ADDRESS_COMPONENT IpAddress_X;
   // std::get_time not present in gcc 4.9
   std::tm Tm_X;
 
@@ -281,7 +281,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
     _pOptVal_c = "0"; //0 is good for bool and integral type bus is it good for string (side effect) ? //(_rBofParameter_X.ArgType_E==BOFPARAMETER_ARG_TYPE::BOOL)
     ShortOpt_B = true;
   }
-  pIpAddress_c = pAllTheIpAddress_c;
+  //pIpAddress_c = pAllTheIpAddress_c;
   Len_i = 0;
   LenMax_i = 0;
   if ((_pOptVal_c) && ((Len_i = static_cast<int>(strlen(_pOptVal_c))) < static_cast<int>(sizeof(pAllTheOptVal_c))))
@@ -428,77 +428,45 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             break;
 
           case BOFPARAMETER_ARG_TYPE::IPV4:
-            IpPort_U16 = 0;
-            strcpy(pAllTheIpAddress_c, pTheOptVal_c);
-            pIpAddress_c = pAllTheIpAddress_c;
-
-            //Bof_ProtocolType(pIpAddress_c, ProtocolType_E);  //Find optional protocol type
-            SocketType_E = Bof_SocketType(pIpAddress_c);
-            p_c = strstr(pIpAddress_c, "://");
-            if (p_c)
-            {
-              pIpAddress_c = p_c + 3;
-            }
-            p_c = strrchr(pIpAddress_c, ':');  //Find optional port number
-            if (p_c)
-            {
-              *p_c = 0;
-              IpPort_U16 = static_cast<uint16_t> (atoi(p_c + 1));
-            }
-
-            if (regex_match(pIpAddress_c, MatchCharString_O, S_RegExIpV4_O))
-            {
-              if (inet_pton(AF_INET, pIpAddress_c, &IpV4_X) == 1)
-              {
-                Rts_E = BOF_ERR_NO_ERROR;
-              }
-            }
-            break;
-
           case BOFPARAMETER_ARG_TYPE::IPV6:
-            IpPort_U16 = 0;
-            FlowInfo_U32 = 0;
-            ScopeId_U32 = 0;
-            strcpy(pAllTheIpAddress_c, pTheOptVal_c);
-            pIpAddress_c = pAllTheIpAddress_c;
-            //              Bof_ProtocolType(pIpAddress_c, ProtocolType_E);
-            SocketType_E = Bof_SocketType(pIpAddress_c);
-            p_c = strstr(pIpAddress_c, "://");
-            if (p_c)
+            //IpPort_U16 = 0;
+            Rts_E = Bof_SplitIpAddress(pTheOptVal_c, IpAddress_X);
+            if (Rts_E == BOF_ERR_NO_ERROR)
             {
-              pIpAddress_c = p_c + 3;
-            }
-
-            p_c = strrchr(pIpAddress_c, '%');                     // Windows %1 linux %eth0
-            if (p_c)
-            {
-              *p_c = 0;
-              ScopeId_U32 = atoi(p_c + 1);
-            }
-
-            if (pIpAddress_c[0] == '[')
-            {
-              p_c = strrchr(pIpAddress_c, ']');
-              if (p_c)
+              if (IpAddress_X.Ip_X.IpV6_B == (_rBofParameter_X.ArgType_E == BOFPARAMETER_ARG_TYPE::IPV6) ? true : false)
               {
-                *p_c = 0;
-                if (p_c[1] == ':')
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_SCHEME))
                 {
-                  IpPort_U16 = static_cast<uint16_t> (atoi(p_c + 2));
+                  if (IpAddress_X.Protocol_S.empty())
+                  {
+                    Rts_E = BOF_ERR_PROTOCOL;
+                  }
+                }
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_USER))
+                {
+                  if (IpAddress_X.User_S.empty())
+                  {
+                    Rts_E = BOF_ERR_EUSERS;
+                  }
+                }
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_PASSWORD))
+                {
+                  if (IpAddress_X.Password_S.empty())
+                  {
+                    Rts_E = BOF_ERR_EACCES;
+                  }
+                }
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_PORT))
+                {
+                  if (IpAddress_X.Port_U16 == 0)
+                  {
+                    Rts_E = BOF_ERR_EINVAL;
+                  }
                 }
               }
-              pIpAddress_c = &pIpAddress_c[1];
-            }
-            else
-            {
-              pIpAddress_c = &pIpAddress_c[0];
-            }
-
-            if (regex_match(pIpAddress_c, MatchCharString_O, S_RegExIpV6_O))
-            {
-              if (inet_pton(AF_INET6, pIpAddress_c, &IpV6_X) == 1)
+              else
               {
-                Rts_E = BOF_ERR_NO_ERROR;
+                Rts_E = BOF_ERR_ADDRESS;
               }
             }
             break;
@@ -556,7 +524,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
               {
                 if (Uri.Scheme().empty())
                 {
-                  Rts_E = BOF_ERR_EUNATCH;
+                  Rts_E = BOF_ERR_PROTOCOL;
                 }
               }
               if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_AUTHORITY))
@@ -901,52 +869,16 @@ DateTimeParse:
                 break;
 
               case BOFPARAMETER_ARG_TYPE::IPV4:
-                if ((pIpAddress_c) && (inet_pton(AF_INET, pIpAddress_c, &IpV4_X) == 1))
-                {
-                  Ip_X.IpV6_B = false;
-                  //Ip_X.ProtocolType_E = ProtocolType_E;
-                  Ip_X.SocketType_E = SocketType_E;
-                  Ip_X.IpV4Address_X.sin_family = AF_INET;
-                  Ip_X.IpV4Address_X.sin_port = htons(IpPort_U16);
-                  Ip_X.IpV4Address_X.sin_addr = IpV4_X;
-
-                  if (InsertInStdVector_B)
-                  {
-                    std::vector<BOF_SOCKET_ADDRESS> *pVectorIp4;
-                    pVectorIp4 = reinterpret_cast<std::vector<BOF_SOCKET_ADDRESS> *>(pValue);
-                    pVectorIp4->push_back(Ip_X);
-                  }
-                  else
-                  {
-                    pIpV4_X = static_cast<BOF_SOCKET_ADDRESS *> (pValue);
-                    *pIpV4_X = Ip_X;
-                  }
-                }
-                break;
-
               case BOFPARAMETER_ARG_TYPE::IPV6:
-                if ((pIpAddress_c) && (inet_pton(AF_INET6, pIpAddress_c, &IpV6_X) == 1))
+                if (InsertInStdVector_B)
                 {
-                  Ip_X.IpV6_B = true;
-                  //Ip_X.ProtocolType_E = ProtocolType_E;
-                  Ip_X.SocketType_E = SocketType_E;
-                  Ip_X.IpV6Address_X.sin6_family = AF_INET6;
-                  Ip_X.IpV6Address_X.sin6_port = htons(IpPort_U16);
-                  memcpy(Ip_X.IpV6Address_X.sin6_addr.s6_addr, &IpV6_X, 16);
-                  Ip_X.IpV6Address_X.sin6_flowinfo = FlowInfo_U32;
-                  Ip_X.IpV6Address_X.sin6_scope_id = ScopeId_U32;
-
-                  if (InsertInStdVector_B)
-                  {
-                    std::vector<BOF_SOCKET_ADDRESS> *pVectorIp6;
-                    pVectorIp6 = reinterpret_cast<std::vector<BOF_SOCKET_ADDRESS> *>(pValue);
-                    pVectorIp6->push_back(Ip_X);
-                  }
-                  else
-                  {
-                    pIpV6_X = static_cast<BOF_SOCKET_ADDRESS *> (pValue);
-                    *pIpV6_X = Ip_X;
-                  }
+                  std::vector<BOF_SOCKET_ADDRESS_COMPONENT> *pVectorIp;
+                  pVectorIp = reinterpret_cast<std::vector<BOF_SOCKET_ADDRESS_COMPONENT> *>(pValue);
+                  pVectorIp->push_back(IpAddress_X);
+                }
+                else
+                {
+                  *static_cast<BOF_SOCKET_ADDRESS_COMPONENT *> (pValue) = IpAddress_X;
                 }
                 break;
 
@@ -1841,16 +1773,17 @@ DateTimeToString:
         break;
 
         case BOFPARAMETER_ARG_TYPE::IPV4:
+        case BOFPARAMETER_ARG_TYPE::IPV6:
         {
-          BOF_SOCKET_ADDRESS IpV4_X;
+          BOF_SOCKET_ADDRESS_COMPONENT IpAddressComponent_X;
           if (GetFromStdVector_B)
           {
-            std::vector<BOF_SOCKET_ADDRESS> *pVectorIpV4;
-            pVectorIpV4 = reinterpret_cast<std::vector<BOF_SOCKET_ADDRESS> *>(pValue);
-            _rVectorCapacity_U32 = static_cast<uint32_t>(pVectorIpV4->size());
+            std::vector<BOF_SOCKET_ADDRESS_COMPONENT> *pVectorIp;
+            pVectorIp = reinterpret_cast<std::vector<BOF_SOCKET_ADDRESS_COMPONENT> *>(pValue);
+            _rVectorCapacity_U32 = static_cast<uint32_t>(pVectorIp->size());
             if (_Index_U32 < _rVectorCapacity_U32)
             {
-              IpV4_X = pVectorIpV4->operator[](_Index_U32);
+              IpAddressComponent_X = pVectorIp->operator[](_Index_U32);
             }
             else
             {
@@ -1859,41 +1792,12 @@ DateTimeToString:
           }
           else
           {
-            IpV4_X = *(static_cast<BOF_SOCKET_ADDRESS *> (pValue));
+            IpAddressComponent_X = *(static_cast<BOF_SOCKET_ADDRESS_COMPONENT *> (pValue));
           }
           if (pRts_c)
           {
             //  snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_SocketAddressToString(IpV4_X, false, Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT)).c_str());
-            snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_SocketAddressToString(IpV4_X, Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL),
-                     Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT)).c_str());
-          }
-        }
-        break;
-
-        case BOFPARAMETER_ARG_TYPE::IPV6:
-        {
-          BOF_SOCKET_ADDRESS IpV6_X;
-          if (GetFromStdVector_B)
-          {
-            std::vector<BOF_SOCKET_ADDRESS> *pVectorIpV6;
-            pVectorIpV6 = reinterpret_cast<std::vector<BOF_SOCKET_ADDRESS> *>(pValue);
-            _rVectorCapacity_U32 = static_cast<uint32_t>(pVectorIpV6->size());
-            if (_Index_U32 < _rVectorCapacity_U32)
-            {
-              IpV6_X = pVectorIpV6->operator[](_Index_U32);
-            }
-            else
-            {
-              pRts_c = nullptr;
-            }
-          }
-          else
-          {
-            IpV6_X = *(static_cast<BOF_SOCKET_ADDRESS *> (pValue));
-          }
-          if (pRts_c)
-          {
-            snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_SocketAddressToString(IpV6_X, false, Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT)).c_str());
+            snprintf(_pToString_c, _MaxSize_U32, "%s", IpAddressComponent_X.ToString(true, true, true, true).c_str());
           }
         }
         break;

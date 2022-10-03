@@ -422,7 +422,7 @@ BEGIN_BOF_NAMESPACE()
     {
       return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16) && (User_S == _rOther.User_S) && (Password_S == _rOther.Password_S) && (Ip_X == _rOther.Ip_X);
     }
-    std::string ToString() const
+    std::string ToString(bool _ShowProtocol_B, bool _ShowUser_B, bool _ShowPassword_B, bool _ShowPortNumber_B) const
     {
       std::ostringstream Rts;
 
@@ -430,28 +430,43 @@ BEGIN_BOF_NAMESPACE()
       {
         if (Protocol_S != "")
         {
-          Rts << Protocol_S << "://";
+          if (_ShowProtocol_B)
+          {
+            Rts << Protocol_S << "://";
+          }
         }
         if (Password_S != "")
         {
-          Rts << User_S << ':' << Password_S << '@';
+          if ((_ShowUser_B) && (_ShowPassword_B))
+          {
+            Rts << User_S << ':' << Password_S << '@';
+          }
         }
         else
         {
-          Rts << User_S << '@';
+          if (_ShowUser_B)
+          {
+            Rts << User_S << '@';
+          }
         }
       }
       else
       {
         if (Protocol_S != "")
         {
-          Rts << Protocol_S << ':';
+          if (_ShowProtocol_B)
+          {
+            Rts << Protocol_S << ':';
+          }
         }
       }
       Rts << IpAddress_S;
       if (Port_U16)
       {
-        Rts << ':' << Port_U16;
+        if (_ShowPortNumber_B)
+        {
+          Rts << ':' << Port_U16;
+        }
       }
 
       return Rts.str();

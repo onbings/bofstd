@@ -318,7 +318,7 @@ char BofUri::QueryParamDelimiter() const
 }
 const BOF_SOCKET_ADDRESS_COMPONENT &BofUri::SchemeAuthority(std::string &_rSchemeAuthority_S) const
 {
-  _rSchemeAuthority_S = mSchemeAuthority_X.ToString();
+  _rSchemeAuthority_S = mSchemeAuthority_X.ToString(true,true,true,true);
   return mSchemeAuthority_X;
 }
 const std::string &BofUri::Scheme() const
@@ -332,7 +332,7 @@ std::string BofUri::Authority() const
   Rts_X = mSchemeAuthority_X;
   Rts_X.Protocol_S = ""; 
  
-  return  Rts_X.ToString();
+  return  Rts_X.ToString(true, true, true, true);
 }
 const BOF_SOCKET_ADDRESS &BofUri::IpAddress(std::string &_rIpAddress_S) const
 {
@@ -378,7 +378,7 @@ std::string	BofUri::ToString() const
 
 //  if ((mQueryDelimiter_c == '&') || (mQueryDelimiter_c == ';'))
   {
-    Rts << mSchemeAuthority_X.ToString();
+    Rts << mSchemeAuthority_X.ToString(true, true, true, true);
     Rts << mPath.FullPathName(false);
     if (!mQueryParamCollection.empty())
     {

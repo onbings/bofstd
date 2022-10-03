@@ -67,6 +67,11 @@ enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
 	URI_NEED_QUERY = 0x00000800,
 	URI_NEED_FRAG = 0x00001000,
 
+	SOCKET_NEED_SCHEME = 0x00002000,
+	SOCKET_NEED_USER = 0x00004000,
+	SOCKET_NEED_PASSWORD = 0x00008000,
+	SOCKET_NEED_PORT = 0x000010000,
+
 	READ_ONLY = 0x80000000,									//This is a read only parameter
 //	WRITE_ONCE=0x00000020,								//Can only be written to once, after the first write op in turns into READ_ONLY
 };
