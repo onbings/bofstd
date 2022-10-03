@@ -183,10 +183,18 @@ BOFERR BofUri::SetAuthority(const std::string &_rAuthority_S)
   BOFERR Rts_E;
   BOF_SOCKET_ADDRESS_COMPONENT				SchemeAuthority_X;
 
-  Rts_E = Bof_SplitIpAddress(_rAuthority_S, SchemeAuthority_X);
+  if (_rAuthority_S == "")
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  else
+  {
+    Rts_E = Bof_SplitIpAddress(_rAuthority_S, SchemeAuthority_X);
+  }
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     mSchemeAuthority_X.User_S = SchemeAuthority_X.User_S; //Needed by ToString below 
+    mSchemeAuthority_X.Password_S = SchemeAuthority_X.Password_S; //Needed by ToString below 
     mSchemeAuthority_X.IpAddress_S = SchemeAuthority_X.IpAddress_S; //Needed by ToString below 
     mSchemeAuthority_X.Port_U16 = SchemeAuthority_X.Port_U16; //Needed by ToString below 
     InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
@@ -402,18 +410,38 @@ std::string	BofUri::ToString() const
 BOFERR BofUri::InitUriField(const std::string &_rUri_S)
 {
   BOFERR Rts_E = BOF_ERR_FORMAT;
+  BOF_SOCKET_ADDRESS_COMPONENT Uri_X;
+  std::string Path_S, Query_S, Fragment_S;
+
+  mValid_B = false;
+  Rts_E = Bof_SplitUri(_rUri_S, Uri_X, Path_S, Query_S, Fragment_S);
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    mSchemeAuthority_X = Uri_X;
+    mPath = BofPath(Path_S);
+    mFragment_S = Fragment_S;
+    if (mPath.IsValid())
+    {
+      if (Query_S != "")
+      {
+        Rts_E = ExtractQueryParamIntoCollection(Query_S, mQueryParamCollection);
+      }
+      else
+      {
+        mQueryParamCollection.clear();
+      }
+    }
+    else
+    {
+      Rts_E = BOF_ERR_ENOENT;
+    }
+  }
+#if 0
   std::string::size_type PosEop, PosSlash, PosQuestion, PosDash, PosEqual;
   std::string Scheme_S, Path_S, Query_S, Key_S, Val_S;
   std::vector<std::string> KeyValCollection;
-  /*
-  mScheme_X.Reset();
-  mIpAddress_X.Reset();
-  mPath = BofPath();
-  mQueryParamCollection.clear();
-  mFragment_S = "";
-  */
-  mValid_B = false;
 
+  Rts_E = BOF_ERR_FORMAT;
   //printf("_rUri_S %s\n", _rUri_S.c_str());
   PosEop = _rUri_S.find("://");
   if (PosEop != std::string::npos)
@@ -488,6 +516,7 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
       }
     }
   }
+#endif
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     mValid_B = true;

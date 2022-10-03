@@ -28,7 +28,6 @@
 #include <bofstd/bofsocket.h>
 #include <bofstd/bofpath.h>
 
-
 // To use a test fixture, derive from testing::Test class
 class CmdLineParser_Test : public testing::Test
 {
@@ -83,6 +82,7 @@ struct APPPARAM
 // struct sockaddr_in6 IpV6_X;
   BOF_SOCKET_ADDRESS IpV6_X;
   BOF_SOCKET_ADDRESS IpV4_X;
+  //BOF_SOCKET_ADDRESS_COMPONENT
   uint32_t           pVal_U32[8];
   char               pVal_c[7][256];
   ARRAYENTRY         pArray_X[6];
@@ -91,6 +91,8 @@ struct APPPARAM
   BOF_DATE_TIME      Time_X;
   BOF_DATE_TIME      DateTime_X;
   BofPath            Path;
+  BofUri             Uri1;
+  BofUri             Uri2;
   uint8_t            Val_U8;
   uint16_t           Val_U16;
   uint32_t           Val_U32;
@@ -185,6 +187,8 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
                                      {nullptr, std::string("uint32"),   std::string("Specifies an u32 value."),                                           std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Value_U32, UINT32, 5, 11111122)},
                                      {nullptr, std::string("i6"),       std::string("Specifies IpV6 address."),                                           std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.IpV6_X, IPV6, 0, 0)},
                                      {nullptr, std::string("i4"),       std::string("Specifies IpV4 address."),                                           std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.IpV4_X, IPV4, 0, 0)},
+                                     {nullptr, std::string("uri1"),     std::string("Specifies an uri with aut."),                                        std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Uri1, URI, 0, 0)},
+                                     {nullptr, std::string("uri2"),     std::string("Specifies an uri without aut."),                                     std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Uri2, URI, 0, 0)},
 
                                      {nullptr, std::string("a32"),      std::string("Pure uint32_t array."),                                              std::string("bha/0x%08X/"),       std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_ARRAY(S_AppParam_X.pVal_U32, UINT32, 0, 0)},
                                      {nullptr, std::string("ac256"),    std::string("Pure array of char array."),                                         std::string(">%-s<"),             std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_ARRAY(S_AppParam_X.pVal_c, CHARSTRING, 1, sizeof(S_AppParam_X.pVal_c[0]) - 1)},
@@ -205,6 +209,7 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
 																		 {nullptr, std::string("as"),     std::string("Specifies an audio standard."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.As, AUDIOSTANDARD, 0, 0)},
 																		 {nullptr, std::string("tc"),     std::string("Specifies a timecode."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Tc, TC, 0, 0)},
 																		 {nullptr, std::string("sz"),     std::string("Specifies a size."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Size_X, SIZE2D, 0, 0)},
+
 
                                    };
 
@@ -235,7 +240,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
 {
   int                  Argc_i, Sts_i;
   char                 ppArgument_c[64][128], *pArgv_c[64];
-  std::string          HelpString_S, Ip_S;
+  std::string          HelpString_S, Ip_S, Uri_S;
   BofCommandLineParser *pBofCommandLineParser_O;
 
   Argc_i = 0;
@@ -312,6 +317,14 @@ TEST_F(CmdLineParser_Test, CmdLine)
   Argc_i++;
 //  strcpy(ppArgument_c[Argc_i], "--i4=udp://john.doe:password@192.168.1.2:23");
   strcpy(ppArgument_c[Argc_i], "--i4=192.168.1.2:23");
+  pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+  Argc_i++;
+
+  strcpy(ppArgument_c[Argc_i], "--uri1=myprotocol:/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+  Argc_i++;
+
+  strcpy(ppArgument_c[Argc_i], "--uri2=myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
@@ -466,6 +479,11 @@ TEST_F(CmdLineParser_Test, CmdLine)
   EXPECT_STREQ(Ip_S.c_str(), "???://5.6.7.8:9");
   Ip_S = Bof_SocketAddressToString(S_AppParam_X.pArray_X[2].IpV4_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "udp://10.20.30.40:50");
+
+  Uri_S = S_AppParam_X.Uri1.ToString();
+  EXPECT_STREQ(Uri_S.c_str(), "myprotocol:/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  Uri_S = S_AppParam_X.Uri2.ToString();
+  EXPECT_STREQ(Uri_S.c_str(), "myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
 	EXPECT_STREQ(S_AppParam_X.Vs.IdTxt(), "1920x1080_59i");
 	EXPECT_STREQ(S_AppParam_X.As.ToString().c_str(), "16x48000_S24L32");

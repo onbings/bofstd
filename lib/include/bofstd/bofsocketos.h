@@ -392,7 +392,6 @@ BEGIN_BOF_NAMESPACE()
       IpV6Address_X.sin6_scope_id = 0;
       //IpV6Address_X.sin6_scope_struct = 0;
     }
-
   };
 
   struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT

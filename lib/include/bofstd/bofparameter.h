@@ -26,6 +26,7 @@
 #include <bofstd/bofstd.h>
 #include <bofstd/bofflag.h>
 #include <bofstd/bofpath.h>
+#include <bofstd/bofuri.h>
 #include <bofstd/bofvideostandard.h>
 #include <bofstd/bofaudiostandard.h>
 #include <bofstd/boftimecode.h>
@@ -59,7 +60,12 @@ enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
   PATH_IS_DIR = 0x00000010,								// Path must be a directory
   PATH_IS_FILE = 0x00000020,							// Path must be a file
   PATH_MUST_EXIST = 0x00000040,						// Path (file or dir) must exist
-	COMA_IS_NOT_A_SEPARATOR= 0x00000080,
+	COMA_IS_NOT_A_SEPARATOR = 0x00000080,
+	URI_NEED_SCHEME = 0x00000100,
+	URI_NEED_AUTHORITY = 0x00000200,
+	URI_NEED_PATH = 0x00000400,
+	URI_NEED_QUERY = 0x00000800,
+	URI_NEED_FRAG = 0x00001000,
 
 	READ_ONLY = 0x80000000,									//This is a read only parameter
 //	WRITE_ONCE=0x00000020,								//Can only be written to once, after the first write op in turns into READ_ONLY
@@ -89,6 +95,7 @@ enum class BOFPARAMETER_ARG_TYPE : uint32_t
 		DOUBLE,
 		IPV4,
 		IPV6,
+		URI,
 		GUID,
 		PATH,
 		TC,

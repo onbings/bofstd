@@ -67,26 +67,22 @@ TEST(Uri_Test, UriConstructorDestructor)
   std::map<std::string, std::string> QueryParamCollection;
 
   BofUri Uri;
-  //EXPECT_FALSE(Uri.IsValid());
+//  EXPECT_FALSE(Uri.IsValid());
 
-
-  
   Uri = BofUri("myprotocol", "", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol:/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol:/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   Uri = BofUri("myprotocol", "john.doe:password@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
   EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(SchemeAuthority_X.Password_S.c_str(), "password");
-  
-
 
   Uri = BofUri("myprotocol","john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
   EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@www.google.com:123");
@@ -98,7 +94,7 @@ TEST(Uri_Test, UriConstructorDestructor)
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey#top");
   EXPECT_TRUE(Uri.IsValid());
   //printf("Uri: '%s'\n", Uri.ToString().c_str());
-  EXPECT_STREQ(Uri.ToString().c_str(),"myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(),"myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
   EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@www.google.com:123");
@@ -124,7 +120,7 @@ TEST(Uri_Test, UriConstructorDestructor)
   EXPECT_STREQ(Path.Extension().c_str(), "txt");
 
   QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
-  EXPECT_STREQ(QueryParamCollection_S.c_str(), "justkey;order=newest;tag=networking");
+  EXPECT_STREQ(QueryParamCollection_S.c_str(), "justkey&order=newest&tag=networking");
   EXPECT_EQ(QueryParamCollection.size(), 3);
   EXPECT_STREQ(QueryParamCollection["justkey"].c_str(), "");
   EXPECT_STREQ(QueryParamCollection["order"].c_str(), "newest");
@@ -135,7 +131,7 @@ TEST(Uri_Test, UriConstructorDestructor)
 
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking");
 
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt#top");
   EXPECT_TRUE(Uri.IsValid());
@@ -162,10 +158,10 @@ TEST(Uri_Test, Set)
   EXPECT_TRUE(Uri.QueryParamDelimiter() == ';');
 
   EXPECT_EQ(Uri.SetScheme("myprotocol"), BOF_ERR_NO_ERROR);
-  EXPECT_FALSE(Uri.IsValid());
+  EXPECT_TRUE(Uri.IsValid());
 
   EXPECT_EQ(Uri.SetAuthority("john.doe@www.google.com:123"), BOF_ERR_NO_ERROR);
-  EXPECT_FALSE(Uri.IsValid());
+  EXPECT_TRUE(Uri.IsValid());
 
   EXPECT_EQ(Uri.SetPath(std::string("/forum/questions/file.txt")), BOF_ERR_NO_ERROR);
   EXPECT_TRUE(Uri.IsValid());

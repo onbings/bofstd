@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 //	::testing::GTEST_FLAG(filter) = "Api_Test.*";
 //	::testing::GTEST_FLAG(filter) = "SocketOs_Test.*:BofNaryTreeKv_Test.*:Path_Test.*:Uri_Test.*:Fs_Test.*";
 	//	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*:SocketOs_Test.*:Uri_Test.*";
-//	::testing::GTEST_FLAG(filter) = "Logger_Test.LoggerMultiChannel";	// XmlWriter_Test.Xml";
+	::testing::GTEST_FLAG(filter) = "Uri_Test.*:CmdLineParser_Test.*";	// XmlWriter_Test.Xml";
 	//	[FAILED] util_test.utf8_to_utf16
 	//	[FAILED] Logger_Test.LoggerMultiChannel
 	//	[FAILED] Uri_Test.UriConstructorDestructor

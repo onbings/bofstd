@@ -85,7 +85,8 @@ private:
 	BofPath															mPath;
 	std::map<std::string, std::string>	mQueryParamCollection;
 	std::string												  mFragment_S;
-	char																mQueryParamDelimiter_c = ';';
+	
+	char																mQueryParamDelimiter_c = '&';
 	bool																mValid_B = false;
 
 public:
