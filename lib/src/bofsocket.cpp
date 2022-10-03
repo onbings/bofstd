@@ -343,7 +343,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
 			    (mBofSocketParam_X.BroadcastPort_U16)
 				)
 			{
-				mDstIpAddress_X.Set(_IpV6_B, BOF_SOCK_TYPE::BOF_SOCK_UDP, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UDP, 255, 255, 255, 255, mBofSocketParam_X.BroadcastPort_U16);
+				mDstIpAddress_X.Set(_IpV6_B, BOF_SOCK_TYPE::BOF_SOCK_UDP, 255, 255, 255, 255, mBofSocketParam_X.BroadcastPort_U16);
 
 				Len_i = sizeof(uint32_t);
 				Val_U32 = 0xFFFFFFFF;
@@ -448,7 +448,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
 						else
 #endif
 						{
-							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, mMulticastIpInterfaceAddress_X.ProtocolType_E, 0, 0, 0, 0, htons(mMulticastIpAddress_X.IpV6Address_X.sin6_port));
+							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, 0, 0, 0, 0, htons(mMulticastIpAddress_X.IpV6Address_X.sin6_port));
 						}
 						if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&MulticastClient_X.IpV6Address_X), sizeof(MulticastClient_X.IpV6Address_X)) == SOCKET_ERROR)
 						{
@@ -466,7 +466,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
 						else
 #endif
 						{
-							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, mMulticastIpInterfaceAddress_X.ProtocolType_E, 0, 0, 0, 0, htons(mMulticastIpAddress_X.IpV4Address_X.sin_port)); // htons mandatory !!!
+							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, 0, 0, 0, 0, htons(mMulticastIpAddress_X.IpV4Address_X.sin_port)); // htons mandatory !!!
 						}
 						if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&MulticastClient_X.IpV4Address_X), sizeof(MulticastClient_X.IpV4Address_X)) == SOCKET_ERROR)
 						{
@@ -843,10 +843,6 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
 			{
 				Rts_E = BOF_ERR_BAD_TYPE;
 			}
-			else if (mSrcIpAddress_X.ProtocolType_E != mDstIpAddress_X.ProtocolType_E)
-			{
-				Rts_E = BOF_ERR_PROTOCOL;
-			}
 		}
 	}
 
@@ -1131,7 +1127,6 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
 			{
 				pClient = dynamic_cast<BofSocket *>(pRts);
 				DstIpAddress_X.SocketType_E = mSrcIpAddress_X.SocketType_E;
-				DstIpAddress_X.ProtocolType_E = mSrcIpAddress_X.ProtocolType_E;
 				pClient->SetDstIpAddress(DstIpAddress_X);
 				//Sts_E = BOF_ERR_NO_ERROR;
 

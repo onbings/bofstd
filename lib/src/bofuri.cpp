@@ -141,7 +141,7 @@ BofUri::~BofUri()
 
 bool BofUri::operator==(const BofUri &_rOther_O) const
 {
-  return ( (mSchemeAuthority_X == _rOther_O.mSchemeAuthority_X) && (mIpAddress_X == _rOther_O.mIpAddress_X) && (mPath == _rOther_O.mPath) &&
+  return ( (mSchemeAuthority_X == _rOther_O.mSchemeAuthority_X) && (mPath == _rOther_O.mPath) &&
            (mQueryParamCollection == _rOther_O.mQueryParamCollection) && (mFragment_S == _rOther_O.mFragment_S) && 
            (mQueryParamDelimiter_c == _rOther_O.mQueryParamDelimiter_c) && (mValid_B == _rOther_O.mValid_B));
 }
@@ -182,9 +182,8 @@ BOFERR BofUri::SetAuthority(const std::string &_rAuthority_S)
 {
   BOFERR Rts_E;
   BOF_SOCKET_ADDRESS_COMPONENT				SchemeAuthority_X;
-  BOF_SOCKET_ADDRESS									IpAddress_X;
 
-  Rts_E = Bof_SplitIpAddress(_rAuthority_S, SchemeAuthority_X, IpAddress_X);
+  Rts_E = Bof_SplitIpAddress(_rAuthority_S, SchemeAuthority_X);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     mSchemeAuthority_X.User_S = SchemeAuthority_X.User_S; //Needed by ToString below 
@@ -199,9 +198,8 @@ BOFERR BofUri::SetSchemeAuthority(const std::string &_rSchemeAuthority_S)
 {
   BOFERR Rts_E;
   BOF_SOCKET_ADDRESS_COMPONENT				SchemeAuthority_X;
-  BOF_SOCKET_ADDRESS									IpAddress_X;
 
-  Rts_E = Bof_SplitIpAddress(_rSchemeAuthority_S, SchemeAuthority_X, IpAddress_X);
+  Rts_E = Bof_SplitIpAddress(_rSchemeAuthority_S, SchemeAuthority_X);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     mSchemeAuthority_X = SchemeAuthority_X; //Needed by ToString below
@@ -330,8 +328,8 @@ std::string BofUri::Authority() const
 }
 const BOF_SOCKET_ADDRESS &BofUri::IpAddress(std::string &_rIpAddress_S) const
 {
-  _rIpAddress_S = mSchemeAuthority_X.Protocol_S + "://" + Bof_SocketAddressToString(mIpAddress_X, false, true);
-  return mIpAddress_X;
+  _rIpAddress_S = mSchemeAuthority_X.Protocol_S + "://" + Bof_SocketAddressToString(mSchemeAuthority_X.Ip_X, false, true);
+  return mSchemeAuthority_X.Ip_X;
 }
 const BofPath &BofUri::Path(std::string &_rPath_S) const
 {
@@ -467,7 +465,7 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
         Scheme_S = _rUri_S.substr(0, PosSlash);
         //printf("Scheme_S %s\n", Scheme_S.c_str());
 
-        Rts_E = Bof_SplitIpAddress(Scheme_S, mSchemeAuthority_X, mIpAddress_X);
+        Rts_E = Bof_SplitIpAddress(Scheme_S, mSchemeAuthority_X);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
           mPath = BofPath(Path_S);

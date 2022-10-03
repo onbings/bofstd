@@ -887,7 +887,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   Sts_E = JsonParser.ToByte(S_ReplyStatusReceiverSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
   for (auto Item : S_ReplyStatusReceiver_X.IdCollection) printf("Sts Rcv Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
-  for (auto Item : S_ReplyStatusReceiver_X.IpCollection) printf("Sts Rcv Ip %s%s", Bof_SocketAddressToString(Item, false, true).c_str(), Bof_Eol());
+  for (auto Item : S_ReplyStatusReceiver_X.IpCollection) printf("Sts Rcv Ip %s%s", Bof_SocketAddressToString(Item, true, true).c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusReceiver_X.PresentCollection) printf("Sts Rcv Present %s%s", Item.c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusReceiver_X.ImpairedCollection) printf("Sts Rcv Impaired %s%s", Item ? "True" : "False", Bof_Eol());
   for (auto Item : S_ReplyStatusReceiver_X.StateCollection) printf("Sts Rcv State %s%s", Item.c_str(), Bof_Eol());
@@ -940,7 +940,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   Sts_E = JsonParser.ToByte(S_ReplyStatusSenderSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
   for (auto Item : S_ReplyStatusSender_X.IdCollection) printf("Sts Snd Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
-  for (auto Item : S_ReplyStatusSender_X.IpCollection) printf("Sts Snd Ip %s%s", Bof_SocketAddressToString(Item, false, true).c_str(), Bof_Eol());
+  for (auto Item : S_ReplyStatusSender_X.IpCollection) printf("Sts Snd Ip %s%s", Bof_SocketAddressToString(Item, true, true).c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusSender_X.PresentCollection) printf("Sts Snd Present %s%s", Item.c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusSender_X.ImpairedCollection) printf("Sts Snd Impaired %s%s", Item ? "True" : "False", Bof_Eol());
   for (auto Item : S_ReplyStatusSender_X.StateCollection) printf("Sts Snd State %s%s", Item.c_str(), Bof_Eol());

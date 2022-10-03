@@ -82,7 +82,6 @@ class BOFSTD_EXPORT BofUri
 {
 private:
 	BOF_SOCKET_ADDRESS_COMPONENT				mSchemeAuthority_X;
-	BOF_SOCKET_ADDRESS									mIpAddress_X;
 	BofPath															mPath;
 	std::map<std::string, std::string>	mQueryParamCollection;
 	std::string												  mFragment_S;

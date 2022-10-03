@@ -67,10 +67,10 @@ TEST(Uri_Test, UriConstructorDestructor)
   std::map<std::string, std::string> QueryParamCollection;
 
   BofUri Uri;
-  EXPECT_FALSE(Uri.IsValid());
+  //EXPECT_FALSE(Uri.IsValid());
 
 
-  /*
+  
   Uri = BofUri("myprotocol", "", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
   EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol:/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
@@ -81,7 +81,7 @@ TEST(Uri_Test, UriConstructorDestructor)
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
   EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(SchemeAuthority_X.Password_S.c_str(), "password");
-  */
+  
 
 
   Uri = BofUri("myprotocol","john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
@@ -115,7 +115,6 @@ TEST(Uri_Test, UriConstructorDestructor)
   EXPECT_EQ(IpAddress_X.Port(), 123);
   EXPECT_FALSE(IpAddress_X.IpV6_B);
   EXPECT_EQ(IpAddress_X.SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN);
-  EXPECT_EQ(IpAddress_X.ProtocolType_E, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN);
   //EXPECT_EQ(IpAddress_X.IpV4Address_X;              IpV6_B;
 
   Path = Uri.Path(Path_S);

@@ -310,10 +310,10 @@ TEST_F(CmdLineParser_Test, CmdLine)
   strcpy(ppArgument_c[Argc_i], "--i6=tcp://[0004:db8:0::1]:80");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
+//  strcpy(ppArgument_c[Argc_i], "--i4=udp://john.doe:password@192.168.1.2:23");
   strcpy(ppArgument_c[Argc_i], "--i4=192.168.1.2:23");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
-
 
   strcpy(ppArgument_c[Argc_i], "--a32=0xABCDEF,1,2,0xDEADBEEF,44,55,,");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
@@ -436,11 +436,9 @@ TEST_F(CmdLineParser_Test, CmdLine)
 
   Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV4_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "???://192.168.1.2:23");
-  EXPECT_EQ(S_AppParam_X.IpV4_X.ProtocolType_E, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN);
 
   Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV6_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "tcp://[4:db8::1]:80");
-  EXPECT_EQ(S_AppParam_X.IpV6_X.ProtocolType_E, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_TCP);
 
   EXPECT_STREQ(S_AppParam_X.pSlnPath, "\"sln file\"");
   EXPECT_STREQ(S_AppParam_X.Str_S.c_str(), "i'm a std string");

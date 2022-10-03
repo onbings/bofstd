@@ -238,7 +238,6 @@ BEGIN_BOF_NAMESPACE()
     const char        *pTheOptVal_c, *pComaSep_c, *pNextComaSep_c;
     char              pAllTheOptVal_c[0x1000], pDateTimeFormat_c[0x100], pAllTheIpAddress_c[0x100], *pIpAddress_c;
     std::cmatch       MatchCharString_O;
-    BOF_PROTOCOL_TYPE ProtocolType_E = BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN;
 
     bool               Val_B               = false;
     uint8_t            Val_U8              = 0;
@@ -267,6 +266,8 @@ BEGIN_BOF_NAMESPACE()
     bool               InsertInStdVector_B = false, ShortOpt_B, LastArrayArg_B;
     void               *pValue;
     BOF_SOCKET_ADDRESS Ip_X;
+    BOF_SOCK_TYPE      SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
+    //BOF_PROTOCOL_TYPE ProtocolType_E = BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN;
 		BOF_SIZE					 Size_X;
 		int Width_i,Height_i;
 
@@ -429,14 +430,14 @@ BEGIN_BOF_NAMESPACE()
               IpPort_U16 = 0;
               strcpy(pAllTheIpAddress_c, pTheOptVal_c);
               pIpAddress_c = pAllTheIpAddress_c;
-
-              Bof_ProtocolType(pIpAddress_c, ProtocolType_E);  //Find optional protocol type
+              
+              //Bof_ProtocolType(pIpAddress_c, ProtocolType_E);  //Find optional protocol type
+              SocketType_E = Bof_SocketType(pIpAddress_c);
               p_c = strstr(pIpAddress_c, "://");
               if (p_c)
               {
                 pIpAddress_c = p_c + 3;
               }
-
               p_c = strrchr(pIpAddress_c, ':');  //Find optional port number
               if (p_c)
               {
@@ -459,8 +460,8 @@ BEGIN_BOF_NAMESPACE()
               ScopeId_U32  = 0;
               strcpy(pAllTheIpAddress_c, pTheOptVal_c);
               pIpAddress_c = pAllTheIpAddress_c;
-
-              Bof_ProtocolType(pIpAddress_c, ProtocolType_E);
+//              Bof_ProtocolType(pIpAddress_c, ProtocolType_E);
+              SocketType_E = Bof_SocketType(pIpAddress_c);
               p_c = strstr(pIpAddress_c, "://");
               if (p_c)
               {
@@ -855,7 +856,8 @@ BEGIN_BOF_NAMESPACE()
                   if ((pIpAddress_c) && (inet_pton(AF_INET, pIpAddress_c, &IpV4_X) == 1))
                   {
                     Ip_X.IpV6_B                   = false;
-                    Ip_X.ProtocolType_E           = ProtocolType_E;
+                    //Ip_X.ProtocolType_E = ProtocolType_E;
+                    Ip_X.SocketType_E = SocketType_E;
                     Ip_X.IpV4Address_X.sin_family = AF_INET;
                     Ip_X.IpV4Address_X.sin_port   = htons(IpPort_U16);
                     Ip_X.IpV4Address_X.sin_addr   = IpV4_X;
@@ -878,7 +880,8 @@ BEGIN_BOF_NAMESPACE()
                   if ((pIpAddress_c) && (inet_pton(AF_INET6, pIpAddress_c, &IpV6_X) == 1))
                   {
                     Ip_X.IpV6_B                    = true;
-                    Ip_X.ProtocolType_E            = ProtocolType_E;
+                    //Ip_X.ProtocolType_E = ProtocolType_E;
+                    Ip_X.SocketType_E = SocketType_E;
                     Ip_X.IpV6Address_X.sin6_family = AF_INET6;
                     Ip_X.IpV6Address_X.sin6_port   = htons(IpPort_U16);
                     memcpy(Ip_X.IpV6Address_X.sin6_addr.s6_addr, &IpV6_X, 16);

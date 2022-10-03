@@ -34,7 +34,6 @@ BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFa
 	BOF_SOCKET_IO_PARAM BofSocketIoParam_X;
 	uint32_t i_U32;
 	BOF_SOCK_TYPE SocketType_E;
-	BOF_PROTOCOL_TYPE ProtocolType_E;
 	uint32_t Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32;
 	uint16_t Port_U16;
 	BOFSOCKET				ListenSessionId;
@@ -68,9 +67,9 @@ BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFa
 				mErrorCode_E = Bof_SplitIpAddress(mBofSocketServerParam_X.Address_S, mSocketServerAddress_X);
 				if (mErrorCode_E == BOF_ERR_NO_ERROR)
 				{
-					mSocketServerAddress_X.Parse(SocketType_E, ProtocolType_E, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
+					mSocketServerAddress_X.Parse(SocketType_E, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
 					mErrorCode_E = BOF_ERR_WRONG_MODE;
-					if ((SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_TCP) && ((ProtocolType_E == BOF_PROTOCOL_TYPE::BOF_PROTOCOL_TCP) || (ProtocolType_E == BOF_PROTOCOL_TYPE::BOF_PROTOCOL_FTP)))
+					if (SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_TCP)
 					{
 						if (Port_U16)
 						{
@@ -222,7 +221,6 @@ BOFERR BofSocketServer::Connect(uint32_t _TimeoutInMs_U32, const std::string &_r
 	uint32_t							SessionIndex_U32, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32;
 	uint16_t							Port_U16;
 	BOF_SOCK_TYPE					SocketType_E;
-	BOF_PROTOCOL_TYPE			ProtocolType_E;
 	BOF_SOCKET_ADDRESS		SocketAddress_X;
 	bool									ReleaseReservation_B;
 
@@ -242,8 +240,8 @@ BOFERR BofSocketServer::Connect(uint32_t _TimeoutInMs_U32, const std::string &_r
 			if (Rts_E == BOF_ERR_NO_ERROR)
 			{
 				Rts_E = BOF_ERR_WRONG_MODE;
-				SocketAddress_X.Parse(SocketType_E, ProtocolType_E, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
-				if ((SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_TCP) && ((ProtocolType_E == BOF_PROTOCOL_TYPE::BOF_PROTOCOL_TCP) || (ProtocolType_E == BOF_PROTOCOL_TYPE::BOF_PROTOCOL_FTP)))
+				SocketAddress_X.Parse(SocketType_E, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
+				if (SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_TCP)
 				{
 					Rts_E = BOF_ERR_ENOMEM;
 					BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0;%d.%d.%d.%d:%d", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
@@ -518,7 +516,6 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
 	BOF_SOCKET_IO_PARAM BofSocketIoParam_X;
 	std::unique_ptr<BofSocket> puListen = nullptr;
 	BOF_SOCK_TYPE SocketType_E;
-	BOF_PROTOCOL_TYPE ProtocolType_E;
 	BOF_SOCKET_ADDRESS SocketAddress_X;
 	std::string Cmd_S, Reply_S, TargetIp_S;
 	std::unique_ptr<BofSocket>		puDataSocket;
@@ -543,7 +540,7 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
 				{
 					Rts_E = BOF_ERR_ENOMEM;
 
-					SocketAddress_X.Parse(SocketType_E, ProtocolType_E, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
+					SocketAddress_X.Parse(SocketType_E, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
 					Port_U16 = GenerateDynamicPort();
 					PortHigh_U32 = static_cast<uint32_t>(Port_U16 >> 8);
 					PortLow_U32 = static_cast<uint32_t>(Port_U16 & 0xFF);
