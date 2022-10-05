@@ -391,6 +391,8 @@ TEST_F(CmdLineParser_Test, CmdLine)
 
 //l:
 
+  BOF_SOCKET_ADDRESS_COMPONENT *p = &S_AppParam_X.IpV4_X;
+
   pBofCommandLineParser_O = new BofCommandLineParser();
 
   Sts_i = pBofCommandLineParser_O->ToByte(Argc_i, pArgv_c, S_pCommandLineOption_X, CmdLineParseResultUltimateCheck, CmdLineParseError); // Call Parse()
