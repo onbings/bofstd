@@ -443,7 +443,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
 #else
 						if (mBofSocketParam_X.FilterMulticastOnIpAddress_B)
 						{
-							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, mMulticastIpInterfaceAddress_X.ProtocolType_E, BinFormat[0], BinFormat[1], BinFormat[2], BinFormat[3], htons(mMulticastIpAddress_X.IpV6Address_X.sin6_port));
+							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E,  BinFormat[0], BinFormat[1], BinFormat[2], BinFormat[3], htons(mMulticastIpAddress_X.IpV6Address_X.sin6_port));
 						}
 						else
 #endif
@@ -461,7 +461,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
 #else
 						if (mBofSocketParam_X.FilterMulticastOnIpAddress_B)
 						{
-							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, mMulticastIpInterfaceAddress_X.ProtocolType_E, BinFormat[0], BinFormat[1], BinFormat[2], BinFormat[3], htons(mMulticastIpAddress_X.IpV4Address_X.sin_port));
+							MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, BinFormat[0], BinFormat[1], BinFormat[2], BinFormat[3], htons(mMulticastIpAddress_X.IpV4Address_X.sin_port));
 						}
 						else
 #endif
