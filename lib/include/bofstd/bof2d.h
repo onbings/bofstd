@@ -32,7 +32,7 @@ V 1.00  Sep 30 2000  BHA : Initial release
 #if defined(BOFSTD_BUILD_MEDIAINFO_AS_LIBRARY)
 #include "MediaInfo/MediaInfo.h" //Staticly-loaded library (.lib or .a or .so)
 #define MediaInfoNameSpace MediaInfoLib;
-#pragma message("MediaInfoNameSpace MediaInfoLib")
+//#pragma message("MediaInfoNameSpace MediaInfoLib")
 #else 
 #if defined(_WIN32)
 #include <winsock2.h>	//Needed because MediaInfoDLL.h include windows.h
