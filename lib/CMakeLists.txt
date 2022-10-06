@@ -382,7 +382,7 @@ target_compile_definitions(bofstd-objects
 # Features (We need at least C++11 support)
 target_compile_features(bofstd-objects
   PUBLIC
-    cxx_std_11
+    cxx_std_17
 )
 
 
