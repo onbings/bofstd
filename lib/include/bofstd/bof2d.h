@@ -544,9 +544,10 @@ public:
 	BofMediaDetector();
 	virtual ~BofMediaDetector();
 
+	std::string Option(const std::string &_rOption_S);
 	BOFERR ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S);
 	BOFERR ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat _ResultFormat_E, std::string &_rResult_S, uint64_t &_rOffsetInBuffer_U64);
-	BOFERR Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S);
+	BOFERR Query(MediaStreamType _MediaStreamType_E, const std::string &_rParam_S, InfoType _InfoType_E, std::string &_rResult_S);
 
 private:
 	MediaInfo mMediaInfo;

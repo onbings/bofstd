@@ -3212,6 +3212,14 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
 
 //https://github.com/MediaArea/MediaInfoLib/issues/485
 //#include <MediaInfoDLL/MediaInfoDLL.h>
+
+std::string BofMediaDetector::Option(const std::string &_rOption_S)
+{
+  std::wstring Option_WS;
+  Option_WS = Bof_Utf8ToUtf16(_rOption_S);
+  return Bof_Utf16ToUtf8(mMediaInfo.Option(Option_WS));
+}
+
 BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _ResultFormat_E, std::string &_rResult_S)
 {
   BOFERR Rts_E;
@@ -3380,13 +3388,13 @@ BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat 
   return Rts_E;
 }
 
-BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::string &_rOption_S, InfoType _InfoType_E, std::string &_rResult_S)
+BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::string &_rParam_S, InfoType _InfoType_E, std::string &_rResult_S)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   String Oss;
   stream_t MediaStreamType_E;
   info_t InfoType_E;
-  std::wstring Option_WS;
+  std::wstring Param_WS;
 
   switch (_MediaStreamType_E)
   {
@@ -3469,8 +3477,8 @@ BOFERR BofMediaDetector::Query(MediaStreamType _MediaStreamType_E, const std::st
   }
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    Option_WS = Bof_Utf8ToUtf16(_rOption_S);
-    Oss = mMediaInfo.Get(MediaStreamType_E, 0, Option_WS, InfoType_E, Info_Name);
+    Param_WS = Bof_Utf8ToUtf16(_rParam_S);
+    Oss = mMediaInfo.Get(MediaStreamType_E, 0, Param_WS, InfoType_E, Info_Name);
     //Oss = mMediaInfo.Get(MediaStreamType_E, 0, _rOption_S, InfoType_E, Info_Name);
     //std::wcout << Oss << std::endl;
     _rResult_S = Bof_Utf16ToUtf8(Oss);
