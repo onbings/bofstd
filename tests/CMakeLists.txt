@@ -18,6 +18,7 @@ set(DATA_FILES
   ./data/colorbar_png_with_no_ext
   ./data/colorbar_uncompress_32b.tga
   ./data/colorbar_rle_32b.tga
+  ./data/sample-mp4-file.mp4
 )
 
 set(API_FILES

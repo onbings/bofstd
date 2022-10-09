@@ -1313,6 +1313,7 @@ bool Bof_IsMulticastIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDR
    uri:
    https://snipplr.com/view/6889/regular-expressions-for-uri-validationparsing
    myprotocol:/forum/questions/file.txt?justkey;order=newest&tag=networking#HashTag
+   myprotocol://www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
    myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
 */
 #if 0

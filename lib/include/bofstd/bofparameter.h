@@ -41,6 +41,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Definitions *************************************************************/
 
+#define BOF_PARAM_DEF_ENUM(varname, minval, maxval, tostring, fromstring)                        BOF::BOFPARAMETER_ARG_TYPE::ENUM,    static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																		 	,0,0,0,0, tostring, fromstring
 #define BOF_PARAM_DEF_VARIABLE(varname, typevar, minval, maxval)                                 BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																			,0,0,0,0
 #define BOF_PARAM_DEF_ARRAY(varname, typevar, minval, maxval)                                    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)						,0,0,0,0
 #define BOF_PARAM_DEF_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval)    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname),0,0,0,0
@@ -98,6 +99,7 @@ enum class BOFPARAMETER_ARG_TYPE : uint32_t
 		INT64,
 		FLOAT,
 		DOUBLE,
+		ENUM,
 		IPV4,
 		IPV6,
 		URI,
@@ -108,6 +110,9 @@ enum class BOFPARAMETER_ARG_TYPE : uint32_t
 		AUDIOSTANDARD,
 		SIZE2D,
 };
+using BOF_PARAMETER_ENUM_TO_STRING = std::function<const std::string &(int _EnumValue_i)>;
+//typedef const std::string &(* BOF_PARAMETER_ENUM_TO_STRING)(int _EnumValue_i);
+using BOF_PARAMETER_STRING_TO_ENUM = std::function<int (const std::string &_rEnumValue_S)>;
 
 struct BOFSTD_EXPORT BOFPARAMETER
 {
@@ -125,6 +130,8 @@ struct BOFSTD_EXPORT BOFPARAMETER
 		uint32_t ArrayCapacity_U32;
 		uint32_t ActiveArrayEntry_U32;
 		uint32_t pExtraParam_U32[4];	//Used for example with Json ToByte method and new enhanced json parser with multi array def"MmgwSetting.Board.%.InHr.%" "VideoStandard" or "MmgwSetting.Board%.InHr.%.AudioIpAddress.%" "
+		BOF_PARAMETER_ENUM_TO_STRING EnumToString;
+		BOF_PARAMETER_STRING_TO_ENUM StringToEnum;
 
 		BOFPARAMETER()
 		{
@@ -133,7 +140,8 @@ struct BOFSTD_EXPORT BOFPARAMETER
 
 		BOFPARAMETER(void *_pUser, const std::string &_rName_S, const std::string &_rDescription_S, const std::string &_rFormat_S, const std::string &_rPath_S,
 		             BOFPARAMETER_ARG_FLAG _ArgFlag_E, BOFPARAMETER_ARG_TYPE _ArgType_E, double _Min_lf, double _Max_lf, void *_pValue, uint32_t _ArrayElementSize_U32,
-		             uint32_t _ArrayCapacity_U32, uint32_t _ActiveArrayEntry_U32, uint32_t _ExtraParam1_U32, uint32_t _ExtraParam2_U32, uint32_t _ExtraParam3_U32, uint32_t _ExtraParam4_U32)
+		             uint32_t _ArrayCapacity_U32, uint32_t _ActiveArrayEntry_U32, uint32_t _ExtraParam1_U32, uint32_t _ExtraParam2_U32, uint32_t _ExtraParam3_U32, uint32_t _ExtraParam4_U32,
+								 BOF_PARAMETER_ENUM_TO_STRING _EnumToString=nullptr, BOF_PARAMETER_STRING_TO_ENUM _StringToEnum=nullptr)
 		{
 			pUser = _pUser;
 			Name_S = _rName_S;
@@ -152,6 +160,8 @@ struct BOFSTD_EXPORT BOFPARAMETER
 			pExtraParam_U32[1]=_ExtraParam2_U32;
 			pExtraParam_U32[2]=_ExtraParam3_U32;
 			pExtraParam_U32[3]=_ExtraParam4_U32;
+			EnumToString = _EnumToString;
+			StringToEnum = _StringToEnum;
 		}
 
 		void Reset()
@@ -174,6 +184,8 @@ struct BOFSTD_EXPORT BOFPARAMETER
 			{
 				pExtraParam_U32[i_U32]=0;
 			}
+			EnumToString = nullptr;
+			StringToEnum = nullptr;
 		}
 };
 

@@ -26,6 +26,7 @@
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofpath.h>
 #include <bofstd/bofflag.h>
+#include <bofstd/bofstring.h>
 #include <vector>
 
 BEGIN_BOF_NAMESPACE()

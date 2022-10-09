@@ -48,7 +48,7 @@ public:
 		BofJsonWriter &operator=(const BofJsonWriter &) = delete;     // Disallow copying
 		BofJsonWriter(const BofJsonWriter &) = delete;
 
-		BOFERR FromByte(bool _ShortFormat_B, const std::vector<BOFPARAMETER> &_rJsonSchema_X, std::string &_rJsonOutput_S);
+		BOFERR FromByte(bool _ShortFormat_B, bool _AllTypeInString_B, const std::vector<BOFPARAMETER> &_rJsonSchema_X, std::string &_rJsonOutput_S);
 
 		bool IsValid();
 

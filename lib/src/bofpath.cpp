@@ -76,7 +76,7 @@ BofPath::BofPath(const BofPath &_rOther_O)
 
 BofPath::BofPath(BofPath &&_rrOther_O)
 {
-	// Pilfer other�s resource
+	// Pilfer others resource
 	InitPathField(_rrOther_O.FullPathName(false));
 	// Reset other
 	_rrOther_O.InitPathField("");
@@ -93,7 +93,7 @@ BofPath &BofPath::operator=(BofPath &&_rrOther_O)
 	if (this != &_rrOther_O)
 	{
 		// Release the current object�s resources
-		// Pilfer other�s resource
+		// Pilfer others resource
 		InitPathField(_rrOther_O.FullPathName(false));
 		// Reset other
 		_rrOther_O.InitPathField("");

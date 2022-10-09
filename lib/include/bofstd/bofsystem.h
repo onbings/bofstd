@@ -514,6 +514,7 @@ struct BOF_DATE_TIME;
 
 BOFSTD_EXPORT BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
 BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
+BOFSTD_EXPORT const std::string Bof_DateTimeToString(const BOF_DATE_TIME &_rDateTime_X, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
 
 #define BOF_SET_DATE_TIME(datetime, day, month, year, hour, minute, second, ms) {datetime.Day_U8 = day;datetime.Month_U8 = month;datetime.Year_U16 = year;datetime.DayOfWeek_U8 = 0;datetime.Hour_U8 = hour;datetime.Minute_U8 = minute;datetime.Second_U8 = second;datetime.Millisecond_U16=ms;}
 
@@ -570,7 +571,10 @@ struct BOFSTD_EXPORT BOF_DATE_TIME
 			Millisecond_U16 = 0;
 			Bof_ComputeDayOfWeek(*this, DayOfWeek_U8);
 		}
-
+		std::string ToString()
+		{
+			return Bof_DateTimeToString(*this,"%Y-%m-%d %H:%M:%S");
+		}
 		std::tm ToStdTm()
 		{
 			std::tm Rts_X;
@@ -699,7 +703,6 @@ BOFSTD_EXPORT BOFERR Bof_DateTimeToNumber(const BOF_DATE_TIME &_pDateTime_X, dou
 BOFSTD_EXPORT BOFERR Bof_ValidateDateTime(const BOF_DATE_TIME &_rDateTime_X);
 BOFSTD_EXPORT BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
 BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
-BOFSTD_EXPORT const std::string Bof_DateTimeToString(const BOF_DATE_TIME &_rDateTime_X, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
 BOFSTD_EXPORT BOF_DATE_TIME Bof_DateTimeFromString(const std::string &_rDateTime_S, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
 BOFSTD_EXPORT BOFERR Bof_DeltaMsToHms(uint32_t _DeltaInMs_U32, uint32_t &_rDay_U32, uint32_t &_rHour_U32, uint32_t &_rMinute_U32, uint32_t &_rSecond_U32,uint32_t &_rMs_U32);
 BOFSTD_EXPORT BOFERR Bof_Exec(const std::string &_rCommand_S, std::string *_pCapturedOutput_S, int32_t &_rExitCode_S32);

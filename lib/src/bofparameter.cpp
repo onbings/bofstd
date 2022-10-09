@@ -234,7 +234,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   //  static const std::regex S_RegExIpV6_O("^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}:([0-9A-Fa-f]{1,4}:)?[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){4}:([0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){3}:([0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){2}:([0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(([0-9A-Fa-f]{1,4}:){0,5}:((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(::([0-9A-Fa-f]{1,4}:){0,5}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|([0-9A-Fa-f]{1,4}::([0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})|(::([0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:))$");
 
   const char *pTheOptVal_c, *pComaSep_c, *pNextComaSep_c;
-  char              pAllTheOptVal_c[0x1000], pDateTimeFormat_c[0x100];
+  char              pAllTheOptVal_c[0x1000], pDateTimeFormat_c[0x100], pEnumVal_c[64];
   std::cmatch       MatchCharString_O;
 
   bool               Val_B = false;
@@ -411,6 +411,13 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             Rts_E = ShortOpt_B ? BOF_ERR_NO_ERROR : CheckAndGetValueFromString<int16_t>(pTheOptVal_c, _rBofParameter_X, Val_S16);
             break;
 
+          case BOFPARAMETER_ARG_TYPE::ENUM:
+            if (_rBofParameter_X.StringToEnum)
+            {
+              int Enum_i = _rBofParameter_X.StringToEnum(pTheOptVal_c);
+              itoa(Enum_i, pEnumVal_c, 10);
+              pTheOptVal_c = pEnumVal_c;
+            }
           case BOFPARAMETER_ARG_TYPE::INT32:
             Rts_E = ShortOpt_B ? BOF_ERR_NO_ERROR : CheckAndGetValueFromString<int32_t>(pTheOptVal_c, _rBofParameter_X, Val_S32);
             break;
@@ -817,6 +824,7 @@ DateTimeParse:
                 break;
 
               case BOFPARAMETER_ARG_TYPE::INT32:
+              case BOFPARAMETER_ARG_TYPE::ENUM:
                 if (InsertInStdVector_B)
                 {
                   std::vector<int32_t> *pVectorInt32;
@@ -1111,7 +1119,10 @@ const char *BofParameter::S_ArgTypeToString(BOFPARAMETER_ARG_TYPE _ArgType_E)
     {
       return "INT32";
     }
-
+    case BOFPARAMETER_ARG_TYPE::ENUM:
+    {
+      return "ENUM";
+    }
     case BOFPARAMETER_ARG_TYPE::UINT64:
     {
       return "UINT64";
@@ -1577,6 +1588,7 @@ DateTimeToString:
         break;
 
         case BOFPARAMETER_ARG_TYPE::INT32:
+        case BOFPARAMETER_ARG_TYPE::ENUM:
         {
           int32_t Value_S32 = 0;
           if (GetFromStdVector_B)
@@ -1599,19 +1611,27 @@ DateTimeToString:
           }
           if (pRts_c)
           {
-            if (pFormat_c[0])
+            if (_rBofParameter_X.EnumToString)
             {
-              snprintf(_pToString_c, _MaxSize_U32, pFormat_c, Value_S32);
+              std::string EnumVal_S = _rBofParameter_X.EnumToString(Value_S32);
+              snprintf(_pToString_c, _MaxSize_U32, "%s", EnumVal_S.c_str());
             }
             else
             {
-              if (_AsHexa_B)
+              if (pFormat_c[0])
               {
-                snprintf(_pToString_c, _MaxSize_U32, "%X", Value_S32);
+                snprintf(_pToString_c, _MaxSize_U32, pFormat_c, Value_S32);
               }
               else
               {
-                snprintf(_pToString_c, _MaxSize_U32, "%d", Value_S32);
+                if (_AsHexa_B)
+                {
+                  snprintf(_pToString_c, _MaxSize_U32, "%X", Value_S32);
+                }
+                else
+                {
+                  snprintf(_pToString_c, _MaxSize_U32, "%d", Value_S32);
+                }
               }
             }
           }

@@ -38,37 +38,19 @@ constexpr typename std::underlying_type<T>::type Bof_EnumToNativeValue(T t)
 { return static_cast<typename std::underlying_type<T>::type>(t); }
 
 /*
+static BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE> S_MuseFileSystemMediaTypeEnumConverter({
+	{ MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, "Unknown" },
+	{ MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still" },
+	{ MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip" },
+	{ MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max" }
+																																					});
+	std::string Tp_S = S_MuseFileSystemMediaTypeEnumConverter.ToString(S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E);
+	MUSE_FILE_SYSTEM_MEDIA_TYPE Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum(Tp_S);
 
-enum class ROOT_TREE_NODE :uint32_t
-{
-TRANSMITTER=0,
-RECEIVER,
-MANAGEMENT,
-RPC,
-ROOT_TREE_NODE_MAX,
-UNDEF,
-};
-
-using RootTreeNodeEnumConverter = BOF::BofEnum<ROOT_TREE_NODE>;
-static RootTreeNodeEnumConverter &S_RootTreeNodeConverter()
-{
-  static RootTreeNodeEnumConverter  S_TheRootTreeNodeConverter
-  {
-    {
-      { ROOT_TREE_NODE::TRANSMITTER, "SND" },
-      { ROOT_TREE_NODE::RECEIVER, "RCV" },
-      { ROOT_TREE_NODE::MANAGEMENT, "MGT" },
-      { ROOT_TREE_NODE::RPC, "?" },
-      { ROOT_TREE_NODE::UNDEF, "?" }
-    },
-    ROOT_TREE_NODE::UNDEF
-  };
-  return S_TheRootTreeNodeConverter;
-};
-	std::string g;
-	g=S_RootTreeNodeConverter().ToString(ROOT_TREE_NODE::MANAGEMENT);
-	uint32_t f=S_RootTreeNodeConverter().ToBinary(ROOT_TREE_NODE::MANAGEMENT);
 */
+
+//https://stackoverflow.com/questions/14727313/c-how-to-reference-templated-functions-using-stdbind-stdfunction
+//https://stackoverflow.com/questions/24874478/use-stdbind-with-overloaded-functions
 ///@brief This class represent a double mapping between unique instances of @c T and strings.
 template<typename T>
 class BOFSTD_EXPORT BofEnum
@@ -76,65 +58,69 @@ class BOFSTD_EXPORT BofEnum
 public:
 		///@brief Constructor.
 		///@param list A list of pairs of @c T - @c std::string associations.
-		BofEnum(std::initializer_list<std::pair<const T, const std::string> > list) : typeToString(list)
+		BofEnum(std::initializer_list<std::pair<const T, const std::string> > list) : mTypeToStringCollection(list)
 		{
-			for (const auto &kv : typeToString)
+			for (const auto &kv : mTypeToStringCollection)
 			{
-				stringToType.insert(std::pair<const std::string *, const T>(&kv.second, kv.first));
+				mStringToTypeCollection.insert(std::pair<const std::string *, const T>(&kv.second, kv.first));
 			}
-			fallbackValue = typeToString.begin()->first;
-			hasFallbackValue = false;
+			mFallbackValue = mTypeToStringCollection.begin()->first;
+			mFallbackValue_B = false;
 		}
 
 		///@brief Constructor.
 		///@param list A list of pairs of @c T - @c std::string associations.
 		///@param fbValue Fall-back value of @c T in cases where no decision can be made. This value shall be an item of @p list.
-		BofEnum(std::initializer_list<std::pair<const T, const std::string> > list, const T &fbValue) : typeToString(list)
+		BofEnum(std::initializer_list<std::pair<const T, const std::string> > list, const T &fbValue) : mTypeToStringCollection(list)
 		{
-			for (const auto &kv : typeToString)
+			for (const auto &kv : mTypeToStringCollection)
 			{
-				stringToType.insert(std::pair<const std::string *, const T>(&kv.second, kv.first));
+				mStringToTypeCollection.insert(std::pair<const std::string *, const T>(&kv.second, kv.first));
 			}
-			fallbackValue = fbValue;
-			hasFallbackValue = true;
+			mFallbackValue = fbValue;
+			mFallbackValue_B = true;
 		}
 
 		///@brief Returns the string associated to @p val.
 		///@param val A value.
 		///@returns The string associated to @p val, or, if @p val is unknown, the string associated to the fall-back value, if defined.
 		///@throws std::out_of_range Thrown if @p val is unknown, and no fall-back value has been set.
-		const std::string &ToString(const T &val) const
+		const std::string &ToString(const T &_rVal) const
 		{
-			auto it = typeToString.find(val);
-			if (it != typeToString.end())
+			auto It = mTypeToStringCollection.find(_rVal);
+			if (It != mTypeToStringCollection.end())
 			{
-				return it->second;
+				return It->second;
 			}
-			if (hasFallbackValue)
+			if (mFallbackValue_B)
 			{
-				return typeToString.at(fallbackValue);
+				return mTypeToStringCollection.at(mFallbackValue);
 			}
 			throw std::out_of_range("Unknown value");
+		}
+		const std::string &ToStringFromInt(int _EnumVal_i) const
+		{
+			return ToString(static_cast<T>(_EnumVal_i));
 		}
 
 		///@brief Returns the value associated to @p val.
 		///@param val A string.
 		///@returns The value associated to @p val, or, if @p val is unknown, the the fall-back value, if defined.
 		///@throws std::out_of_range Thrown if @p val is unknown, and no fall-back value has been set.
-		const T &ToEnum(const std::string &val) const
+		const T &ToEnum(const std::string &_rVal_S) const
 		{
-			auto it = stringToType.find(&val);
-			if (hasFallbackValue)
+			auto It = mStringToTypeCollection.find(&_rVal_S);
+			if (mFallbackValue_B)
 			{
-				return (it == stringToType.end()) ? fallbackValue : it->second;
+				return (It == mStringToTypeCollection.end()) ? mFallbackValue : It->second;
 			}
-			else if (it == stringToType.end())
+			else if (It == mStringToTypeCollection.end())
 			{
-				throw std::out_of_range("Unknown value : " + val);
+				throw std::out_of_range("Unknown value : " + _rVal_S);
 			}
 			else
 			{
-				return it->second;
+				return It->second;
 			}
 		}
 
@@ -152,11 +138,10 @@ private:
 		using ItemToStringMap = std::map<const T, const std::string>;
 		using StringToItemMap = std::map<const std::string *, const T, std::function<bool(const std::string *, const std::string *)> >;
 
-		ItemToStringMap typeToString;
-
-		StringToItemMap stringToType{[](const std::string *a, const std::string *b) { return a->compare(*b) < 0; }};
-		T fallbackValue;
-		bool hasFallbackValue;
+		ItemToStringMap mTypeToStringCollection;
+		StringToItemMap mStringToTypeCollection{[](const std::string *a, const std::string *b) { return a->compare(*b) < 0; }};
+		T mFallbackValue;
+		bool mFallbackValue_B;
 };
 
 END_BOF_NAMESPACE()

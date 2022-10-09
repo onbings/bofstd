@@ -422,6 +422,12 @@ BEGIN_BOF_NAMESPACE()
     {
       return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16) && (User_S == _rOther.User_S) && (Password_S == _rOther.Password_S) && (Ip_X == _rOther.Ip_X);
     }
+
+    /*
+   myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
+   myprotocol:/forum/questions/file.txt?justkey;order=newest&tag=networking#HashTag
+   myprotocol://www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
+    */
     std::string ToString(bool _ShowProtocol_B, bool _ShowUser_B, bool _ShowPassword_B, bool _ShowPortNumber_B) const
     {
       std::ostringstream Rts;
@@ -456,16 +462,26 @@ BEGIN_BOF_NAMESPACE()
         {
           if (_ShowProtocol_B)
           {
-            Rts << Protocol_S << ':';
+            if (IpAddress_S != "")
+            {
+              Rts << Protocol_S << "://";
+            }
+            else
+            {
+              Rts << Protocol_S << ':';   //Will be followed by path for an uri
+            }
           }
         }
       }
-      Rts << IpAddress_S;
-      if (Port_U16)
+      if (IpAddress_S != "")
       {
-        if (_ShowPortNumber_B)
+        Rts << IpAddress_S;
+        if (Port_U16)
         {
-          Rts << ':' << Port_U16;
+          if (_ShowPortNumber_B)
+          {
+            Rts << ':' << Port_U16;
+          }
         }
       }
 

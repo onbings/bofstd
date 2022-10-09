@@ -564,10 +564,10 @@ TEST(JsonWriter_Test, Json)
   Sts_E = pBofJsonParser_O->ToByte(S_OptionJsonCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
 
-  Sts_E = BofJsonWriter_O.FromByte(true, S_OptionJsonCollection, JsonOut_S);
+  Sts_E = BofJsonWriter_O.FromByte(true, true, S_OptionJsonCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
 
-  Sts_E = BofJsonWriter_O.FromByte(false, S_OptionJsonCollection, JsonOut_S);
+  Sts_E = BofJsonWriter_O.FromByte(false, true, S_OptionJsonCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
 
   BOF_SAFE_DELETE(pBofJsonParser_O);
@@ -586,7 +586,7 @@ TEST(JsonWriter_Test, IpSenderSer)
   Sts_E = BofJsonParser_O.ToByte(S_IpSenderOptionCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
 
-  Sts_E = BofJsonWriter.FromByte(true, S_IpSenderOptionCollection, JsonOut_S);
+  Sts_E = BofJsonWriter.FromByte(true, true, S_IpSenderOptionCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
   /*
@@ -595,7 +595,7 @@ TEST(JsonWriter_Test, IpSenderSer)
   const char *q = t.c_str();
   while (*p == *q) { p++; q++; }
   */
-  Sts_E = BofJsonWriter.FromByte(false, S_IpSenderOptionCollection, JsonOut_S);
+  Sts_E = BofJsonWriter.FromByte(false, true, S_IpSenderOptionCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
 
 }
@@ -613,11 +613,11 @@ TEST(JsonWriter_Test, ManifestSer)
   Sts_E = BofJsonParser_O.ToByte(S_IpManifestOptionCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
 
-  Sts_E = BofJsonWriter.FromByte(true, S_IpManifestOptionCollection, JsonOut_S);
+  Sts_E = BofJsonWriter.FromByte(true, true, S_IpManifestOptionCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
-  Sts_E = BofJsonWriter.FromByte(false, S_IpManifestOptionCollection, JsonOut_S);
+  Sts_E = BofJsonWriter.FromByte(false, true, S_IpManifestOptionCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
 }
 
@@ -632,7 +632,7 @@ TEST(JsonWriter_Test, ConnectSer)
   BofJsonParser BofJsonParser_O(JsonIn_S);
 
   JsonOut_S = "";
-  Sts_E = BofJsonWriter.FromByte(true, S_IpConnectOptionCollection, JsonOut_S);
+  Sts_E = BofJsonWriter.FromByte(true, true, S_IpConnectOptionCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"connect\":{\"receiver_id\":\"\"}}\n");
 
@@ -640,7 +640,7 @@ TEST(JsonWriter_Test, ConnectSer)
   EXPECT_EQ(Sts_E, 0);
 
   JsonOut_S = "";
-  Sts_E = BofJsonWriter.FromByte(true, S_IpConnectOptionCollection, JsonOut_S);
+  Sts_E = BofJsonWriter.FromByte(true, true, S_IpConnectOptionCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
 
   /*
@@ -652,7 +652,7 @@ TEST(JsonWriter_Test, ConnectSer)
 
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
-  Sts_E = BofJsonWriter.FromByte(false, S_IpConnectOptionCollection, JsonOut_S);
+  Sts_E = BofJsonWriter.FromByte(false, true, S_IpConnectOptionCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
 }
 
@@ -673,7 +673,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddDeviceSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddDeviceSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"add_device\":{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"\",\"node_id\":\"00000000-0000-0000-0000-000000000000\",\"type\":\"\",\"version\":\"\"}}\n");
 
@@ -685,7 +685,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   //\"receivers\":[],\"senders\":[], are null
   JsonIn_S = "{\"add_device\":{\"id\":\"a8500668-9218-4063-ba36-9b4900b82e67\",\"label\":\"\",\"node_id\":\"00000000-0000-0000-0000-000000000000\",\"type\":\"\",\"version\":\"\"}}\n";
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddDeviceSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddDeviceSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -699,7 +699,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddSourceSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddSourceSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"add_source\":{\"caps\":\"\",\"description\":\"\",\"device_id\":\"00000000-0000-0000-0000-000000000000\",\"format\":\"\",\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"\",\"version\":\"\"}}\n");
 
@@ -712,7 +712,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   //\"parents\":[],\"tags\":{\"\":[]} are null
   JsonIn_S = "{\"add_source\":{\"caps\":\"\",\"description\":\"OUT1\",\"device_id\":\"a8500668-9218-4063-ba36-9b4900b82e67\",\"format\":\"\",\"id\":\"895085f3-76a1-4f09-b3dd-2aabeb230cd8\",\"label\":\"Player A\",\"version\":\"\"}}\n";
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddSourceSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddSourceSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -726,7 +726,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddFlowSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddFlowSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"add_flow\":{\"description\":\"\",\"format\":\"\",\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"\",\"source_id\":\"00000000-0000-0000-0000-000000000000\",\"version\":\"\"}}\n");
 
@@ -738,7 +738,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   //\"parents\":[],\"tags\":{\"\":[]} are null
   JsonIn_S = "{\"add_flow\":{\"description\":\"OUT1\",\"format\":\"\",\"id\":\"40b94c9d-9bf1-4721-95ae-4316b4e080ea\",\"label\":\"Player A\",\"source_id\":\"895085f3-76a1-4f09-b3dd-2aabeb230cd8\",\"version\":\"\"}}\n";
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddFlowSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddFlowSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -752,7 +752,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddSenderSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddSenderSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"add_sender\":{\"description\":\"\",\"device_id\":\"00000000-0000-0000-0000-000000000000\",\"flow_id\":\"00000000-0000-0000-0000-000000000000\",\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"\",\"manifest_href\":\"\",\"transport\":\"\",\"version\":\"\"}}\n");
 
@@ -764,7 +764,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   //"tags" is null
   JsonIn_S = "{\"add_sender\":{\"description\":\"OUT1\",\"device_id\":\"a8500668-9218-4063-ba36-9b4900b82e67\",\"flow_id\":\"40b94c9d-9bf1-4721-95ae-4316b4e080ea\",\"id\":\"edbe7239-8659-46c9-a4f7-85b46a2efc73\",\"label\":\"Player A\",\"manifest_href\":\"\",\"transport\":\"\",\"version\":\"\"}}\n";
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddSenderSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddSenderSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -778,7 +778,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddReceiverSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddReceiverSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"add_receiver\":{\"caps\":\"\",\"description\":\"\",\"device_id\":\"00000000-0000-0000-0000-000000000000\",\"format\":\"\",\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"\",\"subscription\":{\"sender_id\":\"00000000-0000-0000-0000-000000000000\"},\"transport\":\"\",\"version\":\"\"}}\n");
 
@@ -792,7 +792,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   JsonIn_S = "{\"add_receiver\":{\"caps\":\"\",\"description\":\"IN1\",\"device_id\":\"a8500668-9218-4063-ba36-9b4900b82e67\",\"format\":\"\",\"id\":\"998a20b2-2a8a-42c3-a527-46d1de96a9df\",\"label\":\"Recorder A\",\"subscription\":{\"sender_id\":\"00000000-0000-0000-0000-000000000000\"},\"transport\":\"\",\"version\":\"\"}}\n";
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddReceiverSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddReceiverSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -807,7 +807,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddManifestSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddManifestSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"add_manifest\":{\"sender_id\":\"00000000-0000-0000-0000-000000000000\"}}\n");
 
@@ -816,7 +816,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   printf("SenderId %s%s", S_AddManifest_X.SenderId.ToString(true).c_str(), Bof_Eol());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_AddManifestSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_AddManifestSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -830,7 +830,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_CmdConnectSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_CmdConnectSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{\"connect\":{\"receiver_id\":\"00000000-0000-0000-0000-000000000000\"}}\n");
 
@@ -842,7 +842,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   //\"tags\":{\"\":[]} is null
   JsonIn_S = "{\"connect\":{\"receiver_id\":\"1c513fc7-faa8-4a89-bd1c-56d8b00a1355\",\"sdp\":[\"v=0\",\"o=- 0 0 IN IP4 18.52.86.0\",\"s=OUT1\",\"i=Player A\",\"c=IN IP4 33.67.101.0/32\",\"t=0 0\",\"m=video 16384 RTP/AVP 96\",\"a=rtpmap:96 raw/90000\",\"a=fmtp:96 packetization-mode=1\"]}}\n";
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_CmdConnectSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_CmdConnectSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -857,7 +857,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_CmdStatusReceiverSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_CmdStatusReceiverSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -865,7 +865,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_EQ(Sts_E, 0);
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_CmdStatusReceiverSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_CmdStatusReceiverSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -880,7 +880,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_ReplyStatusReceiverSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_ReplyStatusReceiverSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{}\n");
 
@@ -893,7 +893,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   for (auto Item : S_ReplyStatusReceiver_X.StateCollection) printf("Sts Rcv State %s%s", Item.c_str(), Bof_Eol());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_ReplyStatusReceiverSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_ReplyStatusReceiverSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -908,7 +908,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_CmdStatusSenderSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_CmdStatusSenderSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -916,7 +916,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_EQ(Sts_E, 0);
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_CmdStatusSenderSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_CmdStatusSenderSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 
@@ -933,7 +933,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   EXPECT_STREQ(JsonParser.RootName().c_str(), BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_ReplyStatusSenderSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_ReplyStatusSenderSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), "{}\n");
 
@@ -946,10 +946,11 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   for (auto Item : S_ReplyStatusSender_X.StateCollection) printf("Sts Snd State %s%s", Item.c_str(), Bof_Eol());
 
   JsonOut_S = "";
-  Sts_E = JsonWriter.FromByte(true, S_ReplyStatusSenderSchemaCollection, JsonOut_S);
+  Sts_E = JsonWriter.FromByte(true, true, S_ReplyStatusSenderSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
   EXPECT_STREQ(JsonOut_S.c_str(), JsonIn_S.c_str());
 }
+
 
 #if 0
 TEST(JsonParser_Test, JsonCfg)

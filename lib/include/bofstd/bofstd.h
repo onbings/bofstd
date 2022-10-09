@@ -258,6 +258,8 @@ extern uint32_t GL_BofDbgPrintfStartTime_U32;
     ( (uint8_t *)(pValToSwap) ) [4] ^= ( (uint8_t *)(pValToSwap) ) [3];  \
     ( (uint8_t *)(pValToSwap) ) [3] ^= ( (uint8_t *)(pValToSwap) ) [4]; }
 
+
+ajouter le this en param
 #define BOF_BIND_0_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this)
 #define BOF_BIND_1_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1)
 #define BOF_BIND_2_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2)

@@ -87,7 +87,7 @@ BofUri::BofUri(const BofUri &_rOther_O)
 
 BofUri::BofUri(BofUri &&_rrOther_O)
 {
-  // Pilfer other�s resource
+  // Pilfer others resource
   InitUriField(_rrOther_O.ToString());
   // Reset other
   _rrOther_O.InitUriField("");
@@ -104,7 +104,7 @@ BofUri &BofUri::operator=(BofUri &&_rrOther_O)
   if (this != &_rrOther_O)
   {
     // Release the current object�s resources
-    // Pilfer other�s resource
+    // Pilfer others resource
     InitUriField(_rrOther_O.ToString());
     // Reset other
     _rrOther_O.InitUriField("");
