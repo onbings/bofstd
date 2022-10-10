@@ -26,20 +26,13 @@
 
 BEGIN_BOF_NAMESPACE()
 
-using AudioSampleFormatEnumConverter = BOF::BofEnum<BOF_AUDIO_SAMPLE_FORMAT>;
-static AudioSampleFormatEnumConverter &S_AudioSampleFormatConverter()
-{
-	static AudioSampleFormatEnumConverter S_TheAudioSampleFormatConverter
-	{
-		{
+static BofEnum<BOF_AUDIO_SAMPLE_FORMAT> S_BofAudioStandardEnumConverter({
+			{BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN, "Unknowb"},
+			{BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_NONE, "None"},
 			{BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32, "S24L32"},
-			{BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_MAX, "FMT_MAX"},
-			{BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN, "FMT_???"},
-		},
-//			COMMIT_IP_SPF_CONFIG_STATE::UNDEF
-	};
-	return S_TheAudioSampleFormatConverter;
-}
+			{BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_MAX, "Max"},
+}, BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_NONE);
+
 BofAudioStandard::BofAudioStandard()
 {
 }
@@ -82,7 +75,7 @@ bool BofAudioStandard::operator==(const BofAudioStandard &_rStandard) const
 
 std::string BofAudioStandard::ToString() const
 {
-	return Bof_Sprintf("%dx%d_%s",mNbMonoChannel_U32, mSamplingRateInHz_U32, S_AudioSampleFormatConverter().ToString(mSampleFormat_E).c_str());
+	return Bof_Sprintf("%dx%d_%s",mNbMonoChannel_U32, mSamplingRateInHz_U32, S_BofAudioStandardEnumConverter.ToString(mSampleFormat_E).c_str());
 }
 
 AudioStandardId BofAudioStandard::Id() const
@@ -130,7 +123,7 @@ bool BofAudioStandard::S_Parse(const char *_pStandard_c, uint32_t &_rNbMonoChann
 		if (sscanf(pAudioFormat_c,"%c%d%c%d",&SignedSample_c,&ResolutionBit_i,&LittleEndian_c,&BitPerSample_i)==4)
 		{
 			_rNbBitPerSample_U32=BitPerSample_i;
-			_rSampleFormat_E = S_AudioSampleFormatConverter().ToEnum(pAudioFormat_c);
+			_rSampleFormat_E = S_BofAudioStandardEnumConverter.ToEnum(pAudioFormat_c);
 			Rts_B=true;
 		}
 	}

@@ -511,6 +511,11 @@ struct BOFSTD_EXPORT BOF_THREAD
 };
 
 struct BOF_DATE_TIME;
+#if 0
+using BOF_TIMEPOINT = uint64_t;	// std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
+BOFSTD_EXPORT BOF_TIMEPOINT Bof_TimePointFromDateTime(const BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOF_DATE_TIME Bof_DateTimeFromTimePoint(const BOF_TIMEPOINT &_rTimePoint);
+#endif
 
 BOFSTD_EXPORT BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
 BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
@@ -693,9 +698,9 @@ BOFSTD_EXPORT uint32_t Bof_GetCurrentPid();
 BOFSTD_EXPORT BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32=nullptr);
 BOFSTD_EXPORT bool Bof_PatternCompare(const char *_pString_c, const char *_pPattern_c);
 BOFSTD_EXPORT BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTime_X);
-BOFSTD_EXPORT BOFERR Bof_TimeInSecSince1970_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X);
-BOFSTD_EXPORT BOFERR Bof_DateInDaySince1970_To_BofDateTime(time_t _DateInDaySince1970, BOF_DATE_TIME &_rDateTime_X);
-BOFSTD_EXPORT BOFERR Bof_BofDateTime_To_DateInDaySince1970(const BOF_DATE_TIME &_rDateTime_X, time_t &_rDateInDaySince1970);
+BOFSTD_EXPORT BOFERR Bof_TimeInSecSinceEpoch_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOFERR Bof_DateInDaySinceEpoch_To_BofDateTime(time_t _DateInDaySince1970, BOF_DATE_TIME &_rDateTime_X);
+BOFSTD_EXPORT BOFERR Bof_BofDateTime_To_DateInDaySinceEpoch(const BOF_DATE_TIME &_rDateTime_X, time_t &_rDateInDaySince1970);
 BOFSTD_EXPORT BOFERR Bof_Now(BOF_DATE_TIME &_rDateTime_X);
 BOFSTD_EXPORT BOFERR Bof_SetDateTime(const BOF_DATE_TIME &_rDateTime_X);
 BOFSTD_EXPORT bool Bof_IsLeapYear(uint16_t _Year_U16);

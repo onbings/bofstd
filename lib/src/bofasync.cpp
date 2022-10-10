@@ -58,7 +58,7 @@ BofCommandQueue::BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueuePa
 		mpuCommandQueueThread = std::make_unique<BofThread>();
 		if (mpuCommandQueueThread)
 		{
-			mpuCommandQueueThread->SetThreadCallback(nullptr, BOF_BIND_0_ARG_TO_METHOD(BofCommandQueue::OnProcessing), nullptr);
+			mpuCommandQueueThread->SetThreadCallback(nullptr, BOF_BIND_0_ARG_TO_METHOD(this, BofCommandQueue::OnProcessing), nullptr);
 			Sts_E = mpuCommandQueueThread->LaunchBofProcessingThread("BofCommandQueue", false, 0, _rCommandQueueParam_X.ThreadSchedulerPolicy_E, _rCommandQueueParam_X.ThreadPriority_E, _rCommandQueueParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
 		}
 	}

@@ -1171,7 +1171,7 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTim
   return Rts_E;
 }
 
-BOFERR Bof_TimeInSecSince1970_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X)
+BOFERR Bof_TimeInSecSinceEpoch_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X)
 {
 	BOFERR Rts_E = BOF_ERR_EINVAL;
 	struct tm *pTimeInfo_X;
@@ -1192,7 +1192,7 @@ BOFERR Bof_TimeInSecSince1970_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE
 	return (Rts_E);
 }
 
-BOFERR Bof_DateInDaySince1970_To_BofDateTime(time_t _DateInDaySince1970, BOF_DATE_TIME &_rDateTime_X)
+BOFERR Bof_DateInDaySinceEpoch_To_BofDateTime(time_t _DateInDaySince1970, BOF_DATE_TIME &_rDateTime_X)
 {
 	BOFERR Rts_E = BOF_ERR_EINVAL;
 	struct tm *pTimeInfo_X, t;
@@ -1223,7 +1223,7 @@ BOFERR Bof_DateInDaySince1970_To_BofDateTime(time_t _DateInDaySince1970, BOF_DAT
 	return (Rts_E);
 }
 
-BOFERR Bof_BofDateTime_To_DateInDaySince1970(const BOF_DATE_TIME &_rDateTime_X, time_t &_rDateInDaySince1970)
+BOFERR Bof_BofDateTime_To_DateInDaySinceEpoch(const BOF_DATE_TIME &_rDateTime_X, time_t &_rDateInDaySince1970)
 {
 	BOF_DATE_TIME EpochDateTime_X, DiffTime_X;
 	uint32_t DiffDay_U32;
@@ -1301,7 +1301,7 @@ BOFERR Bof_DeltaMsToHms(uint32_t _DeltaInMs_U32, uint32_t &_rDay_U32, uint32_t &
 BOFERR Bof_Now(BOF_DATE_TIME &_rDateTime_X)
 {
 	BOFERR Rts_E;
-	Rts_E = Bof_TimeInSecSince1970_To_BofDateTime(time(nullptr), _rDateTime_X);
+	Rts_E = Bof_TimeInSecSinceEpoch_To_BofDateTime(time(nullptr), _rDateTime_X);
 	if (Rts_E == BOF_ERR_NO_ERROR)
 	{
     _rDateTime_X.Millisecond_U16 = 0; // static_cast<uint16_t>(Bof_GetMsTickCount() % 1000);->no as we can have 2 call in the same day with milli2<milli1
@@ -1468,7 +1468,89 @@ BOFERR Bof_DateTimeToNumber(const BOF_DATE_TIME &_rDateTime_X, double &_rDayNumb
 	}
 	return Rts_E;
 }
+//using BOF_TIMEPOINT = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
+#if 0
+BOF_TIMEPOINT Bof_TimePointFromDateTime(const BOF_DATE_TIME &_rDateTime_X)
+{
+	BOF_TIMEPOINT Rts = -1;
+	struct tm Tm_X;
+	std::time_t Time;
 
+	if (Bof_ValidateDateTime(_rDateTime_X) == BOF_ERR_NO_ERROR)
+	{
+		Tm_X.tm_sec = _rDateTime_X.Second_U8;
+		Tm_X.tm_min = _rDateTime_X.Minute_U8;
+		Tm_X.tm_hour = _rDateTime_X.Hour_U8;
+		Tm_X.tm_mday = _rDateTime_X.Day_U8;
+		Tm_X.tm_mon = _rDateTime_X.Month_U8 - 1;
+		Tm_X.tm_year = _rDateTime_X.Year_U16 - 1900;
+		Time = std::mktime(&Tm_X);
+		Time *= 1000000000; // convert to nanosecond
+		Time += (_rDateTime_X.Millisecond_U16 * 1000000); //Add millisecond in nanao
+
+		Rts = Time;
+	}
+	return Rts;
+}
+BOF_DATE_TIME Bof_DateTimeFromTimePoint(const BOF_TIMEPOINT &_rTimePoint)
+{
+	BOF_DATE_TIME Rts_X;
+	std::time_t Time;
+	struct tm Tm_X;
+	uint64_t FracInNano_U64 = _rTimePoint % 1000000000;
+
+	Time = _rTimePoint / 1000000000;
+	Tm_X = *std::gmtime(&Time);
+	Rts_X.Second_U8 = Tm_X.tm_sec;
+	Rts_X.Minute_U8 = Tm_X.tm_min;
+	Rts_X.Hour_U8 = Tm_X.tm_hour;
+	Rts_X.Day_U8 = Tm_X.tm_mday;
+	Rts_X.Month_U8 = Tm_X.tm_mon + 1;
+	Rts_X.Year_U16 = Tm_X.tm_year + 1900;
+	Rts_X.Millisecond_U16 = FracInNano_U64 / 1000000;
+
+	return Rts_X;
+}
+#endif
+#if 0
+
+
+//https://stackoverflow.com/questions/32188956/get-current-timestamp-in-microseconds-since-epoch
+//https://www.web-dev-qa-db-fra.com/fr/c%2B%2B/c-comment-convertir-un-std-chrono-time-point-en-long-and-back/1054908078/
+BOF_TIMEPOINT Bof_TimePoint(const BOF_DATE_TIME &_rDateTime_X)
+{
+	using Clock = std::chrono::high_resolution_clock;
+	using TimePoint = std::chrono::time_point<Clock>;
+
+	const Clock::duration duration_4_seconds = std::chrono::seconds(4);
+	const TimePoint time_point_4_seconds(duration_4_seconds); // (2)
+		// 4 seconds from start of epoch
+	print_ms(time_point_4_seconds); // 4000 ms
+
+	const TimePoint time_point_now = Clock::now(); // (3)
+	print_ms(time_point_now); // 43098276 ms
+
+	using namespace std::chrono;
+	// Get current time with native precision
+	auto now = system_clock::now();
+	// Convert time_point to signed integral type
+	auto integral_duration = now.time_since_epoch().count();
+	// Convert signed integral type to time_point
+	system_clock::time_point dt{ system_clock::duration{integral_duration} };
+	// test
+	if (dt != now)
+		printf("Failure.\n");
+	else
+		printf("Success.\n");
+
+
+	BOF_TIMEPOINT Rts;
+	BOF_TIMEPOINT Rts = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now());
+	BOF_TIMEPOINT Rts = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+	return Rts;
+}
+#endif
 
 // millisecond are not used
 BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32)

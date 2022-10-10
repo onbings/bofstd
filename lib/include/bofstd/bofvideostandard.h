@@ -93,7 +93,11 @@ public:
   }
   inline const char* Description() const
   {
-    return (mIndex_i >= 0) ? S_mpTable_X[mIndex_i].pDescription_c : 0;
+    return (mIndex_i >= 0) ? S_mpTable_X[mIndex_i].pDescription_c : nullptr;
+  }
+  inline std::string ToString() const
+  {
+    return (mIndex_i >= 0) ? std::string(S_mpTable_X[mIndex_i].pDescription_c) : std::string("");
   }
   inline BofRational EffectiveFrameRate() const
   {

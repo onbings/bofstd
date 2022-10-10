@@ -41,7 +41,7 @@ BEGIN_BOF_NAMESPACE()
 
 /*** Definitions *************************************************************/
 
-#define BOF_PARAM_DEF_ENUM(varname, minval, maxval, tostring, fromstring)                        BOF::BOFPARAMETER_ARG_TYPE::ENUM,    static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																		 	,0,0,0,0, tostring, fromstring
+#define BOF_PARAM_DEF_ENUM(varname, minval, maxval, BofEnumConverter, enumtype)                  BOF::BOFPARAMETER_ARG_TYPE::ENUM,    static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																		 	,0,0,0,0, BOF_BIND_1_ARG_TO_METHOD(&BofEnumConverter, BofEnum<enumtype>::ToStringFromInt), BOF_BIND_1_ARG_TO_METHOD(&BofEnumConverter, BofEnum<enumtype>::FromStringToInt)
 #define BOF_PARAM_DEF_VARIABLE(varname, typevar, minval, maxval)                                 BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																			,0,0,0,0
 #define BOF_PARAM_DEF_ARRAY(varname, typevar, minval, maxval)                                    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)						,0,0,0,0
 #define BOF_PARAM_DEF_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval)    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname),0,0,0,0

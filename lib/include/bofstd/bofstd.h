@@ -259,16 +259,15 @@ extern uint32_t GL_BofDbgPrintfStartTime_U32;
     ( (uint8_t *)(pValToSwap) ) [3] ^= ( (uint8_t *)(pValToSwap) ) [4]; }
 
 
-ajouter le this en param
-#define BOF_BIND_0_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this)
-#define BOF_BIND_1_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1)
-#define BOF_BIND_2_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2)
-#define BOF_BIND_3_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
-#define BOF_BIND_4_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)
-#define BOF_BIND_5_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)
-#define BOF_BIND_6_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6)
-#define BOF_BIND_7_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7)
-#define BOF_BIND_8_ARG_TO_METHOD(Class_Method)                                          std::bind(&Class_Method, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8)
+#define BOF_BIND_0_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis)
+#define BOF_BIND_1_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1)
+#define BOF_BIND_2_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2)
+#define BOF_BIND_3_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
+#define BOF_BIND_4_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)
+#define BOF_BIND_5_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)
+#define BOF_BIND_6_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6)
+#define BOF_BIND_7_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7)
+#define BOF_BIND_8_ARG_TO_METHOD(pThis, Class_ColonColon_Method)                                          std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8)
 
 
 BOFSTD_EXPORT BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X);

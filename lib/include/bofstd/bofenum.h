@@ -123,7 +123,10 @@ public:
 				return It->second;
 			}
 		}
-
+		int FromStringToInt(const std::string &_rVal_S) const
+		{
+			return static_cast<int>(ToEnum(_rVal_S));
+		}
 		typename std::underlying_type<T>::type ToBinary(T e)
 		{
 			return static_cast<typename std::underlying_type<T>::type>(e);

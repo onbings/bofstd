@@ -38,26 +38,15 @@ BEGIN_BOF_NAMESPACE()
 constexpr uint32_t POLL_TIMEOUT_IN_MS = 500;
 constexpr uint32_t SEND_CMD_TIMEOUT_IN_MS = 1000;
 constexpr uint32_t SEND_CMD_ANSWER_TIMEOUT_IN_MS = 100;
-//static uint32_t ss = 0;	//1
-//static uint32_t tt = 0;	//1
-using BofSocketSessionTypeEnumConverter = BofEnum<BOF_SOCKET_SESSION_TYPE>;
-static BofSocketSessionTypeEnumConverter &S_BofSocketSessionTypeConverter()
-{
-	static BofSocketSessionTypeEnumConverter S_TheBofSocketSessionTypeConverter
-	{
-		{
+
+static BofEnum<BOF_SOCKET_SESSION_TYPE> S_BofSocketSessionTypeEnumConverter({
 			{ BOF_SOCKET_SESSION_TYPE::UNKNOWN,"UNKNOWN" },
 			{ BOF_SOCKET_SESSION_TYPE::CMD_POLL_WAIT,"CMD_POLL_WAIT" },
 			{ BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER, "SERVER_LISTENER" },
 			{ BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL, "COMMAND_CHANNEL" },
 			{ BOF_SOCKET_SESSION_TYPE::DATA_LISTENER, "DATA_LISTENER" },
 			{ BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL, "DATA_CHANNEL" }
-		},
-		BOF_SOCKET_SESSION_TYPE::UNKNOWN
-	};
-	return S_TheBofSocketSessionTypeConverter;
-}
-
+}, BOF_SOCKET_SESSION_TYPE::UNKNOWN);
 
 
 BofSocketSessionManager::BofSocketSessionManager(IBofSocketSessionFactory *_pIBofSocketSessionFactory, BofSocketServer *_pBofSocketServer, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X)
@@ -834,7 +823,7 @@ std::string BofSocketSessionManager::ConnectionDebugInfo()
 				else
 				{
 					psSocketDataSession = (psSocketSession->ParentCmdChannel().expired()) ? nullptr : psSocketSession->ParentCmdChannel().lock();
-					Rts_S += Bof_Sprintf("  %s Type %s Con %s '%s'->'%s' Parent '%s' Child '%s' Id %08X Indx %d\n", mBofSocketServerParam_X.Name_S.c_str(), S_BofSocketSessionTypeConverter().ToString(psSocketSession->SessionType()).c_str(),
+					Rts_S += Bof_Sprintf("  %s Type %s Con %s '%s'->'%s' Parent '%s' Child '%s' Id %08X Indx %d\n", mBofSocketServerParam_X.Name_S.c_str(), S_BofSocketSessionTypeEnumConverter.ToString(psSocketSession->SessionType()).c_str(),
 						psSocketSession->Connected() ? "True" : "False", psSocketSession->ConnectedFromIpAddress().c_str(), psSocketSession->ConnectedToIpAddress().c_str(),
 						(psSocketDataSession == nullptr) ? "" : psSocketDataSession->ConnectedToIpAddress().c_str(),
 						(psSocketSession->ChildDataChannel() == nullptr) ? "" : psSocketSession->ChildDataChannel()->ConnectedToIpAddress().c_str(),

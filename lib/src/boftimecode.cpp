@@ -23,7 +23,7 @@ BofTimecode::BofTimecode(bool _Ntsc_B, const BOF_DATE_TIME &_rDateTime_X)
 {
 	time_t DateInDaySince1970;
 	double Remain_lf;
-	BOFERR Sts_E = Bof_BofDateTime_To_DateInDaySince1970(_rDateTime_X, DateInDaySince1970);
+	BOFERR Sts_E = Bof_BofDateTime_To_DateInDaySinceEpoch(_rDateTime_X, DateInDaySince1970);
 	if (Sts_E == BOF_ERR_NO_ERROR)
 	{
 		mTcValid_B=true;
@@ -63,7 +63,7 @@ BofTimecode::BofTimecode(const char *_pTc_c)
 				DateTime_X.Month_U8=static_cast<uint8_t>(Month_i);
 				DateTime_X.Day_U8=static_cast<uint8_t>(Day_i);
 
-				if (Bof_BofDateTime_To_DateInDaySince1970(DateTime_X, DateInDaySince1970) == BOF_ERR_NO_ERROR)
+				if (Bof_BofDateTime_To_DateInDaySinceEpoch(DateTime_X, DateInDaySince1970) == BOF_ERR_NO_ERROR)
 				{
 					BofTimeCodeStruct_X.Hour_U8=static_cast<uint8_t>(Hour_i);
 					BofTimeCodeStruct_X.Minute_U8=static_cast<uint8_t>(Minute_i);
@@ -179,7 +179,7 @@ std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatD
 
 	if (_ShowDate_B)
 	{
-		Bof_DateInDaySince1970_To_BofDateTime(mTc_X.NbDay_U16, BofDateTime_X);
+		Bof_DateInDaySinceEpoch_To_BofDateTime(mTc_X.NbDay_U16, BofDateTime_X);
 		Rts_S += Bof_DateTimeToString(BofDateTime_X, (_rFormatDate_S == "") ? "%Y-%m-%d" : _rFormatDate_S);
 	}
 	if (_ShowTime_B)

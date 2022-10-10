@@ -451,7 +451,7 @@ TEST(System_Test, StringDateTime)
   BOF_DATE_TIME DateTime_X, DateTimeFromString_X;
   std::string DateTime_S;
 
-  EXPECT_EQ(Bof_DateInDaySince1970_To_BofDateTime(365+31+7, DateTime_X),BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_DateInDaySinceEpoch_To_BofDateTime(365+31+7, DateTime_X),BOF_ERR_NO_ERROR);
   DateTime_X.Hour_U8 = 12;
   DateTime_X.Minute_U8 = 34;
   DateTime_X.Second_U8 = 56;
