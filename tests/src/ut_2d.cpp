@@ -667,9 +667,9 @@ TEST(Bof2d_Test, MediaDetectorToJson)
   ToString_S = S_MuseFileSystemMedia_X.ToString();
   printf("%s", ToString_S.c_str());
 
-  BOF_DATE_TIME DateTime_X(26, 5, 2064, 1, 2, 3, 4);
-  BOF_TIMEPOINT Tp = Bof_TimePointFromDateTime(DateTime_X);
-  DateTime_X = Bof_DateTimeFromTimePoint(Tp);
+  //BOF_DATE_TIME DateTime_X(26, 5, 2064, 1, 2, 3, 4);
+  //BOF_TIMEPOINT Tp = Bof_TimePointFromDateTime(DateTime_X);
+  //DateTime_X = Bof_DateTimeFromTimePoint(Tp);
 
 }
 
