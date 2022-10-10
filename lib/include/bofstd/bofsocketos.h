@@ -394,6 +394,9 @@ BEGIN_BOF_NAMESPACE()
     }
   };
 
+  struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT;
+  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
+
   struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
   {
     std::string Protocol_S;   //Scheme  (cf BofUri)
@@ -407,6 +410,12 @@ BEGIN_BOF_NAMESPACE()
     BOF_SOCKET_ADDRESS_COMPONENT()
     {
       Reset();
+    }
+
+    BOF_SOCKET_ADDRESS_COMPONENT(const std::string &_rIp_S)
+    {
+      Reset();
+      Bof_SplitIpAddress(_rIp_S, *this);
     }
 
     void Reset()
@@ -557,7 +566,7 @@ BEGIN_BOF_NAMESPACE()
   BOFSTD_EXPORT BOF_SOCK_TYPE Bof_SocketType(const std::string &_rIpAddress_S);
   BOFSTD_EXPORT BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_rUri_X, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S);
   BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
-  BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
+  //Defined above BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
   BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
   BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
   BOFSTD_EXPORT BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);

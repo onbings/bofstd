@@ -39,7 +39,7 @@ V 1.00  Sep 30 2000  BHA : Initial release
 #endif
 #include "MediaInfoDLL/MediaInfoDLL.h" //Dynamicly-loaded library (.dll or .so)
 #define MediaInfoNameSpace MediaInfoDLL;
-#pragma message("MediaInfoNameSpace MediaInfoDLL")
+//#pragma message("MediaInfoNameSpace MediaInfoDLL")
 #endif
 using namespace MediaInfoNameSpace;
 
