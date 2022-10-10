@@ -417,7 +417,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             {
               int Enum_i = _rBofParameter_X.StringToEnum(pTheOptVal_c);
 //Not under gcc              itoa(Enum_i, pEnumVal_c, 10);
-			  sprintf(pEnumVal_c,"%d",Enum_i);
+			        sprintf(pEnumVal_c,"%d",Enum_i);
               pTheOptVal_c = pEnumVal_c;
             }
           case BOFPARAMETER_ARG_TYPE::INT32:
