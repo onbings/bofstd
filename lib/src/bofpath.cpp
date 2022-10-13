@@ -71,20 +71,20 @@ BofPath::BofPath(const std::string &_rDirectory_S, const std::string &_rFile_S)
 
 BofPath::BofPath(const BofPath &_rOther_O)
 {
-	InitPathField(_rOther_O.FullPathName(false));
+	InitPathField(_rOther_O.ToString());
 }
 
 BofPath::BofPath(BofPath &&_rrOther_O)
 {
 	// Pilfer others resource
-	InitPathField(_rrOther_O.FullPathName(false));
+	InitPathField(_rrOther_O.ToString());
 	// Reset other
 	_rrOther_O.InitPathField("");
 }
 
 BofPath &BofPath::operator=(const BofPath &_rOther_O)
 {
-	InitPathField(_rOther_O.FullPathName(false));
+	InitPathField(_rOther_O.ToString());
 	return *this;
 }
 
@@ -94,7 +94,7 @@ BofPath &BofPath::operator=(BofPath &&_rrOther_O)
 	{
 		// Release the current object�s resources
 		// Pilfer others resource
-		InitPathField(_rrOther_O.FullPathName(false));
+		InitPathField(_rrOther_O.ToString());
 		// Reset other
 		_rrOther_O.InitPathField("");
 	}
@@ -212,6 +212,10 @@ std::string BofPath::FullPathName(bool _Windows_B) const
 	return Rts_S;
 }
 
+std::string BofPath::ToString(bool _Windows_B) const
+{
+	return FullPathName(_Windows_B);
+}
 std::wstring BofPath::FullWidePathName(bool _Windows_B) const
 {
 	std::wstring Rts_WS;
@@ -233,7 +237,7 @@ BOFERR BofPath::Combine(const std::string &_rRelativePath_S)
 
 	//no as we want to be able to Combine file with '\' to get a directory if (IsDirectory())
 	{
-		Rts_E = InitPathField(FullPathName(false) + _rRelativePath_S);
+		Rts_E = InitPathField(ToString() + _rRelativePath_S);
 	}
 	return Rts_E;
 }
@@ -272,7 +276,7 @@ bool BofPath::IsValid() const
 
 bool BofPath::IsEmpty() const
 {
-	return (FullPathName(false) == "");
+	return (ToString() == "");
 }
 
 std::string BofPath::CurrentDirectoryName() const

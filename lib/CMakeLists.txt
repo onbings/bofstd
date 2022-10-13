@@ -337,6 +337,8 @@ target_link_libraries(bofstd-objects
 	czmq
 	yuv
 	mediainfo
+	date::date 
+	date::date-tz
 #	libzmq-static
 #	czmq-static
 #	ZLIB::ZLIB

@@ -34,7 +34,7 @@ TEST(Timecode_Test, TcBin)
 	uint64_t TcBin_U64;
 	BOF_TIMECODE Tc1_X,Tc2_X;
 
-	BOF_DATE_TIME DateTime1_X(26, 5, 1970, 8, 16, 32, 100);
+	BOF_DATE_TIME DateTime1_X(26, 5, 1970, 8, 16, 32, 100 * 1000 * 1000);
 	BofTimecode Tc1(false, DateTime1_X);
 
 	Tc1_X=Tc1.ToByteStruct();
@@ -80,7 +80,7 @@ TEST(Timecode_Test, Construct)
 {
   uint64_t TcInMs_U64, TcValInMs_U64;
   int64_t DifMs_S64;
-  BOF_DATE_TIME DateTime_X(26,5,2018,8,16,32,47);
+  BOF_DATE_TIME DateTime_X(26,5,2018,8,16,32,47 * 1000 * 1000);
   BofTimecode Tc1;
 
   EXPECT_FALSE(Tc1.IsNtsc());
@@ -130,11 +130,11 @@ TEST(Timecode_Test, Construct)
 }
 TEST(Timecode_Test, Operator)
 {
-  BOF_DATE_TIME DateTime1_X(26, 5, 1970, 8, 16, 32, 100);
+  BOF_DATE_TIME DateTime1_X(26, 5, 1970, 8, 16, 32, 100 * 1000 * 1000);
   BofTimecode Tc1(false, DateTime1_X);
-  BOF_DATE_TIME DateTime2_X(26, 5, 1970, 8, 16, 32, 900);
+  BOF_DATE_TIME DateTime2_X(26, 5, 1970, 8, 16, 32, 900 * 1000 * 1000);
   BofTimecode Tc2(false, DateTime2_X);
-  BOF_DATE_TIME DateTime3_X(2, 7, 2018, 0, 1, 2, 700);
+  BOF_DATE_TIME DateTime3_X(2, 7, 2018, 0, 1, 2, 700 * 1000 * 1000);
   BofTimecode Tc3(false, DateTime3_X);
   BofTimecode Tc4(false, DateTime1_X);
   BOF_DATE_TIME DiffTime_X;
@@ -171,7 +171,7 @@ TEST(Timecode_Test, Operator)
   EXPECT_EQ(Diff_U64, 40);
   Sts_E = Bof_DiffDateTime(DateTime3_X, DateTime2_X, DiffTime_X, DiffDay_U32);
   EXPECT_EQ(Sts_E, 0);
-  DiffInField_U64 = static_cast<uint64_t>(((static_cast<uint64_t>(DiffDay_U32) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(DiffTime_X.Hour_U8 * 60 * 60 * 1000) + static_cast<uint64_t>(DiffTime_X.Minute_U8 * 60 * 1000) + static_cast<uint64_t>(DiffTime_X.Second_U8 * 1000) + static_cast<uint64_t>(DiffTime_X.Millisecond_U16)) / static_cast<uint64_t>(Tc2.FieldTime()));
+  DiffInField_U64 = static_cast<uint64_t>(((static_cast<uint64_t>(DiffDay_U32) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(DiffTime_X.Hour_U8 * 60 * 60 * 1000) + static_cast<uint64_t>(DiffTime_X.Minute_U8 * 60 * 1000) + static_cast<uint64_t>(DiffTime_X.Second_U8 * 1000) + static_cast<uint64_t>(DiffTime_X.NanoSecond_U32 / 1000 / 1000)) / static_cast<uint64_t>(Tc2.FieldTime()));
   Diff_U64 = Tc3 - Tc2;
   EXPECT_EQ(Diff_U64, DiffInField_U64);
 

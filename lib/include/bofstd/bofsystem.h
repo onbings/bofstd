@@ -510,20 +510,15 @@ struct BOFSTD_EXPORT BOF_THREAD
 		}
 };
 
-struct BOF_DATE_TIME;
-#if 0
-using BOF_TIMEPOINT = uint64_t;	// std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
-BOFSTD_EXPORT BOF_TIMEPOINT Bof_TimePointFromDateTime(const BOF_DATE_TIME &_rDateTime_X);
-BOFSTD_EXPORT BOF_DATE_TIME Bof_DateTimeFromTimePoint(const BOF_TIMEPOINT &_rTimePoint);
-#endif
-
+struct BOFSTD_EXPORT BOF_DATE_TIME;
 BOFSTD_EXPORT BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32);
 BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8);  //0 is sunday
 BOFSTD_EXPORT const std::string Bof_DateTimeToString(const BOF_DATE_TIME &_rDateTime_X, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
 
-#define BOF_SET_DATE_TIME(datetime, day, month, year, hour, minute, second, ms) {datetime.Day_U8 = day;datetime.Month_U8 = month;datetime.Year_U16 = year;datetime.DayOfWeek_U8 = 0;datetime.Hour_U8 = hour;datetime.Minute_U8 = minute;datetime.Second_U8 = second;datetime.Millisecond_U16=ms;}
+#define BOF_SET_DATE_TIME(datetime, day, month, year, hour, minute, second, ns) {datetime.Day_U8 = day;datetime.Month_U8 = month;datetime.Year_U16 = year;datetime.DayOfWeek_U8 = 0;datetime.Hour_U8 = hour;datetime.Minute_U8 = minute;datetime.Second_U8 = second;datetime.NanoSecond_U32=ns;}
 
 // Get month name by strftime.
+//Managed by https://howardhinnant.github.io/date/date.html#time_of_day
 struct BOFSTD_EXPORT BOF_DATE_TIME
 {
 		uint16_t Year_U16;                     // 2014
@@ -533,7 +528,7 @@ struct BOFSTD_EXPORT BOF_DATE_TIME
 		uint8_t Hour_U8;                      // 0-23
 		uint8_t Minute_U8;                    // 0-59
 		uint8_t Second_U8;                    // 0-59
-		uint16_t Millisecond_U16;              // 0-999
+		uint32_t NanoSecond_U32;              // 0-999999999
 
 
 		BOF_DATE_TIME()
@@ -550,10 +545,10 @@ struct BOFSTD_EXPORT BOF_DATE_TIME
 			Hour_U8 = 0;
 			Minute_U8 = 0;
 			Second_U8 = 0;
-			Millisecond_U16 = 0;
+			NanoSecond_U32 = 0;
 		}
 
-		BOF_DATE_TIME(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint16_t _Millisecond_U16)
+		BOF_DATE_TIME(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _NanoSecond_U32)
 		{
 			Year_U16 = _Year_U16;
 			Month_U8 = _Month_U8;
@@ -561,7 +556,7 @@ struct BOFSTD_EXPORT BOF_DATE_TIME
 			Hour_U8 = _Hour_U8;
 			Minute_U8 = _Minute_U8;
 			Second_U8 = _Second_U8;
-			Millisecond_U16 = _Millisecond_U16;
+			NanoSecond_U32 = _NanoSecond_U32;
 			Bof_ComputeDayOfWeek(*this, DayOfWeek_U8);
 		}
 
@@ -573,7 +568,7 @@ struct BOFSTD_EXPORT BOF_DATE_TIME
 			Hour_U8 = static_cast<uint8_t>(_rRm_X.tm_hour);
 			Minute_U8 = static_cast<uint8_t>(_rRm_X.tm_min);
 			Second_U8 = static_cast<uint8_t>(_rRm_X.tm_sec);
-			Millisecond_U16 = 0;
+			NanoSecond_U32 = 0;
 			Bof_ComputeDayOfWeek(*this, DayOfWeek_U8);
 		}
 		std::string ToString()
@@ -606,7 +601,7 @@ struct BOFSTD_EXPORT BOF_DATE_TIME
 		bool operator==(const BOF_DATE_TIME &_Other) const
 		{
 			return ((Year_U16 == _Other.Year_U16) && (Month_U8 == _Other.Month_U8) && (DayOfWeek_U8 == _Other.DayOfWeek_U8) && (Day_U8 == _Other.Day_U8) && (Hour_U8 == _Other.Hour_U8) &&
-			        (Minute_U8 == _Other.Minute_U8) && (Second_U8 == _Other.Second_U8) && (Millisecond_U16 == _Other.Millisecond_U16));
+			        (Minute_U8 == _Other.Minute_U8) && (Second_U8 == _Other.Second_U8) && (NanoSecond_U32 == _Other.NanoSecond_U32));
 		}
 
 		bool operator!=(const BOF_DATE_TIME &_Other) const
@@ -653,7 +648,7 @@ struct BOFSTD_EXPORT BOF_SYSTEM_USAGE_INFO
     uint64_t FreeHighInKB_U64;  /* Available high memory size */
   } MEMORY;
 };
-// !!! Millisecond_U16;  !! http://h30499.www3.hp.com/t5/Languages-and-Scripting/migration-to-64-bit-mode-semctl/td-p/3204127#.VUCj4XhV2zl !!!!
+// !!! NanoSecond_U32;  !! http://h30499.www3.hp.com/t5/Languages-and-Scripting/migration-to-64-bit-mode-semctl/td-p/3204127#.VUCj4XhV2zl !!!!
 typedef union semsetgetval
 {
 		int val;                               /* Value for SETVAL */

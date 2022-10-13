@@ -31,10 +31,10 @@ BofTimecode::BofTimecode(bool _Ntsc_B, const BOF_DATE_TIME &_rDateTime_X)
 		mTc_X.Hour_U8 = _rDateTime_X.Hour_U8;
 		mTc_X.Minute_U8 = _rDateTime_X.Minute_U8;
 		mTc_X.Second_U8 = _rDateTime_X.Second_U8;
-		mTc_X.Frame_U8 = static_cast<uint8_t>(static_cast<double>(_rDateTime_X.Millisecond_U16) / FrameTime());
+		mTc_X.Frame_U8 = static_cast<uint8_t>(static_cast<double>(_rDateTime_X.NanoSecond_U32 / 1000 / 1000) / FrameTime());
 		mTc_X.TcFlag_U8 = _Ntsc_B ? BOF_TIMECODE_FLAG_NTSC : 0x00;
 		mRate=(mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_NTSC) ? BofRational(1000,30,false):BofRational(1000,25,false);
-		Remain_lf = static_cast<double>(_rDateTime_X.Millisecond_U16) - (static_cast<uint32_t>(mTc_X.Frame_U8) * FrameTime());
+		Remain_lf = static_cast<double>(_rDateTime_X.NanoSecond_U32 / 1000 / 1000) - (static_cast<uint32_t>(mTc_X.Frame_U8) * FrameTime());
 		if (Remain_lf > (0.9f * FieldTime()))
 		{
 			mTc_X.TcFlag_U8 |= BOF_TIMECODE_FLAG_PARITY_ODD;

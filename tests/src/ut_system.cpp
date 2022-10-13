@@ -179,11 +179,7 @@ TEST(System_Test, ValidateDateTime)
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 	// MILLISECOND
-	BOF_SET_DATE_TIME(DateTime_X, 31, 12, 2070, 23, 59, 59, 0xFFFF);
-	Sts_E                      = Bof_ValidateDateTime(DateTime_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
-	BOF_SET_DATE_TIME(DateTime_X, 31, 12, 2070, 23, 59, 59, 1000);
+	BOF_SET_DATE_TIME(DateTime_X, 31, 12, 2070, 23, 59, 59, 1000000000);
 	Sts_E                      = Bof_ValidateDateTime(DateTime_X);
 	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
@@ -287,11 +283,11 @@ TEST(System_Test, SetDateTime)
 	Sts_E                      = Bof_SetDateTime(DateTime_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	DateTime_X.Millisecond_U16 = 1000;
+	DateTime_X.NanoSecond_U32 = 1000 * 1000 * 1000;
 	Sts_E                      = Bof_SetDateTime(DateTime_X);
 	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	DateTime_X.Millisecond_U16 = 999;
+	DateTime_X.NanoSecond_U32 = 999 * 1000 * 1000;
 	Sts_E                      = Bof_SetDateTime(DateTime_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
@@ -313,7 +309,7 @@ TEST(System_Test, SetDateTime)
 	EXPECT_EQ(DateTimeNew_X.Minute_U8, 0);
 	EXPECT_LT(DateTimeNew_X.Second_U8, 4);
 
-	// EXPECT_EQ(DateTimeNew_X.Millisecond_U16, DateTime_X.Millisecond_U16);
+	// EXPECT_EQ(DateTimeNew_X.NanoSecond_U32, DateTime_X.NanoSecond_U32);
 
 	Sts_E                      = Bof_SetDateTime(DateTimeOrg_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -372,7 +368,7 @@ TEST(System_Test, DiffDateTime)
 	EXPECT_EQ(DiffTime_X.Hour_U8, 0);
 	EXPECT_EQ(DiffTime_X.Minute_U8, 0);
 	EXPECT_EQ(DiffTime_X.Second_U8, 0);
-	EXPECT_EQ(DiffTime_X.Millisecond_U16, 0);
+	EXPECT_EQ(DiffTime_X.NanoSecond_U32, 0);
 	EXPECT_EQ(DiffTime_X.Day_U8, 1);
 	EXPECT_EQ(DiffTime_X.Month_U8, 1);
 	EXPECT_EQ(DiffTime_X.Year_U16, 1970);
@@ -384,7 +380,7 @@ TEST(System_Test, DiffDateTime)
 	FirstDateTime_X.Hour_U8         = 1;
 	FirstDateTime_X.Minute_U8       = 30;
 	FirstDateTime_X.Second_U8       = 20;
-	FirstDateTime_X.Millisecond_U16 = 0;
+	FirstDateTime_X.NanoSecond_U32 = 0;
 
 	SecondDateTime_X                = FirstDateTime_X;
 	Sts_E                           = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
@@ -421,7 +417,7 @@ TEST(System_Test, DiffDateTime)
 	FirstDateTime_X.Hour_U8         = 0;
 	FirstDateTime_X.Minute_U8       = 0;
 	FirstDateTime_X.Second_U8       = 0;
-	FirstDateTime_X.Millisecond_U16 = 0;
+	FirstDateTime_X.NanoSecond_U32 = 0;
 	SecondDateTime_X                = FirstDateTime_X;
   SecondDateTime_X.Second_U8      = 1;
 	Sts_E                           = Bof_DiffDateTime( SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
@@ -455,7 +451,7 @@ TEST(System_Test, StringDateTime)
   DateTime_X.Hour_U8 = 12;
   DateTime_X.Minute_U8 = 34;
   DateTime_X.Second_U8 = 56;
-  DateTime_X.Millisecond_U16 = 0;
+  DateTime_X.NanoSecond_U32 = 0;
 
   DateTime_S= Bof_DateTimeToString(DateTime_X);
   DateTimeFromString_X.Reset();
@@ -568,7 +564,7 @@ TEST(System_Test, TickSleep)
 	EXPECT_EQ(DiffTime_X.Minute_U8, 0);
 	EXPECT_GE(DiffTime_X.Second_U8, 3);
 	EXPECT_LE(DiffTime_X.Second_U8, 4);
-	EXPECT_EQ(DiffTime_X.Millisecond_U16, 0);
+	EXPECT_EQ(DiffTime_X.NanoSecond_U32, 0);
 	EXPECT_GT(Delta_U32, (uint32_t)2900);
 	EXPECT_LT(Delta_U32, (uint32_t)3100);
 
@@ -586,7 +582,7 @@ TEST(System_Test, TickSleep)
 	EXPECT_EQ(DiffTime_X.Minute_U8, 0);
 	// can be one
 	EXPECT_LE(DiffTime_X.Second_U8, 1);
-	EXPECT_EQ(DiffTime_X.Millisecond_U16, 0);
+	EXPECT_EQ(DiffTime_X.NanoSecond_U32, 0);
 	EXPECT_GE(Delta_U32, (uint32_t)90);
 	EXPECT_LE(Delta_U32, (uint32_t)110);
 
@@ -604,7 +600,7 @@ TEST(System_Test, TickSleep)
 	EXPECT_EQ(DiffTime_X.Minute_U8, 0);
 	// can be one
 	EXPECT_LE(DiffTime_X.Second_U8, 1);
-	EXPECT_EQ(DiffTime_X.Millisecond_U16, 0);
+	EXPECT_EQ(DiffTime_X.NanoSecond_U32, 0);
 	EXPECT_GE(Delta_U32, (uint32_t)15);
 	EXPECT_LE(Delta_U32, (uint32_t)45);
 

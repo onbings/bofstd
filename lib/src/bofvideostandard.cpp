@@ -29,10 +29,10 @@ BEGIN_BOF_NAMESPACE()
 // As for pixel aspect ratios, see http://en.wikipedia.org/wiki/Pixel_aspect_ratio
 
 // 720x525_59iLB is not supported
-const BofVideoStandard::Table BofVideoStandard::S_mpTable_X[] ={
+const BofVideoStandard::Table BofVideoStandard::S_mpTable_X[] = {
   // id                                     idText           description                    dcol  drow fps type  acol  arow  tcol  trow  framerate   s1  s2   imgA/R  audioClockRate      smpte352    pid, 		vdlyOff, utabIdx
-  { BOF_VIDEO_STANDARD_ID( 720,  525, 59, 'i'), "720x525_59i",    "720x525@59.94i (NTSC)",   720,  525, 59, 'i',  720,  488,  858,  525, 30000, 1001, 9, 272,  4, 3, 27000000LL,    1001, 0x81060001, 0x000D01CE,    0,     1 },
-  { BOF_VIDEO_STANDARD_ID( 720,  625, 50, 'i'), "720x625_50i",    "720x625@50i (PAL)",       720,  625, 50, 'i',  720,  576,  864,  625, 25,    1,    5, 318,  4, 3, 27000000LL,    1,    0x81050001, 0x000901CD, 1480,     0 },
+  { BOF_VIDEO_STANDARD_ID(720,  525, 59, 'i'), "720x525_59i",    "720x525@59.94i (NTSC)",   720,  525, 59, 'i',  720,  488,  858,  525, 30000, 1001, 9, 272,  4, 3, 27000000LL,    1001, 0x81060001, 0x000D01CE,    0,     1 },
+  { BOF_VIDEO_STANDARD_ID(720,  625, 50, 'i'), "720x625_50i",    "720x625@50i (PAL)",       720,  625, 50, 'i',  720,  576,  864,  625, 25,    1,    5, 318,  4, 3, 27000000LL,    1,    0x81050001, 0x000901CD, 1480,     0 },
   { BOF_VIDEO_STANDARD_ID(1280,  720, 50, 'p'), "1280x720_50p",   "1280x720@50p",           1280,  720, 50, 'p', 1280,  720, 1980,  750, 50,    1,    6,  -1, 16, 9, 74250000LL,    1,    0x84490001, 0x000A0114,  500,     2 },
   { BOF_VIDEO_STANDARD_ID(1280,  720, 59, 'p'), "1280x720_59p",   "1280x720@59.94p",        1280,  720, 59, 'p', 1280,  720, 1650,  750, 60000, 1001, 6,  -1, 16, 9, 74250000000LL, 1001, 0x844A0001, 0x000A0115,  300,     3 },
   { BOF_VIDEO_STANDARD_ID(1280,  720, 24, 's'), "1280x720_24sF",  "1280x720@24sF",          1280,  720, 50, 's', 1280,  720,    0,    0, 50,    1,    6,  -1, 16, 9, 74250000LL,    1,    0,          0,             0,    -1 }, // FIXME
@@ -58,27 +58,32 @@ const BofVideoStandard::Table BofVideoStandard::S_mpTable_X[] ={
   { BOF_VIDEO_STANDARD_ID(3840, 2160, 50, 'p'), "3840x2160_50p",  "3840x2160@50p",          3840, 2160, 50, 'p', 3840, 2160, 4000, 2200, 50,    1,    6, 568, 16, 9, 74250000LL,    1,    0x89CB8001, 0x000AFFFF,    0,    -1 }, // FIXME
   { BOF_VIDEO_STANDARD_ID(3840, 2160, 59, 'p'), "3840x2160_59p",  "3840x2160@59p",          3840, 2160, 59, 'p', 3840, 2160, 4000, 2200, 60000, 1001, 6, 568, 16, 9, 74250000000LL, 1001, 0x89CB8001, 0x000AFFFF,    0,    -1 }, // FIXME
   { BOF_VIDEO_STANDARD_ID(3840, 2160, 60, 'p'), "3840x2160_60p",  "3840x2160@60p",          3840, 2160, 60, 'p', 3840, 2160, 4000, 2200, 60,    1,    6, 568, 16, 9, 74250000LL,    1,    0x89CB8001, 0x000AFFFF,    0,    -1 }  // FIXME
- };
+};
 
-int BofVideoStandard::S_FindIndex(const VideoStandardId standard)
+int BofVideoStandard::S_FindIndexFromVideoStandardId(const VideoStandardId _Standard)
 {
-  const Table *ptr=S_mpTable_X;
-  for (unsigned int idx=0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) {
-    if (ptr->Id_U32 == standard) {
+  const Table *ptr = S_mpTable_X;
+  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) 
+  {
+    if (ptr->Id_U32 == _Standard) 
+    {
       return idx;
     }
   }
   return (-1);
 }
 
-int BofVideoStandard::S_FindIndex(const char *standard)
+int BofVideoStandard::S_FindIndexFromIdText(const char *_pStandard_c)
 {
-  const Table *ptr=S_mpTable_X;
-  for (unsigned int idx=0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) {
+  const Table *ptr = S_mpTable_X;
+  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) 
+  {
 #if defined(_WIN32)
-		if (!_stricmp(ptr->pIdText_c, standard)) {
+    if (!_stricmp(ptr->pIdText_c, _pStandard_c))
+    {
 #else
-    if (!strcasecmp(ptr->pIdText_c, standard)) {
+    if (!strcasecmp(ptr->pIdText_c, _pStandard_c)) 
+    {
 #endif
       return idx;
     }
@@ -86,10 +91,27 @@ int BofVideoStandard::S_FindIndex(const char *standard)
   return (-1);
 }
 
+int BofVideoStandard::S_FindIndexFromDescription(const char *_pStandard_c)
+{
+  const Table *ptr = S_mpTable_X;
+  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) 
+  {
+#if defined(_WIN32)
+    if (!_stricmp(ptr->pDescription_c, _pStandard_c)) 
+    {
+#else
+    if (!strcasecmp(ptr->pDescription_c, _pStandard_c))
+    {
+#endif
+      return idx;
+    }
+  }
+  return (-1);
+}
 int BofVideoStandard::S_FindIndex(const int numCols, const int numRows, const int fps, const char type)
 {
-  const Table *ptr=S_mpTable_X;
-  for (unsigned int idx=0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) {
+  const Table *ptr = S_mpTable_X;
+  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) {
     if (ptr->DescriptionCols_i == numCols) {
       if (ptr->DescriptionRows_i == numRows) {
         if (ptr->DescriptionFps_i == fps) {
@@ -105,21 +127,23 @@ int BofVideoStandard::S_FindIndex(const int numCols, const int numRows, const in
 
 BofVideoStandard BofVideoStandard::FromIndex(const int index)
 {
-  BofVideoStandard std;
-  if ((index >= 0) && (index < (int)(sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])))) {
-    std.mIndex_i=index;
+  BofVideoStandard Rts;
+
+  if ((index >= 0) && (index < (int)(sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0]))))
+  {
+    Rts.mIndex_i = index;
   }
-  return std;
+  return Rts;
 }
 
-bool BofVideoStandard::S_Parse(const char* standard, int &w, int &h, int &fps, char &type)
+bool BofVideoStandard::S_Parse(const char *standard, int &w, int &h, int &fps, char &type)
 {
-  w=h=fps=type=0;
+  w = h = fps = type = 0;
   while (isspace(*standard)) {
     ++standard;
   }
   while (isdigit(*standard)) {
-    w=w * 10 + *standard - '0';
+    w = w * 10 + *standard - '0';
     ++standard;
   }
   if ((*standard != 'x') && (*standard != 'X')) {
@@ -127,7 +151,7 @@ bool BofVideoStandard::S_Parse(const char* standard, int &w, int &h, int &fps, c
   }
   ++standard;
   while (isdigit(*standard)) {
-    h=h * 10 + *standard - '0';
+    h = h * 10 + *standard - '0';
     ++standard;
   }
   if ((*standard != '_') && (*standard != '@')) {
@@ -135,14 +159,14 @@ bool BofVideoStandard::S_Parse(const char* standard, int &w, int &h, int &fps, c
   }
   ++standard;
   while (isdigit(*standard)) {
-    fps=fps * 10 + *standard - '0';
+    fps = fps * 10 + *standard - '0';
     ++standard;
   }
-  char c=(char)tolower(*standard);
+  char c = (char)tolower(*standard);
   if ((c != 'i') && (c != 'p') && (c != 's')) {
     return false;
   }
-  type=c;
+  type = c;
   return true;
 }
 

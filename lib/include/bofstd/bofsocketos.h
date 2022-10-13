@@ -427,6 +427,20 @@ BEGIN_BOF_NAMESPACE()
       Password_S = "";
       Ip_X.Reset();
     }
+    /*
+    inline BOF_SOCKET_ADDRESS_COMPONENT operator=(BOF_SOCKET_ADDRESS_COMPONENT _Other) 
+    {
+      printf("InCopy from %p to %p\n", &_Other, this);
+
+      Protocol_S = _Other.Protocol_S;
+      IpAddress_S = _Other.IpAddress_S;
+      Port_U16 = _Other.Port_U16;
+      User_S = _Other.User_S;
+      Password_S = _Other.Password_S;
+      Ip_X = _Other.Ip_X;
+      return *this; // _Other;
+    }
+    */
     int operator==(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
     {
       return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16) && (User_S == _rOther.User_S) && (Password_S == _rOther.Password_S) && (Ip_X == _rOther.Ip_X);

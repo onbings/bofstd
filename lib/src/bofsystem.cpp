@@ -33,6 +33,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <iostream>
+#include <iomanip>
+
+#include <chrono>
+#include <date/date.h>
+using namespace date::literals; 
+using namespace std::chrono_literals;
 
 #if defined (_WIN32)
 #include <Winsock2.h>
@@ -1145,7 +1152,7 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTim
     _rDateTime_X.Hour_U8 = (uint8_t)SystemTime_X.wHour;
     _rDateTime_X.Minute_U8 = (uint8_t)SystemTime_X.wMinute;
     _rDateTime_X.Second_U8 = (uint8_t)SystemTime_X.wSecond;
-    _rDateTime_X.Millisecond_U16 = (uint16_t)SystemTime_X.wMilliseconds;
+    _rDateTime_X.NanoSecond_U32 = (uint32_t)SystemTime_X.wMilliseconds * 1000 * 1000;
     Rts_E = BOF_ERR_NO_ERROR;
   }
 #else
@@ -1163,7 +1170,7 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTim
     _rDateTime_X.Hour_U8 = (uint8_t)pNow_X->tm_hour;
     _rDateTime_X.Minute_U8 = (uint8_t)pNow_X->tm_min;
     _rDateTime_X.Second_U8 = (uint8_t)pNow_X->tm_sec;
-    _rDateTime_X.Millisecond_U16 = (uint16_t)0;
+    _rDateTime_X.NanoSecond_U32 = (uint32_t)0;
     Rts_E = BOF_ERR_NO_ERROR;
   }
 #endif
@@ -1171,8 +1178,40 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTim
   return Rts_E;
 }
 
+//https://stackoverflow.com/questions/52238978/creating-a-stdchronotime-point-from-a-calendar-date-known-at-compile-time
+time_t Bof_TimeInfoToUtc(std::tm &_rTimeInfo_X)
+{
+	std::time_t Rts;
+#ifdef _WIN32
+	Rts = _mkgmtime(&_rTimeInfo_X);
+#else
+	Rts = timegm(&_rTimeInfo_X);
+#endif
+	return Rts;
+}
+std::chrono::system_clock::time_point Bof_CreateTimePoint(const BOF_DATE_TIME &_rDateTime_X)
+{
+	std::chrono::system_clock::time_point Rts;
+	std::tm TimeInfo_X;
+	time_t t;
+
+	if (Bof_ValidateDateTime(_rDateTime_X) == BOF_ERR_NO_ERROR)
+	{
+		TimeInfo_X.tm_year = _rDateTime_X.Year_U16 - 1900;
+		TimeInfo_X.tm_mon = _rDateTime_X.Month_U8 - 1;
+		TimeInfo_X.tm_mday = _rDateTime_X.Day_U8;
+		TimeInfo_X.tm_hour = _rDateTime_X.Hour_U8;
+		TimeInfo_X.tm_min = _rDateTime_X.Minute_U8;
+		TimeInfo_X.tm_sec = _rDateTime_X.Second_U8;
+		t = Bof_TimeInfoToUtc(TimeInfo_X);
+		Rts = std::chrono::system_clock::from_time_t(t);
+	}
+	return Rts;
+}
+
 BOFERR Bof_TimeInSecSinceEpoch_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X)
 {
+
 	BOFERR Rts_E = BOF_ERR_EINVAL;
 	struct tm *pTimeInfo_X;
 	pTimeInfo_X = localtime(&_TimeInSecSice1970);
@@ -1186,7 +1225,7 @@ BOFERR Bof_TimeInSecSinceEpoch_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DAT
 		_rDateTime_X.Hour_U8 = static_cast< uint8_t > (pTimeInfo_X->tm_hour);
 		_rDateTime_X.Minute_U8 = static_cast< uint8_t > (pTimeInfo_X->tm_min);
 		_rDateTime_X.Second_U8 = static_cast< uint8_t > (pTimeInfo_X->tm_sec);
-		_rDateTime_X.Millisecond_U16 = 0;
+		_rDateTime_X.NanoSecond_U32 = 0;
 		Rts_E = BOF_ERR_NO_ERROR;
 	}
 	return (Rts_E);
@@ -1217,7 +1256,7 @@ BOFERR Bof_DateInDaySinceEpoch_To_BofDateTime(time_t _DateInDaySince1970, BOF_DA
 		_rDateTime_X.Hour_U8 = static_cast< uint8_t > (pTimeInfo_X->tm_hour);
 		_rDateTime_X.Minute_U8 = static_cast< uint8_t > (pTimeInfo_X->tm_min);
 		_rDateTime_X.Second_U8 = static_cast< uint8_t > (pTimeInfo_X->tm_sec);
-		_rDateTime_X.Millisecond_U16 = 0;
+		_rDateTime_X.NanoSecond_U32 = 0;
 		Rts_E = BOF_ERR_NO_ERROR;
 	}
 	return (Rts_E);
@@ -1235,7 +1274,7 @@ BOFERR Bof_BofDateTime_To_DateInDaySinceEpoch(const BOF_DATE_TIME &_rDateTime_X,
 	EpochDateTime_X.Hour_U8 = 0;
 	EpochDateTime_X.Minute_U8 = 0;
 	EpochDateTime_X.Second_U8 = 0;
-	EpochDateTime_X.Millisecond_U16 = 0;
+	EpochDateTime_X.NanoSecond_U32 = 0;
 	Rts_E = Bof_DiffDateTime(_rDateTime_X, DiffTime_X, EpochDateTime_X, DiffDay_U32);
 	if (Rts_E == BOF_ERR_NO_ERROR)
 	{
@@ -1298,13 +1337,14 @@ BOFERR Bof_DeltaMsToHms(uint32_t _DeltaInMs_U32, uint32_t &_rDay_U32, uint32_t &
   _rDay_U32=_DeltaInMs_U32 ;
   return Rts_E;
 }
+
 BOFERR Bof_Now(BOF_DATE_TIME &_rDateTime_X)
 {
 	BOFERR Rts_E;
 	Rts_E = Bof_TimeInSecSinceEpoch_To_BofDateTime(time(nullptr), _rDateTime_X);
 	if (Rts_E == BOF_ERR_NO_ERROR)
 	{
-    _rDateTime_X.Millisecond_U16 = 0; // static_cast<uint16_t>(Bof_GetMsTickCount() % 1000);->no as we can have 2 call in the same day with milli2<milli1
+    _rDateTime_X.NanoSecond_U32 = 0; // static_cast<uint16_t>(Bof_GetMsTickCount() % 1000);->no as we can have 2 call in the same day with milli2<milli1
 	}
 	return Rts_E;
 }
@@ -1351,7 +1391,7 @@ BOFERR Bof_SetDateTime(const BOF_DATE_TIME &_rDateTime_X)
 		SystemTime_X.wHour         = _rDateTime_X.Hour_U8;
 		SystemTime_X.wMinute       = _rDateTime_X.Minute_U8;
 		SystemTime_X.wSecond       = _rDateTime_X.Second_U8;
-		SystemTime_X.wMilliseconds = _rDateTime_X.Millisecond_U16;
+		SystemTime_X.wMilliseconds = _rDateTime_X.NanoSecond_U32 / 1000 / 1000;
 
 		if (! SetSystemTime(&SystemTime_X) )
 		{
@@ -1410,8 +1450,8 @@ BOFERR Bof_ValidateDateTime(const BOF_DATE_TIME &_rDateTime_X)
 	    (_rDateTime_X.Minute_U8 <= 59) &&
 	    //	    (_rDateTime_X.Second_U8 >= 0) &&
 	    (_rDateTime_X.Second_U8 <= 60) &&    // seconds after the minute - [0, 60] including leap second
-	    //	    (_rDateTime_X.Millisecond_U16 >= 0) &&
-	    (_rDateTime_X.Millisecond_U16 <= 999)
+	    //	    (_rDateTime_X.NanoSecond_U32 >= 0) &&
+	    (_rDateTime_X.NanoSecond_U32 <= 999999999)
 		)
 	{
 		if (_rDateTime_X.Month_U8 == 2)
@@ -1462,14 +1502,74 @@ BOFERR Bof_DateTimeToNumber(const BOF_DATE_TIME &_rDateTime_X, double &_rDayNumb
 		Year_i = _rDateTime_X.Year_U16 - Month_i / 10;
 		_rDayNumber_lf = static_cast<double>((365 * Year_i) + (Year_i / 4) - (Year_i / 100) + (Year_i / 400) + ((Month_i * 306 + 5) / 10) + (_rDateTime_X.Day_U8 - 1));
 		FracDay_lf = ((static_cast<double>(_rDateTime_X.Hour_U8) * static_cast<double>(60.0f * 60.0f * 1000.0f)) + (static_cast<double>(_rDateTime_X.Minute_U8) * static_cast<double>(60.0f * 1000.0f)) +
-		              (static_cast<double>(_rDateTime_X.Second_U8) * static_cast<double>(1000.0f)) + (static_cast<double>(_rDateTime_X.Millisecond_U16))) / static_cast<double>(24.0f * 60.0f * 60.0f * 1000.0f);
+		              (static_cast<double>(_rDateTime_X.Second_U8) * static_cast<double>(1000.0f)) + (static_cast<double>(_rDateTime_X.NanoSecond_U32))) / static_cast<double>(24.0f * 60.0f * 60.0f * 1000.0f * 1000.0f * 1000.0f);
 		_rDayNumber_lf = _rDayNumber_lf + FracDay_lf;
 		Rts_E = BOF_ERR_NO_ERROR;
 	}
 	return Rts_E;
 }
 //using BOF_TIMEPOINT = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
+//https://stackoverflow.com/questions/12835577/how-to-convert-stdchronotime-point-to-calendar-datetime-string-with-fraction
 #if 0
+
+#include <iostream>
+#include <chrono>
+#include <ctime>
+
+int main()
+{
+	// Create 10-10-2012 12:38:40 UTC as a std::tm
+	std::tm tm = { 0 };
+	tm.tm_sec = 40;
+	tm.tm_min = 38;
+	tm.tm_hour = 12;
+	tm.tm_mday = 10;
+	tm.tm_mon = 9;
+	tm.tm_year = 112;
+	tm.tm_isdst = -1;
+	// Convert std::tm to std::time_t (popular extension)
+	std::time_t tt = timegm(&tm);
+	// Convert std::time_t to std::chrono::system_clock::time_point
+	std::chrono::system_clock::time_point tp =
+		std::chrono::system_clock::from_time_t(tt);
+	// Add 0.123456 seconds
+	// This will not compile if std::chrono::system_clock::time_point has
+	//   courser resolution than microseconds
+	tp += std::chrono::microseconds(123456);
+
+	// Now output tp
+
+	// Convert std::chrono::system_clock::time_point to std::time_t
+	tt = std::chrono::system_clock::to_time_t(tp);
+	// Convert std::time_t to std::tm (popular extension)
+	tm = std::tm{ 0 };
+	gmtime_r(&tt, &tm);
+	// Output month
+	std::cout << tm.tm_mon + 1 << '-';
+	// Output day
+	std::cout << tm.tm_mday << '-';
+	// Output year
+	std::cout << tm.tm_year + 1900 << ' ';
+	// Output hour
+	if (tm.tm_hour <= 9)
+		std::cout << '0';
+	std::cout << tm.tm_hour << ':';
+	// Output minute
+	if (tm.tm_min <= 9)
+		std::cout << '0';
+	std::cout << tm.tm_min << ':';
+	// Output seconds with fraction
+	//   This is the heart of the question/answer.
+	//   First create a double-based second
+	std::chrono::duration<double> sec = tp -
+		std::chrono::system_clock::from_time_t(tt) +
+		std::chrono::seconds(tm.tm_sec);
+	//   Then print out that double using whatever format you prefer.
+	if (sec.count() < 10)
+		std::cout << '0';
+	std::cout << std::fixed << sec.count() << '\n';
+}
+
 BOF_TIMEPOINT Bof_TimePointFromDateTime(const BOF_DATE_TIME &_rDateTime_X)
 {
 	BOF_TIMEPOINT Rts = -1;
@@ -1486,7 +1586,7 @@ BOF_TIMEPOINT Bof_TimePointFromDateTime(const BOF_DATE_TIME &_rDateTime_X)
 		Tm_X.tm_year = _rDateTime_X.Year_U16 - 1900;
 		Time = std::mktime(&Tm_X);
 		Time *= 1000000000; // convert to nanosecond
-		Time += (_rDateTime_X.Millisecond_U16 * 1000000); //Add millisecond in nanao
+		Time += (_rDateTime_X.NanoSecond_U32 * 1000000); //Add millisecond in nanao
 
 		Rts = Time;
 	}
@@ -1507,7 +1607,7 @@ BOF_DATE_TIME Bof_DateTimeFromTimePoint(const BOF_TIMEPOINT &_rTimePoint)
 	Rts_X.Day_U8 = Tm_X.tm_mday;
 	Rts_X.Month_U8 = Tm_X.tm_mon + 1;
 	Rts_X.Year_U16 = Tm_X.tm_year + 1900;
-	Rts_X.Millisecond_U16 = FracInNano_U64 / 1000000;
+	Rts_X.NanoSecond_U32 = FracInNano_U64 / 1000000;
 
 	return Rts_X;
 }
@@ -1589,12 +1689,12 @@ BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_T
 						Val_lf = 60.0f * FracVal_lf;
 						FracVal_lf = modf(Val_lf, &ValInt_lf);
 						_rDiffTime_X.Second_U8 = static_cast<uint8_t>(ValInt_lf);
-						Val_lf = 1000.0f * FracVal_lf;
+						Val_lf = 1000.0f * 1000.0f * 1000.0f * FracVal_lf;
 						FracVal_lf = modf(Val_lf, &ValInt_lf);
-						_rDiffTime_X.Millisecond_U16 = static_cast<uint16_t>(ValInt_lf);
-						if (_rDiffTime_X.Millisecond_U16 > 995)
+						_rDiffTime_X.NanoSecond_U32 = static_cast<uint32_t>(ValInt_lf);
+						if (_rDiffTime_X.NanoSecond_U32 > 999999995)
 						{
-							_rDiffTime_X.Millisecond_U16 = 0;
+							_rDiffTime_X.NanoSecond_U32 = 0;
 							_rDiffTime_X.Second_U8++;
 							if (_rDiffTime_X.Second_U8 > 59)
 							{
@@ -3295,397 +3395,99 @@ END_BOF_NAMESPACE()
 
 
 #if defined (_WIN32)
-#include <ctype.h>
-#include <string.h>
-#include <time.h>
-
-
-/*
-* We do not implement alternate representations. However, we always
-* check whether a given modifier is allowed for a certain conversion.
-*/
-#define ALT_E          0x01
-#define ALT_O          0x02
-//#define LEGAL_ALT(x)       { if (alt_format & ~(x)) return (0); }
-#define LEGAL_ALT(x)       { ; }
-#define TM_YEAR_BASE   (1900) //BHA (1970)
-
-static   int conv_num(const char **, int *, int, int);
-static int strncasecmp(char *s1, char *s2, size_t n);
-
-static const char *day[7] = {
-	"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
-	"Friday", "Saturday"
-};
-static const char *abday[7] = {
-	"Sun","Mon","Tue","Wed","Thu","Fri","Sat"
-};
-static const char *mon[12] = {
-	"January", "February", "March", "April", "May", "June", "July",
-	"August", "September", "October", "November", "December"
-};
-static const char *abmon[12] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
-static const char *am_pm[2] = {
-	"AM", "PM"
-};
-
-
-char * strptime(const char *buf, const char *fmt, struct tm *tm)
+//https://stackoverflow.com/questions/321849/strptime-equivalent-on-windows
+char *strptime(const char *s,	const char *f, struct tm *tm) 
 {
-	char c;
-	const char *bp;
-	size_t len = 0;
-	int alt_format, i, split_year = 0;
-
-	bp = buf;
-
-	while ((c = *fmt) != '\0')
+	// Isn't the C++ standard lib nice? std::get_time is defined such that its
+	// format parameters are the exact same as strptime. Of course, we have to
+	// create a string stream first, and imbue it with the current C locale, and
+	// we also have to make sure we return the right things if it fails, or
+	// if it succeeds, but this is still far simpler an implementation than any
+	// of the versions in any of the C standard libraries.
+	std::istringstream input(s);
+	input.imbue(std::locale(setlocale(LC_ALL, nullptr)));
+	input >> std::get_time(tm, f);
+	if (input.fail()) 
 	{
-		/* Clear `alternate' modifier prior to new conversion. */
-		alt_format = 0;
-
-		/* Eat up white-space. */
-		if (isspace(c))
-		{
-			while (isspace(*bp))
-				bp++;
-
-			fmt++;
-			continue;
-		}
-
-		if ((c = *fmt++) != '%')
-			goto literal;
-
-
-	again:        switch (c = *fmt++)
-	{
-	case '%': /* "%%" is converted to "%". */
-		literal :
-			if (c != *bp++)
-				return (0);
-		break;
-
-		/*
-		* "Alternative" modifiers. Just set the appropriate flag
-		* and start over again.
-		*/
-	case 'E': /* "%E?" alternative conversion modifier. */
-		LEGAL_ALT(0);
-		alt_format |= ALT_E;
-		goto again;
-
-	case 'O': /* "%O?" alternative conversion modifier. */
-		LEGAL_ALT(0);
-		alt_format |= ALT_O;
-		goto again;
-
-		/*
-		* "Complex" conversion rules, implemented through recursion.
-		*/
-	case 'c': /* Date and time, using the locale's format. */
-		LEGAL_ALT(ALT_E);
-		bp = strptime(bp, "%x %X", tm);
-		if (!bp)
-			return (0);
-		break;
-
-	case 'D': /* The date as "%m/%d/%y". */
-		LEGAL_ALT(0);
-		bp = strptime(bp, "%m/%d/%y", tm);
-		if (!bp)
-			return (0);
-		break;
-
-	case 'R': /* The time as "%H:%M". */
-		LEGAL_ALT(0);
-		bp = strptime(bp, "%H:%M", tm);
-		if (!bp)
-			return (0);
-		break;
-
-	case 'r': /* The time in 12-hour clock representation. */
-		LEGAL_ALT(0);
-		bp = strptime(bp, "%I:%M:%S %p", tm);
-		if (!bp)
-			return (0);
-		break;
-
-	case 'T': /* The time as "%H:%M:%S". */
-		LEGAL_ALT(0);
-		bp = strptime(bp, "%H:%M:%S", tm);
-		if (!bp)
-			return (0);
-		break;
-
-	case 'X': /* The time, using the locale's format. */
-		LEGAL_ALT(ALT_E);
-		bp = strptime(bp, "%H:%M:%S", tm);
-		if (!bp)
-			return (0);
-		break;
-
-	case 'x': /* The date, using the locale's format. */
-		LEGAL_ALT(ALT_E);
-		bp = strptime(bp, "%m/%d/%y", tm);
-		if (!bp)
-			return (0);
-		break;
-
-		/*
-		* "Elementary" conversion rules.
-		*/
-	case 'A': /* The day of week, using the locale's form. */
-	case 'a':
-		LEGAL_ALT(0);
-		for (i = 0; i < 7; i++)
-		{
-			/* Full name. */
-			len = strlen(day[i]);
-			if (strncasecmp((char *)(day[i]), (char *)bp, len) == 0)
-				break;
-
-			/* Abbreviated name. */
-			len = strlen(abday[i]);
-			if (strncasecmp((char *)(abday[i]), (char *)bp, len) == 0)
-				break;
-		}
-
-		/* Nothing matched. */
-		if (i == 7)
-			return (0);
-
-		tm->tm_wday = i;
-		bp += len;
-		break;
-
-	case 'B': /* The month, using the locale's form. */
-	case 'b':
-	case 'h':
-		LEGAL_ALT(0);
-		for (i = 0; i < 12; i++)
-		{
-			/* Full name. */
-
-			len = strlen(mon[i]);
-			if (strncasecmp((char *)(mon[i]), (char *)bp, len) == 0)
-				break;
-
-			/* Abbreviated name. */
-			len = strlen(abmon[i]);
-			if (strncasecmp((char *)(abmon[i]), (char *)bp, len) == 0)
-				break;
-		}
-
-		/* Nothing matched. */
-		if (i == 12)
-			return (0);
-
-		tm->tm_mon = i;
-		bp += len;
-		break;
-
-	case 'C': /* The century number. */
-		LEGAL_ALT(ALT_E);
-		if (!(conv_num(&bp, &i, 0, 99)))
-			return (0);
-
-		if (split_year)
-		{
-			tm->tm_year = (tm->tm_year % 100) + (i * 100);
-		}
-		else {
-			tm->tm_year = i * 100;
-			split_year = 1;
-		}
-		break;
-
-	case 'd': /* The day of month. */
-	case 'e':
-		LEGAL_ALT(ALT_O);
-		if (!(conv_num(&bp, &tm->tm_mday, 1, 31)))
-			return (0);
-		break;
-
-	case 'k': /* The hour (24-hour clock representation). */
-		LEGAL_ALT(0);
-		/* FALLTHROUGH */
-	case 'H':
-		LEGAL_ALT(ALT_O);
-		if (!(conv_num(&bp, &tm->tm_hour, 0, 23)))
-			return (0);
-		break;
-
-	case 'l': /* The hour (12-hour clock representation). */
-		LEGAL_ALT(0);
-		/* FALLTHROUGH */
-	case 'I':
-		LEGAL_ALT(ALT_O);
-		if (!(conv_num(&bp, &tm->tm_hour, 1, 12)))
-			return (0);
-		if (tm->tm_hour == 12)
-			tm->tm_hour = 0;
-		break;
-
-	case 'j': /* The day of year. */
-		LEGAL_ALT(0);
-		if (!(conv_num(&bp, &i, 1, 366)))
-			return (0);
-		tm->tm_yday = i - 1;
-		break;
-
-	case 'M': /* The minute. */
-		LEGAL_ALT(ALT_O);
-		if (!(conv_num(&bp, &tm->tm_min, 0, 59)))
-			return (0);
-		break;
-
-	case 'm': /* The month. */
-		LEGAL_ALT(ALT_O);
-		if (!(conv_num(&bp, &i, 1, 12)))
-			return (0);
-		tm->tm_mon = i - 1;
-		break;
-
-		//            case 'p': /* The locale's equivalent of AM/PM. */
-		//                LEGAL_ALT(0);
-		//                /* AM? */
-		//                if (strcasecmp(am_pm[0], bp) == 0)
-		//                {
-		//                    if (tm->tm_hour > 11)
-		//                        return (0);
-		//
-		//                    bp += strlen(am_pm[0]);
-		//                    break;
-		//                }
-		//                /* PM? */
-		//                else if (strcasecmp(am_pm[1], bp) == 0)
-		//                {
-		//                    if (tm->tm_hour > 11)
-		//                        return (0);
-		//
-		//                    tm->tm_hour += 12;
-		//                    bp += strlen(am_pm[1]);
-		//                    break;
-		//                }
-		//
-		//                /* Nothing matched. */
-		//                return (0);
-
-	case 'S': /* The seconds. */
-		LEGAL_ALT(ALT_O);
-		if (!(conv_num(&bp, &tm->tm_sec, 0, 61)))
-			return (0);
-		break;
-
-	case 'U': /* The week of year, beginning on sunday. */
-	case 'W': /* The week of year, beginning on monday. */
-		LEGAL_ALT(ALT_O);
-		/*
-		* XXX This is bogus, as we can not assume any valid
-		* information present in the tm structure at this
-		* point to calculate a real value, so just check the
-		* range for now.
-		*/
-		if (!(conv_num(&bp, &i, 0, 53)))
-			return (0);
-		break;
-
-	case 'w': /* The day of week, beginning on sunday. */
-		LEGAL_ALT(ALT_O);
-		if (!(conv_num(&bp, &tm->tm_wday, 0, 6)))
-			return (0);
-		break;
-
-	case 'Y': /* The year. */
-		LEGAL_ALT(ALT_E);
-		if (!(conv_num(&bp, &i, 0, 9999)))
-			return (0);
-
-		tm->tm_year = i - TM_YEAR_BASE;
-		break;
-
-	case 'y': /* The year within 100 years of the epoch. */
-		LEGAL_ALT(ALT_E | ALT_O);
-		if (!(conv_num(&bp, &i, 0, 99)))
-			return (0);
-
-		if (split_year)
-		{
-			tm->tm_year = ((tm->tm_year / 100) * 100) + i;
-			break;
-		}
-		split_year = 1;
-		if (i <= 68)
-			tm->tm_year = i + 2000 - TM_YEAR_BASE;
-		else
-			tm->tm_year = i + 1900 - TM_YEAR_BASE;
-		break;
-
-		/*
-		* Miscellaneous conversions.
-		*/
-	case 'n': /* Any kind of white-space. */
-	case 't':
-		LEGAL_ALT(0);
-		while (isspace(*bp))
-			bp++;
-		break;
-
-
-	default: /* Unknown/unsupported conversion. */
-		return (0);
+		return nullptr;
 	}
-
-
-	}
-
-	/* LINTED functional specification */
-	return ((char *)bp);
-}
-
-
-static int conv_num(const char **buf, int *dest, int llim, int ulim)
-{
-	int result = 0;
-
-	/* The limit also determines the number of valid digits. */
-	int rulim = ulim;
-
-	if (**buf < '0' || **buf > '9')
-		return (0);
-
-	do {
-		result *= 10;
-		result += *(*buf)++ - '0';
-		rulim /= 10;
-	} while ((result * 10 <= ulim) && rulim && **buf >= '0' && **buf <= '9');
-
-	if (result < llim || result > ulim)
-		return (0);
-
-	*dest = result;
-	return (1);
-}
-
-int strncasecmp(char *s1, char *s2, size_t n)
-{
-	if (n == 0)
-		return 0;
-
-	while (n-- != 0 && tolower(*s1) == tolower(*s2))
-	{
-		if (n == 0 || *s1 == '\0' || *s2 == '\0')
-			break;
-		s1++;
-		s2++;
-	}
-
-	return tolower(*(unsigned char *)s1) - tolower(*(unsigned char *)s2);
+	return (char *)(s + input.tellg());
 }
 #else
 #endif
 
+#if 0
+auto today = date::year_month_weekday{ floor<date::days>(std::chrono::system_clock::now()) };
+std::cout << "Today " << today << std::endl;
+
+auto start = std::chrono::system_clock::now();
+std::cout << "Start " << start.time_since_epoch().count() << std::endl;
+//start += 10;
+//	uint64_t Tp = start.time_since_epoch();
+
+Bof_MsSleep(10);
+auto end = std::chrono::system_clock::now();
+std::cout << "End   " << end.time_since_epoch().count() << std::endl;
+end += std::chrono::milliseconds(200);
+
+std::chrono::duration<double> diff = end - start;
+diff += std::chrono::milliseconds(77);
+
+std::cout << "Dur   " << diff.count() << " s" << std::endl;
+std::chrono::milliseconds d = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
+std::cout << d.count() << "ms\n";
+
+
+//https://stackoverflow.com/questions/12835577/how-to-convert-stdchronotime-point-to-calendar-datetime-string-with-fraction
+//https://mariusbancila.ro/blog/2016/10/31/a-better-date-and-time-c-library/
+auto t = date::sys_days{ 10_d / 11 / 2012 } + 12h + 38min + 40s + 123456us;
+
+//	std::chrono::system_clock::from_time_t(std::mktime(&tm));
+auto dp = floor<date::days>(t);
+auto time = date::make_time(t - dp);
+auto ymd = date::year_month_day{ dp };
+std::cout.fill('0');
+std::cout << ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(ymd.month()) << '-' << ymd.year() << ' ' << time << '\n';
+
+
+std::cout << end.time_since_epoch().count() << std::endl;
+//	auto dp = date::floor<date::days>(tp);
+//	std::cout << dp.time_since_epoch().count() << std::endl;
+
+//Last day of january->can be 28 or 29
+auto TheDateLast = 2022_y / date::February / date::last;
+std::cout << TheDateLast << std::endl;
+//Indexed day: third sunday of October
+auto TheDate = 2022_y / date::October / date::Sunday[2];
+std::cout << TheDate << std::endl;
+
+constexpr auto x1 = 2022_y / date::January / 1;
+std::cout << x1 << std::endl;
+date::weekday weekday;
+weekday = date::weekday(x1);
+std::cout << weekday << std::endl;
+auto weekday_index = weekday.c_encoding();
+std::cout << weekday_index << std::endl;
+
+constexpr auto x2 = date::January / 8 / 2022;
+std::cout << x2 << std::endl;
+weekday = date::weekday(x2);
+std::cout << weekday << std::endl;
+weekday_index = weekday.c_encoding();
+std::cout << weekday_index << std::endl;
+
+constexpr auto x3 = 15_d / date::January / 2022;
+std::cout << x3 << std::endl;
+weekday = date::weekday(x2);
+std::cout << weekday << std::endl;
+weekday_index = weekday.c_encoding();
+std::cout << weekday_index << std::endl;
+
+auto now = std::chrono::system_clock::now();
+date::sys_days now_in_days{ std::chrono::time_point_cast<date::days>(now) };
+weekday = date::weekday(now_in_days);
+std::cout << weekday << std::endl;
+weekday_index = weekday.c_encoding();
+std::cout << weekday_index << std::endl;
+
+#endif

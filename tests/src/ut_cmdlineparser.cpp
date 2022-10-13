@@ -79,9 +79,8 @@ struct APPPARAM
   char               pSlnPath[256];
   double             Value_lf;
   uint32_t           Value_U32;
-// struct sockaddr_in6 IpV6_X;
-  BOF_SOCKET_ADDRESS_COMPONENT IpV6_X;
   BOF_SOCKET_ADDRESS_COMPONENT IpV4_X;
+  BOF_SOCKET_ADDRESS_COMPONENT IpV6_X;
   uint32_t           pVal_U32[8];
   char               pVal_c[7][256];
   ARRAYENTRY         pArray_X[6];
@@ -115,8 +114,8 @@ struct APPPARAM
     pSlnPath[0] = 0;
     Value_lf  = 0;
     Value_U32 = 0;
-    memset(&IpV6_X, 0, sizeof(IpV6_X));
-    memset(&IpV4_X, 0, sizeof(IpV4_X));
+    IpV4_X.Reset();
+    IpV6_X.Reset();
     memset(&pVal_U32, 0, sizeof(pVal_U32));
     memset(&pVal_c, 0, sizeof(pVal_c));
     memset(&pArray_X, 0, sizeof(pArray_X));
@@ -184,8 +183,8 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
                                      {nullptr, std::string("sln"),      std::string("Specifies the full path to a visual studio solution project file."), std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.pSlnPath, CHARSTRING, 1, sizeof(S_AppParam_X.pSlnPath) - 1)},
                                      {nullptr, std::string("double"),   std::string("Specifies a double value."),                                         std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Value_lf, DOUBLE, -1.3f, 7.0f)},
                                      {nullptr, std::string("uint32"),   std::string("Specifies an u32 value."),                                           std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Value_U32, UINT32, 5, 11111122)},
-                                     {nullptr, std::string("i6"),       std::string("Specifies IpV6 address."),                                           std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.IpV6_X, IPV6, 0, 0)},
                                      {nullptr, std::string("i4"),       std::string("Specifies IpV4 address."),                                           std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.IpV4_X, IPV4, 0, 0)},
+                                     {nullptr, std::string("i6"),       std::string("Specifies IpV6 address."),                                           std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.IpV6_X, IPV6, 0, 0)},
                                      {nullptr, std::string("uri1"),     std::string("Specifies an uri with aut."),                                        std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Uri1, URI, 0, 0)},
                                      {nullptr, std::string("uri2"),     std::string("Specifies an uri without aut."),                                     std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Uri2, URI, 0, 0)},
 
@@ -238,9 +237,10 @@ void CmdLineParser_Test::TearDown()
 TEST_F(CmdLineParser_Test, CmdLine)
 {
   int                  Argc_i, Sts_i;
-  char                 ppArgument_c[64][128], *pArgv_c[64];
+  char                 ppArgument_c[128][128], *pArgv_c[128];
   std::string          HelpString_S, Ip_S, Uri_S;
   BofCommandLineParser *pBofCommandLineParser_O;
+
 
   Argc_i = 0;
 
@@ -248,10 +248,12 @@ TEST_F(CmdLineParser_Test, CmdLine)
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
-  // strcpy(ppArgument_c[Argc_i], "--asf4=1.2.3.4,5.6.7.8:9,udp://10.20.30.40:50");
-  // pArgv_c[Argc_i] = ppArgument_c[Argc_i];
-  // Argc_i++;
-  // goto l;
+  //strcpy(ppArgument_c[Argc_i], "--i4=udp://john.doe:password@192.168.1.2:23");
+  //strcpy(ppArgument_c[Argc_i], "--i4=192.168.1.2:23");
+  //strcpy(ppArgument_c[Argc_i], "--i6=tcp://[0004:db8:0::1]:80");
+  //pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+  //Argc_i++;
+  //goto l;
 
   strcpy(ppArgument_c[Argc_i], "-h");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
@@ -373,11 +375,11 @@ TEST_F(CmdLineParser_Test, CmdLine)
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
-	strcpy(ppArgument_c[Argc_i], "--vs=1920x1080_59i");
+	strcpy(ppArgument_c[Argc_i], "--vs=1920x1080@59.94i"); //Or 1920x1080_59i");
 	pArgv_c[Argc_i] = ppArgument_c[Argc_i];
 	Argc_i++;
 
-	strcpy(ppArgument_c[Argc_i], "--as=16x48000_S24L32");
+	strcpy(ppArgument_c[Argc_i], "--as=16xS24L32@48000");
 	pArgv_c[Argc_i] = ppArgument_c[Argc_i];
 	Argc_i++;
 
@@ -390,9 +392,6 @@ TEST_F(CmdLineParser_Test, CmdLine)
 	Argc_i++;
 
 //l:
-
-  BOF_SOCKET_ADDRESS_COMPONENT *p = &S_AppParam_X.IpV4_X;
-
   pBofCommandLineParser_O = new BofCommandLineParser();
 
   Sts_i = pBofCommandLineParser_O->ToByte(Argc_i, pArgv_c, S_pCommandLineOption_X, CmdLineParseResultUltimateCheck, CmdLineParseError); // Call Parse()
@@ -407,6 +406,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   {
     printf("No help required.\n");
   }
+
 //goto m;
   EXPECT_EQ(S_AppParam_X.Val_U8, 1);
   EXPECT_EQ(S_AppParam_X.Val_U16, 2);
@@ -437,7 +437,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   EXPECT_EQ(S_AppParam_X.DateTime_X.Hour_U8, 13);
   EXPECT_EQ(S_AppParam_X.DateTime_X.Minute_U8, 14);
   EXPECT_EQ(S_AppParam_X.DateTime_X.Second_U8, 15);
-  EXPECT_EQ(S_AppParam_X.DateTime_X.Millisecond_U16, 0);
+  EXPECT_EQ(S_AppParam_X.DateTime_X.NanoSecond_U32, 0);
 
   EXPECT_EQ(S_AppParam_X.Date_X.Day_U8, 1);
   EXPECT_EQ(S_AppParam_X.Date_X.Month_U8, 2);
@@ -446,13 +446,13 @@ TEST_F(CmdLineParser_Test, CmdLine)
   EXPECT_EQ(S_AppParam_X.Time_X.Hour_U8, 12);
   EXPECT_EQ(S_AppParam_X.Time_X.Minute_U8, 34);
   EXPECT_EQ(S_AppParam_X.Time_X.Second_U8, 56);
-  EXPECT_EQ(S_AppParam_X.Time_X.Millisecond_U16, 0);
+  EXPECT_EQ(S_AppParam_X.Time_X.NanoSecond_U32, 0);
 
   Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV4_X.Ip_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "udp://192.168.1.2:23");
 
   Ip_S = S_AppParam_X.IpV4_X.ToString(true, true, true, true);
-  EXPECT_STREQ(Ip_S.c_str(), "udp://192.168.1.2:23");
+  EXPECT_STREQ(Ip_S.c_str(), "udp://john.doe:password@192.168.1.2:23");
 
   Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV6_X.Ip_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "tcp://[4:db8::1]:80");
@@ -489,8 +489,8 @@ TEST_F(CmdLineParser_Test, CmdLine)
   Uri_S = S_AppParam_X.Uri2.ToString();
   EXPECT_STREQ(Uri_S.c_str(), "myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
-	EXPECT_STREQ(S_AppParam_X.Vs.IdTxt(), "1920x1080_59i");
-	EXPECT_STREQ(S_AppParam_X.As.ToString().c_str(), "16x48000_S24L32");
+  EXPECT_STREQ(S_AppParam_X.Vs.IdTxt(), "1920x1080_59i");
+  EXPECT_STREQ(S_AppParam_X.As.ToString().c_str(), "16xS24L32@48000");
 	EXPECT_STREQ(S_AppParam_X.Tc.ToString(true).c_str(), "1977-07-16 01:02:03:04  @1001/60");
 	EXPECT_EQ(S_AppParam_X.Size_X.Width_U32, 123);
 	EXPECT_EQ(S_AppParam_X.Size_X.Height_U32, 456);

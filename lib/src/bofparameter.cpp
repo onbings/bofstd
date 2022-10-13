@@ -135,6 +135,7 @@ BOFERR CheckAndGetValueFromString(const char *_pOptVal_c, const BOFPARAMETER _rB
         }
         break;
 
+      case BOFPARAMETER_ARG_TYPE::ENUM:
       case BOFPARAMETER_ARG_TYPE::INT32:
         if (Hexa_B)
         {
@@ -221,6 +222,7 @@ BOFERR CheckAndGetValueFromString(const char *_pOptVal_c, const BOFPARAMETER _rB
 }
 
 
+
 // -1 ok parse end
 // -2 error
 BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParameter_X, const char *_pOptVal_c, const BOFPARAMETER_PARSE_CALLBACK _pParseCallback_O)
@@ -230,7 +232,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   //static const std::regex S_RegExInteger_O("[\\+\\-]?([0-9]+)|(0[xX]([0-9a-fA-F])+)");                    // (*, meaning "zero or more") or a plus sign (+, meaning "one or more")
   //static const std::regex S_RegExDecimal_O("[\\+\\-]?([0-9]+)[.]?([0-9]*)");                              // (*, meaning "zero or more") or a plus sign (+, meaning "one or more")
   static const std::regex S_RegExBoolTrue_O("true|True|TRUE|Y|y|1|on|On|ON");
-  static const std::regex S_RegExBoolFalse_O("false|False|FALSE|N|n|0|off|Off|OFF");
+  static const std::regex S_RegExBoolFalse_O("false|False|FALSE|N|n|0|off|O |OFF");
   //  static const std::regex S_RegExIpV4_O("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
   //  static const std::regex S_RegExIpV6_O("^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}:([0-9A-Fa-f]{1,4}:)?[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){4}:([0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){3}:([0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){2}:([0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(([0-9A-Fa-f]{1,4}:){0,5}:((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(::([0-9A-Fa-f]{1,4}:){0,5}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|([0-9A-Fa-f]{1,4}::([0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})|(::([0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:))$");
 
@@ -272,9 +274,9 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   //BOF_SOCK_TYPE      SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
   //char pAllTheIpAddress_c[0x100], *pIpAddress_c;
   //int16_t            IpPort_U16 = 0;
-  BOF_SOCKET_ADDRESS_COMPONENT IpAddress_X;
   // std::get_time not present in gcc 4.9
   std::tm Tm_X;
+  BOF_SOCKET_ADDRESS_COMPONENT IpAddress_X;
 
   ShortOpt_B = false;
   if (_pOptVal_c == nullptr)  //Short non required option
@@ -316,6 +318,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
     {
       Rts_E = BOF_ERR_INIT;
       InsertInStdVector_B = false;
+
       pValue = _rBofParameter_X.pValue;
       if (pValue)
       {
@@ -888,7 +891,7 @@ DateTimeParse:
                 }
                 else
                 {
-                  *static_cast<BOF_SOCKET_ADDRESS_COMPONENT *> (pValue) = IpAddress_X;
+                   *static_cast<BOF_SOCKET_ADDRESS_COMPONENT *>(pValue) = IpAddress_X;
                 }
                 break;
 

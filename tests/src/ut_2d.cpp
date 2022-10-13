@@ -19,6 +19,7 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
+#include <date/date.h>  //Put it first !
 
 #include "gtestrunner.h"
 #include <bofstd/bof2d.h>
@@ -27,6 +28,9 @@
 #include <bofstd/bofparameter.h>
 #include <bofstd/bofenum.h>
 #include <bofstd/bofjsonwriter.h>
+#include <iostream>
+#include <type_traits>
+
 
 USE_BOF_NAMESPACE()
 
@@ -379,7 +383,7 @@ TEST(Bof2d_Test, MediaDetectorQuery)
                         "Format" : "Mp3",
                         "Path" : "/media/audio/pexels-alexander-grey-1149347.mp3",
                         "Ref" : "C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.mp3",
-                        "Standard" : "16x48000_S24L32",
+                        "Standard" : "16xS24L32@48000",
                         "TpInNs" : 0,
                         "Uri" : "storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3"
                 },
@@ -398,7 +402,7 @@ TEST(Bof2d_Test, MediaDetectorQuery)
                         "Format" : "Png",
                         "Path" : "/media/still/pexels-alexander-grey-1149347.png",
                         "Ref" : "C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png",
-                        "Standard" : "1920x1080_59i",
+                        "Standard" : "1920x1080@59.94i",
                         "TpInNs" : 0,
                         "Uri" : "storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"
                 }
@@ -617,21 +621,12 @@ std::vector< BOFPARAMETER > S_MuseFileSystemMediaJsonSchemaCollection =
 
 };
 
-using BHA = std::function<int (int)>;
-
 TEST(Bof2d_Test, MediaDetectorToJson)
 {
   BofMediaDetector MediaInfoParser;
-  std::string Result_S, JsonOut_S, ToString_S;
+  std::string Result_S, JsonOut_S, ToString_S, Tp_S;
   BofJsonWriter BofJsonWriter;
-  //https://stackoverflow.com/questions/24874478/use-stdbind-with-overloaded-functions
-//  BOF_PARAMETER_ENUM_TO_STRING f = std::bind(static_cast<const std::string & (int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString), &S_MuseFileSystemMediaTypeEnumConverter, 22); std::placeholders::_1);
-  //BOF_PARAMETER_ENUM_TO_STRING f = std::bind(static_cast<const std::string & (&) (int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString), &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //  BOF_PARAMETER_ENUM_TO_STRING f = std::bind(static_cast<const std::string & (*) (int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString), &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //BOF_PARAMETER_ENUM_TO_STRING f = std::bind<const std::string &(int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //BOF_PARAMETER_ENUM_TO_STRING f = std::bind<BOF_PARAMETER_ENUM_TO_STRING>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1));
-  //BOF_PARAMETER_ENUM_TO_STRING g = std::bind(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToStringbha, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //BHA h =                        std::bind(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::Bha, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
+  MUSE_FILE_SYSTEM_MEDIA_TYPE Tp_E;
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 
@@ -645,7 +640,7 @@ TEST(Bof2d_Test, MediaDetectorToJson)
   S_MuseFileSystemMedia_X.Video_X.Path = BofPath("/media/still/pexels-alexander-grey-1149347.png");
   S_MuseFileSystemMedia_X.Video_X.VideoFormat_E = MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG;
   S_MuseFileSystemMedia_X.Video_X.ColorSpace_E = MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG;
-  S_MuseFileSystemMedia_X.Video_X.VideoStandard = BofVideoStandard("1920x1080_59i");
+  S_MuseFileSystemMedia_X.Video_X.VideoStandard = BofVideoStandard("1920x1080@59.94i"); // 1920x1080_59i");
   S_MuseFileSystemMedia_X.Video_X.BitDepth_U32 = 8;
   S_MuseFileSystemMedia_X.Video_X.TpInNs_U64 = 0;
   S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64 = 0;
@@ -654,27 +649,81 @@ TEST(Bof2d_Test, MediaDetectorToJson)
   S_MuseFileSystemMedia_X.Audio_X.Ref = BofPath("C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.mp3");
   S_MuseFileSystemMedia_X.Audio_X.Path = BofPath("/media/audio/pexels-alexander-grey-1149347.mp3");
   S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E = MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3;
-  S_MuseFileSystemMedia_X.Audio_X.AudioStandard = BofAudioStandard("16x48000_S24L32");
+  S_MuseFileSystemMedia_X.Audio_X.AudioStandard = BofAudioStandard("16xS24L32@48000");
   S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64 = 0;
   S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64 = 0;
 
-  std::string Tp_S = S_MuseFileSystemMediaTypeEnumConverter.ToString(S_MuseFileSystemMedia_X.Header_X.MediaType_E);
-  MUSE_FILE_SYSTEM_MEDIA_TYPE Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum(Tp_S);
+  Tp_S = S_MuseFileSystemMediaTypeEnumConverter.ToString(S_MuseFileSystemMedia_X.Header_X.MediaType_E);
+  EXPECT_STREQ(Tp_S.c_str(), "Still");
+  Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum(Tp_S);
+  EXPECT_EQ(Tp_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL);
   Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum("Tp_S");
-  
+  EXPECT_EQ(Tp_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN);
+
   EXPECT_EQ(BofJsonWriter.FromByte(false, false, S_MuseFileSystemMediaJsonSchemaCollection, JsonOut_S), BOF_ERR_NO_ERROR);
-  printf("%s", JsonOut_S.c_str());
+  printf("%s\n", JsonOut_S.c_str());
   ToString_S = S_MuseFileSystemMedia_X.ToString();
-  printf("%s", ToString_S.c_str());
-
-//  BOF_DATE_TIME DateTime_X(26, 5, 2064, 1, 2, 3, 4);
-//  BOF_TIMEPOINT Tp = Bof_TimePointFromDateTime(DateTime_X);
-//  DateTime_X = Bof_DateTimeFromTimePoint(Tp);
-
+  printf("%s\n", ToString_S.c_str());
+  EXPECT_EQ(BofJsonWriter.FromByte(true, false, S_MuseFileSystemMediaJsonSchemaCollection, JsonOut_S), BOF_ERR_NO_ERROR);
+  printf("%s\n", JsonOut_S.c_str());
 }
 
+BOFERR JsonParserResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER &_rBofCommandlineOption_X, const bool _CheckOk_B, const char *_pOptNewVal_c)
+{
+  BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
+
+  printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
+  printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), static_cast<uint32_t>(_rBofCommandlineOption_X.ArgType_E), _rBofCommandlineOption_X.pValue, _pOptNewVal_c ? _pOptNewVal_c : "nullptr");
+
+  return Rts_E;
+}
+
+//bool JsonParseError(int /*_Sts_i*/, const BOFPARAMETER & /*_rJsonEntry_X*/, const char * /*_pValue*/)
+bool JsonParserError(int _Sts_i, const BOFPARAMETER &_rJsonEntry_X, const char *_pValue)
+{
+  bool Rts_B = true;
+
+  printf("JSON error %d on entry pUser %p value %s\r\n", _Sts_i, _rJsonEntry_X.pUser, _pValue ? _pValue : "nullptr");
+  return Rts_B;
+}
 TEST(Bof2d_Test, MediaDetectorFromJson)
 {
+  BofMediaDetector MediaInfoParser;
+  std::string Result_S, JsonOut_S, ToString_S;
+  std::string Json_S = R"({"Media":{"Audio":{"DurationInNs":0,"Format":"Mp3","Path":"/media/audio/pexels-alexander-grey-1149347.mp3","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.mp3","Standard":"16xS24L32@48000","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3"},"Header":{"Created":"UTC 2022-09-21 12:16:43","FileSize":32183316,"Modified":"UTC 2022-09-21 12:16:43","Type":"Still"},"Video":{"BitDepth":8,"ColorSpace":"Rgb","DurationInNs":0,"Format":"Png","Path":"/media/still/pexels-alexander-grey-1149347.png","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png","Standard":"1920x1080@59.94i","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"}}})";
+  BofJsonParser BofJsonParser(Json_S);
+
+  /*
+    using namespace date;
+    using namespace std::chrono;
+    auto t = sys_days{ 10_d / 10 / 2012 } + 12h + 38min + 40s + 123456ns;
+    static_assert(std::is_same<decltype(t), time_point<system_clock, nanoseconds>>{}, "");
+    std::cout << t << '\n';
+  */
+  S_MuseFileSystemMedia_X.Reset();
+  EXPECT_EQ(BofJsonParser.ToByte(S_MuseFileSystemMediaJsonSchemaCollection, JsonParserResultUltimateCheck, JsonParserError), BOF_ERR_NO_ERROR);
+
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Created_X, BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 0)); // Not supported now 685));
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Modified_X, BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 0)); // Not supported now 701));
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL);
+  
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Ref.ToString(false).c_str(), "C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Path.ToString().c_str(), "/media/still/pexels-alexander-grey-1149347.png");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.VideoFormat_E, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.ColorSpace_E, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG);
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.VideoStandard.ToString().c_str(), "1920x1080@59.94i");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.BitDepth_U32, 8);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.TpInNs_U64, 0);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64, 0);
+  
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Ref.ToString(true).c_str(), "C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.mp3");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Path.ToString().c_str(), "/media/audio/pexels-alexander-grey-1149347.mp3");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3);
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.AudioStandard.ToString().c_str(), "16x48000_S24L32");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64, 0);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64, 0);
 }
 
 constexpr uint32_t SAMPLE_WIDTH = 1920;

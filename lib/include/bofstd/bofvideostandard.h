@@ -41,28 +41,32 @@ public:
   BofVideoStandard() : mIndex_i(-1)
   {
   }
-  BofVideoStandard(const BofVideoStandard &standard) : mIndex_i(standard.mIndex_i)
+  BofVideoStandard(const BofVideoStandard &_rStandard) : mIndex_i(_rStandard.mIndex_i)
   {
   }
-  BofVideoStandard(const VideoStandardId standard)
+  BofVideoStandard(const VideoStandardId _Standard)
   {
-    mIndex_i= S_FindIndex(standard);
+    mIndex_i = S_FindIndexFromVideoStandardId(_Standard);
   }
-  BofVideoStandard(const char *standard)
+  BofVideoStandard(const char *_pStandard_c)
   {
-    mIndex_i= S_FindIndex(standard);
+    mIndex_i = S_FindIndexFromDescription(_pStandard_c);
+    if (mIndex_i < 0)
+    {
+      mIndex_i = S_FindIndexFromIdText(_pStandard_c);
+    }
   }
   BofVideoStandard(const std::string& standard)
   {
-    mIndex_i= S_FindIndex(standard.c_str());
+    mIndex_i = S_FindIndexFromIdText(standard.c_str());
   }
   BofVideoStandard(const int numCols, const int numRows, const int fps, const char type)
   {
-    mIndex_i= S_FindIndex(numCols, numRows, fps, type);
+    mIndex_i = S_FindIndex(numCols, numRows, fps, type);
   }
   BofVideoStandard& operator=(const BofVideoStandard& standard)
   {
-    mIndex_i=standard.mIndex_i;
+    mIndex_i =standard.mIndex_i;
     return *this;
   }
   bool operator==(const BofVideoStandard& standard) const
@@ -238,8 +242,9 @@ private:
   static const Table S_mpTable_X[];
   int                mIndex_i;
 
-  static int S_FindIndex(const VideoStandardId standard);
-  static int S_FindIndex(const char *standard);
+  static int S_FindIndexFromVideoStandardId(const VideoStandardId _Standard);
+  static int S_FindIndexFromIdText(const char *_pStandard_c);
+  static int S_FindIndexFromDescription(const char *_pStandard_c);
   static int S_FindIndex(const int numCols, const int numRows, const int fps, const char type);
 };
 

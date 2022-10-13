@@ -75,7 +75,7 @@ bool BofAudioStandard::operator==(const BofAudioStandard &_rStandard) const
 
 std::string BofAudioStandard::ToString() const
 {
-	return Bof_Sprintf("%dx%d_%s",mNbMonoChannel_U32, mSamplingRateInHz_U32, S_BofAudioStandardEnumConverter.ToString(mSampleFormat_E).c_str());
+	return Bof_Sprintf("%dx%s@%d",mNbMonoChannel_U32, S_BofAudioStandardEnumConverter.ToString(mSampleFormat_E).c_str(), mSamplingRateInHz_U32);
 }
 
 AudioStandardId BofAudioStandard::Id() const
@@ -112,19 +112,25 @@ BOF_AUDIO_SAMPLE_FORMAT BofAudioStandard::SampleFormat() const
 bool BofAudioStandard::S_Parse(const char *_pStandard_c, uint32_t &_rNbMonoChannel_U32, uint32_t &_rSamplingRateInHz_U32, uint32_t &_rNbBitPerSample_U32, BOF_AUDIO_SAMPLE_FORMAT &_rSampleFormat_E)
 {
 	bool Rts_B=false;
-	char pAudioFormat_c[0x400];
+	char pAudioFormat_c[0x1000];
 	int NbMonoChannel_i,SamplingRateInHz_i,BitPerSample_i,ResolutionBit_i;
-	char SignedSample_c,LittleEndian_c;
+	char SignedSample_c,LittleEndian_c, *pAt_c;
 
-	if ((_pStandard_c) && (sscanf(_pStandard_c,"%dx%d_%s",&NbMonoChannel_i,&SamplingRateInHz_i,pAudioFormat_c)==3))
+	if ((_pStandard_c) && (sscanf(_pStandard_c,"%dx%s",&NbMonoChannel_i, pAudioFormat_c)==2))
 	{
-		_rNbMonoChannel_U32=NbMonoChannel_i;
-		_rSamplingRateInHz_U32=SamplingRateInHz_i;
-		if (sscanf(pAudioFormat_c,"%c%d%c%d",&SignedSample_c,&ResolutionBit_i,&LittleEndian_c,&BitPerSample_i)==4)
+		pAt_c = strrchr(pAudioFormat_c, '@');
+		if (pAt_c)
 		{
-			_rNbBitPerSample_U32=BitPerSample_i;
-			_rSampleFormat_E = S_BofAudioStandardEnumConverter.ToEnum(pAudioFormat_c);
-			Rts_B=true;
+			*pAt_c = 0;
+			SamplingRateInHz_i = atoi(pAt_c + 1);
+			_rNbMonoChannel_U32 = NbMonoChannel_i;
+			_rSamplingRateInHz_U32 = SamplingRateInHz_i;
+			if (sscanf(pAudioFormat_c, "%c%d%c%d", &SignedSample_c, &ResolutionBit_i, &LittleEndian_c, &BitPerSample_i) == 4)
+			{
+				_rNbBitPerSample_U32 = BitPerSample_i;
+				_rSampleFormat_E = S_BofAudioStandardEnumConverter.ToEnum(pAudioFormat_c);
+				Rts_B = true;
+			}
 		}
 	}
 	return Rts_B;
