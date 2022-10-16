@@ -21,15 +21,12 @@
  */
 #pragma once
 
-/*** Include ****************************************************************/
-#include <cstdint>
-#include <string.h>
-#include <bofstd/bofstd.h>
 #include <bofstd/bofsystem.h>
 
-BEGIN_BOF_NAMESPACE()
+#include <cstdint>
+#include <string.h>
 
-/*** Structure **************************************************************/
+BEGIN_BOF_NAMESPACE()
 
 struct BOFSTD_EXPORT BOF_STRING_CIRCULAR_BUFFER_PARAM
 {
@@ -55,10 +52,6 @@ struct BOFSTD_EXPORT BOF_STRING_CIRCULAR_BUFFER_PARAM
     Blocking_B           = false;
   }
 };
-
-/*** Define *****************************************************************/
-
-/*** Class **************************************************************/
 
 /*!
  * Summary

@@ -19,8 +19,6 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-
-
 #include <bofstd/bofrational.h>
 
 BEGIN_BOF_NAMESPACE()
@@ -41,12 +39,12 @@ uint64_t GreatestCommonDivisor(const uint64_t a, const uint64_t b)
 */
 BofRational BofRational::FromDouble(const double val)
 {
-  return BofRational((int64_t)val * 1000000LL, 1000000LL,true); // FIXME : This is very inefficient and inaccurate
+  return BofRational((int64_t)val * 1000000LL, 1000000LL, true); // FIXME : This is very inefficient and inaccurate
 }
 
 BofRational BofRational::FromFloat(const float val)
 {
-  return BofRational((int64_t)val * 1000000LL, 1000000LL,true); // FIXME : This is very inefficient and inaccurate
+  return BofRational((int64_t)val * 1000000LL, 1000000LL, true); // FIXME : This is very inefficient and inaccurate
 }
 
 

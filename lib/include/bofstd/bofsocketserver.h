@@ -20,10 +20,8 @@
 */
 #pragma once
 
-
-/*** Include ****************************************************************/
-#include <vector>
 #include <bofstd/bofsocketsessionmanager.h>
+#include <vector>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -32,43 +30,43 @@ class BOFSTD_EXPORT BofSocketServer : public BofSocketSessionManager	//, public 
 {
 private:
   BOFERR                    mErrorCode_E = BOF_ERR_INIT;
-	std::mutex								mDynamicPortMtx;
-	uint16_t									mDynamicPort_U16=0;
-	bool											mHasAListener_B = false;
-	BOF_SOCKET_ADDRESS			  mSocketServerAddress_X;
+  std::mutex								mDynamicPortMtx;
+  uint16_t									mDynamicPort_U16 = 0;
+  bool											mHasAListener_B = false;
+  BOF_SOCKET_ADDRESS			  mSocketServerAddress_X;
 
 public:
-	BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFactory,const BOF_SOCKET_SERVER_PARAM & _rBofSocketServerParam_X);
-	virtual ~BofSocketServer();
-	BofSocketServer & operator = (const BofSocketServer &) = delete; // Disallow copying
-	BofSocketServer(const BofSocketServer &)               = delete;
-	BOFERR LastErrorCode() const;
-	BOF_SOCKET_ADDRESS	SocketServerAddress();
-	BOFERR WriteToAllSession(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, const std::string &_rBuffer_S, void *_pWriteContext);
-	BOFERR WriteToAllSession(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, uint32_t _Nb_U32, const uint8_t *_pBuffer_U8, void *_pWriteContext);
+  BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFactory, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X);
+  virtual ~BofSocketServer();
+  BofSocketServer &operator = (const BofSocketServer &) = delete; // Disallow copying
+  BofSocketServer(const BofSocketServer &) = delete;
+  BOFERR LastErrorCode() const;
+  BOF_SOCKET_ADDRESS	SocketServerAddress();
+  BOFERR WriteToAllSession(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, const std::string &_rBuffer_S, void *_pWriteContext);
+  BOFERR WriteToAllSession(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, uint32_t _Nb_U32, const uint8_t *_pBuffer_U8, void *_pWriteContext);
 
-	BOFERR Connect(uint32_t _TimeoutInMs_U32, const std::string &_rConnectFromIpAddress_S, const std::string &_rConnectToIpAddress_S, std::shared_ptr<BofSocketIo> &_rpsCmdSocketSession);
+  BOFERR Connect(uint32_t _TimeoutInMs_U32, const std::string &_rConnectFromIpAddress_S, const std::string &_rConnectToIpAddress_S, std::shared_ptr<BofSocketIo> &_rpsCmdSocketSession);
   BOFERR Disconnect(bool _CloseDataChannelIfPresent_B, std::shared_ptr<BofSocketIo> _psCmdSocketSession);
 
-	BOFERR ConnectToDataChannel(bool _Passive_B, std::shared_ptr<BofSocketIo> _psCmdSocketSession, uint32_t _ConnectionTimeoutInMs_U32, uint32_t _NoIoCloseTimeoutInMs_U32, std::shared_ptr<BofSocketIo> &_rpsDataSocketSession);
-	//Answer to pasv
-	BOFERR ListenForDataChannelConnection(bool _Passive_B, std::shared_ptr<BofSocketIo> _psCmdSocketSession, uint32_t _ConnectionTimeoutInMs_U32, const std::string &_rIpAddress_S);
-	BOFERR CloseDataChannel(std::shared_ptr<BofSocketIo> _psDataSocketSession);
+  BOFERR ConnectToDataChannel(bool _Passive_B, std::shared_ptr<BofSocketIo> _psCmdSocketSession, uint32_t _ConnectionTimeoutInMs_U32, uint32_t _NoIoCloseTimeoutInMs_U32, std::shared_ptr<BofSocketIo> &_rpsDataSocketSession);
+  //Answer to pasv
+  BOFERR ListenForDataChannelConnection(bool _Passive_B, std::shared_ptr<BofSocketIo> _psCmdSocketSession, uint32_t _ConnectionTimeoutInMs_U32, const std::string &_rIpAddress_S);
+  BOFERR CloseDataChannel(std::shared_ptr<BofSocketIo> _psDataSocketSession);
 
   BOFERR    SignalConnectionRequest(BofSocket *_pListenSocket);
-	uint16_t	GenerateDynamicPort();
-	std::string SocketServerDebugInfo();
-	//BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION
-	BOFERR	ConnectSession(BOF_SOCKET_SESSION_TYPE _SessionType_E, std::shared_ptr<BofSocketIo> _psParentCmdChannel, uint32_t _TimeoutInMs_U32, std::unique_ptr<BofSocket>	_puSocket, uint32_t _SessionIndex_U32, std::shared_ptr<BofSocketIo>	&_rpsSocketSession);
-	//BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_POLLER
-	BOFERR	ConnectSession(uint32_t _SessionIndex_U32, std::unique_ptr<BofSocket> _puSocket, std::shared_ptr<BofSocketIo>	&_rpsSocketSession);
+  uint16_t	GenerateDynamicPort();
+  std::string SocketServerDebugInfo();
+  //BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION
+  BOFERR	ConnectSession(BOF_SOCKET_SESSION_TYPE _SessionType_E, std::shared_ptr<BofSocketIo> _psParentCmdChannel, uint32_t _TimeoutInMs_U32, std::unique_ptr<BofSocket>	_puSocket, uint32_t _SessionIndex_U32, std::shared_ptr<BofSocketIo> &_rpsSocketSession);
+  //BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_POLLER
+  BOFERR	ConnectSession(uint32_t _SessionIndex_U32, std::unique_ptr<BofSocket> _puSocket, std::shared_ptr<BofSocketIo> &_rpsSocketSession);
 
-	std::shared_ptr<BofSocketIo> ConnectedCmdSession(uint32_t _Index_U32, uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32);
-	std::shared_ptr<BofSocketIo> ConnectedDataSession(uint32_t _Index_U32, uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32);
-	bool		LockFreeSessionIndex(uint32_t _SessionIndex_U32);
+  std::shared_ptr<BofSocketIo> ConnectedCmdSession(uint32_t _Index_U32, uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32);
+  std::shared_ptr<BofSocketIo> ConnectedDataSession(uint32_t _Index_U32, uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32);
+  bool		LockFreeSessionIndex(uint32_t _SessionIndex_U32);
 
 private:
-	uint32_t LookAndLockFreeSessionIndex();
+  uint32_t LookAndLockFreeSessionIndex();
 };
 
 END_BOF_NAMESPACE()

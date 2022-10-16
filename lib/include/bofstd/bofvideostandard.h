@@ -19,10 +19,8 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-
 #pragma once
 
-#include <bofstd/bofstd.h>
 #include <bofstd/bofrational.h>
 
 BEGIN_BOF_NAMESPACE()
@@ -33,7 +31,7 @@ BEGIN_BOF_NAMESPACE()
 
 typedef uint32_t VideoStandardId;
 
-static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1920,  1080, 50, 'p');
+static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1920, 1080, 50, 'p');
 
 class BOFSTD_EXPORT BofVideoStandard
 {
@@ -56,7 +54,7 @@ public:
       mIndex_i = S_FindIndexFromIdText(_pStandard_c);
     }
   }
-  BofVideoStandard(const std::string& standard)
+  BofVideoStandard(const std::string &standard)
   {
     mIndex_i = S_FindIndexFromIdText(standard.c_str());
   }
@@ -64,12 +62,12 @@ public:
   {
     mIndex_i = S_FindIndex(numCols, numRows, fps, type);
   }
-  BofVideoStandard& operator=(const BofVideoStandard& standard)
+  BofVideoStandard &operator=(const BofVideoStandard &standard)
   {
-    mIndex_i =standard.mIndex_i;
+    mIndex_i = standard.mIndex_i;
     return *this;
   }
-  bool operator==(const BofVideoStandard& standard) const
+  bool operator==(const BofVideoStandard &standard) const
   {
     return mIndex_i == standard.mIndex_i;
   }
@@ -92,10 +90,10 @@ public:
   inline BofRational AudioClockRate() const
   {
     return (mIndex_i >= 0)
-           ? BofRational(S_mpTable_X[mIndex_i].AudioClockRateNum_S64, S_mpTable_X[mIndex_i].AudioClockRateDen_i,true)
-           : BofRational();
+      ? BofRational(S_mpTable_X[mIndex_i].AudioClockRateNum_S64, S_mpTable_X[mIndex_i].AudioClockRateDen_i, true)
+      : BofRational();
   }
-  inline const char* Description() const
+  inline const char *Description() const
   {
     return (mIndex_i >= 0) ? S_mpTable_X[mIndex_i].pDescription_c : nullptr;
   }
@@ -105,7 +103,7 @@ public:
   }
   inline BofRational EffectiveFrameRate() const
   {
-    return (mIndex_i >= 0)  ? (BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i, true) * ((S_mpTable_X[mIndex_i].Type_c == 'i') ? 2 : 1)) : BofRational();
+    return (mIndex_i >= 0) ? (BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i, true) * ((S_mpTable_X[mIndex_i].Type_c == 'i') ? 2 : 1)) : BofRational();
   }
   inline int FieldsPerFrame() const
   {
@@ -113,7 +111,7 @@ public:
   }
   inline BofRational FrameRate() const
   {
-    return (mIndex_i >= 0) ? BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i,true) : BofRational();
+    return (mIndex_i >= 0) ? BofRational(S_mpTable_X[mIndex_i].FrameRateNum_i, S_mpTable_X[mIndex_i].FrameRateDen_i, true) : BofRational();
   }
   static BofVideoStandard FromIndex(const int index);
   inline bool Hdtv() const
@@ -124,14 +122,14 @@ public:
   {
     return (mIndex_i >= 0) ? S_mpTable_X[mIndex_i].Id_U32 : 0;
   }
-  inline const char* IdTxt() const
+  inline const char *IdTxt() const
   {
     return (mIndex_i >= 0) ? S_mpTable_X[mIndex_i].pIdText_c : 0;
   }
   inline BofRational ImageAspectRatio() const
   {
     return (mIndex_i >= 0)
-           ? BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i,true) : BofRational(1);
+      ? BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i, true) : BofRational(1);
   }
   inline bool Interlaced() const
   {
@@ -139,7 +137,7 @@ public:
   }
   inline BofRational PixelAspectRatio() const
   {
-    return (mIndex_i >= 0) ? PixelAspectRatio(S_mpTable_X[mIndex_i].ActiveCols_i, S_mpTable_X[mIndex_i].ActiveRows_i, BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i,true)) : BofRational(1);
+    return (mIndex_i >= 0) ? PixelAspectRatio(S_mpTable_X[mIndex_i].ActiveCols_i, S_mpTable_X[mIndex_i].ActiveRows_i, BofRational(S_mpTable_X[mIndex_i].ImageAspectRatioNum_i, S_mpTable_X[mIndex_i].ImageAspectRatioDen_i, true)) : BofRational(1);
   }
   // imageA is 4:3 or 16:9
   inline BofRational PixelAspectRatio(const BofRational imageA) const
@@ -211,12 +209,13 @@ public:
   {
     return (mIndex_i >= 0);
   }
-  static bool S_Parse(const char* standard, int &w, int &h, int &fps, char &type);
+  static bool S_Parse(const char *standard, int &w, int &h, int &fps, char &type);
 
 private:
-  struct Table {
+  struct Table
+  {
     VideoStandardId Id_U32;
-    const char      *pIdText_c;
+    const char *pIdText_c;
     const char *pDescription_c;
     int      DescriptionCols_i;
     int      DescriptionRows_i;

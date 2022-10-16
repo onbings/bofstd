@@ -20,10 +20,9 @@
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
 #pragma once
-/*
-cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-static -DBOFSTD_GENERATE_HELP=ONN C:/pro/github/bofstd
-*/
- /*** Include files ***********************************************************/
+ /*
+ cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-static -DBOFSTD_GENERATE_HELP=ONN C:/pro/github/bofstd
+ */
 #include <string>
 #include <cstdint>
 #include <functional>
@@ -32,7 +31,6 @@ cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUI
 #include <sstream>
 #include "boferr.h"
 
-/*** Global variables ********************************************************/
 using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rMasg_S)>;
 
 #if 1
@@ -76,8 +74,6 @@ struct BOFSTD_EXPORT BOFSTDPARAM
 
 extern BOFSTD_EXPORT BOFSTDPARAM GL_BofStdParam_X;
 
-/*** Definitions *************************************************************/
-
 #define BOF                         onbings::bof
 #define BEGIN_BOF_NAMESPACE()       namespace onbings { namespace bof {
 #define END_BOF_NAMESPACE()         } }
@@ -105,7 +101,6 @@ extern BOFSTD_EXPORT BOFSTDPARAM GL_BofStdParam_X;
 #error Define one of BOF_LITTLE_ENDIAN or BOF_BIG_ENDIAN
 #endif
 
-/*** Class *******************************************************************/
 #if defined (_WIN32)
 #define strdup                      _strdup
 #define strncasecmp _strnicmp
@@ -314,7 +309,7 @@ private:
   std::string mHeader_S;
   BOFERR mErrorCode_E;
   std::string mContext_S;
-  std::string mWhere_S;	
+  std::string mWhere_S;
 
   std::string mMessage_S;
 };

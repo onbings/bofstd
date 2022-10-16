@@ -18,21 +18,15 @@
  *
  * V 1.00  vendredi 30 mai 2014 16:51:15  b.harmel : Initial release
  */
-
-/*** Include files ***********************************************************/
-#include <gtest/gtest.h>
+#include <bofstd/bofdatetime.h>
 #include <bofstd/bofxmlwriter.h>
 #include <bofstd/bofxmlparser.h>
 #include <bofstd/bofsocket.h>
 #include <bofstd/boffs.h>
 
+#include "gtestrunner.h"
+
 USE_BOF_NAMESPACE()
-
-/*** Global variables ********************************************************/
-
-/*** Factory functions called at the beginning/end of each test case **********/
-
-/*** Test case ******************************************************************/
 
 #include "ut_parser.h"
 

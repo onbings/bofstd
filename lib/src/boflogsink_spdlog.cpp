@@ -19,16 +19,12 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
 #include <bofstd/boflogger.h>
 #include <bofstd/boflogsink_spdlog.h>
+
 #include <spdlog/details/fmt_helper.h>
+
 BEGIN_BOF_NAMESPACE()
-
-/*** Global variables ********************************************************/
-
-/*** Class *******************************************************************/
 
 bool CheckIfLimitedSizeIsReached(spdlog::details::file_helper &_rFileHelper, uint32_t _LogLineSiwze_U32, uint32_t &_rCrtFileSizeInByte_U32, uint32_t _MaxLogSizeInByte_U32)
 {

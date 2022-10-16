@@ -19,7 +19,6 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-
 #pragma once
 
 #include <bofstd/bofstd.h>
@@ -44,13 +43,13 @@ public:
   {
     Set(num, den, _Normalize_B);
   }
-  inline BofRational& operator=(const BofRational &r)
+  inline BofRational &operator=(const BofRational &r)
   {
     mNumerator_S64 = r.mNumerator_S64;
     mDenominator_U64 = r.mDenominator_U64;
     return *this;
   }
-  inline BofRational& operator=(const int64_t &i)
+  inline BofRational &operator=(const int64_t &i)
   {
     mNumerator_S64 = i;
     mDenominator_U64 = 1;
@@ -78,7 +77,7 @@ public:
   }
   inline bool operator<(const int64_t val) const
   {
-    return (mNumerator_S64 < (int64_t)(mDenominator_U64 * val));
+    return (mNumerator_S64 < (int64_t)(mDenominator_U64 *val));
   }
   inline bool operator<=(const BofRational &r) const
   {
@@ -105,7 +104,7 @@ public:
     return (mNumerator_S64 >= (int64_t)(mDenominator_U64 * val));
   }
   // prefix operator ++
-  BofRational& operator++()
+  BofRational &operator++()
   {
     mNumerator_S64 += mDenominator_U64;
     return *this;
@@ -118,7 +117,7 @@ public:
     return r;
   }
   // prefix operator --
-  BofRational& operator--()
+  BofRational &operator--()
   {
     mNumerator_S64 -= mDenominator_U64;
     return *this;
@@ -132,74 +131,74 @@ public:
   }
   inline BofRational operator+(const BofRational &r) const
   {
-    return BofRational(mNumerator_S64 * r.mDenominator_U64 + r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64,true);
+    return BofRational(mNumerator_S64 * r.mDenominator_U64 + r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64, true);
   }
   inline BofRational operator+(const int64_t val) const
   {
-    return BofRational(mNumerator_S64 + val * mDenominator_U64, mDenominator_U64,true);
+    return BofRational(mNumerator_S64 + val * mDenominator_U64, mDenominator_U64, true);
   }
-  inline BofRational& operator+=(const BofRational &r)
+  inline BofRational &operator+=(const BofRational &r)
   {
-    Set(mNumerator_S64 * r.mDenominator_U64 + r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64,true);
+    Set(mNumerator_S64 * r.mDenominator_U64 + r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64, true);
     return *this;
   }
-  inline BofRational& operator+=(const int64_t val)
+  inline BofRational &operator+=(const int64_t val)
   {
-    Set(mNumerator_S64 + val * mDenominator_U64, mDenominator_U64,true);
+    Set(mNumerator_S64 + val * mDenominator_U64, mDenominator_U64, true);
     return *this;
   }
   inline BofRational operator-(const BofRational &r) const
   {
-    return BofRational(mNumerator_S64 * r.mDenominator_U64 - r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64,true);
+    return BofRational(mNumerator_S64 * r.mDenominator_U64 - r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64, true);
   }
   inline BofRational operator-(const int64_t val) const
   {
     return BofRational(mNumerator_S64 - val * mDenominator_U64, mDenominator_U64, true);
   }
-  inline BofRational& operator-=(const BofRational &r)
+  inline BofRational &operator-=(const BofRational &r)
   {
-    Set(mNumerator_S64 * r.mDenominator_U64 - r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64,true);
+    Set(mNumerator_S64 * r.mDenominator_U64 - r.mNumerator_S64 * mDenominator_U64, mDenominator_U64 * r.mDenominator_U64, true);
     return *this;
   }
-  inline BofRational& operator-=(const int64_t val)
+  inline BofRational &operator-=(const int64_t val)
   {
-    Set(mNumerator_S64 - val * mDenominator_U64, mDenominator_U64,true);
+    Set(mNumerator_S64 - val * mDenominator_U64, mDenominator_U64, true);
     return *this;
   }
   inline BofRational operator*(const BofRational &r) const
   {
-    return BofRational(mNumerator_S64 * r.mNumerator_S64, mDenominator_U64 * r.mDenominator_U64,true);
+    return BofRational(mNumerator_S64 * r.mNumerator_S64, mDenominator_U64 * r.mDenominator_U64, true);
   }
   inline BofRational operator*(const int64_t val) const
   {
-    return BofRational(mNumerator_S64 * val, mDenominator_U64,true);
+    return BofRational(mNumerator_S64 * val, mDenominator_U64, true);
   }
-  inline BofRational& operator*=(const BofRational &r)
+  inline BofRational &operator*=(const BofRational &r)
   {
-    Set(mNumerator_S64 * r.mNumerator_S64, mDenominator_U64 * r.mDenominator_U64,true);
+    Set(mNumerator_S64 * r.mNumerator_S64, mDenominator_U64 * r.mDenominator_U64, true);
     return *this;
   }
-  inline BofRational& operator*=(const int64_t val)
+  inline BofRational &operator*=(const int64_t val)
   {
     Set(mNumerator_S64 * val, mDenominator_U64, true);
     return *this;
   }
   inline BofRational operator/(const BofRational &r) const
   {
-    return BofRational(mNumerator_S64 * r.mDenominator_U64, mDenominator_U64 * r.mNumerator_S64,true);
+    return BofRational(mNumerator_S64 * r.mDenominator_U64, mDenominator_U64 * r.mNumerator_S64, true);
   }
   inline BofRational operator/(const int64_t val) const
   {
-    return BofRational(mNumerator_S64, mDenominator_U64 * val,true);
+    return BofRational(mNumerator_S64, mDenominator_U64 * val, true);
   }
-  inline BofRational& operator/=(const BofRational &r)
+  inline BofRational &operator/=(const BofRational &r)
   {
-    Set(mNumerator_S64 * r.mDenominator_U64, mDenominator_U64 * r.mNumerator_S64,true);
+    Set(mNumerator_S64 * r.mDenominator_U64, mDenominator_U64 * r.mNumerator_S64, true);
     return *this;
   }
-  inline BofRational& operator/=(const int64_t val)
+  inline BofRational &operator/=(const int64_t val)
   {
-    Set(mNumerator_S64, mDenominator_U64 * val,true);
+    Set(mNumerator_S64, mDenominator_U64 * val, true);
     return *this;
   }
 
@@ -209,7 +208,7 @@ public:
   }
   inline BofRational Inv() const
   {
-    return BofRational(mDenominator_U64, mNumerator_S64,true);
+    return BofRational(mDenominator_U64, mNumerator_S64, true);
   }
   inline int64_t Num() const
   {
@@ -257,9 +256,9 @@ protected:
     mNumerator_S64 = num;
     mDenominator_U64 = (den ? den : 1);
     if (_Normalize_B)
-		{
-			Normalize();
-		}
+    {
+      Normalize();
+    }
   }
 
 };

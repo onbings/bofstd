@@ -19,35 +19,26 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
- /*** Include files ***********************************************************/
 #include <bofstd/bofparameter.h>
+#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofaudiostandard.h>
+#include <bofstd/boftimecode.h>
+#include <bofstd/bof2d.h>
 #include <bofstd/bofguid.h>
-#include <bofstd/bofsocketos.h>
-#include <regex>
-#include <stdlib.h>
-
-#define __STDC_FORMAT_MACROS
-
-#include <inttypes.h>
+#include <bofstd/bofuri.h>
 #include <bofstd/bofsystem.h>
 
+#include <regex>
+#include <stdlib.h>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 #if defined (_WIN32)
-//#include <ws2tcpip.h>                                                                               // for sockaddrin_6
-#undef max                                                                                          // Needed undex windows as winmindef #define min and max
-#undef min
 #else
-
 #include <arpa/inet.h>
-
 #endif
+
 BEGIN_BOF_NAMESPACE()
-
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 
 template<typename T>
 BOFERR CheckAndGetValueFromString(const char *_pOptVal_c, const BOFPARAMETER _rBofParameter_X, T &_rVal)
@@ -419,8 +410,8 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             if (_rBofParameter_X.StringToEnum)
             {
               int Enum_i = _rBofParameter_X.StringToEnum(pTheOptVal_c);
-//Not under gcc              itoa(Enum_i, pEnumVal_c, 10);
-			        sprintf(pEnumVal_c,"%d",Enum_i);
+              //Not under gcc              itoa(Enum_i, pEnumVal_c, 10);
+              sprintf(pEnumVal_c, "%d", Enum_i);
               pTheOptVal_c = pEnumVal_c;
             }
           case BOFPARAMETER_ARG_TYPE::INT32:
@@ -891,7 +882,7 @@ DateTimeParse:
                 }
                 else
                 {
-                   *static_cast<BOF_SOCKET_ADDRESS_COMPONENT *>(pValue) = IpAddress_X;
+                  *static_cast<BOF_SOCKET_ADDRESS_COMPONENT *>(pValue) = IpAddress_X;
                 }
                 break;
 
@@ -1368,9 +1359,9 @@ DateTimeToString:
             }
             if (pRts_c)
             {
-              if (Bof_ValidateDateTime(DateTime_X) == BOF_ERR_NO_ERROR)
+              if (DateTime_X.IsValid_B)
               {
-                snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_DateTimeToString(DateTime_X, pFormat_c).c_str());
+                snprintf(_pToString_c, _MaxSize_U32, "%s", DateTime_X.ToString(pFormat_c).c_str());
               }
               else
               {

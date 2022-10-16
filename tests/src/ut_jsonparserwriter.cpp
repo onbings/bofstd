@@ -18,15 +18,15 @@
  *
  * V 1.00  vendredi 30 mai 2014 16:51:15  b.harmel : Initial release
  */
-
- /*** Include files ***********************************************************/
-#include <gtest/gtest.h>
+#include <bofstd/bofdatetime.h>
 #include <bofstd/bofjsonwriter.h>
 #include <bofstd/bofjsonparser.h>
 #include <bofstd/bofsocket.h>
 #include <bofstd/boffs.h>
 #include <bofstd/bofvideostandard.h>
 #include <bofstd/bof2d.h>
+
+#include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
 #include "ut_parser.h"

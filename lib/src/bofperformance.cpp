@@ -18,29 +18,15 @@
    History:
    V 1.00  June 11 2010  BHA : First Release
  */
-
-/*** Include ***********************************************************************************************************************/
-
-#include <cassert>
 #include <bofstd/bofperformance.h>
 #include <bofstd/bofsystem.h>
+
+#include <cassert>
 #include <string.h>
 #include <stdarg.h>
 #include <inttypes.h>
 
 BEGIN_BOF_NAMESPACE()
-
-/*** Globals ***********************************************************************************************************************/
-
-/*** Defines ***********************************************************************************************************************/
-
-/*** Enums *************************************************************************************************************************/
-
-/*** Structures ********************************************************************************************************************/
-
-/*** Constants *********************************************************************************************************************/
-
-/*** Prototypes ********************************************************************************************************************/
 
 /*!
    Description
@@ -59,19 +45,19 @@ BEGIN_BOF_NAMESPACE()
    Nothing
  */
   BofProfiler::BofProfiler(uint32_t _NbItems_U32)
+{
+  uint32_t I_U32;
+
+  mNbItems_U32 = _NbItems_U32;
+  mpStats_X = new BOF_STAT_VARIABLE<uint64_t>[mNbItems_U32];
+  BOF_ASSERT(mpStats_X != nullptr);
+
+  for (I_U32 = 0; I_U32 < _NbItems_U32; I_U32++)
   {
-    uint32_t I_U32;
-
-    mNbItems_U32 = _NbItems_U32;
-    mpStats_X    = new BOF_STAT_VARIABLE<uint64_t>[mNbItems_U32];
-    BOF_ASSERT(mpStats_X != nullptr);
-
-    for (I_U32 = 0; I_U32 < _NbItems_U32; I_U32++)
-    {
-      mpStats_X[I_U32].Reset();
-      mpStats_X[I_U32].Min = (uint64_t) -1;
-    }
+    mpStats_X[I_U32].Reset();
+    mpStats_X[I_U32].Min = (uint64_t)-1;
   }
+}
 
 /*!
    Description
@@ -89,13 +75,13 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  BofProfiler::~BofProfiler()
+BofProfiler::~BofProfiler()
+{
+  if (mpStats_X != nullptr)
   {
-    if (mpStats_X != nullptr)
-    {
-      BOF_SAFE_DELETE_ARRAY(mpStats_X);
-    }
+    BOF_SAFE_DELETE_ARRAY(mpStats_X);
   }
+}
 
 /*!
    Description
@@ -113,16 +99,16 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  void BofProfiler::V_EnterBench(uint32_t _ItemId_U32)
+void BofProfiler::V_EnterBench(uint32_t _ItemId_U32)
+{
+  if (_ItemId_U32 < mNbItems_U32)
   {
-    if (_ItemId_U32 < mNbItems_U32)
+    if (mpStats_X[_ItemId_U32].LockCount_U32++ == 0)
     {
-      if (mpStats_X[_ItemId_U32].LockCount_U32++ == 0)
-      {
-        mpStats_X[_ItemId_U32].Crt = Bof_GetNsTickCount();
-      }
+      mpStats_X[_ItemId_U32].Crt = Bof_GetNsTickCount();
     }
   }
+}
 
 /*!
    Description
@@ -140,27 +126,27 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  void BofProfiler::V_LeaveBench(uint32_t _ItemId_U32)
+void BofProfiler::V_LeaveBench(uint32_t _ItemId_U32)
+{
+  uint64_t Ticks1_U64;
+  uint64_t Ticks2_U64;
+
+  if (_ItemId_U32 < mNbItems_U32)
   {
-    uint64_t Ticks1_U64;
-    uint64_t Ticks2_U64;
-
-    if (_ItemId_U32 < mNbItems_U32)
+    if (mpStats_X[_ItemId_U32].LockCount_U32)
     {
-      if (mpStats_X[_ItemId_U32].LockCount_U32)
+      if (--mpStats_X[_ItemId_U32].LockCount_U32 == 0)
       {
-        if (--mpStats_X[_ItemId_U32].LockCount_U32 == 0)
-        {
-          Ticks1_U64 = mpStats_X[_ItemId_U32].Crt;
-          Ticks2_U64 = Bof_GetNsTickCount();
+        Ticks1_U64 = mpStats_X[_ItemId_U32].Crt;
+        Ticks2_U64 = Bof_GetNsTickCount();
 
-          mpStats_X[_ItemId_U32].Crt = (uint64_t) (Ticks2_U64 < Ticks1_U64 ? (uint64_t) -1 : 0) + Ticks2_U64 - Ticks1_U64;
+        mpStats_X[_ItemId_U32].Crt = (uint64_t)(Ticks2_U64 < Ticks1_U64 ? (uint64_t)-1 : 0) + Ticks2_U64 - Ticks1_U64;
 
-          Bof_UpdateStatVar(mpStats_X[_ItemId_U32], mpStats_X[_ItemId_U32].Crt);
-        }
+        Bof_UpdateStatVar(mpStats_X[_ItemId_U32], mpStats_X[_ItemId_U32].Crt);
       }
     }
   }
+}
 
 /*!
    Description
@@ -179,21 +165,21 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  bool BofProfiler::GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X)
+bool BofProfiler::GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X)
+{
+  bool Ret_B = false;
+
+  BOF_ASSERT(_pStats_X != nullptr);
+
+  if (_ItemId_U32 < mNbItems_U32)
   {
-    bool Ret_B = false;
+    memcpy(_pStats_X, &mpStats_X[_ItemId_U32], sizeof(BOF_STAT_VARIABLE<uint64_t>));
 
-    BOF_ASSERT(_pStats_X != nullptr);
-
-    if (_ItemId_U32 < mNbItems_U32)
-    {
-      memcpy(_pStats_X, &mpStats_X[_ItemId_U32], sizeof(BOF_STAT_VARIABLE<uint64_t>));
-
-      Ret_B = true;
-    }
-
-    return Ret_B;
+    Ret_B = true;
   }
+
+  return Ret_B;
+}
 
 /*!
    Description
@@ -212,19 +198,19 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
+bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
+{
+  bool Ret_B = false;
+
+  if (_ItemId_U32 < mNbItems_U32)
   {
-    bool Ret_B = false;
+    Bof_UpdateStatVar(mpStats_X[_ItemId_U32], _Value_U64);
 
-    if (_ItemId_U32 < mNbItems_U32)
-    {
-      Bof_UpdateStatVar(mpStats_X[_ItemId_U32], _Value_U64);
-
-      Ret_B = true;
-    }
-
-    return Ret_B;
+    Ret_B = true;
   }
+
+  return Ret_B;
+}
 
 /*!
    Description
@@ -242,23 +228,23 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  void BofProfiler::ResetStats(uint32_t _ItemId_U32)
+void BofProfiler::ResetStats(uint32_t _ItemId_U32)
+{
+  uint32_t LockCount_U32;
+  uint64_t Current_U64;
+
+  if (_ItemId_U32 < mNbItems_U32)
   {
-    uint32_t LockCount_U32;
-    uint64_t Current_U64;
+    LockCount_U32 = mpStats_X[_ItemId_U32].LockCount_U32;
+    Current_U64 = mpStats_X[_ItemId_U32].Crt;
 
-    if (_ItemId_U32 < mNbItems_U32)
-    {
-      LockCount_U32 = mpStats_X[_ItemId_U32].LockCount_U32;
-      Current_U64   = mpStats_X[_ItemId_U32].Crt;
+    mpStats_X[_ItemId_U32].Reset();
+    mpStats_X[_ItemId_U32].Min = (uint64_t)-1;
 
-      mpStats_X[_ItemId_U32].Reset();
-      mpStats_X[_ItemId_U32].Min = (uint64_t) -1;
-
-      mpStats_X[_ItemId_U32].LockCount_U32 = LockCount_U32;
-      mpStats_X[_ItemId_U32].Crt           = Current_U64;
-    }
+    mpStats_X[_ItemId_U32].LockCount_U32 = LockCount_U32;
+    mpStats_X[_ItemId_U32].Crt = Current_U64;
   }
+}
 
 /*!
    Description
@@ -279,49 +265,49 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8)
+uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8)
+{
+  uint64_t Ret_U64 = (uint64_t)-1;
+  uint64_t Scale_U64;
+
+  switch (_Units_U8)
   {
-    uint64_t Ret_U64 = (uint64_t) -1;
-    uint64_t Scale_U64;
-
-    switch (_Units_U8)
+    case PERF_SECOND:
     {
-      case PERF_SECOND:
-      {
-        Scale_U64 = 1;
-        break;
-      }
-      case PERF_MILLISECOND:
-      {
-        Scale_U64 = 1000;
-        break;
-      }
-      case PERF_MICROSECOND:
-      {
-        Scale_U64 = 1000000;
-        break;
-      }
-      case PERF_NANOSECOND:
-      {
-        Scale_U64 = 1000000000;
-        break;
-      }
-
-      default:
-      {
-        Scale_U64 = (uint64_t) -1;
-        break;
-      }
+      Scale_U64 = 1;
+      break;
+    }
+    case PERF_MILLISECOND:
+    {
+      Scale_U64 = 1000;
+      break;
+    }
+    case PERF_MICROSECOND:
+    {
+      Scale_U64 = 1000000;
+      break;
+    }
+    case PERF_NANOSECOND:
+    {
+      Scale_U64 = 1000000000;
+      break;
     }
 
-    if (Scale_U64 != ((uint64_t) -1))   // && (CpuFreq_U64 != 0))
+    default:
     {
-      // Ret_U64 = ((_Ticks_U64 * Scale_U64) / CpuFreq_U64);
-      Ret_U64 = (_Ticks_U64 * Scale_U64);
+      Scale_U64 = (uint64_t)-1;
+      break;
     }
-
-    return Ret_U64;
   }
+
+  if (Scale_U64 != ((uint64_t)-1))   // && (CpuFreq_U64 != 0))
+  {
+    // Ret_U64 = ((_Ticks_U64 * Scale_U64) / CpuFreq_U64);
+    Ret_U64 = (_Ticks_U64 * Scale_U64);
+  }
+
+  return Ret_U64;
+}
 
 /*!
    Description
@@ -342,49 +328,49 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8)
+uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8)
+{
+  uint64_t Ret_U64 = (uint64_t)-1;
+  uint64_t Scale_U64;
+
+  switch (_Units_U8)
   {
-    uint64_t Ret_U64 = (uint64_t) -1;
-    uint64_t Scale_U64;
-
-    switch (_Units_U8)
+    case PERF_SECOND:
     {
-      case PERF_SECOND:
-      {
-        Scale_U64 = 1;
-        break;
-      }
-      case PERF_MILLISECOND:
-      {
-        Scale_U64 = 1000;
-        break;
-      }
-      case PERF_MICROSECOND:
-      {
-        Scale_U64 = 1000000;
-        break;
-      }
-      case PERF_NANOSECOND:
-      {
-        Scale_U64 = 1000000000;
-        break;
-      }
-
-      default:
-      {
-        Scale_U64 = (uint64_t) -1;
-        break;
-      }
+      Scale_U64 = 1;
+      break;
+    }
+    case PERF_MILLISECOND:
+    {
+      Scale_U64 = 1000;
+      break;
+    }
+    case PERF_MICROSECOND:
+    {
+      Scale_U64 = 1000000;
+      break;
+    }
+    case PERF_NANOSECOND:
+    {
+      Scale_U64 = 1000000000;
+      break;
     }
 
-    if (Scale_U64 != ((uint64_t) -1))   // && (CpuFreq_U64 != 0))
+    default:
     {
-      // Ret_U64 = ((_Value_U64 * CpuFreq_U64) / Scale_U64);
-      Ret_U64 = (_Value_U64 / Scale_U64);
+      Scale_U64 = (uint64_t)-1;
+      break;
     }
-
-    return Ret_U64;
   }
+
+  if (Scale_U64 != ((uint64_t)-1))   // && (CpuFreq_U64 != 0))
+  {
+    // Ret_U64 = ((_Value_U64 * CpuFreq_U64) / Scale_U64);
+    Ret_U64 = (_Value_U64 / Scale_U64);
+  }
+
+  return Ret_U64;
+}
 
 /*!
    Description
@@ -403,10 +389,10 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  uint32_t BofProfiler::GetCount()
-  {
-    return mNbItems_U32;
-  }
+uint32_t BofProfiler::GetCount()
+{
+  return mNbItems_U32;
+}
 
 /*!
    Description
@@ -424,17 +410,19 @@ BEGIN_BOF_NAMESPACE()
    See also
    Nothing
  */
-  uint64_t BofProfiler::GetMemoryUsage()
+uint64_t BofProfiler::GetMemoryUsage()
+{
+  uint64_t Ret_U64 = 0;
+
+  Ret_U64 += sizeof(BofProfiler);
+
+  if (mpStats_X != nullptr)
   {
-    uint64_t Ret_U64 = 0;
-
-    Ret_U64 += sizeof(BofProfiler);
-
-    if (mpStats_X != nullptr)
-    { Ret_U64 += (sizeof(BOF_STAT_VARIABLE<uint64_t>) * mNbItems_U32); }
-
-    return Ret_U64;
+    Ret_U64 += (sizeof(BOF_STAT_VARIABLE<uint64_t>) * mNbItems_U32);
   }
+
+  return Ret_U64;
+}
 
 
 BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U32, uint64_t _MaxTimeInNs_U64)
@@ -443,14 +431,14 @@ BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U3
 
   if ((_pName_c) && (strlen(_pName_c) < BOF_PERF_POINT_MGR_NAME_MAX_CHAR) && (_MaxEntry_U32 <= BOF_MAX_PERF_POINT))
   {
-    pRts_X =new BOF_PERF_POINT_MGR;
+    pRts_X = new BOF_PERF_POINT_MGR;
     if (pRts_X)
     {
       memset(pRts_X, 0, sizeof(BOF_PERF_POINT_MGR));
       pRts_X->MgrMagicNumber_U32 = BOF_PERF_POINT_MAGIC_NUMBER;
       strcpy(pRts_X->pMgrName_c, _pName_c);
       pRts_X->OverTimeInNs_U64 = _MaxTimeInNs_U64;
-      pRts_X->MaxEntry_U32     = _MaxEntry_U32;
+      pRts_X->MaxEntry_U32 = _MaxEntry_U32;
     }
   }
   return pRts_X;
@@ -471,10 +459,10 @@ BOFERR BofPerfPointStart(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ResetTrigge
       {
         Rts_E = BOF_ERR_NO_ERROR;
         _pPerfPointMgr_X->NbEntry_U32 = 0;
-        _pPerfPointMgr_X->Started_B   = true;
-        _pPerfPointMgr_X->MinInNs_U64 = (uint64_t) -1;
+        _pPerfPointMgr_X->Started_B = true;
+        _pPerfPointMgr_X->MinInNs_U64 = (uint64_t)-1;
         _pPerfPointMgr_X->MaxInNs_U64 = 0;
-        _pPerfPointMgr_X->StartTimeStampInNs_U64= Bof_GetNsTickCount();
+        _pPerfPointMgr_X->StartTimeStampInNs_U64 = Bof_GetNsTickCount();
       }
       else
       {
@@ -497,7 +485,7 @@ BOFERR BofPerfPointResetTrigger(BOF_PERF_POINT_MGR *_pPerfPointMgr_X)
     if (_pPerfPointMgr_X->Started_B)
     {
       _pPerfPointMgr_X->Triggered_B = false;
-      _pPerfPointMgr_X->StartTimeStampInNs_U64= Bof_GetNsTickCount();
+      _pPerfPointMgr_X->StartTimeStampInNs_U64 = Bof_GetNsTickCount();
       Rts_E = BOF_ERR_NO_ERROR;
     }
     else
@@ -507,7 +495,7 @@ BOFERR BofPerfPointResetTrigger(BOF_PERF_POINT_MGR *_pPerfPointMgr_X)
   }
   return Rts_E;
 }
-  BOFERR BofPerfPointAdd(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, const char *_pPointName_c, ...)
+BOFERR BofPerfPointAdd(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, const char *_pPointName_c, ...)
 {
   BOFERR                  Rts_E = BOF_ERR_EINVAL;
   int Sts_i;
@@ -528,7 +516,7 @@ BOFERR BofPerfPointResetTrigger(BOF_PERF_POINT_MGR *_pPerfPointMgr_X)
         if ((Sts_i >= 0) && (Sts_i < BOF_PERF_POINT_NAME_MAX_CHAR))
         {
           pEntry_X = &_pPerfPointMgr_X->pEntry_X[_pPerfPointMgr_X->NbEntry_U32];
-          pEntry_X->TimeStampInNs_U64= Bof_GetNsTickCount();
+          pEntry_X->TimeStampInNs_U64 = Bof_GetNsTickCount();
           strcpy(pEntry_X->pPointName_c, pLine_c);
           if (_pPerfPointMgr_X->NbEntry_U32 == 0)
           {
@@ -581,7 +569,7 @@ BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ForceTrigger
 
   if ((_pPerfPointMgr_X) && (_pPerfPointMgr_X->MgrMagicNumber_U32 == BOF_PERF_POINT_MAGIC_NUMBER))
   {
-    if ((_pPerfPointMgr_X->Started_B)  || (_ForceTrigger_B))
+    if ((_pPerfPointMgr_X->Started_B) || (_ForceTrigger_B))
     {
       _pPerfPointMgr_X->Started_B = false;
       if ((_pPerfPointMgr_X->Triggered_B) || (_ForceTrigger_B))
@@ -592,9 +580,9 @@ BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ForceTrigger
         }
         else
         {
-          printf("%s: %d entries, Min %" PRId64 " Max %" PRId64 " >>Overtime detected<< (%" PRId64 ")\n", _pPerfPointMgr_X->pMgrName_c, _pPerfPointMgr_X->NbEntry_U32, _pPerfPointMgr_X->MinInNs_U64, _pPerfPointMgr_X->MaxInNs_U64,  _pPerfPointMgr_X->OverTimeInNs_U64);
+          printf("%s: %d entries, Min %" PRId64 " Max %" PRId64 " >>Overtime detected<< (%" PRId64 ")\n", _pPerfPointMgr_X->pMgrName_c, _pPerfPointMgr_X->NbEntry_U32, _pPerfPointMgr_X->MinInNs_U64, _pPerfPointMgr_X->MaxInNs_U64, _pPerfPointMgr_X->OverTimeInNs_U64);
         }
-        pEntry_X   = _pPerfPointMgr_X->pEntry_X;
+        pEntry_X = _pPerfPointMgr_X->pEntry_X;
         for (i_U32 = 0; i_U32 < _pPerfPointMgr_X->NbEntry_U32; i_U32++)
         {
           if (i_U32)
@@ -605,10 +593,10 @@ BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ForceTrigger
           {
             Delta_U64 = 0;
           }
-          printf( "[%03d] Ts %-14" PRId64 " ns Abs %-10" PRId64 " ns %-4" PRId64 " ms Prv %-10" PRId64 " ns %-4" PRId64 " ms Step %s:%s", i_U32, pEntry_X->TimeStampInNs_U64, pEntry_X->Delta_U64, pEntry_X->Delta_U64 / 1000000, Delta_U64, Delta_U64 / 1000000, _pPerfPointMgr_X->pMgrName_c, pEntry_X->pPointName_c);
+          printf("[%03d] Ts %-14" PRId64 " ns Abs %-10" PRId64 " ns %-4" PRId64 " ms Prv %-10" PRId64 " ns %-4" PRId64 " ms Step %s:%s", i_U32, pEntry_X->TimeStampInNs_U64, pEntry_X->Delta_U64, pEntry_X->Delta_U64 / 1000000, Delta_U64, Delta_U64 / 1000000, _pPerfPointMgr_X->pMgrName_c, pEntry_X->pPointName_c);
           pEntry_X++;
         }
-        Rts_E      = BOF_ERR_EL2NSYNC;
+        Rts_E = BOF_ERR_EL2NSYNC;
       }
       else
       {

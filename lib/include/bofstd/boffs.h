@@ -20,33 +20,32 @@
 */
 #pragma once
 
-/*** Include ****************************************************************/
-
-#include <bofstd/bofstd.h>
+#include <bofstd/bofdatetime.h>
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofpath.h>
 #include <bofstd/bofflag.h>
 #include <bofstd/bofstring.h>
+
 #include <vector>
 
 BEGIN_BOF_NAMESPACE()
 
 enum class BOF_FILE_PERMISSION : uint32_t
 {
-		//Comes from linux->OCTAL values
-		BOF_PERM_S_ISUID = 04000,  //set-user-ID (set process effective user ID onexecve(2))
-		BOF_PERM_S_ISGID = 02000,  //set-group-ID (set process effective group ID on xecve(2); mandatory locking, as described in fcntl(2); take a new file's group from parent directory, as described in chown(2) and mkdir(2))
-		BOF_PERM_S_ISVTX = 01000,    //sticky bit (restricted deletion flag, as described in unlink(2))
-		BOF_PERM_S_IRUSR = 00400,  //read by owner
-		BOF_PERM_S_IWUSR = 00200,    //write by owner
-		BOF_PERM_S_IXUSR = 00100,    //execute/search by owner ("search" applies for directories, and means that entries within the directory can be accessed)
-		BOF_PERM_S_IRGRP = 00040,    //read by group
-		BOF_PERM_S_IWGRP = 00020,    //write by group
-		BOF_PERM_S_IXGRP = 00010,    //execute/search by group
-		BOF_PERM_S_IROTH = 00004,    //read by others
-		BOF_PERM_S_IWOTH = 00002,    //write by others
-		BOF_PERM_S_IXOTH = 00001,    //execute/search by others
-		BOF_PERM_S_NONE = 00000,   //special none value
+  //Comes from linux->OCTAL values
+  BOF_PERM_S_ISUID = 04000,  //set-user-ID (set process effective user ID onexecve(2))
+  BOF_PERM_S_ISGID = 02000,  //set-group-ID (set process effective group ID on xecve(2); mandatory locking, as described in fcntl(2); take a new file's group from parent directory, as described in chown(2) and mkdir(2))
+  BOF_PERM_S_ISVTX = 01000,    //sticky bit (restricted deletion flag, as described in unlink(2))
+  BOF_PERM_S_IRUSR = 00400,  //read by owner
+  BOF_PERM_S_IWUSR = 00200,    //write by owner
+  BOF_PERM_S_IXUSR = 00100,    //execute/search by owner ("search" applies for directories, and means that entries within the directory can be accessed)
+  BOF_PERM_S_IRGRP = 00040,    //read by group
+  BOF_PERM_S_IWGRP = 00020,    //write by group
+  BOF_PERM_S_IXGRP = 00010,    //execute/search by group
+  BOF_PERM_S_IROTH = 00004,    //read by others
+  BOF_PERM_S_IWOTH = 00002,    //write by others
+  BOF_PERM_S_IXOTH = 00001,    //execute/search by others
+  BOF_PERM_S_NONE = 00000,   //special none value
 };
 template<>
 struct IsItAnEnumBitFLag<BOF_FILE_PERMISSION> : std::true_type
@@ -74,18 +73,18 @@ const BOF_FILE_PERMISSION BOF_FILE_PERMISSION_EXEC_FOR_ALL = (BOF_FILE_PERMISSIO
 
 enum class BOF_FILE_TYPE : uint32_t
 {
-		BOF_FILE_DONT_EXIST = 0x00000000,
+  BOF_FILE_DONT_EXIST = 0x00000000,
 
-		BOF_FILE_REG = 0x00000001,
-		BOF_FILE_DIR = 0x00000002,
-		BOF_FILE_CHR = 0x00000004,
-		BOF_FILE_BLK = 0x00000008,
-		BOF_FILE_LNK = 0x00000010,
-		BOF_FILE_SCK = 0x00000020,
-		BOF_FILE_FIFO = 0x00000040,
+  BOF_FILE_REG = 0x00000001,
+  BOF_FILE_DIR = 0x00000002,
+  BOF_FILE_CHR = 0x00000004,
+  BOF_FILE_BLK = 0x00000008,
+  BOF_FILE_LNK = 0x00000010,
+  BOF_FILE_SCK = 0x00000020,
+  BOF_FILE_FIFO = 0x00000040,
 
-		BOF_FILE_UNK = 0x80000000,
-		BOF_FILE_ALL = 0xFFFFFFFF, //For Bof_FindFile
+  BOF_FILE_UNK = 0x80000000,
+  BOF_FILE_ALL = 0xFFFFFFFF, //For Bof_FindFile
 };
 template<>
 struct IsItAnEnumBitFLag<BOF_FILE_TYPE> : std::true_type
@@ -143,8 +142,8 @@ BOFSTD_EXPORT BOFERR Bof_RemoveDirectory(const BofPath &_rPath);
 
 struct BOFSTD_EXPORT BOF_FILE_FOUND
 {
-	BofPath Path;
-	uint64_t Size_U64;
+  BofPath Path;
+  uint64_t Size_U64;
   BOF_DATE_TIME     Creation_X;
   BOF_DATE_TIME     LastAccess_X;
   BOF_DATE_TIME     LastWrite_X;
@@ -156,7 +155,7 @@ struct BOFSTD_EXPORT BOF_FILE_FOUND
   }
   void Reset()
   {
-    Path="";
+    Path = "";
     Size_U64 = 0;
     Creation_X.Reset();
     LastAccess_X.Reset();
@@ -199,7 +198,7 @@ typedef struct
 BOFFILEFOUND;
 #endif
 
-using BOF_DIRECTORY_PARSER_CALLBACK = std::function<bool(const BOF_FILE_FOUND &_rFileFound_X)> ;
+using BOF_DIRECTORY_PARSER_CALLBACK = std::function<bool(const BOF_FILE_FOUND &_rFileFound_X)>;
 BOFSTD_EXPORT BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, BOF_DIRECTORY_PARSER_CALLBACK &_rDirectoryParserCallback);
 BOFSTD_EXPORT BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, std::vector<BOF_FILE_FOUND> &_rFileCollection);
 BOFSTD_EXPORT bool Bof_IsFileHandleValid(intptr_t _Io);
@@ -216,7 +215,7 @@ BOFSTD_EXPORT BOFERR Bof_WriteLine(intptr_t _Io, const std::string &_rLine_S);
 BOFSTD_EXPORT BOFERR Bof_ReadFile(intptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8);
 BOFSTD_EXPORT BOFERR Bof_WriteFile(intptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8);
 
-BOFSTD_EXPORT BOFERR Bof_ReadLine(const BofPath& _rPath, std::string& _rBuffer_S);
+BOFSTD_EXPORT BOFERR Bof_ReadLine(const BofPath &_rPath, std::string &_rBuffer_S);
 BOFSTD_EXPORT BOFERR Bof_WriteLine(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, const std::string &_rBuffer_S);
 
 BOFSTD_EXPORT BOFERR Bof_FlushFile(intptr_t _Io);

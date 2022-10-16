@@ -19,15 +19,10 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
- /*** Include files ***********************************************************/
-
-#include "gtestrunner.h"
-#include <bofstd/bofstd.h>
 #include <bofstd/bofsocketos.h>
 #include "bofstd/bofstringformatter.h"
 
-/*** Class *************************************************************************************************************************/
+#include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
 
@@ -750,7 +745,7 @@ myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justk
   else
   {
     EXPECT_EQ(IpAddress_X.IpV4Address_X.sin_port, 0);
-}
+  }
   EXPECT_FALSE(Bof_IsIpAddressNull(IpAddress_X));
 #endif
 

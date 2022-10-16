@@ -20,28 +20,21 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
 #pragma once
 
-/*** Include files ***********************************************************/
 #include <bofstd/bofstd.h>
+
 #include <fmt/format.h>
 #if defined(_WIN32)
 #else
 #include <fmt/printf.h>
 #endif
 #include <cstdarg>
-// http://fmtlib.net/latest/syntax.html
-// http://fmtlib.net/Text%20Formatting.html
-// http://fmtlib.net/dev/api.html#printf-formatting
+ // http://fmtlib.net/latest/syntax.html
+ // http://fmtlib.net/Text%20Formatting.html
+ // http://fmtlib.net/dev/api.html#printf-formatting
 
 BEGIN_BOF_NAMESPACE()
-
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 
 BOFSTD_EXPORT char *Bof_FastSnprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...);
 
@@ -52,16 +45,16 @@ BOFSTD_EXPORT char *Bof_FastSnprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U
 template<typename ... Args>
 std::string Bof_Sprintf(const std::string &_rFormat_S, Args ... _Args)
 {
-	size_t Size = snprintf(nullptr, 0, _rFormat_S.c_str(), _Args ...) + 1; // Extra space for '\0'
-	std::unique_ptr<char[]> puInternalBuffer(new char[Size]);
-	snprintf(puInternalBuffer.get(), Size, _rFormat_S.c_str(), _Args ...);
-	return std::string(puInternalBuffer.get(), puInternalBuffer.get() + Size - 1);            // We don't want the '\0' inside
+  size_t Size = snprintf(nullptr, 0, _rFormat_S.c_str(), _Args ...) + 1; // Extra space for '\0'
+  std::unique_ptr<char[]> puInternalBuffer(new char[Size]);
+  snprintf(puInternalBuffer.get(), Size, _rFormat_S.c_str(), _Args ...);
+  return std::string(puInternalBuffer.get(), puInternalBuffer.get() + Size - 1);            // We don't want the '\0' inside
 }
 
 template<typename ... Args>
 std::string Bof_SafeSprintf(const std::string &_rFmt_S, const Args &... _Args)
 {
-	return fmt::sprintf(_rFmt_S, _Args ...);
+  return fmt::sprintf(_rFmt_S, _Args ...);
 }
 
 template<typename ... Args>
@@ -73,7 +66,7 @@ std::wstring Bof_SafeSprintf(const std::wstring &_rFmt_WS, const Args &... _Args
 template<typename ... Args>
 std::string Bof_SafeFmtSprintf(const std::string &_rFmt_S, const Args &... _Args)
 {
-	return fmt::format(_rFmt_S, _Args ...);
+  return fmt::format(_rFmt_S, _Args ...);
 }
 template<typename ... Args>
 std::wstring Bof_SafeFmtSprintf(const std::wstring &_rFmt_WS, const Args &... _Args)

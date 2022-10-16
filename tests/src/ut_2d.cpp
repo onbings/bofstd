@@ -19,18 +19,18 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <date/date.h>  //Put it first !
+#include <bofstd/bofsystem.h>
+#include <bofstd/bof2d.h>
+#include <bofstd/bofstring.h>
+#include <bofstd/boffs.h>
+#include <bofstd/bofenum.h>
+#include <bofstd/bofuri.h>
+#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofaudiostandard.h>
+#include <bofstd/bofparameter.h>
+#include <bofstd/bofjsonwriter.h>
 
 #include "gtestrunner.h"
-#include <bofstd/bof2d.h>
-#include <bofstd/boffs.h>
-#include <bofstd/bofsystem.h>
-#include <bofstd/bofparameter.h>
-#include <bofstd/bofenum.h>
-#include <bofstd/bofjsonwriter.h>
-#include <iostream>
-#include <type_traits>
-
 
 USE_BOF_NAMESPACE()
 
@@ -410,7 +410,7 @@ TEST(Bof2d_Test, MediaDetectorQuery)
 }
 
 */
-enum class MUSE_FILE_SYSTEM_MEDIA_TYPE:int32_t
+enum class MUSE_FILE_SYSTEM_MEDIA_TYPE :int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN = 0,
   MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL,
@@ -422,9 +422,9 @@ static BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE> S_MuseFileSystemMediaTypeEnumConvert
   { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still" },
   { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip" },
   { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max" },
-}, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN);
+                                                                                   }, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN);
 
-enum class MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT:int32_t
+enum class MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT :int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE = 0,
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_UNKNOWN,
@@ -438,9 +438,9 @@ static BofEnum<MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT> S_MuseFileSystemMediaVideoFo
   { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG, "Png" },
   { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_JPG, "Jpeg" },
   { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX, "Max" },
-}, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE);
+                                                                                                  }, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE);
 
-enum class MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE:int32_t
+enum class MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE :int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN = 0,
   MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG,
@@ -454,7 +454,7 @@ static BofEnum<MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE> S_MuseFileSystemMediaColorSpa
   { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RGBA, "RgbA" },
   { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV, "Yuv" },
   { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, "Max" },
-}, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN);
+                                                                                                }, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN);
 
 enum class MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT :int32_t
 {
@@ -470,7 +470,7 @@ static BofEnum<MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT> S_MuseFileSystemMediaAudioFo
   { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_PCM, "Pcm" },
   { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3, "Mp3" },
   { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX, "Max" },
-}, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE);
+                                                                                                  }, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE);
 
 struct MUSE_FILE_SYSTEM_MEDIA_HEADER
 {
@@ -529,10 +529,10 @@ struct MUSE_FILE_SYSTEM_MEDIA_VIDEO
 
   std::string ToString()
   {
-    return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " + 
+    return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " +
       S_MuseFileSystemMediaVideoFormatEnumConverter.ToString(VideoFormat_E) + " " +
       S_MuseFileSystemMediaColorSpaceEnumConverter.ToString(ColorSpace_E) + VideoStandard.ToString() +
-      " Depth " + std::to_string(BitDepth_U32) + " Loc " + std::to_string(DurationInNs_U64) + ':'  + std::to_string(TpInNs_U64);
+      " Depth " + std::to_string(BitDepth_U32) + " Loc " + std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
   }
 };
 
@@ -565,7 +565,7 @@ struct MUSE_FILE_SYSTEM_MEDIA_AUDIO
   std::string ToString()
   {
     return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " +
-      S_MuseFileSystemMediaAudioFormatEnumConverter.ToString(AudioFormat_E) + " " + AudioStandard.ToString() + +" Loc " + 
+      S_MuseFileSystemMediaAudioFormatEnumConverter.ToString(AudioFormat_E) + " " + AudioStandard.ToString() + +" Loc " +
       std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
   }
 };
@@ -706,7 +706,7 @@ TEST(Bof2d_Test, MediaDetectorFromJson)
   EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Created_X, BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 0)); // Not supported now 685));
   EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Modified_X, BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 0)); // Not supported now 701));
   EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL);
-  
+
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Ref.ToString(false).c_str(), "C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png");
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Path.ToString().c_str(), "/media/still/pexels-alexander-grey-1149347.png");
@@ -716,7 +716,7 @@ TEST(Bof2d_Test, MediaDetectorFromJson)
   EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.BitDepth_U32, 8);
   EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.TpInNs_U64, 0);
   EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64, 0);
-  
+
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3");
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Ref.ToString(true).c_str(), "C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.mp3");
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Path.ToString().c_str(), "/media/audio/pexels-alexander-grey-1149347.mp3");

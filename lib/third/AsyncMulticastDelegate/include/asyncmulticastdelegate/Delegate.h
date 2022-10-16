@@ -1,9 +1,7 @@
-#ifndef _DELEGATE_H
-#define _DELEGATE_H
-
 // Delegate.h
 // @see https://www.codeproject.com/Articles/1160934/Asynchronous-Multicast-Delegates-in-Cplusplus
 // David Lafreniere, Dec 2016.
+#pragma once
 
 #if USE_XALLOCATOR
 	#include "xallocator.h"
@@ -658,4 +656,3 @@ DelegateFree5<Param1, Param2, Param3, Param4, Param5, RetType> MakeDelegate(RetT
 
 }
 
-#endif

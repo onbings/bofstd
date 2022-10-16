@@ -2,8 +2,8 @@
 
 namespace DelegateLib {
 
-DelegateFreeAsync0 MakeDelegate(void (*func)(), DelegateThread* thread) { 
-	return DelegateFreeAsync0(func, thread);
-}
+  DelegateFreeAsync0 MakeDelegate(void (*func)(), DelegateThread *thread) {
+    return DelegateFreeAsync0(func, thread);
+  }
 
 }

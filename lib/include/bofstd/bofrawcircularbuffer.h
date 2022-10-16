@@ -19,24 +19,18 @@
  *
  * V 1.00  Jul 26 2005  BHA : Initial release
  */
-
 #pragma once
 
-/*** Include ****************************************************************/
-#include <bofstd/bofstd.h>
 #include <bofstd/bofsystem.h>
 
 BEGIN_BOF_NAMESPACE()
-
-
-/*** Structure **************************************************************/
 
 struct BOFSTD_EXPORT BOF_RAW_CIRCULAR_BUFFER_PARAM
 {
   bool     MultiThreadAware_B;                                            /*! true if the object is used in a multi threaded application (use mCs)*/
   uint32_t BufferSizeInByte_U32;                                          /*!	Specifies the maximum number of byte inside inside the queue*/
   uint32_t NbMaxSlot_U32;                                                 /*! Specifies the maximum number of buffer inside the queue (if 0 the whole BufferSizeInByte_U32 can be used)*/
-  uint8_t  *pData_U8;                                                     /*! Pointer to queue storage buffer used to record queue element*/
+  uint8_t *pData_U8;                                                     /*! Pointer to queue storage buffer used to record queue element*/
   BOF_RAW_CIRCULAR_BUFFER_PARAM()
   {
     Reset();
@@ -44,16 +38,12 @@ struct BOFSTD_EXPORT BOF_RAW_CIRCULAR_BUFFER_PARAM
 
   void Reset()
   {
-    MultiThreadAware_B   = false;
+    MultiThreadAware_B = false;
     BufferSizeInByte_U32 = 0;
-    NbMaxSlot_U32        = 0;
-    pData_U8             = nullptr;
+    NbMaxSlot_U32 = 0;
+    pData_U8 = nullptr;
   }
 };
-
-/*** Define *****************************************************************/
-
-/*** Class **************************************************************/
 
 /*!
  * Summary
@@ -99,7 +89,7 @@ private:
   //uint32_t                      mNbMaxSlot_U32;                            /*! Maximum number of buffer which can be stored inside the queue. If it is 0, the whole buffer size is used to store a maximum number of buffer otherwise of constant slot size is used to store variable buffer length (see class comment) */
   uint32_t                      mSlotSize_U32;                             /*! if mNbMaxSlot_U32 != 0 this is the slot size which is used to store variable buffer length (adjusted mNbElementInBuffer_U32/mNbMaxBuffer_U32 (see class comment) otherwize 0 */
   bool                          mDataPreAllocated_B;                       /*! true if mpData_U8 is provided by the caller (!! if mNbMaxBuffer_U32 is different from zero, extra storage is needed to record lenth of each slot (see class comment) */
-  uint8_t                       *mpData_U8;                                /*! Pointer to queue storage buffer used to record queue element*/
+  uint8_t *mpData_U8;                                /*! Pointer to queue storage buffer used to record queue element*/
   uint32_t                      mPushIndex_U32;                            /*! Current position of the write index inside the queue*/
   uint32_t                      mPopIndex_U32;                             /*! Current position of the read index inside the queue*/
   //uint32_t                      mBufferCapacity_U32;                       /*! The maximum number of element inside the queue*/

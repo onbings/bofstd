@@ -18,27 +18,22 @@
  *
  * V 1.00  Aug 21 2001  BHA : Initial release
  */
-
- /*** Include files ***********************************************************/
-
-#include <bofstd/bofsocketos.h>
 #include <bofstd/bofsystem.h>
+#include <bofstd/bofsocketos.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/bofstringformatter.h>
-#include <czmq.h>
+
 #include <map>
 #include <regex>
 
 #if defined (_WIN32)
-// https://msdn.microsoft.com/en-us/library/windows/desktop/aa365915(v=vs.85).aspx
+ // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365915(v=vs.85).aspx
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #include <iphlpapi.h>
 #include <stdio.h>
-#include <bofstd/bofstring.h>
 #define WORKING_BUFFER_SIZE    0x4000;
 #else
-
 #include <poll.h>
 #include <linux/rtnetlink.h>
 
@@ -52,6 +47,7 @@ struct route_info
   char           ifName[IF_NAMESIZE];
 };
 #endif
+#include <czmq.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -1320,9 +1316,7 @@ bool Bof_IsMulticastIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDR
 //replace() can be used to parse the URI. For example, to get the path:
 //  path = uri.replace(regexUri, "$7$9");
 
-//****************************************************//
-//***************** Validate a URI *******************//
-//****************************************************//
+//Validate a URI
 //- The different parts are kept in their own groups and can be recombined
 //  depending on the scheme:
 //  - http as $1://$2$7?$11#$12 or $1://$5:$6$7?$11#$12
@@ -1366,9 +1360,7 @@ var regexUri = / ^ ([a - z][a - z0 - 9 + . - ] *) : (? : \ / \ / ((? : (? = ((? 
   $
 */
 
-//****************************************************//
 //** Validate a URI (includes delimiters in groups) **//
-//****************************************************//
 //- The different parts--along with their delimiters--are kept in their own
 //  groups and can be recombined as $1$6$2$3$4$5$7$8$9
 //- groups are as follows:
@@ -1382,9 +1374,7 @@ var regexUri = / ^ ([a - z][a - z0 - 9 + . - ] *) : (? : \ / \ / ((? : (? = ((? 
 
 var regexUriDelim = / ^ (? : ([a - z0 - 9 + . - ] + :\ / \ / )((? : (? : [a - z0 - 9 - ._~!$ & '()*+,;=:]|%[0-9A-F]{2})*)@)?((?:[a-z0-9-._~!$&'() * +, ; =] | % [0 - 9A - F]{ 2 }) *)(:(? : \d *)) ? (\ / (? : [a - z0 - 9 - ._~!$ & '()*+,;=:@\/]|%[0-9A-F]{2})*)?|([a-z0-9+.-]+:)(\/?(?:[a-z0-9-._~!$&'() * +, ; = :@] | % [0 - 9A - F]{ 2 }) + (? : [a - z0 - 9 - ._~!$ & '()*+,;=:@\/]|%[0-9A-F]{2})*)?)(\?(?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *) ? (#(? : [a - z0 - 9 - ._~!$ & '()*+,;=:\/?@]|%[0-9A-F]{2})*)?$/i;
 
-                         //****************************************************//
-                         //***************** Validate a URL *******************//
-                         //****************************************************//
+                         //Validate a URL
                          //Validates a URI with an http or https scheme.
                          //- The different parts are kept in their own groups and can be recombined as
                          //  $1://$2:$3$4?$5#$6
@@ -1394,9 +1384,7 @@ var regexUriDelim = / ^ (? : ([a - z0 - 9 + . - ] + :\ / \ / )((? : (? : [a - z0
 
                          var regexUrl = / ^ (https ? ) : \ / \ / ((? : [a - z0 - 9. - ] | % [0 - 9A - F]{ 2 }) { 3, })(? ::(\d + )) ? ((? : \ / (? : [a - z0 - 9 - ._~!$ & '()*+,;=:@]|%[0-9A-F]{2})*)*)(?:\?((?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *)) ? (? : #((? : [a - z0 - 9 - ._~!$ & '()*+,;=:\/?@]|%[0-9A-F]{2})*))?$/i;
 
-                         //****************************************************//
-                         //**************** Validate a Mailto *****************//
-                         //****************************************************//
+                         //Validate a Mailto
                          //Validates a URI with a mailto scheme.
                          //- The different parts are kept in their own groups and can be recombined as
                          //  $1:$2?$3
@@ -1607,7 +1595,7 @@ BOFERR ParseIpAddress(const std::string & _rIpAddress_S, const std::string & _rP
   return Rts_E;
 }
 
-BOF_SOCK_TYPE Bof_SocketType(const std::string &_rIpAddress_S)
+BOF_SOCK_TYPE Bof_SocketType(const std::string & _rIpAddress_S)
 {
   BOF_SOCK_TYPE Rts_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
   std::string Protocol_S;

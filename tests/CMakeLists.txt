@@ -3,7 +3,7 @@ include(GoogleTest)
 # =============
 # == SOURCES ==
 # =============
-
+  
 set(DATA_FILES
   ./data/xmlparser.xml
   ./data/xmlvectorparser.xml
@@ -21,39 +21,37 @@ set(DATA_FILES
   ./data/sample-mp4-file.mp4
 )
 
+set(2D_FILES
+	src/ut_2d.cpp
+)
+
 set(API_FILES
 	include/gtestrunner.h
 	src/main.cpp
 	src/ut_api.cpp
+)
+
+set(BIT_FILES
+    src/ut_bit.cpp
+)
+
+set(CALLBACK_FILES
 	src/ut_callbackcollection.cpp 
-	src/ut_2d.cpp
 )
 
-set(BOFIO_FILES
-	src/ut_bofio.cpp
-)
-
-set(SERDER_FILES
-	include/ut_parser.h
+set(CLI_FILES
 	src/ut_cmdlineparser.cpp
-	src/ut_xmlparserwriter.cpp
-	data/xmlparser.xml
-	src/ut_jsonparserwriter.cpp	
-	data/jsonparser.json	
 )
 
-set(LOG_FILES
-	src/ut_stringformatter.cpp
-	src/ut_logger.cpp
-)
-set(FS_FILES
-	src/ut_path.cpp
-	src/ut_uri.cpp
-	src/ut_fs.cpp
+set(COM_FILES
+	src/ut_pipe.cpp
+	src/ut_uart.cpp
+	src/ut_socketos.cpp
+	src/ut_sockettcp.cpp
+	src/ut_socketudp.cpp
 )
 
-set(CRYPTO_FILES
-	src/ut_crypto.cpp
+set(CONIO_FILES
 )
 
 set(CONTAINER_FILES
@@ -65,28 +63,11 @@ set(CONTAINER_FILES
 	src/ut_queue.cpp
 )
 
-set(COM_FILES
-	src/ut_pipe.cpp
-	src/ut_uart.cpp
-	src/ut_socketos.cpp
-	src/ut_sockettcp.cpp
-	src/ut_socketudp.cpp
+set(CRYPTO_FILES
+	src/ut_crypto.cpp
 )
 
-set(SYSTEM_FILES
-        src/ut_scriptlauncher.cpp
-        src/ut_system.cpp
-        src/ut_string.cpp
-        src/ut_boftimecode.cpp
-)
-set(BITENUMGUID_FILES
-        src/ut_bit.cpp
-        src/ut_enum.cpp
-        src/ut_guid.cpp
-)
-set(THREADING_FILES
-	src/ut_threading.cpp
-	src/ut_asyncmulticastdelegate.cpp
+set(DAEMON_FILES
 )
 
 set(DB_FILES
@@ -94,38 +75,111 @@ set(DB_FILES
 	src/ut_ramdb.cpp
 )
 
+set(DELEGATE_FILES
+	src/ut_asyncmulticastdelegate.cpp
+)
+
+set(ENUM_FLAG_FILES
+	src/ut_enum.cpp
+)
+
+set(FS_FILES
+	src/ut_path.cpp
+	src/ut_uri.cpp
+	src/ut_fs.cpp
+)
+
+set(IXML_FILES
+)
+
+set(LOG_FILES
+	src/ut_stringformatter.cpp
+	src/ut_logger.cpp
+)
+
+set(OBSERVER_FILES
+)
+
+set(PROTOCOL_FILES
+)
+
+set(SERDER_FILES
+	include/ut_parser.h
+	src/ut_xmlparserwriter.cpp
+	data/xmlparser.xml
+	src/ut_jsonparserwriter.cpp	
+	data/jsonparser.json	
+)
+
+set(SOCKIO_FILES
+	src/ut_bofio.cpp
+)
+
+set(SYSTEM_FILES
+        src/ut_scriptlauncher.cpp
+        src/ut_system.cpp
+        src/ut_string.cpp
+        src/ut_timecode.cpp
+        src/ut_guid.cpp
+        src/ut_datetime.cpp
+)
+
+set(THREADING_FILES
+	src/ut_threading.cpp
+)
+
 
 set(SOURCES_FILES
+	${2D_FILES}
 	${API_FILES}
-	${BOFIO_FILES}
-	${CRYPTO_FILES}
-	${CONTAINER_FILES}
+	${BIT_FILES}
+	${CALLBACK_FILES}
+	${CLI_FILES}
 	${COM_FILES}
-	${SYSTEM_FILES}
-	${BITENUMGUID_FILES}
-	${THREADING_FILES}
+	${CONIO_FILES}
+	${CONTAINER_FILES}
+	${CRYPTO_FILES}
+	${DAEMON_FILES}
 	${DB_FILES}
-	${SERDER_FILES}
-	${LOG_FILES}
+	${DELEGATE_FILES}
+	${ENUM_FLAG_FILES}
 	${FS_FILES}
+	${IXML_FILES}
+	${LOG_FILES}
+	${OBSERVER_FILES}
+	${PROTOCOL_FILES}
+	${SERDER_FILES}
+	${SOCKIO_FILES}
+	${SYSTEM_FILES}
+	${THREADING_FILES}
 )
 
 # For Visual Studio
-source_group("Api"				FILES ${API_FILES})
-source_group("BofIo"			FILES ${BOFIO_FILES})
-source_group("Crypto"			FILES ${CRYPTO_FILES})
-source_group("Container"		FILES ${CONTAINER_FILES})
-source_group("Com Channel"		FILES ${COM_FILES})
-source_group("System" 			FILES ${SYSTEM_FILES})
-source_group("Bit_Enum_Guid"	FILES ${BITENUMGUID_FILES})
-source_group("Threading"		FILES ${THREADING_FILES})
-source_group("Database"			FILES ${DB_FILES})
-source_group("Ser_Deser"			FILES ${SERDER_FILES})
-source_group("Log"				FILES ${LOG_FILES})
-source_group("FileSystem"       FILES ${FS_FILES})
-source_group("StateMachine"       FILES ${STATEMACHINE_FILES})
+#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd PREFIX "public" FILES ${PUBLIC_INCLUDES_FILES})
+#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src            PREFIX "src"    FILES ${SOURCES_FILES})
 
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX "src" FILES ${SOURCES_FILES})
+source_group("2d"		 FILES ${2D_FILES})
+source_group("Api"		 FILES ${API_FILES})
+source_group("Bit"		 FILES ${BIT_FILES})
+source_group("Callback"	 FILES ${CALLBACK_FILES})
+source_group("Cli"		 FILES ${CLI_FILES})
+source_group("Com"		 FILES ${COM_FILES})
+source_group("ConIo"	 FILES ${CONIO_FILES})
+source_group("Container" FILES ${CONTAINER_FILES})
+source_group("Crypto"	 FILES ${CRYPTO_FILES})
+source_group("Daemon"	 FILES ${DAEMON_FILES})
+source_group("Db"		 FILES ${DB_FILES})
+source_group("Delegate"	 FILES ${DELEGATE_FILES})
+source_group("EnumFlag"	 FILES ${ENUM_FLAG_FILES})
+source_group("Fs"		 FILES ${FS_FILES})
+source_group("Xml"		 FILES ${IXML_FILES})
+source_group("Log"		 FILES ${LOG_FILES})
+source_group("Observer"	 FILES ${OBSERVER_FILES})
+source_group("Protocol"	 FILES ${PROTOCOL_FILES})
+source_group("SerDeser"	 FILES ${SERDER_FILES})
+source_group("SockIo"	 FILES ${SOCKIO_FILES})
+source_group("System"	 FILES ${SYSTEM_FILES})
+source_group("Threading" FILES ${THREADING_FILES})
 
 # ===========
 # == BUILD ==

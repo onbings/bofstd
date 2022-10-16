@@ -19,14 +19,13 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
-
-#include "gtestrunner.h"
 #include <asyncmulticastdelegate/DelegateLib.h>
-#include <iostream>
 #include <bofstd/bofasync.h>
 #include <asyncmulticastdelegate/xallocator.h>
+
+#include "gtestrunner.h"
+
+#include <iostream>
 
 using namespace DelegateLib;
 
@@ -153,13 +152,13 @@ public:
   void MemberFuncStructConstRef1(const StructParam &s) { EXPECT_TRUE(s.val == TEST_INT); }
   void MemberFuncStructConstPtr1Bha(const StructParam *s)
   {
-//    if ((s->val % 1000) == 0)
-//    { printf("1: %d\n", s->val); }
+    //    if ((s->val % 1000) == 0)
+    //    { printf("1: %d\n", s->val); }
   }
   void MemberFuncStructConstPtr2Bha(const StructParam *s)
   {
-//    if ((s->val % 1000) == 0)
-//    { printf("2: %d\n", s->val); }
+    //    if ((s->val % 1000) == 0)
+    //    { printf("2: %d\n", s->val); }
   }
 
   static void StaticFuncInt1(int32_t i) { EXPECT_TRUE(i == TEST_INT); }
@@ -282,7 +281,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!FreeFunc0SinglecastDelegate);
   FreeFunc0SinglecastDelegate = MakeDelegate(&FreeFunc0);
   EXPECT_TRUE(FreeFunc0SinglecastDelegate.Empty() == false);
-//BHA	EXPECT_TRUE(FreeFunc0SinglecastDelegate);
+  //BHA	EXPECT_TRUE(FreeFunc0SinglecastDelegate);
   FreeFunc0SinglecastDelegate();
   FreeFunc0SinglecastDelegate.Clear();
   EXPECT_TRUE(!FreeFunc0SinglecastDelegate);
@@ -2700,7 +2699,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
 {
   BofMsgThread testThread;
 
-  testThread.LaunchThread("DelegateUnitTestsThread",  BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY,0);
+  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY, 0);
 
   // Run unit tests repeatedly to expose problems (e.g. deadlocks, memory leaks) a
   // with async delegates.
@@ -2716,7 +2715,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
     DelegateMemberAsyncSpTests(&testThread);
   }
 
-//  testThread.ExitThread();
+  //  testThread.ExitThread();
   xalloc_stats();
 }
 
@@ -2727,14 +2726,14 @@ TEST(Async_Test, MulticastDelegatePerf)
   struct StructParam structParam;
   uint32_t           StartInMs_U32, i_U32;
 
-  testThread.LaunchThread("DelegateUnitTestsThread",BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY,0);
+  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY, 0);
 
   MulticastDelegateSafe1<const StructParam *> MemberFuncStructConstPtr1MulticastDelegate;
   MemberFuncStructConstPtr1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
 
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
   // MulticastDelegateSafeAsyncTests();
-  for (i_U32    = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 100000; i_U32++)
   {
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
@@ -2748,7 +2747,7 @@ TEST(Async_Test, MulticastDelegatePerf)
 
   //auto DelegateMemberAsyncSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
-  for (i_U32    = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 100000; i_U32++)
   {
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
@@ -2766,15 +2765,15 @@ void MulticastNotifyCallback(const NOTIFY_ARG *_pNotifyArg_X)
 {
   if (_pNotifyArg_X)
   {
-   // if ((_pNotifyArg_X->Cpt_U32 % 1000)==0)
+    // if ((_pNotifyArg_X->Cpt_U32 % 1000)==0)
     {
-//      printf("MulticastNotifyCallback: %p val %x %d %x\n", _pNotifyArg_X->pUserContext,*_pNotifyArg_X->pUserContext, _pNotifyArg_X->Cpt_U32, _pNotifyArg_X->NotifyEventMask_U32);
+      //      printf("MulticastNotifyCallback: %p val %x %d %x\n", _pNotifyArg_X->pUserContext,*_pNotifyArg_X->pUserContext, _pNotifyArg_X->Cpt_U32, _pNotifyArg_X->NotifyEventMask_U32);
     }
   }
 }
-static int a=0x12345678;
-static int b=0x90ABCDEF;
-static int c=0x87654321;
+static int a = 0x12345678;
+static int b = 0x90ABCDEF;
+static int c = 0x87654321;
 
 //#include <type_traits>
 TEST(Async_Test, AsyncNotifier)
@@ -2782,32 +2781,32 @@ TEST(Async_Test, AsyncNotifier)
   BOF::BOF_MULTICAST_ASYNC_NOTIFIER_PARAM MulticastAsyncNotifierParam_X;
   uint32_t                                 StartInMs_U32, i_U32;
   NOTIFY_ARG                         MulticastNotifyArg_X;
-  MulticastAsyncNotifierParam_X.ThreadSchedulerPolicy_E   = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  MulticastAsyncNotifierParam_X.ThreadPriority_E          = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY;
+  MulticastAsyncNotifierParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+  MulticastAsyncNotifierParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY;
   MulticastAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
-//  MulticastAsyncNotifierParam_X.MaxPendingRequest_U32     = 100;
+  //  MulticastAsyncNotifierParam_X.MaxPendingRequest_U32     = 100;
 
 
-//  std::cout << std::is_pointer<StructParam>::value << '\n';
-/*
-  BofMsgThread       testThread;
-  testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY);
-  StructParam structParam;
-  MulticastDelegateSafe1<StructParam &> FreeFuncStructRef1MulticastDelegate;
-  FreeFuncStructRef1MulticastDelegate += MakeDelegate(&FreeFuncStructRef1, &testThread);
-  FreeFuncStructRef1MulticastDelegate(structParam);
-*/
+  //  std::cout << std::is_pointer<StructParam>::value << '\n';
+  /*
+    BofMsgThread       testThread;
+    testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY);
+    StructParam structParam;
+    MulticastDelegateSafe1<StructParam &> FreeFuncStructRef1MulticastDelegate;
+    FreeFuncStructRef1MulticastDelegate += MakeDelegate(&FreeFuncStructRef1, &testThread);
+    FreeFuncStructRef1MulticastDelegate(structParam);
+  */
   BOF::BofMulticastAsyncNotifier<NOTIFY_ARG> MulticastAsyncNotifier(MulticastAsyncNotifierParam_X);
 
-  ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback,&a), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
+  ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback, &a), BOF_ERR_NO_ERROR);
+  ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback, &b), BOF_ERR_NO_ERROR);
+  ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback, &b), BOF_ERR_NO_ERROR);
 
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
-  for (i_U32    = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 100000; i_U32++)
   {
-    MulticastNotifyArg_X.Cpt_U32=i_U32;
-    MulticastNotifyArg_X.NotifyEventMask_U32=i_U32 * i_U32;
+    MulticastNotifyArg_X.Cpt_U32 = i_U32;
+    MulticastNotifyArg_X.NotifyEventMask_U32 = i_U32 * i_U32;
     ASSERT_EQ(MulticastAsyncNotifier.Notify(&MulticastNotifyArg_X), BOF_ERR_NO_ERROR);
   }
 
@@ -2825,15 +2824,15 @@ TEST(Async_Test, SyncNotifier)
   NOTIFY_ARG                         MulticastNotifyArg_X;
   BOF::BofMulticastSyncNotifier<NOTIFY_ARG> MulticastSyncNotifier(MulticastSyncNotifierParam_X);
 
-  ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback,&a), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback,&b), BOF_ERR_NO_ERROR);
+  ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback, &a), BOF_ERR_NO_ERROR);
+  ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback, &b), BOF_ERR_NO_ERROR);
+  ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback, &b), BOF_ERR_NO_ERROR);
 
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
-  for (i_U32    = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 100000; i_U32++)
   {
-    MulticastNotifyArg_X.Cpt_U32=i_U32;
-    MulticastNotifyArg_X.NotifyEventMask_U32=i_U32 * i_U32;
+    MulticastNotifyArg_X.Cpt_U32 = i_U32;
+    MulticastNotifyArg_X.NotifyEventMask_U32 = i_U32 * i_U32;
     ASSERT_EQ(MulticastSyncNotifier.Notify(&MulticastNotifyArg_X), BOF_ERR_NO_ERROR);
   }
 

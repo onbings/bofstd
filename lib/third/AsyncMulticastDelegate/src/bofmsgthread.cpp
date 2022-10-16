@@ -28,7 +28,7 @@ BofMsgThread::~BofMsgThread()
 //----------------------------------------------------------------------------
 // CreateThread
 //----------------------------------------------------------------------------
-bool BofMsgThread::LaunchThread(const char *threadName, BOF::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF::BOF_THREAD_PRIORITY _ThreadPriority_E,  uint64_t _ThreadCpuCoreMaskAffinity_U64)
+bool BofMsgThread::LaunchThread(const char *threadName, BOF::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF::BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreMaskAffinity_U64)
 {
   return (LaunchBofProcessingThread(threadName, false, 0, _ThreadSchedulerPolicy_E, _ThreadPriority_E, _ThreadCpuCoreMaskAffinity_U64, 1000, 0) == BOF_ERR_NO_ERROR);
 }
@@ -44,7 +44,7 @@ uint32_t BofMsgThread::GetNbPendingRequest()
 void BofMsgThread::ExitThread(uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32)
 {
   // Create a new ThreadMsg
-  ThreadMsg                                                   *threadMsg = new ThreadMsg(MSG_EXIT_THREAD, 0);
+  ThreadMsg *threadMsg = new ThreadMsg(MSG_EXIT_THREAD, 0);
   std::chrono::time_point<std::chrono::high_resolution_clock> Start;
   std::chrono::duration<float, std::milli>                 EllapsedInMs;
 
@@ -64,9 +64,9 @@ void BofMsgThread::ExitThread(uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_
         break;
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(_PollTimeInMs_U32));
-      EllapsedInMs  = std::chrono::high_resolution_clock::now() - Start;
+      EllapsedInMs = std::chrono::high_resolution_clock::now() - Start;
 
- //     printf("EllapsedInMs %f empty %d\n",EllapsedInMs.count(), m_queue.empty());
+      //     printf("EllapsedInMs %f empty %d\n",EllapsedInMs.count(), m_queue.empty());
     } while (EllapsedInMs.count() < static_cast<float>(_TimeoutInMs_U32));
   }
 }
@@ -91,10 +91,10 @@ void BofMsgThread::DispatchDelegate(DelegateLib::DelegateMsgBase *msg)
 //----------------------------------------------------------------------------
 BOFERR BofMsgThread::V_OnProcessing()
 {
-  BOFERR Rts_E    = BOF_ERR_NO_ERROR;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
   bool   Finish_B = false;
 
-//  printf("BofMsgThread running\n");
+  //  printf("BofMsgThread running\n");
   while ((!IsThreadLoopMustExit()) && (Rts_E == BOF_ERR_NO_ERROR) && (!Finish_B))
   {
     ThreadMsg *msg = 0;
@@ -103,14 +103,14 @@ BOFERR BofMsgThread::V_OnProcessing()
       std::unique_lock<std::mutex> lk(m_mutex);
       while (m_queue.empty())
       {
-       // printf("wait\n");
+        // printf("wait\n");
         m_cv.wait(lk);
-       // printf("eowait\n");
+        // printf("eowait\n");
       }
 
       if (m_queue.empty())
       {
-       // printf("empty\n");
+        // printf("empty\n");
         continue;
       }
       msg = m_queue.front();
@@ -138,7 +138,7 @@ BOFERR BofMsgThread::V_OnProcessing()
 
       case MSG_EXIT_THREAD:
       {
-       // printf("BofMsgThread purge\n");
+        // printf("BofMsgThread purge\n");
         delete msg;
         std::unique_lock<std::mutex> lk(m_mutex);
         while (!m_queue.empty())
@@ -147,7 +147,7 @@ BOFERR BofMsgThread::V_OnProcessing()
           m_queue.pop();
           delete msg;
         }
-        Rts_E=BOF_ERR_FINISHED;
+        Rts_E = BOF_ERR_FINISHED;
         Finish_B = true;
         break;
       }

@@ -19,12 +19,9 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-
-
 #include <bofstd/bofvideostandard.h>
 
 BEGIN_BOF_NAMESPACE()
-
 
 // As for pixel aspect ratios, see http://en.wikipedia.org/wiki/Pixel_aspect_ratio
 
@@ -63,9 +60,9 @@ const BofVideoStandard::Table BofVideoStandard::S_mpTable_X[] = {
 int BofVideoStandard::S_FindIndexFromVideoStandardId(const VideoStandardId _Standard)
 {
   const Table *ptr = S_mpTable_X;
-  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) 
+  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr)
   {
-    if (ptr->Id_U32 == _Standard) 
+    if (ptr->Id_U32 == _Standard)
     {
       return idx;
     }
@@ -76,13 +73,13 @@ int BofVideoStandard::S_FindIndexFromVideoStandardId(const VideoStandardId _Stan
 int BofVideoStandard::S_FindIndexFromIdText(const char *_pStandard_c)
 {
   const Table *ptr = S_mpTable_X;
-  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) 
+  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr)
   {
 #if defined(_WIN32)
     if (!_stricmp(ptr->pIdText_c, _pStandard_c))
     {
 #else
-    if (!strcasecmp(ptr->pIdText_c, _pStandard_c)) 
+    if (!strcasecmp(ptr->pIdText_c, _pStandard_c))
     {
 #endif
       return idx;
@@ -94,10 +91,10 @@ int BofVideoStandard::S_FindIndexFromIdText(const char *_pStandard_c)
 int BofVideoStandard::S_FindIndexFromDescription(const char *_pStandard_c)
 {
   const Table *ptr = S_mpTable_X;
-  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr) 
+  for (unsigned int idx = 0; idx < (sizeof(S_mpTable_X) / sizeof(S_mpTable_X[0])); ++idx, ++ptr)
   {
 #if defined(_WIN32)
-    if (!_stricmp(ptr->pDescription_c, _pStandard_c)) 
+    if (!_stricmp(ptr->pDescription_c, _pStandard_c))
     {
 #else
     if (!strcasecmp(ptr->pDescription_c, _pStandard_c))

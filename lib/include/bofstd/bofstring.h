@@ -20,8 +20,8 @@
  */
 #pragma once
 
-/*** Include ****************************************************************/
 #include <bofstd/bofstd.h>
+
 #include <cstdint>
 #include <vector>
 
@@ -173,7 +173,7 @@ BOFSTD_EXPORT void Bof_RemoveDuplicateSuccessiveCharacter(std::string &_rInputSt
 // @return 0 if the operation is successful
 // @remarks Ex "TO=123;CONNECT=Hello word;Val=-1"
 BOFSTD_EXPORT BOFERR Bof_GetUnsignedIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S,
-                                                        const char _KeyValueSeparator_c, uint32_t &_rValue_U32);
+                                                                      const char _KeyValueSeparator_c, uint32_t &_rValue_U32);
 
 // @brief Returns the signed integer key value of a key name. Each Key Value pair is composed of a key name, a separator and the key value.
 // @param _rMultiKeyValueString_S : Specifies the multi key value string to parse
@@ -207,12 +207,12 @@ Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString
 // @remarks In every case a null terminating char is inserted in the  string which can erased the last character if the stribng is not long enougth
 BOFSTD_EXPORT char *Bof_FastZeroStrncpy(char *_pDest_c, const char *_pSrc_c, size_t _NbMaxToCopy);
 
-BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S,int32_t &_rVal_S32);
-BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S,uint32_t &_rVal_U32);
-BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S,int64_t &_rVal_S64);
-BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S,uint64_t &_rVal_U64);
-BOFSTD_EXPORT bool Bof_IsHexadecimal(const std::string &_rInput_S,uint32_t &_rVal_U32);
-BOFSTD_EXPORT bool Bof_IsHexadecimal(const std::string &_rInput_S,uint64_t &_rVal_U64);
+BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, int32_t &_rVal_S32);
+BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, uint32_t &_rVal_U32);
+BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, int64_t &_rVal_S64);
+BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, uint64_t &_rVal_U64);
+BOFSTD_EXPORT bool Bof_IsHexadecimal(const std::string &_rInput_S, uint32_t &_rVal_U32);
+BOFSTD_EXPORT bool Bof_IsHexadecimal(const std::string &_rInput_S, uint64_t &_rVal_U64);
 BOFSTD_EXPORT bool Bof_IsDouble(const std::string &_rInput_S, double &_rVal_lf);
 
 END_BOF_NAMESPACE()

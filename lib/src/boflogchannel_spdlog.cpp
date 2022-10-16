@@ -19,8 +19,6 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
 #include <bofstd/boflogchannel_spdlog.h>
 #include <bofstd/boflogger.h>
 #include <bofstd/boffs.h>
@@ -46,17 +44,16 @@
 #include <map>
 
 BEGIN_BOF_NAMESPACE()
-/*** Global variables ********************************************************/
 static std::map<BOF_LOG_CHANNEL_LEVEL, spdlog::level::level_enum> S_ToSpdlogLevel =
-                                                                    {
-                                                                      {BOF_LOG_CHANNEL_LEVEL::TRACE,       spdlog::level::level_enum::trace},
-                                                                      {BOF_LOG_CHANNEL_LEVEL::DBG,         spdlog::level::level_enum::debug},
-                                                                      {BOF_LOG_CHANNEL_LEVEL::INFORMATION, spdlog::level::level_enum::info},
-                                                                      {BOF_LOG_CHANNEL_LEVEL::WARNING,     spdlog::level::level_enum::warn},
-                                                                      {BOF_LOG_CHANNEL_LEVEL::ERR,         spdlog::level::level_enum::err},
-                                                                      {BOF_LOG_CHANNEL_LEVEL::CRITICAL,    spdlog::level::level_enum::critical},
-                                                                      {BOF_LOG_CHANNEL_LEVEL::OFF,         spdlog::level::level_enum::off}
-                                                                    };
+{
+  {BOF_LOG_CHANNEL_LEVEL::TRACE,       spdlog::level::level_enum::trace},
+  {BOF_LOG_CHANNEL_LEVEL::DBG,         spdlog::level::level_enum::debug},
+  {BOF_LOG_CHANNEL_LEVEL::INFORMATION, spdlog::level::level_enum::info},
+  {BOF_LOG_CHANNEL_LEVEL::WARNING,     spdlog::level::level_enum::warn},
+  {BOF_LOG_CHANNEL_LEVEL::ERR,         spdlog::level::level_enum::err},
+  {BOF_LOG_CHANNEL_LEVEL::CRITICAL,    spdlog::level::level_enum::critical},
+  {BOF_LOG_CHANNEL_LEVEL::OFF,         spdlog::level::level_enum::off}
+};
 
 static spdlog::level::level_enum S_BofLoggerLevelToSpdlogLevel(BOF_LOG_CHANNEL_LEVEL _From_E)
 {
@@ -75,7 +72,6 @@ create_file_sink(std::string out)
     std::move(out), truncate);
 }
 */
-/*** Definitions *************************************************************/
 /*
 class BofSpdLog :public spdlog::logger  //, public std::enable_shared_from_this<BofSpdLog>
 {
@@ -87,7 +83,6 @@ private:
   std::string  mLogChannelBasePathName_S;
 };
 */
-/*** Class *******************************************************************/
 #if 0
 void OnSpdlogOpenAsync()
 {
@@ -105,14 +100,14 @@ void OnSpdlogCloseAsync()
 class BofLogChannelSpdLog::BofLogChannelSpdLogImplementation
 {
 private:
-  bool                                                 mAddLineNumber_B      = false;
+  bool                                                 mAddLineNumber_B = false;
   std::atomic<uint32_t>                                mLineNumber;
   std::shared_ptr<ramcircularbuffer_sink_mt>           mpsCircularBufferSink = nullptr;
-  std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> mpsStdOutColorSink    = nullptr;
-  std::shared_ptr<spdlog::sinks::stderr_color_sink_mt> mpsStdErrColorSink    = nullptr;
+  std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> mpsStdOutColorSink = nullptr;
+  std::shared_ptr<spdlog::sinks::stderr_color_sink_mt> mpsStdErrColorSink = nullptr;
   BOF_LOG_CHANNEL_PARAM                                mLogChannelParam_X;
-  bool                                                 mLogOpened_B          = false;
-  intptr_t                                             mIoLog                = -1;
+  bool                                                 mLogOpened_B = false;
+  intptr_t                                             mIoLog = -1;
 
 public:
   BofLogChannelSpdLogImplementation()
@@ -136,361 +131,361 @@ public:
     mLogChannelParam_X = _rLogParam_X;
     switch (mLogChannelParam_X.LogSink_E)
     {
-    case BOF_LOG_CHANNEL_SINK::TO_NONE:
-    {
-      Rts_E = BOF_ERR_INIT;
-      if (rBofLogger.IsLoggerInAsyncMode())
+      case BOF_LOG_CHANNEL_SINK::TO_NONE:
       {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
+        Rts_E = BOF_ERR_INIT;
+        if (rBofLogger.IsLoggerInAsyncMode())
         {
-          psLogger = spdlog::create_async<spdlog::sinks::null_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = spdlog::create_async<spdlog::sinks::null_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
+          else
+          {
+            psLogger = spdlog::create_async_nb<spdlog::sinks::null_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
         }
         else
         {
-          psLogger = spdlog::create_async_nb<spdlog::sinks::null_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          psLogger = spdlog::create<spdlog::sinks::null_sink_mt>(mLogChannelParam_X.ChannelName_S);
         }
-      }
-      else
-      {
-        psLogger = spdlog::create<spdlog::sinks::null_sink_mt>(mLogChannelParam_X.ChannelName_S);
-      }
-      if (psLogger)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-    }
-    break;
-
-    case BOF_LOG_CHANNEL_SINK::TO_FILE:
-    case BOF_LOG_CHANNEL_SINK::TO_DAILYFILE:
-    {
-      Rts_E = BOF_ERR_EINVAL;
-      if (mLogChannelParam_X.FileLogPath.FullPathName(false) != "")
-      {
-        //				std::string PathWithoutExt_S = mLogParam_X.FileLogPath.DirectoryName(false) + mLogParam_X.FileLogPath.FileNameWithoutExtension();
-        BOF_FILE_PERMISSION Permission_E;
-
-        Permission_E = BOF_FILE_PERMISSION_ALL_FOR_ALL;
-        Rts_E = Bof_CreateDirectory(Permission_E, mLogChannelParam_X.FileLogPath.DirectoryName(false));
-        if (Rts_E == BOF_ERR_NO_ERROR)
-        {
-          if (Bof_IsBitFlagSet(mLogChannelParam_X.LogFlag_E, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE))
-          {
-            DeleteLogStorage();
-          }
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-            if (mLogChannelParam_X.LogSink_E == BOF_LOG_CHANNEL_SINK::TO_DAILYFILE)
-            {
-              //we can add daily limitted size and daily limet nb
-
-              Rts_E = BOF_ERR_NOT_INIT;
-              DailyRotationHour_S32 = static_cast<int32_t>(mLogChannelParam_X.DailyRotationTimeInMinuteAfterMidnight_U32 / 60);
-              DailyRotationMinute_S32 = static_cast<int32_t>(mLogChannelParam_X.DailyRotationTimeInMinuteAfterMidnight_U32 - (DailyRotationHour_S32 * 60));
-              //                    psLogger = spdlog::create<limited_daily_file_sink_mt>(mLogParam_X.ChannelName_S, PathWithoutExt_S, mLogParam_X.FileLogPath.Extension(), DailyRotationHour_S32, DailyRotationMinute_S32, mLogParam_X.MaxLogSizeInByte_U32);
-              if (rBofLogger.IsLoggerInAsyncMode())
-              {
-                if (rBofLogger.IsLoggerBlockingInAsyncMode())
-                {
-                  psLogger = spdlog::create_async<limited_daily_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), DailyRotationHour_S32, DailyRotationMinute_S32, mLogChannelParam_X.MaxLogSizeInByte_U32);
-                }
-                else
-                {
-                  psLogger = spdlog::create_async_nb<limited_daily_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), DailyRotationHour_S32, DailyRotationMinute_S32, mLogChannelParam_X.MaxLogSizeInByte_U32);
-                }
-              }
-              else
-              {
-                psLogger = spdlog::create<limited_daily_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), DailyRotationHour_S32, DailyRotationMinute_S32, mLogChannelParam_X.MaxLogSizeInByte_U32);
-              }
-              if (psLogger)
-              {
-                Rts_E = BOF_ERR_NO_ERROR;
-              }
-            }
-            else
-            {
-              if (mLogChannelParam_X.MaxNumberOfLogFile_U32)
-              {
-                Rts_E = BOF_ERR_NOT_INIT;
-                //psLogger = spdlog::create<spdlog::sinks::rotating_file_sink_mt>(mLogParam_X.ChannelName_S, PathWithoutExt_S, mLogParam_X.FileLogPath.Extension(), mLogParam_X.MaxLogSizeInByte_U32, mLogParam_X.MaxNumberOfLogFile_U32);
-                if (rBofLogger.IsLoggerInAsyncMode())
-                {
-                  if (rBofLogger.IsLoggerBlockingInAsyncMode())
-                  {
-                    psLogger = spdlog::create_async<spdlog::sinks::rotating_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32, mLogChannelParam_X.MaxNumberOfLogFile_U32);
-                  }
-                  else
-                  {
-                    psLogger = spdlog::create_async_nb<spdlog::sinks::rotating_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32, mLogChannelParam_X.MaxNumberOfLogFile_U32);
-                  }
-                }
-                else
-                {
-                  psLogger = spdlog::create<spdlog::sinks::rotating_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32, mLogChannelParam_X.MaxNumberOfLogFile_U32);
-                }
-                if (psLogger)
-                {
-                  Rts_E = BOF_ERR_NO_ERROR;
-                }
-              }
-              else
-              {
-                Rts_E = BOF_ERR_NOT_INIT;
-                if (mLogChannelParam_X.MaxLogSizeInByte_U32)
-                {
-                  if (rBofLogger.IsLoggerInAsyncMode())
-                  {
-                    if (rBofLogger.IsLoggerBlockingInAsyncMode())
-                    {
-                      psLogger = spdlog::create_async<simple_limitedfile_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32);
-                    }
-                    else
-                    {
-                      psLogger = spdlog::create_async_nb<simple_limitedfile_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32);
-                    }
-                  }
-                  else
-                  {
-                    psLogger = spdlog::create<simple_limitedfile_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32);
-                  }
-                }
-                else
-                {
-                  if (rBofLogger.IsLoggerInAsyncMode())
-                  {
-                    if (rBofLogger.IsLoggerBlockingInAsyncMode())
-                    {
-                      psLogger = spdlog::create_async<spdlog::sinks::basic_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false));
-                    }
-                    else
-                    {
-                      psLogger = spdlog::create_async_nb<spdlog::sinks::basic_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false));
-                    }
-                  }
-                  else
-                  {
-                    psLogger = spdlog::create<spdlog::sinks::basic_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false));
-                  }
-                }
-                if (psLogger)
-                {
-                  Rts_E = BOF_ERR_NO_ERROR;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    break;
-    /*
-    case BOF_LOG_CHANNEL_SINK::TO_STREAM:
-    {
-      Rts_E = BOF_ERR_INIT;
-//move a shared_ptr ....				psLogger = spdlog::create<spdlog::sinks::ostream_sink_mt>(mLogParam_X.ChannelName_S, std::move(*mLogParam_X.psOutputStream));
-        std::ostringstream Oss(mLogParam_X.psOutputStream->str());
-        psLogger = spdlog::create<spdlog::sinks::ostream_sink_mt>(mLogParam_X.ChannelName_S, std::move(Oss));	// std::move(*mLogParam_X.psOutputStream));
         if (psLogger)
         {
           Rts_E = BOF_ERR_NO_ERROR;
         }
       }
       break;
-      */
 
-    case BOF_LOG_CHANNEL_SINK::TO_RAM_CIRCULAR_BUFFER:
-    {
-      Rts_E = BOF_ERR_INIT;
-      mpsCircularBufferSink = std::make_shared<ramcircularbuffer_sink_mt>(mLogChannelParam_X.BufferOverflowPolicy_E, mLogChannelParam_X.MaxLogSizeInByte_U32);
-      if (rBofLogger.IsLoggerInAsyncMode())
+      case BOF_LOG_CHANNEL_SINK::TO_FILE:
+      case BOF_LOG_CHANNEL_SINK::TO_DAILYFILE:
       {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
+        Rts_E = BOF_ERR_EINVAL;
+        if (mLogChannelParam_X.FileLogPath.FullPathName(false) != "")
         {
-          psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsCircularBufferSink, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
-        }
-        else
-        {
-          psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsCircularBufferSink, spdlog::thread_pool(), spdlog::async_overflow_policy::overrun_oldest);
-        }
-      }
-      else
-      {
-        psLogger = std::make_shared<spdlog::logger>(mLogChannelParam_X.ChannelName_S, mpsCircularBufferSink);
-      }
-      if (psLogger)
-      {
-        spdlog::details::registry::instance().initialize_logger(psLogger);
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-    }
-    break;
+          //				std::string PathWithoutExt_S = mLogParam_X.FileLogPath.DirectoryName(false) + mLogParam_X.FileLogPath.FileNameWithoutExtension();
+          BOF_FILE_PERMISSION Permission_E;
 
-    case BOF_LOG_CHANNEL_SINK::TO_STDERR:
-    {
-      Rts_E = BOF_ERR_INIT;
-      if (rBofLogger.IsLoggerInAsyncMode())
-      {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
-        {
-          psLogger = spdlog::create_async<spdlog::sinks::stderr_sink_mt>(mLogChannelParam_X.ChannelName_S);
-        }
-        else
-        {
-          psLogger = spdlog::create_async_nb<spdlog::sinks::stderr_sink_mt>(mLogChannelParam_X.ChannelName_S);
-        }
-      }
-      else
-      {
-        psLogger = spdlog::create<spdlog::sinks::stderr_sink_mt>(mLogChannelParam_X.ChannelName_S);
-      }
-      if (psLogger)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-    }
-    break;
+          Permission_E = BOF_FILE_PERMISSION_ALL_FOR_ALL;
+          Rts_E = Bof_CreateDirectory(Permission_E, mLogChannelParam_X.FileLogPath.DirectoryName(false));
+          if (Rts_E == BOF_ERR_NO_ERROR)
+          {
+            if (Bof_IsBitFlagSet(mLogChannelParam_X.LogFlag_E, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE))
+            {
+              DeleteLogStorage();
+            }
+            if (Rts_E == BOF_ERR_NO_ERROR)
+            {
+              if (mLogChannelParam_X.LogSink_E == BOF_LOG_CHANNEL_SINK::TO_DAILYFILE)
+              {
+                //we can add daily limitted size and daily limet nb
 
-    case BOF_LOG_CHANNEL_SINK::TO_STDERR_COLOR:
-    {
-      Rts_E = BOF_ERR_INIT;
-      mpsStdErrColorSink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
-      if (rBofLogger.IsLoggerInAsyncMode())
-      {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
-        {
-          psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdErrColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
-        }
-        else
-        {
-          psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdErrColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::overrun_oldest);
-        }
-      }
-      else
-      {
-        psLogger = std::make_shared<spdlog::logger>(mLogChannelParam_X.ChannelName_S, mpsStdErrColorSink);
-      }
-      if (psLogger)
-      {
-        spdlog::details::registry::instance().initialize_logger(psLogger);
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-    }
-    break;
-
-    case BOF_LOG_CHANNEL_SINK::TO_STDOUT:
-    {
-      Rts_E = BOF_ERR_INIT;
-      if (rBofLogger.IsLoggerInAsyncMode())
-      {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
-        {
-          psLogger = spdlog::create_async<spdlog::sinks::stdout_sink_mt>(mLogChannelParam_X.ChannelName_S);
-        }
-        else
-        {
-          psLogger = spdlog::create_async_nb<spdlog::sinks::stdout_sink_mt>(mLogChannelParam_X.ChannelName_S);
-        }
-      }
-      else
-      {
-        psLogger = spdlog::create<spdlog::sinks::stdout_sink_mt>(mLogChannelParam_X.ChannelName_S);
-      }
-      if (psLogger)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-    }
-    break;
-
-    case BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR:
-    {
-      Rts_E = BOF_ERR_INIT;
-      mpsStdOutColorSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-      if (rBofLogger.IsLoggerInAsyncMode())
-      {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
-        {
-          psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdOutColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
-        }
-        else
-        {
-          psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdOutColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::overrun_oldest);
-        }
-      }
-      else
-      {
-        psLogger = std::make_shared<spdlog::logger>(mLogChannelParam_X.ChannelName_S, mpsStdOutColorSink);
-      }
-      if (psLogger)
-      {
-        spdlog::details::registry::instance().initialize_logger(psLogger);
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-    }
-    break;
-
-    case BOF_LOG_CHANNEL_SINK::TO_LINUX_SYSLOG:
-    {
-      Rts_E = BOF_ERR_NOT_SUPPORTED;
-#if defined (_WIN32)
-#else
-      //                                                                     ::openlog(_ident.empty()? nullptr:_ident.c_str(), syslog_option,        syslog_facility);
-      //psLogger = spdlog::create<spdlog::sinks::syslog_sink>(mLogParam_X.ChannelName_S, mLogParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);
-      if (rBofLogger.IsLoggerInAsyncMode())
-      {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
-        {
-          psLogger = spdlog::syslog_logger_mt<spdlog::async_factory>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);
-        }
-        else
-        {
-          psLogger = spdlog::syslog_logger_mt<spdlog::async_factory>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);
-        }
-      }
-      else
-      {
-        psLogger = spdlog::syslog_logger_mt(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);;
-      }
-      if (psLogger)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-#endif
-    }
-    break;
-
-    case BOF_LOG_CHANNEL_SINK::TO_MSVC_DEBUGGER:
-    {
-      Rts_E = BOF_ERR_NOT_SUPPORTED;
-#if defined (_WIN32)
-      if (rBofLogger.IsLoggerInAsyncMode())
-      {
-        if (rBofLogger.IsLoggerBlockingInAsyncMode())
-        {
-          psLogger = spdlog::create_async<spdlog::sinks::msvc_sink_mt>(mLogChannelParam_X.ChannelName_S);
-        }
-        else
-        {
-          psLogger = spdlog::create_async_nb<spdlog::sinks::msvc_sink_mt>(mLogChannelParam_X.ChannelName_S);
+                Rts_E = BOF_ERR_NOT_INIT;
+                DailyRotationHour_S32 = static_cast<int32_t>(mLogChannelParam_X.DailyRotationTimeInMinuteAfterMidnight_U32 / 60);
+                DailyRotationMinute_S32 = static_cast<int32_t>(mLogChannelParam_X.DailyRotationTimeInMinuteAfterMidnight_U32 - (DailyRotationHour_S32 * 60));
+                //                    psLogger = spdlog::create<limited_daily_file_sink_mt>(mLogParam_X.ChannelName_S, PathWithoutExt_S, mLogParam_X.FileLogPath.Extension(), DailyRotationHour_S32, DailyRotationMinute_S32, mLogParam_X.MaxLogSizeInByte_U32);
+                if (rBofLogger.IsLoggerInAsyncMode())
+                {
+                  if (rBofLogger.IsLoggerBlockingInAsyncMode())
+                  {
+                    psLogger = spdlog::create_async<limited_daily_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), DailyRotationHour_S32, DailyRotationMinute_S32, mLogChannelParam_X.MaxLogSizeInByte_U32);
+                  }
+                  else
+                  {
+                    psLogger = spdlog::create_async_nb<limited_daily_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), DailyRotationHour_S32, DailyRotationMinute_S32, mLogChannelParam_X.MaxLogSizeInByte_U32);
+                  }
+                }
+                else
+                {
+                  psLogger = spdlog::create<limited_daily_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), DailyRotationHour_S32, DailyRotationMinute_S32, mLogChannelParam_X.MaxLogSizeInByte_U32);
+                }
+                if (psLogger)
+                {
+                  Rts_E = BOF_ERR_NO_ERROR;
+                }
+              }
+              else
+              {
+                if (mLogChannelParam_X.MaxNumberOfLogFile_U32)
+                {
+                  Rts_E = BOF_ERR_NOT_INIT;
+                  //psLogger = spdlog::create<spdlog::sinks::rotating_file_sink_mt>(mLogParam_X.ChannelName_S, PathWithoutExt_S, mLogParam_X.FileLogPath.Extension(), mLogParam_X.MaxLogSizeInByte_U32, mLogParam_X.MaxNumberOfLogFile_U32);
+                  if (rBofLogger.IsLoggerInAsyncMode())
+                  {
+                    if (rBofLogger.IsLoggerBlockingInAsyncMode())
+                    {
+                      psLogger = spdlog::create_async<spdlog::sinks::rotating_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32, mLogChannelParam_X.MaxNumberOfLogFile_U32);
+                    }
+                    else
+                    {
+                      psLogger = spdlog::create_async_nb<spdlog::sinks::rotating_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32, mLogChannelParam_X.MaxNumberOfLogFile_U32);
+                    }
+                  }
+                  else
+                  {
+                    psLogger = spdlog::create<spdlog::sinks::rotating_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32, mLogChannelParam_X.MaxNumberOfLogFile_U32);
+                  }
+                  if (psLogger)
+                  {
+                    Rts_E = BOF_ERR_NO_ERROR;
+                  }
+                }
+                else
+                {
+                  Rts_E = BOF_ERR_NOT_INIT;
+                  if (mLogChannelParam_X.MaxLogSizeInByte_U32)
+                  {
+                    if (rBofLogger.IsLoggerInAsyncMode())
+                    {
+                      if (rBofLogger.IsLoggerBlockingInAsyncMode())
+                      {
+                        psLogger = spdlog::create_async<simple_limitedfile_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32);
+                      }
+                      else
+                      {
+                        psLogger = spdlog::create_async_nb<simple_limitedfile_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32);
+                      }
+                    }
+                    else
+                    {
+                      psLogger = spdlog::create<simple_limitedfile_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false), mLogChannelParam_X.MaxLogSizeInByte_U32);
+                    }
+                  }
+                  else
+                  {
+                    if (rBofLogger.IsLoggerInAsyncMode())
+                    {
+                      if (rBofLogger.IsLoggerBlockingInAsyncMode())
+                      {
+                        psLogger = spdlog::create_async<spdlog::sinks::basic_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false));
+                      }
+                      else
+                      {
+                        psLogger = spdlog::create_async_nb<spdlog::sinks::basic_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false));
+                      }
+                    }
+                    else
+                    {
+                      psLogger = spdlog::create<spdlog::sinks::basic_file_sink_mt>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.FileLogPath.FullPathName(false));
+                    }
+                  }
+                  if (psLogger)
+                  {
+                    Rts_E = BOF_ERR_NO_ERROR;
+                  }
+                }
+              }
+            }
+          }
         }
       }
-      else
-      {
-        psLogger = spdlog::create<spdlog::sinks::msvc_sink_mt>(mLogChannelParam_X.ChannelName_S);
-      }
-      if (psLogger)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-#else
-#endif
-    }
-    break;
-
-    default:
-      Rts_E = BOF_ERR_NOT_SUPPORTED;
       break;
+      /*
+      case BOF_LOG_CHANNEL_SINK::TO_STREAM:
+      {
+        Rts_E = BOF_ERR_INIT;
+  //move a shared_ptr ....				psLogger = spdlog::create<spdlog::sinks::ostream_sink_mt>(mLogParam_X.ChannelName_S, std::move(*mLogParam_X.psOutputStream));
+          std::ostringstream Oss(mLogParam_X.psOutputStream->str());
+          psLogger = spdlog::create<spdlog::sinks::ostream_sink_mt>(mLogParam_X.ChannelName_S, std::move(Oss));	// std::move(*mLogParam_X.psOutputStream));
+          if (psLogger)
+          {
+            Rts_E = BOF_ERR_NO_ERROR;
+          }
+        }
+        break;
+        */
+
+      case BOF_LOG_CHANNEL_SINK::TO_RAM_CIRCULAR_BUFFER:
+      {
+        Rts_E = BOF_ERR_INIT;
+        mpsCircularBufferSink = std::make_shared<ramcircularbuffer_sink_mt>(mLogChannelParam_X.BufferOverflowPolicy_E, mLogChannelParam_X.MaxLogSizeInByte_U32);
+        if (rBofLogger.IsLoggerInAsyncMode())
+        {
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsCircularBufferSink, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+          }
+          else
+          {
+            psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsCircularBufferSink, spdlog::thread_pool(), spdlog::async_overflow_policy::overrun_oldest);
+          }
+        }
+        else
+        {
+          psLogger = std::make_shared<spdlog::logger>(mLogChannelParam_X.ChannelName_S, mpsCircularBufferSink);
+        }
+        if (psLogger)
+        {
+          spdlog::details::registry::instance().initialize_logger(psLogger);
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+      break;
+
+      case BOF_LOG_CHANNEL_SINK::TO_STDERR:
+      {
+        Rts_E = BOF_ERR_INIT;
+        if (rBofLogger.IsLoggerInAsyncMode())
+        {
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = spdlog::create_async<spdlog::sinks::stderr_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
+          else
+          {
+            psLogger = spdlog::create_async_nb<spdlog::sinks::stderr_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
+        }
+        else
+        {
+          psLogger = spdlog::create<spdlog::sinks::stderr_sink_mt>(mLogChannelParam_X.ChannelName_S);
+        }
+        if (psLogger)
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+      break;
+
+      case BOF_LOG_CHANNEL_SINK::TO_STDERR_COLOR:
+      {
+        Rts_E = BOF_ERR_INIT;
+        mpsStdErrColorSink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+        if (rBofLogger.IsLoggerInAsyncMode())
+        {
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdErrColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+          }
+          else
+          {
+            psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdErrColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::overrun_oldest);
+          }
+        }
+        else
+        {
+          psLogger = std::make_shared<spdlog::logger>(mLogChannelParam_X.ChannelName_S, mpsStdErrColorSink);
+        }
+        if (psLogger)
+        {
+          spdlog::details::registry::instance().initialize_logger(psLogger);
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+      break;
+
+      case BOF_LOG_CHANNEL_SINK::TO_STDOUT:
+      {
+        Rts_E = BOF_ERR_INIT;
+        if (rBofLogger.IsLoggerInAsyncMode())
+        {
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = spdlog::create_async<spdlog::sinks::stdout_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
+          else
+          {
+            psLogger = spdlog::create_async_nb<spdlog::sinks::stdout_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
+        }
+        else
+        {
+          psLogger = spdlog::create<spdlog::sinks::stdout_sink_mt>(mLogChannelParam_X.ChannelName_S);
+        }
+        if (psLogger)
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+      break;
+
+      case BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR:
+      {
+        Rts_E = BOF_ERR_INIT;
+        mpsStdOutColorSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        if (rBofLogger.IsLoggerInAsyncMode())
+        {
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdOutColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+          }
+          else
+          {
+            psLogger = std::make_shared<spdlog::async_logger>(mLogChannelParam_X.ChannelName_S, mpsStdOutColorSink, spdlog::thread_pool(), spdlog::async_overflow_policy::overrun_oldest);
+          }
+        }
+        else
+        {
+          psLogger = std::make_shared<spdlog::logger>(mLogChannelParam_X.ChannelName_S, mpsStdOutColorSink);
+        }
+        if (psLogger)
+        {
+          spdlog::details::registry::instance().initialize_logger(psLogger);
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+      break;
+
+      case BOF_LOG_CHANNEL_SINK::TO_LINUX_SYSLOG:
+      {
+        Rts_E = BOF_ERR_NOT_SUPPORTED;
+#if defined (_WIN32)
+#else
+        //                                                                     ::openlog(_ident.empty()? nullptr:_ident.c_str(), syslog_option,        syslog_facility);
+        //psLogger = spdlog::create<spdlog::sinks::syslog_sink>(mLogParam_X.ChannelName_S, mLogParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);
+        if (rBofLogger.IsLoggerInAsyncMode())
+        {
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = spdlog::syslog_logger_mt<spdlog::async_factory>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);
+          }
+          else
+          {
+            psLogger = spdlog::syslog_logger_mt<spdlog::async_factory>(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);
+          }
+        }
+        else
+        {
+          psLogger = spdlog::syslog_logger_mt(mLogChannelParam_X.ChannelName_S, mLogChannelParam_X.ChannelName_S, LOG_PID | LOG_NDELAY, LOG_USER);;
+        }
+        if (psLogger)
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+#endif
+      }
+      break;
+
+      case BOF_LOG_CHANNEL_SINK::TO_MSVC_DEBUGGER:
+      {
+        Rts_E = BOF_ERR_NOT_SUPPORTED;
+#if defined (_WIN32)
+        if (rBofLogger.IsLoggerInAsyncMode())
+        {
+          if (rBofLogger.IsLoggerBlockingInAsyncMode())
+          {
+            psLogger = spdlog::create_async<spdlog::sinks::msvc_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
+          else
+          {
+            psLogger = spdlog::create_async_nb<spdlog::sinks::msvc_sink_mt>(mLogChannelParam_X.ChannelName_S);
+          }
+        }
+        else
+        {
+          psLogger = spdlog::create<spdlog::sinks::msvc_sink_mt>(mLogChannelParam_X.ChannelName_S);
+        }
+        if (psLogger)
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+#else
+#endif
+      }
+      break;
+
+      default:
+        Rts_E = BOF_ERR_NOT_SUPPORTED;
+        break;
     }
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
@@ -585,7 +580,7 @@ public:
       {
         Bof_CloseFile(mIoLog);
       }
-      Rts_E        = BOF_ERR_NO_ERROR;
+      Rts_E = BOF_ERR_NO_ERROR;
       mLogOpened_B = false;
     }
     return Rts_E;
@@ -673,7 +668,7 @@ public:
 #if defined(_WIN32)
     WORD Color = 0;
 #else
-//    std::string Color = "";
+    //    std::string Color = "";
     spdlog::string_view_t Color = "";
 #endif
 
@@ -683,9 +678,9 @@ public:
     if (psLogger)
     {
       LogLevel_E = S_ToSpdlogLevel[_LogLevel_E];
-      Fore_E     = static_cast<BOF_LOG_LEVEL_COLOR>(_LogLevelColor_E & LOG_COLOR_FORE_MASK);
-      Back_E     = static_cast<BOF_LOG_LEVEL_COLOR>(_LogLevelColor_E & LOG_COLOR_BACK_MASK);
-      Bold_B     = (_LogLevelColor_E & LOG_COLOR_BOLD) ? true : false;
+      Fore_E = static_cast<BOF_LOG_LEVEL_COLOR>(_LogLevelColor_E & LOG_COLOR_FORE_MASK);
+      Back_E = static_cast<BOF_LOG_LEVEL_COLOR>(_LogLevelColor_E & LOG_COLOR_BACK_MASK);
+      Bold_B = (_LogLevelColor_E & LOG_COLOR_BOLD) ? true : false;
       if (mLogChannelParam_X.LogSink_E == BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR)
       {
         BOF_ASSERT(mpsStdOutColorSink != nullptr);
@@ -696,65 +691,65 @@ public:
           {
             case LOG_COLOR_NO_CHANGE:
               break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLACK:
-            Color = 0;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED:
-            Color = FOREGROUND_RED;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN:
-            Color = FOREGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_YELLOW:
-            Color = FOREGROUND_RED | FOREGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE:
-            Color = FOREGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_MAGENTA:
-            Color = FOREGROUND_RED| FOREGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_CYAN:
-            Color = FOREGROUND_GREEN | FOREGROUND_BLUE;
-            break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLACK:
+              Color = 0;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED:
+              Color = FOREGROUND_RED;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN:
+              Color = FOREGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_YELLOW:
+              Color = FOREGROUND_RED | FOREGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE:
+              Color = FOREGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_MAGENTA:
+              Color = FOREGROUND_RED | FOREGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_CYAN:
+              Color = FOREGROUND_GREEN | FOREGROUND_BLUE;
+              break;
 
-          default:
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE:
-            Color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-            break;
+            default:
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE:
+              Color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+              break;
           }
           switch (Back_E)
           {
             case LOG_COLOR_NO_CHANGE:
               break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK:
-            Color |= 0;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_RED:
-            Color |= BACKGROUND_RED;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_GREEN:
-            Color |= BACKGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_YELLOW:
-            Color |= BACKGROUND_RED | BACKGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLUE:
-            Color |= BACKGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_MAGENTA:
-            Color |= BACKGROUND_RED | BACKGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
-            Color |= BACKGROUND_GREEN | BACKGROUND_BLUE;
-          mpsStdOutColorSink->set_color(LogLevel_E, Color);
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
-            Color |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
-            break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK:
+              Color |= 0;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_RED:
+              Color |= BACKGROUND_RED;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_GREEN:
+              Color |= BACKGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_YELLOW:
+              Color |= BACKGROUND_RED | BACKGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLUE:
+              Color |= BACKGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_MAGENTA:
+              Color |= BACKGROUND_RED | BACKGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
+              Color |= BACKGROUND_GREEN | BACKGROUND_BLUE;
+              mpsStdOutColorSink->set_color(LogLevel_E, Color);
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
+              Color |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+              break;
 
-          default:
-            break;
+            default:
+              break;
           }
           if (Bold_B)
           {
@@ -851,64 +846,64 @@ public:
           {
             case LOG_COLOR_NO_CHANGE:
               break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLACK:
-            Color = 0;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED:
-            Color = FOREGROUND_RED;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN:
-            Color = FOREGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_YELLOW:
-            Color = BACKGROUND_RED | BACKGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE:
-            Color = FOREGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_MAGENTA:
-            Color = FOREGROUND_RED | FOREGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_CYAN:
-            Color = FOREGROUND_GREEN | FOREGROUND_BLUE;
-            break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLACK:
+              Color = 0;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED:
+              Color = FOREGROUND_RED;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN:
+              Color = FOREGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_YELLOW:
+              Color = BACKGROUND_RED | BACKGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE:
+              Color = FOREGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_MAGENTA:
+              Color = FOREGROUND_RED | FOREGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_CYAN:
+              Color = FOREGROUND_GREEN | FOREGROUND_BLUE;
+              break;
 
-          default:
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE:
-            Color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-            break;
+            default:
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE:
+              Color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+              break;
           }
           switch (Back_E)
           {
             case LOG_COLOR_NO_CHANGE:
               break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK:
-            Color |= 0;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_RED:
-            Color |= BACKGROUND_RED;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_GREEN:
-            Color |= BACKGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_YELLOW:
-            Color |= BACKGROUND_RED | BACKGROUND_GREEN;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLUE:
-            Color |= BACKGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_MAGENTA:
-            Color |= BACKGROUND_RED | BACKGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
-            Color |= BACKGROUND_GREEN | BACKGROUND_BLUE;
-            break;
-          case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
-            Color |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
-            break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK:
+              Color |= 0;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_RED:
+              Color |= BACKGROUND_RED;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_GREEN:
+              Color |= BACKGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_YELLOW:
+              Color |= BACKGROUND_RED | BACKGROUND_GREEN;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLUE:
+              Color |= BACKGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_MAGENTA:
+              Color |= BACKGROUND_RED | BACKGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
+              Color |= BACKGROUND_GREEN | BACKGROUND_BLUE;
+              break;
+            case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
+              Color |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+              break;
 
-          default:
-            break;
+            default:
+              break;
           }
 
           mpsStdErrColorSink->set_color(LogLevel_E, Color);
@@ -1062,13 +1057,13 @@ public:
       */
 
       LogHeader_S = _rLogHeader_S;
-/*
-        mAddLineNumber_B = (LogHeader_S.substr(0, 3) == "%N "); // Can only appears as the first arg
-        if (mAddLineNumber_B)
-        {
-          LogHeader_S = LogHeader_S.substr(3, LogHeader_S.size() - 3);
-        }
-*/
+      /*
+              mAddLineNumber_B = (LogHeader_S.substr(0, 3) == "%N "); // Can only appears as the first arg
+              if (mAddLineNumber_B)
+              {
+                LogHeader_S = LogHeader_S.substr(3, LogHeader_S.size() - 3);
+              }
+      */
       psLogger->set_pattern(LogHeader_S.c_str(), spdlog::pattern_time_type::local);
       Rts_E = BOF_ERR_NO_ERROR;
     }
@@ -1079,7 +1074,7 @@ public:
   {
     BOFERR                          Rts_E;
     std::shared_ptr<spdlog::logger> psLogger;
-    
+
     psLogger = spdlog::details::registry::instance().get(mLogChannelParam_X.ChannelName_S);
     BOF_ASSERT(psLogger != nullptr);
     Rts_E = BOF_ERR_INTERNAL;
@@ -1087,7 +1082,7 @@ public:
     {
 #pragma message("Please fix me V_LogChannelPathName")
       _rLogPath = "Please fix me V_LogChannelPathName"; // psLogger->LogChannelBasePathName();
-      Rts_E     = BOF_ERR_NO_ERROR;
+      Rts_E = BOF_ERR_NO_ERROR;
     }
     return Rts_E;
   }
@@ -1151,7 +1146,7 @@ private:
         //			test limited TO_DAILYFILE
         {
           Pattern_S = mLogChannelParam_X.FileLogPath.FileNameWithoutExtension() + "*." + mLogChannelParam_X.FileLogPath.Extension();  //*. to delete rotating file file.log->file.1.log file.2.log ...
-          Rts_E     = BOF_ERR_NO_ERROR;
+          Rts_E = BOF_ERR_NO_ERROR;
         }
 
         if (Rts_E == BOF_ERR_NO_ERROR)

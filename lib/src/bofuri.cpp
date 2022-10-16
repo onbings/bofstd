@@ -19,11 +19,11 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
 #include <bofstd/bofuri.h>
 #include "bofstd/bofstring.h"
+
 #include <iterator>
- 
+
 BEGIN_BOF_NAMESPACE()
 
 BofUri::BofUri()
@@ -141,9 +141,9 @@ BofUri::~BofUri()
 
 bool BofUri::operator==(const BofUri &_rOther_O) const
 {
-  return ( (mSchemeAuthority_X == _rOther_O.mSchemeAuthority_X) && (mPath == _rOther_O.mPath) &&
-           (mQueryParamCollection == _rOther_O.mQueryParamCollection) && (mFragment_S == _rOther_O.mFragment_S) && 
-           (mQueryParamDelimiter_c == _rOther_O.mQueryParamDelimiter_c) && (mValid_B == _rOther_O.mValid_B));
+  return ((mSchemeAuthority_X == _rOther_O.mSchemeAuthority_X) && (mPath == _rOther_O.mPath) &&
+          (mQueryParamCollection == _rOther_O.mQueryParamCollection) && (mFragment_S == _rOther_O.mFragment_S) &&
+          (mQueryParamDelimiter_c == _rOther_O.mQueryParamDelimiter_c) && (mValid_B == _rOther_O.mValid_B));
 }
 
 bool BofUri::operator!=(const BofUri &_rOther_O) const
@@ -175,7 +175,7 @@ BOFERR BofUri::SetScheme(const std::string &_rScheme_S)
   mSchemeAuthority_X.Protocol_S = _rScheme_S; //Needed by ToString below 
   InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
   Rts_E = BOF_ERR_NO_ERROR;
-  
+
   return Rts_E;
 }
 BOFERR BofUri::SetAuthority(const std::string &_rAuthority_S)
@@ -318,7 +318,7 @@ char BofUri::QueryParamDelimiter() const
 }
 const BOF_SOCKET_ADDRESS_COMPONENT &BofUri::SchemeAuthority(std::string &_rSchemeAuthority_S) const
 {
-  _rSchemeAuthority_S = mSchemeAuthority_X.ToString(true,true,true,true);
+  _rSchemeAuthority_S = mSchemeAuthority_X.ToString(true, true, true, true);
   return mSchemeAuthority_X;
 }
 const std::string &BofUri::Scheme() const
@@ -330,8 +330,8 @@ std::string BofUri::Authority() const
   BOF_SOCKET_ADDRESS_COMPONENT Rts_X;
 
   Rts_X = mSchemeAuthority_X;
-  Rts_X.Protocol_S = ""; 
- 
+  Rts_X.Protocol_S = "";
+
   return  Rts_X.ToString(true, true, true, true);
 }
 const BOF_SOCKET_ADDRESS &BofUri::IpAddress(std::string &_rIpAddress_S) const
@@ -376,7 +376,7 @@ std::string	BofUri::ToString() const
 {
   std::ostringstream Rts;
 
-//  if ((mQueryDelimiter_c == '&') || (mQueryDelimiter_c == ';'))
+  //  if ((mQueryDelimiter_c == '&') || (mQueryDelimiter_c == ';'))
   {
     Rts << mSchemeAuthority_X.ToString(true, true, true, true);
     Rts << mPath.FullPathName(false);
@@ -532,7 +532,7 @@ std::string BofUri::S_UrlEncode(const std::string &_rIn_S)
   const char *pText_c = _rIn_S.c_str();
   int i, Char_i, Len_i = strlen(pText_c);
 
-  for (i = 0; i < Len_i; i++) 
+  for (i = 0; i < Len_i; i++)
   {
     c_c = pText_c[i];
     Char_i = c_c;
@@ -542,7 +542,7 @@ std::string BofUri::S_UrlEncode(const std::string &_rIn_S)
     {
       Rts_S += c_c;
     }
-    else 
+    else
     {
       sprintf(pHexBuffer_c, "%X", c_c);
       if (Char_i < 16)
@@ -565,9 +565,9 @@ std::string BofUri::S_UrlDecode(const std::string &_rIn_S)
   char c_c;
   int i, Val_i, Len_i = _rIn_S.length();
 
-  for (i = 0; i < Len_i; i++) 
+  for (i = 0; i < Len_i; i++)
   {
-    if (_rIn_S[i] != '%') 
+    if (_rIn_S[i] != '%')
     {
       if (_rIn_S[i] == '+')
       {
@@ -578,7 +578,7 @@ std::string BofUri::S_UrlDecode(const std::string &_rIn_S)
         Rts_S += _rIn_S[i];
       }
     }
-    else 
+    else
     {
       sscanf(_rIn_S.substr(i + 1, 2).c_str(), "%x", &Val_i);
       c_c = static_cast<char>(Val_i);

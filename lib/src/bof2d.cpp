@@ -19,16 +19,14 @@
 
    V 1.00  Sep 30 2000  BHA : Initial release
  */
-
- /*** Include files ***********************************************************/
-
 #include <bofstd/bof2d.h>
 #include <bofstd/boffs.h>
 #include <bofstd/bofstring.h>
+
 #include <libyuv.h>
 #include <iostream>
 #include <string>
-//#include <MediaInfoDLL/MediaInfoDLL.h>
+ //#include <MediaInfoDLL/MediaInfoDLL.h>
 
 BEGIN_BOF_NAMESPACE()
 //YUV Color
@@ -97,8 +95,6 @@ const BOF_YUVA GL_YuvBlack0_X = { 16, 128, 128, 255 };
 const BOF_YUVA GL_YuvBlack2_X = { 20, 128, 128, 255 };
 const BOF_YUVA GL_YuvBlack4_X = { 25, 128, 128, 255 };
 const BOF_YUVA GL_YuvNeg2_X = { 12, 128, 128, 255 };
-
-/*** LookForZoneCoordinate ***************************************************************/
 
 /*!
    Description
@@ -318,8 +314,6 @@ BOFERR Bof_LookForZoneCoordinate(BOF_RECT &_rRect_X, uint32_t _BitCount_U32, voi
   return (Rts_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL);
 }
 
-/*** EraseZoneBorder ***************************************************************/
-
 /*!
    Description
    The EraseZoneBorder function erase the rectangular delimiter present in a pixel buffer
@@ -386,10 +380,6 @@ BOFERR Bof_EraseZoneBorder(BOF_RECT &_rRect_X, uint32_t _BitCount_U32, void *_pD
   return (Rts_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL);
 
 }
-
-
-
-/*** DecimateGraphicData ***************************************************************/
 
 /*!
    Description
@@ -478,8 +468,6 @@ BOFERR Bof_DecimateGraphicData(uint8_t _BytePerPixel_UB, uint8_t *_pData_UB, uin
   return (Rts_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL);
 }
 
-/*** LookForColor ***************************************************************/
-
 /*!
    Description
    The LookForColor function scans a color table looking for a particula value
@@ -520,8 +508,6 @@ BOFERR Bof_LookForColor(uint32_t _NbColorEntry_U32, BOF_PALETTE_ENTRY *_pColorTa
   }
   return (Rts_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL);
 }
-
-/*** SwapColorEntries ***************************************************************/
 
 /*!
    Description
@@ -621,9 +607,6 @@ BOFERR Bof_SwapColorEntries(uint8_t _BytePerPixel_UB, uint8_t *_pData_UB, uint32
   return (Rts_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL);
 }
 
-
-/*** LoadGraphicFile ***************************************************************/
-
 /*!
    Description
    The LoadGraphicFile function loads a .bmp or .tga graphic file
@@ -669,8 +652,6 @@ BOFERR Bof_LoadGraphicFile(BofPath &_rPath, BOF_BITMAP_INFO_HEADER &_rBmInfo_X, 
   }
   return (Rts_E);
 }
-
-/*** LoadBmpFile ***************************************************************/
 
 /*!
    Description
@@ -787,7 +768,6 @@ BOFERR Bof_LoadBmpFile(BofPath &_rPath, BOF_BITMAP_INFO_HEADER &_rBmInfo_X, BOF_
   }
   return (Rts_E);
 }
-/*** LoadTgaFile ***************************************************************/
 
 /*!
    Description
@@ -910,8 +890,6 @@ BOFERR Bof_LoadTgaFile(BofPath &_rPath, BOF_TGA_HEADER &_rTgaHeader_X, BOF_PALET
   return (Rts_E);
 }
 
-/*** GenerateTgaFile ***************************************************************/
-
 /*!
    Description
    The GenerateTgaFile function creates a dummy .tga graphic file
@@ -999,8 +977,6 @@ BOFERR Bof_GenerateTgaFile(BofPath &_rPath, uint32_t _Width_U32, uint32_t _Heigh
   }
   return (Rts_E);
 }
-
-/*** ReadGraphicFile ***************************************************************/
 
 /*!
    Description
@@ -4024,7 +4000,7 @@ BOFERR BofMediaDetector::ParseFile(const BofPath &_rPathName, ResultFormat _Resu
   String Oss;
 
 #if defined(_WIN32)
-  size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(true)); 
+  size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(true));
 #else
   size_t Sz = mMediaInfo.Open(_rPathName.FullWidePathName(false));
 #endif
@@ -4126,7 +4102,7 @@ BOFERR BofMediaDetector::ParseBuffer(const BOF_BUFFER &_rBuffer_X, ResultFormat 
     //Finalizing
     mMediaInfo.Open_Buffer_Finalize(); //This is the end of the stream, MediaInfo must finnish some work
   }
-  l:
+l:
 #endif  
   BOFERR Rts_E = BOF_ERR_EINVAL;
   String Oss;

@@ -19,19 +19,15 @@
  *
  * V 1.00  Oct 19 2008  BHA : Initial release
  */
-
 #pragma once
-/*** Include ****************************************************************/
 
-#include <bofstd/bofstd.h>
 #include <bofstd/bofsystem.h>
+
 #include <string.h>
 
 BEGIN_BOF_NAMESPACE()
 #define BOF_POT_LOCK(Sts)   {Sts=mPotParam_X.MultiThreadAware_B ? Bof_LockMutex(mPotMtx_X):BOF_ERR_NO_ERROR;}
 #define BOF_POT_UNLOCK()    {if (mPotParam_X.MultiThreadAware_B) Bof_UnlockMutex(mPotMtx_X);}
-
-/*** Structure **************************************************************/
 
 struct BOFSTD_EXPORT BOF_POT_PARAM
 {
@@ -48,18 +44,13 @@ struct BOFSTD_EXPORT BOF_POT_PARAM
 
   void Reset()
   {
-    MagicNumber_U32           = 0;
-    MultiThreadAware_B        = false;
+    MagicNumber_U32 = 0;
+    MultiThreadAware_B = false;
     GetDoNotErasePotElement_B = false;
-    PotCapacity_U32           = 0;
-    Blocking_B                = false;
+    PotCapacity_U32 = 0;
+    Blocking_B = false;
   }
 };
-
-
-/*** Define *****************************************************************/
-
-/*** Class **************************************************************/
 
 /*!
  * Summary
@@ -80,11 +71,11 @@ class BofPot
 private:
   BOF_POT_PARAM mPotParam_X;
   BOF_MUTEX     mPotMtx_X;                          /*! Provide a serialized access to shared resources in a multi threaded environement*/
-  DataType      *mpPotDataStorage_X;
-  DataType      *mpFirstPotElementToTryForGet_X;
-  DataType      *mpLastPotElement_X;
+  DataType *mpPotDataStorage_X;
+  DataType *mpFirstPotElementToTryForGet_X;
+  DataType *mpLastPotElement_X;
   uint32_t      mNumberOfElementOutOfThePot_U32; // Number of element reserved out of the pot
-  uint8_t       *mpInUseElementList_U8;          /* used list if BOFPOTPARAM.MagicNumber_U32 is zero */
+  uint8_t *mpInUseElementList_U8;          /* used list if BOFPOTPARAM.MagicNumber_U32 is zero */
   uint32_t      mLevelMax_U32;                          /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
 
   /*
@@ -99,8 +90,8 @@ private:
    * GetNextUsed returns D and stop, so we do not get the last one which is older than D...
    */
 
-  // uint32_t                mNbUsedReturnedUntilNow_U32;
-  // uint32_t                mNbMaxUsedToReturn_U32;
+   // uint32_t                mNbUsedReturnedUntilNow_U32;
+   // uint32_t                mNbMaxUsedToReturn_U32;
   BOFERR    mErrorCode_E;
   BOF_EVENT mCanGetEvent_X;
 
@@ -132,17 +123,15 @@ public:
   uint32_t GetNbElementOutOfThePot() { return mNumberOfElementOutOfThePot_U32; }
   uint32_t GetCapacity() { return mPotParam_X.PotCapacity_U32; }
   uint32_t GetNbFreeElement() { return mPotParam_X.PotCapacity_U32 - mNumberOfElementOutOfThePot_U32; }
-  uint32_t GetFirstFreeIndexToTry() { return (uint32_t) (mpFirstPotElementToTryForGet_X - mpPotDataStorage_X); }
+  uint32_t GetFirstFreeIndexToTry() { return (uint32_t)(mpFirstPotElementToTryForGet_X - mpPotDataStorage_X); }
   BOFERR ClearPot(uint32_t _NbFirstEntryToKeep_U32);
 
 private:
   DataType *Get(bool _Lock_B, uint32_t _BlockingTimeouItInMs_U32);
-// !!!64bits!!!
-// Same than GetIndexOfEntry but without critical section (internal use)
-  uint32_t GetIndex(DataType *_pData_X) { return (uint32_t) (_pData_X - mpPotDataStorage_X); }
+  // !!!64bits!!!
+  // Same than GetIndexOfEntry but without critical section (internal use)
+  uint32_t GetIndex(DataType *_pData_X) { return (uint32_t)(_pData_X - mpPotDataStorage_X); }
 };
-
-/*** BofPot ***************************************************/
 
 /*!
  * Description
@@ -167,13 +156,13 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
   uint32_t i_U32;
   DataType *pData_X;
 
-  mLevelMax_U32                   = 0;
-  mpPotDataStorage_X              = nullptr;
-  mpFirstPotElementToTryForGet_X  = nullptr;
-  mpLastPotElement_X              = nullptr;
+  mLevelMax_U32 = 0;
+  mpPotDataStorage_X = nullptr;
+  mpFirstPotElementToTryForGet_X = nullptr;
+  mpLastPotElement_X = nullptr;
   mNumberOfElementOutOfThePot_U32 = 0;
-  mpInUseElementList_U8           = nullptr;
-  mErrorCode_E                    = BOF_ERR_EINVAL;
+  mpInUseElementList_U8 = nullptr;
+  mErrorCode_E = BOF_ERR_EINVAL;
   if (_rPotParam_X.PotCapacity_U32)
   {
     mPotParam_X = _rPotParam_X;
@@ -193,13 +182,13 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
         mErrorCode_E = mPotParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofPot", true, true, mPotMtx_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
-          mErrorCode_E                    = BOF_ERR_ENOMEM;
+          mErrorCode_E = BOF_ERR_ENOMEM;
           mNumberOfElementOutOfThePot_U32 = 0;
 
-          mpPotDataStorage_X             = new DataType[mPotParam_X.PotCapacity_U32];
+          mpPotDataStorage_X = new DataType[mPotParam_X.PotCapacity_U32];
           mpFirstPotElementToTryForGet_X = mpPotDataStorage_X;
-          mpLastPotElement_X             = nullptr;
-          mpInUseElementList_U8          = nullptr;
+          mpLastPotElement_X = nullptr;
+          mpInUseElementList_U8 = nullptr;
 
           // mNbUsedReturnedUntilNow_U32    = 0;
           // mNbMaxUsedToReturn_U32         = 0;
@@ -207,13 +196,13 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
           if (mpPotDataStorage_X)
           {
             mpLastPotElement_X = &mpPotDataStorage_X[mPotParam_X.PotCapacity_U32 - 1];
-            pData_X            = mpPotDataStorage_X;
+            pData_X = mpPotDataStorage_X;
 
             if (mPotParam_X.MagicNumber_U32)
             {
               for (i_U32 = 0; i_U32 < mPotParam_X.PotCapacity_U32; i_U32++, pData_X++)
               {
-                *(uint32_t *) pData_X = 0;
+                *(uint32_t *)pData_X = 0;
               }
               mErrorCode_E = BOF_ERR_NO_ERROR;
             }
@@ -241,8 +230,6 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
   }
 }
 
-/*** ~BofPot ***************************************************/
-
 /*!
  * Description
  * This is the destructor of the Pot object. It releases all
@@ -269,9 +256,6 @@ BofPot<DataType>::~BofPot()
   BOF_SAFE_DELETE_ARRAY(mpInUseElementList_U8);
   Bof_DestroyEvent(mCanGetEvent_X);
 }
-
-
-/*** GetIndexedPotElement ***************************************************/
 
 /*!
  * Description
@@ -311,9 +295,6 @@ DataType *BofPot<DataType>::GetIndexedPotElement(uint32_t _Index_U32)
   return pRts_X;
 }
 
-
-/*** LookForPotElementInUseStartingFromIndex ***************************************************/
-
 /*!
  * Description
  * This function starts looking inside the pot starting form element index number _Index_U32.
@@ -338,7 +319,7 @@ DataType *BofPot<DataType>::LookForPotElementInUseStartingFromIndex(uint32_t _In
 {
   uint32_t i_U32, CrtIndex_U32;
   DataType *pRts_X = nullptr, *pData_X;
-  uint8_t  *pLocked_U8;
+  uint8_t *pLocked_U8;
   BOFERR   Sts_E;
 
   BOF_POT_LOCK(Sts_E);
@@ -346,14 +327,14 @@ DataType *BofPot<DataType>::LookForPotElementInUseStartingFromIndex(uint32_t _In
   {
     if (_Index_U32 < mPotParam_X.PotCapacity_U32)
     {
-      pData_X    = &mpPotDataStorage_X[0];
+      pData_X = &mpPotDataStorage_X[0];
       pLocked_U8 = &mpInUseElementList_U8[0];
 
       for (CrtIndex_U32 = i_U32 = 0; i_U32 < mPotParam_X.PotCapacity_U32; i_U32++, pData_X++, pLocked_U8++)
       {
         if (mPotParam_X.MagicNumber_U32)
         {
-          if ((*(uint32_t *) pData_X == mPotParam_X.MagicNumber_U32) || (*(uint32_t *) pData_X == ~mPotParam_X.MagicNumber_U32))
+          if ((*(uint32_t *)pData_X == mPotParam_X.MagicNumber_U32) || (*(uint32_t *)pData_X == ~mPotParam_X.MagicNumber_U32))
           {
             if (CrtIndex_U32 == _Index_U32)
             {
@@ -381,9 +362,6 @@ DataType *BofPot<DataType>::LookForPotElementInUseStartingFromIndex(uint32_t _In
   }
   return pRts_X;
 }
-
-
-/*** Get ***************************************************/
 
 /*!
  * Description
@@ -457,7 +435,7 @@ BOFERR BofPot<DataType>::Unlock(DataType *_pData_X)
     {
       if (mPotParam_X.MagicNumber_U32)
       {
-        *(uint32_t *) _pData_X = mPotParam_X.MagicNumber_U32;
+        *(uint32_t *)_pData_X = mPotParam_X.MagicNumber_U32;
       }
       else
       {
@@ -477,7 +455,7 @@ DataType *BofPot<DataType>::Get(bool _Lock_B, uint32_t _BlockingTimeouItInMs_U32
   BOFERR   Sts_E;
   uint32_t i_U32, NumberOfElementOutOfThePot_U32;
   DataType *pRts_X = nullptr, *pData_X;
-  uint8_t  *pLocked_U8;
+  uint8_t *pLocked_U8;
 
 RetryGet:
   Sts_E = ((mPotParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanGetEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
@@ -489,20 +467,20 @@ RetryGet:
       NumberOfElementOutOfThePot_U32 = mNumberOfElementOutOfThePot_U32;
       if (mNumberOfElementOutOfThePot_U32 < mPotParam_X.PotCapacity_U32)
       {
-        pData_X    = mpFirstPotElementToTryForGet_X;
+        pData_X = mpFirstPotElementToTryForGet_X;
         pLocked_U8 = &mpInUseElementList_U8[GetFirstFreeIndexToTry()];
 
         for (i_U32 = 0; i_U32 < mPotParam_X.PotCapacity_U32; i_U32++, pData_X++, pLocked_U8++)
         {
           if (pData_X > mpLastPotElement_X)
           {
-            pData_X    = mpPotDataStorage_X;
+            pData_X = mpPotDataStorage_X;
             pLocked_U8 = mpInUseElementList_U8;
           }
 
           if (mPotParam_X.MagicNumber_U32)
           {
-            if ((*(uint32_t *) pData_X != mPotParam_X.MagicNumber_U32) && (*(uint32_t *) pData_X != ~mPotParam_X.MagicNumber_U32))
+            if ((*(uint32_t *)pData_X != mPotParam_X.MagicNumber_U32) && (*(uint32_t *)pData_X != ~mPotParam_X.MagicNumber_U32))
             {
               if (!mPotParam_X.GetDoNotErasePotElement_B)
               {
@@ -511,11 +489,11 @@ RetryGet:
 
               if (_Lock_B)
               {
-                *(uint32_t *) pData_X = ~mPotParam_X.MagicNumber_U32;
+                *(uint32_t *)pData_X = ~mPotParam_X.MagicNumber_U32;
               }
               else
               {
-                *(uint32_t *) pData_X = mPotParam_X.MagicNumber_U32;
+                *(uint32_t *)pData_X = mPotParam_X.MagicNumber_U32;
               }
               pRts_X = pData_X;
               break;
@@ -568,27 +546,24 @@ RetryGet:
         Sts_E = BOF_ERR_EMPTY;
       }
       BOF_POT_UNLOCK()
-      if ((mPotParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32))
-      {
-        if (Sts_E == BOF_ERR_NO_ERROR)
+        if ((mPotParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32))
         {
-          if (NumberOfElementOutOfThePot_U32 < mPotParam_X.PotCapacity_U32)
+          if (Sts_E == BOF_ERR_NO_ERROR)
           {
-            Bof_SignalEvent(mCanGetEvent_X, 0);
+            if (NumberOfElementOutOfThePot_U32 < mPotParam_X.PotCapacity_U32)
+            {
+              Bof_SignalEvent(mCanGetEvent_X, 0);
+            }
+          }
+          if (Sts_E == BOF_ERR_EMPTY)
+          {
+            goto RetryGet;
           }
         }
-        if (Sts_E == BOF_ERR_EMPTY)
-        {
-          goto RetryGet;
-        }
-      }
     }
   }
   return pRts_X;
 }
-
-
-/*** IsPotElementInUse ***************************************************/
 
 /*!
  * Description
@@ -617,19 +592,19 @@ BOFERR BofPot<DataType>::IsPotElementInUse(DataType *_pData_X)
   if ((_pData_X) &&
       (_pData_X >= mpPotDataStorage_X) &&
       (_pData_X <= mpLastPotElement_X)
-    )
+      )
   {
     BOF_POT_LOCK(Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (mPotParam_X.MagicNumber_U32)
       {
-        InUse_B = ((*(uint32_t *) _pData_X == mPotParam_X.MagicNumber_U32) || (*(uint32_t *) _pData_X == ~mPotParam_X.MagicNumber_U32));
+        InUse_B = ((*(uint32_t *)_pData_X == mPotParam_X.MagicNumber_U32) || (*(uint32_t *)_pData_X == ~mPotParam_X.MagicNumber_U32));
       }
       else
       {
         Index_U32 = GetIndex(_pData_X);
-        InUse_B   = (mpInUseElementList_U8[Index_U32] != 0);
+        InUse_B = (mpInUseElementList_U8[Index_U32] != 0);
       }
 
       if (InUse_B)
@@ -641,9 +616,6 @@ BOFERR BofPot<DataType>::IsPotElementInUse(DataType *_pData_X)
   }
   return Rts_E;
 }
-
-
-/*** IsPotElementLocked ***************************************************/
 
 /*!
  * Description
@@ -672,31 +644,28 @@ BOFERR BofPot<DataType>::IsPotElementLocked(DataType *_pData_X)
   if ((_pData_X) &&
       (_pData_X >= mpPotDataStorage_X) &&
       (_pData_X <= mpLastPotElement_X)
-    )
+      )
   {
     BOF_POT_LOCK(Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (mPotParam_X.MagicNumber_U32)
       {
-        Locked_B = (*(uint32_t *) _pData_X == ~mPotParam_X.MagicNumber_U32);
+        Locked_B = (*(uint32_t *)_pData_X == ~mPotParam_X.MagicNumber_U32);
       }
       else
       {
         Index_U32 = GetIndex(_pData_X);
-        Locked_B  = (mpInUseElementList_U8[Index_U32] == 0xAA);
+        Locked_B = (mpInUseElementList_U8[Index_U32] == 0xAA);
       }
 
-      Rts_E = Locked_B ? BOF_ERR_NO_ERROR: BOF_ERR_UNLOCK;
-      
+      Rts_E = Locked_B ? BOF_ERR_NO_ERROR : BOF_ERR_UNLOCK;
+
       BOF_POT_UNLOCK()
     }
   }
   return Rts_E;
 }
-
-
-/*** GetIndexOfEntry ***************************************************/
 
 /*!
  * Description
@@ -718,7 +687,7 @@ BOFERR BofPot<DataType>::IsPotElementLocked(DataType *_pData_X)
 template<typename DataType>
 uint32_t BofPot<DataType>::GetIndexOfEntry(DataType *_pData_X)
 {
-  uint32_t Rts_U32 = (uint32_t) -1;
+  uint32_t Rts_U32 = (uint32_t)-1;
   BOFERR   Sts_E;
 
   BOF_POT_LOCK(Sts_E);
@@ -726,15 +695,12 @@ uint32_t BofPot<DataType>::GetIndexOfEntry(DataType *_pData_X)
   {
     if (IsPotElementInUse(_pData_X) == BOF_ERR_NO_ERROR)
     {
-      Rts_U32 = (uint32_t) (_pData_X - mpPotDataStorage_X);
+      Rts_U32 = (uint32_t)(_pData_X - mpPotDataStorage_X);
     }
     BOF_POT_UNLOCK()
   }
   return Rts_U32;
 }
-
-
-/*** Release ***************************************************/
 
 /*!
  * Description
@@ -773,7 +739,7 @@ BOFERR BofPot<DataType>::Release(DataType *_pData_X)
         // No prevent reusing too fast pot element      mpFirstPotElementToTryForGet_X=_pData_X;
         if (mPotParam_X.MagicNumber_U32)
         {
-          *(uint32_t *) _pData_X = 0;     // ~mPotParam_X.MagicNumber_U32;
+          *(uint32_t *)_pData_X = 0;     // ~mPotParam_X.MagicNumber_U32;
         }
         else
         {
@@ -803,9 +769,6 @@ BOFERR BofPot<DataType>::Release(DataType *_pData_X)
   return Rts_E;
 }
 
-
-/*** ClearPot ***************************************************/
-
 /*!
  * Description
  * This method release all the element of a pot
@@ -832,7 +795,7 @@ BOFERR BofPot<DataType>::ClearPot(uint32_t _NbFirstEntryToKeep_U32)
 
   if (_NbFirstEntryToKeep_U32 < mPotParam_X.PotCapacity_U32)
   {
-    pData_X          = &mpPotDataStorage_X[0];
+    pData_X = &mpPotDataStorage_X[0];
     NbLockedKept_U32 = 0;
     BOF_POT_LOCK(Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -844,13 +807,13 @@ BOFERR BofPot<DataType>::ClearPot(uint32_t _NbFirstEntryToKeep_U32)
           NbLockedKept_U32++;
         }
       }
-      pData_X    = &mpPotDataStorage_X[_NbFirstEntryToKeep_U32];
+      pData_X = &mpPotDataStorage_X[_NbFirstEntryToKeep_U32];
 
       for (i_U32 = _NbFirstEntryToKeep_U32; i_U32 < mPotParam_X.PotCapacity_U32; i_U32++, pData_X++)
       {
         if (mPotParam_X.MagicNumber_U32)
         {
-          *(uint32_t *) pData_X = 0;      // ~mPotParam_X.MagicNumber_U32;
+          *(uint32_t *)pData_X = 0;      // ~mPotParam_X.MagicNumber_U32;
         }
         else
         {
@@ -862,15 +825,12 @@ BOFERR BofPot<DataType>::ClearPot(uint32_t _NbFirstEntryToKeep_U32)
       // mNbUsedReturnedUntilNow_U32    = 0;
       // mNbMaxUsedToReturn_U32         = 0;
       mpFirstPotElementToTryForGet_X = &mpPotDataStorage_X[_NbFirstEntryToKeep_U32];
-      Rts_E                          = BOF_ERR_NO_ERROR;
+      Rts_E = BOF_ERR_NO_ERROR;
       BOF_POT_UNLOCK()
     }
   }
   return Rts_E;
 }
-
-
-/*** GetFirstUsed ***************************************************/
 
 /*!
  * Description
@@ -894,7 +854,7 @@ DataType *BofPot<DataType>::GetFirstUsed(uint32_t _NbEntryToSkip_U32)
 {
   uint32_t i_U32, Nb_U32;
   DataType *pRts_X = nullptr, *pData_X;
-  uint8_t  *pLocked_U8;
+  uint8_t *pLocked_U8;
   BOFERR   Sts_E;
 
   BOF_POT_LOCK(Sts_E);
@@ -906,15 +866,15 @@ DataType *BofPot<DataType>::GetFirstUsed(uint32_t _NbEntryToSkip_U32)
     if (_NbEntryToSkip_U32 < mNumberOfElementOutOfThePot_U32)
     {
       // mNbMaxUsedToReturn_U32 = mNumberOfElementOutOfThePot_U32 - _NbEntryToSkip_U32;
-      Nb_U32     = 0;
-      pData_X    = mpPotDataStorage_X;
+      Nb_U32 = 0;
+      pData_X = mpPotDataStorage_X;
       pLocked_U8 = mpInUseElementList_U8;
 
       for (i_U32 = 0; i_U32 < mPotParam_X.PotCapacity_U32; i_U32++, pData_X++, pLocked_U8++)
       {
         if (mPotParam_X.MagicNumber_U32)
         {
-          if (*(uint32_t *) pData_X == mPotParam_X.MagicNumber_U32) // NO !! || (*(uint32_t *)pData_X == ~mPotParam_X.MagicNumber_U32))
+          if (*(uint32_t *)pData_X == mPotParam_X.MagicNumber_U32) // NO !! || (*(uint32_t *)pData_X == ~mPotParam_X.MagicNumber_U32))
           {
             if (Nb_U32 == _NbEntryToSkip_U32)
             {
@@ -947,9 +907,6 @@ DataType *BofPot<DataType>::GetFirstUsed(uint32_t _NbEntryToSkip_U32)
   return pRts_X;
 }
 
-
-/*** GetNextUsed ***************************************************/
-
 /*!
  * Description
  *       This function returns the next used element in the pot
@@ -977,18 +934,18 @@ DataType *BofPot<DataType>::GetNextUsed(DataType *_pFirstNextData_X)
 {
   uint32_t i_U32, Nb_U32;
   DataType *pRts_X = nullptr, *pData_X;
-  uint8_t  *pLocked_U8;
+  uint8_t *pLocked_U8;
   BOFERR   Sts_E;
 
   if ((_pFirstNextData_X) &&
       (_pFirstNextData_X <= mpLastPotElement_X)
-    )
+      )
   {
     if ((_pFirstNextData_X) &&
         (_pFirstNextData_X >= mpPotDataStorage_X) &&
         (_pFirstNextData_X <= mpLastPotElement_X)
-      // && ( mNbUsedReturnedUntilNow_U32 < mNbMaxUsedToReturn_U32 )                           //mNbMaxUsedToReturn_U32 instead of mNumberOfElementOutOfThePot_U32 because we can delete elem during enumeration
-      )
+        // && ( mNbUsedReturnedUntilNow_U32 < mNbMaxUsedToReturn_U32 )                           //mNbMaxUsedToReturn_U32 instead of mNumberOfElementOutOfThePot_U32 because we can delete elem during enumeration
+        )
     {
       pData_X = _pFirstNextData_X + 1;
       BOF_POT_LOCK(Sts_E);
@@ -996,15 +953,15 @@ DataType *BofPot<DataType>::GetNextUsed(DataType *_pFirstNextData_X)
       {
         if (pData_X <= mpLastPotElement_X)
         {
-// !!!64bits!!!
-          Nb_U32     = (uint32_t) (mpLastPotElement_X - pData_X + 1);
+          // !!!64bits!!!
+          Nb_U32 = (uint32_t)(mpLastPotElement_X - pData_X + 1);
           pLocked_U8 = &mpInUseElementList_U8[pData_X - mpPotDataStorage_X];
 
           for (i_U32 = 0; i_U32 < Nb_U32; i_U32++, pData_X++, pLocked_U8++)
           {
             if (mPotParam_X.MagicNumber_U32)
             {
-              if (*(uint32_t *) pData_X == mPotParam_X.MagicNumber_U32) // NO !! || (*(uint32_t *)pData_X == ~mPotParam_X.MagicNumber_U32))
+              if (*(uint32_t *)pData_X == mPotParam_X.MagicNumber_U32) // NO !! || (*(uint32_t *)pData_X == ~mPotParam_X.MagicNumber_U32))
               {
                 pRts_X = pData_X;
 

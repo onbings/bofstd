@@ -12,8 +12,7 @@
  */
 #pragma once
 
-#include <bofstd/bofstd.h>
-#include <bofstd/bofsystem.h>
+#include <bofstd/bofdatetime.h>
 #include <bofstd/bofrational.h>
 
 BEGIN_BOF_NAMESPACE()

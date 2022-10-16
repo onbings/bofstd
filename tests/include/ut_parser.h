@@ -19,15 +19,10 @@
  * V 1.00  vendredi 30 mai 2014 16:51:15  b.harmel : Initial release
  */
 #pragma once
- /*** Include files ***********************************************************/
-
 #include <bofstd/bofguid.h>
 #include <bofstd/bofsocket.h>
+
 #include <vector>
-
-/*** Global variables ********************************************************/
-
-/*** data model *****************************************************************/
 
 struct OTHER
 {

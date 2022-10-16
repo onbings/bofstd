@@ -19,19 +19,15 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
-
-#include "gtestrunner.h"
 #include <bofstd/bofenum.h>
 
-/*** Class *************************************************************************************************************************/
+#include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
 
 TEST(Enum_Test, Define)
 {
-	uint32_t Sts_U32 = 0;
+  uint32_t Sts_U32 = 0;
 
-	EXPECT_EQ(Sts_U32, 0);
+  EXPECT_EQ(Sts_U32, 0);
 }

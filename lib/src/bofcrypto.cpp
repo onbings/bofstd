@@ -19,19 +19,15 @@
  *
  * V 1.00  Apr 14 2003  BHA : Initial release
  */
-
- /*** Include files ***********************************************************/
-#include <cstring>
 #include <bofstd/bofcrypto.h>
 #include <bofstd/bofstream.h>
 
+#include <cstring>
 #include <iomanip>
 #include <fstream>
-//#include <openssl/sha.h>
+ //#include <openssl/sha.h>
 
 BEGIN_BOF_NAMESPACE()
-
-/*** Define *****************************************************************/
 
 #define S11     7
 #define S12     12
@@ -87,8 +83,6 @@ BEGIN_BOF_NAMESPACE()
   static uint8_t S_pMd5Padding_U8[] = { 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-/*** BofCryptoMd5::BofCryptoMd5 ***********************************************************/
-
 /*!
  * Description
  * This constructor begins an MD5 operation,writing a new context.
@@ -118,9 +112,6 @@ BofCryptoMd5::BofCryptoMd5()
   mMd5_X.pState_U32[3] = 0x10325476;
 }
 
-
-/*** BofCryptoMd5::~BofCryptoMd5 **********************************************************/
-
 /*!
  * Description
  * This function releases all the resources allocated by the object
@@ -137,14 +128,8 @@ BofCryptoMd5::BofCryptoMd5()
  * See Also
  * None
  */
-
-
-
 BofCryptoMd5::~BofCryptoMd5()
 {}
-
-
-/*** BofCryptoMd5::Hash **********************************************************/
 
 /*!
  * Description
@@ -188,9 +173,6 @@ bool BofCryptoMd5::Hash(uint32_t _NbIn_U32, uint8_t *_pDataIn_U8, uint32_t *_pNb
   }
   return Rts_B;
 }
-
-
-/*** BofCryptoMd5::AddData **********************************************************/
 
 /*!
  * Description
@@ -247,9 +229,6 @@ void BofCryptoMd5::AddData(uint8_t *pInput_U8, uint32_t InputLen_U32)
   /* Buffer remaining input */
   memcpy(&mMd5_X.pBuffer_U8[Index_U32], &pInput_U8[i_U32], InputLen_U32 - i_U32);
 }
-
-
-/*** BofCryptoMd5::Compute **********************************************************/
 
 /*!
  * Description
@@ -316,9 +295,6 @@ void BofCryptoMd5::Compute(uint8_t *pDigest_U8, uint32_t *_pNbOut_U32)
 
   memset(&mMd5_X, 0, sizeof(mMd5_X));
 }
-
-
-/*** BofCryptoMd5::Transform **********************************************************/
 
 /*!
  * Description
@@ -424,9 +400,6 @@ void BofCryptoMd5::Transform(uint32_t *pState_U32, uint8_t *pBlock_U8)
   memset((uint8_t *)px_U32, 0, sizeof(px_U32));
 }
 
-
-/*** BofCryptoMd5::Encode **********************************************************/
-
 /*!
  * Description
  * This function encodes input(uint32_t) into output(uint8_t). Assumes Len_U32 is a multiple of 4.
@@ -457,9 +430,6 @@ void BofCryptoMd5::Encode(uint8_t *pOutput_U8, uint32_t *pInput_U32, uint32_t Le
     pOutput_U8[j_U32 + 3] = (uint8_t)((pInput_U32[i_U32] >> 24) & 0xff);
   }
 }
-
-
-/*** BofCryptoMd5::Decode **********************************************************/
 
 /*!
  * Description

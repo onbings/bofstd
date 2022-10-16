@@ -20,9 +20,6 @@
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
 
-/*** Include files ***********************************************************/
-
-#include <bofstd/bofstd.h>
 #include <bofstd/bofsocket.h>
 #include <map>
 #include <locale.h>

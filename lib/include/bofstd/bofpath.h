@@ -21,15 +21,10 @@
  */
 #pragma once
 
-/*** Include files ***********************************************************/
 #include <bofstd/bofstd.h>
+
 #include <string>
 
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 BEGIN_BOF_NAMESPACE()
 /// @brief This class implements a Path parser. A path is a full pathname, a directory or a file.
 /// Relative path or directory or base filename must be combined with a base path to produce a full path or directory
