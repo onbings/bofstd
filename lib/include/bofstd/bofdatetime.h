@@ -82,7 +82,7 @@ private:
   std::time_t mTimeT;
   date::year_month_day mYmd;
   date::weekday mWd;
-  date::hh_mm_ss<std::chrono::duration<__int64, std::ratio<1, 10000000>>> mTime;
+  date::hh_mm_ss<std::chrono::nanoseconds> mTime;
 
   std::chrono::system_clock::time_point mTp;
 //  double mDateTimeNum_lf;

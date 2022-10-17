@@ -311,7 +311,7 @@ void BofDateTime::InitDateTime()
       std::chrono::microseconds SubSec(mMicroSecond_U32);
       mTp += SubSec;
 
-      auto DurationInDay = floor<date::days>(mTp);
+      auto DurationInDay = date::floor<date::days>(mTp);
       mTime = date::make_time(mTp - DurationInDay);
 //      std::cout.fill('0');
 //      std::cout << mYmd.day() << '-' << std::setw(2) << static_cast<unsigned>(mYmd.month()) << '-' << mYmd.year() << ' ' << mTime << '\n';
@@ -373,7 +373,7 @@ BOFERR Bof_Now(BofDateTime &_rDateTime)
   BOFERR Rts_E = BOF_ERR_INTERNAL;
 
   std::chrono::system_clock::time_point TimePoint{ std::chrono::system_clock::now() };
-  auto DurationInDay = floor<date::days>(TimePoint);
+  auto DurationInDay = date::floor<date::days>(TimePoint);
   date::year_month_day Ymd(DurationInDay);
   auto Time = date::make_time(TimePoint - DurationInDay);
 
@@ -496,7 +496,7 @@ BOFERR Bof_DiffDateTime(const BofDateTime &_rFirstDateTime, const BofDateTime &_
   if ((_rFirstDateTime.IsValid()) && (_rSecondDateTime.IsValid()))
   {
     auto Duration = _rFirstDateTime.TimePoint() - _rSecondDateTime.TimePoint();
-    auto NbDay = floor<date::days>(Duration);
+    auto NbDay = date::floor<date::days>(Duration);
     _rDiffDay_S32 = (int32_t)NbDay.count();
     auto OffsetInHmsus = Duration - NbDay;
     auto Time = date::make_time(OffsetInHmsus);

@@ -457,11 +457,11 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
 #else
               FileFound_X.Size_U64 = FileStat_X.st_size;
               Time_U64 = static_cast<uint64_t>(FileStat_X.st_ctime);
-              Bof_FileTimeToSystemTime(Time_U64, FileFound_X.Creation_X);
+              Bof_FileTimeToSystemTime(Time_U64, FileFound_X.Creation);
               Time_U64 = static_cast<uint64_t>(FileStat_X.st_atime);
-              Bof_FileTimeToSystemTime(Time_U64, FileFound_X.LastAccess_X);
+              Bof_FileTimeToSystemTime(Time_U64, FileFound_X.LastAccess);
               Time_U64 = static_cast<uint64_t>(FileStat_X.st_mtime);
-              Bof_FileTimeToSystemTime(Time_U64, FileFound_X.LastWrite_X);
+              Bof_FileTimeToSystemTime(Time_U64, FileFound_X.LastWrite);
 #endif
               if (EntryOk_B)
               {
