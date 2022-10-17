@@ -109,22 +109,23 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) ="Timecode_Test.*:CmdLineParser_Test.CmdLine";
   //	::testing::GTEST_FLAG(filter) ="CmdLineParser_Test.CmdLine";
   //	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
-  ::testing::GTEST_FLAG(filter) = "Enum_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Enum_Test.*";
   //	::testing::GTEST_FLAG(filter) = "String_Test.*:XmlParser_Test.*:JsonParser_Test.*:Bof2d_Test.*:Fs_Test.*";
     //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";	// :Uri_Test.*";
     //	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*";
-  //	::testing::GTEST_FLAG(filter) = "Api_Test.*";
+//  	::testing::GTEST_FLAG(filter) = "XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "SocketOs_Test.*:BofNaryTreeKv_Test.*:Path_Test.*:Uri_Test.*:Fs_Test.*";
     //	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*:SocketOs_Test.*:Uri_Test.*";
   //	::testing::GTEST_FLAG(filter) = "Uri_Test.*:CmdLineParser_Test.*";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorToJson:Bof2d_Test.MediaDetectorFromJson";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
-  //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*";
-  ::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
-  //	[FAILED] util_test.utf8_to_utf16
-  //	[FAILED] Logger_Test.LoggerMultiChannel
-  //	[FAILED] Uri_Test.UriConstructorDestructor
+  //	::testing::GTEST_FLAG(filter) = "JsonWriter_Test.IpSwitcherSerDeser";
+/*
+[==========] 151 tests from 41 test suites ran. (56031 ms total)
+[  PASSED  ] 151 tests.
 
+  YOU HAVE 5 DISABLED TESTS
+*/
   Rts_i = RUN_ALL_TESTS();
 
   Sts_E = Bof_Shutdown();

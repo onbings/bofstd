@@ -68,6 +68,10 @@ struct ARRAYENTRY
   BOF_SOCKET_ADDRESS_COMPONENT IpV4_X;
   ARRAYENTRY()
   {
+    Reset();
+  }
+  void Reset()
+  {
     c_U32 = 0;
     a_U8 = 0;
     b_U16 = 0;
@@ -76,7 +80,7 @@ struct ARRAYENTRY
   }
 };
 
-struct APPPARAM
+struct CLI_APPPARAM
 {
   bool         AskHelp_B;
   WORKING_MODE WorkingMode_E;
@@ -90,9 +94,9 @@ struct APPPARAM
   char               pVal_c[7][256];
   ARRAYENTRY         pArray_X[6];
   std::string        Str_S;
-  BOF_DATE_TIME      Date_X;
-  BOF_DATE_TIME      Time_X;
-  BOF_DATE_TIME      DateTime_X;
+  BofDateTime        Date;
+  BofDateTime        Time;
+  BofDateTime        DateTime;
   BofPath            Path;
   BofUri             Uri1;
   BofUri             Uri2;
@@ -111,8 +115,10 @@ struct APPPARAM
   BofTimecode		   	 Tc;
   BOF_SIZE					 Size_X;
 
-  APPPARAM()
+  CLI_APPPARAM()
   {
+    int i;
+
     AskHelp_B = false;
     // Setup application default value
     WorkingMode_E = WORKING_MODE::GENERATE;
@@ -123,11 +129,14 @@ struct APPPARAM
     IpV6_X.Reset();
     memset(&pVal_U32, 0, sizeof(pVal_U32));
     memset(&pVal_c, 0, sizeof(pVal_c));
-    memset(&pArray_X, 0, sizeof(pArray_X));
+    for (i = 0; i < BOF_NB_ELEM_IN_ARRAY(pArray_X); i++)
+    {
+      pArray_X[i].Reset();
+    }
     Str_S = "empty";
-    memset(&Date_X, 0, sizeof(Date_X));
-    memset(&Time_X, 0, sizeof(Time_X));
-    memset(&DateTime_X, 0, sizeof(DateTime_X));
+    Date.Reset();
+    Time.Reset();
+    DateTime.Reset();
 
     Val_U8 = 0;
     Val_U16 = 0;
@@ -143,7 +152,7 @@ struct APPPARAM
   }
 };
 
-static APPPARAM S_AppParam_X;
+static CLI_APPPARAM S_AppParam_X;
 
 BOFERR CmdLineParseResultUltimateCheck(int /*_Index_U32*/, const BOFPARAMETER & /*_rBofCommandlineOption_X*/, const bool _CheckOk_B, const char * /*_pOptNewVal_c*/)
 {
@@ -199,13 +208,13 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
                                        {nullptr, std::string("asf1"),     std::string("Pure array of struct: field 1."),                                    std::string("V=0x%02X"),          std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_ARRAY_OF_STRUCT(ARRAYENTRY, S_AppParam_X.pArray_X, a_U8, UINT8, 0, 0)},
                                        {nullptr, std::string("asf2"),     std::string("Pure array of struct: field 2."),                                    std::string("Va=0x%04X"),         std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_ARRAY_OF_STRUCT(ARRAYENTRY, S_AppParam_X.pArray_X, b_U16, UINT16, 0, 0)},
                                        {nullptr, std::string("asf3"),     std::string("Pure array of struct: field 3."),                                    std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_ARRAY_OF_STRUCT(ARRAYENTRY, S_AppParam_X.pArray_X, pTxt_c, CHARSTRING, 1, sizeof(S_AppParam_X.pArray_X[0].pTxt_c) - 1)},
-                                       {nullptr, std::string("asf4"),     std::string("Pure array of struct: field 4."),                                    std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PROTOCOL | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT, BOF_PARAM_DEF_ARRAY_OF_STRUCT(ARRAYENTRY, S_AppParam_X.pArray_X, IpV4_X, IPV4, 0, 0)},
+                                       {nullptr, std::string("asf4"),     std::string("Pure array of struct: field 4."),                                    std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOFPARAMETER_ARG_FLAG::IP_FORMAT_SCHEME | BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT, BOF_PARAM_DEF_ARRAY_OF_STRUCT(ARRAYENTRY, S_AppParam_X.pArray_X, IpV4_X, IPV4, 0, 0)},
 
                                        {nullptr, std::string("str"),      std::string("Specifies a std::string."),                                          std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Str_S, STDSTRING, 0, 0)},
 
-                                       {nullptr, std::string("date"),     std::string("Specifies a date."),                                                 std::string("%d/%m/%Y"),          std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Date_X, DATE, 0, 0)},
-                                       {nullptr, std::string("time"),     std::string("Specifies a time."),                                                 std::string("%H:%M:%S"),          std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Time_X, TIME, 0, 0)},
-                                       {nullptr, std::string("datetime"), std::string("Specifies a datetime."),                                             std::string("%d/%m/%Y %H:%M:%S"), std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.DateTime_X, DATETIME, 0, 0)},
+                                       {nullptr, std::string("date"),     std::string("Specifies a date."),                                                 std::string("%d/%m/%Y"),          std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Date, DATE, 0, 0)},
+                                       {nullptr, std::string("time"),     std::string("Specifies a time."),                                                 std::string("%H:%M:%S"),          std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Time, TIME, 0, 0)},
+                                       {nullptr, std::string("datetime"), std::string("Specifies a datetime."),                                             std::string("%d/%m/%Y %H:%M:%S"), std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.DateTime, DATETIME, 0, 0)},
                                        {nullptr, std::string("path"),     std::string("Specifies a path."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Path, PATH, 0, 0)},
 
                                        {nullptr, std::string("vs"),     std::string("Specifies a video standard."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Vs, VIDEOSTANDARD, 0, 0)},
@@ -432,22 +441,22 @@ TEST_F(CmdLineParser_Test, CmdLine)
   EXPECT_EQ(S_AppParam_X.pVal_U32[7], 0);
 
 
-  EXPECT_EQ(S_AppParam_X.DateTime_X.Day_U8, 12);
-  EXPECT_EQ(S_AppParam_X.DateTime_X.Month_U8, 11);
-  EXPECT_EQ(S_AppParam_X.DateTime_X.Year_U16, 2010);
-  EXPECT_EQ(S_AppParam_X.DateTime_X.Hour_U8, 13);
-  EXPECT_EQ(S_AppParam_X.DateTime_X.Minute_U8, 14);
-  EXPECT_EQ(S_AppParam_X.DateTime_X.Second_U8, 15);
-  EXPECT_EQ(S_AppParam_X.DateTime_X.MicroSecond_U32, 0);
+  EXPECT_EQ(S_AppParam_X.DateTime.Day(), 12);
+  EXPECT_EQ(S_AppParam_X.DateTime.Month(), 11);
+  EXPECT_EQ(S_AppParam_X.DateTime.Year(), 2010);
+  EXPECT_EQ(S_AppParam_X.DateTime.Hour(), 13);
+  EXPECT_EQ(S_AppParam_X.DateTime.Minute(), 14);
+  EXPECT_EQ(S_AppParam_X.DateTime.Second(), 15);
+  EXPECT_EQ(S_AppParam_X.DateTime.MicroSecond(), 0);
 
-  EXPECT_EQ(S_AppParam_X.Date_X.Day_U8, 1);
-  EXPECT_EQ(S_AppParam_X.Date_X.Month_U8, 2);
-  EXPECT_EQ(S_AppParam_X.Date_X.Year_U16, 2003);
+  EXPECT_EQ(S_AppParam_X.Date.Day(), 1);
+  EXPECT_EQ(S_AppParam_X.Date.Month(), 2);
+  EXPECT_EQ(S_AppParam_X.Date.Year(), 2003);
 
-  EXPECT_EQ(S_AppParam_X.Time_X.Hour_U8, 12);
-  EXPECT_EQ(S_AppParam_X.Time_X.Minute_U8, 34);
-  EXPECT_EQ(S_AppParam_X.Time_X.Second_U8, 56);
-  EXPECT_EQ(S_AppParam_X.Time_X.MicroSecond_U32, 0);
+  EXPECT_EQ(S_AppParam_X.Time.Hour(), 12);
+  EXPECT_EQ(S_AppParam_X.Time.Minute(), 34);
+  EXPECT_EQ(S_AppParam_X.Time.Second(), 56);
+  EXPECT_EQ(S_AppParam_X.Time.MicroSecond(), 0);
 
   Ip_S = Bof_SocketAddressToString(S_AppParam_X.IpV4_X.Ip_X, true, true);
   EXPECT_STREQ(Ip_S.c_str(), "udp://192.168.1.2:23");

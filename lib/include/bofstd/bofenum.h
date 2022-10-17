@@ -33,18 +33,6 @@ constexpr typename std::underlying_type<T>::type Bof_EnumToNativeValue(T t)
   return static_cast<typename std::underlying_type<T>::type>(t);
 }
 
-/*
-static BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE> S_MuseFileSystemMediaTypeEnumConverter({
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, "Unknown" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max" }
-                                                                          });
-  std::string Tp_S = S_MuseFileSystemMediaTypeEnumConverter.ToString(S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E);
-  MUSE_FILE_SYSTEM_MEDIA_TYPE Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum(Tp_S);
-
-*/
-
 //https://stackoverflow.com/questions/14727313/c-how-to-reference-templated-functions-using-stdbind-stdfunction
 //https://stackoverflow.com/questions/24874478/use-stdbind-with-overloaded-functions
 ///@brief This class represent a double mapping between unique instances of @c T and strings.

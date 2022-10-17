@@ -152,7 +152,7 @@ struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
     FileLogPath = _FileLogPath;
     // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
     // -----> Replaced by %i and SPDLOG_ENABLE_MESSAGE_COUNTER
-    // We add a special %N market which can only appear as the first pattern character if you want to use it.
+    // We add a special %N marker which can only appear as the first pattern character if you want to use it.
     // it is used to add unique log line number ( as a %08X number) after the other pattern character and before the beginning of the log line.
     // With this 'ticket' value, you can detect log line buffer overflow as you will have "holes" in the line number sequence if it happens
     LogHeader_S = _LogHeader_S;

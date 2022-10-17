@@ -142,12 +142,12 @@ BOFSTD_EXPORT BOFERR Bof_RemoveDirectory(const BofPath &_rPath);
 
 struct BOFSTD_EXPORT BOF_FILE_FOUND
 {
-  BofPath Path;
-  uint64_t Size_U64;
-  BOF_DATE_TIME     Creation_X;
-  BOF_DATE_TIME     LastAccess_X;
-  BOF_DATE_TIME     LastWrite_X;
-  BOF_FILE_TYPE     FileType_E;
+  BofPath       Path;
+  uint64_t      Size_U64;
+  BofDateTime   Creation;
+  BofDateTime   LastAccess;
+  BofDateTime   LastWrite;
+  BOF_FILE_TYPE FileType_E;
 
   BOF_FILE_FOUND()
   {
@@ -157,9 +157,9 @@ struct BOFSTD_EXPORT BOF_FILE_FOUND
   {
     Path = "";
     Size_U64 = 0;
-    Creation_X.Reset();
-    LastAccess_X.Reset();
-    LastWrite_X.Reset();
+    Creation.Reset();
+    LastAccess.Reset();
+    LastWrite.Reset();
     FileType_E = BOF_FILE_TYPE::BOF_FILE_UNK;
   }
 };

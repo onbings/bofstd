@@ -636,7 +636,7 @@ BOFERR BofSocketIo::S_ParseListLineBuffer(const std::string &_rBaseDirectory_S, 
   std::cmatch         ListMatch;
   std::string Fn_S, Val_S;
   //bool IsDirectory_B, IsLink_B;
-  BOF_DATE_TIME DateTime_X, Now_X;
+  BofDateTime DateTime, Now;
   BOF_FTP_FILE FtpFile_X;
   const char *pEol_c;
   char pListLine_c[0x1000];
@@ -719,8 +719,8 @@ BOFERR BofSocketIo::S_ParseListLineBuffer(const std::string &_rBaseDirectory_S, 
             FtpFile_X.User_S = ListMatch[3].str();
             FtpFile_X.Group_S = ListMatch[4].str();
             FtpFile_X.Size_U64 = std::stoull(ListMatch[5].str());
-            FtpFile_X.DateTime_X.FromString(ListMatch[6].str(), "%b %d %H:%M");
-            Bof_Now(Now_X);
+            FtpFile_X.DateTime.FromString(ListMatch[6].str(), "%b %d %H:%M");
+            Bof_Now(Now);
             //Will change dayofweek or isvalid FtpFile_X.DateTime_X.Year_U16 = Now_X.Year_U16;
             //Bof_ComputeDayOfWeek(FtpFile_X.DateTime_X, FtpFile_X.DateTime_X.DayOfWeek_U8);
 

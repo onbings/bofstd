@@ -30,8 +30,8 @@ TEST(Timecode_Test, TcBin)
   uint64_t TcBin_U64;
   BOF_TIMECODE Tc1_X, Tc2_X;
 
-  BOF_DATE_TIME DateTime1_X(26, 5, 1970, 8, 16, 32, 100 * 1000 * 1000);
-  BofTimecode Tc1(false, DateTime1_X);
+  BofDateTime DateTime1(26, 5, 1970, 8, 16, 32, 100 * 1000);
+  BofTimecode Tc1(false, DateTime1);
 
   Tc1_X = Tc1.ToByteStruct();
   Tc1_X.pUserBit_U8[0] = 0x12;
@@ -76,7 +76,7 @@ TEST(Timecode_Test, Construct)
 {
   uint64_t TcInMs_U64, TcValInMs_U64;
   int64_t DifMs_S64;
-  BOF_DATE_TIME DateTime_X(26, 5, 2018, 8, 16, 32, 47 * 1000 * 1000);
+  BofDateTime DateTime(26, 5, 2018, 8, 16, 32, 47 * 1000);
   BofTimecode Tc1;
 
   EXPECT_FALSE(Tc1.IsNtsc());
@@ -106,7 +106,7 @@ TEST(Timecode_Test, Construct)
   EXPECT_STREQ(Tc2.ToString(true, "%Y-%b-%d", true, "%H:%M:%S", true).c_str(), "1971-Jan-03 01:02:03:04. @1000/30");
   EXPECT_STREQ(Tc2.ToString(true, "", true, "", true).c_str(), "1971-01-03 01:02:03:04. @1000/30");
 
-  BofTimecode Tc3(false, DateTime_X);
+  BofTimecode Tc3(false, DateTime);
   EXPECT_FALSE(Tc3.IsNtsc());
   EXPECT_FALSE(Tc3.IsOddField());
   EXPECT_EQ(Tc3.FrameTime(), 1000.0f / 25.0f);
@@ -126,15 +126,15 @@ TEST(Timecode_Test, Construct)
 }
 TEST(Timecode_Test, Operator)
 {
-  BOF_DATE_TIME DateTime1_X(26, 5, 1970, 8, 16, 32, 100 * 1000 * 1000);
-  BofTimecode Tc1(false, DateTime1_X);
-  BOF_DATE_TIME DateTime2_X(26, 5, 1970, 8, 16, 32, 900 * 1000 * 1000);
-  BofTimecode Tc2(false, DateTime2_X);
-  BOF_DATE_TIME DateTime3_X(2, 7, 2018, 0, 1, 2, 700 * 1000 * 1000);
-  BofTimecode Tc3(false, DateTime3_X);
-  BofTimecode Tc4(false, DateTime1_X);
-  BOF_DATE_TIME DiffTime_X;
-  uint32_t DiffDay_U32;
+  BofDateTime DateTime1(26, 5, 1970, 8, 16, 32, 100 * 1000);
+  BofTimecode Tc1(false, DateTime1);
+  BofDateTime DateTime2(26, 5, 1970, 8, 16, 32, 900 * 1000);
+  BofTimecode Tc2(false, DateTime2);
+  BofDateTime DateTime3(2, 7, 2018, 0, 1, 2, 700 * 1000);
+  BofTimecode Tc3(false, DateTime3);
+  BofTimecode Tc4(false, DateTime1);
+  BofDateTime DiffTime;
+  int32_t DiffDay_S32;
   uint64_t Diff_U64, DiffInField_U64;
   BOFERR Sts_E;
   BOF_TIMECODE Tc1_X;
@@ -165,9 +165,9 @@ TEST(Timecode_Test, Operator)
 
   Diff_U64 = Tc2 - Tc1;
   EXPECT_EQ(Diff_U64, 40);
-  Sts_E = Bof_DiffDateTime(DateTime3_X, DateTime2_X, DiffTime_X, DiffDay_U32);
+  Sts_E = Bof_DiffDateTime(DateTime3, DateTime2, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, 0);
-  DiffInField_U64 = static_cast<uint64_t>(((static_cast<uint64_t>(DiffDay_U32) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(DiffTime_X.Hour_U8 * 60 * 60 * 1000) + static_cast<uint64_t>(DiffTime_X.Minute_U8 * 60 * 1000) + static_cast<uint64_t>(DiffTime_X.Second_U8 * 1000) + static_cast<uint64_t>(DiffTime_X.MicroSecond_U32 / 1000)) / static_cast<uint64_t>(Tc2.FieldTime()));
+  DiffInField_U64 = static_cast<uint64_t>(((static_cast<uint64_t>(DiffDay_S32) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(DiffTime.Hour() * 60 * 60 * 1000) + static_cast<uint64_t>(DiffTime.Minute() * 60 * 1000) + static_cast<uint64_t>(DiffTime.Second() * 1000) + static_cast<uint64_t>(DiffTime.MicroSecond() / 1000)) / static_cast<uint64_t>(Tc2.FieldTime()));
   Diff_U64 = Tc3 - Tc2;
   EXPECT_EQ(Diff_U64, DiffInField_U64);
 

@@ -243,7 +243,7 @@ TEST(Bof2d_Test, MediaDetectorParse)
 #endif
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Json, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-  EXPECT_STREQ(Result_S.c_str(), "{\r\n\"media\": {\r\n\"@ref\": \"C:\\\\bld\\\\bofstd\\\\tests\\\\data\\\\colorbar.jpg\",\r\n\"track\": [\r\n{\r\n\"@type\": \"General\",\r\n\"ImageCount\": \"1\",\r\n\"FileExtension\": \"jpg\",\r\n\"Format\": \"JPEG\",\r\n\"FileSize\": \"9830\",\r\n\"StreamSize\": \"0\",\r\n\"File_Created_Date\": \"UTC 2022-09-17 08:12:46.389\",\r\n\"File_Created_Date_Local\": \"2022-09-17 10:12:46.389\",\r\n\"File_Modified_Date\": \"UTC 2022-09-17 11:29:29.185\",\r\n\"File_Modified_Date_Local\": \"2022-09-17 13:29:29.185\"\r\n},\r\n{\r\n\"@type\": \"Image\",\r\n\"Format\": \"JPEG\",\r\n\"Width\": \"259\",\r\n\"Height\": \"194\",\r\n\"ColorSpace\": \"YUV\",\r\n\"ChromaSubsampling\": \"4:2:2\",\r\n\"BitDepth\": \"8\",\r\n\"Compression_Mode\": \"Lossy\",\r\n\"StreamSize\": \"9830\"\r\n}\r\n]\r\n}\r\n}\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "{\r\n\"media\": {\r\n\"@ref\": \"C:\\\\bld\\\\bofstd\\\\tests\\\\data\\\\colorbar.jpg\",\r\n\"track\": [\r\n{\r\n\"@type\": \"General\",\r\n\"ImageCount\": \"1\",\r\n\"FileExtension\": \"jpg\",\r\n\"Format\": \"JPEG\",\r\n\"FileSize\": \"9830\",\r\n\"StreamSize\": \"0\",\r\n\"File_Created_Date\": \"UTC 2022-09-17 08:12:46.389\",\r\n\"File_Created_Date_Local\": \"2022-09-17 10:12:46.389\",\r\n\"File_Modified_Date\": \"UTC 2022-09-17 11:29:29.685000\",\r\n\"File_Modified_Date_Local\": \"2022-09-17 13:29:29.701000\"\r\n},\r\n{\r\n\"@type\": \"Image\",\r\n\"Format\": \"JPEG\",\r\n\"Width\": \"259\",\r\n\"Height\": \"194\",\r\n\"ColorSpace\": \"YUV\",\r\n\"ChromaSubsampling\": \"4:2:2\",\r\n\"BitDepth\": \"8\",\r\n\"Compression_Mode\": \"Lossy\",\r\n\"StreamSize\": \"9830\"\r\n}\r\n]\r\n}\r\n}\r\n");
 #endif
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_jpg_with_bad_ext.png", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
@@ -389,9 +389,9 @@ TEST(Bof2d_Test, MediaDetectorQuery)
                 },
                 "Header" :
                 {
-                        "Created" : "UTC 2022-09-21 12:16:43",
+                        "Created" : "UTC 2022-09-21 12:16:43.685000",
                         "FileSize" : 32183316,
-                        "Modified" : "UTC 2022-09-21 12:16:43",
+                        "Modified" : "UTC 2022-09-21 12:16:43.701000",
                         "Type" : "Still"
                 },
                 "Video" :
@@ -475,8 +475,8 @@ static BofEnum<MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT> S_MuseFileSystemMediaAudioFo
 struct MUSE_FILE_SYSTEM_MEDIA_HEADER
 {
   uint64_t FileSize_U64;
-  BOF_DATE_TIME Created_X;
-  BOF_DATE_TIME Modified_X;
+  BofDateTime Created;
+  BofDateTime Modified;
   MUSE_FILE_SYSTEM_MEDIA_TYPE MediaType_E;
 
   MUSE_FILE_SYSTEM_MEDIA_HEADER()
@@ -487,13 +487,13 @@ struct MUSE_FILE_SYSTEM_MEDIA_HEADER
   void Reset()
   {
     FileSize_U64 = 0;
-    Created_X = BOF_DATE_TIME();
-    Modified_X = BOF_DATE_TIME();
+    Created.Reset();
+    Modified.Reset();
     MediaType_E = MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN;
   }
   std::string ToString()
   {
-    return "Sz " + std::to_string(FileSize_U64) + " Byte Create " + Created_X.ToString() + " Modif " + Created_X.ToString() +
+    return "Sz " + std::to_string(FileSize_U64) + " Byte Create " + Created.ToString() + " Modif " + Modified.ToString() +
       S_MuseFileSystemMediaTypeEnumConverter.ToString(MediaType_E);
   }
 };
@@ -597,8 +597,8 @@ MUSE_FILE_SYSTEM_MEDIA S_MuseFileSystemMedia_X;
 std::vector< BOFPARAMETER > S_MuseFileSystemMediaJsonSchemaCollection =
 {
   {nullptr, std::string("FileSize"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.FileSize_U64, UINT64, 0, 0)},
-  {nullptr, std::string("Created"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Created_X, DATETIME, 0, 0)},
-  {nullptr, std::string("Modified"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Modified_X, DATETIME, 0, 0)},
+  {nullptr, std::string("Created"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Created, DATETIME, 0, 0)},
+  {nullptr, std::string("Modified"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Modified, DATETIME, 0, 0)},
   {nullptr, std::string("Type"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Header_X.MediaType_E,MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, S_MuseFileSystemMediaTypeEnumConverter,MUSE_FILE_SYSTEM_MEDIA_TYPE)},
 
   {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Uri, URI, 1, 512)},
@@ -631,8 +631,8 @@ TEST(Bof2d_Test, MediaDetectorToJson)
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 
   S_MuseFileSystemMedia_X.Header_X.FileSize_U64 = 32183316;
-  S_MuseFileSystemMedia_X.Header_X.Created_X = BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 685);
-  S_MuseFileSystemMedia_X.Header_X.Modified_X = BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 701);
+  S_MuseFileSystemMedia_X.Header_X.Created = BofDateTime(21, 9, 2022, 12, 16, 43, 685000);
+  S_MuseFileSystemMedia_X.Header_X.Modified = BofDateTime(21, 9, 2022, 12, 16, 43, 701000);
   S_MuseFileSystemMedia_X.Header_X.MediaType_E = MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL;
 
   S_MuseFileSystemMedia_X.Video_X.Uri = BofUri("storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
@@ -690,7 +690,7 @@ TEST(Bof2d_Test, MediaDetectorFromJson)
 {
   BofMediaDetector MediaInfoParser;
   std::string Result_S, JsonOut_S, ToString_S;
-  std::string Json_S = R"({"Media":{"Audio":{"DurationInNs":0,"Format":"Mp3","Path":"/media/audio/pexels-alexander-grey-1149347.mp3","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.mp3","Standard":"16xS24L32@48000","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3"},"Header":{"Created":"UTC 2022-09-21 12:16:43","FileSize":32183316,"Modified":"UTC 2022-09-21 12:16:43","Type":"Still"},"Video":{"BitDepth":8,"ColorSpace":"Rgb","DurationInNs":0,"Format":"Png","Path":"/media/still/pexels-alexander-grey-1149347.png","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png","Standard":"1920x1080@59.94i","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"}}})";
+  std::string Json_S = R"({"Media":{"Audio":{"DurationInNs":0,"Format":"Mp3","Path":"/media/audio/pexels-alexander-grey-1149347.mp3","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.mp3","Standard":"16xS24L32@48000","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3"},"Header":{"Created":"UTC 2022-09-21 12:16:43.685000","FileSize":32183316,"Modified":"UTC 2022-09-21 12:16:43.701000","Type":"Still"},"Video":{"BitDepth":8,"ColorSpace":"Rgb","DurationInNs":0,"Format":"Png","Path":"/media/still/pexels-alexander-grey-1149347.png","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png","Standard":"1920x1080@59.94i","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"}}})";
   BofJsonParser BofJsonParser(Json_S);
 
   /*
@@ -703,8 +703,8 @@ TEST(Bof2d_Test, MediaDetectorFromJson)
   S_MuseFileSystemMedia_X.Reset();
   EXPECT_EQ(BofJsonParser.ToByte(S_MuseFileSystemMediaJsonSchemaCollection, JsonParserResultUltimateCheck, JsonParserError), BOF_ERR_NO_ERROR);
 
-  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Created_X, BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 0)); // Not supported now 685));
-  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Modified_X, BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 0)); // Not supported now 701));
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Created, BofDateTime(21, 9, 2022, 12, 16, 43, 685000)); 
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Modified, BofDateTime(21, 9, 2022, 12, 16, 43, 701000)); 
   EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL);
 
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
@@ -721,7 +721,7 @@ TEST(Bof2d_Test, MediaDetectorFromJson)
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Ref.ToString(true).c_str(), "C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.mp3");
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Path.ToString().c_str(), "/media/audio/pexels-alexander-grey-1149347.mp3");
   EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3);
-  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.AudioStandard.ToString().c_str(), "16x48000_S24L32");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.AudioStandard.ToString().c_str(), "16xS24L32@48000");
   EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64, 0);
   EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64, 0);
 }

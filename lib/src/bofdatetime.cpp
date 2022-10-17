@@ -35,11 +35,310 @@
 #include <sys/resource.h>
 #endif
 
+#include <iostream> 
 #include <iomanip> 
 
 BEGIN_BOF_NAMESPACE()
 
-BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTime_X)
+BofDateTime::BofDateTime()
+{
+  Reset();
+}
+
+void BofDateTime::Reset()
+{
+  mYear_U16 = 1970;
+  mMonth_U8 = 1;
+  mDay_U8 = 1;
+  mHour_U8 = 0;
+  mMinute_U8 = 0;
+  mSecond_U8 = 0;
+  mMicroSecond_U32 = 0;
+  //			DayOfWeek_U8 = 4;  //Thursday
+  InitDateTime();
+}
+
+BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
+{
+  mYear_U16 = _Year_U16;
+  mMonth_U8 = _Month_U8;
+  mDay_U8 = _Day_U8;
+  mHour_U8 = _Hour_U8;
+  mMinute_U8 = _Minute_U8;
+  mSecond_U8 = _Second_U8;
+  mMicroSecond_U32 = _MicroSecond_U32;
+  InitDateTime();
+}
+BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16)
+{
+  mYear_U16 = _Year_U16;
+  mMonth_U8 = _Month_U8;
+  mDay_U8 = _Day_U8;
+  mHour_U8 = 0;
+  mMinute_U8 = 0;
+  mSecond_U8 = 0;
+  mMicroSecond_U32 = 0;
+  InitDateTime();
+}
+BofDateTime::BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
+{
+  mYear_U16 = 1970;
+  mMonth_U8 = 1;
+  mDay_U8 = 1;
+  mHour_U8 = _Hour_U8;
+  mMinute_U8 = _Minute_U8;
+  mSecond_U8 = _Second_U8;
+  mMicroSecond_U32 = _MicroSecond_U32;
+  InitDateTime();
+}
+
+BofDateTime::BofDateTime(const std::tm &_rTm_X, uint32_t _MicroSecond_U32)
+{
+  mYear_U16 = static_cast<uint16_t>(_rTm_X.tm_year + 1900);
+  mMonth_U8 = static_cast<uint8_t>(_rTm_X.tm_mon + 1);
+  mDay_U8 = static_cast<uint8_t>(_rTm_X.tm_mday);
+  mHour_U8 = static_cast<uint8_t>(_rTm_X.tm_hour);
+  mMinute_U8 = static_cast<uint8_t>(_rTm_X.tm_min);
+  mSecond_U8 = static_cast<uint8_t>(_rTm_X.tm_sec);
+  mMicroSecond_U32 = _MicroSecond_U32;
+  InitDateTime();
+}
+void BofDateTime::ClearDate()
+{
+  mYear_U16 = 0;
+  mMonth_U8 = 0;
+  mDay_U8 = 0;
+}
+
+bool BofDateTime::IsTimeInADay() const
+{
+  bool Rts_B = false;
+  if ((mHour_U8 < 24) && (mMinute_U8 < 60) && (mSecond_U8 < 60) && (mMicroSecond_U32 < 1000000))
+  {
+    Rts_B = true;
+  }
+  return Rts_B;
+}
+/*
+* https://stackoverflow.com/questions/62795859/using-cs-date-library-to-read-times
+ std::istringstream ss { argv[1] };
+    std::chrono::system_clock::time_point dt
+        { std::chrono::system_clock::now() };
+
+    if ( date::from_stream(ss, "%F T %T %z", dt) ) {
+        std::cout << "Cond 1 entered\n";
+    }
+    else if ( ss.clear(), ss.seekg(0); date::from_stream(ss, "%d-%m %R", dt)) {
+        std::cout << "Cond 2 entered\n";
+    }
+*/
+
+std::string BofDateTime::ToString(const std::string &_rFormat_S)
+{
+  std::string ToString_S, Format_S, MicroSecond_S;
+  char pToString_c[0x1000];
+  std::size_t PosPercentQ;
+
+  PosPercentQ = _rFormat_S.find("%q");
+  if (PosPercentQ != std::string::npos)
+  {
+    Format_S = _rFormat_S;
+    MicroSecond_S = std::to_string(mMicroSecond_U32);
+    while (PosPercentQ != std::string::npos)
+    {
+      //Need to remove %q because il lead to an assertion during strftime call as it is not supported
+      Format_S = Format_S.erase(PosPercentQ, 2);
+      Format_S.insert(PosPercentQ, MicroSecond_S);
+      PosPercentQ = Format_S.find("%q", PosPercentQ);
+    }
+    if (strftime(pToString_c, sizeof(pToString_c), Format_S.c_str(), &mTm_X) > 0)
+    {
+      ToString_S = pToString_c;
+    }
+  }
+  else
+  {
+    if (strftime(pToString_c, sizeof(pToString_c), _rFormat_S.c_str(), &mTm_X) > 0)
+    {
+      ToString_S = pToString_c;
+    }
+  }
+  return ToString_S;
+}
+
+
+BofDateTime BofDateTime::FromString(const std::string &_rDateTime_S, const std::string &_rFormat_S)
+{
+  char *p_c;
+  std::tm TmInfo_X;
+  uint32_t uS_U32;
+  std::string Format_S;
+  std::size_t PosPercentQ;
+  bool AddMicroSec_B;
+
+  Format_S = _rFormat_S;
+  AddMicroSec_B = false;
+  PosPercentQ = Format_S.find("%q");
+  if (PosPercentQ != std::string::npos)
+  {
+    //Manage only one instance of %q and this one whould be the last one of the format string
+    AddMicroSec_B = true;
+    //Need to remove %q because il lead to an assertion during strftime call as it is not supported
+    Format_S = Format_S.erase(PosPercentQ, 2);
+  }
+
+  //In case the input string contains more characters than required by the format string, the return value points right after the last consumed
+  //input character.In case the whole input string is consumed, the return value points to the null byte at the end of the string.
+  //If strptime() fails to match all of the format string and therefore an error occurred, the function returns NULL.
+
+  memset(&TmInfo_X, 0, sizeof(TmInfo_X));
+  TmInfo_X.tm_mday = 1;
+  TmInfo_X.tm_year = 70;
+  p_c = strptime(_rDateTime_S.c_str(), Format_S.c_str(), &TmInfo_X);
+  if (p_c)
+  {
+    uS_U32 = 0;
+    if (AddMicroSec_B)
+    {
+      if (*p_c)
+      {
+        uS_U32 = std::atoi(p_c);
+      }
+    }
+    *this = BofDateTime(TmInfo_X.tm_mday, TmInfo_X.tm_mon + 1, TmInfo_X.tm_year + 1900, TmInfo_X.tm_hour, TmInfo_X.tm_min, TmInfo_X.tm_sec, uS_U32);
+  }
+
+  return *this;
+}
+
+bool BofDateTime::operator==(const BofDateTime &_Other) const
+{
+  return ((mYear_U16 == _Other.Year()) && (mMonth_U8 == _Other.Month()) && (mDay_U8 == _Other.Day()) && (mHour_U8 == _Other.Hour()) &&
+          (mMinute_U8 == _Other.Minute()) && (mSecond_U8 == _Other.Second()) && (mMicroSecond_U32 == _Other.MicroSecond()));
+}
+
+bool BofDateTime::operator!=(const BofDateTime &_Other) const
+{
+  return !(*this == _Other);
+}
+
+bool BofDateTime::IsValid() const
+{
+  return mIsValid_B;
+}
+
+uint8_t BofDateTime::DayOfWeek() const
+{
+  return static_cast<uint8_t>(mWd.c_encoding());
+}
+uint16_t BofDateTime::Year() const
+{
+  return mYear_U16;
+}
+uint8_t BofDateTime::Month() const
+{
+  return mMonth_U8;
+}
+uint8_t BofDateTime::Day() const
+{
+  return mDay_U8;
+}
+uint8_t BofDateTime::Hour() const
+{
+  return mHour_U8;
+}
+uint8_t BofDateTime::Minute() const
+{
+  return mMinute_U8;
+}
+uint8_t BofDateTime::Second() const
+{
+  return mSecond_U8;
+}
+uint32_t BofDateTime::MicroSecond() const
+{
+  return mMicroSecond_U32;
+}
+date::year_month_day BofDateTime::YearMountDay() const
+{
+  return mYmd;
+}
+
+std::tm BofDateTime::Tm() const
+{
+  return mTm_X;
+}
+std::time_t BofDateTime::UtcTimeT() const
+{
+  return mTimeT;
+}
+std::chrono::system_clock::time_point BofDateTime::TimePoint() const
+{
+  return mTp;
+}
+//double BofDateTime::DateTimeNumber() const
+//{
+//  return mDateTimeNum_lf;
+//}
+
+
+void BofDateTime::InitDateTime()
+{
+  mYmd = date::year_month_day(date::year(mYear_U16), date::month(mMonth_U8), date::day(mDay_U8));
+  mIsValid_B = mYmd.ok();
+  if (mIsValid_B)
+  {
+    if (mMicroSecond_U32 < 1000000)
+    {
+      mWd = date::weekday(mYmd);
+      mTm_X.tm_year = mYear_U16 - 1900;
+      mTm_X.tm_mon = mMonth_U8 - 1;
+      mTm_X.tm_mday = mDay_U8;
+      mTm_X.tm_hour = mHour_U8;
+      mTm_X.tm_min = mMinute_U8;
+      mTm_X.tm_sec = mSecond_U8;
+      mTm_X.tm_wday = DayOfWeek();
+      // tm_yday ?
+      // tm_isdst ?
+
+#ifdef _WIN32
+      mTimeT = _mkgmtime(&mTm_X);
+#else
+      mTimeT = timegm(&mTm_X);
+#endif
+
+      mTp = std::chrono::system_clock::from_time_t(mTimeT);
+      std::chrono::microseconds SubSec(mMicroSecond_U32);
+      mTp += SubSec;
+
+      auto DurationInDay = floor<date::days>(mTp);
+      mTime = date::make_time(mTp - DurationInDay);
+//      std::cout.fill('0');
+//      std::cout << mYmd.day() << '-' << std::setw(2) << static_cast<unsigned>(mYmd.month()) << '-' << mYmd.year() << ' ' << mTime << '\n';
+//      std::cout << mTp.time_since_epoch().count() << std::endl;
+
+      //mDateTimeNum_lf = static_cast<double>(mTp.time_since_epoch().count()) + (static_cast<double>(mMicroSecond_U32) / 1000000.0);
+
+    }
+    else
+    {
+      mIsValid_B = false;
+    }
+  }
+}
+
+/*
+ * Depuis l'ajustement du calendrier gr?gorien, sont bissextiles les ann?es1 :
+ * soit divisibles par 4 mais non divisibles par 100;
+ * soit divisibles par 400.
+ */
+bool Bof_IsLeapYear(uint16_t _Year_U16)
+{
+//  return ((_Year_U16 % 4 == 0 && _Year_U16 % 100 != 0) || (_Year_U16 % 400 == 0)) ? true : false;
+  return (date::year(_Year_U16).is_leap());
+}
+
+BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BofDateTime &_rDateTime)
 {
   BOFERR Rts_E = BOF_ERR_INTERNAL;
 
@@ -52,8 +351,8 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTim
 
   if (FileTimeToSystemTime(&FileTime_X, &SystemTime_X))
   {
-    _rDateTime_X = BOF_DATE_TIME((uint8_t)SystemTime_X.wDay, (uint8_t)SystemTime_X.wMonth, (uint16_t)SystemTime_X.wYear, (uint8_t)SystemTime_X.wHour, (uint8_t)SystemTime_X.wMinute, (uint8_t)SystemTime_X.wSecond, (uint32_t)SystemTime_X.wMilliseconds * 1000);
-    Rts_E = _rDateTime_X.IsValid_B ? BOF_ERR_NO_ERROR: BOF_ERR_EINVAL;
+    _rDateTime = BofDateTime((uint8_t)SystemTime_X.wDay, (uint8_t)SystemTime_X.wMonth, (uint16_t)SystemTime_X.wYear, (uint8_t)SystemTime_X.wHour, (uint8_t)SystemTime_X.wMinute, (uint8_t)SystemTime_X.wSecond, (uint32_t)SystemTime_X.wMilliseconds * 1000);
+    Rts_E = _rDateTime.IsValid() ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
   }
 #else
   time_t t = (time_t)_FileTime_U64;
@@ -61,83 +360,61 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BOF_DATE_TIME &_rDateTim
 
   if (pNow_X)
   {
-    _rDateTime_X = BOF_DATE_TIME((uint8_t)pNow_X->tm_mday, (uint8_t)(pNow_X->tm_mon + 1), (uint16_t)(pNow_X->tm_year + 1900), (uint8_t)pNow_X->tm_hour, (uint8_t)pNow_X->tm_min, (uint8_t)pNow_X->tm_sec, 0);
-    Rts_E = _rDateTime_X.IsValid_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+    _rDateTime = BofDateTime((uint8_t)pNow_X->tm_mday, (uint8_t)(pNow_X->tm_mon + 1), (uint16_t)(pNow_X->tm_year + 1900), (uint8_t)pNow_X->tm_hour, (uint8_t)pNow_X->tm_min, (uint8_t)pNow_X->tm_sec, 0);
+    Rts_E = _rDateTime.IsValid() ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
   }
 #endif
 
   return Rts_E;
 }
 
-
-
-BOFERR Bof_Now(BOF_DATE_TIME &_rDateTime_X)
+BOFERR Bof_Now(BofDateTime &_rDateTime)
 {
-  BOFERR Rts_E;
-  Rts_E = Bof_TimeInSecSinceEpoch_To_BofDateTime(time(nullptr), _rDateTime_X);
-  if (Rts_E == BOF_ERR_NO_ERROR)
-  {
-    _rDateTime_X.MicroSecond_U32 = 0; // static_cast<uint16_t>(Bof_GetMsTickCount() % 1000);->no as we can have 2 call in the same day with milli2<milli1
-  }
+  BOFERR Rts_E = BOF_ERR_INTERNAL;
+
+  std::chrono::system_clock::time_point TimePoint{ std::chrono::system_clock::now() };
+  auto DurationInDay = floor<date::days>(TimePoint);
+  date::year_month_day Ymd(DurationInDay);
+  auto Time = date::make_time(TimePoint - DurationInDay);
+
+  //std::cout.fill('0');
+  //std::cout << Ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(Ymd.month()) << '-' << Ymd.year() << ' ' << Time << '\n';
+  //std::cout << TimePoint.time_since_epoch().count() << std::endl;
+
+  _rDateTime = BofDateTime((uint32_t)Ymd.day(), (uint32_t)Ymd.month(), (int)Ymd.year(), Time.hours().count(), Time.minutes().count(), Time.seconds().count(), std::chrono::duration_cast<std::chrono::microseconds>(Time.subseconds()).count());
+  Rts_E = _rDateTime.IsValid() ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+
   return Rts_E;
 }
 
-
-BOFERR Bof_TimeInSecSinceEpoch_To_BofDateTime(time_t _TimeInSecSice1970, BOF_DATE_TIME &_rDateTime_X)
+BOFERR Bof_NbDaySinceUnixEpoch_To_BofDateTime(uint32_t _NbDaySinceUnixEpoch_U32, BofDateTime &_rDateTime)
 {
-  BOFERR Rts_E = BOF_ERR_EINVAL;
-  struct tm *pTimeInfo_X;
-  pTimeInfo_X = localtime(&_TimeInSecSice1970);
-  _rDateTime_X.Reset();
-  if (pTimeInfo_X)
-  {
-    _rDateTime_X = BOF_DATE_TIME((uint8_t)pTimeInfo_X->tm_mday, (uint8_t)(pTimeInfo_X->tm_mon + 1), (uint16_t)(pTimeInfo_X->tm_year + 1900), (uint8_t)pTimeInfo_X->tm_hour, (uint8_t)pTimeInfo_X->tm_min, (uint8_t)pTimeInfo_X->tm_sec, 0);
-    Rts_E = _rDateTime_X.IsValid_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
-  }
-  return (Rts_E);
-}
-
-BOFERR Bof_DateInDaySinceEpoch_To_BofDateTime(time_t _DateInDaySince1970, BOF_DATE_TIME &_rDateTime_X)
-{
-  BOFERR Rts_E = BOF_ERR_EINVAL;
-  struct tm *pTimeInfo_X, t;
-  time_t Time;
-
-  memset(&t, 0, sizeof(t));
-  t.tm_mday = 1;
-  t.tm_mon = 0; /* Jan */
-  t.tm_year = 70; /* since 1900 */
-  t.tm_isdst = -1;
-
-  t.tm_mday += static_cast<int>(_DateInDaySince1970);
-  Time = mktime(&t);
-  pTimeInfo_X = localtime(&Time);
-  _rDateTime_X.Reset();
-  if (pTimeInfo_X)
-  {
-    _rDateTime_X = BOF_DATE_TIME((uint8_t)pTimeInfo_X->tm_mday, (uint8_t)(pTimeInfo_X->tm_mon + 1), (uint16_t)(pTimeInfo_X->tm_year + 1900), (uint8_t)pTimeInfo_X->tm_hour, (uint8_t)pTimeInfo_X->tm_min, (uint8_t)pTimeInfo_X->tm_sec, 0);
-    Rts_E = _rDateTime_X.IsValid_B ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
-  }
-  return (Rts_E);
-}
-
-BOFERR Bof_BofDateTime_To_DateInDaySinceEpoch(const BOF_DATE_TIME &_rDateTime_X, time_t &_rDateInDaySince1970)
-{
-  BOF_DATE_TIME EpochDateTime_X, DiffTime_X;
-  uint32_t DiffDay_U32;
   BOFERR Rts_E;
 
-  EpochDateTime_X.Day_U8 = 1;
-  EpochDateTime_X.Month_U8 = 1;
-  EpochDateTime_X.Year_U16 = 1970;
-  EpochDateTime_X.Hour_U8 = 0;
-  EpochDateTime_X.Minute_U8 = 0;
-  EpochDateTime_X.Second_U8 = 0;
-  EpochDateTime_X.MicroSecond_U32 = 0;
-  Rts_E = Bof_DiffDateTime(_rDateTime_X, DiffTime_X, EpochDateTime_X, DiffDay_U32);
-  if (Rts_E == BOF_ERR_NO_ERROR)
+  date::year_month_day Epoch = date::year(1970) / date::jan / date::day(1); // Assuming you're referring to the traditional Unix epoch (some systems such as Cocoa on OS X use the first day of the millenium, Jan 1, 2001 as their epoch)
+  //std::cout.fill('0');
+  //std::cout << Epoch.day() << '-' << std::setw(2) << static_cast<unsigned>(Epoch.month()) << '-' << Epoch.year() << '\n';
+
+  date::year_month_day Ymd = date::sys_days( Epoch ) + date::days(_NbDaySinceUnixEpoch_U32);
+  //std::cout << Ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(Ymd.month()) << '-' << Ymd.year() << '\n';
+
+  //  _rDateTime = BofDateTime((uint32_t)Ymd.day(), (uint32_t)Ymd.month(), (int)Ymd.year(), Time.hours().count(), Time.minutes().count(), Time.seconds().count(), std::chrono::duration_cast<std::chrono::microseconds>(Time.subseconds()).count());
+  _rDateTime = BofDateTime((uint32_t)Ymd.day(), (uint32_t)Ymd.month(), (int)Ymd.year(), 0, 0, 0, 0);
+  Rts_E = _rDateTime.IsValid() ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+
+  return (Rts_E);
+}
+
+BOFERR Bof_BofDateTime_To_NbDaySinceUnixEpoch(const BofDateTime &_rDateTime, uint32_t &_rNbDaySinceUnixEpoch_U32)
+{
+  BOFERR Rts_E = BOF_ERR_INVALID_ANSWER;
+
+  if (_rDateTime.IsValid())
   {
-    _rDateInDaySince1970 = DiffDay_U32;
+    date::year_month_day Ymd = date::year_month_day(date::year(_rDateTime.Year()), date::month(_rDateTime.Month()), date::day(_rDateTime.Day()));
+//    _rNbDaySinceUnixEpoch_U32 = date::days(Ymd).count() - date::days(Epoch).count();
+    _rNbDaySinceUnixEpoch_U32 = date::sys_days(Ymd).time_since_epoch().count();
+    Rts_E = BOF_ERR_NO_ERROR;
   }
   return (Rts_E);
 }
@@ -158,141 +435,78 @@ BOFERR Bof_DeltaMsToHms(uint32_t _DeltaInMs_U32, uint32_t &_rDay_U32, uint32_t &
   return Rts_E;
 }
 
-
-
-BOFERR Bof_SetDateTime(const BOF_DATE_TIME &_rDateTime_X)
+BOFERR Bof_SetDateTime(const BofDateTime &_rDateTime)
 {
-  BOFERR Rts_E = BOF_ERR_INTERNAL;
+  BOFERR Rts_E = BOF_ERR_INVALID_ANSWER;
 
+  if (_rDateTime.IsValid())
+  {
 #if defined (_WIN32)
-  SYSTEMTIME           SystemTime_X;
+    SYSTEMTIME           SystemTime_X;
 
-  SystemTime_X.wYear = _rDateTime_X.Year_U16;
-  SystemTime_X.wMonth = _rDateTime_X.Month_U8;
-  SystemTime_X.wDayOfWeek = _rDateTime_X.DayOfWeek();
-  SystemTime_X.wDay = _rDateTime_X.Day_U8;
-  SystemTime_X.wHour = _rDateTime_X.Hour_U8;
-  SystemTime_X.wMinute = _rDateTime_X.Minute_U8;
-  SystemTime_X.wSecond = _rDateTime_X.Second_U8;
-  SystemTime_X.wMilliseconds = _rDateTime_X.MicroSecond_U32 / 1000;
+    SystemTime_X.wYear = _rDateTime.Year();
+    SystemTime_X.wMonth = _rDateTime.Month();
+    SystemTime_X.wDayOfWeek = _rDateTime.DayOfWeek();
+    SystemTime_X.wDay = _rDateTime.Day();
+    SystemTime_X.wHour = _rDateTime.Hour();
+    SystemTime_X.wMinute = _rDateTime.Minute();
+    SystemTime_X.wSecond = _rDateTime.Second();
+    SystemTime_X.wMilliseconds = _rDateTime.MicroSecond() / 1000;
 
-  if (SetSystemTime(&SystemTime_X))
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-  }
+    if (SetSystemTime(&SystemTime_X))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
 #else
-  struct tm *pDate_X;
-  time_t Time_X;
+    struct tm *pDate_X;
+    time_t Time_X;
 
-  time(&Time_X);
-  pDate_X = localtime(&Time_X); // Or gmtime ?
-  pDate_X->tm_year = _rDateTime_X.Year_U16 - 1900;
-  pDate_X->tm_mon = _rDateTime_X.Month_U8 - 1;
-  pDate_X->tm_wday = _rDateTime_X.DayOfWeek();
-  pDate_X->tm_mday = _rDateTime_X.Day_U8;
-  pDate_X->tm_hour = _rDateTime_X.Hour_U8;
-  pDate_X->tm_min = _rDateTime_X.Minute_U8;
-  pDate_X->tm_sec = _rDateTime_X.Second_U8;
+    time(&Time_X);
+    pDate_X = localtime(&Time_X); // Or gmtime ?
+    pDate_X->tm_year = _rDateTime.Year() - 1900;
+    pDate_X->tm_mon = _rDateTime.Month() - 1;
+    pDate_X->tm_wday = _rDateTime.DayOfWeek();
+    pDate_X->tm_mday = _rDateTime.Day();
+    pDate_X->tm_hour = _rDateTime.Hour();
+    pDate_X->tm_min = _rDateTime.Minute();
+    pDate_X->tm_sec = _rDateTime.Second();
 
-  const struct timeval Tv_X = {
-    mktime(pDate_X), 0
-  };
-  if (settimeofday(&Tv_X, nullptr) == 0)
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-  }
+    const struct timeval Tv_X =
+    {
+      mktime(pDate_X), 0
+    };
+    if (settimeofday(&Tv_X, nullptr) == 0)
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
 
 #endif
+  }
   return Rts_E;
 }
-
-
-/*
- * Depuis l'ajustement du calendrier gr?gorien, sont bissextiles les ann?es1 :
- * soit divisibles par 4 mais non divisibles par 100;
- * soit divisibles par 400.
- */
-bool Bof_IsLeapYear(uint16_t _Year_U16)
-{
-  return ((_Year_U16 % 4 == 0 && _Year_U16 % 100 != 0) || (_Year_U16 % 400 == 0)) ? true : false;
-}
-
-// http://alcor.concordia.ca/~gpkatch/gdate-algorithm.html
-BOFERR Bof_DateTimeToNumber(const BOF_DATE_TIME &_rDateTime_X, double &_rDayNumber_lf)
-{
-  BOFERR Rts_E;
-  int Month_i, Year_i;
-  double FracDay_lf;
-
-  Month_i = (_rDateTime_X.Month_U8 + 9) % 12;
-  Year_i = _rDateTime_X.Year_U16 - Month_i / 10;
-  _rDayNumber_lf = static_cast<double>((365 * Year_i) + (Year_i / 4) - (Year_i / 100) + (Year_i / 400) + ((Month_i * 306 + 5) / 10) + (_rDateTime_X.Day_U8 - 1));
-  FracDay_lf = ((static_cast<double>(_rDateTime_X.Hour_U8) * static_cast<double>(60.0f * 60.0f * 1000.0f * 1000.0f)) + (static_cast<double>(_rDateTime_X.Minute_U8) * static_cast<double>(60.0f * 1000.0f * 1000.0f)) +
-                (static_cast<double>(_rDateTime_X.Second_U8) * static_cast<double>(1000.0f * 1000.0f)) + (static_cast<double>(_rDateTime_X.MicroSecond_U32)));
-  _rDayNumber_lf = _rDayNumber_lf + FracDay_lf;
-  Rts_E = BOF_ERR_NO_ERROR;
-
-  return Rts_E;
-}
-
-
 
 // millisecond are not used
-BOFERR Bof_DiffDateTime(const BOF_DATE_TIME &_rFirstDateTime_X, const BOF_DATE_TIME &_rSecondDateTime_X, BOF_DATE_TIME &_rDiffTime_X, uint32_t &_rDiffDay_U32)
+BOFERR Bof_DiffDateTime(const BofDateTime &_rFirstDateTime, const BofDateTime &_rSecondDateTime, BofDateTime &_rDiffTime, int32_t &_rDiffDay_S32)
 {
-  BOFERR Rts_E;
-  double DayNumber1_lf, DayNumber2_lf, Val_lf, FracVal_lf, ValInt_lf;
+  BOFERR Rts_E = BOF_ERR_INVALID_ANSWER;
 
-  _rDiffDay_U32 = 0;
-  _rDiffTime_X.Reset();
-  Rts_E = Bof_DateTimeToNumber(_rFirstDateTime_X, DayNumber1_lf);
+  _rDiffTime.Reset();
+  _rDiffDay_S32 = 0;
 
-  if (Rts_E == BOF_ERR_NO_ERROR)
+  if ((_rFirstDateTime.IsValid()) && (_rSecondDateTime.IsValid()))
   {
-    Rts_E = Bof_DateTimeToNumber(_rSecondDateTime_X, DayNumber2_lf);
+    auto Duration = _rFirstDateTime.TimePoint() - _rSecondDateTime.TimePoint();
+    auto NbDay = floor<date::days>(Duration);
+    _rDiffDay_S32 = (int32_t)NbDay.count();
+    auto OffsetInHmsus = Duration - NbDay;
+    auto Time = date::make_time(OffsetInHmsus);
 
-    if (Rts_E == BOF_ERR_NO_ERROR)
-    {
-      Rts_E = BOF_ERR_OPERATION_FAILED;
-      if (DayNumber1_lf >= DayNumber2_lf)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-        Val_lf = DayNumber1_lf - DayNumber2_lf;
-        FracVal_lf = modf(Val_lf, &ValInt_lf);
-        _rDiffDay_U32 = static_cast<uint32_t>(ValInt_lf);
-        Val_lf = 24.0f * FracVal_lf;
-        FracVal_lf = modf(Val_lf, &ValInt_lf);
-        _rDiffTime_X.Hour_U8 = static_cast<uint8_t>(ValInt_lf);
-        Val_lf = 60.0f * FracVal_lf;
-        FracVal_lf = modf(Val_lf, &ValInt_lf);
-        _rDiffTime_X.Minute_U8 = static_cast<uint8_t>(ValInt_lf);
-        Val_lf = 60.0f * FracVal_lf;
-        FracVal_lf = modf(Val_lf, &ValInt_lf);
-        _rDiffTime_X.Second_U8 = static_cast<uint8_t>(ValInt_lf);
-        Val_lf = 1000.0f * 1000.0f * FracVal_lf;
-        FracVal_lf = modf(Val_lf, &ValInt_lf);
-        _rDiffTime_X.MicroSecond_U32 = static_cast<uint32_t>(ValInt_lf);
-        if (_rDiffTime_X.MicroSecond_U32 > 999995)
-        {
-          _rDiffTime_X.MicroSecond_U32 = 0;
-          _rDiffTime_X.Second_U8++;
-          if (_rDiffTime_X.Second_U8 > 59)
-          {
-            _rDiffTime_X.Second_U8 = 0;
-            _rDiffTime_X.Minute_U8++;
-            if (_rDiffTime_X.Minute_U8 > 59)
-            {
-              _rDiffTime_X.Minute_U8 = 0;
-              _rDiffTime_X.Hour_U8++;
-              if (_rDiffTime_X.Hour_U8 > 23)
-              {
-                _rDiffTime_X.Hour_U8 = 0;
-              }
-            }
-          }
-        }
-      }
-    }
+    //std::cout << _rDiffDay_S32 << std::endl;
+    //std::cout << Time << std::endl;
+
+    _rDiffTime = BofDateTime(Time.hours().count(), Time.minutes().count(), Time.seconds().count(), std::chrono::duration_cast<std::chrono::microseconds>(Time.subseconds()).count());
+    _rDiffTime.ClearDate();
+    Rts_E = _rDiffTime.IsValid() ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
   }
   return Rts_E;
 }
@@ -322,126 +536,4 @@ char *strptime(const char *s, const char *f, struct tm *tm)
 #else
 #endif
 
-#if 0
-//https://stackoverflow.com/questions/32188956/get-current-timestamp-in-microseconds-since-epoch
-//https://www.web-dev-qa-db-fra.com/fr/c%2B%2B/c-comment-convertir-un-std-chrono-time-point-en-long-and-back/1054908078/
-BOF_TIMEPOINT Bof_TimePoint(const BOF_DATE_TIME &_rDateTime_X)
-{
-  using Clock = std::chrono::high_resolution_clock;
-  using TimePoint = std::chrono::time_point<Clock>;
-
-  const Clock::duration duration_4_seconds = std::chrono::seconds(4);
-  const TimePoint time_point_4_seconds(duration_4_seconds); // (2)
-    // 4 seconds from start of epoch
-  print_ms(time_point_4_seconds); // 4000 ms
-
-  const TimePoint time_point_now = Clock::now(); // (3)
-  print_ms(time_point_now); // 43098276 ms
-
-  using namespace std::chrono;
-  // Get current time with native precision
-  auto now = system_clock::now();
-  // Convert time_point to signed integral type
-  auto integral_duration = now.time_since_epoch().count();
-  // Convert signed integral type to time_point
-  system_clock::time_point dt{ system_clock::duration{integral_duration} };
-  // test
-  if (dt != now)
-    printf("Failure.\n");
-  else
-    printf("Success.\n");
-
-
-  BOF_TIMEPOINT Rts;
-  BOF_TIMEPOINT Rts = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now());
-  BOF_TIMEPOINT Rts = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-  return Rts;
-}
-
-BOFERR Bof_ValidateDateTime(const BOF_DATE_TIME &_rDateTime_X)
-{
-  BOFERR Rts_E = BOF_ERR_EINVAL;
-
-
-  ///std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> 
-  auto tt = _rDateTime_X.TimePoint();
-  date::year_month_day a(date::year(_rDateTime_X.Year_U16), date::month(_rDateTime_X.Month_U8), date::day(_rDateTime_X.Day_U8));
-  date::weekday b = date::weekday(a);
-  bool ok = a.ok();
-  a = date::year_month_day(date::year(2020), date::month(2), date::day(29));
-  ok = a.ok();
-  a = date::year_month_day(date::year(2022), date::month(2), date::day(29));
-  ok = a.ok();
-  a = date::year_month_day(date::year(2022), date::month(4), date::day(30));
-  ok = a.ok();
-  a = date::year_month_day(date::year(2022), date::month(4), date::day(31));
-  ok = a.ok();
-
-  //auto a = date::sys_days{ 10_d / 11 / 2012 };  // +12h + 38min + 40s + 123456us;
-
-  std::cout << tt.time_since_epoch().count() << std::endl;
-  //auto t = date::sys_days{ 10_d / 11 / 2012 };  // +12h + 38min + 40s + 123456us;
-  date::year y(_rDateTime_X.Year_U16);
-  date::month m(_rDateTime_X.Month_U8);
-  date::day d(_rDateTime_X.Day_U8);
-  date::year_month_day dmy(y, m, d);
-  //dmy = dmy + 12h + 38min + 40s + 123456us;
-  std::cout << dmy << std::endl;
-  //auto tt = date::sys_days(dmy);// +38min + 40s + 123456us;
-
-
-//  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tt;
-
-//  std::chrono::milliseconds add(_rDateTime_X.MicroSecond_U32 / 1000 );
-//  tt += add;
-
-  //tt = tt + 12h;
-//  tt += 38min;
-//  tt += 40sec;
-//  tt += 123456us;
-  std::cout << tt.time_since_epoch().count() << std::endl;
-
-  //https://stackoverflow.com/questions/12835577/how-to-convert-stdchronotime-point-to-calendar-datetime-string-with-fraction
-  //https://mariusbancila.ro/blog/2016/10/31/a-better-date-and-time-c-library/
-//  auto t = date::sys_days{ 10_d / 11 / 2012 } + 12h + 38min + 40s + 123456us;
-
-  //	std::chrono::system_clock::from_time_t(std::mktime(&tm));
-  auto dp = floor<date::days>(tt);
-  auto time = date::make_time(tt - dp);
-  auto ymd = date::year_month_day{ dp };
-  std::cout.fill('0');
-  std::cout << ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(ymd.month()) << '-' << ymd.year() << ' ' << time << '\n';
-  std::cout << ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(ymd.month()) << '-' << ymd.year() << ' ' << time << '\n';
-
-
-  return Rts_E;
-}
-
-BOFERR Bof_ComputeDayOfWeek(const BOF_DATE_TIME &_rDateTime_X, uint8_t &_DayOfWeek_U8)  //0 is sunday
-{
-  //https://stackoverflow.com/questions/6054016/c-program-to-find-day-of-week-given-date
-  BOFERR Rts_E = BOF_ERR_EINVAL;
-  int d, m, y;
-  Bof_ValidateDateTime(_rDateTime_X);
-
-  if ((_rDateTime_X.Day_U8 >= 1) &&
-      (_rDateTime_X.Day_U8 <= 31) &&
-      (_rDateTime_X.Month_U8 >= 1) &&
-      (_rDateTime_X.Month_U8 <= 12) &&
-      (_rDateTime_X.Year_U16 >= 1970) &&
-      (_rDateTime_X.Year_U16 <= 3070)            // This should be enought for me (-;
-      )
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-
-    d = _rDateTime_X.Day_U8; //Day     1-31
-    m = _rDateTime_X.Month_U8; //Month   1-12`
-    y = _rDateTime_X.Year_U16; //Year    2013` 
-
-    _DayOfWeek_U8 = static_cast<uint8_t>((d += m < 3 ? y-- : y - 2, 23 * m / 9 + d + 4 + y / 4 - y / 100 + y / 400) % 7);
-  }
-  return Rts_E;
-}
-#endif
 

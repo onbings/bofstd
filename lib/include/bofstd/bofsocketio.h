@@ -167,7 +167,7 @@ struct BOFSTD_EXPORT BOF_FTP_FILE
   std::string User_S;
   std::string Group_S;
   uint64_t Size_U64;
-  BOF_DATE_TIME DateTime_X;
+  BofDateTime DateTime;
   BofPath Path;
 
   BOF_FTP_FILE()
@@ -181,7 +181,7 @@ struct BOFSTD_EXPORT BOF_FTP_FILE
     User_S = "";
     Group_S = "";
     Size_U64 = 0;
-    DateTime_X.Reset();
+    DateTime.Reset();
   }
 };
 

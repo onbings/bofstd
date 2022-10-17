@@ -45,12 +45,12 @@ TEST(Api_Test, Exception)
   {
     THROW_BOF_EXCEPTION("[BofException]", "File '/tmp/log' is already opened", Err_E);
   }
-  catch (BOF::BofException &e)
+  catch (const BOF::BofException &rException)
   {
     std::string Msg_S;
 
     ExceptionThrown_B = true;
-    Msg_S = e.what();
+    Msg_S = rException.what();
     //   printf("throw: '%s'\n", Msg_S.c_str());
         //[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ C:\pro\github\bofstd\tests\src\ut_api.cpp:48 (Api_Test_Exception_Test::TestBody)
     EXPECT_STREQ(Msg_S.substr(0, 76).c_str(), "[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ "); //The rest of the txt is os and file dependant

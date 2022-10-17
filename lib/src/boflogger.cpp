@@ -338,7 +338,7 @@ BOFERR BofLogger::S_FormatMaskLogMsg(const char *_pChannelName_c, uint32_t _Mask
   char pFile_c[128], pError_c[128], *p_c;
   const char *pErrorCodeString_c;
   va_list Va_X;
-  BOF_DATE_TIME DateTime_X;
+  BofDateTime DateTime;
   std::string DateTime_S;
 
   if ((_pChannelName_c) && (_pFormattedLogLine_c) && (_MaxSizeInFormattedLog_Line_U32))
@@ -393,8 +393,8 @@ BOFERR BofLogger::S_FormatMaskLogMsg(const char *_pChannelName_c, uint32_t _Mask
           }
 #if defined(DAEMONSERVICEMODE)
           //					TextLen_i = snprintf(_pFormattedLogLine_c, Remain_i, "[%8.8s] t=%d (%06d) %s %d %s (%s)=>", It->second->LogMaskName(Mask_U32).c_str(), Bof_GetMsTickCount(),
-          Bof_Now(DateTime_X);
-          DateTime_S = DateTime_X.ToString("%H:%M:%S");
+          Bof_Now(DateTime);
+          DateTime_S = DateTime.ToString("%H:%M:%S");
 
           pErrorCodeString_c =
             TextLen_i = snprintf(_pFormattedLogLine_c, Remain_i, "[%8.8s] (%06lu) %s %d ms %s %d %s (%s)=>", It->second->LogMaskName(Mask_U32).c_str(),
@@ -410,8 +410,8 @@ BOFERR BofLogger::S_FormatMaskLogMsg(const char *_pChannelName_c, uint32_t _Mask
             _pFormattedLogLine_c[0] = 0;
           }
 #else
-          Bof_Now(DateTime_X);
-          DateTime_S = DateTime_X.ToString("%d/%m/%y %H:%M:%S.") + std::to_string(Bof_GetMsTickCount() % 1000);
+          Bof_Now(DateTime);
+          DateTime_S = DateTime.ToString("%d/%m/%y %H:%M:%S.") + std::to_string(Bof_GetMsTickCount() % 1000);
           TextLen_i = snprintf(_pFormattedLogLine_c, Remain_i, "[%u] (%06u) %s  %s %d %s (%s)%s[%8.8s] ", Bof_GetMsTickCount(),
                                It->second->EllapsedTimeInMsSinceLast(), DateTime_S.c_str(), pFile_c, _Line_U32, _pFunction_c ? _pFunction_c : "UNKNOWN",
                                pErrorCodeString_c, Bof_Eol(), It->second->LogMaskName(Mask_U32).c_str());

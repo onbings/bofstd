@@ -44,8 +44,8 @@ enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
   NONE = 0x00000000,  // No special option
   CMDLINE_LONGOPT_NEED_ARG = 0x00000001,  // for cmdlineparser: if the option requires an argument,
   XML_ATTRIBUTE = 0x00000002,							// for xml parser if the argument is an attribute
-  IP_FORMAT_PROTOCOL = 0x00000004,				// Add protocol specification to IPV4,/IPV46 output of S_ParameterToString
-  IP_FORMAT_PORT = 0x00000008,						// Add port specification to IPV4,/IPV46 output of S_ParameterToString
+//Replaced by IP_FORMAT_SCHEME below IP_FORMAT_PROTOCOL = 0x00000004,				// Add protocol specification to IPV4,/IPV46 output of S_ParameterToString
+//Replaced by IP_FORMAT_PORT below   IP_FORMAT_PORT = 0x00000008,						// Add port specification to IPV4,/IPV46 output of S_ParameterToString
   PATH_IS_DIR = 0x00000010,								// Path must be a directory
   PATH_IS_FILE = 0x00000020,							// Path must be a file
   PATH_MUST_EXIST = 0x00000040,						// Path (file or dir) must exist
@@ -56,10 +56,10 @@ enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
   URI_NEED_QUERY = 0x00000800,
   URI_NEED_FRAG = 0x00001000,
 
-  SOCKET_NEED_SCHEME = 0x00002000,
-  SOCKET_NEED_USER = 0x00004000,
-  SOCKET_NEED_PASSWORD = 0x00008000,
-  SOCKET_NEED_PORT = 0x000010000,
+  IP_FORMAT_SCHEME = 0x00002000,
+  IP_FORMAT_USER = 0x00004000,
+  IP_FORMAT_PASSWORD = 0x00008000,
+  IP_FORMAT_PORT = 0x000010000,
 
   READ_ONLY = 0x80000000,									//This is a read only parameter
 //	WRITE_ONCE=0x00000020,								//Can only be written to once, after the first write op in turns into READ_ONLY

@@ -465,7 +465,7 @@ TEST(Fs_Test, DirEnum)
   BOF_FILE_FOUND                FileFound_X;
   std::vector< BOF_FILE_FOUND > FileCollection;
   uint32_t                      i_U32;
-  BOF_DATE_TIME DateTime_X;
+  BofDateTime DateTime;
 
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);

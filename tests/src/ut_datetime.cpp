@@ -20,99 +20,102 @@ USE_BOF_NAMESPACE()
 
 TEST(DateTime_Test, ValidateDateTime)
 {
-  BOF_DATE_TIME DateTime_X;
+  BofDateTime DateTime;
+  std::string DateTime_S;
 
-  DateTime_X = BOF_DATE_TIME(2, 1, 1970, 1, 2, 3, 123456);
-  DateTime_X.ToString("%Y-%m-%d %H:%M:%S %q ms");    //%q is used by BOF_DATE_TIME to display MicroSecond_U32
-  DateTime_X.ToString("%Y-%m-%d %H:%M:%S ms %q");    //%q is used by BOF_DATE_TIME to display MicroSecond_U32
-  DateTime_X.ToString("%Y-%m-%d %H:%M:%S.%q");    //%q is used by BOF_DATE_TIME to display MicroSecond_U32
-  DateTime_X.FromString("20011009.987654", "%Y%m%d.%q");
-  DateTime_X.ToString("%Y-%m-%d %H:%M:%S.%q");    //%q is used by BOF_DATE_TIME to display MicroSecond_U32
-  DateTime_X.FromString("20011009 ms=987650", "%Y%m%d ms=%q");
-  DateTime_X.ToString("%Y-%m-%d %H:%M:%S.%q");    //%q is used by BOF_DATE_TIME to display MicroSecond_U32
+  DateTime.Reset();
+  EXPECT_TRUE(DateTime.IsValid());
 
-  DateTime_X.Reset();
-  EXPECT_TRUE(DateTime_X.IsValid_B);
-
-  DateTime_X = BOF_DATE_TIME( 1, 1, 1970, 0, 0, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(1, 1, 1970, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // DAY
-  DateTime_X = BOF_DATE_TIME( 0, 1, 1970, 0, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(0, 1, 1970, 0, 0, 0, 0);
+  EXPECT_FALSE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 32, 1, 1970, 0, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(32, 1, 1970, 0, 0, 0, 0);
+  EXPECT_FALSE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 31, 1, 1970, 0, 0, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 1, 1970, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // MONTH
-  DateTime_X = BOF_DATE_TIME( 31, 0, 1970, 0, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 0, 1970, 0, 0, 0, 0);
+  EXPECT_FALSE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 31, 13, 1970, 0, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 13, 1970, 0, 0, 0, 0);
+  EXPECT_FALSE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 1970, 0, 0, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 1970, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // YEAR
-  DateTime_X = BOF_DATE_TIME( 31, 12, 1969, 0, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 1969, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 3071, 0, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 3071, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 3070, 0, 0, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 3070, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // HOUR
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 25, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 25, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+  EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 01:00:00");
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 24, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 0, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 24, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+  EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:00:00");
+
+  DateTime = BofDateTime(31, 12, 2070, 23, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // MINUTE
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 255, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 255, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+  EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 03:15:00");
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 60, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 60, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+  EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:00:00");
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 59, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 59, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // SECOND
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 59, 255, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 59, 255, 0);
+  EXPECT_TRUE(DateTime.IsValid());
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+  EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:03:15");
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 59, 60, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 59, 60, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 59, 59, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 59, 59, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // MICROSECOND
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 59, 59, 1000000);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 59, 59, 1000000);
+  EXPECT_FALSE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 31, 12, 2070, 23, 59, 59, 999999);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(31, 12, 2070, 23, 59, 59, 999999);
+  EXPECT_TRUE(DateTime.IsValid());
 
   // LEAP
-  DateTime_X = BOF_DATE_TIME( 28, 2, 2000, 0, 0, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(28, 2, 2000, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 29, 2, 2000, 0, 0, 0, 0);
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(29, 2, 2000, 0, 0, 0, 0);
+  EXPECT_TRUE(DateTime.IsValid());
 
-  DateTime_X = BOF_DATE_TIME( 30, 2, 2000, 0, 0, 0, 0);
-  EXPECT_FALSE(DateTime_X.IsValid_B);
+  DateTime = BofDateTime(30, 2, 2000, 0, 0, 0, 0);
+  EXPECT_FALSE(DateTime.IsValid());
 }
 
 TEST(DateTime_Test, IsLeapYear)
@@ -132,99 +135,43 @@ TEST(DateTime_Test, IsLeapYear)
 TEST(DateTime_Test, GetDateTime)
 {
   BOFERR        Sts_E;
-  BOF_DATE_TIME DateTime_X;
+  BofDateTime DateTime;
 
-  DateTime_X.Reset();
+  DateTime.Reset();
 
-  Sts_E = Bof_Now(DateTime_X);
+  Sts_E = Bof_Now(DateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  EXPECT_TRUE(DateTime_X.IsValid_B);
+  EXPECT_TRUE(DateTime.IsValid());
 }
 
 TEST(DateTime_Test, SetDateTime)
 {
   BOFERR        Sts_E;
-  BOF_DATE_TIME DateTimeOrg_X; // , DateTime_X, DateTimeNew_X;
+  BofDateTime DateTimeOrg; // , DateTime, DateTimeNew;
 
-  Sts_E = Bof_Now(DateTimeOrg_X);
+  Sts_E = Bof_Now(DateTimeOrg);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 #if 0                                  // Disable setdate time to check if it can explain teamcity hangout
-  DateTime_X = DateTimeOrg_X;
-  DateTime_X.Day_U8 = 26;
-  Sts_E = Bof_SetDateTime(DateTime_X);
+  BofDateTime DateTime, DateTimeNew;
+
+  DateTime = BofDateTime(31,12,2013,23,59,59,0);
+  Sts_E = Bof_SetDateTime(DateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Month_U8 = 13;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Month_U8 = 12;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Year_U16 = 12000;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Year_U16 = 2014;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Hour_U8 = 24;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Hour_U8 = 23;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Minute_U8 = 60;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Minute_U8 = 59;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Second_U8 = 60;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Second_U8 = 59;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.MicroSecond_U32 = 1000 * 1000;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.MicroSecond_U32 = 999 * 1000;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  DateTime_X.Day_U8 = 32;
-  Sts_E = Bof_SetDateTime(DateTime_X);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
 
   Bof_MsSleep(2000);                         // We setup time to 23:59:59->wait to pass day
-  Sts_E = Bof_Now(DateTimeNew_X);
+  Sts_E = Bof_Now(DateTimeNew);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DateTimeNew_X.Day_U8, 26 + 1); // We setup time to 23:59:59->wait to pass day
+  EXPECT_EQ(DateTimeNew.Day(), 1); // We setup time to 23:59:59->wait to pass day
+  EXPECT_EQ(DateTimeNew.Month(), 1);
+  EXPECT_EQ(DateTimeNew.Year(), 2014);
 
-  EXPECT_EQ(DateTimeNew_X.Month_U8, 12);
-  EXPECT_EQ(DateTimeNew_X.Year_U16, 2014);
+  EXPECT_EQ(DateTimeNew.Hour(), 0);     // We setup time to 23:59:59->wait to pass day
+  EXPECT_EQ(DateTimeNew.Minute(), 0);
+  EXPECT_LT(DateTimeNew.Second(), 4);
 
-  // EXPECT_EQ(DateTimeNew_X.DayOfWeek_U8, DateTime_X.DayOfWeek_U8);
-  EXPECT_EQ(DateTimeNew_X.Hour_U8, 0);     // We setup time to 23:59:59->wait to pass day
-  EXPECT_EQ(DateTimeNew_X.Minute_U8, 0);
-  EXPECT_LT(DateTimeNew_X.Second_U8, 4);
-
-  // EXPECT_EQ(DateTimeNew_X.MicroSecond_U32, DateTime_X.MicroSecond_U32);
-
-  Sts_E = Bof_SetDateTime(DateTimeOrg_X);
+  Sts_E = Bof_SetDateTime(DateTimeOrg);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #endif
 }
@@ -258,138 +205,204 @@ TEST(DateTime_Test, DeltaMsToHms)
 
 TEST(DateTime_Test, DiffDateTime)
 {
-  BOFERR        Sts_E;
-  uint32_t      DiffDay_U32;
-  double DayNumber_lf;
-  BOF_DATE_TIME FirstDateTime_X, SecondDateTime_X, DiffTime_X;
+  BOFERR      Sts_E;
+  int32_t     DiffDay_S32;
+  BofDateTime FirstDateTime, SecondDateTime, DiffTime;
 
-  FirstDateTime_X.Reset();
-  Sts_E = Bof_DateTimeToNumber(FirstDateTime_X, DayNumber_lf);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  FirstDateTime_X.Day_U8 = 26;
-  FirstDateTime_X.Month_U8 = 5;
-  FirstDateTime_X.Year_U16 = 2000;
-  Sts_E = Bof_DateTimeToNumber(FirstDateTime_X, DayNumber_lf);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DayNumber_lf, 730571.0f);
+  FirstDateTime = BofDateTime(26, 5, 2000, 0, 0, 0, 0);
+  SecondDateTime = BofDateTime(27, 5, 2000, 1, 2, 3, 4);
 
-  FirstDateTime_X.Reset();
-  SecondDateTime_X.Reset();
-  DiffTime_X.Reset();
-
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
-  EXPECT_EQ(DiffTime_X.Second_U8, 0);
-  EXPECT_EQ(DiffTime_X.MicroSecond_U32, 0);
-  EXPECT_EQ(DiffTime_X.Day_U8, 1);
-  EXPECT_EQ(DiffTime_X.Month_U8, 1);
-  EXPECT_EQ(DiffTime_X.Year_U16, 1970);
-  EXPECT_EQ(DiffTime_X.DayOfWeek(), 4);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 1);
+  EXPECT_EQ(DiffTime.Hour(), 1);
+  EXPECT_EQ(DiffTime.Minute(), 2);
+  EXPECT_EQ(DiffTime.Second(), 3);
+  EXPECT_EQ(DiffTime.MicroSecond(), 4);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
 
-  FirstDateTime_X.Day_U8 = 18;
-  FirstDateTime_X.Month_U8 = 1;
-  FirstDateTime_X.Year_U16 = 2000;
-  FirstDateTime_X.Hour_U8 = 1;
-  FirstDateTime_X.Minute_U8 = 30;
-  FirstDateTime_X.Second_U8 = 20;
-  FirstDateTime_X.MicroSecond_U32 = 0;
+  FirstDateTime = BofDateTime(26, 5, 2000, 1, 2, 3, 4);
+  SecondDateTime = BofDateTime(27, 5, 2000, 0, 0, 0, 0);
 
-  SecondDateTime_X = FirstDateTime_X;
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
-  EXPECT_EQ(DiffTime_X.Second_U8, 0);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 22);
+  EXPECT_EQ(DiffTime.Minute(), 57);
+  EXPECT_EQ(DiffTime.Second(), 56);
+  EXPECT_EQ(DiffTime.MicroSecond(), 999996);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
 
-  SecondDateTime_X.Year_U16 = static_cast<uint16_t>(FirstDateTime_X.Year_U16 + 1);
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  FirstDateTime = BofDateTime(18, 1, 2000, 1, 30, 20, 0);
+  SecondDateTime = FirstDateTime;
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 366);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
-  EXPECT_EQ(DiffTime_X.Second_U8, 0);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
+  EXPECT_EQ(DiffTime.Second(), 0);
+  EXPECT_EQ(DiffTime.MicroSecond(), 0);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
 
-  SecondDateTime_X.Month_U8 = static_cast<uint8_t>(FirstDateTime_X.Month_U8 + 1);
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  SecondDateTime = BofDateTime(18, 1, 2001, 1, 30, 20, 0);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 366 + 31);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
-  EXPECT_EQ(DiffTime_X.Second_U8, 0);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 366);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
+  EXPECT_EQ(DiffTime.Second(), 0);
+  EXPECT_EQ(DiffTime.MicroSecond(), 0);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
 
-  SecondDateTime_X.Day_U8 = static_cast<uint8_t>(FirstDateTime_X.Day_U8 + 7);
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  SecondDateTime = BofDateTime(18, 2, 2001, 1, 30, 20, 0);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 366 + 31 + 7);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
-  EXPECT_EQ(DiffTime_X.Second_U8, 0);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 366 + 31);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
+  EXPECT_EQ(DiffTime.Second(), 0);
+  EXPECT_EQ(DiffTime.MicroSecond(), 0);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
 
-  FirstDateTime_X.Hour_U8 = 0;
-  FirstDateTime_X.Minute_U8 = 0;
-  FirstDateTime_X.Second_U8 = 0;
-  FirstDateTime_X.MicroSecond_U32 = 0;
-  SecondDateTime_X = FirstDateTime_X;
-  SecondDateTime_X.Second_U8 = 1;
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  SecondDateTime = BofDateTime(25, 2, 2001, 1, 30, 20, 0);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
-  EXPECT_EQ(DiffTime_X.Second_U8, 1);
-  SecondDateTime_X.Minute_U8 = 2;
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 2);
-  EXPECT_EQ(DiffTime_X.Second_U8, 1);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 366 + 31 + 7);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
+  EXPECT_EQ(DiffTime.Second(), 0);
+  EXPECT_EQ(DiffTime.MicroSecond(), 0);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
 
-  SecondDateTime_X.Hour_U8 = 3;
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  FirstDateTime = BofDateTime(18, 1, 2000, 0, 0, 0, 0);
+  SecondDateTime = BofDateTime(18, 1, 2000, 0, 0, 1, 999999);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
+  EXPECT_EQ(DiffTime.Second(), 1);
+  EXPECT_EQ(DiffTime.MicroSecond(), 999999);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
+
+  SecondDateTime = BofDateTime(18, 1, 2000, 0, 2, 1, 1);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 3);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 2);
-  EXPECT_EQ(DiffTime_X.Second_U8, 1);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 2);
+  EXPECT_EQ(DiffTime.Second(), 1);
+  EXPECT_EQ(DiffTime.MicroSecond(), 1);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
+
+  SecondDateTime = BofDateTime(18, 1, 2000, 3, 2, 1, 1024);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(DiffTime.IsValid());
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 3);
+  EXPECT_EQ(DiffTime.Minute(), 2);
+  EXPECT_EQ(DiffTime.Second(), 1);
+  EXPECT_EQ(DiffTime.MicroSecond(), 1024);
+  EXPECT_EQ(DiffTime.Day(), 0);
+  EXPECT_EQ(DiffTime.Month(), 0);
+  EXPECT_EQ(DiffTime.Year(), 0);
+}
+
+TEST(DateTime_Test, NbDaySinceUnixEpoch)
+{
+  BofDateTime DateTime;
+  std::string DateTime_S;
+  uint32_t    NbDaySinceUnixEpoch_U32;
+
+  DateTime = BofDateTime(2, 1, 1970, 12, 13, 14, 15);
+  EXPECT_EQ(Bof_BofDateTime_To_NbDaySinceUnixEpoch(DateTime, NbDaySinceUnixEpoch_U32), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(NbDaySinceUnixEpoch_U32, 1);
+
+  DateTime = BofDateTime(2, 3, 1970, 0, 0, 0, 0);
+  EXPECT_EQ(Bof_BofDateTime_To_NbDaySinceUnixEpoch(DateTime, NbDaySinceUnixEpoch_U32), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(NbDaySinceUnixEpoch_U32, 60);
+
+  DateTime.Reset();
+  EXPECT_EQ(Bof_NbDaySinceUnixEpoch_To_BofDateTime(NbDaySinceUnixEpoch_U32, DateTime), BOF_ERR_NO_ERROR);
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S.%q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "1970-03-02 00:00:00.0");
+
+  EXPECT_EQ(Bof_NbDaySinceUnixEpoch_To_BofDateTime(365 + 31 + 7, DateTime), BOF_ERR_NO_ERROR);
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S.%q us=%q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "1971-02-08 00:00:00.0 us=0");
 }
 
 TEST(DateTime_Test, StringDateTime)
 {
-  BOF_DATE_TIME DateTime_X, DateTimeFromString_X;
+  BofDateTime DateTime, DateTimeFromString;
   std::string DateTime_S;
 
-  EXPECT_EQ(Bof_DateInDaySinceEpoch_To_BofDateTime(365 + 31 + 7, DateTime_X), BOF_ERR_NO_ERROR);
-  DateTime_X.Hour_U8 = 12;
-  DateTime_X.Minute_U8 = 34;
-  DateTime_X.Second_U8 = 56;
-  DateTime_X.MicroSecond_U32 = 0;
+  EXPECT_EQ(Bof_NbDaySinceUnixEpoch_To_BofDateTime(365 + 31 + 7, DateTime), BOF_ERR_NO_ERROR);
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S.%q us=%q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "1971-02-08 00:00:00.0 us=0");
 
-  DateTime_S = DateTime_X.ToString();
-  DateTimeFromString_X.Reset();
-  DateTimeFromString_X = DateTimeFromString_X.FromString(DateTime_S);
-  EXPECT_TRUE(DateTime_X == DateTimeFromString_X);
-  EXPECT_STREQ(DateTime_S.c_str(), "1971-02-08 12:34:56");
+  DateTime = BofDateTime(12, 34, 56, 0);;
+  DateTime_S = DateTime.ToString();
+  DateTimeFromString = DateTimeFromString.FromString(DateTime_S);
+  EXPECT_TRUE(DateTime == DateTimeFromString);
+  EXPECT_STREQ(DateTime_S.c_str(), "1970-01-01 12:34:56");
 
-  DateTime_S = DateTime_X.ToString("%b %d %H:%M");
-  DateTimeFromString_X.Reset();
-  DateTimeFromString_X = DateTimeFromString_X.FromString(DateTime_S, "%b %d %H:%M");
- // DateTimeFromString_X.Year_U16 = DateTime_X.Year_U16;  //Not in format string
- // DateTimeFromString_X.Second_U8 = 56;//Not in format string
- // DateTimeFromString_X.DayOfWeek_U8 = 1;//Bad as Year_U16/Second_U8 are not in format string
-  EXPECT_TRUE(DateTime_X == DateTimeFromString_X);
-  EXPECT_STREQ(DateTime_S.c_str(), "Feb 08 12:34");
+  DateTime_S = DateTime.ToString("%b %d %H:%M:%S");
+  DateTimeFromString.Reset();
+  DateTimeFromString = DateTimeFromString.FromString(DateTime_S, "%b %d %H:%M:%S");
+  // DateTimeFromString.Year() = DateTime.Year();  //Not in format string
+  // DateTimeFromString.Second() = 56;//Not in format string
+  // DateTimeFromString.DayOfWeek_U8 = 1;//Bad as Year_U16/Second_U8 are not in format string
+  EXPECT_TRUE(DateTime == DateTimeFromString);
+  EXPECT_STREQ(DateTime_S.c_str(), "Jan 01 12:34:56");
+
+  DateTime = BofDateTime(2, 1, 1970, 1, 2, 3, 123456);
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S.%q us=%q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "1970-01-02 01:02:03.123456 us=123456");
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S us %q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "1970-01-02 01:02:03 us 123456");
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S.%q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "1970-01-02 01:02:03.123456");
+
+  DateTime.FromString("20011009.987654", "%Y%m%d.%q");
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S.%q us=%q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "2001-10-09 00:00:00.987654 us=987654");
+
+  DateTime.FromString("20011009 ms=987650", "%Y%m%d ms=%q");
+  DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S.%q");    //%q is used by BofDateTime to display MicroSecond_U32
+  EXPECT_STREQ(DateTime_S.c_str(), "2001-10-09 00:00:00.987650");
 }
 
 TEST(DateTime_Test, TickSleep)
 {
   BOFERR        Sts_E;
-  BOF_DATE_TIME FirstDateTime_X, SecondDateTime_X, DiffTime_X;
-  uint32_t      DiffDay_U32, Start_U32, Delta_U32, i_U32;
+  BofDateTime   FirstDateTime, SecondDateTime, DiffTime;
+  uint32_t      Start_U32, Delta_U32, i_U32;
+  int32_t       DiffDay_S32;
   const uint32_t NBLOOP = 20;
 
   Start_U32 = Bof_GetMsTickCount();
@@ -452,70 +465,57 @@ TEST(DateTime_Test, TickSleep)
   printf("40: %d\r\n", Delta_U32);
 
   Start_U32 = Bof_GetMsTickCount();
-  Sts_E = Bof_Now(FirstDateTime_X);
+  Sts_E = Bof_Now(FirstDateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Bof_MsSleep(3000);
-  /*
-     uint32_t End_U32 = Bof_GetMsTickCount();
-     uint32_t k = End_U32 - Start_U32;
 
-     Start_U32 = 0xf7a0b107;
-     End_U32 = 0x6d4;
-
-
-     uint32_t now = 0x6d4;
-     uint32_t start = 0xf7a0b107;
-
-     uint32_t delta = 0xFFFFFFFF - start;
-     delta = (now < start) ? 0xFFFFFFFF - start - now : now - start;
-   */
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  Sts_E = Bof_Now(SecondDateTime_X);
+  Sts_E = Bof_Now(SecondDateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
-  EXPECT_GE(DiffTime_X.Second_U8, 3);
-  EXPECT_LE(DiffTime_X.Second_U8, 4);
-  EXPECT_EQ(DiffTime_X.MicroSecond_U32, 0);
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
+  EXPECT_GE(DiffTime.Second(), 3);
+  EXPECT_LE(DiffTime.Second(), 4);
+  //EXPECT_EQ(DiffTime.MicroSecond(), 0);
   EXPECT_GT(Delta_U32, (uint32_t)2900);
   EXPECT_LT(Delta_U32, (uint32_t)3100);
 
   Start_U32 = Bof_GetMsTickCount();
-  Sts_E = Bof_Now(FirstDateTime_X);
+  Sts_E = Bof_Now(FirstDateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Bof_MsSleep(100);
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  Sts_E = Bof_Now(SecondDateTime_X);
+  Sts_E = Bof_Now(SecondDateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
   // can be one
-  EXPECT_LE(DiffTime_X.Second_U8, 1);
-  EXPECT_EQ(DiffTime_X.MicroSecond_U32, 0);
+  EXPECT_LE(DiffTime.Second(), 1);
+  //EXPECT_EQ(DiffTime.MicroSecond(), 0);
   EXPECT_GE(Delta_U32, (uint32_t)90);
   EXPECT_LE(Delta_U32, (uint32_t)110);
 
   Start_U32 = Bof_GetMsTickCount();
-  Sts_E = Bof_Now(FirstDateTime_X);
+  Sts_E = Bof_Now(FirstDateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Bof_MsSleep(30);                       // Sleep can't be lower than the timer res (on some system it is 15 ms)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  Sts_E = Bof_Now(SecondDateTime_X);
+  Sts_E = Bof_Now(SecondDateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_DiffDateTime(SecondDateTime_X, FirstDateTime_X, DiffTime_X, DiffDay_U32);
+  Sts_E = Bof_DiffDateTime(SecondDateTime, FirstDateTime, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(DiffDay_U32, 0);
-  EXPECT_EQ(DiffTime_X.Hour_U8, 0);
-  EXPECT_EQ(DiffTime_X.Minute_U8, 0);
+  EXPECT_EQ(DiffDay_S32, 0);
+  EXPECT_EQ(DiffTime.Hour(), 0);
+  EXPECT_EQ(DiffTime.Minute(), 0);
   // can be one
-  EXPECT_LE(DiffTime_X.Second_U8, 1);
-  EXPECT_EQ(DiffTime_X.MicroSecond_U32, 0);
+  EXPECT_LE(DiffTime.Second(), 1);
+  //EXPECT_EQ(DiffTime.MicroSecond(), 0);
   EXPECT_GE(Delta_U32, (uint32_t)15);
   EXPECT_LE(Delta_U32, (uint32_t)45);
 

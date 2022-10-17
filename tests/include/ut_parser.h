@@ -51,7 +51,7 @@ struct BOOKPARAM
   float      Price_f;
   char       pBha1_c[16];
   char       pBha2_c[16];
-  BOF_DATE_TIME    PublishDate_X;
+  BofDateTime    PublishDate;
   char       pDescription_c[256];
 
   BOOKPARAM()
@@ -67,14 +67,14 @@ struct BOOKPARAM
     Price_f = 0.0f;
     pBha1_c[0] = 0;
     pBha2_c[0] = 0;
-    memset(&PublishDate_X, 0, sizeof(PublishDate_X));
+    PublishDate.Reset();
     pDescription_c[0] = 0;
   }
 };
 
-struct APPPARAM
+struct PARSER_APPPARAM
 {
-  BOF_SOCKET_ADDRESS    DeployIpAddress_X;
+  BOF_SOCKET_ADDRESS_COMPONENT    DeployIpAddress_X;
   uint16_t           DeployIpPort_U16;
   char               pDeployProtocol_c[16];
   char               pDeployDirectory_c[256];
@@ -88,14 +88,15 @@ struct APPPARAM
   BOOKPARAM          pBook_X[100];
   OTHER              pOther_X[4];
 
-  APPPARAM()
+  PARSER_APPPARAM()
   {
     Reset();
   }
   void Reset()
   {
     // Setup application default value
-    memset(&DeployIpAddress_X, 0, sizeof(DeployIpAddress_X));
+    DeployIpAddress_X.Reset();
+//    DeployIpAddress_X.Protocol_S = "bha";
     DeployIpPort_U16 = 0;
     pDeployProtocol_c[0] = 0;
     pDeployDirectory_c[0] = 0;
@@ -117,8 +118,8 @@ struct APPPARAMVECTOR
 {
   std::vector<std::string> StringCollection;
   std::vector<float> FloatCollection;
-  std::vector<BOF_DATE_TIME> DateTimeCollection;
-  std::vector<BOF_SOCKET_ADDRESS> Ip6Collection;
+  std::vector<BofDateTime> DateTimeCollection;
+  std::vector<BOF_SOCKET_ADDRESS_COMPONENT> Ip6Collection;
   std::vector<bool> BoolCollection;
   std::vector<std::string> IdCollection;
   APPPARAMVECTOR()
@@ -440,7 +441,7 @@ struct CMD_STATUS_RECEIVERS
 struct REPLY_STATUS_RECEIVERS
 {
   std::vector<BOF::BofGuid> IdCollection;
-  std::vector<BOF::BOF_SOCKET_ADDRESS> IpCollection;
+  std::vector<BOF::BOF_SOCKET_ADDRESS_COMPONENT> IpCollection;
   std::vector<std::string> PresentCollection;
   std::vector<bool> ImpairedCollection;
   std::vector<std::string> StateCollection;
@@ -480,7 +481,7 @@ struct CMD_STATUS_SENDERS
 struct REPLY_STATUS_SENDERS
 {
   std::vector<BOF::BofGuid> IdCollection;
-  std::vector<BOF::BOF_SOCKET_ADDRESS> IpCollection;
+  std::vector<BOF::BOF_SOCKET_ADDRESS_COMPONENT> IpCollection;
   std::vector<std::string> PresentCollection;
   std::vector<bool> ImpairedCollection;
   std::vector<std::string> StateCollection;

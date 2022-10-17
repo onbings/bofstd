@@ -1050,7 +1050,7 @@ public:
       %!	Source function (use SPDLOG_TRACE(..),SPDLOG_INFO(...) etc. see tweakme for pretty-print)	my_func
 
       // -----> Replaced by %i and SPDLOG_ENABLE_MESSAGE_COUNTER
-      // We add a special %N market which can only appear as the first pattern character if you want to use it.
+      // We add a special %N marker which can only appear as the first pattern character if you want to use it.
       // it is used to add unique log line number ( as a %08X number) after the other pattern character and before the beginning of the log line.
       // With this 'ticket' value, you can detect log line buffer overflow as you will have "holes" in the line number sequence if it happens
       -> "%N "); // Can only appears as the first arg

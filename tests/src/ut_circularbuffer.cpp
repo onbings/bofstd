@@ -533,7 +533,7 @@ TEST(BofCircularBuffer_Test, BlockingMode)
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
   BOFERR Sts_E;
   uint32_t i_U32, j_U32;
-  BOF::BOF_DATE_TIME Now_X;
+  BofDateTime Now;
   std::string Now_S;
 
   BofCircularBuffer<uint64_t> *pBofCollection;
@@ -553,8 +553,8 @@ TEST(BofCircularBuffer_Test, BlockingMode)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   for (i_U32 = 0; i_U32 < 3; i_U32++)
   {
-    BOF::Bof_Now(Now_X);
-    Now_S = Now_X.ToString();
+    Bof_Now(Now);
+    Now_S = Now.ToString();
 
     printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
 

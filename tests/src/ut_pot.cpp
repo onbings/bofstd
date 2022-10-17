@@ -401,7 +401,7 @@ TEST_F(BofPot_Test, BlockingMode)
   BOF_POT_PARAM BofPotParam_X;
   BOFERR Sts_E;
   uint32_t i_U32, j_U32;
-  BOF::BOF_DATE_TIME Now_X;
+  BOF::BofDateTime Now;
   std::string Now_S;
 
   BofPot<uint64_t> *pBofCollection;
@@ -426,8 +426,8 @@ TEST_F(BofPot_Test, BlockingMode)
   for (i_U32 = 0; i_U32 < 3; i_U32++)
   {
     S_pValCollection.clear();
-    BOF::Bof_Now(Now_X);
-    Now_S = Now_X.ToString();
+    BOF::Bof_Now(Now);
+    Now_S = Now.ToString();
 
     printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
 

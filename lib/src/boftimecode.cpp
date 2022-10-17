@@ -39,22 +39,24 @@ BofTimecode::BofTimecode(const BOF_TIMECODE &_rBofTimeCodeStruct_X)
   mTcValid_B = (FromByteStruct(_rBofTimeCodeStruct_X) == BOF_ERR_NO_ERROR);
 }
 
-BofTimecode::BofTimecode(bool _Ntsc_B, const BOF_DATE_TIME &_rDateTime_X)
+BofTimecode::BofTimecode(bool _Ntsc_B, const BofDateTime &_rDateTime)
 {
   time_t DateInDaySince1970;
   double Remain_lf;
-  BOFERR Sts_E = Bof_BofDateTime_To_DateInDaySinceEpoch(_rDateTime_X, DateInDaySince1970);
+  uint32_t NbDaySinceUnixEpoch_U32;
+
+  BOFERR Sts_E = Bof_BofDateTime_To_NbDaySinceUnixEpoch(_rDateTime, NbDaySinceUnixEpoch_U32);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
     mTcValid_B = true;
-    mTc_X.NbDay_U16 = static_cast<uint16_t>(DateInDaySince1970);
-    mTc_X.Hour_U8 = _rDateTime_X.Hour_U8;
-    mTc_X.Minute_U8 = _rDateTime_X.Minute_U8;
-    mTc_X.Second_U8 = _rDateTime_X.Second_U8;
-    mTc_X.Frame_U8 = static_cast<uint8_t>(static_cast<double>(_rDateTime_X.MicroSecond_U32 / 1000) / FrameTime());
+    mTc_X.NbDay_U16 = static_cast<uint16_t>(NbDaySinceUnixEpoch_U32);
+    mTc_X.Hour_U8 = _rDateTime.Hour();
+    mTc_X.Minute_U8 = _rDateTime.Minute();
+    mTc_X.Second_U8 = _rDateTime.Second();
+    mTc_X.Frame_U8 = static_cast<uint8_t>(static_cast<double>(_rDateTime.MicroSecond() / 1000) / FrameTime());
     mTc_X.TcFlag_U8 = _Ntsc_B ? BOF_TIMECODE_FLAG_NTSC : 0x00;
     mRate = (mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_NTSC) ? BofRational(1000, 30, false) : BofRational(1000, 25, false);
-    Remain_lf = static_cast<double>(_rDateTime_X.MicroSecond_U32 / 1000) - (static_cast<uint32_t>(mTc_X.Frame_U8) * FrameTime());
+    Remain_lf = static_cast<double>(_rDateTime.MicroSecond() / 1000) - (static_cast<uint32_t>(mTc_X.Frame_U8) * FrameTime());
     if (Remain_lf > (0.9f * FieldTime()))
     {
       mTc_X.TcFlag_U8 |= BOF_TIMECODE_FLAG_PARITY_ODD;
@@ -67,8 +69,8 @@ BofTimecode::BofTimecode(const char *_pTc_c)
   //"2018-05-26 08:16:32;01. @1000/25"
   int NbScanField_i, Num_i, Den_i, Year_i, Month_i, Day_i, Hour_i, Minute_i, Second_i, Frame_i;
   BOF_TIMECODE BofTimeCodeStruct_X;
-  BOF_DATE_TIME DateTime_X;
-  time_t DateInDaySince1970;
+  BofDateTime DateTime;
+  uint32_t NbDaySinceUnixEpoch_U32;
   char Drop_c, Parity_c;
 
   mTcValid_B = false;
@@ -79,11 +81,8 @@ BofTimecode::BofTimecode(const char *_pTc_c)
       NbScanField_i = sscanf(_pTc_c, "%04d-%02d-%02d %02d:%02d:%02d%c%02d%c @%d/%d", &Year_i, &Month_i, &Day_i, &Hour_i, &Minute_i, &Second_i, &Drop_c, &Frame_i, &Parity_c, &Num_i, &Den_i);
       if (NbScanField_i == 11)
       {
-        DateTime_X.Year_U16 = static_cast<uint16_t>(Year_i);
-        DateTime_X.Month_U8 = static_cast<uint8_t>(Month_i);
-        DateTime_X.Day_U8 = static_cast<uint8_t>(Day_i);
-
-        if (Bof_BofDateTime_To_DateInDaySinceEpoch(DateTime_X, DateInDaySince1970) == BOF_ERR_NO_ERROR)
+        DateTime = BofDateTime(static_cast<uint8_t>(Day_i), static_cast<uint8_t>(Month_i), static_cast<uint16_t>(Year_i), 0, 0, 0, 0);
+        if (Bof_BofDateTime_To_NbDaySinceUnixEpoch(DateTime, NbDaySinceUnixEpoch_U32) == BOF_ERR_NO_ERROR)
         {
           BofTimeCodeStruct_X.Hour_U8 = static_cast<uint8_t>(Hour_i);
           BofTimeCodeStruct_X.Minute_U8 = static_cast<uint8_t>(Minute_i);
@@ -94,7 +93,7 @@ BofTimecode::BofTimecode(const char *_pTc_c)
           BofTimeCodeStruct_X.TcFlag_U8 |= static_cast<uint8_t>((Parity_c == '.') ? BOF_TIMECODE_FLAG_PARITY_ODD : 0);
           BofTimeCodeStruct_X.TcFlag_U8 |= static_cast<uint8_t>((Drop_c == ';') ? BOF_TIMECODE_FLAG_DROP : 0);
           BofTimeCodeStruct_X.TcFlag_U8 |= static_cast<uint8_t>(((Num_i == 1000) && (Den_i == 30)) ? BOF_TIMECODE_FLAG_NTSC : 0);
-          BofTimeCodeStruct_X.NbDay_U16 = static_cast<uint16_t>(DateInDaySince1970);
+          BofTimeCodeStruct_X.NbDay_U16 = static_cast<uint16_t>(NbDaySinceUnixEpoch_U32);
           mTcValid_B = (FromByteStruct(BofTimeCodeStruct_X) == BOF_ERR_NO_ERROR);
           mRate = BofRational(Num_i, Den_i, false);	//Modified in FromByteStruct
         }
@@ -194,13 +193,13 @@ void BofTimecode::FromMs(bool _Ntsc_B, uint64_t _Ms_U64)
 
 std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatDate_S, bool _ShowTime_B, const std::string &_rFormatTime_S, bool _ShowStandard_B)
 {
-  BOF_DATE_TIME BofDateTime_X;
+  BofDateTime DateTime;
   std::string Rts_S, Frame_S;
 
   if (_ShowDate_B)
   {
-    Bof_DateInDaySinceEpoch_To_BofDateTime(mTc_X.NbDay_U16, BofDateTime_X);
-    Rts_S += BofDateTime_X.ToString((_rFormatDate_S == "") ? "%Y-%m-%d" : _rFormatDate_S);
+    Bof_NbDaySinceUnixEpoch_To_BofDateTime(mTc_X.NbDay_U16, DateTime);
+    Rts_S += DateTime.ToString((_rFormatDate_S == "") ? "%Y-%m-%d" : _rFormatDate_S);
   }
   if (_ShowTime_B)
   {
@@ -208,16 +207,16 @@ std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatD
     {
       Rts_S += " ";
     }
-    BofDateTime_X = BOF_DATE_TIME(1, 1, 1970, mTc_X.Hour_U8, mTc_X.Minute_U8, mTc_X.Second_U8, 0);
+    DateTime = BofDateTime(1, 1, 1970, mTc_X.Hour_U8, mTc_X.Minute_U8, mTc_X.Second_U8, 0);
     //"2018-05-26 08:16:32;01. @1000/25"
     if (_rFormatTime_S == "")
     {
-      Rts_S += BofDateTime_X.ToString((mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_DROP) ? "%H:%M:%S;" : "%H:%M:%S:");
+      Rts_S += DateTime.ToString((mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_DROP) ? "%H:%M:%S;" : "%H:%M:%S:");
       Frame_S = Bof_Sprintf("%02d%c", mTc_X.Frame_U8, (mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_PARITY_ODD) ? '.' : ' ');
     }
     else
     {
-      Rts_S += BofDateTime_X.ToString(_rFormatTime_S);
+      Rts_S += DateTime.ToString(_rFormatTime_S);
       Frame_S = Bof_Sprintf(":%02d%c", mTc_X.Frame_U8, (mTc_X.TcFlag_U8 & BOF_TIMECODE_FLAG_PARITY_ODD) ? '.' : ' ');
     }
     Rts_S += Frame_S;
@@ -349,9 +348,9 @@ BOFERR BofTimecode::FromByteStruct(const BOF_TIMECODE &_rBofTimeCodeStruct_X)
 BOFERR BofTimecode::S_ValidateTimecode(const BOF_TIMECODE &_rBofTimeCodeStruct_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  BOF_DATE_TIME DateTime_X(1, 1, 1970, _rBofTimeCodeStruct_X.Hour_U8, _rBofTimeCodeStruct_X.Minute_U8, _rBofTimeCodeStruct_X.Second_U8, 0);
+  BofDateTime DateTime(1, 1, 1970, _rBofTimeCodeStruct_X.Hour_U8, _rBofTimeCodeStruct_X.Minute_U8, _rBofTimeCodeStruct_X.Second_U8, 0);
 
-  if (DateTime_X.IsValid_B)
+  if (DateTime.IsValid())
   {
     Rts_E = BOF_ERR_TOO_BIG;
     if (_rBofTimeCodeStruct_X.TcFlag_U8 & BOF_TIMECODE_FLAG_NTSC)
