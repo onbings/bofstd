@@ -26,18 +26,18 @@
 #include <map>
 
 BEGIN_BOF_NAMESPACE()
-
+/*
 template<typename T>
 constexpr typename std::underlying_type<T>::type Bof_EnumToNativeValue(T t)
 {
   return static_cast<typename std::underlying_type<T>::type>(t);
 }
-
+*/
 //https://stackoverflow.com/questions/14727313/c-how-to-reference-templated-functions-using-stdbind-stdfunction
 //https://stackoverflow.com/questions/24874478/use-stdbind-with-overloaded-functions
 ///@brief This class represent a double mapping between unique instances of @c T and strings.
 template<typename T>
-class BOFSTD_EXPORT BofEnum
+class BofEnum
 {
 public:
   ///@brief Constructor.

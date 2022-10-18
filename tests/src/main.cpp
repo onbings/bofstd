@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) = "Uri_Test.*:CmdLineParser_Test.*";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorToJson:Bof2d_Test.MediaDetectorFromJson";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
-//  	::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
+  	::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParam";
 /*
 * under linux:
 [  PASSED  ] 144 tests.

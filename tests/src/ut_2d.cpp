@@ -36,14 +36,14 @@ USE_BOF_NAMESPACE()
 
 //Depends on line terminator and pathname
 //#define CHECK_STR
-void DisplayParamValue(BofMediaDetector &_rMediaInfoParser)
+void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInfoParser)
 {
   std::string Result_S;
   uint32_t i_U32;
   char *p_c, *q_c, *pColon_c, *pBuffer_c, *pSpace_c;
   BOF::BofMediaDetector::MediaStreamType MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::General;
-  std::string MediaStreamType_S, Type_S, Info_S;
-  bool MoreThanOptionIAndO_B;
+  std::string MediaStreamType_S, Type_S, Info_S, Extra_S;
+  bool MoreThanOptionIAndO_B, NewType_B;
   //Oss = MediaInfoParser.Option(__T("Info_Version"), __T("0.7.13;MediaInfoDLL_Example_MSVC;0.7.13"));
 
   Result_S = _rMediaInfoParser.Option("Info_Parameters");
@@ -51,7 +51,7 @@ void DisplayParamValue(BofMediaDetector &_rMediaInfoParser)
   memcpy(pBuffer_c, Result_S.c_str(), Result_S.size());
   p_c = pBuffer_c;
   q_c = strchr(p_c, '\n');
-
+  printf("[--- %s ---------------------------------------------------------------]\n", _Title_S.c_str());
   do
   {
     if (q_c)
@@ -65,62 +65,76 @@ void DisplayParamValue(BofMediaDetector &_rMediaInfoParser)
         if (pSpace_c)
         {
           *pSpace_c = 0;
-          if (strcmp(p_c, "Inform"))
+          Info_S = "";
+          MoreThanOptionIAndO_B = false;
+          if (!strcmp(p_c, "Inform"))
           {
-            Info_S = "";
-            MoreThanOptionIAndO_B = false;
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Info, Result_S), BOF_ERR_NO_ERROR);
+            Info_S += " I:'Inform'";
+          }
+          else
+          {
+            EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, p_c, BOF::BofMediaDetector::InfoType::Info, Result_S), BOF_ERR_NO_ERROR);
             if (Result_S != "")
             {
               Info_S += " I:'" + Result_S + "'";
             }
+            else
+            {
+              Info_S += " I:'???'";
+            }
 
             //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+            EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, p_c, BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
             if (Result_S != "")
             {
               Info_S += " T:'" + Result_S + "'";
               MoreThanOptionIAndO_B = true;
             }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Measure, Result_S), BOF_ERR_NO_ERROR);
+            EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, p_c, BOF::BofMediaDetector::InfoType::Measure, Result_S), BOF_ERR_NO_ERROR);
             if (Result_S != "")
             {
               Info_S += " M:'" + Result_S + "'";
               MoreThanOptionIAndO_B = true;
             }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Options, Result_S), BOF_ERR_NO_ERROR);
+            EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, p_c, BOF::BofMediaDetector::InfoType::Options, Result_S), BOF_ERR_NO_ERROR);
             if (Result_S != "")
             {
               Info_S += " O:'" + Result_S + "'";
             }
             //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Name_Text, Result_S), BOF_ERR_NO_ERROR);
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Measure_Text, Result_S), BOF_ERR_NO_ERROR);
+            EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, p_c, BOF::BofMediaDetector::InfoType::Measure_Text, Result_S), BOF_ERR_NO_ERROR);
             if (Result_S != "")
             {
               Info_S += " m:'" + Result_S + "'";
               MoreThanOptionIAndO_B = true;
             }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::HowTo, Result_S), BOF_ERR_NO_ERROR);
+            EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, p_c, BOF::BofMediaDetector::InfoType::HowTo, Result_S), BOF_ERR_NO_ERROR);
             if (Result_S != "")
             {
               Info_S += " H:'" + Result_S + "'";
               MoreThanOptionIAndO_B = true;
             }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
+            EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, p_c, BOF::BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
             if (Result_S != "")
             {
               Info_S += " D:'" + Result_S + "'";
               MoreThanOptionIAndO_B = true;
             }
-            if ((MoreThanOptionIAndO_B) && (Info_S != ""))
-            {
-              printf("%s Param '%s' = %s\n", MediaStreamType_S.c_str(), p_c, Info_S.c_str());
-            }
+          }
+            //if ((MoreThanOptionIAndO_B) && (Info_S != ""))
+          if (Info_S != "")
+          {
+            printf("%s Param '%s' = %s\n", MediaStreamType_S.c_str(), p_c, Info_S.c_str());
+          }
+          if (!strcmp(p_c, "FrameRate_Original_Den"))
+          {
+ //           printf("jj");
           }
         }
       }
       else
       {
+        NewType_B = true;
         Type_S = BOF::Bof_StringTrim(p_c);
         if (Type_S == "General")
         {
@@ -157,6 +171,20 @@ void DisplayParamValue(BofMediaDetector &_rMediaInfoParser)
           MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Menu;
           MediaStreamType_S = "Menu";
         }
+        else
+        {
+          NewType_B = false;
+          Extra_S=p_c;
+          Extra_S = Bof_StringTrim(Extra_S);
+          if (Extra_S != "")
+          {
+            printf("%s Param (%s)\n", MediaStreamType_S.c_str(), Extra_S.c_str());
+          }
+        }
+        if (NewType_B)
+        {
+          printf("----->%s\n", MediaStreamType_S.c_str());
+        }
       }
       p_c = q_c + 1;
       q_c = strchr(p_c, '\n');
@@ -172,6 +200,8 @@ TEST(Bof2d_Test, MediaDetectorParam)
   std::string Result_S;
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  DisplayParamValue("colorbar.jpg", MediaInfoParser);
+
   /*
     EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "FileExtension", BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);
     printf("Name: %s\n", Result_S.c_str());
@@ -192,10 +222,8 @@ TEST(Bof2d_Test, MediaDetectorParam)
     EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "FileExtension", BOF::BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
     printf("Domain: %s\n", Result_S.c_str());
   */
-
-  DisplayParamValue(MediaInfoParser);
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/sample-mp4-file.mp4", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
-  DisplayParamValue(MediaInfoParser);
+  DisplayParamValue("sample-mp4-file.mp4", MediaInfoParser);
 
   /*
     EXPECT_EQ(MediaInfoDetector.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
@@ -373,43 +401,6 @@ TEST(Bof2d_Test, MediaDetectorQuery)
 
 }
 
-/*
-{
-        "Media" :
-        {
-                "Audio" :
-                {
-                        "DurationInNs" : 0,
-                        "Format" : "Mp3",
-                        "Path" : "/media/audio/pexels-alexander-grey-1149347.mp3",
-                        "Ref" : "C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.mp3",
-                        "Standard" : "16xS24L32@48000",
-                        "TpInNs" : 0,
-                        "Uri" : "storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3"
-                },
-                "Header" :
-                {
-                        "Created" : "UTC 2022-09-21 12:16:43.685000",
-                        "FileSize" : 32183316,
-                        "Modified" : "UTC 2022-09-21 12:16:43.701000",
-                        "Type" : "Still"
-                },
-                "Video" :
-                {
-                        "BitDepth" : 8,
-                        "ColorSpace" : "Rgb",
-                        "DurationInNs" : 0,
-                        "Format" : "Png",
-                        "Path" : "/media/still/pexels-alexander-grey-1149347.png",
-                        "Ref" : "C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png",
-                        "Standard" : "1920x1080@59.94i",
-                        "TpInNs" : 0,
-                        "Uri" : "storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"
-                }
-        }
-}
-
-*/
 enum class MUSE_FILE_SYSTEM_MEDIA_TYPE :int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN = 0,
