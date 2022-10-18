@@ -312,13 +312,10 @@ void BofDateTime::InitDateTime()
       mTp += SubSec;
 
       auto DurationInDay = date::floor<date::days>(mTp);
-      mTime = date::make_time(mTp - DurationInDay);
+      mTime = date::make_time(std::chrono::nanoseconds(mTp - DurationInDay));
 //      std::cout.fill('0');
 //      std::cout << mYmd.day() << '-' << std::setw(2) << static_cast<unsigned>(mYmd.month()) << '-' << mYmd.year() << ' ' << mTime << '\n';
-//      std::cout << mTp.time_since_epoch().count() << std::endl;
-
       //mDateTimeNum_lf = static_cast<double>(mTp.time_since_epoch().count()) + (static_cast<double>(mMicroSecond_U32) / 1000000.0);
-
     }
     else
     {

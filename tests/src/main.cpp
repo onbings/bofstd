@@ -42,58 +42,6 @@ int main(int argc, char *argv[])
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
 
-  /*
-    ::testing::GTEST_FLAG(filter) = "Bof2d_Test.*";
-    ::testing::GTEST_FLAG(filter) = "CallbackCollection_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Bit_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Enum_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Guid_Test.*";
-
-    ::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
-    ::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
-    ::testing::GTEST_FLAG(filter) = "SocketTcp_Test.*";
-    ::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Uart_Test.*";
-    ::testing::GTEST_FLAG(filter) = "BofCircularBuffer_Test.*";
-    ::testing::GTEST_FLAG(filter) = "BofPot_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Queue_Test.*";
-    ::testing::GTEST_FLAG(filter) = "BofRawCircularBufferWithSlotsize_Test.*";
-    ::testing::GTEST_FLAG(filter) = "BofStringCircularBuffer_Test.*";
-    ::testing::GTEST_FLAG(filter) = "BofCrypto_Test.*";	//LLLL
-    ::testing::GTEST_FLAG(filter) = "BofRamDb_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Fs_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Logger_Test.*";
-
-  //ut_stringformatter
-    ::testing::GTEST_FLAG(filter) = "Sprintf_Test.*";
-    ::testing::GTEST_FLAG(filter) = "PrintfTest.*";
-    ::testing::GTEST_FLAG(filter) = "StringViewTest.*";
-    ::testing::GTEST_FLAG(filter) = "WriterTest.*";
-    ::testing::GTEST_FLAG(filter) = "FormatToTest.*";
-    ::testing::GTEST_FLAG(filter) = "FormatterTest.*";
-    ::testing::GTEST_FLAG(filter) = "FormatIntTest.*";
-    ::testing::GTEST_FLAG(filter) = "FormatTest.*";
-    ::testing::GTEST_FLAG(filter) = "StrTest.*";
-    ::testing::GTEST_FLAG(filter) = "LiteralsTest.*";
-
-    ::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*";
-    ::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
-    ::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Timecode_Test.*";
-    ::testing::GTEST_FLAG(filter) = "BofScriptLauncher_Test.*";
-    ::testing::GTEST_FLAG(filter) = "String_Test.*";
-    ::testing::GTEST_FLAG(filter) = "System_Test.*";
-    ::testing::GTEST_FLAG(filter) = "BofThread_Test.*";
-    ::testing::GTEST_FLAG(filter) = "Async_Test.*";
-  [  FAILED  ] SocketTcp_Test.TcpClientTest
-  [  FAILED  ] SocketUdp_Test.ScatterGatherIo
-  [  FAILED  ] SocketUdp_Test.UdpClientTest
-  */
-  //	::testing::GTEST_FLAG(filter) = "-BofIo_Test.*";
-
-    //::testing::GTEST_FLAG(filter) = "Async_Test.*";
-    //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.ScatterGatherIo"top
-
 #if defined (_WIN32)
 #else
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*";   //No hw
@@ -109,7 +57,7 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) ="Timecode_Test.*:CmdLineParser_Test.CmdLine";
   //	::testing::GTEST_FLAG(filter) ="CmdLineParser_Test.CmdLine";
   //	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
-  //::testing::GTEST_FLAG(filter) = "Enum_Test.*";
+  ::testing::GTEST_FLAG(filter) = "Enum_Test.*";
   //	::testing::GTEST_FLAG(filter) = "String_Test.*:XmlParser_Test.*:JsonParser_Test.*:Bof2d_Test.*:Fs_Test.*";
     //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";	// :Uri_Test.*";
     //	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*";
@@ -119,7 +67,7 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) = "Uri_Test.*:CmdLineParser_Test.*";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorToJson:Bof2d_Test.MediaDetectorFromJson";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
-  //	::testing::GTEST_FLAG(filter) = "JsonWriter_Test.IpSwitcherSerDeser";
+//  	::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
 /*
 [==========] 151 tests from 41 test suites ran. (56031 ms total)
 [  PASSED  ] 151 tests.
