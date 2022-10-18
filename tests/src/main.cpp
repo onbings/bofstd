@@ -69,10 +69,22 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
 //  	::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
 /*
-[==========] 151 tests from 41 test suites ran. (56031 ms total)
-[  PASSED  ] 151 tests.
+* under linux:
+[  PASSED  ] 144 tests.
+[  FAILED  ] 9 tests, listed below:
+[  FAILED  ] SocketOs_Test.SocketAddress
+[  FAILED  ] SocketTcp_Test.TcpClientTest
+[  FAILED  ] SocketUdp_Test.FilterMulticastOnIpAddress
+[  FAILED  ] SocketUdp_Test.ScatterGatherIo
+[  FAILED  ] SocketUdp_Test.UdpClientTest
+[  FAILED  ] Logger_Test.LoggerMultiChannel
+[  FAILED  ] XmlWriter_Test.Xml
+[  FAILED  ] System_Test.Util_AlignedAlloc
+[  FAILED  ] Threading_Test.SingleThread
 
+ 9 FAILED TESTS
   YOU HAVE 5 DISABLED TESTS
+
 */
   Rts_i = RUN_ALL_TESTS();
 
