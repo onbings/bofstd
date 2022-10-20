@@ -589,6 +589,7 @@ BOFSTD_EXPORT BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
 BOFSTD_EXPORT std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZoneParam_X);
 BOFSTD_EXPORT int32_t Bof_Random(bool _Reset_B, int32_t _MinValue_S32, int32_t _MaxValue_S32);
 BOFSTD_EXPORT std::string Bof_Random(bool _Reset_B, uint32_t _Size_U32, char _MinValue_c, char _MaxValue_c);
+BOFSTD_EXPORT std::string Bof_RandomHexa(bool _Reset_B, uint32_t _Size_U32, bool _Upper_B);
 BOFSTD_EXPORT BOFERR Bof_ReEvaluateTimeout(uint32_t _Start_U32, uint32_t &_rNewTimeOut_U32);
 BOFSTD_EXPORT void Bof_MsSleep(uint32_t _Ms_U32);
 BOFSTD_EXPORT void Bof_UsSleep(uint32_t _Us_U32);

@@ -14,6 +14,9 @@
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofstringformatter.h>
 #include <bofstd/boffs.h>
+#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofaudiostandard.h>
+#include <bofstd/bofrational.h>
 
 #include "gtestrunner.h"
 
@@ -27,6 +30,103 @@
 #endif
 
 USE_BOF_NAMESPACE()
+
+TEST(System_Test, VideoStandard)
+{
+  BofVideoStandard Vs;
+  Vs = BofVideoStandard("1920x1080@59.94i");
+  EXPECT_TRUE(Vs.IsValid());
+  EXPECT_EQ(Vs.NbRow(), 1080);
+  EXPECT_EQ(Vs.NbCol(), 1920);
+  EXPECT_EQ(Vs.NbActiveRow(), 1080);
+  EXPECT_EQ(Vs.NbActiveCol(), 1920);
+  EXPECT_EQ(Vs.NbTotalRow(), 1125);
+  EXPECT_EQ(Vs.NbTotalCol(), 2200);
+  EXPECT_EQ(Vs.Fps(), 59);
+  EXPECT_EQ(Vs.ImageAspectRatio().Num(), 16);
+  EXPECT_EQ(Vs.ImageAspectRatio().Den(), 9);
+  Vs = BofVideoStandard("256x128@0p");    //picture, still
+  EXPECT_TRUE(Vs.IsValid());
+  EXPECT_EQ(Vs.NbRow(), 128);
+  EXPECT_EQ(Vs.NbCol(), 256);
+  EXPECT_EQ(Vs.NbActiveRow(), 128);
+  EXPECT_EQ(Vs.NbActiveCol(), 256);
+  EXPECT_EQ(Vs.NbTotalRow(), 128);
+  EXPECT_EQ(Vs.NbTotalCol(), 256);
+  EXPECT_EQ(Vs.Fps(), 0);
+  EXPECT_EQ(Vs.ImageAspectRatio().Num(), 2);
+  EXPECT_EQ(Vs.ImageAspectRatio().Den(), 1);
+}
+TEST(System_Test, AudioStandard)
+{
+  BofAudioStandard As;
+  As = BofAudioStandard("16xS24L32@48000");
+  EXPECT_TRUE(As.IsValid());
+  EXPECT_EQ(As.NbMonoChannel(), 16);
+  EXPECT_EQ(As.SampleFormat(), BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32);
+  EXPECT_EQ(As.SamplingRateInHz(), 48000);
+}
+
+TEST(System_Test, Rational)
+{
+  BofRational Rational;
+  Rational = BofRational(3.14286, 10);
+  EXPECT_EQ(Rational.Num(), 22);
+  EXPECT_EQ(Rational.Den(), 7);
+  Rational = BofRational(0.1, 10);      
+  EXPECT_EQ(Rational.Num(), 1);
+  EXPECT_EQ(Rational.Den(), 10);
+
+  Rational = BofRational(0.333333, 10); 
+  EXPECT_EQ(Rational.Num(), 1);
+  EXPECT_EQ(Rational.Den(), 3);
+  Rational = BofRational(13.8919, 10, 0.03);
+  EXPECT_EQ(Rational.Num(), 514);
+  EXPECT_EQ(Rational.Den(), 37);
+  Rational = BofRational(1.17172, 10, 0.03);
+  EXPECT_EQ(Rational.Num(), 116);
+  EXPECT_EQ(Rational.Den(), 99);
+  Rational = BofRational(-1.17, 10);    
+  EXPECT_EQ(Rational.Num(), -117);
+  EXPECT_EQ(Rational.Den(), 100);
+
+  Rational = BofRational(23.0, 10);
+  EXPECT_EQ(Rational.Num(), 23);
+  EXPECT_EQ(Rational.Den(), 1);
+  Rational = BofRational(24.0, 10);
+  EXPECT_EQ(Rational.Num(), 24);
+  EXPECT_EQ(Rational.Den(), 1);
+  Rational = BofRational(25.0, 1);
+  EXPECT_EQ(Rational.Num(), 25);
+  EXPECT_EQ(Rational.Den(), 1);
+  Rational = BofRational(29.97, 10);
+  EXPECT_EQ(Rational.Num(), 2997);
+  EXPECT_EQ(Rational.Den(), 100);
+  Rational = BofRational(29.970029970029970029, 10);
+  EXPECT_EQ(Rational.Num(), 30000);
+  EXPECT_EQ(Rational.Den(), 1001);
+  Rational = BofRational(29.97002997, 10);
+  EXPECT_EQ(Rational.Num(), 30000);
+  EXPECT_EQ(Rational.Den(), 1001);
+  Rational = BofRational(30.0, 10);
+  EXPECT_EQ(Rational.Num(), 30);
+  EXPECT_EQ(Rational.Den(), 1);
+  Rational = BofRational(50.0, 10);
+  EXPECT_EQ(Rational.Num(), 50);
+  EXPECT_EQ(Rational.Den(), 1);
+  Rational = BofRational(59.0, 10);
+  EXPECT_EQ(Rational.Num(), 59);
+  EXPECT_EQ(Rational.Den(), 1);
+  Rational = BofRational(59.94, 10);
+  EXPECT_EQ(Rational.Num(), 2997);
+  EXPECT_EQ(Rational.Den(), 50);
+  Rational = BofRational(59.94005994, 10);
+  EXPECT_EQ(Rational.Num(), 60000);
+  EXPECT_EQ(Rational.Den(), 1001);
+  Rational = BofRational(60.0, 10);
+  EXPECT_EQ(Rational.Num(), 60);
+  EXPECT_EQ(Rational.Den(), 1);
+}
 
 TEST(System_Test, TickDelta)
 {
@@ -74,8 +174,6 @@ TEST(System_Test, EnvVar)
   EXPECT_STREQ(pEnv_c, "3:BHA");
 
 }
-
-
 
 TEST(System_Test, DumpMemoryZone)
 {
@@ -301,6 +399,11 @@ TEST(System_Test, Random)
 
   std::string Str_S, Prv_S;
 
+  Str_S = Bof_RandomHexa(true, 20, true);
+  EXPECT_EQ(Str_S.size(), 40);
+  Str_S = Bof_RandomHexa(false, 20, false);
+  EXPECT_EQ(Str_S.size(), 40);
+
   memset(pTime_U32, 0, sizeof(pTime_U32));
   MinValue_S32 = 3;
   MaxValue_S32 = 12;
@@ -455,3 +558,4 @@ TEST(System_Test, Exec)
   EXPECT_EQ(ExitCode_S32, 0);
   EXPECT_TRUE(Output_S == "");
 }
+

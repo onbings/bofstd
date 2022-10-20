@@ -22,6 +22,8 @@
 #include <bofstd/bofaudiostandard.h>
 #include <bofstd/bofenum.h>
 
+#include <regex>
+
 BEGIN_BOF_NAMESPACE()
 
 static BofEnum<BOF_AUDIO_SAMPLE_FORMAT> S_BofAudioStandardEnumConverter({
@@ -35,9 +37,9 @@ BofAudioStandard::BofAudioStandard()
 {
 }
 
-BofAudioStandard::BofAudioStandard(const char *_pStandard_c)
+BofAudioStandard::BofAudioStandard(const std::string &_rStandard_S)
 {
-  S_Parse(_pStandard_c, mNbMonoChannel_U32, mSamplingRateInHz_U32, mNbBitPerSample_U32, mSampleFormat_E);
+  S_Parse(_rStandard_S.c_str(), mNbMonoChannel_U32, mSamplingRateInHz_U32, mNbBitPerSample_U32, mSampleFormat_E);
 }
 
 BofAudioStandard::BofAudioStandard(uint32_t _NbMonoChannel_U32, uint32_t _SamplingRateInHz_U32, BOF_AUDIO_SAMPLE_FORMAT _SampleFormat_E)
@@ -81,7 +83,7 @@ AudioStandardId BofAudioStandard::Id() const
   return BOF_AUDIO_STANDARD_ID(mNbMonoChannel_U32, mSamplingRateInHz_U32, static_cast<uint32_t>(mSampleFormat_E));
 }
 
-bool BofAudioStandard::Valid() const
+bool BofAudioStandard::IsValid() const
 {
   return (mSampleFormat_E != BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN) ? true : false;
 }
@@ -107,28 +109,28 @@ BOF_AUDIO_SAMPLE_FORMAT BofAudioStandard::SampleFormat() const
 }
 //            "AudioStandard": "16x48000_S24L32",
 
-bool BofAudioStandard::S_Parse(const char *_pStandard_c, uint32_t &_rNbMonoChannel_U32, uint32_t &_rSamplingRateInHz_U32, uint32_t &_rNbBitPerSample_U32, BOF_AUDIO_SAMPLE_FORMAT &_rSampleFormat_E)
+bool BofAudioStandard::S_Parse(const std::string &_rStandard_S, uint32_t &_rNbMonoChannel_U32, uint32_t &_rSamplingRateInHz_U32, uint32_t &_rNbBitPerSample_U32, BOF_AUDIO_SAMPLE_FORMAT &_rSampleFormat_E)
 {
   bool Rts_B = false;
-  char pAudioFormat_c[0x1000];
-  int NbMonoChannel_i, SamplingRateInHz_i, BitPerSample_i, ResolutionBit_i;
-  char SignedSample_c, LittleEndian_c, *pAt_c;
+  uint32_t ResolutionBit_U32;
+  char SignedSample_c, LittleEndian_c;
+  std::string Standard_S;
+  std::smatch MatchString;
+  static const std::regex S_RegExAudioStandard(R"(^(\d*)x(.)(\d*)(.)(\d*)@(\d*))");
 
-  if ((_pStandard_c) && (sscanf(_pStandard_c, "%dx%s", &NbMonoChannel_i, pAudioFormat_c) == 2))
+  if (std::regex_search(_rStandard_S, MatchString, S_RegExAudioStandard))
   {
-    pAt_c = strrchr(pAudioFormat_c, '@');
-    if (pAt_c)
+    if (MatchString.size() == 7)
     {
-      *pAt_c = 0;
-      SamplingRateInHz_i = atoi(pAt_c + 1);
-      _rNbMonoChannel_U32 = NbMonoChannel_i;
-      _rSamplingRateInHz_U32 = SamplingRateInHz_i;
-      if (sscanf(pAudioFormat_c, "%c%d%c%d", &SignedSample_c, &ResolutionBit_i, &LittleEndian_c, &BitPerSample_i) == 4)
-      {
-        _rNbBitPerSample_U32 = BitPerSample_i;
-        _rSampleFormat_E = S_BofAudioStandardEnumConverter.ToEnum(pAudioFormat_c);
-        Rts_B = true;
-      }
+      _rNbMonoChannel_U32 = std::atol(MatchString[1].str().c_str());
+      SignedSample_c = MatchString[2].str().c_str()[0];
+      ResolutionBit_U32 = std::atol(MatchString[3].str().c_str());
+      LittleEndian_c = MatchString[4].str().c_str()[0];
+      _rNbBitPerSample_U32 = std::atol(MatchString[5].str().c_str());
+      Standard_S = MatchString[2].str() + MatchString[3].str() + MatchString[4].str() + MatchString[5].str();
+      _rSamplingRateInHz_U32 = std::atol(MatchString[6].str().c_str());
+      _rSampleFormat_E = S_BofAudioStandardEnumConverter.ToEnum(Standard_S);
+      Rts_B = true;
     }
   }
   return Rts_B;

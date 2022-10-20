@@ -499,7 +499,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   Uri_S = S_AppParam_X.Uri2.ToString();
   EXPECT_STREQ(Uri_S.c_str(), "myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
-  EXPECT_STREQ(S_AppParam_X.Vs.IdTxt(), "1920x1080_59i");
+  EXPECT_STREQ(S_AppParam_X.Vs.ToString().c_str(), "1920x1080@59.94i");
   EXPECT_STREQ(S_AppParam_X.As.ToString().c_str(), "16xS24L32@48000");
   EXPECT_STREQ(S_AppParam_X.Tc.ToString(true).c_str(), "1977-07-16 01:02:03:04  @1001/60");
   EXPECT_EQ(S_AppParam_X.Size_X.Width_U32, 123);

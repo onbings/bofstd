@@ -574,7 +574,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
 
           case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
             VideoStandard = BofVideoStandard(pTheOptVal_c);
-            if (VideoStandard.Valid())
+            if (VideoStandard.IsValid())
             {
               Rts_E = BOF_ERR_NO_ERROR;
             }
@@ -582,7 +582,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
 
           case BOFPARAMETER_ARG_TYPE::AUDIOSTANDARD:
             AudioStandard = BofAudioStandard(pTheOptVal_c);
-            if (AudioStandard.Valid())
+            if (AudioStandard.IsValid())
             {
               Rts_E = BOF_ERR_NO_ERROR;
             }
@@ -1987,7 +1987,7 @@ DateTimeToString:
           }
           if (pRts_c)
           {
-            snprintf(_pToString_c, _MaxSize_U32, "%s", VideoStandard.IdTxt());
+            snprintf(_pToString_c, _MaxSize_U32, "%s", VideoStandard.ToString().c_str());
           }
         }
         break;

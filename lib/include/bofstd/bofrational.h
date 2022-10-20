@@ -36,6 +36,7 @@ public:
   BofRational(const BofRational &r) : mNumerator_S64(r.mNumerator_S64), mDenominator_U64(r.mDenominator_U64)
   {
   }
+  BofRational(double _Number_lf, uint32_t _NbCycle_U32, double _Precision_lf = 5e-4);
   BofRational(const int64_t num) : mNumerator_S64(num), mDenominator_U64(1)
   {
   }
@@ -43,6 +44,7 @@ public:
   {
     Set(num, den, _Normalize_B);
   }
+
   inline BofRational &operator=(const BofRational &r)
   {
     mNumerator_S64 = r.mNumerator_S64;
@@ -243,8 +245,6 @@ public:
   {
     return (float)((double)mNumerator_S64 / (double)mDenominator_U64);
   }
-
-
 
 protected:
   int64_t  mNumerator_S64; // signed value

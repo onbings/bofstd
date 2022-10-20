@@ -2513,6 +2513,33 @@ std::string Bof_Random(bool _Reset_B, uint32_t _Size_U32, char _MinValue_c, char
   return Rts_S;
 }
 
+std::string Bof_RandomHexa(bool _Reset_B, uint32_t _Size_U32, bool _Upper_B)
+{
+  std::string Rts_S;
+  uint32_t i_U32;
+  int32_t Val_S32;
+  std::stringstream Ss;
+
+  if (_Upper_B)
+  {
+    for (i_U32 = 0; i_U32 < _Size_U32; i_U32++)
+    {
+      Val_S32 = Bof_Random(_Reset_B, 0, 255);
+      Ss << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << Val_S32;
+    }
+  }
+  else
+  {
+    for (i_U32 = 0; i_U32 < _Size_U32; i_U32++)
+    {
+      Val_S32 = Bof_Random(_Reset_B, 0, 255);
+      Ss << std::setfill('0') << std::setw(2) << std::nouppercase << std::hex << Val_S32;
+    }
+  }
+  Rts_S = Ss.str();
+  return Rts_S;
+}
+
 BOFERR Bof_SystemUsageInfo(BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X)
 {
   BOFERR            Rts_E = BOF_ERR_NOT_SUPPORTED;

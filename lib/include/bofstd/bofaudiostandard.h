@@ -43,18 +43,18 @@ class BOFSTD_EXPORT BofAudioStandard
 {
 public:
   BofAudioStandard();
-  BofAudioStandard(const char *_pStandard_c);
+  BofAudioStandard(const std::string &_rStandard_S);
   BofAudioStandard(uint32_t _NbMonoChannel_U32, uint32_t _SamplingRateInHz_U32, BOF_AUDIO_SAMPLE_FORMAT _SampleFormat_E);
   BofAudioStandard &operator=(const BofAudioStandard &_rStandard);
   bool operator==(const BofAudioStandard &_rStandard) const;
   std::string ToString() const;
   AudioStandardId Id() const;
-  bool Valid() const;
+  bool IsValid() const;
   uint32_t NbBitPerSample() const;
   uint32_t NbMonoChannel() const;
   uint32_t SamplingRateInHz() const;
   BOF_AUDIO_SAMPLE_FORMAT SampleFormat() const;
-  static bool S_Parse(const char *_pStandard_c, uint32_t &_rNbMonoChannel_U32, uint32_t &_rSamplingRateInHz_U32, uint32_t &_rNbBitPerSample_U32, BOF_AUDIO_SAMPLE_FORMAT &_rSampleFormat_E);
+  static bool S_Parse(const std::string &_rStandard_S, uint32_t &_rNbMonoChannel_U32, uint32_t &_rSamplingRateInHz_U32, uint32_t &_rNbBitPerSample_U32, BOF_AUDIO_SAMPLE_FORMAT &_rSampleFormat_E);
 
 private:
   uint32_t mNbBitPerSample_U32 = 0;
