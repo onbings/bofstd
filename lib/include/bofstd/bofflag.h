@@ -21,16 +21,14 @@
 *
 * V 1.00  Dec 26 2013  BHA : Initial release
 */
-
 #pragma once
 
-/*** Include files ***********************************************************/
 #include <bofstd/bofstd.h>
+
 #include <type_traits>
 
 BEGIN_BOF_NAMESPACE()
 
-/*** Global variables ********************************************************/
 /* Definition:
 
 BEGIN_MY_NAMESPACE()

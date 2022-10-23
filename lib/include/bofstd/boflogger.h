@@ -20,21 +20,17 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
 #pragma once
 
-/*** Include files ***********************************************************/
-
-#include <bofstd/bofstd.h>
 #include <bofstd/iboflogchannel.h>
 #include <bofstd/boflogchannel_spdlog.h>
+#include <bofstd/bofstringformatter.h>
+
 #include <map>
 #include <memory>
-#include "bofstringformatter.h"
 
 BEGIN_BOF_NAMESPACE()
 
-/*** Defines *****************************************************************/
 //#define BOF_LOGGER_DEBUG_ON            // To avoid extra cost when we want no log and no fct call at all
 //The ##__VA_ARGS__ syntax is non-standard. It is a "swallow comma if the __VA_ARGS__ is empty" extension implemented by GCC, and seems to have been adopted by other compilers.
 #ifdef BOF_LOGGER_DEBUG_OFF
@@ -70,11 +66,8 @@ const uint32_t BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE = 0x8000;
 #define BOF_LOG_EXTENDED(LOG_TYPE, LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) BOF_LOGGER_EXTENDED_##LOG_TYPE(LOG_DESTINATION,LOG_CHANNEL_ID,LOG_ERROR_CODE,LOG_FORMAT, ##__VA_ARGS__)
 #define BOF_LOG(LOG_TYPE, LOG_DESTINATION, LOG_FORMAT, ...) BOF_LOGGER_##LOG_TYPE(LOG_DESTINATION, LOG_FORMAT,  ##__VA_ARGS__)
 
-/*** Global variables ********************************************************/
-
 typedef std::map<std::string, std::shared_ptr<IBofLogChannel> >::iterator LogFctLookupIterator;
 
-/*** Class *************************************************************************************************************************/
 // Singleton http://stackoverflow.com/questions/11711920/how-to-implement-multithread-safe-singleton-in-c11-without-using-mutex
 class BOFSTD_EXPORT BofLogger final
 {

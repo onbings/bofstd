@@ -19,10 +19,10 @@
  *
  * V 1.00  Aug 28 2022  BHA : Initial release
  */
-
 #pragma once
 
 #include <bofstd/bofstd.h>
+
 #include <streambuf>
 #include <sstream>
 

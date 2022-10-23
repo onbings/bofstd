@@ -19,48 +19,48 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-
 #pragma once
 
 #include <bofstd/bofstringformatter.h>
 
 BEGIN_BOF_NAMESPACE()
-enum class BOF_AUDIO_SAMPLE_FORMAT:uint32_t //See vlc_fourcc.h VLC_CODEC_S24L32
+enum class BOF_AUDIO_SAMPLE_FORMAT :uint32_t //See vlc_fourcc.h VLC_CODEC_S24L32
 {
-	BOF_AUDIO_SAMPLE_FORMAT_S24L32=0,
-	BOF_AUDIO_SAMPLE_FORMAT_MAX,
-	BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN,
+  BOF_AUDIO_SAMPLE_FORMAT_NONE = 0,
+  BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN,
+  BOF_AUDIO_SAMPLE_FORMAT_S24L32,
+  BOF_AUDIO_SAMPLE_FORMAT_MAX,
 };
 
 
-//            "AudioStandard": "16x48000_S24L32",
+//            "AudioStandard": "16xS24L32@48000",
 #define BOF_AUDIO_STANDARD_ID(mono, freq, format)   (((uint64_t)(mono & 0xFF) << 56) | (((uint64_t)((freq & 0xFFFFFFFF))) << 32) | (((uint64_t)((format & 0xFF))) << 24))
 
 typedef uint64_t AudioStandardId;
-static const AudioStandardId  DefaultAudioStandard = BOF_AUDIO_STANDARD_ID(16,  48000, static_cast<uint32_t>(BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32));
+static const AudioStandardId  DefaultAudioStandard = BOF_AUDIO_STANDARD_ID(16, 48000, static_cast<uint32_t>(BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32));
 
 class BOFSTD_EXPORT BofAudioStandard
 {
 public:
   BofAudioStandard();
-  BofAudioStandard(const char *_pStandard_c);
+  BofAudioStandard(const std::string &_rStandard_S);
   BofAudioStandard(uint32_t _NbMonoChannel_U32, uint32_t _SamplingRateInHz_U32, BOF_AUDIO_SAMPLE_FORMAT _SampleFormat_E);
-  BofAudioStandard& operator=(const BofAudioStandard &_rStandard);
+  BofAudioStandard &operator=(const BofAudioStandard &_rStandard);
   bool operator==(const BofAudioStandard &_rStandard) const;
   std::string ToString() const;
   AudioStandardId Id() const;
-  bool Valid() const;
-	uint32_t NbBitPerSample() const;
-	uint32_t NbMonoChannel() const;
-	uint32_t SamplingRateInHz() const;
-	BOF_AUDIO_SAMPLE_FORMAT SampleFormat() const;
-  static bool S_Parse(const char *_pStandard_c, uint32_t &_rNbMonoChannel_U32, uint32_t &_rSamplingRateInHz_U32, uint32_t &_rNbBitPerSample_U32, BOF_AUDIO_SAMPLE_FORMAT &_rSampleFormat_E);
+  bool IsValid() const;
+  uint32_t NbBitPerSample() const;
+  uint32_t NbMonoChannel() const;
+  uint32_t SamplingRateInHz() const;
+  BOF_AUDIO_SAMPLE_FORMAT SampleFormat() const;
+  static bool S_Parse(const std::string &_rStandard_S, uint32_t &_rNbMonoChannel_U32, uint32_t &_rSamplingRateInHz_U32, uint32_t &_rNbBitPerSample_U32, BOF_AUDIO_SAMPLE_FORMAT &_rSampleFormat_E);
 
 private:
-	uint32_t mNbBitPerSample_U32=0;
-	uint32_t mNbMonoChannel_U32=0;
-	uint32_t mSamplingRateInHz_U32=0;
-	BOF_AUDIO_SAMPLE_FORMAT mSampleFormat_E=BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN;
+  uint32_t mNbBitPerSample_U32 = 0;
+  uint32_t mNbMonoChannel_U32 = 0;
+  uint32_t mSamplingRateInHz_U32 = 0;
+  BOF_AUDIO_SAMPLE_FORMAT mSampleFormat_E = BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN;
 };
 
 END_BOF_NAMESPACE()

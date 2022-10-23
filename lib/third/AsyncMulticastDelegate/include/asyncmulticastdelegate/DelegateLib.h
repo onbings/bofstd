@@ -1,5 +1,4 @@
-#ifndef _DELEGATE_LIB_H
-#define _DELEGATE_LIB_H
+#pragma once
 
 // DelegateLib.h is a single include for users to obtain all delegate functionality
 
@@ -15,4 +14,3 @@
 
 #include <asyncmulticastdelegate/bofmsgthread.h>
 
-#endif

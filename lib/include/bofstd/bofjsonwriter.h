@@ -19,48 +19,40 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
 #pragma once
 
-/*** Include files ***********************************************************/
+#include <bofstd/bofparameter.h>
+#include <bofstd/bofpath.h>
+#include <bofstd/bofjsonparser.h>
+
 #include <memory>
 #include <vector>
 #include <functional>
-#include <bofstd/bofstd.h>
-#include <bofstd/bofparameter.h>
-#include <bofstd/bofpath.h>
-#include "bofjsonparser.h"
-
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 
 BEGIN_BOF_NAMESPACE()
 
 class BOFSTD_EXPORT BofJsonWriter
 {
-// Opaque pointer design pattern: all public and protected stuff goes here ...
+  // Opaque pointer design pattern: all public and protected stuff goes here ...
 public:
-		BofJsonWriter();
+  BofJsonWriter();
 
-		BofJsonWriter &operator=(const BofJsonWriter &) = delete;     // Disallow copying
-		BofJsonWriter(const BofJsonWriter &) = delete;
+  BofJsonWriter &operator=(const BofJsonWriter &) = delete;     // Disallow copying
+  BofJsonWriter(const BofJsonWriter &) = delete;
 
-		BOFERR FromByte(bool _ShortFormat_B, bool _AllTypeInString_B, const std::vector<BOFPARAMETER> &_rJsonSchema_X, std::string &_rJsonOutput_S);
+  BOFERR FromByte(bool _ShortFormat_B, bool _AllTypeInString_B, const std::vector<BOFPARAMETER> &_rJsonSchema_X, std::string &_rJsonOutput_S);
 
-		bool IsValid();
+  bool IsValid();
 
-		std::string RootName();
+  std::string RootName();
 
-		virtual ~BofJsonWriter();
+  virtual ~BofJsonWriter();
 
-// Opaque pointer design pattern: opaque type here
+  // Opaque pointer design pattern: opaque type here
 private:
-		class JsonWriterImplementation;
+  class JsonWriterImplementation;
 
-		std::unique_ptr<JsonWriterImplementation> mpuJsonWriterImplementation;
+  std::unique_ptr<JsonWriterImplementation> mpuJsonWriterImplementation;
 };
 
 END_BOF_NAMESPACE()

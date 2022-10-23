@@ -20,66 +20,57 @@
  */
 #pragma once
 
-/*** Include ***********************************************************************************************************************/
+#include <bofstd/bofstatistics.h>
 
 #include <cstdint>
-#include <bofstd/bofstatistics.h>
 
 BEGIN_BOF_NAMESPACE()
 
 #define BOF_ENTER_BENCH(PROFILER, ITEM)    { if ( (PROFILER) != nullptr) { (PROFILER)->V_EnterBench(ITEM); } }
 #define BOF_LEAVE_BENCH(PROFILER, ITEM)    { if ( (PROFILER) != nullptr) { (PROFILER)->V_LeaveBench(ITEM); } }
 
-/*** Enums *************************************************************************************************************************/
-
 /*!
    Summary
    The various units
  */
-typedef enum
+  typedef enum
 {
-		PERF_SECOND,                         /*!  s */
-		PERF_MILLISECOND,                    /*! ms */
-		PERF_MICROSECOND,                    /*! �s */
-		PERF_NANOSECOND                      /*! ns */
+  PERF_SECOND,                         /*!  s */
+  PERF_MILLISECOND,                    /*! ms */
+  PERF_MICROSECOND,                    /*! �s */
+  PERF_NANOSECOND                      /*! ns */
 } PERF_UNITS;
-
-/*** Structures ********************************************************************************************************************/
-
-/*** Constants *********************************************************************************************************************/
-
-/*** Prototypes ********************************************************************************************************************/
 
 class BOFSTD_EXPORT BofProfiler
 {
 public:
 
-		BofProfiler(uint32_t _NbItems_U32);
+  BofProfiler(uint32_t _NbItems_U32);
 
-		virtual ~BofProfiler();
+  virtual ~BofProfiler();
 
-		virtual void V_EnterBench(uint32_t _ItemId_U32);
+  virtual void V_EnterBench(uint32_t _ItemId_U32);
 
-		virtual void V_LeaveBench(uint32_t _ItemId_U32);
+  virtual void V_LeaveBench(uint32_t _ItemId_U32);
 
-		bool SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64);
+  bool SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64);
 
-		bool GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X);
+  bool GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X);
 
-		void ResetStats(uint32_t _ItemId_U32);
+  void ResetStats(uint32_t _ItemId_U32);
 
-		virtual uint64_t GetMemoryUsage();
+  virtual uint64_t GetMemoryUsage();
 
-		static uint64_t TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8);
+  static uint64_t TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8);
 
-		static uint64_t UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8);
+  static uint64_t UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8);
 
-		uint32_t GetCount();
+  uint32_t GetCount();
 
 protected:
 
-		uint32_t mNbItems_U32;
-		BOF_STAT_VARIABLE<uint64_t> *mpStats_X;
+  uint32_t mNbItems_U32;
+  BOF_STAT_VARIABLE<uint64_t> *mpStats_X;
 
 private:
 };

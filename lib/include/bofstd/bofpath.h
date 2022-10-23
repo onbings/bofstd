@@ -21,15 +21,10 @@
  */
 #pragma once
 
-/*** Include files ***********************************************************/
 #include <bofstd/bofstd.h>
+
 #include <string>
 
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 BEGIN_BOF_NAMESPACE()
 /// @brief This class implements a Path parser. A path is a full pathname, a directory or a file.
 /// Relative path or directory or base filename must be combined with a base path to produce a full path or directory
@@ -156,11 +151,17 @@ public:
 		/// @remarks It cannot contains . nor slash or backslash
 		BOFERR Extension(const std::string &_rExtension_S);
 
-		/// @brief Returns the full pathname as a string (std::wstring).
+		/// @brief Returns the full pathname as a string.
 		/// @param _Windows_B : true if the full pathname must be returned with windows path separator (\) or unix one (/)
 		/// @return A std::string containing the full pathname.
 		/// @remarks None
 		std::string FullPathName(bool _Windows_B) const;
+
+		/// @brief Returns the full pathname as a string (std::wstring).
+		/// @param _Windows_B : true if the full pathname must be returned with windows path separator (\) or unix one (/)
+		/// @return A std::string containing the full pathname.
+		/// @remarks Shortcut to FullPathName.
+		std::string ToString(bool _Windows_B=false) const;
 
 		/// @brief Returns the full pathname as a wide string (std::wstring).
 		/// @param _Windows_B : true if the full pathname must be returned with windows path separator (\) or unix one (/)

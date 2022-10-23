@@ -86,61 +86,73 @@ if(NOT TARGET MediaInfoLib)
   find_package_dependency(MediaInfoLib REQUIRED)
 endif()
 
-# The package zeromq provides CMake targets:
-# 
-#     find_package(ZeroMQ CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE libzmq libzmq-static)
-# 
-# The package czmq provides CMake targets:
-# 
-#     find_package(czmq CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE czmq czmq-static)
-# 
-# The package fmt provides CMake targets:
-# 
-#     find_package(fmt CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE fmt::fmt)
-# 
-#     # Or use the header-only version
-#     find_package(fmt CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE fmt::fmt-header-only)
-# 
-# The package gtest provides CMake targets:
-# 
-#     find_package(GTest CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
-# 
-# The package jsoncpp provides CMake targets:
-# 
-#     find_package(jsoncpp CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE jsoncpp_object jsoncpp_static JsonCpp::JsonCpp)
-# 
-# The package zlib is compatible with built-in CMake targets:
-# 
-#     find_package(ZLIB REQUIRED)
-#     target_link_libraries(main PRIVATE ZLIB::ZLIB)
-# 
-# The package libzen provides CMake targets:
-# 
-#     find_package(ZenLib CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE zen)
-# 
-# The package libmediainfo provides CMake targets:
-# 
-#     find_package(MediaInfoLib CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE mediainfo)
-# 
-# The package libyuv provides CMake targets:
-# 
-#     find_package(libyuv CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE yuv)
-# 
-# The package openssl is compatible with built-in CMake targets:
-# 
-#     find_package(OpenSSL REQUIRED)
-#     target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-# 
-# The package spdlog provides CMake targets:
-# 
-#     find_package(spdlog CONFIG REQUIRED)
-#     target_link_libraries(main PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
+if(NOT TARGET date)
+  find_package_dependency(date REQUIRED)
+endif()
+#>    find_package(date CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE date::date date::date-tz)
+
+#>The package zeromq provides CMake targets:
+#>
+#>    find_package(ZeroMQ CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE libzmq libzmq-static)
+#>
+#>The package czmq provides CMake targets:
+#>
+#>    find_package(czmq CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE czmq czmq-static)
+#>
+#>The package date provides CMake targets:
+#>
+#>    find_package(date CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE date::date date::date-tz)
+#>
+#>The package fmt provides CMake targets:
+#>
+#>    find_package(fmt CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE fmt::fmt)
+#>
+#>    # Or use the header-only version
+#>    find_package(fmt CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE fmt::fmt-header-only)
+#>
+#>The package gtest provides CMake targets:
+#>
+#>    find_package(GTest CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+#>
+#>The package jsoncpp provides CMake targets:
+#>
+#>    find_package(jsoncpp CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp)
+#>
+#>The package zlib is compatible with built-in CMake targets:
+#>
+#>    find_package(ZLIB REQUIRED)
+#>    target_link_libraries(main PRIVATE ZLIB::ZLIB)
+#>
+#>The package libzen provides CMake targets:
+#>
+#>    find_package(ZenLib CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE zen)
+#>
+#>The package libmediainfo provides CMake targets:
+#>
+#>    find_package(MediaInfoLib CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE mediainfo)
+#>
+#>The package libyuv provides CMake targets:
+#>
+#>    find_package(libyuv CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE yuv)
+#>
+#>The package openssl is compatible with built-in CMake targets:
+#>
+#>    find_package(OpenSSL REQUIRED)
+#>    target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+#>
+#>The package spdlog provides CMake targets:
+#>
+#>    find_package(spdlog CONFIG REQUIRED)
+#>    target_link_libraries(main PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
+#>

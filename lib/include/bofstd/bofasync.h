@@ -19,70 +19,69 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-
 #pragma once
 
-#include <asyncmulticastdelegate/DelegateLib.h>
 #include <bofstd/bofcircularbuffer.h>
+#include <asyncmulticastdelegate/DelegateLib.h>
 
 BEGIN_BOF_NAMESPACE()
 
 struct BOFSTD_EXPORT BOF_COMMAND_QUEUE_PARAM
 {
-	uint64_t                    ThreadCpuCoreAffinityMask_U64;
-	BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
-	BOF_THREAD_PRIORITY         ThreadPriority_E;
-	uint32_t                    MaxPendingRequest_U32;
-	uint32_t                    PollTimeoutInMs_U32;
+  uint64_t                    ThreadCpuCoreAffinityMask_U64;
+  BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
+  BOF_THREAD_PRIORITY         ThreadPriority_E;
+  uint32_t                    MaxPendingRequest_U32;
+  uint32_t                    PollTimeoutInMs_U32;
 
-	BOF_COMMAND_QUEUE_PARAM()
-	{
-		Reset();
-	}
-	void Reset()
-	{
-		ThreadCpuCoreAffinityMask_U64 = 0;
-		ThreadSchedulerPolicy_E   = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-		ThreadPriority_E          = BOF_THREAD_DEFAULT_PRIORITY;
-		MaxPendingRequest_U32 = 0;
-		PollTimeoutInMs_U32=0;
-	}
+  BOF_COMMAND_QUEUE_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    ThreadCpuCoreAffinityMask_U64 = 0;
+    ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
+    ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+    MaxPendingRequest_U32 = 0;
+    PollTimeoutInMs_U32 = 0;
+  }
 };
 struct BOFSTD_EXPORT BOF_COMMAND_QUEUE_ENTRY
 {
-	std::string Name_S;
-	std::function<void ()> Cmd;
+  std::string Name_S;
+  std::function<void()> Cmd;
 
-	BOF_COMMAND_QUEUE_ENTRY()
-	{
-		Name_S = "";
-		Cmd = nullptr;
-	}
-	BOF_COMMAND_QUEUE_ENTRY(std::string _Name_S, std::function<void()> _Cmd)
-	{
-		Name_S = _Name_S;
-		Cmd = _Cmd;
-	}
+  BOF_COMMAND_QUEUE_ENTRY()
+  {
+    Name_S = "";
+    Cmd = nullptr;
+  }
+  BOF_COMMAND_QUEUE_ENTRY(std::string _Name_S, std::function<void()> _Cmd)
+  {
+    Name_S = _Name_S;
+    Cmd = _Cmd;
+  }
 };
 class BOFSTD_EXPORT BofCommandQueue
 {
 public:
-	BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueueParam_X);
-	virtual ~BofCommandQueue();
+  BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueueParam_X);
+  virtual ~BofCommandQueue();
 
-	BOFERR PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENTRY &_rCommand_X);
-	bool IsProcessingCommand() const;
-	bool IsCommandPending() const;
-	uint32_t NumberOfCommandWaitingInQueue() const;
-	BOFERR ClearCommandQueue();
+  BOFERR PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENTRY &_rCommand_X);
+  bool IsProcessingCommand() const;
+  bool IsCommandPending() const;
+  uint32_t NumberOfCommandWaitingInQueue() const;
+  BOFERR ClearCommandQueue();
 
 private:
-	BOF_COMMAND_QUEUE_PARAM mCommandQueueParam_X;
-	std::unique_ptr<BofThread> mpuCommandQueueThread=nullptr;
-	std::unique_ptr<BofCircularBuffer<BOF_COMMAND_QUEUE_ENTRY>> mpuCommandEntryCollection=nullptr;
-//	std::atomic<bool> mCommandEntryPending;
-	BOF_COMMAND_QUEUE_ENTRY mCommandPending_X;
-	BOFERR OnProcessing();
+  BOF_COMMAND_QUEUE_PARAM mCommandQueueParam_X;
+  std::unique_ptr<BofThread> mpuCommandQueueThread = nullptr;
+  std::unique_ptr<BofCircularBuffer<BOF_COMMAND_QUEUE_ENTRY>> mpuCommandEntryCollection = nullptr;
+  //	std::atomic<bool> mCommandEntryPending;
+  BOF_COMMAND_QUEUE_ENTRY mCommandPending_X;
+  BOFERR OnProcessing();
 };
 
 template<class T>
@@ -91,22 +90,22 @@ using BOF_MULTICAST_ASYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
 
 struct BOFSTD_EXPORT BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
 {
-	uint64_t                    ThreadCpuCoreAffinityMask_U64;
-	BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
-	BOF_THREAD_PRIORITY         ThreadPriority_E;
-	//uint32_t                    MaxPendingRequest_U32;  //0 means no limit
+  uint64_t                    ThreadCpuCoreAffinityMask_U64;
+  BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
+  BOF_THREAD_PRIORITY         ThreadPriority_E;
+  //uint32_t                    MaxPendingRequest_U32;  //0 means no limit
 
-	BOF_MULTICAST_ASYNC_NOTIFIER_PARAM()
-	{
-		Reset();
-	}
-	void Reset()
-	{
-		ThreadCpuCoreAffinityMask_U64 = 0;
-		ThreadSchedulerPolicy_E   = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-		ThreadPriority_E          = BOF_THREAD_DEFAULT_PRIORITY;
-		//MaxPendingRequest_U32 = 0;
-	}
+  BOF_MULTICAST_ASYNC_NOTIFIER_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    ThreadCpuCoreAffinityMask_U64 = 0;
+    ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
+    ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+    //MaxPendingRequest_U32 = 0;
+  }
 };
 
 template<class T>
@@ -117,9 +116,9 @@ public:
   virtual ~BofMulticastAsyncNotifier();
   uint32_t NbPendingNotification();
 
-//  BOFERR Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT _pNotifyFct);
-//  BOFERR Unregister(BOF_MULTICAST_ASYNC_NOTIFY_FCT _pNotifyFct);
-  BOFERR Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct,void *_pUserContext);
+  //  BOFERR Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT _pNotifyFct);
+  //  BOFERR Unregister(BOF_MULTICAST_ASYNC_NOTIFY_FCT _pNotifyFct);
+  BOFERR Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext);
   BOFERR Unregister(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct);
   BOFERR Notify(const T *_pNotifyArg_X);
   BOFERR WaitForNoMoreNotificationPending(uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32);
@@ -134,7 +133,7 @@ BofMulticastAsyncNotifier<T>::BofMulticastAsyncNotifier(const BOF_MULTICAST_ASYN
 {
   BOFERR Sts_E;
 
-  Sts_E = mMsgThread.LaunchBofProcessingThread("BofAsyncNotif", false, 0,  _rAsyncNotifierParam_X.ThreadSchedulerPolicy_E, _rAsyncNotifierParam_X.ThreadPriority_E,_rAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
+  Sts_E = mMsgThread.LaunchBofProcessingThread("BofAsyncNotif", false, 0, _rAsyncNotifierParam_X.ThreadSchedulerPolicy_E, _rAsyncNotifierParam_X.ThreadPriority_E, _rAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 template<class T>
@@ -149,14 +148,14 @@ uint32_t BofMulticastAsyncNotifier<T>::NbPendingNotification()
 }
 
 template<class T>
-BOFERR BofMulticastAsyncNotifier<T>::Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct,void *_pUserContext)
+BOFERR BofMulticastAsyncNotifier<T>::Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
   if (_pNotifyFct)
   {
     Rts_E = BOF_ERR_NO_ERROR;
-    auto Delegate=MakeDelegate(_pNotifyFct, &mMsgThread);;
+    auto Delegate = MakeDelegate(_pNotifyFct, &mMsgThread);;
     Delegate.UserContext(_pUserContext);
     mMulticastDelegate += Delegate;
   }
@@ -201,10 +200,10 @@ BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _
   if (_PollTimeInMs_U32 <= _TimeoutInMs_U32)
   {
     StartInMs_U32 = BOF::Bof_GetMsTickCount();
-    Rts_E         = BOF_ERR_FULL;
+    Rts_E = BOF_ERR_FULL;
     do
     {
-      if (mMsgThread.GetNbPendingRequest()==0)
+      if (mMsgThread.GetNbPendingRequest() == 0)
       {
         Rts_E = BOF_ERR_NO_ERROR;
         break;
@@ -243,7 +242,7 @@ public:
   BofMulticastSyncNotifier(const BOF_MULTICAST_SYNC_NOTIFIER_PARAM &_rSyncNotifierParam_X);
   virtual ~BofMulticastSyncNotifier();
 
-  BOFERR Register(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct,void *_pUserContext);
+  BOFERR Register(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext);
   BOFERR Unregister(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct);
   BOFERR Notify(const T *_pNotifyArg_X);
 
@@ -262,14 +261,14 @@ BofMulticastSyncNotifier<T>::~BofMulticastSyncNotifier()
 }
 
 template<class T>
-BOFERR BofMulticastSyncNotifier<T>::Register(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct,void *_pUserContext)
+BOFERR BofMulticastSyncNotifier<T>::Register(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
   if (_pNotifyFct)
   {
     Rts_E = BOF_ERR_NO_ERROR;
-    auto Delegate=DelegateLib::MakeDelegate(_pNotifyFct);;
+    auto Delegate = DelegateLib::MakeDelegate(_pNotifyFct);;
     Delegate.UserContext(_pUserContext);
     mMulticastDelegate += Delegate;
   }

@@ -19,27 +19,214 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
+#include <bofstd/bofsystem.h>
+#include <bofstd/bof2d.h>
+#include <bofstd/bofstring.h>
+#include <bofstd/boffs.h>
+#include <bofstd/bofenum.h>
+#include <bofstd/bofuri.h>
+#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofaudiostandard.h>
+#include <bofstd/bofparameter.h>
+#include <bofstd/bofjsonwriter.h>
 
 #include "gtestrunner.h"
-#include <bofstd/bof2d.h>
-#include <bofstd/boffs.h>
-#include <bofstd/bofsystem.h>
-#include <bofstd/bofparameter.h>
-#include <bofstd/bofenum.h>
-#include <bofstd/bofjsonwriter.h>
 
 USE_BOF_NAMESPACE()
 
+enum class MUSE_FILE_SYSTEM_MEDIA_TYPE :int32_t
+{
+  MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN = 0,
+  MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL,
+  MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP,
+  MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX
+};
+static BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE> S_MuseFileSystemMediaTypeEnumConverter({
+  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, "Unknown" },
+  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still" },
+  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip" },
+  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max" },
+                                                                                   }, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN);
+
+enum class MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT :int32_t
+{
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE = 0,
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_UNKNOWN,
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG,
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_JPG,
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX
+};
+static BofEnum<MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT> S_MuseFileSystemMediaVideoFormatEnumConverter({
+  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE, "NONE" },
+  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_UNKNOWN, "UNKNOWN" },
+  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG, "PNG" },
+  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_JPG, "JPEG" },
+  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX, "MAX" },
+                                                                                                  }, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE);
+
+enum class MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE :int32_t
+{
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN = 0,
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG,
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RGBA,
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV,
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX
+};
+static BofEnum<MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE> S_MuseFileSystemMediaColorSpaceEnumConverter({
+  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, "UNKNOWN" },
+  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG, "RGB" },
+  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RGBA, "RGBA" },
+  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV, "YUV" },
+  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, "MAX" },
+                                                                                                }, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN);
+
+enum class MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT :int32_t
+{
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE = 0,
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_UNKNOWN,
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_PCM,
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3,
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX
+};
+static BofEnum<MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT> S_MuseFileSystemMediaAudioFormatEnumConverter({
+  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE, "None" },
+  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_UNKNOWN, "Unknown" },
+  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_PCM, "Pcm" },
+  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3, "Mp3" },
+  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX, "Max" },
+                                                                                                  }, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE);
+
+struct MUSE_FILE_SYSTEM_MEDIA_HEADER
+{
+  uint64_t FileSize_U64;
+  BofDateTime Created;
+  BofDateTime Modified;
+  MUSE_FILE_SYSTEM_MEDIA_TYPE MediaType_E;
+
+  MUSE_FILE_SYSTEM_MEDIA_HEADER()
+  {
+    Reset();
+  }
+
+  void Reset()
+  {
+    FileSize_U64 = 0;
+    Created.Reset();
+    Modified.Reset();
+    MediaType_E = MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN;
+  }
+  std::string ToString()
+  {
+    return "Sz " + std::to_string(FileSize_U64) + " Byte Create " + Created.ToString() + " Modif " + Modified.ToString() +
+      S_MuseFileSystemMediaTypeEnumConverter.ToString(MediaType_E);
+  }
+};
+
+struct MUSE_FILE_SYSTEM_MEDIA_VIDEO
+{
+  BofUri Uri;     //evs storage gui
+  BofPath Ref;    //Original path
+  BofPath Path;   //Muse filesystem path
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT VideoFormat_E;
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE ColorSpace_E;
+  BofVideoStandard VideoStandard;
+  uint32_t BitDepth_U32;
+  uint64_t TpInNs_U64;
+  uint64_t DurationInNs_U64;
+
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    Uri = BofUri();
+    Ref = BofPath();
+    Path = BofPath();
+    VideoFormat_E = MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE;
+    ColorSpace_E = MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN;
+    VideoStandard = BofVideoStandard();
+    BitDepth_U32 = 0;
+    TpInNs_U64 = 0;         //Still picture is 0
+    DurationInNs_U64 = 0;   //Still picture is 0
+  }
+
+  std::string ToString()
+  {
+    return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " +
+      S_MuseFileSystemMediaVideoFormatEnumConverter.ToString(VideoFormat_E) + " " +
+      S_MuseFileSystemMediaColorSpaceEnumConverter.ToString(ColorSpace_E) + VideoStandard.ToString() +
+      " Depth " + std::to_string(BitDepth_U32) + " Loc " + std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
+  }
+};
+
+struct MUSE_FILE_SYSTEM_MEDIA_AUDIO
+{
+  BofUri Uri;     //evs storage gui
+  BofPath Ref;    //Original path
+  BofPath Path;   //Muse filesystem path
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT AudioFormat_E;
+  BofAudioStandard AudioStandard;
+  uint64_t TpInNs_U64;
+  uint64_t DurationInNs_U64;
+
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    Uri = BofUri();
+    Ref = BofPath();
+    Path = BofPath();
+    AudioFormat_E = MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE;
+    AudioStandard = BofAudioStandard();
+    TpInNs_U64 = 0;         //Still picture is 0
+    DurationInNs_U64 = 0;   //Still picture is 0
+
+  }
+
+  std::string ToString()
+  {
+    return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " +
+      S_MuseFileSystemMediaAudioFormatEnumConverter.ToString(AudioFormat_E) + " " + AudioStandard.ToString() + +" Loc " +
+      std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
+  }
+};
+
+struct MUSE_FILE_SYSTEM_MEDIA
+{
+  MUSE_FILE_SYSTEM_MEDIA_HEADER Header_X;
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO  Video_X;
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO  Audio_X;
+
+  MUSE_FILE_SYSTEM_MEDIA()
+  {
+    Reset();
+  }
+
+  void Reset()
+  {
+    Header_X.Reset();
+    Video_X.Reset();
+    Audio_X.Reset();
+  }
+  std::string ToString()
+  {
+    return "Header: " + Header_X.ToString() + "\nVideo: " + Video_X.ToString() + "\nAudio: " + Audio_X.ToString();
+  }
+};
 //Depends on line terminator and pathname
 //#define CHECK_STR
-void DisplayParamValue(BofMediaDetector &_rMediaInfoParser)
+void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInfoParser)
 {
   std::string Result_S;
   uint32_t i_U32;
   char *p_c, *q_c, *pColon_c, *pBuffer_c, *pSpace_c;
+  const char *pParam_c;
   BOF::BofMediaDetector::MediaStreamType MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::General;
-  std::string MediaStreamType_S, Type_S, Info_S;
-  bool MoreThanOptionIAndO_B;
+  std::string MediaStreamType_S, Type_S, Info_S, Extra_S;
+  bool MoreThanOptionIAndO_B, NewType_B;
   //Oss = MediaInfoParser.Option(__T("Info_Version"), __T("0.7.13;MediaInfoDLL_Example_MSVC;0.7.13"));
 
   Result_S = _rMediaInfoParser.Option("Info_Parameters");
@@ -47,7 +234,7 @@ void DisplayParamValue(BofMediaDetector &_rMediaInfoParser)
   memcpy(pBuffer_c, Result_S.c_str(), Result_S.size());
   p_c = pBuffer_c;
   q_c = strchr(p_c, '\n');
-
+  printf("[--- %s ---------------------------------------------------------------]\n", _Title_S.c_str());
   do
   {
     if (q_c)
@@ -57,101 +244,128 @@ void DisplayParamValue(BofMediaDetector &_rMediaInfoParser)
       if (pColon_c)
       {
         *pColon_c = 0;
-        pSpace_c = strchr(p_c, ' ');
-        if (pSpace_c)
-        {
-          *pSpace_c = 0;
-          if (strcmp(p_c, "Inform"))
-          {
-            Info_S = "";
-            MoreThanOptionIAndO_B = false;
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Info, Result_S), BOF_ERR_NO_ERROR);
-            if (Result_S != "")
-            {
-              Info_S += " I:'" + Result_S + "'";
-            }
-
-            //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
-            if (Result_S != "")
-            {
-              Info_S += " T:'" + Result_S + "'";
-              MoreThanOptionIAndO_B = true;
-            }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Measure, Result_S), BOF_ERR_NO_ERROR);
-            if (Result_S != "")
-            {
-              Info_S += " M:'" + Result_S + "'";
-              MoreThanOptionIAndO_B = true;
-            }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Options, Result_S), BOF_ERR_NO_ERROR);
-            if (Result_S != "")
-            {
-              Info_S += " O:'" + Result_S + "'";
-            }
-            //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Name_Text, Result_S), BOF_ERR_NO_ERROR);
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Measure_Text, Result_S), BOF_ERR_NO_ERROR);
-            if (Result_S != "")
-            {
-              Info_S += " m:'" + Result_S + "'";
-              MoreThanOptionIAndO_B = true;
-            }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::HowTo, Result_S), BOF_ERR_NO_ERROR);
-            if (Result_S != "")
-            {
-              Info_S += " H:'" + Result_S + "'";
-              MoreThanOptionIAndO_B = true;
-            }
-            EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, p_c, BOF::BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
-            if (Result_S != "")
-            {
-              Info_S += " D:'" + Result_S + "'";
-              MoreThanOptionIAndO_B = true;
-            }
-            if ((MoreThanOptionIAndO_B) && (Info_S != ""))
-            {
-              printf("%s Param '%s' = %s\n", MediaStreamType_S.c_str(), p_c, Info_S.c_str());
-            }
-          }
-        }
+      }
+      /*
+      pSpace_c = strchr(p_c, ' ');
+      if (pSpace_c)
+      {
+        *pSpace_c = 0;
+      }
+      */
+      NewType_B = true;
+      Type_S = BOF::Bof_StringTrim(p_c);
+      pParam_c = Type_S.c_str();
+      if (Type_S == "General")
+      {
+        MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::General;
+        MediaStreamType_S = "General";
+      }
+      else if (Type_S == "Video")
+      {
+        MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Video;
+        MediaStreamType_S = "Video";
+      }
+      else if (Type_S == "Audio")
+      {
+        MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Audio;
+        MediaStreamType_S = "Audio";
+      }
+      else if (Type_S == "Text")
+      {
+        MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Text;
+        MediaStreamType_S = "Text";
+      }
+      else if (Type_S == "Other")
+      {
+        MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Other;
+        MediaStreamType_S = "Other";
+      }
+      else if (Type_S == "Image")
+      {
+        MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Image;
+        MediaStreamType_S = "Image";
+      }
+      else if (Type_S == "Menu")
+      {
+        MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Menu;
+        MediaStreamType_S = "Menu";
       }
       else
       {
-        Type_S = BOF::Bof_StringTrim(p_c);
-        if (Type_S == "General")
+        NewType_B = false;
+      }
+      if (NewType_B)
+      {
+        printf("--Type-->%s\n", MediaStreamType_S.c_str());
+      }
+      else
+      {
+        Info_S = "";
+        MoreThanOptionIAndO_B = false;
+        /*
+        if (!strcmp(pParam_c, "DisplayAspectRatio_Origin"))
         {
-          MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::General;
-          MediaStreamType_S = "General";
+          printf("jj");
         }
-        else if (Type_S == "Video")
+        */
+        if (!strcmp(pParam_c, "Inform"))
         {
-          MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Video;
-          MediaStreamType_S = "Video";
+          Info_S += " I:'Inform'";
         }
-        else if (Type_S == "Audio")
+        else
         {
-          MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Audio;
-          MediaStreamType_S = "Audio";
+          EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Info, Result_S), BOF_ERR_NO_ERROR);
+          if (Result_S != "")
+          {
+            Info_S += " I:'" + Result_S + "'";
+          }
+          else
+          {
+            Info_S += " I:'???'";
+          }
+
+          //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, pParam_c, BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);
+          EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+          if (Result_S != "")
+          {
+            Info_S += " T:'" + Result_S + "'";
+            MoreThanOptionIAndO_B = true;
+          }
+          EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Measure, Result_S), BOF_ERR_NO_ERROR);
+          if (Result_S != "")
+          {
+            Info_S += " M:'" + Result_S + "'";
+            MoreThanOptionIAndO_B = true;
+          }
+          EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Options, Result_S), BOF_ERR_NO_ERROR);
+          if (Result_S != "")
+          {
+            Info_S += " O:'" + Result_S + "'";
+          }
+          //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, pParam_c, BOF::BofMediaDetector::InfoType::Name_Text, Result_S), BOF_ERR_NO_ERROR);
+          EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Measure_Text, Result_S), BOF_ERR_NO_ERROR);
+          if (Result_S != "")
+          {
+            Info_S += " m:'" + Result_S + "'";
+            MoreThanOptionIAndO_B = true;
+          }
+          EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::HowTo, Result_S), BOF_ERR_NO_ERROR);
+          if (Result_S != "")
+          {
+            Info_S += " H:'" + Result_S + "'";
+            MoreThanOptionIAndO_B = true;
+          }
+          EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
+          if (Result_S != "")
+          {
+            Info_S += " D:'" + Result_S + "'";
+            MoreThanOptionIAndO_B = true;
+          }
         }
-        else if (Type_S == "Text")
+        //if (Info_S != "")
+        if ((MoreThanOptionIAndO_B) && (Info_S != ""))
         {
-          MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Text;
-          MediaStreamType_S = "Text";
-        }
-        else if (Type_S == "Other")
-        {
-          MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Other;
-          MediaStreamType_S = "Other";
-        }
-        else if (Type_S == "Image")
-        {
-          MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Image;
-          MediaStreamType_S = "Image";
-        }
-        else if (Type_S == "Menu")
-        {
-          MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::Menu;
-          MediaStreamType_S = "Menu";
+          printf("%s Param '%s' = %s\n", MediaStreamType_S.c_str(), pParam_c, Info_S.c_str());
         }
       }
       p_c = q_c + 1;
@@ -168,6 +382,8 @@ TEST(Bof2d_Test, MediaDetectorParam)
   std::string Result_S;
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  DisplayParamValue("colorbar.jpg", MediaInfoParser);
+
   /*
     EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "FileExtension", BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);
     printf("Name: %s\n", Result_S.c_str());
@@ -188,10 +404,8 @@ TEST(Bof2d_Test, MediaDetectorParam)
     EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "FileExtension", BOF::BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
     printf("Domain: %s\n", Result_S.c_str());
   */
-
-  DisplayParamValue(MediaInfoParser);
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/sample-mp4-file.mp4", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
-  DisplayParamValue(MediaInfoParser);
+  DisplayParamValue("sample-mp4-file.mp4", MediaInfoParser);
 
   /*
     EXPECT_EQ(MediaInfoDetector.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
@@ -208,23 +422,72 @@ TEST(Bof2d_Test, MediaDetectorParse)
 {
   BofMediaDetector MediaInfoParser;
   std::string Result_S;
-
-
-
+  uint32_t Width_U32, Height_U32, Fps_U32;
+  BofDateTime Created, Modified;
+  BofPath Path, Ref;
+  BofVideoStandard Vs;
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE  ColorSpace_E;
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT VideoFormat_E;
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+#if defined(CHECK_STR)
+  EXPECT_STREQ("General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar.jpg\r\nFormat                                   : JPEG\r\nFile size                                : 9.60 KiB\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.60 KiB (100%)\r\n\r\n", Result_S.c_str());
+#endif
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "Format", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_STREQ(Result_S.c_str(), "JPEG");
+  VideoFormat_E = S_MuseFileSystemMediaVideoFormatEnumConverter.ToEnum(Result_S);
+  EXPECT_EQ(VideoFormat_E, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_JPG);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "AudioCount", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(std::atol(Result_S.c_str()), 0);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::Image, "Width", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  Width_U32 = std::atol(Result_S.c_str());
+  EXPECT_EQ(Width_U32, 259);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::Image, "Height", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  Height_U32 = std::atol(Result_S.c_str());
+  EXPECT_EQ(Height_U32, 194);
+  Fps_U32 = 0;
+  /*
+  Created  Saturday, September 17, 2022, 10:12:46 AM
+  Modified Saturday, September 17, 2022, 10:12:46 AM
+  */
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "FileSize", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(std::atoll(Result_S.c_str()), 9830);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "File_Created_Date", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  Created.FromString(Result_S, "UTC %Y-%m-%d %H:%M:%S.%q");
+  EXPECT_STREQ(Created.ToString("%Y-%m-%d %H:%M:%S.%q").c_str(), "2022-09-17 08:12:46.389");
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "File_Modified_Date", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  Modified.FromString(Result_S, "UTC %Y-%m-%d %H:%M:%S.%q");
+  EXPECT_STREQ(Modified.ToString("%Y-%m-%d %H:%M:%S.%q").c_str(), "2022-09-17 11:29:29.185");
 
-  BOFERR e = MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "Count",
-                                   BOF::BofMediaDetector::InfoType::Text, Result_S);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::Image, "BitDepth", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(std::atol(Result_S.c_str()), 8);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::Image, "ColorSpace", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_STREQ(Result_S.c_str(), "YUV");
+  ColorSpace_E = S_MuseFileSystemMediaColorSpaceEnumConverter.ToEnum(Result_S);
+  EXPECT_EQ(ColorSpace_E, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV);
 
-  e = MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "Status",
-                            BOF::BofMediaDetector::InfoType::Text, Result_S);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::Image, "ChromaSubsampling", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_STREQ(Result_S.c_str(), "4:2:2");
 
-  e = MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "StreamCount",
-                            BOF::BofMediaDetector::InfoType::Text, Result_S);
+  /*
+  auto Val = mMediaInfo.Get(Stream_General, 0, __T("Format"), Info_Text); // , Info_Text);
+  Val = mMediaInfo.Get(Stream_General, 0, __T("ColorSpace"), Info_Name);
+  Val = mMediaInfo.Get(Stream_General, 0, __T("ColorSpace"), Info_Text);
+  Val = mMediaInfo.Get(Stream_Image, 0, __T("ColorSpace"), Info_Name);
+  Val = mMediaInfo.Get(Stream_Image, 0, __T("ColorSpace"), Info_Text);
+  Val = mMediaInfo.Get(Stream_Image, 0, __T("ChromaSubsampling"), Info_Text);
+  */
 
-  return;
 
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "CompleteName", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  Ref = BofPath(Result_S);
+#if defined(CHECK_STR)
+  EXPECT_STREQ(Ref.ToString().c_str(), "C:/bld/bofstd/tests/data/colorbar.jpg");
+#endif
+  Path = "/media/still/" + Ref.FileNameWithExtension();
+  EXPECT_STREQ(Path.ToString().c_str(), "/media/still/colorbar.jpg");
+  Vs = BOF::BofVideoStandard(std::to_string(Width_U32) + 'x' + std::to_string(Height_U32) + '@' + std::to_string(Fps_U32) + 'p');
+  EXPECT_STREQ(Vs.ToString().c_str(), "259x194@0p");
 
 
   EXPECT_NE(MediaInfoParser.ParseFile("./data/dontexist.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
@@ -237,10 +500,10 @@ TEST(Bof2d_Test, MediaDetectorParse)
 #if defined(CHECK_STR)
   EXPECT_STREQ(Result_S.c_str(), "<html>\r\n\r\n<head>\r\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /></head>\r\n<body>\r\n<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\r\n<tr>\r\n    <td width=\"150\"><h2>General</h2></td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Complete name :</i></td>\r\n    <td colspan=\"3\">C:\\bld\\bofstd\\tests\\data\\colorbar.jpg</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Format :</i></td>\r\n    <td colspan=\"3\">JPEG</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>File size :</i></td>\r\n    <td colspan=\"3\">9.60 KiB</td>\r\n  </tr>\r\n</table>\r\n<br />\r\n<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\r\n<tr>\r\n    <td width=\"150\"><h2>Image</h2></td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Format :</i></td>\r\n    <td colspan=\"3\">JPEG</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Width :</i></td>\r\n    <td colspan=\"3\">259 pixels</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Height :</i></td>\r\n    <td colspan=\"3\">194 pixels</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Color space :</i></td>\r\n    <td colspan=\"3\">YUV</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Chroma subsampling :</i></td>\r\n    <td colspan=\"3\">4:2:2</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Bit depth :</i></td>\r\n    <td colspan=\"3\">8 bits</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Compression mode :</i></td>\r\n    <td colspan=\"3\">Lossy</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Stream size :</i></td>\r\n    <td colspan=\"3\">9.60 KiB (100%)</td>\r\n  </tr>\r\n</table>\r\n<br />\r\n\r\n</body>\r\n</html>\r\n");
 #endif
-  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Json, Result_S), BOF_ERR_NO_ERROR);
-#if defined(CHECK_STR)
-  EXPECT_STREQ(Result_S.c_str(), "{\r\n\"media\": {\r\n\"@ref\": \"C:\\\\bld\\\\bofstd\\\\tests\\\\data\\\\colorbar.jpg\",\r\n\"track\": [\r\n{\r\n\"@type\": \"General\",\r\n\"ImageCount\": \"1\",\r\n\"FileExtension\": \"jpg\",\r\n\"Format\": \"JPEG\",\r\n\"FileSize\": \"9830\",\r\n\"StreamSize\": \"0\",\r\n\"File_Created_Date\": \"UTC 2022-09-17 08:12:46.389\",\r\n\"File_Created_Date_Local\": \"2022-09-17 10:12:46.389\",\r\n\"File_Modified_Date\": \"UTC 2022-09-17 11:29:29.185\",\r\n\"File_Modified_Date_Local\": \"2022-09-17 13:29:29.185\"\r\n},\r\n{\r\n\"@type\": \"Image\",\r\n\"Format\": \"JPEG\",\r\n\"Width\": \"259\",\r\n\"Height\": \"194\",\r\n\"ColorSpace\": \"YUV\",\r\n\"ChromaSubsampling\": \"4:2:2\",\r\n\"BitDepth\": \"8\",\r\n\"Compression_Mode\": \"Lossy\",\r\n\"StreamSize\": \"9830\"\r\n}\r\n]\r\n}\r\n}\r\n");
-#endif
+//Leak  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Json, Result_S), BOF_ERR_NO_ERROR);
+//Leak #if defined(CHECK_STR)
+//Leak   EXPECT_STREQ(Result_S.c_str(), "{\r\n\"media\": {\r\n\"@ref\": \"C:\\\\bld\\\\bofstd\\\\tests\\\\data\\\\colorbar.jpg\",\r\n\"track\": [\r\n{\r\n\"@type\": \"General\",\r\n\"ImageCount\": \"1\",\r\n\"FileExtension\": \"jpg\",\r\n\"Format\": \"JPEG\",\r\n\"FileSize\": \"9830\",\r\n\"StreamSize\": \"0\",\r\n\"File_Created_Date\": \"UTC 2022-09-17 08:12:46.389\",\r\n\"File_Created_Date_Local\": \"2022-09-17 10:12:46.389\",\r\n\"File_Modified_Date\": \"UTC 2022-09-17 11:29:29.685000\",\r\n\"File_Modified_Date_Local\": \"2022-09-17 13:29:29.701000\"\r\n},\r\n{\r\n\"@type\": \"Image\",\r\n\"Format\": \"JPEG\",\r\n\"Width\": \"259\",\r\n\"Height\": \"194\",\r\n\"ColorSpace\": \"YUV\",\r\n\"ChromaSubsampling\": \"4:2:2\",\r\n\"BitDepth\": \"8\",\r\n\"Compression_Mode\": \"Lossy\",\r\n\"StreamSize\": \"9830\"\r\n}\r\n]\r\n}\r\n}\r\n");
+//Leak #endif
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_jpg_with_bad_ext.png", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
@@ -283,7 +546,6 @@ TEST(Bof2d_Test, MediaDetectorParse)
 #endif
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/sample-mp4-file.mp4", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
-
 }
 BOFERR ParseFileBuffer(BofPath &_rPathname, std::string &_rResult_S)
 {
@@ -369,293 +631,138 @@ TEST(Bof2d_Test, MediaDetectorQuery)
 
 }
 
-/*
+
+MUSE_FILE_SYSTEM_MEDIA S_MuseFileSystemMedia_X;
+std::vector< BOFPARAMETER > S_MuseFileSystemMediaJsonSchemaCollection =
 {
-    "media": {
-    "@ref": "C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.png",  => Replaced by Mfs name ex: /media/still/pexels-alexander-grey-1149347.png
-        "track": [
-        {
-            "@type": "General",
-            "ImageCount": 1,
-            "Format": "PNG",
-            "FileSize": 32183316,
-            "StreamSize": 0,
-            "File_Created_Date": "UTC 2022-09-21 12:16:43.685",
-            "File_Modified_Date": "UTC 2022-09-21 12:16:43.701",
-        },
-        {
-            "@type": "Image",
-            "Format": "PNG",
-            "Width": 5616,
-            "Height": 3744,
-            "ColorSpace": "RGB",
-            "BitDepth": 8,
-            "StreamSize": 32183316
-            "Uri": " storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"   =>Inserted by Mfs when ImportMedia is executed
-        }
-        ]
-    }
-}*/
-enum class MUSE_FILE_SYSTEM_MEDIA_TYPE :int32_t
-{
-  MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN = 0,
-  MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL,
-  MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP,
-  MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX
+  {nullptr, std::string("FileSize"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.FileSize_U64, UINT64, 0, 0)},
+  {nullptr, std::string("Created"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Created, DATETIME, 0, 0)},
+  {nullptr, std::string("Modified"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Modified, DATETIME, 0, 0)},
+  {nullptr, std::string("Type"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Header_X.MediaType_E,MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, S_MuseFileSystemMediaTypeEnumConverter,MUSE_FILE_SYSTEM_MEDIA_TYPE)},
+
+  {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Uri, URI, 1, 512)},
+  {nullptr, std::string("Ref"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Ref, PATH, 1, 512)},
+  {nullptr, std::string("Path"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Path, PATH, 1, 512)},
+  {nullptr, std::string("Format"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Video_X.VideoFormat_E, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX, S_MuseFileSystemMediaVideoFormatEnumConverter, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT)},
+  {nullptr, std::string("ColorSpace"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Video_X.ColorSpace_E, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, S_MuseFileSystemMediaColorSpaceEnumConverter,MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE) },
+  {nullptr, std::string("Standard"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.VideoStandard, VIDEOSTANDARD, 1, 512) },
+  {nullptr, std::string("BitDepth"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.BitDepth_U32, UINT32, 1, 512) },
+  {nullptr, std::string("TpInNs"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.TpInNs_U64, UINT64, 0, 0) },
+  {nullptr, std::string("DurationInNs"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64, UINT64, 0, 0) },
+
+  {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Uri, URI, 1, 512)},
+  {nullptr, std::string("Ref"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Ref, PATH, 1, 512)},
+  {nullptr, std::string("Path"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Path, PATH, 1, 512)},
+  {nullptr, std::string("Format"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX, S_MuseFileSystemMediaAudioFormatEnumConverter, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT)},
+  {nullptr, std::string("Standard"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.AudioStandard, AUDIOSTANDARD, 1, 512) },
+  {nullptr, std::string("TpInNs"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64, UINT64, 0, 0) },
+  {nullptr, std::string("DurationInNs"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64, UINT64, 0, 0) },
+
 };
-static BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE> S_MuseFileSystemMediaTypeEnumConverter({
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, "Unknown" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max" }
-                                                                          });
-
-/*
-const std::string &S_MuseFileSystemMediaTypeEnumToString(int _EnumValue_i)
-{
-  return S_MuseFileSystemMediaTypeEnumConverter.ToString(_EnumValue_i);
-}
-*/
-int S_MuseFileSystemMediaTypeEnumFromString(const std::string &_rEnumValue_S)
-{
-  return static_cast<int>(S_MuseFileSystemMediaTypeEnumConverter.ToEnum(_rEnumValue_S));
-}
-
-#if 0
-using MuseFileSystemMediaTypeEnumConverter = BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>;
-static MuseFileSystemMediaTypeEnumConverter &S_MuseFileSystemMediaTypeConverter()
-{
-  static MuseFileSystemMediaTypeEnumConverter S_TheMuseFileSystemMediaTypeConverter
-  {
-    {
-      {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, "Unknown"},
-      {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still"},
-      {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip"},
-      {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max"},
-    },
-    //			MUSE_FILE_SYSTEM_MEDIA_TYPE::UNDEF
-  };
-  return S_TheMuseFileSystemMediaTypeConverter;
-}
-//using BOF_PARAMETER_ENUM_TO_STRING = std::function<std::string(int _EnumValue_i)>;
-//using BOF_PARAMETER_STRING_TO_ENUM = std::function<int(const std::string &_rEnumValue_S)>;
-//std::string Tp_S = S_MuseFileSystemMediaTypeConverter().ToString(S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E);
-//MUSE_FILE_SYSTEM_MEDIA_TYPE Tp_E = S_MuseFileSystemMediaTypeConverter().ToEnum(Tp_S);
-
-static std::string S_MuseFileSystemMediaTypeEnumToString(int _EnumValue_i)
-{
-  return S_MuseFileSystemMediaTypeConverter().ToString(static_cast<MUSE_FILE_SYSTEM_MEDIA_TYPE>(_EnumValue_i));
-}
-static int S_MuseFileSystemMediaTypeEnumFromString(const std::string &_rEnumValue_S)
-{
-  return static_cast<int>(S_MuseFileSystemMediaTypeConverter().ToEnum(_rEnumValue_S));
-}
-#endif
-enum class MUSE_FILE_SYSTEM_MEDIA_FORMAT :int32_t
-{
-  MUSE_FILE_SYSTEM_MEDIA_FORMAT_UNKNOWN = 0,
-  MUSE_FILE_SYSTEM_MEDIA_FORMAT_PNG,
-  MUSE_FILE_SYSTEM_MEDIA_FORMAT_JPG,
-  MUSE_FILE_SYSTEM_MEDIA_FORMAT_MAX
-};
-using MuseFileSystemMediaFormatEnumConverter = BofEnum<MUSE_FILE_SYSTEM_MEDIA_FORMAT>;
-static MuseFileSystemMediaFormatEnumConverter &S_MuseFileSystemMediaFormatConverter()
-{
-  static MuseFileSystemMediaFormatEnumConverter S_TheMuseFileSystemMediaFormatConverter
-  {
-    {
-      {MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_UNKNOWN, "Unknown"},
-      {MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_PNG, "Png"},
-      {MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_JPG, "Jpeg"},
-      {MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_MAX, "Max"},
-    },
-    //			MUSE_FILE_SYSTEM_MEDIA_FORMAT::UNDEF
-  };
-  return S_TheMuseFileSystemMediaFormatConverter;
-}
-
-enum class MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE :int32_t
-{
-  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN = 0,
-  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG,
-  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RGBA,
-  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV,
-  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX
-};
-using MuseFileSystemMediaColorSpaceEnumConverter = BofEnum<MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE>;
-static MuseFileSystemMediaColorSpaceEnumConverter &S_MuseFileSystemMediaColorSpaceConverter()
-{
-  static MuseFileSystemMediaColorSpaceEnumConverter S_TheMuseFileSystemMediaColorSpaceConverter
-  {
-    {
-      {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, "Unknown"},
-      {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG, "Rgb"},
-      {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RGBA, "RgbA"},
-      {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV, "Yuv"},
-      {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, "Max"},
-    },
-    //			MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::UNDEF
-  };
-  return S_TheMuseFileSystemMediaColorSpaceConverter;
-}
-
-struct MUSE_FILE_SYSTEM_MEDIA_GENERAL
-{
-  uint64_t FileSize_U64;
-  BOF_DATE_TIME Created_X;
-  BOF_DATE_TIME Modified_X;
-
-  MUSE_FILE_SYSTEM_MEDIA_TYPE MediaType_E;
-  MUSE_FILE_SYSTEM_MEDIA_FORMAT MediaFormat_E;
-  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE ColorSpace_E;
-  uint32_t Width_U32;
-  uint32_t Height_U32;
-  uint32_t BitDepth_U32;
-
-  MUSE_FILE_SYSTEM_MEDIA_GENERAL()
-  {
-    Reset();
-  }
-  void Reset()
-  {
-    FileSize_U64 = 0;
-    Created_X = BOF_DATE_TIME();
-    Modified_X = BOF_DATE_TIME();
-
-    MediaType_E = MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN;
-    MediaFormat_E = MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_UNKNOWN;
-    ColorSpace_E = MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN;
-    Width_U32 = 0;
-    Height_U32 = 0;
-    BitDepth_U32 = 0;
-  }
-  std::string  ToString()
-  {
-    return "Sz " + std::to_string(FileSize_U64) + " B) Create " + Created_X.ToString() + " Modif " + Created_X.ToString() +
-      S_MuseFileSystemMediaTypeEnumConverter.ToString(MediaType_E) + " " +
-      S_MuseFileSystemMediaFormatConverter().ToString(MediaFormat_E) + " " +
-      std::to_string(Width_U32) + "x" + std::to_string(Height_U32) + " " +
-      S_MuseFileSystemMediaColorSpaceConverter().ToString(ColorSpace_E) + " Depth " +
-      std::to_string(BitDepth_U32);
-  }
-};
-
-struct MUSE_FILE_SYSTEM_MEDIA_STILL
-{
-  BofUri Uri;     //evs storage gui
-  BofPath Ref;    //Original path
-  BofPath Path;   //Muse filesystem path
-
-  MUSE_FILE_SYSTEM_MEDIA_GENERAL      General_X;
-
-  MUSE_FILE_SYSTEM_MEDIA_STILL()
-  {
-    Reset();
-  }
-  void Reset()
-  {
-    Uri = BofUri();
-    Ref = BofPath();
-    Path = BofPath();
-    General_X.Reset();
-  }
-  std::string ToString()
-  {
-    return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " + General_X.ToString();
-  }
-};
-MUSE_FILE_SYSTEM_MEDIA_STILL S_MuseFileSystemMediaStillJson_X;
-std::vector< BOFPARAMETER > S_MuseFileSystemMediaStillJsonSchemaCollection =
-{
-// {nullptr, std::string("Type"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, S_MuseFileSystemMediaTypeEnumToString, S_MuseFileSystemMediaTypeEnumFromString)},
- {nullptr, std::string("Type"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E, 
- MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, 
- std::bind(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToStringFromInt, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1), S_MuseFileSystemMediaTypeEnumFromString)},
-  utiliseer BOF_BIND_1_ARG_TO_METHOD remanier
-
-
-  {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMediaStillJson_X.Uri, URI, 1, 512)},
-  {nullptr, std::string("Ref"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMediaStillJson_X.Ref, PATH, 1, 512)},
-  {nullptr, std::string("Path"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMediaStillJson_X.Path, PATH, 1, 512)},
-
-  {nullptr, std::string("FileSize"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMediaStillJson_X.General_X.FileSize_U64, UINT64, 0, 0)},
-  {nullptr, std::string("Created"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S"), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMediaStillJson_X.General_X.Created_X, DATETIME, 0, 0)},
-  {nullptr, std::string("Modified"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S"), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMediaStillJson_X.General_X.Modified_X, DATETIME, 0, 0)},
-
-//  {nullptr, std::string("Type"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, S_MuseFileSystemMediaTypeEnumToString, S_MuseFileSystemMediaTypeEnumFromString)},
-//  {nullptr, std::string("Format"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMediaStillJson_X.General_X.MediaFormat_E, MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_MAX)},
-//  {nullptr, std::string("ColorSpace"), std::string(""), std::string(""), std::string("Media"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMediaStillJson_X.General_X.ColorSpace_E, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX)},
-};
-
-using BHA = std::function<int (int)>;
 
 TEST(Bof2d_Test, MediaDetectorToJson)
 {
   BofMediaDetector MediaInfoParser;
-  std::string Result_S, JsonOut_S;
+  std::string Result_S, JsonOut_S, ToString_S, Tp_S;
   BofJsonWriter BofJsonWriter;
-  //https://stackoverflow.com/questions/24874478/use-stdbind-with-overloaded-functions
-//  BOF_PARAMETER_ENUM_TO_STRING f = std::bind(static_cast<const std::string & (int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString), &S_MuseFileSystemMediaTypeEnumConverter, 22); std::placeholders::_1);
-  //BOF_PARAMETER_ENUM_TO_STRING f = std::bind(static_cast<const std::string & (&) (int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString), &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //  BOF_PARAMETER_ENUM_TO_STRING f = std::bind(static_cast<const std::string & (*) (int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString), &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //BOF_PARAMETER_ENUM_TO_STRING f = std::bind<const std::string &(int) const>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //BOF_PARAMETER_ENUM_TO_STRING f = std::bind<BOF_PARAMETER_ENUM_TO_STRING>(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToString, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1));
-  //BOF_PARAMETER_ENUM_TO_STRING g = std::bind(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::ToStringbha, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
-  //BHA h =                        std::bind(&BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE>::Bha, &S_MuseFileSystemMediaTypeEnumConverter, std::placeholders::_1);
+  MUSE_FILE_SYSTEM_MEDIA_TYPE Tp_E;
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 
-  S_MuseFileSystemMediaStillJson_X.Uri = BofUri("storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
-  S_MuseFileSystemMediaStillJson_X.Ref = BofPath("C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.png");
-  S_MuseFileSystemMediaStillJson_X.Path = BofPath("/media/still/pexels-alexander-grey-1149347.png");
+  S_MuseFileSystemMedia_X.Header_X.FileSize_U64 = 32183316;
+  S_MuseFileSystemMedia_X.Header_X.Created = BofDateTime(21, 9, 2022, 12, 16, 43, 685000);
+  S_MuseFileSystemMedia_X.Header_X.Modified = BofDateTime(21, 9, 2022, 12, 16, 43, 701000);
+  S_MuseFileSystemMedia_X.Header_X.MediaType_E = MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL;
 
-  S_MuseFileSystemMediaStillJson_X.General_X.FileSize_U64 = 32183316;
-  S_MuseFileSystemMediaStillJson_X.General_X.Created_X = BOF_DATE_TIME(21,9,2022,12,16,43,685);
-  S_MuseFileSystemMediaStillJson_X.General_X.Modified_X = BOF_DATE_TIME(21, 9, 2022, 12, 16, 43, 701);
-  S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E = MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL;
-  S_MuseFileSystemMediaStillJson_X.General_X.MediaFormat_E = MUSE_FILE_SYSTEM_MEDIA_FORMAT::MUSE_FILE_SYSTEM_MEDIA_FORMAT_PNG;
-  S_MuseFileSystemMediaStillJson_X.General_X.ColorSpace_E = MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG;
-  S_MuseFileSystemMediaStillJson_X.General_X.Width_U32 = 5616;
-  S_MuseFileSystemMediaStillJson_X.General_X.Height_U32 = 3744;
-  S_MuseFileSystemMediaStillJson_X.General_X.BitDepth_U32 = 8;
+  S_MuseFileSystemMedia_X.Video_X.Uri = BofUri("storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
+  S_MuseFileSystemMedia_X.Video_X.Ref = BofPath("C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.png");
+  S_MuseFileSystemMedia_X.Video_X.Path = BofPath("/media/still/pexels-alexander-grey-1149347.png");
+  S_MuseFileSystemMedia_X.Video_X.VideoFormat_E = MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG;
+  S_MuseFileSystemMedia_X.Video_X.ColorSpace_E = MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG;
+  S_MuseFileSystemMedia_X.Video_X.VideoStandard = BofVideoStandard("1920x1080@59.94i"); // 1920x1080_59i");
+  S_MuseFileSystemMedia_X.Video_X.BitDepth_U32 = 8;
+  S_MuseFileSystemMedia_X.Video_X.TpInNs_U64 = 0;
+  S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64 = 0;
 
-  std::string Tp_S = S_MuseFileSystemMediaTypeEnumConverter.ToString(S_MuseFileSystemMediaStillJson_X.General_X.MediaType_E);
-  MUSE_FILE_SYSTEM_MEDIA_TYPE Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum(Tp_S);
+  S_MuseFileSystemMedia_X.Audio_X.Uri = BofUri("storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3");
+  S_MuseFileSystemMedia_X.Audio_X.Ref = BofPath("C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.mp3");
+  S_MuseFileSystemMedia_X.Audio_X.Path = BofPath("/media/audio/pexels-alexander-grey-1149347.mp3");
+  S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E = MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3;
+  S_MuseFileSystemMedia_X.Audio_X.AudioStandard = BofAudioStandard("16xS24L32@48000");
+  S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64 = 0;
+  S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64 = 0;
 
-  /*
-    {
-        "media": {
-        "@ref": "C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.png",  => Replaced by Mfs name ex: /media/still/pexels-alexander-grey-1149347.png
-            "track": [
-            {
-                "@type": "General",
-                "ImageCount": 1,
-                "Format": "PNG",
-                "FileSize": 32183316,
-                "StreamSize": 0,
-                "File_Created_Date": "UTC 2022-09-21 12:16:43.685",
-                "File_Modified_Date": "UTC 2022-09-21 12:16:43.701",
-            },
-            {
-                "@type": "Image",
-                "Format": "PNG",
-                "Width": 5616,
-                "Height": 3744,
-                "ColorSpace": "RGB",
-                "BitDepth": 8,
-                "StreamSize": 32183316
-                "Uri": " storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"   =>Inserted by Mfs when ImportMedia is executed
-            }
-            ]
-        }
-    }*/
-  EXPECT_EQ(BofJsonWriter.FromByte(false, false, S_MuseFileSystemMediaStillJsonSchemaCollection, JsonOut_S), BOF_ERR_NO_ERROR);
-  printf("%s", JsonOut_S.c_str());
+  Tp_S = S_MuseFileSystemMediaTypeEnumConverter.ToString(S_MuseFileSystemMedia_X.Header_X.MediaType_E);
+  EXPECT_STREQ(Tp_S.c_str(), "Still");
+  Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum(Tp_S);
+  EXPECT_EQ(Tp_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL);
+  Tp_E = S_MuseFileSystemMediaTypeEnumConverter.ToEnum("Tp_S");
+  EXPECT_EQ(Tp_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN);
 
+  EXPECT_EQ(BofJsonWriter.FromByte(false, false, S_MuseFileSystemMediaJsonSchemaCollection, JsonOut_S), BOF_ERR_NO_ERROR);
+  printf("%s\n", JsonOut_S.c_str());
+  ToString_S = S_MuseFileSystemMedia_X.ToString();
+  printf("%s\n", ToString_S.c_str());
+  EXPECT_EQ(BofJsonWriter.FromByte(true, false, S_MuseFileSystemMediaJsonSchemaCollection, JsonOut_S), BOF_ERR_NO_ERROR);
+  printf("%s\n", JsonOut_S.c_str());
 }
 
+BOFERR JsonParserResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER &_rBofCommandlineOption_X, const bool _CheckOk_B, const char *_pOptNewVal_c)
+{
+  BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
+
+  printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
+  printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), static_cast<uint32_t>(_rBofCommandlineOption_X.ArgType_E), _rBofCommandlineOption_X.pValue, _pOptNewVal_c ? _pOptNewVal_c : "nullptr");
+
+  return Rts_E;
+}
+
+//bool JsonParseError(int /*_Sts_i*/, const BOFPARAMETER & /*_rJsonEntry_X*/, const char * /*_pValue*/)
+bool JsonParserError(int _Sts_i, const BOFPARAMETER &_rJsonEntry_X, const char *_pValue)
+{
+  bool Rts_B = true;
+
+  printf("JSON error %d on entry pUser %p value %s\r\n", _Sts_i, _rJsonEntry_X.pUser, _pValue ? _pValue : "nullptr");
+  return Rts_B;
+}
 TEST(Bof2d_Test, MediaDetectorFromJson)
 {
+  BofMediaDetector MediaInfoParser;
+  std::string Result_S, JsonOut_S, ToString_S;
+  std::string Json_S = R"({"Media":{"Audio":{"DurationInNs":0,"Format":"Mp3","Path":"/media/audio/pexels-alexander-grey-1149347.mp3","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.mp3","Standard":"16xS24L32@48000","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3"},"Header":{"Created":"UTC 2022-09-21 12:16:43.685000","FileSize":32183316,"Modified":"UTC 2022-09-21 12:16:43.701000","Type":"Still"},"Video":{"BitDepth":8,"ColorSpace":"Rgb","DurationInNs":0,"Format":"Png","Path":"/media/still/pexels-alexander-grey-1149347.png","Ref":"C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png","Standard":"1920x1080@59.94i","TpInNs":0,"Uri":"storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0"}}})";
+  BofJsonParser BofJsonParser(Json_S);
+
+  /*
+    using namespace date;
+    using namespace std::chrono;
+    auto t = sys_days{ 10_d / 10 / 2012 } + 12h + 38min + 40s + 123456ns;
+    static_assert(std::is_same<decltype(t), time_point<system_clock, nanoseconds>>{}, "");
+    std::cout << t << '\n';
+  */
+  S_MuseFileSystemMedia_X.Reset();
+  EXPECT_EQ(BofJsonParser.ToByte(S_MuseFileSystemMediaJsonSchemaCollection, JsonParserResultUltimateCheck, JsonParserError), BOF_ERR_NO_ERROR);
+
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Created, BofDateTime(21, 9, 2022, 12, 16, 43, 685000)); 
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Modified, BofDateTime(21, 9, 2022, 12, 16, 43, 701000)); 
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL);
+
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Ref.ToString(false).c_str(), "C:/pro/evs-muse/evs-muse-storage/tests/data/pexels-alexander-grey-1149347.png");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Path.ToString().c_str(), "/media/still/pexels-alexander-grey-1149347.png");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.VideoFormat_E, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.ColorSpace_E, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG);
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.VideoStandard.ToString().c_str(), "1920x1080@59.94i");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.BitDepth_U32, 8);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.TpInNs_U64, 0);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64, 0);
+
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/21225887208829f231d46f5738b44ca0b4237df3");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Ref.ToString(true).c_str(), "C:\\pro\\evs-muse\\evs-muse-storage\\tests\\data\\pexels-alexander-grey-1149347.mp3");
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.Path.ToString().c_str(), "/media/audio/pexels-alexander-grey-1149347.mp3");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3);
+  EXPECT_STREQ(S_MuseFileSystemMedia_X.Audio_X.AudioStandard.ToString().c_str(), "16xS24L32@48000");
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64, 0);
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64, 0);
 }
 
 constexpr uint32_t SAMPLE_WIDTH = 1920;

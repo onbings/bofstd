@@ -19,34 +19,26 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
- /*** Include files ***********************************************************/
 #include <bofstd/bofparameter.h>
+#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofaudiostandard.h>
+#include <bofstd/boftimecode.h>
+#include <bofstd/bof2d.h>
 #include <bofstd/bofguid.h>
-#include <bofstd/bofsocketos.h>
-#include <regex>
-
-#define __STDC_FORMAT_MACROS
-
-#include <inttypes.h>
+#include <bofstd/bofuri.h>
 #include <bofstd/bofsystem.h>
 
+#include <regex>
+#include <stdlib.h>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 #if defined (_WIN32)
-//#include <ws2tcpip.h>                                                                               // for sockaddrin_6
-#undef max                                                                                          // Needed undex windows as winmindef #define min and max
-#undef min
 #else
-
 #include <arpa/inet.h>
-
 #endif
+
 BEGIN_BOF_NAMESPACE()
-
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 
 template<typename T>
 BOFERR CheckAndGetValueFromString(const char *_pOptVal_c, const BOFPARAMETER _rBofParameter_X, T &_rVal)
@@ -134,6 +126,7 @@ BOFERR CheckAndGetValueFromString(const char *_pOptVal_c, const BOFPARAMETER _rB
         }
         break;
 
+      case BOFPARAMETER_ARG_TYPE::ENUM:
       case BOFPARAMETER_ARG_TYPE::INT32:
         if (Hexa_B)
         {
@@ -220,6 +213,7 @@ BOFERR CheckAndGetValueFromString(const char *_pOptVal_c, const BOFPARAMETER _rB
 }
 
 
+
 // -1 ok parse end
 // -2 error
 BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParameter_X, const char *_pOptVal_c, const BOFPARAMETER_PARSE_CALLBACK _pParseCallback_O)
@@ -229,7 +223,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   //static const std::regex S_RegExInteger_O("[\\+\\-]?([0-9]+)|(0[xX]([0-9a-fA-F])+)");                    // (*, meaning "zero or more") or a plus sign (+, meaning "one or more")
   //static const std::regex S_RegExDecimal_O("[\\+\\-]?([0-9]+)[.]?([0-9]*)");                              // (*, meaning "zero or more") or a plus sign (+, meaning "one or more")
   static const std::regex S_RegExBoolTrue_O("true|True|TRUE|Y|y|1|on|On|ON");
-  static const std::regex S_RegExBoolFalse_O("false|False|FALSE|N|n|0|off|Off|OFF");
+  static const std::regex S_RegExBoolFalse_O("false|False|FALSE|N|n|0|off|O |OFF");
   //  static const std::regex S_RegExIpV4_O("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
   //  static const std::regex S_RegExIpV6_O("^((([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}:[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){5}:([0-9A-Fa-f]{1,4}:)?[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){4}:([0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){3}:([0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){2}:([0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){6}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(([0-9A-Fa-f]{1,4}:){0,5}:((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|(::([0-9A-Fa-f]{1,4}:){0,5}((b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b).){3}(b((25[0-5])|(1d{2})|(2[0-4]d)|(d{1,2}))b))|([0-9A-Fa-f]{1,4}::([0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})|(::([0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})|(([0-9A-Fa-f]{1,4}:){1,7}:))$");
 
@@ -271,9 +265,9 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   //BOF_SOCK_TYPE      SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
   //char pAllTheIpAddress_c[0x100], *pIpAddress_c;
   //int16_t            IpPort_U16 = 0;
-  BOF_SOCKET_ADDRESS_COMPONENT IpAddress_X;
   // std::get_time not present in gcc 4.9
   std::tm Tm_X;
+  BOF_SOCKET_ADDRESS_COMPONENT IpAddress_X;
 
   ShortOpt_B = false;
   if (_pOptVal_c == nullptr)  //Short non required option
@@ -315,6 +309,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
     {
       Rts_E = BOF_ERR_INIT;
       InsertInStdVector_B = false;
+
       pValue = _rBofParameter_X.pValue;
       if (pValue)
       {
@@ -415,7 +410,8 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             if (_rBofParameter_X.StringToEnum)
             {
               int Enum_i = _rBofParameter_X.StringToEnum(pTheOptVal_c);
-              itoa(Enum_i, pEnumVal_c, 10);
+              //Not under gcc              itoa(Enum_i, pEnumVal_c, 10);
+              sprintf(pEnumVal_c, "%d", Enum_i);
               pTheOptVal_c = pEnumVal_c;
             }
           case BOFPARAMETER_ARG_TYPE::INT32:
@@ -442,28 +438,28 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             {
               if (IpAddress_X.Ip_X.IpV6_B == (_rBofParameter_X.ArgType_E == BOFPARAMETER_ARG_TYPE::IPV6) ? true : false)
               {
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_SCHEME))
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_SCHEME))
                 {
                   if (IpAddress_X.Protocol_S.empty())
                   {
                     Rts_E = BOF_ERR_PROTOCOL;
                   }
                 }
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_USER))
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_USER))
                 {
                   if (IpAddress_X.User_S.empty())
                   {
                     Rts_E = BOF_ERR_EUSERS;
                   }
                 }
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_PASSWORD))
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PASSWORD))
                 {
                   if (IpAddress_X.Password_S.empty())
                   {
                     Rts_E = BOF_ERR_EACCES;
                   }
                 }
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::SOCKET_NEED_PORT))
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT))
                 {
                   if (IpAddress_X.Port_U16 == 0)
                   {
@@ -578,7 +574,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
 
           case BOFPARAMETER_ARG_TYPE::VIDEOSTANDARD:
             VideoStandard = BofVideoStandard(pTheOptVal_c);
-            if (VideoStandard.Valid())
+            if (VideoStandard.IsValid())
             {
               Rts_E = BOF_ERR_NO_ERROR;
             }
@@ -586,7 +582,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
 
           case BOFPARAMETER_ARG_TYPE::AUDIOSTANDARD:
             AudioStandard = BofAudioStandard(pTheOptVal_c);
-            if (AudioStandard.Valid())
+            if (AudioStandard.IsValid())
             {
               Rts_E = BOF_ERR_NO_ERROR;
             }
@@ -713,7 +709,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
               case BOFPARAMETER_ARG_TYPE::DATETIME:
                 if (_rBofParameter_X.Format_S == "")
                 {
-                  strcpy(pDateTimeFormat_c, "%Y-%m-%d %H:%M:%S");
+                  strcpy(pDateTimeFormat_c, "%Y-%m-%d %H:%M:%S"); //%q is used by BofDateTime to display MicroSecond_U32
                 }
                 else
                 {
@@ -724,23 +720,50 @@ DateTimeParse:
                 //To be shure to insert a 'correct' value in vector if for example we only set the time value (all other value can be 0
                 Tm_X.tm_mday = 1;
 
-                if (strptime(_pOptVal_c, pDateTimeFormat_c, &Tm_X) == nullptr)
+//See BofDateTime::FromString
+                char *pPercentQ_c, *pFromString_c;
+                uint32_t uS_U32;
+                bool AddMicroSec_B;
+                int OffsetOption_i, LenAfterFormat_i;
+
+                AddMicroSec_B = false;
+                pPercentQ_c = strstr(pDateTimeFormat_c, "%q");
+                if (pPercentQ_c)    
+                {
+                  OffsetOption_i = pPercentQ_c - pDateTimeFormat_c;
+                  LenAfterFormat_i = strlen(pDateTimeFormat_c) - OffsetOption_i - 2;
+                  //Manage only one instance of %q and this one whould be the last one of the format string
+                  AddMicroSec_B = true;
+                  //Need to remove %q because il lead to an assertion during strftime call as it is not supported
+                  memcpy(&pDateTimeFormat_c[OffsetOption_i], &pDateTimeFormat_c[OffsetOption_i+2], LenAfterFormat_i + 1); //+1 for null terminator
+                }
+
+                pFromString_c = strptime(_pOptVal_c, pDateTimeFormat_c, &Tm_X);
+                if (pFromString_c == nullptr)
                 {
                   Rts_E = BOF_ERR_PARSER; // -1;
                 }
                 else
                 {
-                  BOF_DATE_TIME DateTime_X(Tm_X);
+                  uS_U32 = 0;
+                  if (AddMicroSec_B)
+                  {
+                    if (*pFromString_c)
+                    {
+                      uS_U32 = std::atoi(pFromString_c);
+                    }
+                  }
+                  BofDateTime DateTime(Tm_X, uS_U32);
                   if (InsertInStdVector_B)
                   {
-                    std::vector<BOF_DATE_TIME> *pVectorDt;
-                    pVectorDt = reinterpret_cast<std::vector<BOF_DATE_TIME> *>(pValue);
-                    pVectorDt->push_back(DateTime_X);
+                    std::vector<BofDateTime> *pVectorDt;
+                    pVectorDt = reinterpret_cast<std::vector<BofDateTime> *>(pValue);
+                    pVectorDt->push_back(DateTime);
                   }
                   else
                   {
-                    BOF_DATE_TIME *pDateTime_X = static_cast<BOF_DATE_TIME *> (pValue);
-                    *pDateTime_X = DateTime_X;
+                    BofDateTime *pDateTime = static_cast<BofDateTime *> (pValue);
+                    *pDateTime = DateTime;
                   }
                 }
                 break;
@@ -886,7 +909,10 @@ DateTimeParse:
                 }
                 else
                 {
-                  *static_cast<BOF_SOCKET_ADDRESS_COMPONENT *> (pValue) = IpAddress_X;
+//                  BOF_SOCKET_ADDRESS_COMPONENT *p = static_cast<BOF_SOCKET_ADDRESS_COMPONENT *>(pValue);
+//                  *p = IpAddress_X;
+//                  *p = IpAddress_X;
+                  *static_cast<BOF_SOCKET_ADDRESS_COMPONENT *>(pValue) = IpAddress_X;
                 }
                 break;
 
@@ -1342,15 +1368,15 @@ const char *BofParameter::S_ParameterToString(uint32_t _Index_U32, const BOFPARA
           }
 DateTimeToString:
           {
-            BOF_DATE_TIME DateTime_X;
+            BofDateTime DateTime;
             if (GetFromStdVector_B)
             {
-              std::vector<BOF_DATE_TIME> *pVectorDt;
-              pVectorDt = reinterpret_cast<std::vector<BOF_DATE_TIME> *>(pValue);
+              std::vector<BofDateTime> *pVectorDt;
+              pVectorDt = reinterpret_cast<std::vector<BofDateTime> *>(pValue);
               _rVectorCapacity_U32 = static_cast<uint32_t>(pVectorDt->size());
               if (_Index_U32 < _rVectorCapacity_U32)
               {
-                DateTime_X = pVectorDt->operator[](_Index_U32);
+                DateTime = pVectorDt->operator[](_Index_U32);
               }
               else
               {
@@ -1359,13 +1385,13 @@ DateTimeToString:
             }
             else
             {
-              DateTime_X = *(static_cast<BOF_DATE_TIME *> (pValue));
+              DateTime = *(static_cast<BofDateTime *> (pValue));
             }
             if (pRts_c)
             {
-              if (Bof_ValidateDateTime(DateTime_X) == BOF_ERR_NO_ERROR)
+              if (DateTime.IsValid())
               {
-                snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_DateTimeToString(DateTime_X, pFormat_c).c_str());
+                snprintf(_pToString_c, _MaxSize_U32, "%s", DateTime.ToString(pFormat_c).c_str());
               }
               else
               {
@@ -1817,7 +1843,11 @@ DateTimeToString:
           if (pRts_c)
           {
             //  snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_SocketAddressToString(IpV4_X, false, Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT)).c_str());
-            snprintf(_pToString_c, _MaxSize_U32, "%s", IpAddressComponent_X.ToString(true, true, true, true).c_str());
+            bool Scheme_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_SCHEME);
+            bool User_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_USER);
+            bool Password_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PASSWORD);
+            bool Port_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT);
+            snprintf(_pToString_c, _MaxSize_U32, "%s", IpAddressComponent_X.ToString(Scheme_B, User_B, Password_B, Port_B).c_str());
           }
         }
         break;
@@ -1957,7 +1987,7 @@ DateTimeToString:
           }
           if (pRts_c)
           {
-            snprintf(_pToString_c, _MaxSize_U32, "%s", VideoStandard.IdTxt());
+            snprintf(_pToString_c, _MaxSize_U32, "%s", VideoStandard.ToString().c_str());
           }
         }
         break;

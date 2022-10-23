@@ -19,11 +19,9 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
+#include <bofstd/bofuri.h>
 
 #include "gtestrunner.h"
-#include <bofstd/bofuri.h>
 
 USE_BOF_NAMESPACE()
 /*
@@ -52,7 +50,7 @@ TEST(Uri_Test, UrlEscape)
   EXPECT_STREQ(BofUri::S_UrlDecode("Hello%20World%20%21").c_str(), "Hello World !");
 
   EXPECT_STREQ(BofUri::S_UrlEncode(R"( <>#%+{}|\^~[]`;/?:@=&)").c_str(), "%20%3C%3E%23%25%2B%7B%7D%7C%5C%5E~%5B%5D%60%3B%2F%3F%3A%40%3D%26");
-  EXPECT_STREQ(BofUri::S_UrlDecode( "%20%3C%3E%23%25%2B%7B%7D%7C%5C%5E~%5B%5D%60%3B%2F%3F%3A%40%3D%26").c_str(), R"( <>#%+{}|\^~[]`;/?:@=&)");
+  EXPECT_STREQ(BofUri::S_UrlDecode("%20%3C%3E%23%25%2B%7B%7D%7C%5C%5E~%5B%5D%60%3B%2F%3F%3A%40%3D%26").c_str(), R"( <>#%+{}|\^~[]`;/?:@=&)");
 
   EXPECT_STREQ(BofUri::S_UrlDecode(R"(title%20EQ%20"%3CMy%20title%3E")").c_str(), "title EQ \"<My title>\"");
   EXPECT_STREQ(BofUri::S_UrlEncode("title EQ \"<My title>\"").c_str(), R"(title%20EQ%20%22%3CMy%20title%3E%22)");
@@ -67,7 +65,7 @@ TEST(Uri_Test, UriConstructorDestructor)
   std::map<std::string, std::string> QueryParamCollection;
 
   BofUri Uri;
-//  EXPECT_FALSE(Uri.IsValid());
+  //  EXPECT_FALSE(Uri.IsValid());
 
   Uri = BofUri("myprotocol", "", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
@@ -80,7 +78,7 @@ TEST(Uri_Test, UriConstructorDestructor)
   EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(SchemeAuthority_X.Password_S.c_str(), "password");
 
-  Uri = BofUri("myprotocol","john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
+  Uri = BofUri("myprotocol", "john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
   EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
@@ -94,7 +92,7 @@ TEST(Uri_Test, UriConstructorDestructor)
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey#top");
   EXPECT_TRUE(Uri.IsValid());
   //printf("Uri: '%s'\n", Uri.ToString().c_str());
-  EXPECT_STREQ(Uri.ToString().c_str(),"myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
   EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@www.google.com:123");

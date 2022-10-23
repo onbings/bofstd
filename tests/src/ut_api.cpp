@@ -19,11 +19,9 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
+#include <bofstd/bofstd.h>
 
 #include "gtestrunner.h"
-#include <bofstd/bofstd.h>
 
 TEST(Api_Test, Version)
 {
@@ -31,8 +29,8 @@ TEST(Api_Test, Version)
 }
 TEST(Api_Test, ErrorCode)
 {
-	EXPECT_STREQ(BOF::Bof_ErrorCode(BOF_ERR_NO_ERROR), "No error");
-	EXPECT_STREQ(BOF::Bof_ErrorCode(static_cast<BOFERR>(236996)),"Unknown error (236996/0x39DC4)");
+  EXPECT_STREQ(BOF::Bof_ErrorCode(BOF_ERR_NO_ERROR), "No error");
+  EXPECT_STREQ(BOF::Bof_ErrorCode(static_cast<BOFERR>(236996)), "Unknown error (236996/0x39DC4)");
 }
 
 TEST(Api_Test, Exception)
@@ -41,20 +39,20 @@ TEST(Api_Test, Exception)
   BOFERR Err_E = BOF_ERR_ALREADY_OPENED;
 
   //Check exception type
-  EXPECT_THROW(THROW_BOF_EXCEPTION("[BofException]","File '/tmp/log' is already opened", Err_E), BOF::BofException);
+  EXPECT_THROW(THROW_BOF_EXCEPTION("[BofException]", "File '/tmp/log' is already opened", Err_E), BOF::BofException);
   //Check that exception is thrown and the exception content
   try
   {
     THROW_BOF_EXCEPTION("[BofException]", "File '/tmp/log' is already opened", Err_E);
   }
-  catch (BOF::BofException &e)
+  catch (const BOF::BofException &rException)
   {
     std::string Msg_S;
 
     ExceptionThrown_B = true;
-    Msg_S = e.what();
-//   printf("throw: '%s'\n", Msg_S.c_str());
-    //[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ C:\pro\github\bofstd\tests\src\ut_api.cpp:48 (Api_Test_Exception_Test::TestBody)
+    Msg_S = rException.what();
+    //   printf("throw: '%s'\n", Msg_S.c_str());
+        //[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ C:\pro\github\bofstd\tests\src\ut_api.cpp:48 (Api_Test_Exception_Test::TestBody)
     EXPECT_STREQ(Msg_S.substr(0, 76).c_str(), "[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ "); //The rest of the txt is os and file dependant
   }
   EXPECT_TRUE(ExceptionThrown_B);

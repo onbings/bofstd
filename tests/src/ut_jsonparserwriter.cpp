@@ -18,15 +18,15 @@
  *
  * V 1.00  vendredi 30 mai 2014 16:51:15  b.harmel : Initial release
  */
-
- /*** Include files ***********************************************************/
-#include <gtest/gtest.h>
+#include <bofstd/bofdatetime.h>
 #include <bofstd/bofjsonwriter.h>
 #include <bofstd/bofjsonparser.h>
 #include <bofstd/bofsocket.h>
 #include <bofstd/boffs.h>
 #include <bofstd/bofvideostandard.h>
 #include <bofstd/bof2d.h>
+
+#include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
 #include "ut_parser.h"
@@ -246,7 +246,7 @@ TEST(JsonParser_Test, JsonType)
 */
   BOF_SAFE_DELETE(pBofJsonParser_O);
 }
-static APPPARAM                    S_AppParamJson_X;
+static PARSER_APPPARAM                    S_AppParamJson_X;
 static std::vector< BOFPARAMETER > S_OptionJsonCollection =
 {
   { nullptr, "id",                           "id",                           "",         "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::XML_ATTRIBUTE, BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamJson_X.pBook_X,  pId_c,          CHARSTRING, 1, sizeof(S_AppParamJson_X.pBook_X[0].pId_c) - 1) },
@@ -275,7 +275,7 @@ static std::vector< BOFPARAMETER > S_OptionJsonCollection =
   // BAD for json  { nullptr, "tag", "dbg1", "", "MulFtpUserSetting.catalog.book.bhaattr", BOFPARAMETER_ARG_FLAG::XML_ATTRIBUTE, BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM, S_AppParamJson_X.pBook_X, pBha1_c, CHARSTRING, 0, 0) },
 
   { nullptr, "bha",                          "dbg2",                         "",         "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamJson_X.pBook_X,  pBha2_c,        CHARSTRING, 0, 0) },
-  { nullptr, "publish_date",                 "publish_date",                 "%Y-%m-%d", "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamJson_X.pBook_X,  PublishDate_X,  DATE, 0, 0) },
+  { nullptr, "publish_date",                 "publish_date",                 "%Y-%m-%d", "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamJson_X.pBook_X,  PublishDate,  DATE, 0, 0) },
   { nullptr, "description",                  "description",                  "",         "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamJson_X.pBook_X,  pDescription_c, CHARSTRING, 1, sizeof(S_AppParamJson_X.pBook_X[0].pDescription_c) - 1) },
 
   { nullptr, "a",                            "other a",                      "",         "MulFtpUserSetting.arrayofother.other", BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(OTHER,                                 S_AppParamJson_X.pOther_X, a_U32,          UINT32, 0, 0) },
@@ -887,7 +887,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   Sts_E = JsonParser.ToByte(S_ReplyStatusReceiverSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
   for (auto Item : S_ReplyStatusReceiver_X.IdCollection) printf("Sts Rcv Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
-  for (auto Item : S_ReplyStatusReceiver_X.IpCollection) printf("Sts Rcv Ip %s%s", Bof_SocketAddressToString(Item, true, true).c_str(), Bof_Eol());
+  for (auto Item : S_ReplyStatusReceiver_X.IpCollection) printf("Sts Rcv Ip %s%s", Item.ToString(true,false,false, true).c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusReceiver_X.PresentCollection) printf("Sts Rcv Present %s%s", Item.c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusReceiver_X.ImpairedCollection) printf("Sts Rcv Impaired %s%s", Item ? "True" : "False", Bof_Eol());
   for (auto Item : S_ReplyStatusReceiver_X.StateCollection) printf("Sts Rcv State %s%s", Item.c_str(), Bof_Eol());
@@ -940,7 +940,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   Sts_E = JsonParser.ToByte(S_ReplyStatusSenderSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
   for (auto Item : S_ReplyStatusSender_X.IdCollection) printf("Sts Snd Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
-  for (auto Item : S_ReplyStatusSender_X.IpCollection) printf("Sts Snd Ip %s%s", Bof_SocketAddressToString(Item, true, true).c_str(), Bof_Eol());
+  for (auto Item : S_ReplyStatusSender_X.IpCollection) printf("Sts Snd Ip %s%s", Item.ToString(true, false, false, true).c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusSender_X.PresentCollection) printf("Sts Snd Present %s%s", Item.c_str(), Bof_Eol());
   for (auto Item : S_ReplyStatusSender_X.ImpairedCollection) printf("Sts Snd Impaired %s%s", Item ? "True" : "False", Bof_Eol());
   for (auto Item : S_ReplyStatusSender_X.StateCollection) printf("Sts Snd State %s%s", Item.c_str(), Bof_Eol());

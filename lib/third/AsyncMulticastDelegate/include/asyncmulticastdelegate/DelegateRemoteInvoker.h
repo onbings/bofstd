@@ -1,5 +1,4 @@
-#ifndef _DELEGATE_REMOTE_INVOKER_H
-#define _DELEGATE_REMOTE_INVOKER_H
+#pragma once
 
 #include "LockGuard.h"
 #include <istream>
@@ -7,12 +6,12 @@
 
 namespace DelegateLib {
 
-typedef int DelegateIdType;
+  typedef int DelegateIdType;
 
-/// @brief An abstract base class used to invoke a delegate on a remote system. 
-class DelegateRemoteInvoker
-{
-public:
+  /// @brief An abstract base class used to invoke a delegate on a remote system. 
+  class DelegateRemoteInvoker
+  {
+  public:
     /// Constructor
     /// @param[in] id - an id shared by both remote systems.
     DelegateRemoteInvoker(DelegateIdType id);
@@ -22,30 +21,29 @@ public:
 
     /// Invoke a remote delegate
     /// @param[in] s - the incoming remote message stream. 
-    static bool Invoke(std::istream& s);
+    static bool Invoke(std::istream &s);
 
-protected:
+  protected:
     /// Called to invoke the callback by the remote system. 
     /// @param[in] s - the incoming remote message stream. 
-    virtual void DelegateInvoke(std::istream& s) = 0;
+    virtual void DelegateInvoke(std::istream &s) = 0;
 
-private:
+  private:
     DelegateIdType m_id;
 
-    static std::map<DelegateIdType, DelegateRemoteInvoker*>& GetMap()
+    static std::map<DelegateIdType, DelegateRemoteInvoker *> &GetMap()
     {
-        static std::map<DelegateIdType, DelegateRemoteInvoker*> map;
-        return map;
+      static std::map<DelegateIdType, DelegateRemoteInvoker *> map;
+      return map;
     }
 
-    static LOCK* GetLock()
+    static LOCK *GetLock()
     {
-        static LOCK lock;
-        static LockCreateDestroy lockCreateDestroy(lock);
-        return &lock;
+      static LOCK lock;
+      static LockCreateDestroy lockCreateDestroy(lock);
+      return &lock;
     }
-};
+  };
 
 }
 
-#endif

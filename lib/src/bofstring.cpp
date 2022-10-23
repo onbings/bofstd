@@ -18,9 +18,8 @@
  *
  * V 1.00  Jan 19 2017  BHA : Initial release
  */
-/*** Include files ***********************************************************/
-
 #include <bofstd/bofstring.h>
+
 #include <iterator>
 #include <algorithm>
 #include <string.h>
@@ -29,12 +28,9 @@
 #include <inttypes.h>
 
 #if defined (_WIN32)
-
 #include <clocale>
 #include  <cctype>
-
 #else
-
 #endif
 
 BEGIN_BOF_NAMESPACE()
@@ -109,7 +105,7 @@ std::string Bof_StringReplace(const std::string &_rStr_S, const std::string &_rC
 
 std::string Bof_StringReplace(const std::string &_rStr_S, const std::string &_rStringToReplace_S, const std::string &_rReplaceString_S)
 {
-  std::string  Rts_S   = _rStr_S;
+  std::string  Rts_S = _rStr_S;
   const size_t OldSize = _rStringToReplace_S.length(), NewSize = _rReplaceString_S.length();
   size_t       Pos;
 
@@ -164,7 +160,7 @@ std::vector<std::string> Bof_StringSplit(const std::string &_rStr_S, const std::
 {
   std::vector<std::string> Rts;
   std::string::size_type   StartPos = 0;
-  std::string::size_type   EndPos   = _rStr_S.find_first_of(_rSplitDelimiter_S);
+  std::string::size_type   EndPos = _rStr_S.find_first_of(_rSplitDelimiter_S);
 
   if (EndPos == std::string::npos)
   {
@@ -176,7 +172,7 @@ std::vector<std::string> Bof_StringSplit(const std::string &_rStr_S, const std::
     {
       Rts.push_back(_rStr_S.substr(StartPos, EndPos - StartPos));
       StartPos = ++EndPos;
-      EndPos   = _rStr_S.find_first_of(_rSplitDelimiter_S, EndPos);
+      EndPos = _rStr_S.find_first_of(_rSplitDelimiter_S, EndPos);
 
       if (EndPos == std::string::npos)
       {
@@ -205,7 +201,7 @@ std::string Bof_StringJoin(const std::vector<std::string> &_rStr_S, const std::s
 
 size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint32_t _NbWideChar_U32, wchar_t *_pWideCharStr_wc, const char *_pLocale_c)
 {
-  size_t      Rts = static_cast< size_t > (-1);
+  size_t      Rts = static_cast<size_t> (-1);
   bool        Ok_B;
   std::locale GlobalLocale;
 
@@ -241,7 +237,7 @@ size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint32_t _NbWideCha
 
 size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, uint32_t _NbMultibyteChar_U32, char *_pMultiByteStr_c, const char *_pLocale_c)
 {
-  size_t      Rts = static_cast< size_t > (-1);
+  size_t      Rts = static_cast<size_t> (-1);
   bool        Ok_B;
   std::locale GlobalLocale;
 
@@ -353,10 +349,10 @@ Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString
     {
       MultiKeyValueString_S = Bof_StringReplace(_rMultiKeyValueString_S, _rMultiKeyValueDelimiter_S, _rMultiKeyValueDelimiter_S[0]);
       Bof_RemoveDuplicateSuccessiveCharacter(MultiKeyValueString_S, _rMultiKeyValueDelimiter_S[0]);
-      Separator_S    = std::string(1, _rMultiKeyValueDelimiter_S[0]) + std::string(1, _KeyValueSeparator_c);
+      Separator_S = std::string(1, _rMultiKeyValueDelimiter_S[0]) + std::string(1, _KeyValueSeparator_c);
       KeyValueList_S = Bof_StringSplit(MultiKeyValueString_S, Separator_S);
 
-      Rts_E      = BOF_ERR_NOT_FOUND;
+      Rts_E = BOF_ERR_NOT_FOUND;
       for (i_U32 = 0; i_U32 < KeyValueList_S.size(); i_U32 += 2)
       {
         if (Bof_StringTrim(KeyValueList_S[i_U32]) == _rKeyName_S)
@@ -364,7 +360,7 @@ Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString
           if ((i_U32 + 1) < KeyValueList_S.size())
           {
             _rValue_S = KeyValueList_S[i_U32 + 1];
-            Rts_E     = BOF_ERR_NO_ERROR;
+            Rts_E = BOF_ERR_NO_ERROR;
           }
           break;
         }
@@ -473,56 +469,56 @@ std::vector<std::string> Bof_FindAllStringIncluding(bool _CaseInsensitive_B, boo
   return Rts;
 }
 
-bool Bof_IsDecimal(const std::string &_rInput_S,int32_t &_rVal_S32)
+bool Bof_IsDecimal(const std::string &_rInput_S, int32_t &_rVal_S32)
 {
-//scanf returns 0 if the %d digit extraction fails, and 2 if there is anything after the digits captured by %c. And since * prevents the value from being stored, you can't even get an overflow.
-  int Sts_i ;
+  //scanf returns 0 if the %d digit extraction fails, and 2 if there is anything after the digits captured by %c. And since * prevents the value from being stored, you can't even get an overflow.
+  int Sts_i;
   //Sts_i= sscanf(_rInput_S.c_str(), "%*u%*c");
   //int64_t Val_S64;
   char Ch_c;
-  Sts_i = sscanf(_rInput_S.c_str(), "%d%c",&_rVal_S32,&Ch_c);
+  Sts_i = sscanf(_rInput_S.c_str(), "%d%c", &_rVal_S32, &Ch_c);
   return (Sts_i == 1);
 }
-bool Bof_IsDecimal(const std::string &_rInput_S,uint32_t &_rVal_U32)
+bool Bof_IsDecimal(const std::string &_rInput_S, uint32_t &_rVal_U32)
 {
-  int Sts_i ;
+  int Sts_i;
   char Ch_c;
-  Sts_i = sscanf(_rInput_S.c_str(), "%u%c",&_rVal_U32,&Ch_c);
+  Sts_i = sscanf(_rInput_S.c_str(), "%u%c", &_rVal_U32, &Ch_c);
   return (Sts_i == 1);
 }
-bool Bof_IsDecimal(const std::string &_rInput_S,int64_t &_rVal_S64)
+bool Bof_IsDecimal(const std::string &_rInput_S, int64_t &_rVal_S64)
 {
-  int Sts_i ;
+  int Sts_i;
   char Ch_c;
-  Sts_i = sscanf(_rInput_S.c_str(), "%" PRId64 "%c",&_rVal_S64,&Ch_c);
+  Sts_i = sscanf(_rInput_S.c_str(), "%" PRId64 "%c", &_rVal_S64, &Ch_c);
   return (Sts_i == 1);
 }
-bool Bof_IsDecimal(const std::string &_rInput_S,uint64_t &_rVal_U64)
+bool Bof_IsDecimal(const std::string &_rInput_S, uint64_t &_rVal_U64)
 {
-  int Sts_i ;
+  int Sts_i;
   char Ch_c;
-  Sts_i = sscanf(_rInput_S.c_str(), "%" PRIu64 "%c",&_rVal_U64,&Ch_c);
+  Sts_i = sscanf(_rInput_S.c_str(), "%" PRIu64 "%c", &_rVal_U64, &Ch_c);
   return (Sts_i == 1);
 }
-bool Bof_IsHexadecimal(const std::string &_rInput_S,uint32_t &_rVal_U32)
+bool Bof_IsHexadecimal(const std::string &_rInput_S, uint32_t &_rVal_U32)
 {
-  int Sts_i ;
+  int Sts_i;
   char Ch_c;
-  Sts_i = sscanf(_rInput_S.c_str(), "%x%c",&_rVal_U32,&Ch_c);
+  Sts_i = sscanf(_rInput_S.c_str(), "%x%c", &_rVal_U32, &Ch_c);
   return (Sts_i == 1);
 }
-bool Bof_IsHexadecimal(const std::string &_rInput_S,uint64_t &_rVal_U64)
+bool Bof_IsHexadecimal(const std::string &_rInput_S, uint64_t &_rVal_U64)
 {
-  int Sts_i ;
+  int Sts_i;
   char Ch_c;
-  Sts_i = sscanf(_rInput_S.c_str(), "%" PRIx64 "%c",&_rVal_U64,&Ch_c);
+  Sts_i = sscanf(_rInput_S.c_str(), "%" PRIx64 "%c", &_rVal_U64, &Ch_c);
   return (Sts_i == 1);
 }
 bool Bof_IsDouble(const std::string &_rInput_S, double &_rVal_lf)
 {
-  int Sts_i ;
+  int Sts_i;
   char Ch_c;
-  Sts_i = sscanf(_rInput_S.c_str(), "%lf%c",&_rVal_lf,&Ch_c);
+  Sts_i = sscanf(_rInput_S.c_str(), "%lf%c", &_rVal_lf, &Ch_c);
   return (Sts_i == 1);
 }
 END_BOF_NAMESPACE()

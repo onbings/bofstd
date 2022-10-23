@@ -19,29 +19,24 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
-
 #include "gtestrunner.h"
 #include <bofstd/bofbit.h>
-
-/*** Class *************************************************************************************************************************/
 
 USE_BOF_NAMESPACE()
 
 TEST(Bit_Test, BitSetPosition)
 {
-	uint32_t i_U32;
-	uint64_t Mask_U64;
-	EXPECT_EQ(Bof_MostSignificantBitSetPosition(0), 0xFF);
+  uint32_t i_U32;
+  uint64_t Mask_U64;
+  EXPECT_EQ(Bof_MostSignificantBitSetPosition(0), 0xFF);
 
   EXPECT_EQ(Bof_MostSignificantBitSetPosition(0x100000000), 32);
 
   for (Mask_U64 = 1, i_U32 = 0; i_U32 < 64; i_U32++, Mask_U64 <<= 1)
-	{
-		EXPECT_EQ(Bof_MostSignificantBitSetPosition(Mask_U64), i_U32);
-	}
-	EXPECT_EQ(Bof_MostSignificantBitSetPosition(0x80000001), 31);
+  {
+    EXPECT_EQ(Bof_MostSignificantBitSetPosition(Mask_U64), i_U32);
+  }
+  EXPECT_EQ(Bof_MostSignificantBitSetPosition(0x80000001), 31);
   EXPECT_EQ(Bof_MostSignificantBitSetPosition(0x00000003), 1);
   EXPECT_EQ(Bof_MostSignificantBitSetPosition(0x00000001), 0);
   EXPECT_EQ(Bof_MostSignificantBitSetPosition(0x100000000), 32);

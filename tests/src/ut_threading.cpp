@@ -18,20 +18,14 @@
  *
  * V 1.00  23/06/2014  BHA : Initial release
  */
-
-/*** Includes ***********************************************************/
-
-#include <gtest/gtest.h>
 #include <bofstd/bofthread.h>
 #include <bofstd/bofsystem.h>
+
+#include "gtestrunner.h"
+
 #include <atomic>
+
 USE_BOF_NAMESPACE()
-
-/*** Defines ***********************************************************************************************************************/
-
-/*** Enums *************************************************************************************************************************/
-
-/*** Structures ********************************************************************************************************************/
 
 class BofThread_Test:      public::testing::Test
 {
@@ -93,8 +87,6 @@ public:
 	bool mExit_B;
 };
 
-/*** Global variables ********************************************************/
-
 void BofThread_Test::SetUp()
 {}
 
@@ -125,10 +117,6 @@ struct THREAD_CONTEXT
 	}
 };
 
-
-
-
-
 TEST_F(BofThread_Test, VirtualThreadTrue)
 {
 	TestBofThread TestBofThread_O;
@@ -139,7 +127,7 @@ TEST_F(BofThread_Test, VirtualThreadTrue)
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 	TestBofThread_O.mCpt = 0;
-	Sts_E=TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, 100, BOF_THREAD_SCHEDULER_POLICY_FIFO, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000,0);
+	Sts_E=TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000,0);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	Start_U32 = Bof_GetMsTickCount();
 	do
@@ -162,7 +150,7 @@ TEST_F(BofThread_Test, VirtualThreadFalse)
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 	TestBofThread_O.mCpt = 0;
-	Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, 100, BOF_THREAD_SCHEDULER_POLICY_FIFO, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000, 0);
+	Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000, 0);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	Start_U32 = Bof_GetMsTickCount();
 	do

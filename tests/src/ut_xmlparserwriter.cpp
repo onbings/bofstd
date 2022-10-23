@@ -18,21 +18,15 @@
  *
  * V 1.00  vendredi 30 mai 2014 16:51:15  b.harmel : Initial release
  */
-
-/*** Include files ***********************************************************/
-#include <gtest/gtest.h>
+#include <bofstd/bofdatetime.h>
 #include <bofstd/bofxmlwriter.h>
 #include <bofstd/bofxmlparser.h>
 #include <bofstd/bofsocket.h>
 #include <bofstd/boffs.h>
 
+#include "gtestrunner.h"
+
 USE_BOF_NAMESPACE()
-
-/*** Global variables ********************************************************/
-
-/*** Factory functions called at the beginning/end of each test case **********/
-
-/*** Test case ******************************************************************/
 
 #include "ut_parser.h"
 
@@ -71,7 +65,8 @@ bool XmlWriteError(int /*_Sts_i*/, const BOFPARAMETER & /*_rXmlEntry_X*/, const 
 	//	printf("XML error %d on entry pUser %p value %s\r\n", _Sts_i, _rXmlEntry_X.pUser, _pValue ? _pValue : "nullptr");
 	return Rts_B;
 }
-static APPPARAM                    S_AppParamXml_X;
+static PARSER_APPPARAM                    S_AppParamXml_X;
+
 static std::vector< BOFPARAMETER > S_pOptionXml_X =
 {
 	{ nullptr, "DeployIpAddress",              "DeployIpAddress",              "",         "MulFtpUserSetting",                    BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_VARIABLE(S_AppParamXml_X.DeployIpAddress_X,               IPV4,                  0,              0) },
@@ -98,7 +93,7 @@ static std::vector< BOFPARAMETER > S_pOptionXml_X =
 	// BAD for json  { nullptr, "tag", "dbg1", "", "MulFtpUserSetting.catalog.book.bhaattr", BOFPARAMETER_ARG_FLAG::XML_ATTRIBUTE, BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM, S_AppParamXml_X.pBook_X, pBha1_c, CHARSTRING, 0, 0) },
 
 	{ nullptr, "bha",                          "dbg2",                         "",         "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamXml_X.pBook_X,  pBha2_c,        CHARSTRING, 0, 0) },
-	{ nullptr, "publish_date",                 "publish_date",                 "%Y-%m-%d", "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamXml_X.pBook_X,  PublishDate_X,  DATE, 0, 0) },
+	{ nullptr, "publish_date",                 "publish_date",                 "%Y-%m-%d", "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamXml_X.pBook_X,  PublishDate,    DATE, 0, 0) },
 	{ nullptr, "description",                  "description",                  "",         "MulFtpUserSetting.catalog.book",       BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(BOOKPARAM,                             S_AppParamXml_X.pBook_X,  pDescription_c, CHARSTRING, 1, sizeof(S_AppParamXml_X.pBook_X[0].pDescription_c) - 1) },
 
 	{ nullptr, "a",                            "other a",                      "",         "MulFtpUserSetting.arrayofother.other", BOFPARAMETER_ARG_FLAG::NONE,          BOF_PARAM_DEF_ARRAY_OF_STRUCT(OTHER,                                 S_AppParamXml_X.pOther_X, a_U32,          UINT32, 0, 0) },
@@ -172,7 +167,7 @@ TEST(XmlParser_Test, XmlVector)
 	pBofXmlParser_O = new BofXmlParser(XmlData_S);
 	EXPECT_TRUE(pBofXmlParser_O != nullptr);
 
-	std::string XmlIn_S = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<--Comment-->\n\r<MulFtpUserSetting\r\n\t   xmlns : xsi = \"http://www.w3.org/2001/XMLSchema-instance\" xmlns : xsd = \"http://www.w3.org/2001/XMLSchema\">";
+	std::string XmlIn_S = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<--Comment-->\r\n<MulFtpUserSetting\r\n\t   xmlns : xsi = \"http://www.w3.org/2001/XMLSchema-instance\" xmlns : xsd = \"http://www.w3.org/2001/XMLSchema\">";
 	EXPECT_STREQ("MulFtpUserSetting", BofXmlParser::S_RootName(XmlIn_S).c_str());
 
 	EXPECT_TRUE(pBofXmlParser_O->IsValid());
@@ -311,7 +306,7 @@ TEST(XmlWriter_Test, Xml)
 
 	Sts_i = BofXmlWriter_O.FromByte("<?xml version='1.0' encoding=\"utf-8\"?>\r\n<!--This is a comment-->\r\n", S_pOptionXml_X, XmlOut_S);
 	EXPECT_EQ(Sts_i, 0);
-#if defined(_WIN32) //TODO comprendre: en linux toutes les fin de ligne sont \r\n, en win 32 on a un m�lange de \n et de \r\n
+#if defined(_WIN32) 
 	std::string Res_S =
 		"<?xml version='1.0' encoding=\"utf-8\"?>\r\n"\
 		"<!--This is a comment-->\r\n"\
@@ -335,9 +330,9 @@ TEST(XmlWriter_Test, Xml)
 		"<price>44.950001</price>\r\n"\
 		"<bha>AZ</bha>\r\n"\
 		"<publish_date>2016-05-26</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tAn in-depth look at creating applications\n"\
-		"\t\t\t\twith XML.\n"\
+		"<description>\r\n"\
+		"\t\t\t\tAn in-depth look at creating applications\r\n"\
+		"\t\t\t\twith XML.\r\n"\
 		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk102\">\r\n"\
@@ -347,11 +342,11 @@ TEST(XmlWriter_Test, Xml)
 		"<price>5.950000</price>\r\n"\
 		"<bha>QS</bha>\r\n"\
 		"<publish_date>2000-12-16</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tA former architect battles corporate zombies,\n"\
-		"\t\t\t\tan evil sorceress, and her own childhood to become queen\n"\
-		"\t\t\t\tof the world.\n\t\t\t"\
-		"</description>\r\n"\
+		"<description>\r\n"\
+		"\t\t\t\tA former architect battles corporate zombies,\r\n"\
+		"\t\t\t\tan evil sorceress, and her own childhood to become queen\r\n"\
+		"\t\t\t\tof the world.\r\n"\
+		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk103\">\r\n"\
 		"<author>Corets, Eva</author>\r\n"\
@@ -360,10 +355,10 @@ TEST(XmlWriter_Test, Xml)
 		"<price>5.950000</price>\r\n"\
 		"<bha>WX</bha>\r\n"\
 		"<publish_date>2000-11-17</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tAfter the collapse of a nanotechnology\n"\
-		"\t\t\t\tsociety in England, the young survivors lay the\n"\
-		"\t\t\t\tfoundation for a new society.\n"\
+		"<description>\r\n"\
+		"\t\t\t\tAfter the collapse of a nanotechnology\r\n"\
+		"\t\t\t\tsociety in England, the young survivors lay the\r\n"\
+		"\t\t\t\tfoundation for a new society.\r\n"\
 		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk104\">\r\n"\
@@ -373,11 +368,11 @@ TEST(XmlWriter_Test, Xml)
 		"<price>5.950000</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2001-03-10</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tIn post-apocalypse England, the mysterious\n"\
-		"\t\t\t\tagent known only as Oberon helps to create a new life\n"\
-		"\t\t\t\tfor the inhabitants of London. Sequel to Maeve\n"\
-		"\t\t\t\tAscendant.\n"\
+		"<description>\r\n"\
+		"\t\t\t\tIn post-apocalypse England, the mysterious\r\n"\
+		"\t\t\t\tagent known only as Oberon helps to create a new life\r\n"\
+		"\t\t\t\tfor the inhabitants of London. Sequel to Maeve\r\n"\
+		"\t\t\t\tAscendant.\r\n"\
 		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk105\">\r\n"\
@@ -387,11 +382,11 @@ TEST(XmlWriter_Test, Xml)
 		"<price>5.950000</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2001-09-10</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tThe two daughters of Maeve, half-sisters,\n"\
-		"\t\t\t\tbattle one another for control of England. Sequel to\n"\
-		"\t\t\t\tOberon&apos;s Legacy.\n\t\t"\
-		"\t</description>\r\n"\
+		"<description>\r\n"\
+		"\t\t\t\tThe two daughters of Maeve, half-sisters,\r\n"\
+		"\t\t\t\tbattle one another for control of England. Sequel to\r\n"\
+		"\t\t\t\tOberon&apos;s Legacy.\r\n"\
+		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk106\">\r\n"\
 		"<author>Randall, Cynthia</author>\r\n"\
@@ -400,10 +395,10 @@ TEST(XmlWriter_Test, Xml)
 		"<price>4.950000</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2000-09-02</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tWhen Carla meets Paul at an ornithology\n"\
-		"\t\t\t\tconference, tempers fly as feathers get ruffled.\n\t\t\t"\
-		"</description>\r\n"\
+		"<description>\r\n"\
+		"\t\t\t\tWhen Carla meets Paul at an ornithology\r\n"\
+		"\t\t\t\tconference, tempers fly as feathers get ruffled.\r\n"\
+		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk107\">\r\n"\
 		"<author>Thurman, Paula</author>\r\n"\
@@ -412,10 +407,10 @@ TEST(XmlWriter_Test, Xml)
 		"<price>4.950000</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2000-11-02</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tA deep sea diver finds true love twenty\n"\
-		"\t\t\t\tthousand leagues beneath the sea.\n\t\t\t"\
-		"</description>\r\n"\
+		"<description>\r\n"\
+		"\t\t\t\tA deep sea diver finds true love twenty\r\n"\
+		"\t\t\t\tthousand leagues beneath the sea.\r\n"\
+		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk108\">\r\n"\
 		"<author>Knorr, Stefan</author>\r\n"\
@@ -424,10 +419,10 @@ TEST(XmlWriter_Test, Xml)
 		"<price>4.950000</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2000-12-06</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tAn anthology of horror stories about roaches,\n"\
-		"\t\t\t\tcentipedes, scorpions  and other insects.\n\t\t\t"\
-		"</description>\r\n"\
+		"<description>\r\n"\
+		"\t\t\t\tAn anthology of horror stories about roaches,\r\n"\
+		"\t\t\t\tcentipedes, scorpions  and other insects.\r\n"\
+		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk109\">\r\n"\
 		"<author>Kress, Peter</author>\r\n"\
@@ -436,10 +431,10 @@ TEST(XmlWriter_Test, Xml)
 		"<price>6.950000</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2000-11-02</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tAfter an inadvertant trip through a Heisenberg\n"\
-		"\t\t\t\tUncertainty Device, James Salway discovers the problems\n"\
-		"\t\t\t\tof being quantum.\n"\
+		"<description>\r\n"\
+		"\t\t\t\tAfter an inadvertant trip through a Heisenberg\r\n"\
+		"\t\t\t\tUncertainty Device, James Salway discovers the problems\r\n"\
+		"\t\t\t\tof being quantum.\r\n"\
 	  "\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk110\">\r\n"\
@@ -449,10 +444,10 @@ TEST(XmlWriter_Test, Xml)
 		"<price>36.950001</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2000-12-09</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tMicrosoft&apos;s .NET initiative is explored in\n"\
-		"\t\t\t\tdetail in this deep programmer&apos;s reference.\n\t\t\t"\
-		"</description>\r\n"\
+		"<description>\r\n"\
+		"\t\t\t\tMicrosoft&apos;s .NET initiative is explored in\r\n"\
+		"\t\t\t\tdetail in this deep programmer&apos;s reference.\r\n"\
+		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk111\">\r\n"\
 		"<author>O&apos;Brien, Tim</author>\r\n"\
@@ -461,10 +456,10 @@ TEST(XmlWriter_Test, Xml)
 		"<price>36.950001</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2000-12-01</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tThe Microsoft MSXML3 parser is covered in\n"\
-		"\t\t\t\tdetail, with attention to XML DOM interfaces, XSLT processing,\n"\
-		"\t\t\t\tSAX and more.\n"\
+		"<description>\r\n"\
+		"\t\t\t\tThe Microsoft MSXML3 parser is covered in\r\n"\
+		"\t\t\t\tdetail, with attention to XML DOM interfaces, XSLT processing,\r\n"\
+		"\t\t\t\tSAX and more.\r\n"\
 		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"bk112\">\r\n"\
@@ -474,11 +469,11 @@ TEST(XmlWriter_Test, Xml)
 		"<price>49.950001</price>\r\n"\
 		"<bha></bha>\r\n"\
 		"<publish_date>2001-04-16</publish_date>\r\n"\
-		"<description>\n"\
-		"\t\t\t\tMicrosoft Visual Studio 7 is explored in depth,\n"\
-		"\t\t\t\tlooking at how Visual Basic, Visual C++, C#, and ASP+ are\n"\
-		"\t\t\t\tintegrated into a comprehensive development\n"\
-		"\t\t\t\tenvironment.\n"\
+		"<description>\r\n"\
+		"\t\t\t\tMicrosoft Visual Studio 7 is explored in depth,\r\n"\
+		"\t\t\t\tlooking at how Visual Basic, Visual C++, C#, and ASP+ are\r\n"\
+		"\t\t\t\tintegrated into a comprehensive development\r\n"\
+		"\t\t\t\tenvironment.\r\n"\
 		"\t\t\t</description>\r\n"\
 		"</book>\r\n"\
 		"<book id=\"\">\r\n"\
@@ -2288,10 +2283,37 @@ std::string Res_S =
 "</arrayofother>\r\n"\
 "</MulFtpUserSetting>\r\n";
 #endif		
+
+#if 0 //To track issue but crash when there is no problem
 	const char *p = XmlOut_S.c_str();
 	const char *q = Res_S.c_str();
 	while (*p == *q) { p++; q++; }
 	printf("%d ok on %d\r\n", static_cast<uint32_t>(p - XmlOut_S.c_str()), static_cast<uint32_t>(XmlOut_S.size()));
+	uint32_t Start_U32, Nb_U32, OffsetFirstDiff_U32 = static_cast<uint32_t>(p - XmlOut_S.c_str());
+	if (OffsetFirstDiff_U32 > 128)
+	{
+		Start_U32 = OffsetFirstDiff_U32;
+		Nb_U32 = 128;
+	}
+	else
+	{
+		Start_U32 = 0;
+		Nb_U32 = OffsetFirstDiff_U32;
+	}
+	std::string Out_S = XmlOut_S.substr(Start_U32, Nb_U32);
+	std::string Expect_S = Res_S.substr(Start_U32, Nb_U32);
+	printf("OUT:    '%s'\r\n", Out_S.c_str());
+	printf("EXPECT: '%s'\r\n", Expect_S.c_str());
+
+	Out_S = XmlOut_S.substr(OffsetFirstDiff_U32, 32);
+	Expect_S = Res_S.substr(OffsetFirstDiff_U32, 32);
+	printf("DiffOUT:      '%s'\r\n", Out_S.c_str());
+	printf("DiffEXPECTED: '%s'\r\n", Expect_S.c_str());
+	const char *pOut_c = Out_S.c_str();
+	const char *pExpected_c = Expect_S.c_str();
+#endif
+
+
 	EXPECT_STREQ(XmlOut_S.c_str(), Res_S.c_str());
 
 	Sts_i = BofXmlWriter_O.FromByte("", S_pOptionXml_X, XmlOut_S);

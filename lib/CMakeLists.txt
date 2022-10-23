@@ -5,90 +5,136 @@
 set(PUBLIC_INCLUDES_FILES
 )
 
+set(2D_FILES
+	include/bofstd/bof2d.h
+	src/bof2d.cpp
+)
+
 set(API_FILES
 	bofversioninfo.h   #generated in binary build dir with configure_file
 	include/bofstd/boferr.h
 	include/bofstd/bofstd.h
 	src/bofstd.cpp
-	include/bofstd/bofdaemonservice.h
-	src/bofdaemonservice.cpp
+)
+
+set(BIT_FILES
+	include/bofstd/bofbit.h
+	src/bofbit.cpp
+)
+
+set(CALLBACK_FILES
 	include/bofstd/bofcallbackcollection.h
+	include/bofstd/bofasync.h
+	src/bofasync.cpp
 )
 
-set(BOFIO_FILES
-	include/bofstd/bofsocketserver.h
-	src/bofsocketserver.cpp
-	include/bofstd/bofsocketio.h
-	src/bofsocketio.cpp
-	include/bofstd/bofsocketsessionmanager.h
-	src/bofsocketsessionmanager.cpp
-	include/bofstd/ibofsocketio.h
-	include/bofstd/ibofsocketsessionfactory.h
-)
-
-set(PATTERN_FILES
-	include/bofstd/bofflag.h
-	include/bofstd/bofobserver.h
-	src/bofobserver.cpp
-)
-
-set(SERDER_FILES
-	include/bofstd/bofbinserializer.h
-	include/bofstd/bofparameter.h
-	src/bofparameter.cpp	
-	include/bofstd/bofxmlparser.h
-	src/bofxmlparser.cpp	
-	include/bofstd/bofxmlwriter.h
-	src/bofxmlwriter.cpp		
-	include/bofstd/bofjsonparser.h
-	src/bofjsonparser.cpp	
-	include/bofstd/bofjsonwriter.h
-	src/bofjsonwriter.cpp	
-)
-
-set(ASYNCMULTICASTDELEGATE_FILES
-		third/AsyncMulticastDelegate/src/Allocator.cpp
-		third/AsyncMulticastDelegate/src/DelegateAsync.cpp
-		third/AsyncMulticastDelegate/src/DelegateRemoteInvoker.cpp
-		third/AsyncMulticastDelegate/src/MulticastDelegateBase.cpp
-		third/AsyncMulticastDelegate/src/LockGuard.cpp
-		third/AsyncMulticastDelegate/src/xallocator.cpp
-		third/AsyncMulticastDelegate/src/bofmsgthread.cpp
-		third/AsyncMulticastDelegate/src/Semaphore.cpp
-
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Allocator.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Delegate.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsync.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsyncWait.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateInvoker.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateLib.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateMsg.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateOpt.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteInvoker.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteRecv.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteSend.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSp.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSpAsync.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateThread.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateTransport.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/LockGuard.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegate.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateBase.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateSafe.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Semaphore.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/SinglecastDelegate.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/xallocator.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/ThreadMsg.h
-		third/AsyncMulticastDelegate/include/asyncmulticastdelegate/bofmsgthread.h
-		)
-
-set(COMMANDLINE_FILES
+set(CLI_FILES
 	include/bofstd/bofcommandlineparser.h
 	src/bofcommandlineparser.cpp
 	include/bofstd/bofgetopt.h
 	src/bofgetopt.cpp	
 )
 
+set(COM_FILES
+	include/bofstd/bofcomchannel.h
+	src/bofcomchannel.cpp
+	include/bofstd/bofuart.h
+	src/bofuart.cpp
+	include/bofstd/bofsocketos.h
+	src/bofsocketos.cpp
+	include/bofstd/bofsocket.h
+	src/bofsocket.cpp
+	include/bofstd/bofpipe.h
+	src/bofpipe.cpp
+)
+
+set(CONIO_FILES
+	include/bofstd/bofconio.h
+	src/bofconio.cpp	
+	third/cpp-linenoise-master/linenoise.hpp
+)
+
+set(CONTAINER_FILES
+	include/bofstd/bofcircularbuffer.h
+	include/bofstd/bofstringcircularbuffer.h
+	src/bofstringcircularbuffer.cpp
+	include/bofstd/bofrawcircularbuffer.h
+	src/bofrawcircularbuffer.cpp
+	include/bofstd/bofnarytreekv.h
+	include/bofstd/bofpot.h
+	include/bofstd/bofstack.h
+	src/bofstack.cpp
+	include/bofstd/boflist.h
+	include/bofstd/bofqueue.h
+	include/bofstd/bofstream.h
+)
+
+set(CRYPTO_FILES
+	include/bofstd/bofcrypto.h
+	src/bofcrypto.cpp
+)
+
+set(DAEMON_FILES
+	include/bofstd/bofdaemonservice.h
+	src/bofdaemonservice.cpp
+)
+
+set(DB_FILES
+	include/bofstd/bofavlnode.h
+	include/bofstd/bofavltree.h
+	include/bofstd/boframdb.h
+)
+
+set(DELEGATE_FILES
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/bofmsgthread.h
+	third/AsyncMulticastDelegate/src/bofmsgthread.cpp
+
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Allocator.h
+	third/AsyncMulticastDelegate/src/Allocator.cpp
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsync.h
+	third/AsyncMulticastDelegate/src/DelegateAsync.cpp
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateInvoker.h
+	third/AsyncMulticastDelegate/src/DelegateRemoteInvoker.cpp
+	third/AsyncMulticastDelegate/src/MulticastDelegateBase.cpp
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/LockGuard.h
+	third/AsyncMulticastDelegate/src/LockGuard.cpp
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/xallocator.h
+	third/AsyncMulticastDelegate/src/xallocator.cpp
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Semaphore.h
+	third/AsyncMulticastDelegate/src/Semaphore.cpp
+
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Delegate.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsyncWait.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateLib.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateMsg.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateOpt.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteInvoker.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteRecv.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteSend.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSp.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSpAsync.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateThread.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateTransport.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegate.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateBase.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateSafe.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/SinglecastDelegate.h
+	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/ThreadMsg.h
+)
+
+set(ENUM_FLAG_FILES
+	include/bofstd/bofflag.h
+	include/bofstd/bofenum.h
+)
+
+set(FS_FILES
+	include/bofstd/bofpath.h
+	src/bofpath.cpp
+	include/bofstd/bofuri.h
+	src/bofuri.cpp
+	include/bofstd/boffs.h
+	src/boffs.cpp
+)
 
 set(IXML_FILES
 	third/ixml/inc/ixml.h
@@ -107,95 +153,75 @@ set(IXML_FILES
 	third/ixml/src/inc/ixmlparser.h	
 )
 
-
 set(LOG_FILES
 	include/bofstd/iboflogchannel.h
-	include/bofstd/boflogchannel_spdlog.h
-	include/bofstd/boflogsink_spdlog.h
 	src/iboflogchannel.cpp	
+	include/bofstd/boflogchannel_spdlog.h
 	src/boflogchannel_spdlog.cpp	
+	include/bofstd/boflogsink_spdlog.h
 	src/boflogsink_spdlog.cpp
 	include/bofstd/boflogger.h
+	src/boflogger.cpp	
+
 	include/bofstd/bofstringformatter.h
 	src/bofstringformatter.cpp
-	src/boflogger.cpp	
 )
 
-set(FS_FILES
-	include/bofstd/bofpath.h
-	src/bofpath.cpp
-	include/bofstd/bofuri.h
-	src/bofuri.cpp
-	include/bofstd/boffs.h
-	src/boffs.cpp
+set(OBSERVER_FILES
+	include/bofstd/bofobserver.h
+	src/bofobserver.cpp
 )
 
-set(CRYPTO_FILES
-	include/bofstd/bofcrypto.h
-	src/bofcrypto.cpp
-)
-
-set(CONTAINER_FILES
-	include/bofstd/bofcircularbuffer.h
-	include/bofstd/bofstringcircularbuffer.h
-	src/bofstringcircularbuffer.cpp
-	include/bofstd/bofrawcircularbuffer.h
-	src/bofrawcircularbuffer.cpp
-	include/bofstd/bofnarytreekv.h
-	include/bofstd/bofpot.h
-	include/bofstd/bofstack.h
-	include/bofstd/boflist.h
-	include/bofstd/bofqueue.h
-	include/bofstd/bofstream.h
-	src/bofstack.cpp
-)
-
-set(COM_FILES
-	include/bofstd/bofcomchannel.h
-	src/bofcomchannel.cpp
-	include/bofstd/bofuart.h
-	src/bofuart.cpp
-	include/bofstd/bofsocketos.h
-	src/bofsocketos.cpp
-	include/bofstd/bofsocket.h
-	src/bofsocket.cpp
-	include/bofstd/bofpipe.h
-	src/bofpipe.cpp
-)
-
-set(PROTO_FILES
+set(PROTOCOL_FILES
 	include/bofstd/bofrpc.h
 	src/bofrpc.cpp
 )
 
-set(SYSTEM_FILES
-	include/bofstd/bofsystem.h
-	include/bofstd/bofstring.h
-	include/bofstd/bofscriptlauncher.h
-	include/bofstd/bofperformance.h
-	include/bofstd/bofstatistics.h
-	include/bofstd/boftimecode.h
-	include/bofstd/bofasync.h
-	include/bofstd/bofvideostandard.h
-	include/bofstd/bofaudiostandard.h
-	include/bofstd/bofrational.h
-
-	src/bofsystem.cpp
-	src/bofstring.cpp
-	src/bofperformance.cpp  
-	#src/bofstatistics.cpp
-	src/bofscriptlauncher.cpp
-	src/boftimecode.cpp
-	src/bofasync.cpp
-	src/bofvideostandard.cpp
-	src/bofaudiostandard.cpp
-	src/bofrational.cpp
+set(SERDER_FILES
+	include/bofstd/bofbinserializer.h
+	include/bofstd/bofparameter.h
+	src/bofparameter.cpp	
+	include/bofstd/bofxmlparser.h
+	src/bofxmlparser.cpp	
+	include/bofstd/bofxmlwriter.h
+	src/bofxmlwriter.cpp		
+	include/bofstd/bofjsonparser.h
+	src/bofjsonparser.cpp	
+	include/bofstd/bofjsonwriter.h
+	src/bofjsonwriter.cpp	
 )
 
-set(BITENUMGUID_FILES
-	include/bofstd/bofbit.h
-	src/bofbit.cpp
-	include/bofstd/bofenum.h
+set(SOCKIO_FILES
+	include/bofstd/bofsocketserver.h
+	src/bofsocketserver.cpp
+	include/bofstd/bofsocketio.h
+	src/bofsocketio.cpp
+	include/bofstd/bofsocketsessionmanager.h
+	src/bofsocketsessionmanager.cpp
+	include/bofstd/ibofsocketio.h
+	include/bofstd/ibofsocketsessionfactory.h
+)
+
+set(SYSTEM_FILES
+	include/bofstd/bofsystem.h
+	src/bofsystem.cpp
+	include/bofstd/bofstring.h
+	src/bofstring.cpp
+	include/bofstd/bofscriptlauncher.h
+	src/bofscriptlauncher.cpp
+	include/bofstd/bofperformance.h
+	src/bofperformance.cpp  
+	include/bofstd/bofstatistics.h
+	include/bofstd/boftimecode.h
+	src/boftimecode.cpp
+	include/bofstd/bofvideostandard.h
+	src/bofvideostandard.cpp
+	include/bofstd/bofaudiostandard.h
+	src/bofaudiostandard.cpp
+	include/bofstd/bofdatetime.h
+	src/bofdatetime.cpp
+	include/bofstd/bofrational.h
+	src/bofrational.cpp
 	include/bofstd/bofguid.h
 	src/bofguid.cpp
 )
@@ -205,74 +231,57 @@ set(THREADING_FILES
 	src/bofthread.cpp
 )
 
-set(CONIO_FILES
-	include/bofstd/bofconio.h
-	src/bofconio.cpp	
-	third/cpp-linenoise-master/linenoise.hpp
-)
-
-set(DB_FILES
-	include/bofstd/bofavlnode.h
-	include/bofstd/bofavltree.h
-	include/bofstd/boframdb.h
-)
-
-set(GRAPH_FILES
-	include/bofstd/bof2d.h
-	src/bof2d.cpp
-)
-
 set(SOURCES_FILES
+	${2D_FILES}
 	${API_FILES}
-	${BOFIO_FILES}
-	${CRYPTO_FILES}
-	${CONTAINER_FILES}
+	${BIT_FILES}
+	${CALLBACK_FILES}
+	${CLI_FILES}
 	${COM_FILES}
-	${PROTO_FILES}
-	${SYSTEM_FILES}
-	${BITENUMGUID_FILES}
-	${THREADING_FILES}
-	${DB_FILES}
 	${CONIO_FILES}
-	${GRAPH_FILES}
-	${PATTERN_FILES}
-	${PARAMETER_FILES}
-	${SERDER_FILES}
-	${LOG_FILES}
+	${CONTAINER_FILES}
+	${CRYPTO_FILES}
+	${DAEMON_FILES}
+	${DB_FILES}
+	${DELEGATE_FILES}
+	${ENUM_FLAG_FILES}
 	${FS_FILES}
-	${COMMANDLINE_FILES}
-	${ASYNCMULTICASTDELEGATE_FILES}
-	${YUV_FILES}
 	${IXML_FILES}
+	${LOG_FILES}
+	${OBSERVER_FILES}
+	${PROTOCOL_FILES}
+	${SERDER_FILES}
+	${SOCKIO_FILES}
+	${SYSTEM_FILES}
+	${THREADING_FILES}
 )
 
 # For Visual Studio
-
 #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd PREFIX "public" FILES ${PUBLIC_INCLUDES_FILES})
 #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src            PREFIX "src"    FILES ${SOURCES_FILES})
 
-source_group("Api"						FILES ${API_FILES})
-source_group("BofIo"					FILES ${BOFIO_FILES})
-source_group("Crypto"					FILES ${CRYPTO_FILES})
-source_group("Container"				FILES ${CONTAINER_FILES})
-source_group("ComChannel"				FILES ${COM_FILES})
-source_group("Protocol"					FILES ${PROTO_FILES})
-source_group("System"					FILES ${SYSTEM_FILES})
-source_group("Bit_Enum_Guid"			FILES ${BITENUMGUID_FILES})
-source_group("Threading"				FILES ${THREADING_FILES})
-source_group("Database"					FILES ${DB_FILES})
-source_group("Conio"					FILES ${CONIO_FILES})
-source_group("Graphic"					FILES ${GRAPH_FILES})
-source_group("Pattern"					FILES ${PATTERN_FILES})
-source_group("Parameter"				FILES ${PARAMETER_FILES})
-source_group("Ser_Deser"				FILES ${SERDER_FILES})
-source_group("AsyncMulticastDelegate"	FILES ${ASYNCMULTICASTDELEGATE_FILES})
-source_group("Yuv"						FILES 				${YUV_FILES})
-source_group("Pattern"					FILES ${PATTERN_FILES})
-source_group("Log"						FILES ${LOG_FILES})
-source_group("FileSystem"				FILES ${FS_FILES})
-source_group("CommandLine"				FILES ${COMMANDLINE_FILES})
-source_group("IXml"				FILES ${IXML_FILES})
+source_group("2d"		 FILES ${2D_FILES})
+source_group("Api"		 FILES ${API_FILES})
+source_group("Bit"		 FILES ${BIT_FILES})
+source_group("Callback"	 FILES ${CALLBACK_FILES})
+source_group("Cli"		 FILES ${CLI_FILES})
+source_group("Com"		 FILES ${COM_FILES})
+source_group("ConIo"	 FILES ${CONIO_FILES})
+source_group("Container" FILES ${CONTAINER_FILES})
+source_group("Crypto"	 FILES ${CRYPTO_FILES})
+source_group("Daemon"	 FILES ${DAEMON_FILES})
+source_group("Db"		 FILES ${DB_FILES})
+source_group("Delegate"	 FILES ${DELEGATE_FILES})
+source_group("EnumFlag"	 FILES ${ENUM_FLAG_FILES})
+source_group("Fs"		 FILES ${FS_FILES})
+source_group("Xml"		 FILES ${IXML_FILES})
+source_group("Log"		 FILES ${LOG_FILES})
+source_group("Observer"	 FILES ${OBSERVER_FILES})
+source_group("Protocol"	 FILES ${PROTOCOL_FILES})
+source_group("SerDeser"	 FILES ${SERDER_FILES})
+source_group("SockIo"	 FILES ${SOCKIO_FILES})
+source_group("System"	 FILES ${SYSTEM_FILES})
+source_group("Threading" FILES ${THREADING_FILES})
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd/bofversioninfo.h.in ${CMAKE_CURRENT_BINARY_DIR}/bofversioninfo.h @ONLY)
 
@@ -307,13 +316,8 @@ target_include_directories(bofstd-objects
   PUBLIC
 	#Header path used at build time
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
-	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include>  
-	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog-1.3.1/include>  
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/cpp-linenoise-master>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
-	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/libyuv/include>
-	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/zeromq/include>
-	# $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/czmq/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below) and bofversioninfo.h (above)
@@ -321,7 +325,6 @@ target_include_directories(bofstd-objects
 	#$<BUILD_INTERFACE:${FFMPEG_INCLUDE_DIRS}
 	#Header path used when installed
 	$<INSTALL_INTERFACE:include>
-#   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 # Link
@@ -337,6 +340,8 @@ target_link_libraries(bofstd-objects
 	czmq
 	yuv
 	mediainfo
+	date::date 
+	date::date-tz
 #	libzmq-static
 #	czmq-static
 #	ZLIB::ZLIB
@@ -384,7 +389,6 @@ target_compile_features(bofstd-objects
   PUBLIC
     cxx_std_14
 )
-
 
 # ====================
 # == CREATE LIBRARY ==

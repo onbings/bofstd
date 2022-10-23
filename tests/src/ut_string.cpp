@@ -19,13 +19,9 @@
  *
  * V 1.00  November 15 2016  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
-
-#include "gtestrunner.h"
 #include <bofstd/bofstring.h>
 
-/*** Class *************************************************************************************************************************/
+#include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
 

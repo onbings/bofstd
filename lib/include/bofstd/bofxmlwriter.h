@@ -19,45 +19,34 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
 #pragma once
 
-/*** Include files ***********************************************************/
+#include <bofstd/bofparameter.h>
 
 #include <memory>
 #include <vector>
 #include <functional>
-#include <bofstd/bofstd.h>
-#include <bofstd/bofparameter.h>
-#include <bofstd/bofpath.h>
-#include "bofxmlparser.h"
-
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 
 BEGIN_BOF_NAMESPACE()
 
 class BOFSTD_EXPORT BofXmlWriter
 {
-		// Opaque pointer design pattern: all public and protected stuff goes here ...
+  // Opaque pointer design pattern: all public and protected stuff goes here ...
 public:
-		BofXmlWriter();
+  BofXmlWriter();
 
-		BofXmlWriter &operator=(const BofXmlWriter &) = delete;     // Disallow copying
-		BofXmlWriter(const BofXmlWriter &) = delete;
+  BofXmlWriter &operator=(const BofXmlWriter &) = delete;     // Disallow copying
+  BofXmlWriter(const BofXmlWriter &) = delete;
 
-		BOFERR FromByte(const std::string &_rXmlDeclare_S, const std::vector<BOFPARAMETER> &_rXmlSchema_X, std::string &_rXmlOutput_S);
+  BOFERR FromByte(const std::string &_rXmlDeclare_S, const std::vector<BOFPARAMETER> &_rXmlSchema_X, std::string &_rXmlOutput_S);
 
-		virtual ~BofXmlWriter();
+  virtual ~BofXmlWriter();
 
-		// Opaque pointer design pattern: opaque type here
+  // Opaque pointer design pattern: opaque type here
 private:
-		class XmlWriterImplementation;
+  class XmlWriterImplementation;
 
-		std::unique_ptr<XmlWriterImplementation> mpuXmlWriterImplementation;
+  std::unique_ptr<XmlWriterImplementation> mpuXmlWriterImplementation;
 };
 
 END_BOF_NAMESPACE()

@@ -19,19 +19,11 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-
 #pragma once
 
-/*** Include files ***********************************************************/
 #include <bofstd/bofstd.h>
 
 BEGIN_BOF_NAMESPACE()
-
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 
 BOFSTD_EXPORT uint8_t Bof_MostSignificantBitSetPosition(uint64_t _Val_U64);
 BOFSTD_EXPORT uint8_t Bof_LessSignificantBitSetPosition(uint64_t _Val_U64);

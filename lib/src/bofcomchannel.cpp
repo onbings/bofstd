@@ -18,23 +18,19 @@
  *
  * V 1.00  Aug 21 2001  BHA : Initial release
  */
-
-/*** Include files ***********************************************************/
 #include <bofstd/bofcomchannel.h>
 #include <bofstd/bofsystem.h>
 
 BEGIN_BOF_NAMESPACE()
 
-/*** Global variables ********************************************************/
-
 uint32_t BofComChannel::S_mListenCounter_U32 = 0;
 
 BofComChannel::BofComChannel(BOF_COM_CHANNEL_TYPE _Type_E, const BOF_COM_CHANNEL_PARAM &_rBaseChannelParam_X)
 {
-	mErrorCode_E = BOF_ERR_NO_ERROR;
-	mComType_E = _Type_E;
-	mpBaseChannelParam_X = &_rBaseChannelParam_X;
-	mConnectionTimer_U32 = Bof_GetMsTickCount();
+  mErrorCode_E = BOF_ERR_NO_ERROR;
+  mComType_E = _Type_E;
+  mpBaseChannelParam_X = &_rBaseChannelParam_X;
+  mConnectionTimer_U32 = Bof_GetMsTickCount();
 }
 
 
@@ -45,11 +41,11 @@ BofComChannel::~BofComChannel()
 
 BOFERR BofComChannel::LastErrorCode() const
 {
-	return mErrorCode_E;
+  return mErrorCode_E;
 }
 
 const BOF_COM_CHANNEL_PARAM *BofComChannel::BaseChannelParam() const
 {
-	return mpBaseChannelParam_X;
+  return mpBaseChannelParam_X;
 }
 END_BOF_NAMESPACE()

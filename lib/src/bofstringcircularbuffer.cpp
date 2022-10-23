@@ -19,18 +19,12 @@
  *
  * V 1.00  Jul 26 2005  BHA : Initial release
  */
-
-
-/*** Include ****************************************************************/
-
 #include <bofstd/bofstringcircularbuffer.h>
 
 BEGIN_BOF_NAMESPACE()
 
 #define BOF_STRING_CIRCULAR_BUFFER_LOCK(Sts)   {Sts=mStringCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mStringCbMtx_X):BOF_ERR_NO_ERROR;}
 #define BOF_STRING_CIRCULAR_BUFFER_UNLOCK()    {if (mStringCircularBufferParam_X.MultiThreadAware_B) Bof_UnlockMutex(mStringCbMtx_X);}
-
-/*** BofStringCircularBuffer ***************************************************/
 
 /*!
  * Description
@@ -112,9 +106,6 @@ BofStringCircularBuffer::BofStringCircularBuffer(const BOF_STRING_CIRCULAR_BUFFE
 	}
 }
 
-
-/*** ~BofStringCircularBuffer ***************************************************/
-
 /*!
  * Description
  * This is the destructor of the Circular buffer structure. It releases all
@@ -144,8 +135,6 @@ BofStringCircularBuffer::~BofStringCircularBuffer()
 	Bof_DestroyEvent(mCanReadEvent_X);
 	Bof_DestroyEvent(mCanWriteEvent_X);
 }
-
-/*** PushBinary ***************************************************/
 
 /*!
 * Description
@@ -264,8 +253,6 @@ BOFERR BofStringCircularBuffer::PushBinary(uint32_t _Size_U32, const char *_pDat
 	return Rts_E;
 }
 
-/*** PushString ***************************************************/
-
 /*!
  * Description
  * This function stores a byte stream (up to '*_pNbMax_U32 long) inside the circular buffer.
@@ -298,9 +285,6 @@ BOFERR BofStringCircularBuffer::PushString(const char *_pData_c, uint32_t _Block
 	}
 	return Rts_E;
 }
-
-
-/*** PopString ***************************************************/
 
 /*!
  * Description
@@ -444,8 +428,6 @@ BOFERR BofStringCircularBuffer::PopString(uint32_t *_pNbMax_U32, char *_pData_c,
 	}
 	return Rts_E;
 }
-
-/*** ReSyncSnapshot ***************************************************/
 
 /*!
  * Description

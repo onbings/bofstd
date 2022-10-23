@@ -28,17 +28,11 @@
  */
 #pragma once
 
-/*** Include files ***********************************************************/
 #include <bofstd/bofstd.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-/*** Global variables ********************************************************/
-
-/*** Definitions *************************************************************/
-
-/*** Class *******************************************************************/
 
 BEGIN_BOF_NAMESPACE()
 
@@ -51,16 +45,16 @@ BEGIN_BOF_NAMESPACE()
  *
  * \remark Little Endian byte order is our default binary storage order as it is natively used in most modern cpu.
  */
-static uint8_t S_EndiannessCache_U8 = 0xFF;
+  static uint8_t S_EndiannessCache_U8 = 0xFF;
 
 inline bool IsCpuLittleEndian()
 {
-	if (S_EndiannessCache_U8 == 0xFF)
-	{
-		int EndianVal_i = 0x69;
-		S_EndiannessCache_U8 = (*reinterpret_cast< char * > (&EndianVal_i) == 0x69) ? 0x01 : 0x00;
-	}
-	return ((S_EndiannessCache_U8 != 0) ? true : false);
+  if (S_EndiannessCache_U8 == 0xFF)
+  {
+    int EndianVal_i = 0x69;
+    S_EndiannessCache_U8 = (*reinterpret_cast<char *> (&EndianVal_i) == 0x69) ? 0x01 : 0x00;
+  }
+  return ((S_EndiannessCache_U8 != 0) ? true : false);
 }
 
 
@@ -79,8 +73,8 @@ inline bool IsCpuLittleEndian()
 template<typename T>
 T EndianScalar(bool _Swap_B, T _ScalarValue_T)
 {
-	if (_Swap_B)                         // (!IsCpuLittleEndian( ) )
-	{
+  if (_Swap_B)                         // (!IsCpuLittleEndian( ) )
+  {
 #if defined (_MSC_VER)
 #pragma push_macro("__builtin_bswap16")
 #pragma push_macro("__builtin_bswap32")
@@ -93,42 +87,42 @@ T EndianScalar(bool _Swap_B, T _ScalarValue_T)
 #pragma warning( disable : 4127)
 #endif
 
-		// If you're on the few remaining big endian platforms, we make the bold
-		// assumption you're also on gcc/clang, and thus have bswap intrinsics:
-		if (sizeof(T) == 1)                // Compile-time if-then's.
-		{
-			return _ScalarValue_T;
-		}
-		else if (sizeof(T) == 2)
-		{
-			uint16_t Rts = __builtin_bswap16(*reinterpret_cast< uint16_t * > (&_ScalarValue_T));
-			return *reinterpret_cast< T * > (&Rts);
-		}
-		else if (sizeof(T) == 4)
-		{
-			uint32_t Rts = __builtin_bswap32(*reinterpret_cast< uint32_t * > (&_ScalarValue_T));
-			return *reinterpret_cast< T * > (&Rts);
-		}
-		else if (sizeof(T) == 8)
-		{
-			uint64_t Rts = __builtin_bswap64(*reinterpret_cast< uint64_t * > (&_ScalarValue_T));
-			return *reinterpret_cast< T * > (&Rts);
-		}
-		else
-		{
-			BOF_ASSERT(0);
-		}
+    // If you're on the few remaining big endian platforms, we make the bold
+    // assumption you're also on gcc/clang, and thus have bswap intrinsics:
+    if (sizeof(T) == 1)                // Compile-time if-then's.
+    {
+      return _ScalarValue_T;
+    }
+    else if (sizeof(T) == 2)
+    {
+      uint16_t Rts = __builtin_bswap16(*reinterpret_cast<uint16_t *> (&_ScalarValue_T));
+      return *reinterpret_cast<T *> (&Rts);
+    }
+    else if (sizeof(T) == 4)
+    {
+      uint32_t Rts = __builtin_bswap32(*reinterpret_cast<uint32_t *> (&_ScalarValue_T));
+      return *reinterpret_cast<T *> (&Rts);
+    }
+    else if (sizeof(T) == 8)
+    {
+      uint64_t Rts = __builtin_bswap64(*reinterpret_cast<uint64_t *> (&_ScalarValue_T));
+      return *reinterpret_cast<T *> (&Rts);
+    }
+    else
+    {
+      BOF_ASSERT(0);
+    }
 #if defined (_MSC_VER)
 #pragma pop_macro("__builtin_bswap16")
 #pragma pop_macro("__builtin_bswap32")
 #pragma pop_macro("__builtin_bswap64")
 #pragma warning( pop )
 #endif
-	}
-	else
-	{
-		return _ScalarValue_T;
-	}
+  }
+  else
+  {
+    return _ScalarValue_T;
+  }
 }
 
 
@@ -147,8 +141,8 @@ T EndianScalar(bool _Swap_B, T _ScalarValue_T)
 template<typename T>
 uint32_t ReadScalar(const void *_pValueAddress, T &_rValue_T)
 {
-	_rValue_T = EndianScalar(!IsCpuLittleEndian(), *reinterpret_cast< const T * > (_pValueAddress));
-	return static_cast< uint32_t > (sizeof(T));
+  _rValue_T = EndianScalar(!IsCpuLittleEndian(), *reinterpret_cast<const T *> (_pValueAddress));
+  return static_cast<uint32_t> (sizeof(T));
 }
 
 /*!
@@ -166,10 +160,10 @@ uint32_t ReadScalar(const void *_pValueAddress, T &_rValue_T)
 template<typename T>
 uint32_t ReadNativeBlob(const void *_pValueAddress, T &_rValue_T)
 {
-	uint32_t Rts_U32 = static_cast< uint32_t > (sizeof(T));
+  uint32_t Rts_U32 = static_cast<uint32_t> (sizeof(T));
 
-	memcpy(&_rValue_T, _pValueAddress, Rts_U32);
-	return Rts_U32;
+  memcpy(&_rValue_T, _pValueAddress, Rts_U32);
+  return Rts_U32;
 }
 
 /*!
@@ -187,8 +181,8 @@ uint32_t ReadNativeBlob(const void *_pValueAddress, T &_rValue_T)
 template<typename T>
 uint32_t WriteScalar(void *_pValueAddress, T _NewValue_T)
 {
-	*reinterpret_cast< T * > (_pValueAddress) = EndianScalar(!IsCpuLittleEndian(), _NewValue_T);
-	return static_cast< uint32_t > (sizeof(T));
+  *reinterpret_cast<T *> (_pValueAddress) = EndianScalar(!IsCpuLittleEndian(), _NewValue_T);
+  return static_cast<uint32_t> (sizeof(T));
 }
 
 /*!
@@ -206,9 +200,9 @@ uint32_t WriteScalar(void *_pValueAddress, T _NewValue_T)
 template<typename T>
 uint32_t WriteNativeBlob(void *_pValueAddress, T _NewValue_T)
 {
-	uint32_t Rts_U32 = static_cast< uint32_t > (sizeof(T));
-	memcpy(_pValueAddress, &_NewValue_T, Rts_U32);
-	return Rts_U32;
+  uint32_t Rts_U32 = static_cast<uint32_t> (sizeof(T));
+  memcpy(_pValueAddress, &_NewValue_T, Rts_U32);
+  return Rts_U32;
 }
 
 /*!
@@ -223,7 +217,7 @@ uint32_t WriteNativeBlob(void *_pValueAddress, T _NewValue_T)
 template<typename T>
 uint32_t SkipField()
 {
-	return static_cast< uint32_t > (sizeof(T));
+  return static_cast<uint32_t> (sizeof(T));
 }
 
 /*!
@@ -238,14 +232,14 @@ template<typename T>
 size_t AlignOf()
 {
 #ifdef _MSC_VER
-	return __alignof(T);
+  return __alignof(T);
 
 #else
 #ifndef alignof
-	return __alignof__(T);
+  return __alignof__(T);
 
 #else
-	return alignof(T);
+  return alignof(T);
 #endif
 #endif
 }
