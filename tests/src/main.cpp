@@ -68,8 +68,8 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorToJson:Bof2d_Test.MediaDetectorFromJson";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
 //  ::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParam";  // MediaDetectorParam";
-//  ::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*";
-  //::testing::GTEST_FLAG(filter) = "System_Test.Random:System_Test.VideoStandard:System_Test.AudioStandard:System_Test.Rational";  
+//  ::testing::GTEST_FLAG(filter) = "BofIo_Test.*";
+ // ::testing::GTEST_FLAG(filter) = "BofIo_Test.OpenCloseCmdSession";
 /*
 * under linux:
 [  PASSED  ] 144 tests.

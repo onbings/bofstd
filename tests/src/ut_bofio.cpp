@@ -455,7 +455,7 @@ BOFERR MyTcpClientServer::V_CloseSession(std::shared_ptr<BofSocketIo> _psSession
 }
 
 
-TEST(BofIo_Test, DISABLED_CreateAndDestroyBofSocketServer)
+TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
 {
   uint32_t i_U32;
   BOF_POLL_SOCKET_CMD PollSocketCmd_X;
@@ -495,15 +495,15 @@ TEST(BofIo_Test, DISABLED_CreateAndDestroyBofSocketServer)
     //		puBofSocketServer.reset(nullptr);
     puBofSocketServer = std::make_unique<MyTcpServer>(BofSocketServerParam_X);
     ASSERT_TRUE(puBofSocketServer != nullptr);
-    ASSERT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
 
     PollSocketCmd_X.SocketOp_E = BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_QUIT;
-    ASSERT_EQ(puBofSocketServer->SendPollSocketCommand(SEND_CMD_ANSWER_TIMEOUT_IN_MS, PollSocketCmd_X), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketServer->SendPollSocketCommand(SEND_CMD_ANSWER_TIMEOUT_IN_MS, PollSocketCmd_X), BOF_ERR_NO_ERROR);
   }
 }
 
 
-TEST(BofIo_Test, DISABLED_SendPollSocketCommand)
+TEST(BofIo_Test, SendPollSocketCommand)
 {
   BOF_POLL_SOCKET_CMD PollSocketCommand_X;
 
@@ -514,7 +514,9 @@ TEST(BofIo_Test, DISABLED_SendPollSocketCommand)
   //	BOF_SOCKET_IO_PARAM BofSocketIoParam_X;
   uint32_t i_U32;	// , Start_U32, Delta_U32;
   std::string Reply_S, DebugInfo_S;
+  int NbSock_i;
 
+  NbSock_i = BOF::BofSocket::S_BofSocketBalance();
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
   BofSocketClientServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
@@ -533,26 +535,26 @@ TEST(BofIo_Test, DISABLED_SendPollSocketCommand)
 
   puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
   ASSERT_TRUE(puBofSocketClientServer != nullptr);
-  ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
+  EXPECT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbSock_i + 3);
 
   for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
   {
     PollSocketCommand_X.SocketOp_E = BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_TEST;
     PollSocketCommand_X.SessionId = i_U32;
-    ASSERT_EQ(puBofSocketClientServer->SendPollSocketCommand(SEND_CMD_ANSWER_TIMEOUT_IN_MS, PollSocketCommand_X), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->SendPollSocketCommand(SEND_CMD_ANSWER_TIMEOUT_IN_MS, PollSocketCommand_X), BOF_ERR_NO_ERROR);
   }
   //BOF::Bof_MsSleep(5555555);
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NB_MAX_CLIENT + 1));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), NB_MAX_CLIENT + 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NB_MAX_CLIENT + 1));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), NB_MAX_CLIENT + 1);
 
   puBofSocketClientServer.reset(nullptr);
 
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbSock_i);
 }
 
-TEST(BofIo_Test, DISABLED_OpenCloseCmdSession)
+TEST(BofIo_Test, OpenCloseCmdSession)
 {
   std::unique_ptr<MyTcpServer> puBofSocketServer;
   BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
@@ -584,8 +586,8 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdSession)
 
   puBofSocketServer = std::make_unique<MyTcpServer>(BofSocketServerParam_X);
   ASSERT_TRUE(puBofSocketServer != nullptr);
-  ASSERT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 4);
+  EXPECT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 4);
 
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
@@ -604,30 +606,30 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdSession)
 
   puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
   ASSERT_TRUE(puBofSocketClientServer != nullptr);
-  ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 7);
+  EXPECT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 7);
 
   for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
   {
-    ASSERT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", DEFAULT_PORT), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", DEFAULT_PORT), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
     ASSERT_TRUE(psCmdBofSocketIo[i_U32] != nullptr);
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
 
-    //	ASSERT_EQ(puBofSocketClientServer->OpenDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, true, "", psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    //	EXPECT_EQ(puBofSocketClientServer->OpenDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, true, "", psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
 
-  //		ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
+  //		EXPECT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
   }
 
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NB_MAX_CLIENT * 1)));
-  ASSERT_EQ(puBofSocketServer->NbConnectedSession(), NB_MAX_CLIENT);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NB_MAX_CLIENT * 1)));
+  EXPECT_EQ(puBofSocketServer->NbConnectedSession(), NB_MAX_CLIENT);
   //	ASSERT_GE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1) - 1);	//Minus 1 as a temporary poll socket is created as DATA_LISTERNER and is replaced with the data poll sock when the whole process is okk so WaitForNbConnectedSession can see 4 and here we have 3
   //	ASSERT_LE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
-  ASSERT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
+  EXPECT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NB_MAX_CLIENT * 1)));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_CLIENT);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_CLIENT * 1));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NB_MAX_CLIENT * 1)));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_CLIENT);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_CLIENT * 1));
 
   //	ASSERT_GE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (1 + 1 + (NB_MAX_CLIENT * 1)) + (1 + (NB_MAX_CLIENT * 1)));
   //	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (1 + 1 + (NB_MAX_CLIENT * 1)) * 2);
@@ -637,17 +639,17 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdSession)
   for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
   {
     //BOF_DBG_PRINTF("===Disconnect(%d)===%p Id %08X\n", i_U32, (void *)psCmdBofSocketIo[i_U32].get(), (int)psCmdBofSocketIo[i_U32]->SessionId());
-    ASSERT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
   }
 
   //Bof_MsSleep(2000000);
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1));
-  ASSERT_EQ(puBofSocketServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1));
+  EXPECT_EQ(puBofSocketServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1);
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
 
   puBofSocketServer.reset(nullptr);
   puBofSocketClientServer.reset(nullptr);
@@ -658,7 +660,7 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdSession)
     psDataBofSocketIo[i_U32].reset();
   }
 
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 }
 
 TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
@@ -696,8 +698,8 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
 
   puBofSocketServer = std::make_unique<MyTcpServer>(BofSocketServerParam_X);
   ASSERT_TRUE(puBofSocketServer != nullptr);
-  ASSERT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 4);
+  EXPECT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 4);
 
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
@@ -717,45 +719,45 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
 
   puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
   ASSERT_TRUE(puBofSocketClientServer != nullptr);
-  ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 7);
+  EXPECT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 7);
 
   NotConnected_U32 = 0;
   for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
   {
-    ASSERT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", DEFAULT_PORT), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", DEFAULT_PORT), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
     ASSERT_TRUE(psCmdBofSocketIo[i_U32] != nullptr);
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
 
-    ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + ((i_U32 + 1) * 2)));
-    //ASSERT_EQ(puBofSocketServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
-    ASSERT_EQ(puBofSocketServer->NbConnectedSession(), 1 + i_U32);
-    ASSERT_EQ(puBofSocketServer->NbPollChannel(), 1 + ((i_U32 + 1) * 2));
+    EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + ((i_U32 + 1) * 2)));
+    //EXPECT_EQ(puBofSocketServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
+    EXPECT_EQ(puBofSocketServer->NbConnectedSession(), 1 + i_U32);
+    EXPECT_EQ(puBofSocketServer->NbPollChannel(), 1 + ((i_U32 + 1) * 2));
 
-    ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, ((i_U32 + 1) * 2)));
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
-    ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), ((i_U32 + 1) * 2));
+    EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, ((i_U32 + 1) * 2)));
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
+    EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), ((i_U32 + 1) * 2));
 
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
 
-    //		ASSERT_EQ(puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    //		EXPECT_EQ(puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
     if (puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]) == BOF_ERR_NO_ERROR)
     {
       psTcpClient = std::dynamic_pointer_cast<MyTcpClient>(psDataBofSocketIo[i_U32]);
       ASSERT_NE(psTcpClient, nullptr);
-      ASSERT_EQ(psTcpClient->SessionIndex(), i_U32);
-      ASSERT_EQ(psTcpClient->SessionType(), BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL);
+      EXPECT_EQ(psTcpClient->SessionIndex(), i_U32);
+      EXPECT_EQ(psTcpClient->SessionType(), BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL);
 
       std::shared_ptr<BofSocketIo> psConnectedSession = puBofSocketServer->ConnectedCmdSession(i_U32, 10, NO_IO_CLOSE_TIMEOUT_IN_MS / 2);
       psTcpSession = std::dynamic_pointer_cast<MyTcpSession>(psConnectedSession);
       ASSERT_NE(psTcpSession, nullptr);
-      ASSERT_EQ(psTcpSession->SessionIndex(), i_U32);
-      ASSERT_EQ(psTcpSession->SessionType(), BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL);
+      EXPECT_EQ(psTcpSession->SessionIndex(), i_U32);
+      EXPECT_EQ(psTcpSession->SessionType(), BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL);
 
-      ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
+      EXPECT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
 
-      ASSERT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 2);
+      EXPECT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 2);
     }
     else
     {
@@ -767,14 +769,14 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
   NbMaxClient_U32 = NB_MAX_CLIENT - NotConnected_U32;
   //printf("--------------------> Not connected data %d\r\n", NotConnected_U32);
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NbMaxClient_U32 * 2)));
-  ASSERT_EQ(puBofSocketServer->NbConnectedSession(), NbMaxClient_U32);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NbMaxClient_U32 * 2)));
+  EXPECT_EQ(puBofSocketServer->NbConnectedSession(), NbMaxClient_U32);
   ASSERT_GE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NbMaxClient_U32 * 2) - 1);	//Minus 1 as a temporary poll socket is created as DATA_LISTERNER and is replaced with the data poll sock when the whole process is okk so WaitForNbConnectedSession can see 4 and here we have 3
   ASSERT_LE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NbMaxClient_U32 * 2));
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NbMaxClient_U32 * 2)));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NbMaxClient_U32);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NbMaxClient_U32 * 2));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NbMaxClient_U32 * 2)));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), NbMaxClient_U32);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NbMaxClient_U32 * 2));
 
   for (j_U32 = 0; j_U32 < 100; j_U32++)
   {
@@ -782,7 +784,7 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
     {
       if (psDataBofSocketIo[i_U32])	//NbMaxClient_U32
       {
-        ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message %03d From Client %03d", j_U32, i_U32), nullptr), BOF_ERR_NO_ERROR);
+        EXPECT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message %03d From Client %03d", j_U32, i_U32), nullptr), BOF_ERR_NO_ERROR);
       }
     }
   }
@@ -804,19 +806,19 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
   for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
   {
     //Done in Disconnect 
-//		ASSERT_EQ(puBofSocketClientServer->CloseDataChannel(psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+//		EXPECT_EQ(puBofSocketClientServer->CloseDataChannel(psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
 //		BOF_DBG_PRINTF("===Disconnect(%d)===%p Id %08X\n", i_U32, (void *)psCmdBofSocketIo[i_U32].get(), (int)psCmdBofSocketIo[i_U32]->SessionId());
-    ASSERT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
   }
 
   //Bof_MsSleep(2000000);
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1));
-  ASSERT_EQ(puBofSocketServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1));
+  EXPECT_EQ(puBofSocketServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1);
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
 
   /*
   BOF_DBG_PRINTF("===InfoAfterClose================================================================================\n");
@@ -848,7 +850,7 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
 
 
   }
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
   //	Bof_MsSleep(2000);
 
   //	BOF_DBG_PRINTF("===LeaveFct======================================================================================\n");
@@ -879,8 +881,8 @@ TEST(BofIo_Test, DISABLED_ServerOpenCloseCmdDataSession)
 
   puBofSocketServer = std::make_unique<MyTcpServer>(BofSocketServerParam_X);
   ASSERT_TRUE(puBofSocketServer != nullptr);
-  ASSERT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 4);
+  EXPECT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 4);
 
   for (int i = 0; i < 3; i++)
   {
@@ -889,13 +891,13 @@ TEST(BofIo_Test, DISABLED_ServerOpenCloseCmdDataSession)
     Bof_MsSleep(1000);
   } //while (1);	// puBofSocketServer->NbConnectedSession() == 0);
 /*
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1));
-  ASSERT_EQ(puBofSocketServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1));
+  EXPECT_EQ(puBofSocketServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1);
 
   puBofSocketServer.reset(nullptr);
   psBofSocketClient.reset();
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
   */
 }
 #if 0
@@ -931,29 +933,29 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
 
   puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
   ASSERT_TRUE(puBofSocketClientServer != nullptr);
-  ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
+  EXPECT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
 
   NotConnected_U32 = 0;
   for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
   {
-    ASSERT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", DEFAULT_PORT), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", DEFAULT_PORT), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
     ASSERT_TRUE(psCmdBofSocketIo[i_U32] != nullptr);
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
 
-    ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, (1 + i_U32) * 2));
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
-    ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), (1 + i_U32) * 2);
+    EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, (1 + i_U32) * 2));
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
+    EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), (1 + i_U32) * 2);
 
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
 
-    //		ASSERT_EQ(puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    //		EXPECT_EQ(puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
     if (puBofSocketClientServer->ConnectToDataChannel(true, psCmdBofSocketIo[i_U32], NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, psDataBofSocketIo[i_U32]) == BOF_ERR_NO_ERROR)
     {
-      ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
+      EXPECT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message From Client %08X", i_U32), nullptr), BOF_ERR_NO_ERROR);
 
-      ASSERT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 2);
+      EXPECT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 2);
     }
     else
     {
@@ -965,9 +967,9 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
   NbMaxClient_U32 = NB_MAX_CLIENT - NotConnected_U32;
   //printf("--------------------> Not connected data %d\r\n", NotConnected_U32);
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NbMaxClient_U32 * 2)));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NbMaxClient_U32);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NbMaxClient_U32 * 2));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NbMaxClient_U32 * 2)));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), NbMaxClient_U32);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NbMaxClient_U32 * 2));
 
   for (j_U32 = 0; j_U32 < 100; j_U32++)
   {
@@ -975,7 +977,7 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
     {
       if (psDataBofSocketIo[i_U32])	//NbMaxClient_U32
       {
-        ASSERT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message %03d From Client %03d", j_U32, i_U32), nullptr), BOF_ERR_NO_ERROR);
+        EXPECT_EQ(psDataBofSocketIo[i_U32]->Write(NO_IO_CLOSE_TIMEOUT_IN_MS, false, BOF::Bof_Sprintf("Data Message %03d From Client %03d", j_U32, i_U32), nullptr), BOF_ERR_NO_ERROR);
       }
     }
   }
@@ -988,12 +990,12 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
   for (i_U32 = 0; i_U32 < NB_MAX_CLIENT; i_U32++)
   {
     //BOF_DBG_PRINTF("===Disconnect(%d)===%p Id %08X\n", i_U32, (void *)psCmdBofSocketIo[i_U32].get(), (int)psCmdBofSocketIo[i_U32]->SessionId());
-    ASSERT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
   }
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
 
   puBofSocketClientServer.reset(nullptr);
   psBofSocketClient.reset();
@@ -1003,7 +1005,7 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
     psDataBofSocketIo[i_U32].reset();
   }
 
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
   //BOF::Bof_MsSleep(2000); //Leave time for server to detect end of session
 }
 
@@ -1041,30 +1043,30 @@ TEST(BofIo_Test, ClientForH4X)
 
   puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
   ASSERT_TRUE(puBofSocketClientServer != nullptr);
-  ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
+  EXPECT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
 
   for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
   {
-    ASSERT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://10.129.170.30:%d", 0), Bof_Sprintf("tcp://10.129.170.39:%d", 21), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://10.129.170.30:%d", 0), Bof_Sprintf("tcp://10.129.170.39:%d", 21), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
     psTcpClient = std::dynamic_pointer_cast<MyTcpClient>(psCmdBofSocketIo[i_U32]);
     ASSERT_TRUE(psTcpClient != nullptr);
     ASSERT_TRUE(psCmdBofSocketIo[i_U32] != nullptr);
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
 
-    ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + i_U32));
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
-    ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + 1 + i_U32);
+    EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + i_U32));
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
+    EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + 1 + i_U32);
 
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
 
-    ASSERT_EQ(psTcpClient->DataBuffer().Size_U64, 0);
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->IoDataCommand(NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, "LIST\r\n", psDataBofSocketIo[i_U32], ReplyCode_U32), BOF_ERR_NO_ERROR);
-    ASSERT_EQ(ReplyCode_U32, 150);
+    EXPECT_EQ(psTcpClient->DataBuffer().Size_U64, 0);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->IoDataCommand(NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, "LIST\r\n", psDataBofSocketIo[i_U32], ReplyCode_U32), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(ReplyCode_U32, 150);
 
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 226, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
-    ASSERT_EQ(psDataBofSocketIo[i_U32]->WaitForChannelDisconnected(NO_IO_CLOSE_TIMEOUT_IN_MS), BOF_ERR_NO_ERROR);	//Can happen after 226 reply
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 226, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psDataBofSocketIo[i_U32]->WaitForChannelDisconnected(NO_IO_CLOSE_TIMEOUT_IN_MS), BOF_ERR_NO_ERROR);	//Can happen after 226 reply
 
     BOF_DBG_PRINTF("DataBuffer[%04d]=%d sz %" PRId64 "\n", i_U32, psTcpClient->SessionIndex(), psTcpClient->DataBuffer().Size_U64);
 
@@ -1073,11 +1075,11 @@ TEST(BofIo_Test, ClientForH4X)
     psTcpClient->DataBuffer().pData_U8[psTcpClient->DataBuffer().Size_U64] = 0;
     FtpFileCollection.clear();
     XtFileCollection.clear();
-    ASSERT_EQ(BofSocketIo::S_ParseListLineBuffer("/", reinterpret_cast<const char *>(psTcpClient->DataBuffer().pData_U8), FtpFileCollection), BOF_ERR_NO_ERROR);
-    ASSERT_EQ(MyTcpClient::S_ParseXtFilename(FtpFileCollection, XtFileCollection), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(BofSocketIo::S_ParseListLineBuffer("/", reinterpret_cast<const char *>(psTcpClient->DataBuffer().pData_U8), FtpFileCollection), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(MyTcpClient::S_ParseXtFilename(FtpFileCollection, XtFileCollection), BOF_ERR_NO_ERROR);
 
     ASSERT_NE(FtpFileCollection.size(), (size_t)0);
-    ASSERT_EQ(FtpFileCollection.size(), XtFileCollection.size());
+    EXPECT_EQ(FtpFileCollection.size(), XtFileCollection.size());
     for (j_U32 = 0; j_U32 < FtpFileCollection.size(); j_U32++)
     {
       BOF_DBG_PRINTF("List[%04d]='%s'\n", j_U32, FtpFileCollection[j_U32].Path.FullPathName(false).c_str());
@@ -1087,24 +1089,24 @@ TEST(BofIo_Test, ClientForH4X)
     }
 
 
-    //		ASSERT_EQ(puBofSocketClientServer->ConnectedDataSession()->, BOF_ERR_NO_ERROR);
+    //		EXPECT_EQ(puBofSocketClientServer->ConnectedDataSession()->, BOF_ERR_NO_ERROR);
 
   }
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_H4X_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NB_MAX_H4X_CLIENT)));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_H4X_CLIENT);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_H4X_CLIENT));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_H4X_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NB_MAX_H4X_CLIENT)));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_H4X_CLIENT);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_H4X_CLIENT));
 
-  ASSERT_EQ((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
+  EXPECT_EQ((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
   //	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (4 + (NB_MAX_H4X_CLIENT)));
 
   for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
   {
-    ASSERT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
   }
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
 
   puBofSocketClientServer.reset(nullptr);
   psBofSocketClient.reset();
@@ -1114,7 +1116,7 @@ TEST(BofIo_Test, ClientForH4X)
     psDataBofSocketIo[i_U32].reset();
   }
 
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 }
 
 
@@ -1195,31 +1197,31 @@ TEST(BofIo_Test, ClientForUcode)
 
   puBofSocketClientServer = std::make_unique<MyTcpClientServer>(BofSocketClientServerParam_X);
   ASSERT_TRUE(puBofSocketClientServer != nullptr);
-  ASSERT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
+  EXPECT_EQ(puBofSocketClientServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
 
   for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
   {
-    //		ASSERT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp:///127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", 60000), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
-    ASSERT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp:///127.0.0.1:%d", 0), Bof_Sprintf("tcp://10.129.170.200:%d", 60000), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR); //On ubuntu vm
+    //		EXPECT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp:///127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", 60000), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp:///127.0.0.1:%d", 0), Bof_Sprintf("tcp://10.129.170.200:%d", 60000), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR); //On ubuntu vm
     psTcpClient = std::dynamic_pointer_cast<MyTcpClient>(psCmdBofSocketIo[i_U32]);
     ASSERT_TRUE(psTcpClient != nullptr);
     ASSERT_TRUE(psCmdBofSocketIo[i_U32] != nullptr);
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
 
-    ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + i_U32));
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
-    ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
-    ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + 1 + i_U32);
+    EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + i_U32));
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedChannel(psCmdBofSocketIo[i_U32]), 1);
+    EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 1 + i_U32);
+    EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + 1 + i_U32);
 
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->Login(NO_IO_CLOSE_TIMEOUT_IN_MS, "bha", "bha!"), BOF_ERR_NO_ERROR);
 
-    ASSERT_EQ(psTcpClient->DataBuffer().Size_U64, 0);
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->IoDataCommand(NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, "LIST\r\n", psDataBofSocketIo[i_U32], ReplyCode_U32), BOF_ERR_NO_ERROR);
-    ASSERT_EQ(ReplyCode_U32, 150);
+    EXPECT_EQ(psTcpClient->DataBuffer().Size_U64, 0);
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->IoDataCommand(NO_IO_CLOSE_TIMEOUT_IN_MS / 2, NO_IO_CLOSE_TIMEOUT_IN_MS, "LIST\r\n", psDataBofSocketIo[i_U32], ReplyCode_U32), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(ReplyCode_U32, 150);
 
-    ASSERT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 226, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
-    ASSERT_EQ(psDataBofSocketIo[i_U32]->WaitForChannelDisconnected(NO_IO_CLOSE_TIMEOUT_IN_MS), BOF_ERR_NO_ERROR);	//Can happen after 226 reply
+    EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 226, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(psDataBofSocketIo[i_U32]->WaitForChannelDisconnected(NO_IO_CLOSE_TIMEOUT_IN_MS), BOF_ERR_NO_ERROR);	//Can happen after 226 reply
 
     BOF_DBG_PRINTF("DataBuffer[%04d]=%d sz %" PRId64 "\n", i_U32, psTcpClient->SessionIndex(), psTcpClient->DataBuffer().Size_U64);
 
@@ -1229,11 +1231,11 @@ TEST(BofIo_Test, ClientForUcode)
     psTcpClient->DataBuffer().pData_U8[psTcpClient->DataBuffer().Size_U64] = 0;
     FtpFileCollection.clear();
     XtFileCollection.clear();
-    ASSERT_EQ(BofSocketIo::S_ParseListLineBuffer("/", reinterpret_cast<const char *>(psTcpClient->DataBuffer().pData_U8), FtpFileCollection), BOF_ERR_NO_ERROR);
-    ASSERT_EQ(MyTcpClient::S_ParseXtFilename(FtpFileCollection, XtFileCollection), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(BofSocketIo::S_ParseListLineBuffer("/", reinterpret_cast<const char *>(psTcpClient->DataBuffer().pData_U8), FtpFileCollection), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(MyTcpClient::S_ParseXtFilename(FtpFileCollection, XtFileCollection), BOF_ERR_NO_ERROR);
 
     ASSERT_NE(FtpFileCollection.size(), (size_t)0);
-    ASSERT_EQ(FtpFileCollection.size(), XtFileCollection.size());
+    EXPECT_EQ(FtpFileCollection.size(), XtFileCollection.size());
     for (j_U32 = 0; j_U32 < FtpFileCollection.size(); j_U32++)
     {
       BOF_DBG_PRINTF("List[%04d]='%s'\n", j_U32, FtpFileCollection[j_U32].Path.FullPathName(false).c_str());
@@ -1243,24 +1245,24 @@ TEST(BofIo_Test, ClientForUcode)
     }
 
 
-    //		ASSERT_EQ(puBofSocketClientServer->ConnectedDataSession()->, BOF_ERR_NO_ERROR);
+    //		EXPECT_EQ(puBofSocketClientServer->ConnectedDataSession()->, BOF_ERR_NO_ERROR);
 
   }
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_H4X_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NB_MAX_H4X_CLIENT)));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_H4X_CLIENT);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_H4X_CLIENT));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_H4X_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NB_MAX_H4X_CLIENT)));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), NB_MAX_H4X_CLIENT);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1 + (NB_MAX_H4X_CLIENT));
 
-  ASSERT_EQ((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
+  EXPECT_EQ((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (3 + (NB_MAX_H4X_CLIENT)));
   //	ASSERT_LE((uint32_t)BOF::BofSocket::S_BofSocketBalance(), (4 + (NB_MAX_H4X_CLIENT)));
 
   for (i_U32 = 0; i_U32 < NB_MAX_H4X_CLIENT; i_U32++)
   {
-    ASSERT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(puBofSocketClientServer->Disconnect(true, psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
   }
 
-  ASSERT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
-  ASSERT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
-  ASSERT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1));
+  EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), 0);
+  EXPECT_EQ(puBofSocketClientServer->NbPollChannel(), 1);
 
   puBofSocketClientServer.reset(nullptr);
   psBofSocketClient.reset();
@@ -1270,7 +1272,7 @@ TEST(BofIo_Test, ClientForUcode)
     psDataBofSocketIo[i_U32].reset();
   }
 
-  ASSERT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 }
 
 #endif
