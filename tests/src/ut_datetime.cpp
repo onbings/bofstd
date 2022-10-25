@@ -25,19 +25,28 @@ TEST(DateTime_Test, ValidateDateTime)
 
   DateTime.Reset();
   EXPECT_TRUE(DateTime.IsValid());
+  EXPECT_TRUE(DateTime.IsUnixEpoch());
+  EXPECT_TRUE(DateTime.IsMidnight());
 
   DateTime = BofDateTime(1, 1, 1970, 0, 0, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
+  EXPECT_TRUE(DateTime.IsUnixEpoch());
+  EXPECT_TRUE(DateTime.IsMidnight());
 
   // DAY
   DateTime = BofDateTime(0, 1, 1970, 0, 0, 0, 0);
   EXPECT_FALSE(DateTime.IsValid());
+  EXPECT_TRUE(DateTime.IsMidnight());
 
   DateTime = BofDateTime(32, 1, 1970, 0, 0, 0, 0);
   EXPECT_FALSE(DateTime.IsValid());
+  EXPECT_FALSE(DateTime.IsUnixEpoch());
+  EXPECT_TRUE(DateTime.IsMidnight());
 
   DateTime = BofDateTime(31, 1, 1970, 0, 0, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
+  EXPECT_FALSE(DateTime.IsUnixEpoch());
+  EXPECT_TRUE(DateTime.IsMidnight());
 
   // MONTH
   DateTime = BofDateTime(31, 0, 1970, 0, 0, 0, 0);
@@ -87,6 +96,7 @@ TEST(DateTime_Test, ValidateDateTime)
 
   DateTime = BofDateTime(31, 12, 2070, 23, 59, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
+  EXPECT_FALSE(DateTime.IsMidnight());
 
   // SECOND
   DateTime = BofDateTime(31, 12, 2070, 23, 59, 255, 0);

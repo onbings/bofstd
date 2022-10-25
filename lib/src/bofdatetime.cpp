@@ -227,6 +227,14 @@ bool BofDateTime::IsValid() const
   return mIsValid_B;
 }
 
+bool BofDateTime::IsUnixEpoch() const
+{
+  return (mTimeT == 0);
+}
+bool BofDateTime::IsMidnight() const
+{
+  return ((mHour_U8 == 0) && (mMinute_U8 == 0) && (mSecond_U8 == 0) && (mMicroSecond_U32 == 0));
+}
 uint8_t BofDateTime::DayOfWeek() const
 {
   return static_cast<uint8_t>(mWd.c_encoding());

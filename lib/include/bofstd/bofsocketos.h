@@ -439,6 +439,10 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
   {
     return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16) && (User_S == _rOther.User_S) && (Password_S == _rOther.Password_S) && (Ip_X == _rOther.Ip_X);
   }
+  int operator!=(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
+  {
+    return !(*this == _rOther);
+  }
 
   /*
  myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top

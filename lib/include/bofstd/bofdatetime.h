@@ -46,6 +46,8 @@ public:
   void ClearDate();
   bool IsTimeInADay() const;
   bool IsValid() const;
+  bool IsUnixEpoch() const;
+  bool IsMidnight() const;
   void Reset();
   std::string ToString(const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
   BofDateTime FromString(const std::string &_rDateTime_S, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
