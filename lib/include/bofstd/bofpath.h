@@ -24,6 +24,7 @@
 #include <bofstd/bofstd.h>
 
 #include <string>
+#include <vector>
 
 BEGIN_BOF_NAMESPACE()
 /// @brief This class implements a Path parser. A path is a full pathname, a directory or a file.
@@ -48,7 +49,7 @@ private:
 		std::string mFileNameWithoutExtension_S="";   /*! Contains the filename without the extension */
 		std::string mExtension_S="";                  /*! Contains the filename extension */
 		bool mValid_B=false;                      /*! true if the pathname has a good synthax */
-
+		std::vector<std::string> mSubdirCollection;
 		std::string mCurrentDirectoryName_S="";              /*! Contains the current directory name used to compute relative path */
 
 public:
@@ -126,10 +127,23 @@ public:
 		bool operator!=(const BofPath &_rOther_O) const;
 
 		/// @brief Returns the directory name.
+		/// @param _WithDiskName_B : true if the directory must be preceeded by the disk name (Only for wiondows)
 		/// @param _Windows_B : true if the directory must be returned with windows path separator (\) or unix one (/)
 		/// @return A std::string containing the directory name.
 		/// @remarks None
-		std::string DirectoryName(bool _Windows_B) const;
+		std::string DirectoryName(bool _WithDiskName_B, bool _Windows_B) const;
+
+		/// @brief Returns the number of sub directory in path.
+		/// @return The number of sub directory in path.
+		/// @remarks None
+		uint32_t NumberOfSubDirectory() const;
+
+		/// @brief Returns a subdirectory from the path
+		/// @param _Level_U32 : specifies the sub directory level to return
+		/// @param _Windows_B : true if the directory must be returned with windows path separator (\) or unix one (/)
+		/// @return A std::string containing the sub directory name.
+		/// @remarks None
+		std::string SubDirectory(uint32_t _Level_U32, bool _Windows_B) const;
 
 		/// @brief Returns the filename without its extension.
 		/// @return A std::string containing the filename without its extension.

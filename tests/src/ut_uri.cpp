@@ -113,7 +113,7 @@ TEST(Uri_Test, UriConstructorDestructor)
 
   Path = Uri.Path(Path_S);
   EXPECT_STREQ(Path_S.c_str(), "/forum/questions/file.txt");
-  EXPECT_STREQ(Path.DirectoryName(false).c_str(), "/forum/questions/");
+  EXPECT_STREQ(Path.DirectoryName(false, false).c_str(), "/forum/questions/");
   EXPECT_STREQ(Path.FileNameWithoutExtension().c_str(), "file");
   EXPECT_STREQ(Path.Extension().c_str(), "txt");
 

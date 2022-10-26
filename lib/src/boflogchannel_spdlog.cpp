@@ -166,7 +166,7 @@ public:
           BOF_FILE_PERMISSION Permission_E;
 
           Permission_E = BOF_FILE_PERMISSION_ALL_FOR_ALL;
-          Rts_E = Bof_CreateDirectory(Permission_E, mLogChannelParam_X.FileLogPath.DirectoryName(false));
+          Rts_E = Bof_CreateDirectory(Permission_E, mLogChannelParam_X.FileLogPath.DirectoryName(true,false));
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
             if (Bof_IsBitFlagSet(mLogChannelParam_X.LogFlag_E, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE))
@@ -1151,7 +1151,7 @@ private:
 
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          Rts_E = Bof_FindFile(mLogChannelParam_X.FileLogPath.DirectoryName(false), Pattern_S, BOF_FILE_TYPE::BOF_FILE_REG, false, ListOfFile_X);
+          Rts_E = Bof_FindFile(mLogChannelParam_X.FileLogPath.DirectoryName(false,false), Pattern_S, BOF_FILE_TYPE::BOF_FILE_REG, false, ListOfFile_X);
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
             for (i_U32 = 0; i_U32 < ListOfFile_X.size(); i_U32++)

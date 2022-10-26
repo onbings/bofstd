@@ -430,6 +430,7 @@ TEST(Bof2d_Test, MediaDetectorParse)
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT VideoFormat_E;
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+//  EXPECT_EQ(MediaInfoParser.ParseFile("./data/pexels-christian-heitz-842711.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
   EXPECT_STREQ("General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar.jpg\r\nFormat                                   : JPEG\r\nFile size                                : 9.60 KiB\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.60 KiB (100%)\r\n\r\n", Result_S.c_str());
 #endif

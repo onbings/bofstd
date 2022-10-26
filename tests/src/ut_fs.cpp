@@ -65,7 +65,7 @@ TEST(Fs_Test, DirectoryManagement)
   EXPECT_EQ(NewPath.IsDirectory(), true);
   EXPECT_EQ(NewPath.IsFile(), false);
   EXPECT_STREQ(NewPath.FullPathName(false).c_str(), NewFull_S.c_str());
-  EXPECT_STREQ(NewPath.DirectoryName(false).c_str(), NewFull_S.c_str());
+  EXPECT_STREQ(NewPath.DirectoryName(false, false).c_str(), NewFull_S.c_str());
   EXPECT_STREQ(NewPath.Extension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithExtension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithoutExtension().c_str(), "");
@@ -216,7 +216,7 @@ TEST(Fs_Test, FileManagement)
   EXPECT_EQ(NewPath.IsDirectory(), true);
   EXPECT_EQ(NewPath.IsFile(), false);
   EXPECT_STREQ(NewPath.FullPathName(false).c_str(), NewFull_S.c_str());
-  EXPECT_STREQ(NewPath.DirectoryName(false).c_str(), NewFull_S.c_str());
+  EXPECT_STREQ(NewPath.DirectoryName(false, false).c_str(), NewFull_S.c_str());
   EXPECT_STREQ(NewPath.Extension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithExtension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithoutExtension().c_str(), "");
@@ -538,7 +538,7 @@ TEST(Fs_Test, CreateTempFile)
   Path = DirPath;
   Sts_E = Bof_CreateTempFile(BOF_FILE_PERMISSION_ALL_FOR_ALL, Path, "tmp", Io);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_STREQ(Path.DirectoryName(false).c_str(), DirPath.DirectoryName(false).c_str());
+  EXPECT_STREQ(Path.DirectoryName(false, false).c_str(), DirPath.DirectoryName(false, false).c_str());
   EXPECT_STREQ(Path.Extension().c_str(), "tmp");
   Sts_E = Bof_CloseFile(Io);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
