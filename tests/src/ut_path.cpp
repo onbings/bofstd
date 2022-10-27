@@ -570,14 +570,18 @@ TEST(Path_Test, SubDirectory)
   EXPECT_STREQ(Path.DirectoryName(false, false).c_str(), "/MuseStorage/Still/a/b/c/");
   EXPECT_STREQ(Path.DirectoryName(false, true).c_str(), "\\MuseStorage\\Still\\a\\b\\c\\");
   EXPECT_EQ(Path.NumberOfSubDirectory(), 5);
-  EXPECT_STREQ(Path.SubDirectory(0, false).c_str(), "/MuseStorage");
-  EXPECT_STREQ(Path.SubDirectory(1, false).c_str(), "/Still");
-  EXPECT_STREQ(Path.SubDirectory(2, true).c_str(), "\\a");
-  EXPECT_STREQ(Path.SubDirectory(3, true).c_str(), "\\b");
-  EXPECT_STREQ(Path.SubDirectory(4, false).c_str(), "/c");
+  EXPECT_STREQ(Path.SubDirectory(0, false).c_str(), "/MuseStorage/");
+  EXPECT_STREQ(Path.SubDirectory(1, false).c_str(), "/Still/");
+  EXPECT_STREQ(Path.SubDirectory(2, true).c_str(), "\\a\\");
+  EXPECT_STREQ(Path.SubDirectory(3, true).c_str(), "\\b\\");
+  EXPECT_STREQ(Path.SubDirectory(4, false).c_str(), "/c/");
   EXPECT_STREQ(Path.SubDirectory(5, false).c_str(), "");
   Path = BofPath("");
   EXPECT_STREQ(Path.DirectoryName(false, false).c_str(), "");
+  EXPECT_EQ(Path.NumberOfSubDirectory(), 0);
+  EXPECT_STREQ(Path.SubDirectory(0, false).c_str(), "");
+  Path = BofPath("/");
+  EXPECT_STREQ(Path.DirectoryName(false, false).c_str(), "/");
   EXPECT_EQ(Path.NumberOfSubDirectory(), 0);
   EXPECT_STREQ(Path.SubDirectory(0, false).c_str(), "");
   Path = BofPath("/File");
@@ -587,5 +591,5 @@ TEST(Path_Test, SubDirectory)
   Path = BofPath("/Dir/");
   EXPECT_STREQ(Path.DirectoryName(false, false).c_str(), "/Dir/");
   EXPECT_EQ(Path.NumberOfSubDirectory(), 1);
-  EXPECT_STREQ(Path.SubDirectory(0, false).c_str(), "/Dir");
+  EXPECT_STREQ(Path.SubDirectory(0, false).c_str(), "/Dir/");
 }

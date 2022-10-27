@@ -152,7 +152,7 @@ std::string BofPath::SubDirectory(uint32_t _Level_U32, bool _Windows_B) const
   std::string Rts_S;
   if (_Level_U32 < mSubdirCollection.size())
   {
-    Rts_S = '/' + mSubdirCollection[_Level_U32];
+    Rts_S = mSubdirCollection[_Level_U32];
     if (_Windows_B)
     {
       Rts_S = Bof_StringReplace(Rts_S, "/", '\\');
@@ -392,6 +392,10 @@ BOFERR BofPath::InitPathField(const std::string &_rPath_S)
         {
           mSubdirCollection.erase(mSubdirCollection.end()-1);  //Remove dir (/) or filename
         }
+      }
+      for (auto &rIt : mSubdirCollection)
+      {
+        rIt = '/' + rIt + '/';
       }
     }
   }
