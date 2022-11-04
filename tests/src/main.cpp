@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) = "Uri_Test.*:CmdLineParser_Test.*";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorToJson:Bof2d_Test.MediaDetectorFromJson";	// XmlWriter_Test.Xml";
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
-//  ::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParam";  // MediaDetectorParam";
+  //::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParseBuffer";  // MediaDetectorParam";
 //  ::testing::GTEST_FLAG(filter) = "BofIo_Test.*";
 //  ::testing::GTEST_FLAG(filter) = "Path_Test.*";
 /*
