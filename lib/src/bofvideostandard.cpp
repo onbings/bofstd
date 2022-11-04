@@ -63,12 +63,12 @@ const BofVideoStandard::VideoStandardEntry BofVideoStandard::S_mpVideoStandardTa
 BofVideoStandard::BofVideoStandard() : mIndex_i(-1)
 {
   mCustomFormat_X = S_mpVideoStandardTable_X[0];
-  mpVideoStandardEntry_X = (mIndex_i == 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
 }
 BofVideoStandard::BofVideoStandard(const BofVideoStandard &_rStandard) : mIndex_i(_rStandard.mIndex_i)
 {
   mCustomFormat_X = S_mpVideoStandardTable_X[0];
-  mpVideoStandardEntry_X = (mIndex_i == 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
 }
 BofVideoStandard::BofVideoStandard(const std::string &_rStandard_S)
 {
@@ -103,19 +103,19 @@ BofVideoStandard::BofVideoStandard(const std::string &_rStandard_S)
       mIndex_i = 0;
     }
   }
-  mpVideoStandardEntry_X = (mIndex_i == 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
 }
 BofVideoStandard::BofVideoStandard(uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32, char _Type_c)
 {
   mCustomFormat_X = S_mpVideoStandardTable_X[0];
   mIndex_i = S_FindIndex(_NbCol_U32, _NbRow_U32, _Fps_U32, _Type_c);
-  mpVideoStandardEntry_X = (mIndex_i == 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
 }
 BofVideoStandard &BofVideoStandard::operator=(const BofVideoStandard &_rOther)
 {
   mCustomFormat_X = _rOther.mCustomFormat_X;
   mIndex_i = _rOther.mIndex_i;
-  mpVideoStandardEntry_X = (mIndex_i == 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
   return *this;
 }
 bool BofVideoStandard::operator==(const BofVideoStandard &_rOther) const
