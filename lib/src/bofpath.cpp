@@ -131,14 +131,32 @@ bool BofPath::operator!=(const BofPath &_rOther_O) const
   return !(*this == _rOther_O);
 }
 
-std::string BofPath::DirectoryName(bool _Windows_B) const
+std::string BofPath::DirectoryName(bool _WithDiskName_B, bool _Windows_B) const
 {
   std::string Rts_S;
-
-  Rts_S = mDiskName_S + mDirectoryName_S;
+    
+  Rts_S = _WithDiskName_B ? mDiskName_S + mDirectoryName_S:mDirectoryName_S;
   if (_Windows_B)
   {
     Rts_S = Bof_StringReplace(Rts_S, "/", '\\');
+  }
+  return Rts_S;
+}
+uint32_t BofPath::NumberOfSubDirectory() const
+{
+  return static_cast<uint32_t>(mSubdirCollection.size());
+}
+
+std::string BofPath::SubDirectory(uint32_t _Level_U32, bool _Windows_B) const
+{
+  std::string Rts_S;
+  if (_Level_U32 < mSubdirCollection.size())
+  {
+    Rts_S = mSubdirCollection[_Level_U32];
+    if (_Windows_B)
+    {
+      Rts_S = Bof_StringReplace(Rts_S, "/", '\\');
+    }
   }
   return Rts_S;
 }
@@ -193,7 +211,7 @@ std::string BofPath::FullPathName(bool _Windows_B) const
 {
   std::string Rts_S;
 
-  Rts_S = DirectoryName(_Windows_B);
+  Rts_S = DirectoryName(true, _Windows_B);
   if (IsFile())
   {
     Rts_S += mFileNameWithoutExtension_S;
@@ -314,6 +332,7 @@ BOFERR BofPath::InitPathField(const std::string &_rPath_S)
   mCurrentDirectoryName_S = "";
   mDirectoryName_S = "";
   mDiskName_S = "";
+  mSubdirCollection.clear();
   Rts_E = Normalize(_rPath_S, ThePath_S, mDiskName_S);
   if (Rts_E == BOF_ERR_EMPTY) //for "" filename
   {
@@ -364,6 +383,20 @@ BOFERR BofPath::InitPathField(const std::string &_rPath_S)
           mFileNameWithoutExtension_S = ThePath_S.substr(FilenamePos + 1, ExtensionPos - FilenamePos - 1);
         }
       }
+
+      mSubdirCollection = Bof_StringSplit(ThePath_S, "/");
+      if (mSubdirCollection.size())
+      {
+        mSubdirCollection.erase(mSubdirCollection.begin());  //split first entry is ""
+        if (mSubdirCollection.size())
+        {
+          mSubdirCollection.erase(mSubdirCollection.end()-1);  //Remove dir (/) or filename
+        }
+      }
+      for (auto &rIt : mSubdirCollection)
+      {
+        rIt = '/' + rIt + '/';
+      }
     }
   }
   else
@@ -386,9 +419,9 @@ bool BofPath::IsForbiddenChar(const std::string &_rPath_S)
 BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormalizedPath_S, std::string &_rDiskName_S)
 {
   BOFERR Rts_E;
-  std::vector<std::string> ListOfDir_S;
   std::string Pwd_S;
   std::string::size_type SlashDelimiterPos, SlashPrevDelimiterPos;
+  std::vector<std::string> ListOfDir_S;
 
   _rDiskName_S = "";
   // Remove bad char on the left and rigth side

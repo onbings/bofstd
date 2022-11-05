@@ -375,11 +375,12 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
     Valid_B = true;
     IpV6_B = false;
     SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
+    memset(&IpV4Address_X, 0, sizeof(IpV4Address_X));
     IpV4Address_X.sin_addr.s_addr = 0;
     IpV4Address_X.sin_family = AF_UNSPEC;
     IpV4Address_X.sin_port = 0;
 
-    memset(IpV6Address_X.sin6_addr.s6_addr, 0, 16);
+    memset(&IpV6Address_X, 0, sizeof(IpV6Address_X));
     IpV6Address_X.sin6_family = AF_UNSPEC;
     IpV6Address_X.sin6_flowinfo = 0;
     IpV6Address_X.sin6_port = 0;
@@ -438,6 +439,10 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
   int operator==(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
   {
     return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16) && (User_S == _rOther.User_S) && (Password_S == _rOther.Password_S) && (Ip_X == _rOther.Ip_X);
+  }
+  int operator!=(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
+  {
+    return !(*this == _rOther);
   }
 
   /*

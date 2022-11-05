@@ -898,6 +898,30 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)
   }
   return Rts_E;
 }
+BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, const BOF_BUFFER &_rBuffer_X)
+{
+  BOFERR Rts_E;
+  intptr_t Io;
+  uint32_t Nb_U32;
+
+  Rts_E = Bof_CreateFile(_Permission_E, _rPath, false, Io);
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    Nb_U32 = static_cast<uint32_t>(_rBuffer_X.Capacity_U64);
+    Rts_E = Bof_WriteFile(Io, Nb_U32, _rBuffer_X.pData_U8);
+    Bof_CloseFile(Io);
+  }
+  return Rts_E;
+}
+
+BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, std::string &_rRawData_S)
+{
+  BOFERR Rts_E;
+  BOF_BUFFER Buffer_X(_rRawData_S.size(), _rRawData_S.size(), (uint8_t *)(_rRawData_S.c_str()), false);
+
+  Rts_E = Bof_WriteFile(_Permission_E, _rPath, Buffer_X);
+  return Rts_E;
+}
 
 
 BOFERR Bof_FlushFile(intptr_t _Io)

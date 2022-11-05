@@ -39,7 +39,7 @@ private:
 
 public:
   explicit output_redirect(FILE *file);
-  ~output_redirect() FMT_NOEXCEPT;
+  ~output_redirect(); // FMT_NOEXCEPT;
 
   output_redirect(const output_redirect &) = delete;
   void operator=(const output_redirect &) = delete;
@@ -377,7 +377,7 @@ class max_size_allocator : public Allocator
 {
 public:
   using typename Allocator::value_type;
-  size_t max_size() const FMT_NOEXCEPT { return MaxSize; }
+  size_t max_size() const /*FMT_NOEXCEPT*/ { return MaxSize; }
   value_type *allocate(size_t n)
   {
     if (n > max_size()) {
