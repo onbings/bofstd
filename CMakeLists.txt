@@ -18,7 +18,10 @@
 #               22 April 2022 updated with NMA cmake and vcpkg ideas 
 
 cmake_minimum_required(VERSION 3.15)
-
+if (VCPKG_TARGET_ANDROID)
+message("ANDROID->include C:/pro/vcpkg/docs/examples/vcpkg_android_example_cmake_script/cmake/vcpkg_android.cmake")
+    include("C:/pro/vcpkg/docs/examples/vcpkg_android_example_cmake_script/cmake/vcpkg_android.cmake")
+endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
 project(bofstd VERSION 5.1.16.11)
@@ -169,6 +172,8 @@ enable_testing()
 
 # Add configuration files to a dummy library to
 # make sure files are properly found
+if (VCPKG_TARGET_ANDROID)
+else()
 add_library(bofstd-config-files INTERFACE
   Config.cmake.in
   Dependencies.cmake.in
@@ -177,7 +182,7 @@ add_library(bofstd-config-files INTERFACE
   vcpkg.json
   lib/CMakeLists.txt
 )
-
+endif()
 # ===========================
 # == EXTERNAL DEPENDENCIES ==
 # ===========================

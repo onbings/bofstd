@@ -4,17 +4,18 @@
   "description": "The onbings general purpose C++ Multiplatform library",
   "dependencies": [
     { "name": "czmq" },
+    { "name": "date" },
     { "name": "fmt" },
+    { "name": "freetype" },
     { "name": "gtest" },
     { "name": "jsoncpp" },
+    { "name": "libmediainfo" },
     { "name": "libyuv" },
+    { "name": "libzen" },
     { "name": "linenoise-ng" },
+    { "name": "openssl" },
     { "name": "spdlog" },
     { "name": "zeromq" },
-    { "name": "zlib" },
-    { "name": "libzen" },
-    { "name": "openssl" },
-    { "name": "libmediainfo" },
-    { "name": "date" }	
+    { "name": "zlib" }
   ]
 }

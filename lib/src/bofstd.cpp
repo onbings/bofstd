@@ -438,7 +438,14 @@ bool Bof_IsCpuLittleEndian()
 	return ((S_EndiannessCache_U8 != 0) ? true : false);
 }
 
-
+bool Bof_IsWindows()
+{
+#if defined(_WIN32)
+  return true;
+#else
+  return false;
+#endif
+}
 BofException::BofException(std::string _Header_S, std::string _Context_S, std::string _Where_S, int32_t _ErrorCode_S32) : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32) 
 {
   std::ostringstream Msg;

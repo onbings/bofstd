@@ -274,6 +274,7 @@ BOFSTD_EXPORT std::string Bof_GetVersion();
 BOFSTD_EXPORT const char *Bof_ErrorCode(BOFERR _ErrorCode_E);
 
 BOFSTD_EXPORT bool Bof_IsCpuLittleEndian();
+BOFSTD_EXPORT bool Bof_IsWindows();
 
 template<typename T>
 BOFERR Bof_StringToBin(uint32_t _Base_U32, const char *_pAsciiNumber_c, T &_rConvertedValue)
