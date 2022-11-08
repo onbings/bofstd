@@ -34,7 +34,7 @@ typedef uint32_t VideoStandardId;
 struct BOF_VIDEO_STANDARD_ENTRY
 {
   //    const char *pIdText_c;
-  std::string Description_S;
+  char     pDescription_c[32];
   uint32_t NbCol_U32;
   uint32_t NbRow_U32;
   uint32_t Fps_U32;
@@ -58,13 +58,20 @@ struct BOF_VIDEO_STANDARD_ENTRY
   {
     Reset();
   }
-  BOF_VIDEO_STANDARD_ENTRY(const std::string &_rDescription_S, uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32,
+  BOF_VIDEO_STANDARD_ENTRY(const char *_pDescription_c, uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32,
     char _Type_c, uint32_t _NbActiveCol_U32, uint32_t _NbActiveRow_U32, uint32_t _NbTotalCol_U32, uint32_t _NbTotalRow_U32,
     uint32_t _FrameRateNum_U32, uint32_t _FrameRateDen_U32, uint32_t _SwitchLine1_U32, uint32_t _SwitchLine2_U32, 
     uint32_t _ImageAspectRatioNum_U32, uint32_t _ImageAspectRatioDen_U32, uint64_t _AudioClockRateNum_S64, 
     uint64_t _AudioClockRateDen_U64, uint32_t _Smpte352PayloadId_U32, uint32_t _PidAncillaryData_U32)
   {
-    Description_S = _rDescription_S;
+    if (_pDescription_c)
+    {
+      BOF_STRNCPY_NULL_CLIPPED(pDescription_c, _pDescription_c, sizeof(pDescription_c));
+    }
+    else
+    {
+      pDescription_c[0] = 0;
+    }
     NbCol_U32 = _NbCol_U32;
     NbRow_U32 = _NbRow_U32;
     Fps_U32 = _Fps_U32;
@@ -86,7 +93,7 @@ struct BOF_VIDEO_STANDARD_ENTRY
   }
   void Reset()
   {
-    Description_S = "";
+    pDescription_c[0] = 0;
     NbCol_U32 = 0;
     NbRow_U32 = 0;
     Fps_U32 = 0;
@@ -123,7 +130,7 @@ public:
   uint32_t NbTotalCol() const;
   uint32_t NbTotalRow() const;
   BofRational AudioClockRate() const;
-  const std::string &ToString() const;
+  std::string ToString() const;
   VideoStandardId Id() const;
   BofRational EffectiveFrameRate() const;
   uint32_t FieldsPerFrame() const;
@@ -151,7 +158,6 @@ public:
 private:
 
   static const BOF_VIDEO_STANDARD_ENTRY S_mpVideoStandardTable_X[];
-  static const std::string S_mEmpty_S;
   BOF_VIDEO_STANDARD_ENTRY mCustomFormat_X;
   const BOF_VIDEO_STANDARD_ENTRY *mpVideoStandardEntry_X = nullptr;
   int                       mIndex_i;

@@ -25,9 +25,6 @@
 
 BEGIN_BOF_NAMESPACE()
 
-// As//{ BOF_VIDEO_STANDARD_ID(720,  525, 59, 'i'),
-const std::string BofVideoStandard::S_mEmpty_S("");
-
 const BOF_VIDEO_STANDARD_ENTRY BofVideoStandard::S_mpVideoStandardTable_X[] = {
  // description              dcol  drow fps type acol  arow  tcol   trow FrmRtN   Den s1   s2    A/R    audClkRateN   Den    smpte352   pidtabIdx
   { "0x0@0?",                   0,    0,  0, '?',   0,    0,    0,     0,     0,    1, 0,   0,           0, 0,           0LL,    1,          0,          0 },
@@ -62,6 +59,8 @@ const BOF_VIDEO_STANDARD_ENTRY BofVideoStandard::S_mpVideoStandardTable_X[] = {
 
 BofVideoStandard::BofVideoStandard() : mIndex_i(-1)
 {
+  printf("BofVideoStandard0 sz %zu\n", sizeof(mCustomFormat_X));
+  memcpy(&mCustomFormat_X, &S_mpVideoStandardTable_X[0], sizeof(mCustomFormat_X));
   printf("BofVideoStandard1\n");
   mCustomFormat_X = S_mpVideoStandardTable_X[0];
   printf("BofVideoStandard2\n");
@@ -97,7 +96,7 @@ BofVideoStandard::BofVideoStandard(const std::string &_rStandard_S)
       Ar_lf = (double)Width_U32 / (double)Height_U32;
       Fr_lf = (double)Fps.Num() / (double)Fps.Den();
       AspectRatio = BofRational(Ar_lf, 10);
-      mCustomFormat_X.Description_S = _rStandard_S;
+      BOF_STRNCPY_NULL_CLIPPED(mCustomFormat_X.pDescription_c, _rStandard_S.c_str(), sizeof(mCustomFormat_X.pDescription_c));
       mCustomFormat_X.Fps_U32 = (uint32_t)Fr_lf;
       mCustomFormat_X.FrameRateNum_U32 = Fps.Num();
       mCustomFormat_X.FrameRateDen_U32 = Fps.Den();
@@ -169,9 +168,9 @@ VideoStandardId BofVideoStandard::Id() const
   } 
   return Rts;
 }
-const std::string &BofVideoStandard::ToString() const
+std::string BofVideoStandard::ToString() const
 {
-  return (mIndex_i >= 0) ? mpVideoStandardEntry_X->Description_S : S_mEmpty_S;
+  return (mIndex_i >= 0) ? mpVideoStandardEntry_X->pDescription_c : "";
 }
 BofRational BofVideoStandard::EffectiveFrameRate() const
 {
@@ -270,7 +269,7 @@ int BofVideoStandard::S_FindIndex(const std::string &_rStandard_S)
 
   for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(S_mpVideoStandardTable_X); i_U32++)
   {
-    if (S_mpVideoStandardTable_X[i_U32].Description_S == _rStandard_S)
+    if (strcmp(S_mpVideoStandardTable_X[i_U32].pDescription_c, _rStandard_S.c_str()) == 0)
     {
       Rts_i = i_U32;
       break;
