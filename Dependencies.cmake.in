@@ -78,10 +78,6 @@ if(NOT TARGET ZenLib)
   find_package_dependency(ZenLib REQUIRED)
 endif()
 
-if(NOT TARGET OpenSSL)
-  find_package_dependency(OpenSSL REQUIRED)
-endif()
-
 if(NOT TARGET MediaInfoLib)
   find_package_dependency(MediaInfoLib REQUIRED)
 endif()
@@ -90,6 +86,13 @@ if(NOT TARGET date)
   find_package_dependency(date REQUIRED)
 endif()
 
+# if(NOT TARGET OpenSSL)
+#   find_package_dependency(OpenSSL REQUIRED)
+# endif()
+# if(NOT TARGET Freetype)
+#   find_package_dependency(Freetype REQUIRED)
+# endif()
+
 find_path(STB_INCLUDE_DIRS "stb_image.h")
 ##target_include_directories(main PRIVATE ${STB_INCLUDE_DIRS})
 message("===STB_INCLUDE_DIRS===========>" ${STB_INCLUDE_DIRS})
@@ -97,6 +100,30 @@ find_path( AVCODEC_INCLUDE_DIR libavcodec/avcodec.h )
 find_library( AVCODEC_LIBRARY avcodec )
 message("===AVCODEC_INCLUDE_DIR===========>" ${AVCODEC_INCLUDE_DIR})
 message("===AVCODEC_LIBRARY===========>" ${AVCODEC_LIBRARY})
+
+## {
+##   "name": "bofstd",
+##   "version": "5.1.15.27",
+##   "description": "The onbings general purpose C++ Multiplatform library",
+##   "dependencies": [
+##     { "name": "czmq" },
+##     { "name": "date" },
+##     { "name": "ffmpeg" },
+##     { "name": "fmt" },
+##     { "name": "freetype" },
+##     { "name": "gtest" },
+##     { "name": "jsoncpp" },
+##     { "name": "libmediainfo" },
+##     { "name": "libyuv" },
+##     { "name": "libzen" },
+##     { "name": "linenoise-ng" },
+##     { "name": "openssl" },
+##     { "name": "stb" },
+##     { "name": "spdlog" },
+##     { "name": "zeromq" },
+##     { "name": "zlib" }
+##   ]
+## }
 
 ## 1>The package zeromq provides CMake targets:
 ## 1>
