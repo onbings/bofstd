@@ -89,70 +89,89 @@ endif()
 if(NOT TARGET date)
   find_package_dependency(date REQUIRED)
 endif()
-#>    find_package(date CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE date::date date::date-tz)
 
-#>The package zeromq provides CMake targets:
-#>
-#>    find_package(ZeroMQ CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE libzmq libzmq-static)
-#>
-#>The package czmq provides CMake targets:
-#>
-#>    find_package(czmq CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE czmq czmq-static)
-#>
-#>The package date provides CMake targets:
-#>
-#>    find_package(date CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE date::date date::date-tz)
-#>
-#>The package fmt provides CMake targets:
-#>
-#>    find_package(fmt CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE fmt::fmt)
-#>
-#>    # Or use the header-only version
-#>    find_package(fmt CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE fmt::fmt-header-only)
-#>
-#>The package gtest provides CMake targets:
-#>
-#>    find_package(GTest CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
-#>
-#>The package jsoncpp provides CMake targets:
-#>
-#>    find_package(jsoncpp CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp)
-#>
-#>The package zlib is compatible with built-in CMake targets:
-#>
-#>    find_package(ZLIB REQUIRED)
-#>    target_link_libraries(main PRIVATE ZLIB::ZLIB)
-#>
-#>The package libzen provides CMake targets:
-#>
-#>    find_package(ZenLib CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE zen)
-#>
-#>The package libmediainfo provides CMake targets:
-#>
-#>    find_package(MediaInfoLib CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE mediainfo)
-#>
-#>The package libyuv provides CMake targets:
-#>
-#>    find_package(libyuv CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE yuv)
-#>
-#>The package openssl is compatible with built-in CMake targets:
-#>
-#>    find_package(OpenSSL REQUIRED)
-#>    target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-#>
-#>The package spdlog provides CMake targets:
-#>
-#>    find_package(spdlog CONFIG REQUIRED)
-#>    target_link_libraries(main PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
-#>
+find_path(STB_INCLUDE_DIRS "stb_image.h")
+##target_include_directories(main PRIVATE ${STB_INCLUDE_DIRS})
+message("===STB_INCLUDE_DIRS===========>" ${STB_INCLUDE_DIRS})
+find_path( AVCODEC_INCLUDE_DIR libavcodec/avcodec.h )
+find_library( AVCODEC_LIBRARY avcodec )
+message("===AVCODEC_INCLUDE_DIR===========>" ${AVCODEC_INCLUDE_DIR})
+message("===AVCODEC_LIBRARY===========>" ${AVCODEC_LIBRARY})
+
+## 1>The package zeromq provides CMake targets:
+## 1>
+## 1>    find_package(ZeroMQ CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE libzmq libzmq-static)
+## 1>
+## 1>The package czmq provides CMake targets:
+## 1>
+## 1>    find_package(czmq CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE czmq czmq-static)
+## 1>
+## 1>The package date provides CMake targets:
+## 1>
+## 1>    find_package(date CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE date::date date::date-tz)
+## 1>
+## 1>The package fmt provides CMake targets:
+## 1>
+## 1>    find_package(fmt CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE fmt::fmt)
+## 1>
+## 1>    # Or use the header-only version
+## 1>    find_package(fmt CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE fmt::fmt-header-only)
+## 1>
+## 1>The package zlib is compatible with built-in CMake targets:
+## 1>
+## 1>    find_package(ZLIB REQUIRED)
+## 1>    target_link_libraries(main PRIVATE ZLIB::ZLIB)
+## 1>
+## 1>The package freetype provides CMake targets:
+## 1>
+## 1>    find_package(freetype CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE freetype)
+## 1>
+## 1>The package gtest provides CMake targets:
+## 1>
+## 1>    find_package(GTest CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+## 1>
+## 1>The package jsoncpp provides CMake targets:
+## 1>
+## 1>    find_package(jsoncpp CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp)
+## 1>
+## 1>The package libzen provides CMake targets:
+## 1>
+## 1>    find_package(ZenLib CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE zen)
+## 1>
+## 1>The package libmediainfo provides CMake targets:
+## 1>
+## 1>    find_package(MediaInfoLib CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE mediainfo)
+## 1>
+## 1>The package libyuv provides CMake targets:
+## 1>
+## 1>    find_package(libyuv CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE yuv)
+## 1>
+## 1>The package openssl is compatible with built-in CMake targets:
+## 1>
+## 1>    find_package(OpenSSL REQUIRED)
+## 1>    target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+## 1>
+## 1>The package spdlog provides CMake targets:
+## 1>
+## 1>    find_package(spdlog CONFIG REQUIRED)
+## 1>    target_link_libraries(main PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
+## 1>
+## 1>The package stb is header only and can be used from CMake via:
+## 1>
+## 1>    find_path(STB_INCLUDE_DIRS "stb_c_lexer.h")
+## 1>    target_include_directories(main PRIVATE ${STB_INCLUDE_DIRS})
+## 1>
+## 1>===STB_INCLUDE_DIRS===========>C:/bld/bofstd/vcpkg_installed/evs-x64-swx-windows-dynamic/include
+## 1>===AVCODEC_INCLUDE_DIR===========>C:/bld/bofstd/vcpkg_installed/evs-x64-swx-windows-dynamic/include
+## 1>===AVCODEC_LIBRARY===========>C:/bld/bofstd/vcpkg_installed/evs-x64-swx-windows-dynamic/debug/lib/avcodec.lib

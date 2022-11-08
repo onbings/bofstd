@@ -5,6 +5,7 @@
   "dependencies": [
     { "name": "czmq" },
     { "name": "date" },
+    { "name": "ffmpeg" },
     { "name": "fmt" },
     { "name": "freetype" },
     { "name": "gtest" },
@@ -14,6 +15,7 @@
     { "name": "libzen" },
     { "name": "linenoise-ng" },
     { "name": "openssl" },
+    { "name": "stb" },
     { "name": "spdlog" },
     { "name": "zeromq" },
     { "name": "zlib" }
