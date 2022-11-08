@@ -99,7 +99,7 @@ private:
   };
   static const VideoStandardEntry S_mpVideoStandardTable_X[];
   static const std::string S_mEmpty_S;
-  struct VideoStandardEntry mCustomFormat_X;
+  VideoStandardEntry mCustomFormat_X;
   const VideoStandardEntry *mpVideoStandardEntry_X = nullptr;
   int                       mIndex_i;
   static int S_FindIndex(const std::string &_rStandard_S);
