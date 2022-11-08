@@ -31,7 +31,82 @@ BEGIN_BOF_NAMESPACE()
 
 typedef uint32_t VideoStandardId;
 //static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1920, 1080, 50, 'p');
+struct BOF_VIDEO_STANDARD_ENTRY
+{
+  //    const char *pIdText_c;
+  std::string Description_S;
+  uint32_t NbCol_U32;
+  uint32_t NbRow_U32;
+  uint32_t Fps_U32;
+  char     Type_c;
+  uint32_t NbActiveCol_U32;
+  uint32_t NbActiveRow_U32;
+  uint32_t NbTotalCol_U32;
+  uint32_t NbTotalRow_U32;
+  uint32_t FrameRateNum_U32;
+  uint32_t FrameRateDen_U32;
+  uint32_t SwitchLine1_U32; // line counting starts with 0
+  uint32_t SwitchLine2_U32; // line counting starts with 0
+  uint32_t ImageAspectRatioNum_U32;
+  uint32_t ImageAspectRatioDen_U32;
+  uint64_t AudioClockRateNum_S64;
+  uint64_t AudioClockRateDen_U64;
+  uint32_t Smpte352PayloadId_U32;
+  uint32_t PidAncillaryData_U32;
 
+  BOF_VIDEO_STANDARD_ENTRY()
+  {
+    Reset();
+  }
+  BOF_VIDEO_STANDARD_ENTRY(const std::string &_rDescription_S, uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32,
+    char _Type_c, uint32_t _NbActiveCol_U32, uint32_t _NbActiveRow_U32, uint32_t _NbTotalCol_U32, uint32_t _NbTotalRow_U32,
+    uint32_t _FrameRateNum_U32, uint32_t _FrameRateDen_U32, uint32_t _SwitchLine1_U32, uint32_t _SwitchLine2_U32, 
+    uint32_t _ImageAspectRatioNum_U32, uint32_t _ImageAspectRatioDen_U32, uint64_t _AudioClockRateNum_S64, 
+    uint64_t _AudioClockRateDen_U64, uint32_t _Smpte352PayloadId_U32, uint32_t _PidAncillaryData_U32)
+  {
+    Description_S = _rDescription_S;
+    NbCol_U32 = _NbCol_U32;
+    NbRow_U32 = _NbRow_U32;
+    Fps_U32 = _Fps_U32;
+    Type_c = _Type_c;
+    NbActiveCol_U32 = _NbActiveCol_U32;
+    NbActiveRow_U32 = _NbActiveRow_U32;
+    NbTotalCol_U32 = _NbTotalCol_U32;
+    NbTotalRow_U32 = _NbTotalRow_U32;
+    FrameRateNum_U32 = _FrameRateNum_U32;
+    FrameRateDen_U32 = _FrameRateDen_U32;
+    SwitchLine1_U32 = _SwitchLine1_U32;
+    SwitchLine2_U32 = _SwitchLine2_U32;
+    ImageAspectRatioNum_U32 = _ImageAspectRatioNum_U32;
+    ImageAspectRatioDen_U32 = _ImageAspectRatioDen_U32;
+    AudioClockRateNum_S64 = _AudioClockRateNum_S64;
+    AudioClockRateDen_U64 = _AudioClockRateDen_U64;
+    Smpte352PayloadId_U32 = _Smpte352PayloadId_U32;
+    PidAncillaryData_U32 = _PidAncillaryData_U32;
+  }
+  void Reset()
+  {
+    Description_S = "";
+    NbCol_U32 = 0;
+    NbRow_U32 = 0;
+    Fps_U32 = 0;
+    Type_c = 0;
+    NbActiveCol_U32 = 0;
+    NbActiveRow_U32 = 0;
+    NbTotalCol_U32 = 0;
+    NbTotalRow_U32 = 0;
+    FrameRateNum_U32 = 0;
+    FrameRateDen_U32 = 0;
+    SwitchLine1_U32 = 0;
+    SwitchLine2_U32 = 0;
+    ImageAspectRatioNum_U32 = 0;
+    ImageAspectRatioDen_U32 = 0;
+    AudioClockRateNum_S64 = 0;
+    AudioClockRateDen_U64 = 0;
+    Smpte352PayloadId_U32 = 0;
+    PidAncillaryData_U32 = 0;
+  }
+};
 class BOFSTD_EXPORT BofVideoStandard
 {
 public:
@@ -74,33 +149,11 @@ public:
   bool SegmentedFrame() const;
 
 private:
-  struct VideoStandardEntry
-  {
-//    const char *pIdText_c;
-    std::string Description_S;
-    uint32_t NbCol_U32;
-    uint32_t NbRow_U32;
-    uint32_t Fps_U32;
-    char     Type_c;
-    uint32_t NbActiveCol_U32;
-    uint32_t NbActiveRow_U32;
-    uint32_t NbTotalCol_U32;
-    uint32_t NbTotalRow_U32;
-    uint32_t FrameRateNum_U32;
-    uint32_t FrameRateDen_U32;
-    uint32_t SwitchLine1_U32; // line counting starts with 0
-    uint32_t SwitchLine2_U32; // line counting starts with 0
-    uint32_t ImageAspectRatioNum_U32;
-    uint32_t ImageAspectRatioDen_U32;
-    uint64_t AudioClockRateNum_S64;
-    uint64_t AudioClockRateDen_U64;
-    uint32_t Smpte352PayloadId_U32;
-    uint32_t PidAncillaryData_U32;
-  };
-  static const VideoStandardEntry S_mpVideoStandardTable_X[];
+
+  static const BOF_VIDEO_STANDARD_ENTRY S_mpVideoStandardTable_X[];
   static const std::string S_mEmpty_S;
-  VideoStandardEntry mCustomFormat_X;
-  const VideoStandardEntry *mpVideoStandardEntry_X = nullptr;
+  BOF_VIDEO_STANDARD_ENTRY mCustomFormat_X;
+  const BOF_VIDEO_STANDARD_ENTRY *mpVideoStandardEntry_X = nullptr;
   int                       mIndex_i;
   static int S_FindIndex(const std::string &_rStandard_S);
   static int S_FindIndex(uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32, char _Type_c);

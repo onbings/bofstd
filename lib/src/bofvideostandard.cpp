@@ -28,7 +28,7 @@ BEGIN_BOF_NAMESPACE()
 // As//{ BOF_VIDEO_STANDARD_ID(720,  525, 59, 'i'),
 const std::string BofVideoStandard::S_mEmpty_S("");
 
-const BofVideoStandard::VideoStandardEntry BofVideoStandard::S_mpVideoStandardTable_X[] = {
+const BOF_VIDEO_STANDARD_ENTRY BofVideoStandard::S_mpVideoStandardTable_X[] = {
  // description              dcol  drow fps type acol  arow  tcol   trow FrmRtN   Den s1   s2    A/R    audClkRateN   Den    smpte352   pidtabIdx
   { "0x0@0?",                   0,    0,  0, '?',   0,    0,    0,     0,     0,    1, 0,   0,           0, 0,           0LL,    1,          0,          0 },
   { "720x525@59.94i",         720,  525, 59, 'i', 720,  488,  858,   525, 30000, 1001, 9, 272,           4, 3,    27000000LL, 1001, 0x81060001, 0x000D01CE },
@@ -62,13 +62,19 @@ const BofVideoStandard::VideoStandardEntry BofVideoStandard::S_mpVideoStandardTa
 
 BofVideoStandard::BofVideoStandard() : mIndex_i(-1)
 {
+  printf("BofVideoStandard1\n");
   mCustomFormat_X = S_mpVideoStandardTable_X[0];
+  printf("BofVideoStandard2\n");
   mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  printf("BofVideoStandard3\n");
 }
 BofVideoStandard::BofVideoStandard(const BofVideoStandard &_rStandard) : mIndex_i(_rStandard.mIndex_i)
 {
+  printf("BofVideoStandardA\n");
   mCustomFormat_X = S_mpVideoStandardTable_X[0];
+  printf("BofVideoStandardB\n");
   mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  printf("BofVideoStandardC\n");
 }
 BofVideoStandard::BofVideoStandard(const std::string &_rStandard_S)
 {
@@ -77,9 +83,13 @@ BofVideoStandard::BofVideoStandard(const std::string &_rStandard_S)
   char Type_c;
   double Ar_lf, Fr_lf;
 
+  printf("BofVideoStandarda\n");
+
   mCustomFormat_X = S_mpVideoStandardTable_X[0];
 
   mIndex_i = S_FindIndex(_rStandard_S);
+  printf("BofVideoStandardb\n");
+
   if (mIndex_i == -1)
   {
     if (S_Parse(_rStandard_S, Width_U32, Height_U32, Fps, Type_c))
@@ -103,6 +113,8 @@ BofVideoStandard::BofVideoStandard(const std::string &_rStandard_S)
       mIndex_i = 0;
     }
   }
+  printf("BofVideoStandardc\n");
+
   mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
 }
 BofVideoStandard::BofVideoStandard(uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32, char _Type_c)
@@ -113,9 +125,13 @@ BofVideoStandard::BofVideoStandard(uint32_t _NbCol_U32, uint32_t _NbRow_U32, uin
 }
 BofVideoStandard &BofVideoStandard::operator=(const BofVideoStandard &_rOther)
 {
+  printf("BofVideoStandard=1\n");
   mCustomFormat_X = _rOther.mCustomFormat_X;
+  printf("BofVideoStandard=2\n");
   mIndex_i = _rOther.mIndex_i;
+  printf("BofVideoStandard=3\n");
   mpVideoStandardEntry_X = (mIndex_i <= 0) ? &mCustomFormat_X : &S_mpVideoStandardTable_X[mIndex_i];
+  printf("BofVideoStandard=4\n");
   return *this;
 }
 bool BofVideoStandard::operator==(const BofVideoStandard &_rOther) const
