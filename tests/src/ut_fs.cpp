@@ -48,8 +48,8 @@ TEST(Fs_Test, DirectoryManagement)
   Sts_E = Bof_DeleteFile(FileAsDirPath);
   EXPECT_TRUE((Size_U64 == 0xFFFFFFFFFFFFFFFF) || (Size_U64 == 0x7FFFFFFFFFFFFFFF));  //Linux 0x7FFFFFFFFFFFFFFF Win 0xFFFFFFFFFFFFFFFF ???
 
-  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/"));
-  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/../babar2/"));
+  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/"), true);
+  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/../babar2/"), true);
 
   FileType_E = Bof_GetFileType(CrtDir);
   EXPECT_EQ(FileType_E, BOF_FILE_TYPE::BOF_FILE_DIR);
@@ -65,7 +65,7 @@ TEST(Fs_Test, DirectoryManagement)
   EXPECT_EQ(NewPath.IsDirectory(), true);
   EXPECT_EQ(NewPath.IsFile(), false);
   EXPECT_STREQ(NewPath.FullPathName(false).c_str(), NewFull_S.c_str());
-  EXPECT_STREQ(NewPath.DirectoryName(false, false).c_str(), NewFull_S.c_str());
+  EXPECT_STREQ(NewPath.DirectoryName(true, false).c_str(), NewFull_S.c_str());
   EXPECT_STREQ(NewPath.Extension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithExtension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithoutExtension().c_str(), "");
@@ -155,28 +155,31 @@ TEST(Fs_Test, DirectoryManagement)
   Sts_E = NewPath.Combine("babar1");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   NewPath = CrtDir;
   Sts_E = NewPath.Combine("babar1/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   NewPath = CrtDir;
-  Sts_E = NewPath.Combine("babar2/babar5");
+  Sts_E = NewPath.Combine("babar2/babar5/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
-  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, false);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   NewPath = CrtDir;
   Sts_E = NewPath.Combine("babar2/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
@@ -200,8 +203,8 @@ TEST(Fs_Test, FileManagement)
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
   // To be sure
   Sts_E = Bof_DeleteFile(FileAsDirPath);
-  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/"));
-  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/../babar2/"));
+  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/"), true);
+  Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/../babar2/"), true);
 
   FileType_E = Bof_GetFileType(CrtDir);
   EXPECT_EQ(FileType_E, BOF_FILE_TYPE::BOF_FILE_DIR);
@@ -216,7 +219,7 @@ TEST(Fs_Test, FileManagement)
   EXPECT_EQ(NewPath.IsDirectory(), true);
   EXPECT_EQ(NewPath.IsFile(), false);
   EXPECT_STREQ(NewPath.FullPathName(false).c_str(), NewFull_S.c_str());
-  EXPECT_STREQ(NewPath.DirectoryName(false, false).c_str(), NewFull_S.c_str());
+  EXPECT_STREQ(NewPath.DirectoryName(true, false).c_str(), NewFull_S.c_str());
   EXPECT_STREQ(NewPath.Extension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithExtension().c_str(), "");
   EXPECT_STREQ(NewPath.FileNameWithoutExtension().c_str(), "");
@@ -304,28 +307,28 @@ TEST(Fs_Test, FileManagement)
   Sts_E = NewPath.Combine("babar1");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   NewPath = CrtDir;
   Sts_E = NewPath.Combine("babar1/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   NewPath = CrtDir;
   Sts_E = NewPath.Combine("babar2/babar5");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   NewPath = CrtDir;
   Sts_E = NewPath.Combine("babar2/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, NewPath);
+  Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
@@ -371,7 +374,7 @@ TEST(Fs_Test, FileLayout)
   Sts_E = DirLayoutRoot.Combine("TstRoot/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CleanupDirectory(true, DirLayoutRoot);
+  Sts_E = Bof_CleanupDirectory(true, DirLayoutRoot, true);
 
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL | BOF_FILE_PERMISSION_EXEC_FOR_ALL;
   Sts_E = Bof_CreateDirectory(Permission_E, DirLayoutRoot);

@@ -530,7 +530,7 @@ BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const
   BOFERR Rts_E = Bof_DirectoryParser(_rPath, _rPattern_S, _FileTypeToFind_E, _Recursive_B, Cb);
   return Rts_E;
 }
-BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath)
+BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath, bool _RemoveRootDir_B)
 {
   BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {bool Rts_B = false; if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR) { if (Bof_RemoveDirectory(_rFileFound_X.Path) == BOF_ERR_NO_ERROR) Rts_B = true; } else { if (Bof_DeleteFile(_rFileFound_X.Path) == BOF_ERR_NO_ERROR) Rts_B = true; } return Rts_B; };
   //BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {bool Rts_B = true; if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR) { Bof_RemoveDirectory(_rFileFound_X.Path); } else { if (Bof_DeleteFile(_rFileFound_X.Path) != BOF_ERR_NO_ERROR) Rts_B = false; } return Rts_B; };
@@ -538,7 +538,10 @@ BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath)
   BOFERR Rts_E = Bof_DirectoryParser(_rPath, "*", BOF_FILE_TYPE::BOF_FILE_ALL, _Recursive_B, Cb);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    Rts_E = Bof_RemoveDirectory(_rPath);
+    if (_RemoveRootDir_B)
+    {
+      Rts_E = Bof_RemoveDirectory(_rPath);
+    }
   }
   return Rts_E;
 }

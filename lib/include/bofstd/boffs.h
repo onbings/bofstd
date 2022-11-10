@@ -136,7 +136,7 @@ BOFSTD_EXPORT BOFERR Bof_CreateDirectory(const BOF_FILE_PERMISSION _Permission_E
 /// @param _rPath : Specifies the path of the directory to delete
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks None
-BOFSTD_EXPORT BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath);
+BOFSTD_EXPORT BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath, bool _RemoveRootDir_B);
 
 BOFSTD_EXPORT BOFERR Bof_RemoveDirectory(const BofPath &_rPath);
 
