@@ -526,6 +526,7 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
 }
 BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, std::vector<BOF_FILE_FOUND> &_rFileCollection)
 {
+  _rFileCollection.clear();
   BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool { _rFileCollection.push_back(_rFileFound_X); return true; };
   BOFERR Rts_E = Bof_DirectoryParser(_rPath, _rPattern_S, _FileTypeToFind_E, _Recursive_B, Cb);
   return Rts_E;
