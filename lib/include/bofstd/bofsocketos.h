@@ -172,12 +172,12 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
     Reset();
     Set(_IpV6_B, _SocketType_E, _Ip1_U32, _Ip2_U32, _Ip3_U32, _Ip4_U32, _Port_U16);
   }
-  int operator==(const BOF_SOCKET_ADDRESS &_rOther) const
+  bool operator==(const BOF_SOCKET_ADDRESS &_rOther) const
   {
-    int Rts_i;
+    bool Rts_B;
 
-    Rts_i = ((IpV6_B == _rOther.IpV6_B) && (SocketType_E == _rOther.SocketType_E));
-    if (Rts_i)
+    Rts_B = ((IpV6_B == _rOther.IpV6_B) && (SocketType_E == _rOther.SocketType_E));
+    if (Rts_B)
     {
       if (IpV6_B)
       {
@@ -203,11 +203,11 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
           || (IpV6Address_X.sin6_addr.s6_addr16[7] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[7]))
 #endif
         {
-          Rts_i = 1;
+          Rts_B = false;
         }
         else
         {
-          Rts_i = 0;
+          Rts_B = true;
         }
       }
       else
@@ -216,15 +216,15 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
             || (IpV4Address_X.sin_port        != _rOther.IpV4Address_X.sin_port)
             || (IpV4Address_X.sin_addr.s_addr != _rOther.IpV4Address_X.sin_addr.s_addr))
         {
-          Rts_i = 1;
+          Rts_B = false;
         }
         else
         {
-          Rts_i = 0;
+          Rts_B = true;
         }
       }
     }
-    return Rts_i;
+    return Rts_B;
   }
 
   std::string ToString(bool _ShowProtocol_B, bool _ShowPortNumber_B) const
@@ -472,11 +472,11 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
     return *this; // _Other;
   }
   */
-  int operator==(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
+  bool operator==(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
   {
     return (Protocol_S == _rOther.Protocol_S) && (IpAddress_S == _rOther.IpAddress_S) && (Port_U16 == _rOther.Port_U16) && (User_S == _rOther.User_S) && (Password_S == _rOther.Password_S) && (Ip_X == _rOther.Ip_X);
   }
-  int operator!=(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
+  bool operator!=(const BOF_SOCKET_ADDRESS_COMPONENT &_rOther) const
   {
     return !(*this == _rOther);
   }
