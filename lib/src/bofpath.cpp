@@ -422,6 +422,7 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
   std::string Pwd_S;
   std::string::size_type SlashDelimiterPos, SlashPrevDelimiterPos;
   std::vector<std::string> ListOfDir_S;
+  char Prev_c;
 
   _rDiskName_S = "";
   // Remove bad char on the left and rigth side
@@ -456,7 +457,6 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
         }
         else
         {
-#if 1
           if ((!_rNormalizedPath_S.empty()) && (_rNormalizedPath_S[0] == '.'))
           {
             while ((Rts_E == BOF_ERR_NO_ERROR) && (!_rNormalizedPath_S.empty()) && (_rNormalizedPath_S[0] == '.'))
@@ -489,32 +489,6 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
               _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
             }
           }
-#else
-          if ((_rNormalizedPath_S[0] == '.') && (_rNormalizedPath_S[1] == '/'))
-          {
-            _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S.substr(2);
-            //_rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
-          }
-          else if ((_rNormalizedPath_S[0] == '.') && (_rNormalizedPath_S[1] == '.'))
-          {
-            Rts_E = BOF_ERR_TOO_SMALL;
-            if (Pwd_S.size() > 2)
-            {
-              SlashPrevDelimiterPos = Pwd_S.rfind('/', Pwd_S.size() - 2);
-              if (SlashPrevDelimiterPos == std::string::npos)
-              {
-                Rts_E = BOF_ERR_TOO_BIG;
-              }
-              else
-              {
-                Pwd_S = Pwd_S.substr(0, SlashPrevDelimiterPos + 1);
-                _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S.substr(3);
-                Rts_E = BOF_ERR_NO_ERROR;
-                //_rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
-              }
-            }
-          }
-#endif
         }
       }
     }
@@ -592,12 +566,29 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
           // Track //
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
+#if 0
             std::string::iterator itslash = std::adjacent_find(_rNormalizedPath_S.begin(), _rNormalizedPath_S.end(),
                                                                [](char _Char1_c, char _Char2_c) { return ((_Char1_c == '/') && (_Char2_c == '/')); });
             if (itslash != _rNormalizedPath_S.end())
             {
               Rts_E = BOF_ERR_FORMAT;
             }
+#else
+            Prev_c = ~_rNormalizedPath_S[0];
+            for (auto It = _rNormalizedPath_S.begin(); It != _rNormalizedPath_S.end(); ++It)
+            {
+              //if (Prev_c == *It)
+              if ((Prev_c == '/') && (*It == '/'))
+              {
+                _rNormalizedPath_S.erase(It);
+                It--;
+              }
+              else 
+              {
+                Prev_c = *It;
+              }
+            }
+#endif
           }
 
           if (Rts_E == BOF_ERR_NO_ERROR)

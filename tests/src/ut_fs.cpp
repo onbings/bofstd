@@ -56,6 +56,12 @@ TEST(Fs_Test, DirectoryManagement)
 
   NewFull_S = CrtDir.FullPathName(false) + "babar1/";
 
+
+  NewPath = CrtDir;
+  Sts_E = NewPath.Combine("/babar1/");    //Remove double //
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+
+
   NewPath = CrtDir;
   Sts_E = NewPath.Combine("babar1/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
