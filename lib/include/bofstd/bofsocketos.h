@@ -181,11 +181,47 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
     {
       if (IpV6_B)
       {
-        Rts_i = memcmp(&IpV6Address_X, &_rOther.IpV6Address_X, sizeof(IpV6Address_X));
+        if ((IpV6Address_X.sin6_family != _rOther.IpV6Address_X.sin6_family)
+          || (IpV6Address_X.sin6_port != _rOther.IpV6Address_X.sin6_port)
+#if defined(_WIN32)
+          || (IpV6Address_X.sin6_addr.u.Word[0] != _rOther.IpV6Address_X.sin6_addr.u.Word[0])
+          || (IpV6Address_X.sin6_addr.u.Word[1] != _rOther.IpV6Address_X.sin6_addr.u.Word[1])
+          || (IpV6Address_X.sin6_addr.u.Word[2] != _rOther.IpV6Address_X.sin6_addr.u.Word[2])
+          || (IpV6Address_X.sin6_addr.u.Word[3] != _rOther.IpV6Address_X.sin6_addr.u.Word[3])
+          || (IpV6Address_X.sin6_addr.u.Word[4] != _rOther.IpV6Address_X.sin6_addr.u.Word[4])
+          || (IpV6Address_X.sin6_addr.u.Word[5] != _rOther.IpV6Address_X.sin6_addr.u.Word[5])
+          || (IpV6Address_X.sin6_addr.u.Word[6] != _rOther.IpV6Address_X.sin6_addr.u.Word[6])
+          || (IpV6Address_X.sin6_addr.u.Word[7] != _rOther.IpV6Address_X.sin6_addr.u.Word[7]))
+#else
+          || (IpV6Address_X.sin6_addr.s6_addr16[0] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[0])
+          || (IpV6Address_X.sin6_addr.s6_addr16[1] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[1])
+          || (IpV6Address_X.sin6_addr.s6_addr16[2] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[2])
+          || (IpV6Address_X.sin6_addr.s6_addr16[3] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[3])
+          || (IpV6Address_X.sin6_addr.s6_addr16[4] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[4])
+          || (IpV6Address_X.sin6_addr.s6_addr16[5] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[5])
+          || (IpV6Address_X.sin6_addr.s6_addr16[6] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[6])
+          || (IpV6Address_X.sin6_addr.s6_addr16[7] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[7]))
+#endif
+        {
+          Rts_i = 1;
+        }
+        else
+        {
+          Rts_i = 0;
+        }
       }
       else
       {
-        Rts_i = memcmp(&IpV4Address_X, &_rOther.IpV4Address_X, sizeof(IpV4Address_X));
+        if (   (IpV4Address_X.sin_family      != _rOther.IpV4Address_X.sin_family)
+            || (IpV4Address_X.sin_port        != _rOther.IpV4Address_X.sin_port)
+            || (IpV4Address_X.sin_addr.s_addr != _rOther.IpV4Address_X.sin_addr.s_addr))
+        {
+          Rts_i = 1;
+        }
+        else
+        {
+          Rts_i = 0;
+        }
       }
     }
     return Rts_i;
