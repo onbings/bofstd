@@ -224,7 +224,7 @@ BOFSTD_EXPORT BOFERR Bof_CloseFile(intptr_t &_rIo);
 BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsage_X);
 BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S);
 BOFSTD_EXPORT BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, const BOF_BUFFER &_rBuffer_X);
-BOFSTD_EXPORT BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, std::string &_rRawData_S);
+BOFSTD_EXPORT BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, const std::string &_rRawData_S);
 
 BOFSTD_EXPORT uint64_t Bof_GetFileSize(const BofPath &_rPath);
 BOFSTD_EXPORT BOFERR Bof_DeleteFile(const BofPath &_rPath);
