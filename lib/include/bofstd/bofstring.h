@@ -30,6 +30,10 @@ BEGIN_BOF_NAMESPACE()
 BOFSTD_EXPORT std::string Bof_BuildFixedLengthLine(const char *_pLine_c, uint32_t _MinLength_U32, char _LeftChar_c, char _FillChar_c, char _RightChar_c);
 
 static const char *S_pBofDefaultTrimCharList_c = " \a\f\n\r\t\v"; /*! Default character list used by Bof_RightTrim/Bof_LeftTrim/Bof_Trim*/
+
+BOFSTD_EXPORT std::string Bof_StringToLower(const std::string &_rStrToConvert_S);
+BOFSTD_EXPORT std::string Bof_StringToUpper(const std::string &_rStrToConvert_S);
+
 // @brief trim from end of string (right)
 // @param _rStrToTrim_S : Specifies the string to trim
 // @param _pTrimCharList_c : Specifies the character list which must be removed from the right part of the string

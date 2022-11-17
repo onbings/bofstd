@@ -78,7 +78,10 @@ BEGIN_BOF_NAMESPACE()
 ///   of the URI.When the primary resource is an HTML document, the fragment is often an id 
 ///   attribute of a specific element, andweb browsers will scroll this element into view.
 /// 
-
+/// Upper/lower case: So on both server types, it’s best to make sure you only use lower-case characters in your internal 
+/// links — on Apache, you do it to avoid file not found errors, and on IIS you do it to avoid dupe content. 
+/// To be on the safe side, it’s also a good idea on IIS to rewrite requests for URLs that contain upper-case characters 
+/// to the lower-case equivalent.
 class BOFSTD_EXPORT BofUri
 {
 private:

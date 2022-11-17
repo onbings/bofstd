@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
   //::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParseBuffer";  // MediaDetectorParam";
 //  ::testing::GTEST_FLAG(filter) = "BofIo_Test.*";
-//  ::testing::GTEST_FLAG(filter) = "Fs_Test.*";
+//  ::testing::GTEST_FLAG(filter) = "String_Test.UpperLower";
 /*
 * under linux:
 [  PASSED  ] 144 tests.

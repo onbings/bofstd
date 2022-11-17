@@ -474,3 +474,9 @@ TEST(String_Test, Bof_FastZeroStrncpy)
 	EXPECT_TRUE(memcmp(pDst_c, pSrc_c, Len_i-1) == 0);
 	EXPECT_EQ(pDst_c[Len_i-1], 0);
 }
+
+TEST(String_Test, UpperLower)
+{
+	EXPECT_STREQ(Bof_StringToLower("AbCdEf").c_str(), "abcdef");
+	EXPECT_STREQ(Bof_StringToUpper("AbCdEf").c_str(), "ABCDEF");
+}

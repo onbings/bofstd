@@ -34,6 +34,19 @@
 #endif
 
 BEGIN_BOF_NAMESPACE()
+
+std::string Bof_StringToLower(const std::string &_rStrToConvert_S)
+{
+  std::string Rts_S = _rStrToConvert_S;
+  std::transform(Rts_S.begin(), Rts_S.end(), Rts_S.begin(),[](unsigned char c) { return std::tolower(c); });
+  return Rts_S;
+}
+std::string Bof_StringToUpper(const std::string &_rStrToConvert_S)
+{
+  std::string Rts_S = _rStrToConvert_S;
+  std::transform(Rts_S.begin(), Rts_S.end(), Rts_S.begin(),[](unsigned char c) { return std::toupper(c); });
+  return Rts_S;
+}
 std::string Bof_BuildFixedLengthLine(const char *_pLine_c, uint32_t _MinLength_U32, char _LeftChar_c, char _FillChar_c, char _RightChar_c)
 {
   std::string Rts_S(_pLine_c);
