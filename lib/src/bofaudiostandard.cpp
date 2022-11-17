@@ -84,7 +84,7 @@ AudioStandardId BofAudioStandard::Id() const
 
 bool BofAudioStandard::IsValid() const
 {
-  return (mSampleFormat_E != BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN) ? true : false;
+  return (true);  //it is valid even it is BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN if  mSampleFormat_E != BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN) ? true : false;
 }
 
 uint32_t BofAudioStandard::NbBitPerSample() const
