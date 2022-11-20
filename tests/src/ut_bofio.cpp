@@ -462,7 +462,7 @@ TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
 
   BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
   BofSocketServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
-  BofSocketServerParam_X.Name_S = BOF::Bof_Sprintf("NoIoCloseTimeoutInMs");
+  BofSocketServerParam_X.Name_S = "NoIoCloseTimeoutInMs";
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
   BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;;

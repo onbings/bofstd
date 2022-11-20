@@ -619,7 +619,7 @@ BOFERR BofSocketIo::Logout(uint32_t _TimeoutInMs_U32)
     Rts_E = BOF_ERR_EACCES;
     if (IsLoggedIn())
     {
-      Rts_E = SendCommandAndWaitForReply(_TimeoutInMs_U32, Bof_Sprintf("QUIT\r\n"), 221, ReplyCode_U32, Reply_S);
+      Rts_E = SendCommandAndWaitForReply(_TimeoutInMs_U32, "QUIT\r\n", 221, ReplyCode_U32, Reply_S);
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         mIsLoggedIn_B = false;

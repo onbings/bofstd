@@ -267,7 +267,10 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
 #if defined (_WIN32)
     TerminateThread(static_cast<HANDLE>(mThreadHandle), 0x69696969);
 #else
+#if defined(__ANDROID__)
+#else
     pthread_cancel(static_cast<pthread_t>(mThreadHandle));
+#endif
 #endif
   }
   //printf("%d %s %X====>Is joinable %d\n", Bof_GetMsTickCount(), mName_S.c_str(), mThreadHandle, mThread.joinable());

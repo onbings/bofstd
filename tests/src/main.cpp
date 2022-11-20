@@ -32,7 +32,10 @@ int main(int argc, char *argv[])
 
 #if defined (_WIN32)
 #else
+#if defined(__ANDROID__)
+#else
   mallopt(M_CHECK_ACTION, 3);
+#endif
   signal(SIGPIPE, SIG_IGN);
 #endif
   BOFSTDPARAM StdParam_X;

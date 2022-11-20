@@ -220,6 +220,9 @@ size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint32_t _NbWideCha
 
   if (_pMultiByteStr_c)
   {
+#if defined(__ANDROID__)
+    Ok_B = true;
+#else
     if (_pLocale_c)
     {
       if (_pLocale_c[0])
@@ -235,6 +238,7 @@ size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint32_t _NbWideCha
     {
       Ok_B = true;
     }
+#endif
     if (Ok_B)
     {
       Rts = std::mbstowcs(_pWideCharStr_wc, _pMultiByteStr_c, _NbWideChar_U32);
@@ -256,6 +260,9 @@ size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, uint32_t _NbMult
 
   if (_pWideCharStr_wc)
   {
+#if defined(__ANDROID__)
+    Ok_B = true;
+#else
     if (_pLocale_c)
     {
       GlobalLocale = std::locale::global(std::locale(_pLocale_c));
@@ -272,6 +279,7 @@ size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, uint32_t _NbMult
     {
       Ok_B = true;
     }
+#endif
     if (Ok_B)
     {
       Rts = std::wcstombs(_pMultiByteStr_c, _pWideCharStr_wc, _NbMultibyteChar_U32);

@@ -312,8 +312,8 @@ TEST(System_Test, Util_Sprintf)
   strcpy(pStr_c, "String");
 
   strcpy(pFormat_c, "Hello World");
-  sprintf(pText_c, pFormat_c);
-  Text_S = Bof_Sprintf(pFormat_c);
+  sprintf(pText_c, "%s", pFormat_c);
+  Text_S = pFormat_c;
   EXPECT_STREQ(pText_c, Text_S.c_str());
 
   strcpy(pFormat_c, "int %d %04d 0x%08X float %f %03.4f str %8s %-8s");
@@ -543,7 +543,7 @@ TEST(System_Test, Exec)
 #if defined (_WIN32)
   Cmd_S = Bof_Sprintf("dir");
 #else
-  Cmd_S = Bof_Sprintf("ls");
+  Cmd_S = "ls";
 #endif
   Sts_E = Bof_Exec(Cmd_S, &Output_S, ExitCode_S32);
   //	std::cerr << "[          ] Exit code " << ExitCode_S32 << " Output:" << std::endl << Output_S << std::endl;

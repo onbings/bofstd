@@ -233,7 +233,7 @@ BOFERR BofSocketServer::Connect(uint32_t _TimeoutInMs_U32, const std::string &_r
       BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketServerParam_X.Name_S + "_Connect";
       BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
       //  BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = no as it is set by BofSocketIoParam_X.SocketRcvBufferSize_U32 below;
-      //BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0;0.0.0.0:0");
+      //BofSocketParam_X.BindIpAddress_S = "tcp://0.0.0.0:0;0.0.0.0:0";
       Rts_E = Bof_SplitIpAddress(_rConnectFromIpAddress_S, SocketAddress_X);
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
@@ -417,7 +417,7 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
       {
         SessionIndex_U32 = _psCmdSocketSession->SessionIndex();
 
-        Cmd_S = Bof_Sprintf("PASV\r\n");
+        Cmd_S = "PASV\r\n";
         Rts_E = _psCmdSocketSession->SendCommandAndWaitForReply(_ConnectionTimeoutInMs_U32, Cmd_S, 227, ReplyCode_U32, Reply_S);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
@@ -472,7 +472,7 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
                 Rts_E = BOF_ERR_ENOMEM;
                 TargetIp_S = Bof_Sprintf("tcp://0.0.0.0:0;%d.%d.%d.%d:%d", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
                 BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketServerParam_X.Name_S + "_ConnectToData";
-                BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0;0.0.0.0:0");
+                BofSocketParam_X.BindIpAddress_S = "tcp://0.0.0.0:0;0.0.0.0:0";
                 BofSocketParam_X.ReUseAddress_B = true;
                 BofSocketParam_X.NoDelay_B = true;
                 BofSocketParam_X.Ttl_U32 = 0;

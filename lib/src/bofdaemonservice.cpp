@@ -344,7 +344,7 @@ void BofDaemonService::DaemonServiceLog(const char *_pFormat_c, ...)
     va_start(Arg, _pFormat_c);
     vsnprintf(pLog_c, sizeof(pLog_c), _pFormat_c, Arg);
     va_end(Arg);
-    syslog(mDaemonServiceParam_X.DaemonServiceLogPriority_i, pLog_c);
+    syslog(mDaemonServiceParam_X.DaemonServiceLogPriority_i, "%s", pLog_c);
   }
 }
 

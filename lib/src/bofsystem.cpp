@@ -140,6 +140,10 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
     {
       //Posix shm name must begin with a /
       Name_S = "/" + _rSharedMemory_X.Name_S;
+#if defined(__ANDROID__)
+      Handle_i = -1;
+      Rts_E = BOF_ERR_EEXIST;
+#else
       Handle_i = shm_open(Name_S.c_str(), O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
       if (Handle_i >= 0)
       {
@@ -153,6 +157,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           Rts_E = BOF_ERR_EEXIST;
         }
       }
+#endif
       if (Handle_i >= 0)
       {
         _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, Handle_i, 0);
@@ -218,7 +223,11 @@ BOFERR Bof_DestroySharedMemory(const std::string &_rName_S)
   if (isalpha(_rName_S[0]))
   {
     Name_S = "/" + _rName_S;
+#if defined(__ANDROID__)
+    Rts_E = BOF_ERR_EEXIST;
+#else
     Rts_E = (shm_unlink(Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
+#endif
   }
 #endif
   return Rts_E;
@@ -851,9 +860,12 @@ static void *S_ThreadLauncher(void *_pContext)
     void *pThreadHandle = pThread_X->pThread;
 #else
     BOFERR Sts_E;
+#if defined(__ANDROID__)
+#else
     (void)Sts_E;
     int OldType_i = 0;
     Sts_E = (pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &OldType_i) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+#endif
 #endif
 
     if (pThread_X->ThreadCpuCoreAffinity_U32)
