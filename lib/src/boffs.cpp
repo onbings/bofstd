@@ -587,15 +587,16 @@ BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_r
   int Io_i, Flag_i;
 #if defined (_WIN32)
   Flag_i = (_Append_B) ? (_O_RDWR | _O_CREAT | _O_APPEND | _O_BINARY) : (_O_RDWR | _O_CREAT | _O_BINARY | _O_TRUNC);
+  Io_i = _open(_rPath.FullPathName(false).c_str(), Flag_i, _S_IREAD | _S_IWRITE | _S_IEXEC);
 #else
   Flag_i = (_Append_B) ? (O_RDWR | O_CREAT | O_APPEND) : (O_RDWR | O_CREAT | O_TRUNC);
+  Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i, _Permission_E);
 #endif
-  Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i);
   if (Io_i != BOF_FS_INVALID_HANDLE)
   {
     _rIo = static_cast<intptr_t> (Io_i);
-    // Rts_E = BOF_ERR_NO_ERROR;
-    Rts_E = Bof_SetFsPermission(_Permission_E, _rPath);
+    Rts_E = BOF_ERR_NO_ERROR;
+//    Rts_E = Bof_SetFsPermission(_Permission_E, _rPath);
   }
   return (Rts_E);
 }

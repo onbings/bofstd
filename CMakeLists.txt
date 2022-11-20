@@ -19,12 +19,12 @@
 
 cmake_minimum_required(VERSION 3.15)
 if (VCPKG_TARGET_ANDROID)
-message("ANDROID->include C:/pro/vcpkg/docs/examples/vcpkg_android_example_cmake_script/cmake/vcpkg_android.cmake")
-    include("C:/pro/vcpkg/docs/examples/vcpkg_android_example_cmake_script/cmake/vcpkg_android.cmake")
+    message("ANDROID->include vcpkg_android.cmake")
+    include("vcpkg_android.cmake")
 endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.1.16.27)
+project(bofstd VERSION 5.1.16.28)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.
