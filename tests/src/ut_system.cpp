@@ -328,19 +328,19 @@ TEST(System_Test, Util_AlignedAlloc)
   BOF_BUFFER Buffer_X;
   void *pData;
 
-  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 32, 128, false, false, Buffer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 32, 128, false, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData != nullptr);
   EXPECT_EQ((reinterpret_cast<std::uintptr_t> (pData) & 0x1F), 0);
   EXPECT_EQ(Bof_AlignedMemFree(Buffer_X), BOF_ERR_NO_ERROR);
   EXPECT_NE(Bof_AlignedMemFree(Buffer_X), BOF_ERR_NO_ERROR);
 
-  EXPECT_NE(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 25, 128, false, false, Buffer_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 25, 128, false, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData == nullptr);
   EXPECT_NE(Bof_AlignedMemFree(Buffer_X), BOF_ERR_NO_ERROR);
 
-  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 256, 128, false, true, Buffer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 256, 128, false, 0, true, Buffer_X), BOF_ERR_NO_ERROR);
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData != nullptr);
   EXPECT_EQ((reinterpret_cast<std::uintptr_t> (pData) & 0xFF), 0);
@@ -348,9 +348,9 @@ TEST(System_Test, Util_AlignedAlloc)
 
 #if defined(_WIN32)
   //lock not supported
-  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, false, false, Buffer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, false, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
 #else
-  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, true, false, Buffer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, true, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
 #endif
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData != nullptr);

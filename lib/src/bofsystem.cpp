@@ -1877,7 +1877,8 @@ int Bof_SetEnvVar(const char *_pName_c, const char *_pValue_c, int _Overwrite_i)
   return (Rts_i);
 }
 
-BOFERR Bof_LockMem(uint64_t _SizeInByte_U64, void *_pData)
+//_OsAdvice_i mainly for MADV_DONTFORK option in madvise
+BOFERR Bof_LockMem(int _OsAdvice_i, uint64_t _SizeInByte_U64, void *_pData)
 {
   BOFERR Rts_E;
 
@@ -1885,7 +1886,22 @@ BOFERR Bof_LockMem(uint64_t _SizeInByte_U64, void *_pData)
   //	Rts_E = VirtualLock(_pData, _SizeInByte_U64) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
   Rts_E = BOF_ERR_LOCK;
 #else
-  Rts_E = (mlock(_pData, _SizeInByte_U64) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+  if (_OsAdvice_i)
+  {
+    Rts_E = (madvise(_pData, _SizeInByte_U64, _OsAdvice_i) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
+    if (Rts_E == BOF_ERR_NO_ERROR)
+    {
+      Rts_E = (mlock(_pData, _SizeInByte_U64) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+    }
+  }
+  else
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    Rts_E = (mlock(_pData, _SizeInByte_U64) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+  }
 #endif
   return Rts_E;
 }
@@ -1960,7 +1976,8 @@ bool Bof_AlignedMemCpy32(volatile void *_pDst, const volatile void *_pSrc, uint3
 //constexpr char MMGW_HUGE_PAGE_PATH[]="/sys/kernel/mm/hugepages/hugepages-2048kB/page_%08X";  //"/var/lib/hugetlbfs/global/pagesize-2MB/page_%08X";
 constexpr char BOF_HUGE_PAGE_PATH[] = "/tmp/hugepages/page_%08X";
 constexpr uint32_t BOF_HUGE_PAGE_SIZE = 2 * 1024 * 1024;
-BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X)  //, uint32_t _Offset_U32)
+//_OsAdvice_i mainly for MADV_DONTFORK option in madvise
+BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, int _OsAdvice_i, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X)  //, uint32_t _Offset_U32)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   BOF_BUFFER_ALLOCATE_HEADER AllocateBuffer_X;
@@ -2027,11 +2044,21 @@ BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _A
         *reinterpret_cast<BOF_BUFFER_ALLOCATE_HEADER *>(_rAllocatedBuffer_X.pUser) = AllocateBuffer_X;
         if (_LockIt_B)
         {
-          Rts_E = Bof_LockMem(_SizeInByte_U32, _rAllocatedBuffer_X.pData_U8);
+          Rts_E = Bof_LockMem(_OsAdvice_i, _SizeInByte_U32, _rAllocatedBuffer_X.pData_U8);
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             Bof_AlignedMemFree(_rAllocatedBuffer_X);
           }
+        }
+        else
+        {
+#if defined(_WIN32)
+#else
+          if (_OsAdvice_i)
+          {
+            Rts_E = (madvise(_rAllocatedBuffer_X.pData_U8, _SizeInByte_U32, _OsAdvice_i) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
+          }
+#endif
         }
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
