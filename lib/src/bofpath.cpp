@@ -184,6 +184,22 @@ BOFERR BofPath::FileNameWithoutExtension(const std::string &_rFileNameWithoutExt
   return Rts_E;
 }
 
+BOFERR BofPath::FileNameWithExtension(const std::string &_rFileNameWithExtension_S)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  std::string::size_type ExtensionPos, DelimiterPos;
+
+  DelimiterPos = _rFileNameWithExtension_S.find("/\\");
+  if (DelimiterPos == std::string::npos)
+  {
+    ExtensionPos = _rFileNameWithExtension_S.rfind('.');
+    mFileNameWithExtension_S = _rFileNameWithExtension_S;
+    mExtension_S = (ExtensionPos == std::string::npos) ? "" : _rFileNameWithExtension_S.substr(ExtensionPos + 1);
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  return Rts_E;
+}
+
 const std::string &BofPath::Extension() const
 {
   return mExtension_S;

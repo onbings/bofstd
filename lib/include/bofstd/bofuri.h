@@ -212,7 +212,7 @@ public:
   /// @param [in] _rPath_S : specifies a string representing the path.
   /// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
   /// @remarks Must be a linux (not windows) path type
-  BOFERR SetPath(const std::string &_rPath_S);
+  //BOFERR SetPath(const std::string &_rPath_S);
 
   /// @brief Set the path characteristics of the usri
   /// @param [in] _rPath : specifies a BofPath representing the path.

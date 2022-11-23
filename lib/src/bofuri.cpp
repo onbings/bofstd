@@ -229,6 +229,7 @@ BOFERR BofUri::SetSchemeAuthority(const BOF_SOCKET_ADDRESS_COMPONENT &_rSchemeAu
   }
   return Rts_E;
 }
+/*
 BOFERR BofUri::SetPath(const std::string &_rPath_S)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
@@ -242,6 +243,7 @@ BOFERR BofUri::SetPath(const std::string &_rPath_S)
   }
   return Rts_E;
 }
+*/
 BOFERR BofUri::SetPath(const BofPath &_rPath)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;

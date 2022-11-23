@@ -193,6 +193,10 @@ public:
 		/// @return A std::string containing the filename with its extension.
 		/// @remarks None
 		const std::string &FileNameWithExtension() const;
+		/// @brief Sets the filename with its extension.
+		/// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
+		/// @remarks It cannot contains slash or backslash
+		BOFERR FileNameWithExtension(const std::string &_rFileNameWithExtension_S);
 
 		/// @brief Return true if the path is a directory.
 		/// @return true if the path is a directory.
