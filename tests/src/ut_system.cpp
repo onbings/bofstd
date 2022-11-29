@@ -34,8 +34,15 @@ USE_BOF_NAMESPACE()
 TEST(System_Test, SystemUsageInfo)
 {
   BOF_SYSTEM_USAGE_INFO SystemUsageInfo_X;
-
+#if defined(_WIN32)
   EXPECT_EQ(Bof_SystemUsageInfo("C:\\", SystemUsageInfo_X), BOF_ERR_NO_ERROR);
+#else
+  EXPECT_EQ(Bof_SystemUsageInfo("/", SystemUsageInfo_X), BOF_ERR_NO_ERROR);
+#endif
+  printf("ss %d\n", SystemUsageInfo_X.DISK.SectorSizeInByte_U32);
+  printf("bs %d\n", SystemUsageInfo_X.DISK.BlockSizeInByte_U32);
+  printf("cap %zu\n", SystemUsageInfo_X.DISK.CapacityInByte_U64);
+  printf("rem %zu\n", SystemUsageInfo_X.DISK.RemainingSizeInByte_U64);
 }
 
 TEST(System_Test, VideoStandard)
