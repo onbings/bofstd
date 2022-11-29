@@ -31,6 +31,13 @@
 
 USE_BOF_NAMESPACE()
 
+TEST(System_Test, SystemUsageInfo)
+{
+  BOF_SYSTEM_USAGE_INFO SystemUsageInfo_X;
+
+  EXPECT_EQ(Bof_SystemUsageInfo("C:\\", SystemUsageInfo_X), BOF_ERR_NO_ERROR);
+}
+
 TEST(System_Test, VideoStandard)
 {
   BofVideoStandard Vs;

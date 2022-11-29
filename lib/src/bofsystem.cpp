@@ -84,6 +84,7 @@ PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurity
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/statvfs.h>
 #endif
 
 #include <signal.h>
@@ -2579,18 +2580,75 @@ std::string Bof_RandomHexa(bool _Reset_B, uint32_t _Size_U32, bool _Upper_B)
   return Rts_S;
 }
 
-BOFERR Bof_SystemUsageInfo(BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X)
+BOFERR Bof_SystemUsageInfo(const char *_pDiskName_c, BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X)
 {
   BOFERR            Rts_E = BOF_ERR_NOT_SUPPORTED;
 
   memset(&_rSystemUsageInfo_X, 0, sizeof(BOF::BOF_SYSTEM_USAGE_INFO));
 #if defined (_WIN32)
+  DWORD SectorPerCluster_U32, BytePerSector_U32, NumberOfFreeCluster_U32, TotalNumberOfCluster_U32;
+
+  if (_pDiskName_c)
+  {
+    if (GetDiskFreeSpaceA(_pDiskName_c, &SectorPerCluster_U32, &BytePerSector_U32, &NumberOfFreeCluster_U32, &TotalNumberOfCluster_U32))
+    {
+      _rSystemUsageInfo_X.DISK.SectorSizeInByte_U32 = BytePerSector_U32;
+      _rSystemUsageInfo_X.DISK.BlockSizeInByte_U32 = SectorPerCluster_U32 * BytePerSector_U32;
+      _rSystemUsageInfo_X.DISK.CapacityInByte_U64 = (uint64_t)TotalNumberOfCluster_U32 * (uint64_t)_rSystemUsageInfo_X.DISK.BlockSizeInByte_U32;
+      _rSystemUsageInfo_X.DISK.RemainingSizeInByte_U64 = (uint64_t)NumberOfFreeCluster_U32 * (uint64_t)_rSystemUsageInfo_X.DISK.BlockSizeInByte_U32;
+  }
+#if 0
+  Sts_i = getrusage(RUSAGE_SELF, &Usage_X);
+  if (Sts_i == 0)
+  {
+    _rSystemUsageInfo_X.TIME.UserCpuUsedInSec_f = static_cast<float>(Usage_X.ru_utime.tv_sec) + (static_cast<float>(Usage_X.ru_utime.tv_usec) / 1000000.0f);
+    _rSystemUsageInfo_X.TIME.SystemCpuUsedInSec_f = static_cast<float>(Usage_X.ru_stime.tv_sec) + (static_cast<float>(Usage_X.ru_stime.tv_usec) / 1000000.0f);
+    _rSystemUsageInfo_X.MEMORY.MaxRssInKB_U64 = Usage_X.ru_maxrss;
+    _rSystemUsageInfo_X.OS.NbSoftPageFault_U64 = Usage_X.ru_minflt;
+    _rSystemUsageInfo_X.OS.NbHardPageFault_U64 = Usage_X.ru_majflt;
+    _rSystemUsageInfo_X.OS.NbBlkInputOp_U64 = Usage_X.ru_inblock;
+    _rSystemUsageInfo_X.OS.NbBlkOutputOp_U64 = Usage_X.ru_oublock;
+    _rSystemUsageInfo_X.OS.NbVoluntaryContextSwitch_U64 = Usage_X.ru_nvcsw;
+    _rSystemUsageInfo_X.OS.NbInvoluntaryContextSwitch_U64 = Usage_X.ru_nivcsw;
+
+    Sts_i = sysinfo(&SysInfo_X);
+    if (Sts_i == 0)
+    {
+      LoadDivisor_f = static_cast<float>(1 << SI_LOAD_SHIFT);
+      _rSystemUsageInfo_X.TIME.UpTimeInSec_U64 = SysInfo_X.uptime;
+      _rSystemUsageInfo_X.OS.pLoad_f[0] = static_cast<float>(SysInfo_X.loads[0]) / LoadDivisor_f;
+      _rSystemUsageInfo_X.OS.pLoad_f[1] = static_cast<float>(SysInfo_X.loads[1]) / LoadDivisor_f;
+      _rSystemUsageInfo_X.OS.pLoad_f[2] = static_cast<float>(SysInfo_X.loads[2]) / LoadDivisor_f;
+      _rSystemUsageInfo_X.MEMORY.TotalRamInKB_U64 = (SysInfo_X.totalram * SysInfo_X.mem_unit) / 1024;
+      _rSystemUsageInfo_X.MEMORY.FreeRamInKB_U64 = (SysInfo_X.freeram * SysInfo_X.mem_unit) / 1024;
+      _rSystemUsageInfo_X.MEMORY.SharedRamInKB_U64 = (SysInfo_X.sharedram * SysInfo_X.mem_unit) / 1024;
+      _rSystemUsageInfo_X.MEMORY.BufferRamInKB_U64 = (SysInfo_X.bufferram * SysInfo_X.mem_unit) / 1024;
+      _rSystemUsageInfo_X.MEMORY.TotalSwapInKB_U64 = (SysInfo_X.totalswap * SysInfo_X.mem_unit) / 1024;
+      _rSystemUsageInfo_X.MEMORY.FreeSwapInKB_U64 = (SysInfo_X.freeswap * SysInfo_X.mem_unit) / 1024;
+      _rSystemUsageInfo_X.OS.NbProcess_U64 = SysInfo_X.procs;
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+  }
+#endif
+
 #else
   struct rusage  Usage_X;
   struct sysinfo SysInfo_X;
   float LoadDivisor_f;
+  struct statvfs StatVfs_X;
 
   int Sts_i;
+  if (_pDiskName_c)
+  {
+    Sts_i = statvfs(_pDiskName_c, &StatVfs_X);
+    if (Sts_i == 0)
+    {
+      _rSystemUsageInfo_X.DISK.SectorSizeInByte_U32 = 0;
+      _rSystemUsageInfo_X.DISK.BlockSizeInByte_U32 = StatVfs_X.f_bsize;
+      _rSystemUsageInfo_X.DISK.CapacityInByte_U64 = StatVfs_X.f_blocks * StatVfs_X.f_frsize; /* size of fs in f_frsize units */
+      _rSystemUsageInfo_X.DISK.RemainingSizeInByte_U64 = StatVfs_X.f_bfree * StatVfs_X.f_bsize;
+    }
+  }
   Sts_i = getrusage(RUSAGE_SELF, &Usage_X);
   if (Sts_i == 0)
   {

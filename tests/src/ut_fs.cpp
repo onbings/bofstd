@@ -483,6 +483,9 @@ TEST(Fs_Test, DirEnum)
   Sts_E = DirLayoutRoot.Combine("TstRoot/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
+//  FileCollection.clear();
+//  Sts_E = Bof_FindFile("C:\\bld\\evs-muse\\resources\\", "*", BOF::BOF_FILE_TYPE::BOF_FILE_DIR, false, FileCollection);
+
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);

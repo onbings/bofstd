@@ -495,6 +495,7 @@ struct BOFSTD_EXPORT BOF_THREAD
   }
 };
 
+
 struct BOFSTD_EXPORT BOF_SYSTEM_USAGE_INFO
 {
   struct
@@ -531,6 +532,14 @@ struct BOFSTD_EXPORT BOF_SYSTEM_USAGE_INFO
     uint64_t TotaHighInKB_U64; /* Total high memory size */
     uint64_t FreeHighInKB_U64;  /* Available high memory size */
   } MEMORY;
+
+  struct
+  {
+    uint32_t SectorSizeInByte_U32;       /* Size of a sector on disk device (specified in Bof_SystemUsageInfo call)*/
+    uint32_t BlockSizeInByte_U32;       /* Size of a block on disk device (specified in Bof_SystemUsageInfo call)*/
+    uint64_t CapacityInByte_U64;        /* Factory capacity of the device (specified in Bof_SystemUsageInfo call)*/
+    uint64_t RemainingSizeInByte_U64;   /* Available disk space (specified in Bof_SystemUsageInfo call)*/
+  } DISK;
 };
 // !! http://h30499.www3.hp.com/t5/Languages-and-Scripting/migration-to-64-bit-mode-semctl/td-p/3204127#.VUCj4XhV2zl !!!!
 typedef union semsetgetval
@@ -672,7 +681,7 @@ BOFERR Bof_WaitForConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, uint32_t
 }
 
 BOFSTD_EXPORT BOFERR Bof_DestroyConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X);
-BOFSTD_EXPORT BOFERR Bof_SystemUsageInfo(BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X);
+BOFSTD_EXPORT BOFERR Bof_SystemUsageInfo(const char *_pDiskName_c, BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X);
 BOFSTD_EXPORT std::string Bof_SystemUsageInfoToString(const BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X, const BOF_SYSTEM_USAGE_INFO *_pPreviousSystemUsageInfo_X);
 
 END_BOF_NAMESPACE()
