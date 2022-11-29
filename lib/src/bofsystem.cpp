@@ -2596,6 +2596,7 @@ BOFERR Bof_SystemUsageInfo(const char *_pDiskName_c, BOF_SYSTEM_USAGE_INFO &_rSy
       _rSystemUsageInfo_X.DISK.BlockSizeInByte_U32 = SectorPerCluster_U32 * BytePerSector_U32;
       _rSystemUsageInfo_X.DISK.CapacityInByte_U64 = (uint64_t)TotalNumberOfCluster_U32 * (uint64_t)_rSystemUsageInfo_X.DISK.BlockSizeInByte_U32;
       _rSystemUsageInfo_X.DISK.RemainingSizeInByte_U64 = (uint64_t)NumberOfFreeCluster_U32 * (uint64_t)_rSystemUsageInfo_X.DISK.BlockSizeInByte_U32;
+    }
   }
 #if 0
   Sts_i = getrusage(RUSAGE_SELF, &Usage_X);
