@@ -2582,7 +2582,7 @@ std::string Bof_RandomHexa(bool _Reset_B, uint32_t _Size_U32, bool _Upper_B)
 
 BOFERR Bof_SystemUsageInfo(const char *_pDiskName_c, BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X)
 {
-  BOFERR            Rts_E = BOF_ERR_NOT_SUPPORTED;
+  BOFERR            Rts_E = BOF_ERR_EINVAL;
 
   memset(&_rSystemUsageInfo_X, 0, sizeof(BOF::BOF_SYSTEM_USAGE_INFO));
 #if defined (_WIN32)
@@ -2598,6 +2598,7 @@ BOFERR Bof_SystemUsageInfo(const char *_pDiskName_c, BOF_SYSTEM_USAGE_INFO &_rSy
       _rSystemUsageInfo_X.DISK.RemainingSizeInByte_U64 = (uint64_t)NumberOfFreeCluster_U32 * (uint64_t)_rSystemUsageInfo_X.DISK.BlockSizeInByte_U32;
     }
   }
+  Rts_E = BOF_ERR_NO_ERROR;
 #if 0
   Sts_i = getrusage(RUSAGE_SELF, &Usage_X);
   if (Sts_i == 0)
@@ -2683,86 +2684,6 @@ BOFERR Bof_SystemUsageInfo(const char *_pDiskName_c, BOF_SYSTEM_USAGE_INFO &_rSy
   }
 #endif
   return Rts_E;
-}
-
-std::string Bof_SystemUsageInfoToString(const BOF_SYSTEM_USAGE_INFO &_rSystemUsageInfo_X, const BOF_SYSTEM_USAGE_INFO *_pPreviousSystemUsageInfo_X)
-{
-  std::string Rts_S;
-
-  Rts_S = Bof_Sprintf("Up time/User/System CPU time used            %ld/%f/%f s\n", _rSystemUsageInfo_X.TIME.UpTimeInSec_U64, _rSystemUsageInfo_X.TIME.UserCpuUsedInSec_f, _rSystemUsageInfo_X.TIME.SystemCpuUsedInSec_f);
-  if (_pPreviousSystemUsageInfo_X)
-  {
-    Rts_S += Bof_Sprintf("   Delta                                     %ld/%f/%f s\n", _rSystemUsageInfo_X.TIME.UpTimeInSec_U64 - _pPreviousSystemUsageInfo_X->TIME.UpTimeInSec_U64, _rSystemUsageInfo_X.TIME.UserCpuUsedInSec_f - _pPreviousSystemUsageInfo_X->TIME.UserCpuUsedInSec_f, _rSystemUsageInfo_X.TIME.SystemCpuUsedInSec_f - _pPreviousSystemUsageInfo_X->TIME.SystemCpuUsedInSec_f);
-  }
-
-  Rts_S += Bof_Sprintf("Page reclaims/faults (soft/hard page faults) %ld/%ld\n", _rSystemUsageInfo_X.OS.NbSoftPageFault_U64, _rSystemUsageInfo_X.OS.NbHardPageFault_U64);
-  if (_pPreviousSystemUsageInfo_X)
-  {
-    Rts_S += Bof_Sprintf("   Delta                                     %ld/%ld\n", _rSystemUsageInfo_X.OS.NbSoftPageFault_U64 - _pPreviousSystemUsageInfo_X->OS.NbSoftPageFault_U64, _rSystemUsageInfo_X.OS.NbHardPageFault_U64 - _pPreviousSystemUsageInfo_X->OS.NbHardPageFault_U64);
-  }
-  Rts_S += Bof_Sprintf("Block input/output operations                %ld/%ld\n", _rSystemUsageInfo_X.OS.NbBlkInputOp_U64, _rSystemUsageInfo_X.OS.NbBlkOutputOp_U64);
-  if (_pPreviousSystemUsageInfo_X)
-  {
-    Rts_S += Bof_Sprintf("   Delta                                     %ld/%ld\n", _rSystemUsageInfo_X.OS.NbBlkInputOp_U64 - _pPreviousSystemUsageInfo_X->OS.NbBlkInputOp_U64, _rSystemUsageInfo_X.OS.NbBlkOutputOp_U64 - _pPreviousSystemUsageInfo_X->OS.NbBlkOutputOp_U64);
-  }
-  Rts_S += Bof_Sprintf("Voluntary/Involuntary context switches       %ld/%ld\n", _rSystemUsageInfo_X.OS.NbVoluntaryContextSwitch_U64, _rSystemUsageInfo_X.OS.NbInvoluntaryContextSwitch_U64);
-  if (_pPreviousSystemUsageInfo_X)
-  {
-    Rts_S += Bof_Sprintf("   Delta                                     %ld/%ld\n", _rSystemUsageInfo_X.OS.NbVoluntaryContextSwitch_U64 - _pPreviousSystemUsageInfo_X->OS.NbVoluntaryContextSwitch_U64, _rSystemUsageInfo_X.OS.NbInvoluntaryContextSwitch_U64 - _pPreviousSystemUsageInfo_X->OS.NbInvoluntaryContextSwitch_U64);
-  }
-  Rts_S += Bof_Sprintf("Nb Process: Load 1/5/15 Min                  %ld: %f/%f/%f\n", _rSystemUsageInfo_X.OS.NbProcess_U64, _rSystemUsageInfo_X.OS.pLoad_f[0], _rSystemUsageInfo_X.OS.pLoad_f[1], _rSystemUsageInfo_X.OS.pLoad_f[2]);
-  if (_pPreviousSystemUsageInfo_X)
-  {
-    Rts_S += Bof_Sprintf("   Delta                                     %ld: %f/%f/%f\n", _rSystemUsageInfo_X.OS.NbProcess_U64 - _pPreviousSystemUsageInfo_X->OS.NbProcess_U64, _rSystemUsageInfo_X.OS.pLoad_f[0] - _pPreviousSystemUsageInfo_X->OS.pLoad_f[0], _rSystemUsageInfo_X.OS.pLoad_f[1] - _pPreviousSystemUsageInfo_X->OS.pLoad_f[1], _rSystemUsageInfo_X.OS.pLoad_f[2] - _pPreviousSystemUsageInfo_X->OS.pLoad_f[2]);
-  }
-
-  Rts_S += Bof_Sprintf("Rss/Free/Total/Shared/Buffer memory          %ld/%ld/%ld/%ld/%ld KB\n", _rSystemUsageInfo_X.MEMORY.MaxRssInKB_U64, _rSystemUsageInfo_X.MEMORY.FreeRamInKB_U64, _rSystemUsageInfo_X.MEMORY.TotalRamInKB_U64, _rSystemUsageInfo_X.MEMORY.SharedRamInKB_U64, _rSystemUsageInfo_X.MEMORY.BufferRamInKB_U64);
-  if (_pPreviousSystemUsageInfo_X)
-  {
-    Rts_S += Bof_Sprintf("   Delta                                     %ld/%ld/%ld/%ld/%ld KB\n", _rSystemUsageInfo_X.MEMORY.MaxRssInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.MaxRssInKB_U64, _rSystemUsageInfo_X.MEMORY.FreeRamInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.FreeRamInKB_U64, _rSystemUsageInfo_X.MEMORY.TotalRamInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.TotalRamInKB_U64, _rSystemUsageInfo_X.MEMORY.SharedRamInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.SharedRamInKB_U64, _rSystemUsageInfo_X.MEMORY.BufferRamInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.BufferRamInKB_U64);
-  }
-  Rts_S += Bof_Sprintf("Swap High                                    %ld/%ld %ld/%ld KB\n", _rSystemUsageInfo_X.MEMORY.FreeSwapInKB_U64, _rSystemUsageInfo_X.MEMORY.TotalSwapInKB_U64, _rSystemUsageInfo_X.MEMORY.FreeHighInKB_U64, _rSystemUsageInfo_X.MEMORY.TotaHighInKB_U64);
-  if (_pPreviousSystemUsageInfo_X)
-  {
-    Rts_S += Bof_Sprintf("   Delta                                     %ld/%ld %ld/%ld KB\n", _rSystemUsageInfo_X.MEMORY.FreeSwapInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.FreeSwapInKB_U64, _rSystemUsageInfo_X.MEMORY.TotalSwapInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.TotalSwapInKB_U64, _rSystemUsageInfo_X.MEMORY.FreeHighInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.FreeHighInKB_U64, _rSystemUsageInfo_X.MEMORY.TotaHighInKB_U64 - _pPreviousSystemUsageInfo_X->MEMORY.TotaHighInKB_U64);
-  }
-  // printf("Maximum resident set size/Free/Total memory  %ld KB\n", Usage_X.ru_maxrss, (get_avphys_pages() * getpagesize()) / 1024, (get_phys_pages() * getpagesize()) / 1024);
-
-  return Rts_S;
-  /*
-      char pData_c[1024];
-      FILE *pIo_X = fopen("/proc/slabinfo", "r");
-      if (pIo_X)
-      {
-        while (fgets(pData_c, sizeof(pData_c),pIo_X)!=nullptr)
-        {
-          SYSLOG(SYSLOG_MUL_CHANNEL_GENERAL, SYSLOG_LEVEL_CRITICAL, 0, 0, 0, ">>>%s", pData_c);
-        }
-        fclose(pIo_X);
-      }
-      pIo_X = fopen("/proc/pagetypeinfo", "r");
-      if (pIo_X)
-      {
-        while (fgets(pData_c, sizeof(pData_c),pIo_X)!=nullptr)
-        {
-          SYSLOG(SYSLOG_MUL_CHANNEL_GENERAL, SYSLOG_LEVEL_CRITICAL, 0, 0, 0, "]]]%s", pData_c);
-        }
-        fclose(pIo_X);
-      }
-      pIo_X = fopen("/proc/meminfo", "r");
-      if (pIo_X)
-      {
-        while (fgets(pData_c, sizeof(pData_c), pIo_X) != nullptr)
-        {
-          SYSLOG(SYSLOG_MUL_CHANNEL_GENERAL, SYSLOG_LEVEL_CRITICAL, 0, 0, 0, "[[[%s", pData_c);
-        }
-        fclose(pIo_X);
-      }
-   //   si_swapinfo(&i);
-
-     */
-
-
 }
 
 END_BOF_NAMESPACE()
