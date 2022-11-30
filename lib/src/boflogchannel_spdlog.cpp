@@ -44,6 +44,7 @@
 #include <map>
 
 BEGIN_BOF_NAMESPACE()
+//ALWAYS is mapped to OFF spdlog internal level
 static std::map<BOF_LOG_CHANNEL_LEVEL, spdlog::level::level_enum> S_ToSpdlogLevel =
 {
   {BOF_LOG_CHANNEL_LEVEL::TRACE,       spdlog::level::level_enum::trace},
@@ -52,7 +53,9 @@ static std::map<BOF_LOG_CHANNEL_LEVEL, spdlog::level::level_enum> S_ToSpdlogLeve
   {BOF_LOG_CHANNEL_LEVEL::WARNING,     spdlog::level::level_enum::warn},
   {BOF_LOG_CHANNEL_LEVEL::ERR,         spdlog::level::level_enum::err},
   {BOF_LOG_CHANNEL_LEVEL::CRITICAL,    spdlog::level::level_enum::critical},
-  {BOF_LOG_CHANNEL_LEVEL::OFF,         spdlog::level::level_enum::off}
+  {BOF_LOG_CHANNEL_LEVEL::OFF,         spdlog::level::level_enum::off},
+  {BOF_LOG_CHANNEL_LEVEL::ALWAYS,      spdlog::level::level_enum::off},
+  {BOF_LOG_CHANNEL_LEVEL::MAX,         spdlog::level::level_enum::off}
 };
 
 static spdlog::level::level_enum S_BofLoggerLevelToSpdlogLevel(BOF_LOG_CHANNEL_LEVEL _From_E)
@@ -100,6 +103,28 @@ void OnSpdlogCloseAsync()
 class BofLogChannelSpdLog::BofLogChannelSpdLogImplementation
 {
 private:
+  struct BOF_LOG_CHANNEL_CHARACTERISTIC
+  {
+    std::string LogHeader_S;
+    BOF_LOG_LEVEL_COLOR pLogLevelColor_E[(int)BOF_LOG_CHANNEL_LEVEL::MAX];
+    BofPath LogPath;
+
+    BOF_LOG_CHANNEL_CHARACTERISTIC()
+    {
+      Reset();
+    }
+    void Reset()
+    {
+      int i;
+
+      LogHeader_S = "";
+      for (i = 0; i < (int)BOF_LOG_CHANNEL_LEVEL::MAX; i++)
+      {
+        pLogLevelColor_E[i] = BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK;
+      }
+      LogPath = BofPath();
+    }
+  };
   bool                                                 mAddLineNumber_B = false;
   std::atomic<uint32_t>                                mLineNumber;
   std::shared_ptr<ramcircularbuffer_sink_mt>           mpsCircularBufferSink = nullptr;
@@ -108,7 +133,7 @@ private:
   BOF_LOG_CHANNEL_PARAM                                mLogChannelParam_X;
   bool                                                 mLogOpened_B = false;
   intptr_t                                             mIoLog = -1;
-
+  std::map < std::string, BOF_LOG_CHANNEL_CHARACTERISTIC>      mLogChannelCharacteristicCollection;
 public:
   BofLogChannelSpdLogImplementation()
   {
@@ -489,6 +514,30 @@ public:
     }
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
+      //#pragma message("Please fix me V_Add")
+      mLogChannelCharacteristicCollection[mLogChannelParam_X.ChannelName_S].LogPath = mLogChannelParam_X.FileLogPath;
+
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::TRACE, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE));
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::DBG, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE));
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::INFORMATION, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN));
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::WARNING, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN | BOF_LOG_LEVEL_COLOR::LOG_COLOR_BOLD));
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::ERR, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED | BOF_LOG_LEVEL_COLOR::LOG_COLOR_BOLD));
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::CRITICAL, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_RED | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_GREEN | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE | BOF_LOG_LEVEL_COLOR::LOG_COLOR_BOLD));
+//ALWAYS is mapped to OFF spdlog internal level
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::ALWAYS, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE));
+      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::OFF, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE));
+
+//      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::ALWAYS, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_RED));
+//      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::OFF, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLUE));
+
+//      V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL::OFF, static_cast<BOF_LOG_LEVEL_COLOR>(BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK | BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLACK ));
+      /*
+      colors_[level::warn] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY; // intense yellow
+      colors_[level::err] = FOREGROUND_RED | FOREGROUND_INTENSITY;                     // intense red
+      colors_[level::critical] =
+        BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY; // intense white on red background
+      colors_[level::off] = 0;
+      */
       Rts_E = V_LogLevel(BOF_LOG_CHANNEL_LEVEL::TRACE);
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
@@ -677,6 +726,8 @@ public:
     Rts_E = BOF_ERR_INTERNAL;
     if (psLogger)
     {
+      mLogChannelCharacteristicCollection[mLogChannelParam_X.ChannelName_S].pLogLevelColor_E[(int)_LogLevel_E] = _LogLevelColor_E;
+     
       LogLevel_E = S_ToSpdlogLevel[_LogLevel_E];
       Fore_E = static_cast<BOF_LOG_LEVEL_COLOR>(_LogLevelColor_E & LOG_COLOR_FORE_MASK);
       Back_E = static_cast<BOF_LOG_LEVEL_COLOR>(_LogLevelColor_E & LOG_COLOR_BACK_MASK);
@@ -742,7 +793,7 @@ public:
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_CYAN:
               Color |= BACKGROUND_GREEN | BACKGROUND_BLUE;
-              mpsStdOutColorSink->set_color(LogLevel_E, Color);
+//              mpsStdOutColorSink->set_color(LogLevel_E, Color);
               break;
             case BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_WHITE:
               Color |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
@@ -993,6 +1044,21 @@ public:
     }
     return Rts_E;
   }
+
+  BOF_LOG_LEVEL_COLOR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E)
+  {
+    BOF_LOG_LEVEL_COLOR             Rts_E = BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK;
+    std::shared_ptr<spdlog::logger> psLogger;
+
+    psLogger = spdlog::details::registry::instance().get(mLogChannelParam_X.ChannelName_S);
+    BOF_ASSERT(psLogger != nullptr);
+    if (psLogger)
+    {
+      Rts_E = mLogChannelCharacteristicCollection[mLogChannelParam_X.ChannelName_S].pLogLevelColor_E[(int)_LogLevel_E];
+    }
+    return Rts_E;
+  }
+
   BOFERR V_LogHeader(const std::string &_rLogHeader_S)
   {
     BOFERR                          Rts_E;
@@ -1004,6 +1070,12 @@ public:
     Rts_E = BOF_ERR_INTERNAL;
     if (psLogger)
     {
+      mLogChannelCharacteristicCollection[mLogChannelParam_X.ChannelName_S].LogHeader_S = _rLogHeader_S;
+      LogHeader_S = _rLogHeader_S;
+      if (LogHeader_S == "")
+      {
+        LogHeader_S = "%v";
+      }
       /*
       Pattern flags
 
@@ -1055,8 +1127,6 @@ public:
       // With this 'ticket' value, you can detect log line buffer overflow as you will have "holes" in the line number sequence if it happens
       -> "%N "); // Can only appears as the first arg
       */
-
-      LogHeader_S = _rLogHeader_S;
       /*
               mAddLineNumber_B = (LogHeader_S.substr(0, 3) == "%N "); // Can only appears as the first arg
               if (mAddLineNumber_B)
@@ -1069,6 +1139,21 @@ public:
     }
     return Rts_E;
   }
+  std::string V_LogHeader()
+  {
+    std::string                     Rts_S;
+    std::shared_ptr<spdlog::logger> psLogger;
+    std::string                     LogHeader_S;
+
+    psLogger = spdlog::details::registry::instance().get(mLogChannelParam_X.ChannelName_S);
+    BOF_ASSERT(psLogger != nullptr);
+    if (psLogger)
+    {
+      Rts_S = mLogChannelCharacteristicCollection[mLogChannelParam_X.ChannelName_S].LogHeader_S;
+    }
+    return Rts_S;
+  }
+
 
   BOFERR V_LogChannelPathName(BofPath &_rLogPath)
   {
@@ -1080,8 +1165,8 @@ public:
     Rts_E = BOF_ERR_INTERNAL;
     if (psLogger)
     {
-#pragma message("Please fix me V_LogChannelPathName")
-      _rLogPath = "Please fix me V_LogChannelPathName"; // psLogger->LogChannelBasePathName();
+//#pragma message("Please fix me V_LogChannelPathName")
+      _rLogPath = mLogChannelCharacteristicCollection[mLogChannelParam_X.ChannelName_S].LogPath;
       Rts_E = BOF_ERR_NO_ERROR;
     }
     return Rts_E;
@@ -1214,11 +1299,18 @@ BOFERR BofLogChannelSpdLog::V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E, B
 {
   return mpuBofLogChannelSpdLogImplementation->V_LogLevelColor(_LogLevel_E, _LogLevelColor_E);
 }
+BOF_LOG_LEVEL_COLOR BofLogChannelSpdLog::V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const
+{
+  return mpuBofLogChannelSpdLogImplementation->V_LogLevelColor(_LogLevel_E);
+}
 BOFERR BofLogChannelSpdLog::V_LogHeader(const std::string &_rPattern_S) const
 {
   return mpuBofLogChannelSpdLogImplementation->V_LogHeader(_rPattern_S);
 }
-
+std::string BofLogChannelSpdLog::V_LogHeader() const
+{
+  return mpuBofLogChannelSpdLogImplementation->V_LogHeader();
+}
 BOFERR BofLogChannelSpdLog::V_LogChannelPathName(BofPath &_rLogPath)
 {
   return mpuBofLogChannelSpdLogImplementation->V_LogChannelPathName(_rLogPath);

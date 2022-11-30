@@ -30,6 +30,9 @@
 #include <memory>
 
 BEGIN_BOF_NAMESPACE()
+const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ALWAYS = 0x80000000;  /*! Always display */
+const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ERROR = 0x40000000;  /*! Display error */
+const uint32_t BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE = 0x8000;
 
 //#define BOF_LOGGER_DEBUG_ON            // To avoid extra cost when we want no log and no fct call at all
 //The ##__VA_ARGS__ syntax is non-standard. It is a "swallow comma if the __VA_ARGS__ is empty" extension implemented by GCC, and seems to have been adopted by other compilers.
@@ -40,7 +43,8 @@ BEGIN_BOF_NAMESPACE()
 #define BOF_LOGGER_WARNING(LOG_DESTINATION,LOG_FORMAT, ...)
 #define BOF_LOGGER_ERROR(LOG_DESTINATION,LOG_FORMAT, ...)
 #define BOF_LOGGER_CRITICAL(LOG_DESTINATION,LOG_FORMAT, ...)
-#define BOF_LOGGER_RAW_OUTPUT(LOG_DESTINATION,MSG)
+//#define BOF_LOGGER_RAW_OUTPUT(LOG_DESTINATION,MSG)
+#define BOF_LOGGER_RAW_OUTPUT(LOG_DESTINATION, LOG_FORMAT, ...)
 #else
 #define BOF_LOGGER_TRACE(LOG_DESTINATION, LOG_FORMAT, ...)          BOF::BofLogger::S_Instance().Log(LOG_DESTINATION,BOF::BOF_LOG_CHANNEL_LEVEL::TRACE,LOG_FORMAT, ##__VA_ARGS__)
 #define BOF_LOGGER_DBG(LOG_DESTINATION, LOG_FORMAT, ...)          BOF::BofLogger::S_Instance().Log(LOG_DESTINATION,BOF::BOF_LOG_CHANNEL_LEVEL::DBG,LOG_FORMAT, ##__VA_ARGS__)
@@ -48,12 +52,9 @@ BEGIN_BOF_NAMESPACE()
 #define BOF_LOGGER_WARNING(LOG_DESTINATION, LOG_FORMAT, ...)        BOF::BofLogger::S_Instance().Log(LOG_DESTINATION,BOF::BOF_LOG_CHANNEL_LEVEL::WARNING,LOG_FORMAT, ##__VA_ARGS__)
 #define BOF_LOGGER_ERROR(LOG_DESTINATION, LOG_FORMAT, ...)          BOF::BofLogger::S_Instance().Log(LOG_DESTINATION,BOF::BOF_LOG_CHANNEL_LEVEL::ERR, LOG_FORMAT, ##__VA_ARGS__)
 #define BOF_LOGGER_CRITICAL(LOG_DESTINATION, LOG_FORMAT, ...)       BOF::BofLogger::S_Instance().Log(LOG_DESTINATION,BOF::BOF_LOG_CHANNEL_LEVEL::CRITICAL, LOG_FORMAT, ##__VA_ARGS__)
-#define BOF_LOGGER_RAW_OUTPUT(LOG_DESTINATION, MSG) {BOF_LOGGER_DBG(LOG_DESTINATION, MSG, 0);}
+//#define BOF_LOGGER_RAW_OUTPUT(LOG_DESTINATION, MSG) {BOF_LOGGER_DBG(LOG_DESTINATION, MSG, 0);}
+#define BOF_LOGGER_RAW_OUTPUT(LOG_DESTINATION, LOG_FORMAT, ...) {BOF::BofLogger::S_Instance().Log(LOG_DESTINATION,BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS, LOG_FORMAT, ##__VA_ARGS__);}
 #endif
-
-const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ALWAYS = 0x80000000;  /*! Always display */
-const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ERROR = 0x40000000;  /*! Display error */
-const uint32_t BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE = 0x8000;
 
 #define BOF_LOGGER_EXTENDED_TRACE(LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) {char pLog_c[BOF::BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE];             if (!BOF::BofLogger::S_FormatMaskLogMsg(LOG_DESTINATION,LOG_CHANNEL_ID,                   sizeof(pLog_c),pLog_c,__FILE__,__LINE__,__func__,LOG_ERROR_CODE, LOG_FORMAT, ##__VA_ARGS__)) {BOF_LOGGER_TRACE(LOG_DESTINATION, pLog_c, 0);}}
 #define BOF_LOGGER_EXTENDED_DBG(LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) {char pLog_c[BOF::BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE];             if (!BOF::BofLogger::S_FormatMaskLogMsg(LOG_DESTINATION,LOG_CHANNEL_ID,                   sizeof(pLog_c),pLog_c,__FILE__,__LINE__,__func__,LOG_ERROR_CODE, LOG_FORMAT, ##__VA_ARGS__)) {BOF_LOGGER_DBG(LOG_DESTINATION, pLog_c,0);}}
@@ -61,7 +62,7 @@ const uint32_t BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE = 0x8000;
 #define BOF_LOGGER_EXTENDED_WARNING(LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) {char pLog_c[BOF::BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE];           if (!BOF::BofLogger::S_FormatMaskLogMsg(LOG_DESTINATION,LOG_CHANNEL_ID,                   sizeof(pLog_c),pLog_c,__FILE__,__LINE__,__func__,LOG_ERROR_CODE, LOG_FORMAT, ##__VA_ARGS__)) {BOF_LOGGER_WARNING(LOG_DESTINATION, pLog_c, 0);}}
 #define BOF_LOGGER_EXTENDED_ERROR(LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) {char pLog_c[BOF::BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE];             if (!BOF::BofLogger::S_FormatMaskLogMsg(LOG_DESTINATION,LOG_CHANNEL_ID,                   sizeof(pLog_c),pLog_c,__FILE__,__LINE__,__func__,LOG_ERROR_CODE, LOG_FORMAT, ##__VA_ARGS__)) {BOF_LOGGER_ERROR(LOG_DESTINATION, pLog_c, 0);}}
 #define BOF_LOGGER_EXTENDED_CRITICAL(LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) {char pLog_c[BOF::BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE];          if (!BOF::BofLogger::S_FormatMaskLogMsg(LOG_DESTINATION,LOG_CHANNEL_ID,                   sizeof(pLog_c),pLog_c,__FILE__,__LINE__,__func__,LOG_ERROR_CODE, LOG_FORMAT, ##__VA_ARGS__)) {BOF_LOGGER_CRITICAL(LOG_DESTINATION, pLog_c, 0);}}
-#define BOF_LOGGER_EXTENDED_ALWAYS_OUTPUT(LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) { char pLog_c[BOF::BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE]; if (!BOF::BofLogger::S_FormatMaskLogMsg(LOG_DESTINATION, (LOG_CHANNEL_ID | BOF_DBG_ALWAYS), sizeof(pLog_c), pLog_c, __FILE__, __LINE__, __func__, LOG_ERROR_CODE, LOG_FORMAT, ##__VA_ARGS__)) { BOF_LOGGER_DBG(LOG_DESTINATION, pLog_c, 0); } }
+#define BOF_LOGGER_EXTENDED_ALWAYS_OUTPUT(LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) { char pLog_c[BOF::BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE]; if (!BOF::BofLogger::S_FormatMaskLogMsg(LOG_DESTINATION, (LOG_CHANNEL_ID | BOF::BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ALWAYS), sizeof(pLog_c), pLog_c, __FILE__, __LINE__, __func__, LOG_ERROR_CODE, LOG_FORMAT, ##__VA_ARGS__)) { BOF_LOGGER_DBG(LOG_DESTINATION, pLog_c, 0); } }
 
 #define BOF_LOG_EXTENDED(LOG_TYPE, LOG_DESTINATION, LOG_CHANNEL_ID, LOG_ERROR_CODE, LOG_FORMAT, ...) BOF_LOGGER_EXTENDED_##LOG_TYPE(LOG_DESTINATION,LOG_CHANNEL_ID,LOG_ERROR_CODE,LOG_FORMAT, ##__VA_ARGS__)
 #define BOF_LOG(LOG_TYPE, LOG_DESTINATION, LOG_FORMAT, ...) BOF_LOGGER_##LOG_TYPE(LOG_DESTINATION, LOG_FORMAT,  ##__VA_ARGS__)
@@ -117,7 +118,11 @@ public:
 
 		const std::string LogMaskName(const std::string &_rChannelName_S, uint32_t _LogMask_U32) const;
 
+		BOFERR LogHeader(const std::string &_rChannelName_S, const std::string &_rLogHeader_S);
+		std::string LogHeader(const std::string &_rChannelName_S) const;
+
     BOFERR LogLevelColor(const std::string &_rChannelName_S, BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_LEVEL_COLOR _LogLevelColor_E);
+		BOF_LOG_LEVEL_COLOR LogLevelColor(const std::string &_rChannelName_S, BOF_LOG_CHANNEL_LEVEL _LogLevel_E);
 
 		BOFERR Flush(const std::string &_rChannelName_S);
 
@@ -170,7 +175,6 @@ public:
 					}
 					if (Rts_E == BOF_ERR_NO_ERROR)
 					{
-
 						Rts_E = psBofLogChannel->V_Log(_Level_E, FormatttedOutput_S);
 					}
 				}

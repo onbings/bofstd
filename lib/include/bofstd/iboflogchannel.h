@@ -66,7 +66,9 @@ enum class BOF_LOG_CHANNEL_LEVEL : uint32_t // Same as typedef enum{}level_enum;
   WARNING,
   ERR,
   CRITICAL,
-  OFF
+  OFF,
+  ALWAYS,
+  MAX
 };
 /*
 colors_[level::trace] = WHITE;
@@ -273,8 +275,10 @@ public:
   virtual BOFERR V_LogLevel(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const = 0;
 
   virtual BOFERR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_LEVEL_COLOR _LogLevelColor_E) const = 0;
+  virtual BOF_LOG_LEVEL_COLOR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const = 0;
 
   virtual BOFERR V_LogHeader(const std::string &_rPattern_S) const = 0;
+  virtual std::string V_LogHeader() const = 0;
 
   BOFERR LogLevel(BOF_LOG_CHANNEL_LEVEL _LogLevel_E);
 

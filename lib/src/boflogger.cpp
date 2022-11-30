@@ -245,6 +245,29 @@ const std::string BofLogger::LogMaskName(const std::string &_rChannelName_S, uin
   return Rts;
 }
 
+BOFERR BofLogger::LogHeader(const std::string &_rChannelName_S, const std::string &_rLogHeader_S)
+{
+  BOFERR Rts_E = BOF_ERR_NOT_FOUND;
+  LogFctLookupIterator It = S_mLogChannelList.find(_rChannelName_S);
+  if (It != S_mLogChannelList.end())
+  {
+    It->second->V_LogHeader(_rLogHeader_S);
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  return Rts_E;
+}
+
+std::string  BofLogger::LogHeader(const std::string &_rChannelName_S) const
+{
+  std::string Rts_S;
+  LogFctLookupIterator It = S_mLogChannelList.find(_rChannelName_S);
+  if (It != S_mLogChannelList.end())
+  {
+    Rts_S = It->second->V_LogHeader();
+  }
+  return Rts_S;
+}
+
 BOFERR BofLogger::LogLevelColor(const std::string &_rChannelName_S, BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_LEVEL_COLOR _LogLevelColor_E)
 {
   BOFERR Rts_E = BOF_ERR_NOT_FOUND;
@@ -252,6 +275,17 @@ BOFERR BofLogger::LogLevelColor(const std::string &_rChannelName_S, BOF_LOG_CHAN
   if (It != S_mLogChannelList.end())
   {
     Rts_E = It->second->V_LogLevelColor(_LogLevel_E, _LogLevelColor_E);
+  }
+  return Rts_E;
+}
+
+BOF_LOG_LEVEL_COLOR BofLogger::LogLevelColor(const std::string &_rChannelName_S, BOF_LOG_CHANNEL_LEVEL _LogLevel_E)
+{
+  BOF_LOG_LEVEL_COLOR Rts_E = BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK ;
+  LogFctLookupIterator It = S_mLogChannelList.find(_rChannelName_S);
+  if (It != S_mLogChannelList.end())
+  {
+    Rts_E = It->second->V_LogLevelColor(_LogLevel_E);
   }
   return Rts_E;
 }

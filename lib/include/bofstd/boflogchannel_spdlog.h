@@ -58,8 +58,10 @@ public:
     BOFERR V_LogLevel(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const override;
 
     BOFERR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_LEVEL_COLOR _LogLevelColor_E) const override;
+    BOF_LOG_LEVEL_COLOR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const override;
 
     BOFERR V_LogHeader(const std::string &_rPattern_S) const override;
+    std::string V_LogHeader() const override;
 
     // Opaque pointer design pattern: opaque type here
 private:

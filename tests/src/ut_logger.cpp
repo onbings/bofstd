@@ -392,7 +392,56 @@ TEST_F(Logger_Test, LoggerMultiSink)
 }
 #endif
 
+TEST_F(Logger_Test, LogAlways)
+{
+  constexpr const char *MFS_LOGGER_MAINCHANNEL = "Mfs";
+  uint32_t Mask_U32, i_U32;
+  BOF_LOG_LEVEL_COLOR CritLogLevelColor_E, LogLevelColor_E;
+  std::string CritLogHeader_S;
+  BOF_LOGGER_PARAM LoggerParam_X;
+  BofLogger &rBofLog = BOF::BofLogger::S_Instance();
+  std::vector<std::string> LogMaskNamesCollection{ /*0*/ "INIT", "INFO", "CONNECT", "", "", "", "", "", /*8*/  "", "", "", "", "", "", "", "",/*16*/"", "", "", "", "",
+                                               "", "", "",/*24*/"", "", "", "", "", "", "ALWAYS", "ERROR" };  //see enum LOG_CHANNEL_FLAG_MASK
+  LoggerParam_X.Name_S = MFS_LOGGER_MAINCHANNEL;
+  //LoggerParam_X.LogPattern_S = "%i %L %^%v%$";
+  LoggerParam_X.MaxNumberOfAsyncLogQueueEntry_U32 = 0x800;
+  LoggerParam_X.AsyncAutoFushIntervalInMs_U32 = 0;
+  LoggerParam_X.FastFormat_B = true;
+  LoggerParam_X.OverflowPolicy_E = BOF::BOF_LOGGER_OVERFLOW_POLICY::DISCARD;
+  LoggerParam_X.OnError = nullptr;
+  LoggerParam_X.OnErrorCodeToString = nullptr;
+  rBofLog.InitializeLogger(LoggerParam_X);
+  rBofLog.AddLogChannel(std::make_shared<BOF::BofLogChannelSpdLog>(), { MFS_LOGGER_MAINCHANNEL, "", "%i %L %^%v%$", false,
+                                                                                 BOF::BOF_LOG_CHANNEL_LEVEL::TRACE,
+                                                                                 BOF::BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR,
+                                                                                 BOF::BOF_LOG_CHANNEL_FLAG::NONE,
+                                                                                 BOF::BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, 0, 0, 0 });
 
+  rBofLog.LogMask(MFS_LOGGER_MAINCHANNEL, 0xFFFFFFFF ^ (0));
+  for (Mask_U32 = 1, i_U32 = 0; i_U32 < LogMaskNamesCollection.size(); i_U32++, Mask_U32 <<= 1)
+  {
+    rBofLog.LogMaskName(MFS_LOGGER_MAINCHANNEL, Mask_U32, LogMaskNamesCollection[i_U32]);
+  }
+  //ALWAYS is mapped to OFF spdlog internal level
+  CritLogHeader_S = rBofLog.LogHeader(MFS_LOGGER_MAINCHANNEL);
+  CritLogLevelColor_E = rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS);
+  LogLevelColor_E = static_cast<BOF::BOF_LOG_LEVEL_COLOR>(BOF::BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK | BOF::BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE);
+  //rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS, LogLevelColor_E);
+  rBofLog.LogHeader(MFS_LOGGER_MAINCHANNEL, "");
+
+  BOF_LOGGER_RAW_OUTPUT(MFS_LOGGER_MAINCHANNEL, "Storage Info:\n  Version '%s'", "1.2.3.4");
+  BOF_LOGGER_RAW_OUTPUT(MFS_LOGGER_MAINCHANNEL, "  Api '%s'", "5.6.7.8");
+  rBofLog.Flush(MFS_LOGGER_MAINCHANNEL);
+  Bof_MsSleep(100);
+
+  //rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS, CritLogLevelColor_E);
+  rBofLog.LogHeader(MFS_LOGGER_MAINCHANNEL, CritLogHeader_S);
+
+  BOF_LOGGER_CRITICAL(MFS_LOGGER_MAINCHANNEL, "Storage Info:\n  Version '%s'", "1.2.3.4");
+  BOF_LOGGER_CRITICAL(MFS_LOGGER_MAINCHANNEL, "  Api '%s'", "5.6.7.8");
+  
+  Bof_MsSleep(100);
+}
 TEST_F(Logger_Test, LoggerMultiChannel)
 {
   BOFERR                Sts_E;
