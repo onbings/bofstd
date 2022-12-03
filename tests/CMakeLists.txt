@@ -11,6 +11,7 @@ set(DATA_FILES
   ./data/colorbar_1920x1080p59_8bit_captured_by_sdk.422
   ./data/colorbar.jpg
   ./data/colorbar.png
+  ./data/football_seal.tga
   ./data/colorbar_in_raw_32b_194x259.raw
   ./data/colorbar_jpg_with_bad_ext.png
   ./data/colorbar_jpg_with_no_ext
