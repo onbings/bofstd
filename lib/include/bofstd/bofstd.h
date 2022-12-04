@@ -139,6 +139,7 @@ BEGIN_BOF_NAMESPACE()
 #define BOF_INVALID_HANDLE_VALUE    ( (void *)-1)
 const intptr_t BOF_FS_INVALID_HANDLE = -1;
 
+#define BOF_GET_FILE_FROM__FILE__(ptr)                                                  {ptr = strrchr(__FILE__, '/'); if (!ptr) ptr = strrchr(__FILE__, '\\'); ptr = ptr ? ++ptr : __FILE__; }
 #define BOF_COMPUTE_DELTA(start, end, delta)                                            { delta = ( end > start ) ? ( end - start ) : ( start - end ); }
 #define BOF_SAFE_FREE(p)                                                                { if ( (p) ) { free ((void *)p); }      (p) = nullptr; }        /*! free a buffer */
 #define BOF_SAFE_DELETE(p)                                                              { if ( (p) ) { delete (p); }      (p) = nullptr; }        /*! Delete an object*/
