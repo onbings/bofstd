@@ -1030,6 +1030,7 @@ BOFERR BofConio::Clear(CONIO_CLEAR _ClearType_E)
       break;
 
   }
+  *p_c = 0;
   printf("%s", pAttribute_c);
 
   return Rts_E;
