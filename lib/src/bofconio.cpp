@@ -19,6 +19,21 @@
  *
  * V 1.00  Apr 13 2019  BHA : Initial release
  */
+/*
+Unit test:
+  std::string Input_S;
+  BOF::BOF_CONIO_PARAM ConioParam_X;
+  std::unique_ptr<BOF::BofConio> puConio = std::make_unique<BOF::BofConio>(ConioParam_X);
+  puConio->SetForegroundTextColor(BOF::CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_YELLOW);
+  puConio->SetBackgroundTextColor(BOF::CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_RED);
+  puConio->Clear(BOF::CONIO_CLEAR::CONIO_CLEAR_ALL);
+  puConio->SetTextCursorPosition(4, 10);
+  puConio->Printf("Hello world");
+  puConio->SetTextCursorPosition(5, 9);
+  puConio->Printf("!!!");
+  puConio->SetTextCursorState(BOF::CONIO_TEXT_CURSOR_STATE::CONIO_TEXT_CURSOR_STATE_BLINK_OFF);
+  puConio->SetTextWindowTitle("M F S");
+*/
  //https://solarianprogrammer.com/2019/04/08/c-programming-ansi-escape-codes-windows-macos-linux-terminals/
  //https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 #include <bofstd/bofconio.h>
@@ -907,6 +922,7 @@ BOFERR BofConio::SetTextCursorState(CONIO_TEXT_CURSOR_STATE _CursorState_E)
       *p_c++ = 'h';
       break;
   }
+  *p_c = 0;
   printf("%s", pAttribute_c);
 
   return Rts_E;
