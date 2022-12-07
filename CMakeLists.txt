@@ -24,7 +24,7 @@ if (VCPKG_TARGET_ANDROID)
 endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.1.16.38)
+project(bofstd VERSION 5.1.16.39)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.

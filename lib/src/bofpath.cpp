@@ -31,19 +31,19 @@
 #endif
 BEGIN_BOF_NAMESPACE()
 
-BofPath::BofPath()
+BofPath::BofPath(bool _PureFilename_B)
 {
-  InitPathField("");
+  InitPathField(_PureFilename_B, "");
 }
 
-BofPath::BofPath(const char *_pPath_c)
+BofPath::BofPath(const char *_pPath_c, bool _PureFilename_B)
 {
   std::string Path_S;
 
   if (_pPath_c)
   {
     Path_S = _pPath_c;
-    InitPathField(Path_S);
+    InitPathField(_PureFilename_B, Path_S);
   }
   else
   {
@@ -52,32 +52,32 @@ BofPath::BofPath(const char *_pPath_c)
   }
 }
 
-BofPath::BofPath(const std::string &_rPath_S)
+BofPath::BofPath(const std::string &_rPath_S, bool _PureFilename_B)
 {
-  InitPathField(_rPath_S);
+  InitPathField(_PureFilename_B, _rPath_S);
 }
 
 BofPath::BofPath(const std::string &_rDirectory_S, const std::string &_rFile_S)
 {
-  InitPathField(_rDirectory_S + _rFile_S);
+  InitPathField(false, _rDirectory_S + _rFile_S);
 }
 
 BofPath::BofPath(const BofPath &_rOther_O)
 {
-  InitPathField(_rOther_O.ToString());
+  InitPathField((_rOther_O.DirectoryName(false,false) == ""), _rOther_O.ToString());
 }
 
 BofPath::BofPath(BofPath &&_rrOther_O)
 {
   // Pilfer others resource
-  InitPathField(_rrOther_O.ToString());
+  InitPathField((_rrOther_O.DirectoryName(false, false) == ""), _rrOther_O.ToString());
   // Reset other
-  _rrOther_O.InitPathField("");
+  _rrOther_O.InitPathField(false, "");
 }
 
 BofPath &BofPath::operator=(const BofPath &_rOther_O)
 {
-  InitPathField(_rOther_O.ToString());
+  InitPathField((_rOther_O.DirectoryName(false, false) == ""), _rOther_O.ToString());
   return *this;
 }
 
@@ -87,9 +87,9 @@ BofPath &BofPath::operator=(BofPath &&_rrOther_O)
   {
     // Release the current object�s resources
     // Pilfer others resource
-    InitPathField(_rrOther_O.ToString());
+    InitPathField((_rrOther_O.DirectoryName(false, false) == ""), _rrOther_O.ToString());
     // Reset other
-    _rrOther_O.InitPathField("");
+    _rrOther_O.InitPathField(false, "");
   }
   return *this;
 }
@@ -97,11 +97,12 @@ BofPath &BofPath::operator=(BofPath &&_rrOther_O)
 BofPath &BofPath::operator=(const char *_pNewPath_c)
 {
   std::string Path_S;
+  std::string::size_type DelimiterPos;
 
   if (_pNewPath_c)
   {
     Path_S = _pNewPath_c;
-    InitPathField(Path_S);
+    InitPathField(!IsDirectoryDelimiterPresent(Path_S), Path_S);
   }
   else
   {
@@ -113,7 +114,7 @@ BofPath &BofPath::operator=(const char *_pNewPath_c)
 
 BofPath &BofPath::operator=(const std::string &_rNewPath_S)
 {
-  InitPathField(_rNewPath_S);
+  InitPathField(!IsDirectoryDelimiterPresent(_rNewPath_S), _rNewPath_S);
   return *this;
 }
 
@@ -169,13 +170,12 @@ const std::string &BofPath::FileNameWithoutExtension() const
 BOFERR BofPath::FileNameWithoutExtension(const std::string &_rFileNameWithoutExtension_S)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  std::string::size_type ExtensionPos, DelimiterPos;
+  std::string::size_type ExtensionPos;
 
   ExtensionPos = _rFileNameWithoutExtension_S.find('.');
   if (ExtensionPos == std::string::npos)
   {
-    DelimiterPos = _rFileNameWithoutExtension_S.find("/\\");
-    if (DelimiterPos == std::string::npos)
+    if (!IsDirectoryDelimiterPresent(_rFileNameWithoutExtension_S))
     {
       Rts_E = BOF_ERR_NO_ERROR;
       mFileNameWithoutExtension_S = _rFileNameWithoutExtension_S;
@@ -187,10 +187,9 @@ BOFERR BofPath::FileNameWithoutExtension(const std::string &_rFileNameWithoutExt
 BOFERR BofPath::FileNameWithExtension(const std::string &_rFileNameWithExtension_S)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  std::string::size_type ExtensionPos, DelimiterPos;
+  std::string::size_type ExtensionPos; 
 
-  DelimiterPos = _rFileNameWithExtension_S.find("/\\");
-  if (DelimiterPos == std::string::npos)
+  if (!IsDirectoryDelimiterPresent(_rFileNameWithExtension_S))
   {
     ExtensionPos = _rFileNameWithExtension_S.rfind('.');
     mFileNameWithExtension_S = _rFileNameWithExtension_S;
@@ -217,13 +216,12 @@ const std::string &BofPath::Extension() const
 BOFERR BofPath::Extension(const std::string &_rExtension_S)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  std::string::size_type ExtensionPos, DelimiterPos;
+  std::string::size_type ExtensionPos;
 
   ExtensionPos = _rExtension_S.find('.');
   if (ExtensionPos == std::string::npos)
   {
-    DelimiterPos = _rExtension_S.find("/\\");
-    if (DelimiterPos == std::string::npos)
+    if (!IsDirectoryDelimiterPresent(_rExtension_S))
     {
       Rts_E = BOF_ERR_NO_ERROR;
       mFileNameWithoutExtension_S = _rExtension_S;
@@ -273,7 +271,7 @@ BOFERR BofPath::Combine(const std::string &_rRelativePath_S)
 
   //no as we want to be able to Combine file with '\' to get a directory if (IsDirectory())
   {
-    Rts_E = InitPathField(ToString() + _rRelativePath_S);
+    Rts_E = InitPathField(false, ToString() + _rRelativePath_S);
   }
   return Rts_E;
 }
@@ -326,7 +324,7 @@ BOFERR BofPath::CurrentDirectoryName(const std::string &_rNewCurrentDirectoryNam
   std::string ThePath_S, DiskName_S;
   char LastChar_c;
 
-  Rts_E = Normalize(_rNewCurrentDirectoryName_S, ThePath_S, DiskName_S);
+  Rts_E = Normalize(false, _rNewCurrentDirectoryName_S, ThePath_S, DiskName_S);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     Rts_E = BOF_ERR_FORMAT;
@@ -344,7 +342,7 @@ BOFERR BofPath::CurrentDirectoryName(const std::string &_rNewCurrentDirectoryNam
   return Rts_E;
 }
 
-BOFERR BofPath::InitPathField(const std::string &_rPath_S)
+BOFERR BofPath::InitPathField(bool _PureFilename_B, const std::string &_rPath_S)
 {
   BOFERR Rts_E;
   char LastChar_c;
@@ -358,7 +356,7 @@ BOFERR BofPath::InitPathField(const std::string &_rPath_S)
   mDirectoryName_S = "";
   mDiskName_S = "";
   mSubdirCollection.clear();
-  Rts_E = Normalize(_rPath_S, ThePath_S, mDiskName_S);
+  Rts_E = Normalize(_PureFilename_B, _rPath_S, ThePath_S, mDiskName_S);
   if (Rts_E == BOF_ERR_EMPTY) //for "" filename
   {
     Rts_E = BOF_ERR_NO_ERROR;
@@ -381,10 +379,19 @@ BOFERR BofPath::InitPathField(const std::string &_rPath_S)
         FilenamePos = ThePath_S.rfind('/');
         if (FilenamePos == std::string::npos)
         {
-          Rts_E = BOF_ERR_INTERNAL;
-          mFileNameWithExtension_S = ThePath_S;
-          // pure filename: not possible the normalize step should have returned an error
-          BOF_ASSERT(0);
+          if (!_PureFilename_B)
+          {
+            Rts_E = BOF_ERR_INTERNAL;
+            mFileNameWithExtension_S = ThePath_S;
+            // pure filename: not possible the normalize step should have returned an error
+            BOF_ASSERT(0);
+          }
+          else
+          {
+            FilenamePos = 0;
+            mDirectoryName_S = "";
+            mFileNameWithExtension_S = ThePath_S;
+          }
         }
         else
         {
@@ -405,7 +412,14 @@ BOFERR BofPath::InitPathField(const std::string &_rPath_S)
         else
         {
           mExtension_S = ThePath_S.substr(ExtensionPos + 1);
-          mFileNameWithoutExtension_S = ThePath_S.substr(FilenamePos + 1, ExtensionPos - FilenamePos - 1);
+          if (!_PureFilename_B)
+          {
+            mFileNameWithoutExtension_S = ThePath_S.substr(FilenamePos + 1, ExtensionPos - FilenamePos - 1);
+          }
+          else
+          {
+            mFileNameWithoutExtension_S = ThePath_S.substr(0, ExtensionPos);
+          }
         }
       }
 
@@ -441,7 +455,7 @@ bool BofPath::IsForbiddenChar(const std::string &_rPath_S)
   return (Bof_StringIsPresent(_rPath_S, "<>:\"\\|?*\a\f\n\r\t\v"));
 }
 
-BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormalizedPath_S, std::string &_rDiskName_S)
+BOFERR BofPath::Normalize(bool _PureFilename_B, const std::string &_rRawPath_S, std::string &_rNormalizedPath_S, std::string &_rDiskName_S)
 {
   BOFERR Rts_E;
   std::string Pwd_S;
@@ -477,8 +491,11 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
       {
         if (SlashDelimiterPos == std::string::npos)
         {
-          _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
-          //_rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
+          if (!_PureFilename_B)
+          {
+            _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
+            //_rNormalizedPath_S = Bof_StringReplace(_rNormalizedPath_S, "\\", '/');
+          }
         }
         else
         {
@@ -528,28 +545,34 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
     }
     if (_rNormalizedPath_S[0] != '/')	// data/dir/file without ./ or ../
     {
-      _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
-      if (IsWindowsDiskPath(_rNormalizedPath_S))
+      if (!_PureFilename_B)
       {
-        _rDiskName_S = _rNormalizedPath_S.substr(0, 2);
-        _rNormalizedPath_S = _rNormalizedPath_S.substr(2);
-      }
-    }
-    // Reject relative path
-    if (_rNormalizedPath_S[0] != '/')
-    {
-      if (mCurrentDirectoryName_S != "")
-      {
-        _rNormalizedPath_S = mCurrentDirectoryName_S + _rNormalizedPath_S;
+        _rNormalizedPath_S = Pwd_S + _rNormalizedPath_S;
         if (IsWindowsDiskPath(_rNormalizedPath_S))
         {
           _rDiskName_S = _rNormalizedPath_S.substr(0, 2);
           _rNormalizedPath_S = _rNormalizedPath_S.substr(2);
         }
       }
-      else
+    }
+    // Reject relative path
+    if (!_PureFilename_B)
+    {
+      if (_rNormalizedPath_S[0] != '/')
       {
-        Rts_E = BOF_ERR_FORMAT;
+        if (mCurrentDirectoryName_S != "")
+        {
+          _rNormalizedPath_S = mCurrentDirectoryName_S + _rNormalizedPath_S;
+          if (IsWindowsDiskPath(_rNormalizedPath_S))
+          {
+            _rDiskName_S = _rNormalizedPath_S.substr(0, 2);
+            _rNormalizedPath_S = _rNormalizedPath_S.substr(2);
+          }
+        }
+        else
+        {
+          Rts_E = BOF_ERR_FORMAT;
+        }
       }
     }
     //		else
@@ -562,118 +585,90 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
       }
       else
       {
-        // Reduce path (. and .. processing)
-        if (_rNormalizedPath_S == "/")
+        if (!_PureFilename_B)
         {
-        }
-        else
-        {
-          // Track ./././
-#if 0
-          fails with . / babar
-            std::string::iterator it = _rNormalizedPath_S.begin();
-          ++it;                        // Skip first char
-          do
+          // Reduce path (. and .. processing)
+          if (_rNormalizedPath_S == "/")
           {
-            it = std::adjacent_find(it, _rNormalizedPath_S.end(), [_rNormalizedPath_S](char _Char1_c, char _Char2_c) { printf("%s %c %c\r\n", _rNormalizedPath_S.c_str(), _Char1_c, _Char2_c);  return ((_Char1_c == '.') && (_Char2_c == '/')); });
-            if (it != _rNormalizedPath_S.end())
-            {
-              if (*(it - 1) == '/')
-              {
-                Rts_E = BOF_ERR_FORMAT;
-                break;
-              }
-              ++it;
-              // need a test against _rNormalizedPath_S.end() to be sure   -> ++it;  ->skip it perf are the same (-;
-            }
-          } while (it != _rNormalizedPath_S.end());
-#endif
-          // Track //
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-#if 0
-            std::string::iterator itslash = std::adjacent_find(_rNormalizedPath_S.begin(), _rNormalizedPath_S.end(),
-                                                               [](char _Char1_c, char _Char2_c) { return ((_Char1_c == '/') && (_Char2_c == '/')); });
-            if (itslash != _rNormalizedPath_S.end())
-            {
-              Rts_E = BOF_ERR_FORMAT;
-            }
-#else
-            Prev_c = ~_rNormalizedPath_S[0];
-            for (auto It = _rNormalizedPath_S.begin(); It != _rNormalizedPath_S.end(); ++It)
-            {
-              //if (Prev_c == *It)
-              if ((Prev_c == '/') && (*It == '/'))
-              {
-                _rNormalizedPath_S.erase(It);
-                It--;
-              }
-              else 
-              {
-                Prev_c = *It;
-              }
-            }
-#endif
           }
-
-          if (Rts_E == BOF_ERR_NO_ERROR)
+          else
           {
-            ListOfDir_S = Bof_StringSplit(_rNormalizedPath_S, "/");
-            if (ListOfDir_S.size())
+            if (Rts_E == BOF_ERR_NO_ERROR)
             {
-              // Remove .
-              ListOfDir_S.erase(std::remove_if(ListOfDir_S.begin(), ListOfDir_S.end(), [](const std::string &_rStr_S) { return _rStr_S == "."; }), ListOfDir_S.end());
-
-              if (ListOfDir_S.size() > 1)
+              Prev_c = ~_rNormalizedPath_S[0];
+              for (auto It = _rNormalizedPath_S.begin(); It != _rNormalizedPath_S.end(); ++It)
               {
-                // Process ..
-                std::vector<std::string>::iterator itdot = ListOfDir_S.begin();
-                do
+                //if (Prev_c == *It)
+                if ((Prev_c == '/') && (*It == '/'))
                 {
-                  itdot = std::adjacent_find(itdot, ListOfDir_S.end(), [](const std::string &_rStr1_S, const std::string &_rStr2_S) { return ((_rStr1_S != "..") && (_rStr2_S == "..")); });
-                  if (itdot != ListOfDir_S.end())
-                  {
-                    itdot = ListOfDir_S.erase(itdot, itdot + 2);
-                    if (itdot == ListOfDir_S.begin())
-                    {
-                      ///tmp/../..
-                      Rts_E = BOF_ERR_UNDERRUN;
-                      break;
-                    }
-                    else
-                    {
-                      --itdot;
-                    }
-                  }
-                } while (itdot != ListOfDir_S.end());
+                  _rNormalizedPath_S.erase(It);
+                  It--;
+                }
+                else
+                {
+                  Prev_c = *It;
+                }
               }
             }
-          }
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-            // Special case such as C:/.. or V:/tmp/......
-            for (std::string &rStr_S : ListOfDir_S)
+            if (Rts_E == BOF_ERR_NO_ERROR)
             {
-              if (Bof_StringIsAllTheSameChar(rStr_S, '.'))
+              ListOfDir_S = Bof_StringSplit(_rNormalizedPath_S, "/");
+              if (ListOfDir_S.size())
+              {
+                // Remove .
+                ListOfDir_S.erase(std::remove_if(ListOfDir_S.begin(), ListOfDir_S.end(), [](const std::string &_rStr_S) { return _rStr_S == "."; }), ListOfDir_S.end());
+
+                if (ListOfDir_S.size() > 1)
+                {
+                  // Process ..
+                  std::vector<std::string>::iterator itdot = ListOfDir_S.begin();
+                  do
+                  {
+                    itdot = std::adjacent_find(itdot, ListOfDir_S.end(), [](const std::string &_rStr1_S, const std::string &_rStr2_S) { return ((_rStr1_S != "..") && (_rStr2_S == "..")); });
+                    if (itdot != ListOfDir_S.end())
+                    {
+                      itdot = ListOfDir_S.erase(itdot, itdot + 2);
+                      if (itdot == ListOfDir_S.begin())
+                      {
+                        ///tmp/../..
+                        Rts_E = BOF_ERR_UNDERRUN;
+                        break;
+                      }
+                      else
+                      {
+                        --itdot;
+                      }
+                    }
+                  } while (itdot != ListOfDir_S.end());
+                }
+              }
+            }
+            if (Rts_E == BOF_ERR_NO_ERROR)
+            {
+              // Special case such as C:/.. or V:/tmp/......
+              for (std::string &rStr_S : ListOfDir_S)
+              {
+                if (Bof_StringIsAllTheSameChar(rStr_S, '.'))
+                {
+                  Rts_E = BOF_ERR_INVALID_STATE;
+                  break;
+                }
+              }
+            }
+            if (Rts_E == BOF_ERR_NO_ERROR)
+            {
+              _rNormalizedPath_S = "/" + Bof_StringJoin(ListOfDir_S, "/");
+              BOF_ASSERT(_rNormalizedPath_S[0] == '/');
+              if (_rNormalizedPath_S[1] == '/')
+              {
+                _rNormalizedPath_S = _rNormalizedPath_S.erase(0, 1);
+              }
+              std::string::const_iterator itslash = std::adjacent_find(_rNormalizedPath_S.begin(), _rNormalizedPath_S.end(),
+                [](const char _Char1_c, const char _Char2_c) { return ((_Char1_c == '/') && (_Char2_c == '/')); });
+              if (itslash != _rNormalizedPath_S.end())
               {
                 Rts_E = BOF_ERR_INVALID_STATE;
-                break;
               }
-            }
-          }
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-            _rNormalizedPath_S = "/" + Bof_StringJoin(ListOfDir_S, "/");
-            BOF_ASSERT(_rNormalizedPath_S[0] == '/');
-            if (_rNormalizedPath_S[1] == '/')
-            {
-              _rNormalizedPath_S = _rNormalizedPath_S.erase(0, 1);
-            }
-            std::string::const_iterator itslash = std::adjacent_find(_rNormalizedPath_S.begin(), _rNormalizedPath_S.end(),
-                                                                     [](const char _Char1_c, const char _Char2_c) { return ((_Char1_c == '/') && (_Char2_c == '/')); });
-            if (itslash != _rNormalizedPath_S.end())
-            {
-              Rts_E = BOF_ERR_INVALID_STATE;
             }
           }
         }
@@ -681,5 +676,26 @@ BOFERR BofPath::Normalize(const std::string &_rRawPath_S, std::string &_rNormali
     }
   }
   return Rts_E;
+}
+
+bool BofPath::IsDirectoryDelimiterPresent(const std::string &_rPath_S) const
+{
+  bool Rts_B = false;
+  std::string::size_type DelimiterPos;
+
+  DelimiterPos = _rPath_S.find("/");
+  if (DelimiterPos != std::string::npos)
+  {
+    Rts_B = true;
+  }
+  else
+  {
+    DelimiterPos = _rPath_S.find("\\");
+    if (DelimiterPos != std::string::npos)
+    {
+      Rts_B = true;
+    }
+  }
+  return Rts_B;
 }
 END_BOF_NAMESPACE()

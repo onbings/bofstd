@@ -55,17 +55,19 @@ private:
 public:
 		/// @brief Initializes a new instance of the Path class.
 		/// @remarks Default constructor.
-		BofPath();
+		BofPath(bool _PureFilename_B = false);
 
 		/// @brief Initializes a new instance of the Path class.
 		/// @param _pPath_c A pointer to a char array containing the path
+		/// @param _PureFilename_B True if we have only the file part of a path name. If false and only the file part is provided the current working dir is automatically pre-appended to the filename.
 		/// @remarks None.
-		BofPath(const char *_pPath_c);
+		BofPath(const char *_pPath_c, bool _PureFilename_B = false);
 
 		/// @brief Initializes a new instance of the Path class.
 		/// @param _rPath_S A string containing the path
+		/// @param _PureFilename_B True if we have only the file part of a path name. If false and only the file part is provided the current working dir is automatically pre-appended to the filename.
 		/// @remarks None.
-		BofPath(const std::string &_rPath_S);
+		BofPath(const std::string &_rPath_S, bool _PureFilename_B = false);
 
 		/// @brief Initializes a new instance of the Path class.
 		/// @param _rDirectory_S A string containing the directory
@@ -237,21 +239,23 @@ private:
 		/// @cond
 
 		/// @brief Initializes the class instance members.
+		/// @param _PureFilename_B True if we have only the file part of a path name. If false and only the file part is provided the current working dir is automatically pre-appended to the filename.
 		/// @param _rPath_S A string containing the path
 		/// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 		/// @remarks None
-		BOFERR InitPathField(const std::string &_rPath_S);
+		BOFERR InitPathField(bool _PureFilename_B, const std::string &_rPath_S);
 
 		/// @brief Transform the raw path input string into a normalized one. Normalization includes:
 		/// - Normalization of directory separator
 		/// - Remove .. and . optional character in input
 		/// - Track input string format error such as double . in extension,...
+		/// @param _PureFilename_B True if we have only the file part of a path name. If false and only the file part is provided the current working dir is automatically pre-appended to the filename.
 		/// @param _rRawPath_S A string containing the 'raw' path
 		/// @param _rNormalizedPath_S A string containing the 'normalized' path computed from the 'raw' one.
 		/// @param _rDiskName_S A string containing the disk name in the path .
 		/// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 		/// @remarks None
-		BOFERR Normalize(const std::string &_rRawPath_S, std::string &_rNormalizedPath_S, std::string &_rDiskName_S);
+		BOFERR Normalize(bool _PureFilename_B, const std::string &_rRawPath_S, std::string &_rNormalizedPath_S, std::string &_rDiskName_S);
 
 		/// @brief Check if a path is a windows one. A full windows path begins with a letter (disk) followed by a : and then a /
 		/// @param _rPath_S : Specifies the path to check
@@ -265,5 +269,7 @@ private:
 		/// @remarks None
 		bool IsForbiddenChar(const std::string &_rPath_S);
 		/// @endcond
+
+		bool IsDirectoryDelimiterPresent(const std::string &_rPath_S) const;
 };
 END_BOF_NAMESPACE()

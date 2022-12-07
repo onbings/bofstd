@@ -887,7 +887,7 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsag
 BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)
 {
   BOFERR Rts_E = BOF_ERR_OPERATION_FAILED;
-#pragma message("TODO: optimize this BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)"
+#pragma message("TODO: optimize this BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)")
   // Open the file: Note that we have to use binary mode as we want to return a string
   // representing matching the bytes of the file on the file system.
 #if defined(_WIN32)

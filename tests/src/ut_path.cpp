@@ -381,7 +381,22 @@ TEST(Path_Test, PathConstructorDestructorLinux)
 TEST(Path_Test, PathParsing)
 {
   BOFERR Sts_E;
-  BofPath Path("C:\\file");
+
+  BofPath Path("file.ext", true);
+  EXPECT_EQ(Path.IsValid(), true);
+  EXPECT_EQ(Path.IsExist(), false);
+  EXPECT_EQ(Path.IsDirectory(), false);
+  EXPECT_EQ(Path.IsFile(), true);
+  EXPECT_STREQ(Path.FullPathName(false).c_str(), "file.ext");
+  EXPECT_STREQ(Path.FullPathName(true).c_str(), "file.ext");
+  EXPECT_STREQ(Path.DirectoryName(false, false).c_str(), "");
+  EXPECT_STREQ(Path.DirectoryName(true, true).c_str(), "");
+  EXPECT_STREQ(Path.Extension().c_str(), "ext");
+  EXPECT_STREQ(Path.FileNameWithExtension().c_str(), "file.ext");
+  EXPECT_STREQ(Path.FileNameWithoutExtension().c_str(), "file");
+
+
+  Path = "C:\\file";
   EXPECT_EQ(Path.IsValid(), true);
   EXPECT_EQ(Path.IsExist(), false);
   EXPECT_EQ(Path.IsDirectory(), false);
@@ -459,28 +474,28 @@ TEST(Path_Test, PathParsing)
   EXPECT_EQ(Path.IsValid(), false);
 
   Path = "C:/\\";
-  EXPECT_EQ(Path.IsValid(), false);
+  EXPECT_EQ(Path.IsValid(), true);
 
   Path = "C:/\\/";
-  EXPECT_EQ(Path.IsValid(), false);
+  EXPECT_EQ(Path.IsValid(), true);
 
   Path = "C:/\\//";
-  EXPECT_EQ(Path.IsValid(), false);
+  EXPECT_EQ(Path.IsValid(), true);
 
   Path = "C:/tmp//.";
-  EXPECT_EQ(Path.IsValid(), false);
+  EXPECT_EQ(Path.IsValid(), true);
 
   Path = "C:/tmp/////.";
-  EXPECT_EQ(Path.IsValid(), false);
+  EXPECT_EQ(Path.IsValid(), true);
 
   Path = "C:/tmp//A/B/C//D";
-  EXPECT_EQ(Path.IsValid(), false);
+  EXPECT_EQ(Path.IsValid(), true);
 
   Path = "C:/tmp//A/B/C//D//";
-  EXPECT_EQ(Path.IsValid(), false);
+  EXPECT_EQ(Path.IsValid(), true);
 
   BofPath Path5("C:\\", "..");
-  EXPECT_EQ(Path5.IsValid(), false);
+  EXPECT_EQ(Path5.IsValid(), true);
 
   BofPath Path6(nullptr);
   EXPECT_EQ(Path6.IsValid(), false);
