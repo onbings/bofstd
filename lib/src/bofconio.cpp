@@ -22,16 +22,16 @@
 /*
 Unit test:
   std::string Input_S;
-  BOF::BOF_CONIO_PARAM ConioParam_X;
-  std::unique_ptr<BOF::BofConio> puConio = std::make_unique<BOF::BofConio>(ConioParam_X);
-  puConio->SetForegroundTextColor(BOF::CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_YELLOW);
-  puConio->SetBackgroundTextColor(BOF::CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_RED);
-  puConio->Clear(BOF::CONIO_CLEAR::CONIO_CLEAR_ALL);
+  BOF_CONIO_PARAM ConioParam_X;
+  std::unique_ptr<BofConio> puConio = std::make_unique<BofConio>(ConioParam_X);
+  puConio->SetForegroundTextColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_YELLOW);
+  puConio->SetBackgroundTextColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_RED);
+  puConio->Clear(CONIO_CLEAR::CONIO_CLEAR_ALL);
   puConio->SetTextCursorPosition(4, 10);
   puConio->Printf("Hello world");
   puConio->SetTextCursorPosition(5, 9);
   puConio->Printf("!!!");
-  puConio->SetTextCursorState(BOF::CONIO_TEXT_CURSOR_STATE::CONIO_TEXT_CURSOR_STATE_BLINK_OFF);
+  puConio->SetTextCursorState(CONIO_TEXT_CURSOR_STATE::CONIO_TEXT_CURSOR_STATE_BLINK_OFF);
   puConio->SetTextWindowTitle("M F S");
 */
  //https://solarianprogrammer.com/2019/04/08/c-programming-ansi-escape-codes-windows-macos-linux-terminals/
@@ -1116,4 +1116,44 @@ BOFERR BofConio::Printf(const char *_pFormat_c, ...)
     */
   return Rts_E;
 }
+void BofConio::PrintfAtColor(CONIO_TEXT_COLOR _ForeColor_E, uint32_t _x_U32, uint32_t _y_U32, const char *_pFormat_c, ...)
+{
+  uint32_t x_U32, y_U32;
+  char    pText_c[0x10000];
+
+  if (_ForeColor_E != mForeColor_E)
+  {
+    if (SetForegroundTextColor(_ForeColor_E) == BOF_ERR_NO_ERROR)
+    {
+      mForeColor_E = _ForeColor_E;
+    }
+  }
+  if ((_x_U32) || (_y_U32))
+  {
+    if ((_x_U32) && (_y_U32))
+    {
+      SetTextCursorPosition(_x_U32, _y_U32);
+    }
+    else
+    {
+      if (GetTextCursorPosition(x_U32, y_U32) == BOF_ERR_NO_ERROR)
+      {
+        if (_x_U32)
+        {
+          SetTextCursorPosition(_x_U32, y_U32);
+        }
+        else
+        {
+          SetTextCursorPosition(x_U32, _y_U32);
+        }
+      }
+    }
+  }
+  va_list Arg;
+  va_start(Arg, _pFormat_c);
+  vsnprintf(pText_c, sizeof(pText_c), _pFormat_c, Arg);
+  va_end(Arg);
+  Printf("%s", pText_c);
+}
+
 END_BOF_NAMESPACE()

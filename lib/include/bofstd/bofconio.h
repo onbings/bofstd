@@ -25,6 +25,8 @@
 #include <bofstd/bof2d.h>
 
 BEGIN_BOF_NAMESPACE()
+#define PrintfAt(x, y, pFormat, ...) PrintfAtColor(mForeColor_E, x, y, pFormat, __VA_ARGS__)
+#define PrintfColor(Color, pFormat, ...) PrintfAtColor(Color, 0, 0, pFormat, __VA_ARGS__)
 
 enum CONIO_MODIFIER_KEY_FLAG :uint32_t
 {
@@ -198,10 +200,14 @@ public:
     */
 
   BOFERR			Printf(const char *_pFormat_c, ...);
+  void        PrintfAtColor(CONIO_TEXT_COLOR _ForeColor_E, uint32_t _x_U32, uint32_t _y_U32, const char *_pFormat_c, ...);
+
   BOFERR			Reset();
 
 private:
   uint32_t GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c);
+
+  CONIO_TEXT_COLOR mForeColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BLACK;
 };
 
 END_BOF_NAMESPACE()

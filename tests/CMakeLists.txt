@@ -52,7 +52,8 @@ set(COM_FILES
 	src/ut_socketudp.cpp
 )
 
-set(CONIO_FILES
+set(CONIO_SHELL_FILES
+	src/ut_shell.cpp
 )
 
 set(CONTAINER_FILES
@@ -137,7 +138,7 @@ set(SOURCES_FILES
 	${CALLBACK_FILES}
 	${CLI_FILES}
 	${COM_FILES}
-	${CONIO_FILES}
+	${CONIO_SHELL_FILES}
 	${CONTAINER_FILES}
 	${CRYPTO_FILES}
 	${DAEMON_FILES}
@@ -165,7 +166,7 @@ source_group("Bit"		 FILES ${BIT_FILES})
 source_group("Callback"	 FILES ${CALLBACK_FILES})
 source_group("Cli"		 FILES ${CLI_FILES})
 source_group("Com"		 FILES ${COM_FILES})
-source_group("ConIo"	 FILES ${CONIO_FILES})
+source_group("ConIo"	 FILES ${CONIO_SHELL_FILES})
 source_group("Container" FILES ${CONTAINER_FILES})
 source_group("Crypto"	 FILES ${CRYPTO_FILES})
 source_group("Daemon"	 FILES ${DAEMON_FILES})
