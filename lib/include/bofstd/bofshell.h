@@ -105,17 +105,17 @@ public:
   virtual ~BofShell();
 
   BOFERR Parser(const std::string &_rShellCmd_S);
-  BOFERR Interpreter();
+  BOFERR Interpreter(const std::string &_rFirstCommand_S);
   BOFERR ShellHelp();
   BOFERR ShellQuit();
   bool DoYouWantToContinue();
-  BOFERR ExecScript(const BofPath &_rScriptFile);
+  BOFERR SetExecScript(const BofPath &_rScriptPath);
   BOFERR AddCommand(const std::string &_rCmd_S, const BOF_SHELL_CMD &_rShellCmd);
 
 private:
   bool  mFinish_B = false;
   bool mExecScript_B = false;
-  BofPath mScriptFile;
+  BofPath mScriptPath;
 };
 
 END_BOF_NAMESPACE()

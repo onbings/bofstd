@@ -35,10 +35,10 @@ BofShell::~BofShell()
 {
 
 }
-BOFERR  BofShell::ExecScript(const BofPath &_rScriptFile)
+BOFERR  BofShell::SetExecScript(const BofPath &_rScriptPath)
 {
-  mScriptFile = _rScriptFile;
-  mExecScript_B = (mScriptFile.FileNameWithExtension() != "");
+  mScriptPath = _rScriptPath;
+  mExecScript_B = (mScriptPath.FileNameWithExtension() != "");
   return BOF_ERR_NO_ERROR;
 }
 
@@ -182,10 +182,11 @@ BOFERR BofShell::Parser(const std::string &_rShellCmd_S)
   return Rts_E;
 }
 
-BOFERR BofShell::Interpreter()
+BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   std::string Pwd_S, ScriptLine_S, CmdLine_S;
+  bool FirstCommand_B;
   intptr_t IoScript = BOF_FS_INVALID_HANDLE;
   uint32_t i_U32;
   
@@ -204,15 +205,24 @@ BOFERR BofShell::Interpreter()
     mShellParam_X.psConio->SetTextWindowTitle(mShellParam_X.WindowTitle_S);
   }
 
-
+  if (_rFirstCommand_S != "")
+  {
+    FirstCommand_B = true;
+    CmdLine_S = _rFirstCommand_S;
+  }
   do
   {
-    if (mShellParam_X.InteractiveMode_B)
+    if (!FirstCommand_B)
     {
-      mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "%s", "");
-      mShellParam_X.psConio->Readline(mShellParam_X.Prompt_S, CmdLine_S);
+      if (mShellParam_X.InteractiveMode_B)
+      {
+        mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "%s", "");
+        mShellParam_X.psConio->Readline(mShellParam_X.Prompt_S, CmdLine_S);
+      }
     }
-    if ((!CmdLine_S.empty()) && (CmdLine_S[0] != '#')) //Comment in script file
+    FirstCommand_B = false;
+
+    if ((CmdLine_S != "") && (CmdLine_S[0] != '#')) //Comment in script file
     {
       Rts_E = Parser(CmdLine_S.c_str());
     }
@@ -238,9 +248,9 @@ BOFERR BofShell::Interpreter()
         if (IoScript == BOF_FS_INVALID_HANDLE)
         {
           Bof_GetCurrentDirectory(Pwd_S);
-          mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "Execute '%s' script from '%s'\n", mScriptFile.FullPathName(false).c_str(), Pwd_S.c_str());
+          mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str());
 
-          Rts_E = Bof_OpenFile(mScriptFile, true, IoScript);
+          Rts_E = Bof_OpenFile(mScriptPath, true, IoScript);
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellErrorColor_E, "Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E));
