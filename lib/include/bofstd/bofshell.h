@@ -62,6 +62,14 @@ struct BOFSTD_EXPORT BOF_SHELL_PARAM
   std::string Prompt_S;
   std::map<std::string, BOF_SHELL_CMD> ShellCmdCollection;
   std::map<std::string, BOFPARAMETER>  ShellArgCollection;
+  CONIO_TEXT_COLOR ShellBackColor_E;
+  CONIO_TEXT_COLOR ShellCmdInputColor_E;
+  CONIO_TEXT_COLOR ShellCmdOutputColor_E;
+  CONIO_TEXT_COLOR ShellErrorColor_E;
+  CONIO_TEXT_COLOR ShellScriptColor_E;
+  bool ForceMode_B;
+  //Returned param (output from constructor)
+  std::shared_ptr<BOF::BofConio> psConio = nullptr;
 
   BOF_SHELL_PARAM()
   {
@@ -76,6 +84,14 @@ struct BOFSTD_EXPORT BOF_SHELL_PARAM
     Prompt_S = "";
     ShellCmdCollection.clear();
     ShellArgCollection.clear();
+    ShellBackColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BLACK;
+    ShellCmdInputColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_BLUE;
+    ShellCmdOutputColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_GREEN;
+    ShellErrorColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_RED;
+    ShellScriptColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_CYAN;
+    ForceMode_B = false;
+    //Returned param (output from constructor)
+    psConio = nullptr;
   }
 };
 
@@ -89,13 +105,17 @@ public:
   virtual ~BofShell();
 
   BOFERR Parser(const std::string &_rShellCmd_S);
-  BOFERR Interpreter(const BofPath &_rScriptFile);
+  BOFERR Interpreter();
+  BOFERR ShellHelp();
+  BOFERR ShellQuit();
+  bool DoYouWantToContinue();
+  BOFERR ExecScript(const BofPath &_rScriptFile);
+  BOFERR AddCommand(const std::string &_rCmd_S, const BOF_SHELL_CMD &_rShellCmd);
 
 private:
   bool  mFinish_B = false;
-  std::unique_ptr<BOF::BofConio> mpuConio = nullptr;
   bool mExecScript_B = false;
-
+  BofPath mScriptFile;
 };
 
 END_BOF_NAMESPACE()

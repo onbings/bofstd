@@ -20,6 +20,7 @@
 #include <bofstd/bofshell.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/boffs.h>
+#include <bofstd/bofstringformatter.h>
 
 #include <regex>
 
@@ -33,7 +34,70 @@ BofShell::~BofShell()
 {
 
 }
+BOFERR  BofShell::ExecScript(const BofPath &_rScriptFile)
+{
+  mScriptFile = _rScriptFile;
+  mExecScript_B = (mScriptFile.FileNameWithExtension() != "");
+  return BOF_ERR_NO_ERROR;
+}
 
+bool BofShell::DoYouWantToContinue()
+{
+  bool Rts_B = true;
+  uint32_t Ch_U32;
+
+  if (!mShellParam_X.ForceMode_B)
+  {
+    mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellErrorColor_E, "%s\n", "Are you sure you want to continue (Y/N)");
+    Ch_U32 = mShellParam_X.psConio->GetCh(false);
+    if ((Ch_U32 & BOF::CONIO_KEY_MASK) == 'Y')
+    {
+      Rts_B = false;
+    }
+    mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdOutputColor_E, "%s\n", Rts_B ? "Yes":"No");
+  }
+  return Rts_B;
+}
+
+BOFERR BofShell::ShellHelp()
+{
+  std::string Help_S;
+  uint32_t i_U32;
+
+  auto pIt = mShellParam_X.ShellCmdCollection.begin();
+  while (pIt != mShellParam_X.ShellCmdCollection.end())
+  {
+    Help_S = Bof_Sprintf("%-8s: %s [", pIt->first.c_str(), pIt->second.Help_S.c_str());
+    i_U32 = 0;
+    for (auto &rIt : pIt->second.ArgNameCollection)
+    {
+      Help_S += rIt;
+      if (i_U32 != (pIt->second.ArgNameCollection.size() - 1))
+      {
+        Help_S += ", ";
+      }
+      i_U32++;
+    }
+    Help_S += "]";
+    mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdOutputColor_E, "%s\n", Help_S.c_str());
+    pIt++;
+  }
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR BofShell::ShellQuit()
+{
+  mFinish_B = true;
+  return BOF_ERR_NO_ERROR;
+}
+
+BOFERR BofShell::AddCommand(const std::string &_rCmd_S, const BOF_SHELL_CMD &_rShellCmd)
+{
+BOFERR Rts_E;
+
+  auto It = mShellParam_X.ShellCmdCollection.insert(std::pair < std::string, BOF_SHELL_CMD>(_rCmd_S, _rShellCmd));
+  Rts_E = It.second ? BOF_ERR_NO_ERROR : BOF_ERR_EXIST;
+  return Rts_E;
+}
 BOFERR BofShell::Parser(const std::string &_rShellCmd_S)
 {
   BOFERR Rts_E = BOF_ERR_FORMAT;
@@ -117,7 +181,7 @@ BOFERR BofShell::Parser(const std::string &_rShellCmd_S)
   return Rts_E;
 }
 
-BOFERR BofShell::Interpreter(const BofPath &_rScriptFile)
+BOFERR BofShell::Interpreter()
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   std::string Pwd_S, ScriptLine_S, CmdLine_S;
@@ -125,37 +189,30 @@ BOFERR BofShell::Interpreter(const BofPath &_rScriptFile)
   uint32_t i_U32;
   
   mFinish_B = true;
-  if (_rScriptFile.FileNameWithExtension() != "")
+  if (mExecScript_B)
   {
-    mExecScript_B = true;
+    mShellParam_X.InteractiveMode_B = false;
   }
-  else
+  if (mShellParam_X.InteractiveMode_B)
   {
-    if (mShellParam_X.InteractiveMode_B)
-    {
-      mFinish_B = false;
-      mpuConio = std::make_unique<BofConio>(mShellParam_X.ConioParam_X);
+    mFinish_B = false;
+  }
+  mShellParam_X.psConio = std::make_shared<BofConio>(mShellParam_X.ConioParam_X);
 
-      mpuConio->SetTextWindowTitle(mShellParam_X.WindowTitle_S);
-      mpuConio->SetForegroundTextColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_WHITE);
-      mpuConio->SetBackgroundTextColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BLACK);
-      mpuConio->Clear(CONIO_CLEAR::CONIO_CLEAR_ALL);
-      mpuConio->SetTextCursorPosition(1, 1);
-    }
-  }
+  mShellParam_X.psConio->SetForegroundTextColor(mShellParam_X.ShellCmdInputColor_E);
+  mShellParam_X.psConio->SetBackgroundTextColor(mShellParam_X.ShellBackColor_E);
+  mShellParam_X.psConio->Clear(CONIO_CLEAR::CONIO_CLEAR_ALL);
+  mShellParam_X.psConio->SetTextCursorPosition(1, 1);
+  mShellParam_X.psConio->SetTextWindowTitle(mShellParam_X.WindowTitle_S);
 
   do
   {
     if (mShellParam_X.InteractiveMode_B)
     {
-      mpuConio->PrintfColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_BLUE, "%s", "");
-      mpuConio->Readline(mShellParam_X.Prompt_S, CmdLine_S);
+      mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "%s", "");
+      mShellParam_X.psConio->Readline(mShellParam_X.Prompt_S, CmdLine_S);
     }
-    if (!mExecScript_B)
-    {
-      mpuConio->PrintfColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_BLUE, "%s%s\n", mShellParam_X.Prompt_S.c_str(), CmdLine_S.c_str());
-    }
-    if (CmdLine_S[0] != '#') //Comment in script file
+    if ((!CmdLine_S.empty()) && (CmdLine_S[0] != '#')) //Comment in script file
     {
       Rts_E = Parser(CmdLine_S.c_str());
     }
@@ -165,7 +222,7 @@ BOFERR BofShell::Interpreter(const BofPath &_rScriptFile)
     }
     if (Rts_E != BOF_ERR_NO_ERROR)
     {
-      mpuConio->PrintfColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_RED, "Error %d -> %s\n", Rts_E, Bof_ErrorCode(Rts_E));
+      mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellErrorColor_E, "Error %d -> %s\n", Rts_E, Bof_ErrorCode(Rts_E));
       if (mExecScript_B)
       {
         Bof_CloseFile(IoScript);
@@ -181,12 +238,12 @@ BOFERR BofShell::Interpreter(const BofPath &_rScriptFile)
         if (IoScript == BOF_FS_INVALID_HANDLE)
         {
           Bof_GetCurrentDirectory(Pwd_S);
-          mpuConio->PrintfColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_BLUE, "Execute '%s' script from '%s'\n", _rScriptFile.FullPathName(false).c_str(), Pwd_S.c_str());
+          mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "Execute '%s' script from '%s'\n", mScriptFile.FullPathName(false).c_str(), Pwd_S.c_str());
 
-          Rts_E = Bof_OpenFile(_rScriptFile, true, IoScript);
+          Rts_E = Bof_OpenFile(mScriptFile, true, IoScript);
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
-            mpuConio->PrintfColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_RED, "Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E));
+            mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellErrorColor_E, "Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E));
             IoScript = BOF_FS_INVALID_HANDLE;
             mExecScript_B = false;
           }
@@ -197,7 +254,7 @@ BOFERR BofShell::Interpreter(const BofPath &_rScriptFile)
           if (Bof_ReadLine(IoScript, ScriptLine_S) == BOF_ERR_NO_ERROR)
           {
             ScriptLine_S = Bof_StringTrim(ScriptLine_S);
-            mpuConio->PrintfColor(CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_CYAN, "SCRIPT: %s\n", ScriptLine_S.c_str());
+            mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellScriptColor_E, "SCRIPT: %s\n", ScriptLine_S.c_str());
 
             CmdLine_S = ScriptLine_S;
           }
