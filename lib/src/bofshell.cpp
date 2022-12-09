@@ -26,9 +26,10 @@
 
 BEGIN_BOF_NAMESPACE()
 
-BofShell::BofShell(const BOF_SHELL_PARAM &_rShellParam_X) : mShellParam_X(_rShellParam_X)
+BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X) : mShellParam_X(_rShellParam_X)
 {
-
+  mShellParam_X.psConio = std::make_shared<BofConio>(mShellParam_X.ConioParam_X);
+  _rShellParam_X.psConio = mShellParam_X.psConio;
 }
 BofShell::~BofShell()
 {
@@ -196,14 +197,13 @@ BOFERR BofShell::Interpreter()
   if (mShellParam_X.InteractiveMode_B)
   {
     mFinish_B = false;
+    mShellParam_X.psConio->SetForegroundTextColor(mShellParam_X.ShellCmdInputColor_E);
+    mShellParam_X.psConio->SetBackgroundTextColor(mShellParam_X.ShellBackColor_E);
+    mShellParam_X.psConio->Clear(CONIO_CLEAR::CONIO_CLEAR_ALL);
+    mShellParam_X.psConio->SetTextCursorPosition(1, 1);
+    mShellParam_X.psConio->SetTextWindowTitle(mShellParam_X.WindowTitle_S);
   }
-  mShellParam_X.psConio = std::make_shared<BofConio>(mShellParam_X.ConioParam_X);
 
-  mShellParam_X.psConio->SetForegroundTextColor(mShellParam_X.ShellCmdInputColor_E);
-  mShellParam_X.psConio->SetBackgroundTextColor(mShellParam_X.ShellBackColor_E);
-  mShellParam_X.psConio->Clear(CONIO_CLEAR::CONIO_CLEAR_ALL);
-  mShellParam_X.psConio->SetTextCursorPosition(1, 1);
-  mShellParam_X.psConio->SetTextWindowTitle(mShellParam_X.WindowTitle_S);
 
   do
   {

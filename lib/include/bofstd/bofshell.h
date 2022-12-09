@@ -101,7 +101,7 @@ private:
   BOF_SHELL_PARAM mShellParam_X;
 
 public:
-  BofShell(const BOF_SHELL_PARAM &_rShellParam_X);
+  BofShell(BOF_SHELL_PARAM &_rShellParam_X);
   virtual ~BofShell();
 
   BOFERR Parser(const std::string &_rShellCmd_S);
