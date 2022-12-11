@@ -147,7 +147,7 @@ typedef struct in_addr      BOF_IN_ADDR;
 typedef struct in6_addr     BOF_IN_ADDR6;
 
 struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS;
-BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
+BOFSTD_EXPORT BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
 BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowProtocol_B, bool _ShowPortNumber_B);
 
 struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
