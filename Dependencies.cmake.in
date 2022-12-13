@@ -61,13 +61,13 @@ find_package_dependency(OpenSSL REQUIRED)
 #   find_package_dependency(Freetype REQUIRED)
 # endif()
 
-find_path(STB_INCLUDE_DIRS "stb_image.h")
+#find_path(STB_INCLUDE_DIRS "stb_image.h")
 ##target_include_directories(main PRIVATE ${STB_INCLUDE_DIRS})
-message("===STB_INCLUDE_DIRS===========>" ${STB_INCLUDE_DIRS})
-find_path( AVCODEC_INCLUDE_DIR libavcodec/avcodec.h )
-find_library( AVCODEC_LIBRARY avcodec )
-message("===AVCODEC_INCLUDE_DIR===========>" ${AVCODEC_INCLUDE_DIR})
-message("===AVCODEC_LIBRARY===========>" ${AVCODEC_LIBRARY})
+#message("===STB_INCLUDE_DIRS===========>" ${STB_INCLUDE_DIRS})
+#find_path( AVCODEC_INCLUDE_DIR libavcodec/avcodec.h )
+#find_library( AVCODEC_LIBRARY avcodec )
+#message("===AVCODEC_INCLUDE_DIR===========>" ${AVCODEC_INCLUDE_DIR})
+#message("===AVCODEC_LIBRARY===========>" ${AVCODEC_LIBRARY})
 
 ## {
 ##   "name": "bofstd",
