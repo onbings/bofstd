@@ -46,49 +46,17 @@ if(NOT TARGET jsoncpp_object)
   endif()
 endif()
 
-if(NOT TARGET spdlog)
-  find_package_dependency(spdlog REQUIRED)
-endif()
+find_package_dependency(spdlog REQUIRED)
+find_package_dependency(fmt REQUIRED)
+find_package_dependency(libyuv REQUIRED)
+find_package_dependency(ZLIB REQUIRED)
+find_package_dependency(ZenLib REQUIRED)
+find_package_dependency(MediaInfoLib REQUIRED)
+find_package_dependency(date REQUIRED)
+find_package_dependency(OpenSSL REQUIRED)
 
-if(NOT TARGET fmt)
-  find_package_dependency(fmt REQUIRED)
-endif()
 
-if(NOT TARGET ZeroMQ)
-  find_package_dependency(ZeroMQ REQUIRED)
-endif()
-
-if(NOT TARGET czmq)
-  find_package_dependency(czmq REQUIRED)
-endif()
-
-#if(NOT TARGET linenoise-ng)
 #  find_package_dependency(linenoise-ng REQUIRED)
-#endif()
-
-if(NOT TARGET libyuv)
-  find_package_dependency(libyuv REQUIRED)
-endif()
-
-if(NOT TARGET ZLIB)
-  find_package_dependency(ZLIB REQUIRED)
-endif()
-
-if(NOT TARGET ZenLib)
-  find_package_dependency(ZenLib REQUIRED)
-endif()
-
-if(NOT TARGET MediaInfoLib)
-  find_package_dependency(MediaInfoLib REQUIRED)
-endif()
-
-if(NOT TARGET date)
-  find_package_dependency(date REQUIRED)
-endif()
-
-if(NOT TARGET OpenSSL)
-   find_package_dependency(OpenSSL REQUIRED)
-endif()
 # if(NOT TARGET Freetype)
 #   find_package_dependency(Freetype REQUIRED)
 # endif()
@@ -199,6 +167,10 @@ message("===AVCODEC_LIBRARY===========>" ${AVCODEC_LIBRARY})
 ## 1>    find_path(STB_INCLUDE_DIRS "stb_c_lexer.h")
 ## 1>    target_include_directories(main PRIVATE ${STB_INCLUDE_DIRS})
 ## 1>
+## The package asio provides CMake targets:
+##
+##    find_package(asio CONFIG REQUIRED)
+##    target_link_libraries(main PRIVATE asio asio::asio)
 ## 1>===STB_INCLUDE_DIRS===========>C:/bld/bofstd/vcpkg_installed/evs-x64-swx-windows-dynamic/include
 ## 1>===AVCODEC_INCLUDE_DIR===========>C:/bld/bofstd/vcpkg_installed/evs-x64-swx-windows-dynamic/include
 ## 1>===AVCODEC_LIBRARY===========>C:/bld/bofstd/vcpkg_installed/evs-x64-swx-windows-dynamic/debug/lib/avcodec.lib

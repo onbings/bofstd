@@ -25,7 +25,7 @@
 
 USE_BOF_NAMESPACE()
 
-TEST(Guid_Test, Guid)
+TEST(Guid_Test, BofGuid)
 {
   BofGuid Guid1;
   BofGuid Guid2;
@@ -56,7 +56,7 @@ TEST(Guid_Test, Guid)
   BofGuid Guid6(GuidDecoratedCannonicalVal_S);
   EXPECT_TRUE(Guid4 == Guid5);
   EXPECT_TRUE(Guid4 == Guid6);
-  Guid4 = GuidVal_S;
+  Guid4 = BofGuid(GuidVal_S);
   EXPECT_TRUE(Guid4 == Guid5);
 
   GuidVal_S = Guid4.ToString(false);
@@ -72,27 +72,21 @@ TEST(Guid_Test, Guid)
 
   EXPECT_FALSE(Guid3 < Guid10);
   EXPECT_TRUE(Guid3 == Guid10);
-  EXPECT_TRUE(Guid3 <= Guid10);
 
   EXPECT_FALSE(Guid3 > Guid10);
   EXPECT_FALSE(Guid3 != Guid10);
-  EXPECT_TRUE(Guid3 >= Guid10);
 
   EXPECT_TRUE(Guid3 < Guid11);
   EXPECT_FALSE(Guid3 == Guid11);
-  EXPECT_TRUE(Guid3 <= Guid11);
 
   EXPECT_FALSE(Guid3 > Guid11);
   EXPECT_TRUE(Guid3 != Guid11);
-  EXPECT_FALSE(Guid3 >= Guid11);
 
   EXPECT_FALSE(Guid3 < Guid12);
   EXPECT_FALSE(Guid3 == Guid12);
-  EXPECT_FALSE(Guid3 <= Guid12);
 
   EXPECT_TRUE(Guid3 > Guid12);
   EXPECT_TRUE(Guid3 != Guid12);
-  EXPECT_TRUE(Guid3 >= Guid12);
 
   Guid3.Clear();
   EXPECT_TRUE(Guid3.IsNull());

@@ -36,6 +36,15 @@
 #else
 #include <poll.h>
 #include <linux/rtnetlink.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <ifaddrs.h>
 
 #define BUFSIZE                8192
 
@@ -47,9 +56,64 @@ struct route_info
   char           ifName[IF_NAMESIZE];
 };
 #endif
-#include <czmq.h>
 
 BEGIN_BOF_NAMESPACE()
+
+BOFERR Bof_GetIpMaskGw(const char *_pName_c, BOF_SOCKADDR *_pIpAddress_X, BOF_SOCKADDR *_pNetMask_X, BOF_SOCKADDR *_pBroadcast_X, BOF_NETWORK_INTERFACE_PARAM &_rNetworkInterfaceParam_X)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  int Sts_i;
+  char *pAsciiFriendlyName_c, pText_c[NI_MAXHOST];
+
+  _rNetworkInterfaceParam_X.Reset();
+  if ((_pName_c) && (_pIpAddress_X) && (_pNetMask_X) && (_pBroadcast_X))
+  {
+    _rNetworkInterfaceParam_X.Name_S = _pName_c;
+    Rts_E = BOF_ERR_INTERNAL;
+    Sts_i = getnameinfo(_pIpAddress_X, _pIpAddress_X->sa_family == AF_INET ? sizeof(BOF_SOCKADDR_IN) : sizeof(BOF_SOCKADDR_IN6), pText_c, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+    if (Sts_i == 0)
+    {
+      //  Some platform's getnameinfo, like Solaris, appear not to append the
+      //  interface name when parsing a link-local IPv6 address. These addresses
+      //  cannot be used without the interface, so we must append it manually.
+      if (_pIpAddress_X->sa_family == AF_INET6 && IN6_IS_ADDR_LINKLOCAL(&((BOF_SOCKADDR_IN6 *)_pIpAddress_X)->sin6_addr) && !strchr(pText_c, '%'))
+      {
+        strcat(pText_c, "%");
+        strcat(pText_c, _pName_c);
+      }
+      _rNetworkInterfaceParam_X.IpAddress_S = pText_c;
+      Sts_i = getnameinfo(_pNetMask_X, _pNetMask_X->sa_family == AF_INET ? sizeof(BOF_SOCKADDR_IN) : sizeof(BOF_SOCKADDR_IN6), pText_c, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+      if (Sts_i == 0)
+      {
+        _rNetworkInterfaceParam_X.IpMask_S = pText_c;
+        if (_pIpAddress_X->sa_family == AF_INET)
+        {
+          //  If the returned broadcast address is the same as source
+          //  address, build the broadcast address from the source
+          //  address and netmask.
+          if (((BOF_SOCKADDR_IN *)_pIpAddress_X)->sin_addr.s_addr == ((BOF_SOCKADDR_IN *)_pBroadcast_X)->sin_addr.s_addr)
+          {
+            ((BOF_SOCKADDR_IN *)_pBroadcast_X)->sin_addr.s_addr |= ~(((BOF_SOCKADDR_IN *)_pNetMask_X)->sin_addr.s_addr);
+          }
+          Sts_i = getnameinfo(_pBroadcast_X, sizeof(BOF_SOCKADDR_IN), pText_c, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+          if (Sts_i == 0)
+          {
+            _rNetworkInterfaceParam_X.IpBroadcast_S = pText_c;
+          }
+        }
+        else
+        {
+          //  The default is link-local all-node multicast group fe02::1
+          _rNetworkInterfaceParam_X.IpBroadcast_S = "ff02:0:0:0:0:0:0:1";
+        }
+      }
+      _rNetworkInterfaceParam_X.IpV6_B = ((_pIpAddress_X->sa_family == AF_INET6) ? true : false);
+      _rNetworkInterfaceParam_X.Info_X.MacAddress.clear();
+      Rts_E = Bof_GetNetworkInterfaceInfo(_rNetworkInterfaceParam_X.Name_S, _rNetworkInterfaceParam_X.Info_X);
+    }
+  }
+  return Rts_E;
+}
 
 #if defined (_WIN32)
 BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X)
@@ -112,7 +176,6 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
           {
             _rInterfaceInfo_X.MacAddress.push_back(0);
           }
-
         }
         else
         {
@@ -191,141 +254,20 @@ BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NET
   }
   return Rts_E;
 }
-#if 0
-uint32_t           IpAddress_U32, IpMask_U32, SrcGateway_U32, Sts_U32, Size_U32, i_U32;
-ULONG              NteContext_UL, NteInstance_UL;
-MIB_IPFORWARDTABLE *pIpForwardTable_X;
-MIB_IPFORWARDROW   IpForwardRow_X;
-
-if ((_pSrcIpParam_X) &&
-    (_pDstIpParam_X) &&
-    (_pDstIpParam_X->IndexId_U32 == _pSrcIpParam_X->IndexId_U32)
-    )
-{
-  /*
-   * MaxIpParamEntry_U32 = sizeof( pIpParam_X ) / sizeof( pIpParam_X[0] );
-   * Rts_E             = S_GetIpParameterList(&MaxIpParamEntry_U32, pIpParam_X);
-   *
-   * if ( Rts_E == BOF_ERR_NO_ERROR )
-   * {
-   *      Rts_E = BOF_ERR_NOT_FOUND;
-   *
-   *      for ( i_U32 = 0; i_U32 < MaxIpParamEntry_U32; i_U32++ )
-   *      {
-   *              if ( !memcmp(_pSrcIpParam_X, &pIpParam_X[i_U32], sizeof( BOFSOCKETIPPARAM ) ) )
-   *              {
-   *                      Rts_E = BOF_ERR_NO_ERROR;
-   *                      break;
-   *              }
-   *      }
-   *      if (Rts_E == NO_ERROR)
-   *      {
-   */
-  if ((!BofSocket::S_IsIpAddressEqual(true, false, &_pSrcIpParam_X->IpAddress_X, &_pDstIpParam_X->IpAddress_X)) ||
-      (!BofSocket::S_IsIpAddressEqual(true, false, &_pSrcIpParam_X->IpMask_X, &_pDstIpParam_X->IpMask_X))
-      )
-  {
-    Sts_U32 = DeleteIPAddress(_pSrcIpParam_X->Context_U32);
-
-    BOF_SET_SOCKET_ADDRESS32(IpAddress_U32, _pDstIpParam_X->IpAddress_X);
-    BOF_SET_SOCKET_ADDRESS32(IpMask_U32, _pDstIpParam_X->IpMask_X);
-    Rts_E = AddIPAddress(IpAddress_U32, IpMask_U32, _pDstIpParam_X->IndexId_U32, &NteContext_UL, &NteInstance_UL);
-
-    if (Rts_E == BOF_ERR_NO_ERROR)
-    {
-      _pDstIpParam_X->Context_U32 = NteContext_UL;
-    }
-    else
-    {
-      if (Rts_E == ERROR_OBJECT_ALREADY_EXISTS)
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-      else
-      {
-        BOF_SET_SOCKET_ADDRESS32(IpAddress_U32, _pSrcIpParam_X->IpAddress_X);
-        BOF_SET_SOCKET_ADDRESS32(IpMask_U32, _pSrcIpParam_X->IpMask_X);
-        Sts_U32 = AddIPAddress(IpAddress_U32, IpMask_U32, _pDstIpParam_X->IndexId_U32, &NteContext_UL, &NteInstance_UL);
-      }
-    }
-  }
-
-  if ((Rts_E == NO_ERROR) &&
-      (!BofSocket::S_IsIpAddressEqual(true, false, &_pSrcIpParam_X->Gateway_X, &_pDstIpParam_X->Gateway_X))
-      )
-  {
-    Rts_E = BOF_ERR_ENOMEM;
-    Size_U32 = 0;
-    pIpForwardTable_X = nullptr;
-
-    if (GetIpForwardTable(pIpForwardTable_X, (ULONG *)&Size_U32, false) == ERROR_INSUFFICIENT_BUFFER)
-    {
-      // Allocate the memory for the table
-      pIpForwardTable_X = (MIB_IPFORWARDTABLE *)malloc(Size_U32);
-
-      if (pIpForwardTable_X)
-      {
-        Rts_E = BOF_ERR_INTERNAL;
-
-        if (GetIpForwardTable(pIpForwardTable_X, (ULONG *)&Size_U32, false) == ERROR_SUCCESS)
-        {
-          Rts_E = BOF_ERR_NO_ERROR;
-          memset(&IpForwardRow_X, 0, sizeof(IpForwardRow_X));
-          IpForwardRow_X.dwForwardIfIndex = _pDstIpParam_X->IndexId_U32;
-
-          // NO               IpForwardRow_X.dwForwardMask=_pDstIpParam_X->Mask_U32;
-          BOF_SET_SOCKET_ADDRESS32(IpForwardRow_X.dwForwardNextHop, _pDstIpParam_X->Gateway_X);
-
-          // IpForwardRow_X.dwForwardNextHop = _pDstIpParam_X->Gateway_X;
-          IpForwardRow_X.dwForwardType = 3; // 4;     //MIB_IPROUTE_TYPE_DIRECT/MIB_IPROUTE_TYPE_INDIRECT;
-          IpForwardRow_X.dwForwardProto = 3; // RouteProtocolNetMgmt;
-          IpForwardRow_X.dwForwardAge = 0x2f8;
-          IpForwardRow_X.dwForwardMetric1 = 0xA;
-
-          BOF_SET_SOCKET_ADDRESS32(SrcGateway_U32, _pSrcIpParam_X->Gateway_X);
-
-          for (i_U32 = 0; i_U32 < pIpForwardTable_X->dwNumEntries; i_U32++)
-          {
-            if ((pIpForwardTable_X->table[i_U32].dwForwardDest == 0) &&
-
-                // ( pIpForwardTable_X->table[i_U32].dwForwardNextHop == _pSrcIpParam_X->Gateway_X ) &&
-                (pIpForwardTable_X->table[i_U32].dwForwardNextHop == SrcGateway_U32) &&
-                (pIpForwardTable_X->table[i_U32].dwForwardIfIndex == _pSrcIpParam_X->IndexId_U32)
-                )
-            {
-              Rts_E = BOF_ERR_INTERNAL;
-
-              if (DeleteIpForwardEntry(&pIpForwardTable_X->table[i_U32]) == ERROR_SUCCESS)
-              {
-                IpForwardRow_X = pIpForwardTable_X->table[i_U32];
-                BOF_SET_SOCKET_ADDRESS32(IpForwardRow_X.dwForwardNextHop, _pDstIpParam_X->Gateway_X);
-
-                // IpForwardRow_X.dwForwardNextHop = _pDstIpParam_X->Gateway_X;
-                Rts_E = BOF_ERR_NO_ERROR;
-              }
-            }
-          }
-
-          // Create a new route entry for the default gateway.
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-            Rts_E = BOF_ERR_INTERNAL;
-
-            if (CreateIpForwardEntry(&IpForwardRow_X) == NO_ERROR)
-            {
-              Rts_E = BOF_ERR_NO_ERROR;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-#endif
-
 #else
+bool IsFlagValid(uint16_t _Flag_U16, bool _IpV6_B)
+{
+  return (_Flag_U16 & IFF_UP)             //  Only use interfaces that are running
+    && !(_Flag_U16 & IFF_LOOPBACK)   //  Ignore loopback interface
+    && ((_IpV6_B || (_Flag_U16 & IFF_BROADCAST))  //  Only use interfaces that have BROADCAST
+      && (!_IpV6_B || (_Flag_U16 & IFF_MULTICAST))) //  or IPv6 and MULTICAST
+#   if defined (IFF_SLAVE)
+    && !(_Flag_U16 & IFF_SLAVE)      //  Ignore devices that are bonding slaves.
+#   endif
+    && !(_Flag_U16 & IFF_POINTOPOINT); //  Ignore point to point interfaces.
+}
 
-  int readNlSock(int sockFd, char *bufPtr, size_t buf_size, int seqNum, int pId)
+int readNlSock(int sockFd, char *bufPtr, size_t buf_size, int seqNum, int pId)
 {
   struct nlmsghdr *nlHdr;
   int             readLen = 0, msgLen = 0;
@@ -392,29 +334,29 @@ int parseRoutes(struct nlmsghdr *nlHdr, struct route_info *rtInfo, int _Family_i
     {
       switch (rtAttr->rta_type)
       {
-        case RTA_OIF:
-        {
-          if_indextoname(*(int *)RTA_DATA(rtAttr), rtInfo->ifName);
-          break;
-        }
+      case RTA_OIF:
+      {
+        if_indextoname(*(int *)RTA_DATA(rtAttr), rtInfo->ifName);
+        break;
+      }
 
-        case RTA_GATEWAY:
-        {
-          memcpy(&rtInfo->gateWay, RTA_DATA(rtAttr), sizeof(rtInfo->gateWay));
-          break;
-        }
+      case RTA_GATEWAY:
+      {
+        memcpy(&rtInfo->gateWay, RTA_DATA(rtAttr), sizeof(rtInfo->gateWay));
+        break;
+      }
 
-        case RTA_PREFSRC:
-        {
-          memcpy(&rtInfo->srcAddr, RTA_DATA(rtAttr), sizeof(rtInfo->srcAddr));
-          break;
-        }
+      case RTA_PREFSRC:
+      {
+        memcpy(&rtInfo->srcAddr, RTA_DATA(rtAttr), sizeof(rtInfo->srcAddr));
+        break;
+      }
 
-        case RTA_DST:
-        {
-          memcpy(&rtInfo->dstAddr, RTA_DATA(rtAttr), sizeof(rtInfo->dstAddr));
-          break;
-        }
+      case RTA_DST:
+      {
+        memcpy(&rtInfo->dstAddr, RTA_DATA(rtAttr), sizeof(rtInfo->dstAddr));
+        break;
+      }
       }
     }
   }
@@ -426,7 +368,7 @@ int parseRoutes(struct nlmsghdr *nlHdr, struct route_info *rtInfo, int _Family_i
   return Ret_i;
 }
 
-BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO & _rInterfaceInfo_X)
+BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X)
 {
   BOFERR            Rts_E = BOF_ERR_CREATE;
   struct nlmsghdr *nlMsg;
@@ -535,7 +477,7 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
   return Rts_E;
 }
 
-BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM & _rNewInterfaceParam_X)
+BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X)
 {
   BOFERR      Rts_E;
   std::string Cmd_S, Output_S, Name_S;
@@ -601,210 +543,129 @@ BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NET
   return Rts_E;
 }
 
-#if 0
-uint32_t       BroadcastAddress_U32, BroadcastMask_U32;
-int            Sts_i, Socket_i;
-struct ifreq   IfReq_X;
-struct rtentry Route_X;
-bool           ChangeBroadcast_B, ChangeMask_B;
-SOCKADDR_IN    IpBroadcast_X, *pIp_X;
-
-// http://www-01.ibm.com/support/knowledgecenter/ssw_aix_61/com.ibm.aix.commtrf2/ioctl_socket_control_operations.htm
-// http://linux.die.net/man/7/netdevice
-// https://gist.github.com/lbuchy/1888469
-
-if ((_pSrcIpParam_X) && (_pDstIpParam_X) && (_pSrcIpParam_X->IndexId_U32 == _pDstIpParam_X->IndexId_U32))
-{
-  Socket_i = socket(AF_INET, SOCK_DGRAM, 0);
-
-  if (Socket_i >= 0)
-  {
-    memset(&IfReq_X, 0, sizeof(IfReq_X));
-    IfReq_X.ifr_ifindex = _pSrcIpParam_X->IndexId_U32;
-    Sts_i = ioctl(Socket_i, SIOCGIFNAME, &IfReq_X);
-    ChangeBroadcast_B = false;
-
-    if (Sts_i >= 0)
-    {
-      if ((!BofSocket::S_IsIpAddressEqual(true, false, &_pSrcIpParam_X->IpAddress_X, &_pDstIpParam_X->IpAddress_X)) && (!BofSocket::S_IsIpAddressNull(&_pDstIpParam_X->IpAddress_X)))
-      {
-        *(SOCKADDR_IN *)&IfReq_X.ifr_addr = _pDstIpParam_X->IpAddress_X;
-        Sts_i = ioctl(Socket_i, SIOCSIFADDR, &IfReq_X);
-        ChangeBroadcast_B = true;
-        ChangeMask_B = true; // Mask is resetted
-      }
-
-      if (Sts_i >= 0)
-      {
-        if ((ChangeMask_B) || (!BofSocket::S_IsIpAddressEqual(true, false, &_pSrcIpParam_X->IpMask_X, &_pDstIpParam_X->IpMask_X)))
-        {
-          *(SOCKADDR_IN *)&IfReq_X.ifr_netmask = _pDstIpParam_X->IpMask_X;
-          Sts_i = ioctl(Socket_i, SIOCSIFNETMASK, &IfReq_X);
-          ChangeBroadcast_B = true;
-        }
-      }
-
-      if (Sts_i >= 0)
-      {
-        if (ChangeBroadcast_B)
-        {
-          BroadcastAddress_U32 = _pDstIpParam_X->IpAddress_X.sin_addr.s_addr & _pDstIpParam_X->IpMask_X.sin_addr.s_addr;
-          BroadcastMask_U32 = 0xFFFFFFFF ^ _pDstIpParam_X->IpMask_X.sin_addr.s_addr;
-          BroadcastAddress_U32 = BroadcastAddress_U32 | BroadcastMask_U32;
-          IpBroadcast_X = _pDstIpParam_X->IpAddress_X;
-          IpBroadcast_X.sin_addr.s_addr = BroadcastAddress_U32;
-          *(SOCKADDR_IN *)&IfReq_X.ifr_broadaddr = _pDstIpParam_X->IpMask_X;
-
-          Sts_i = ioctl(Socket_i, SIOCSIFBRDADDR, &IfReq_X);
-        }
-      }
-
-      if (Sts_i >= 0)
-      {
-        if (!BofSocket::S_IsIpAddressEqual(true, false, &_pSrcIpParam_X->Gateway_X, &_pDstIpParam_X->Gateway_X))
-        {
-          // First delete old gateway
-          if (!BofSocket::S_IsIpAddressNull(&_pSrcIpParam_X->Gateway_X))
-          {
-            memset(&Route_X, 0, sizeof(Route_X));
-            pIp_X = (SOCKADDR_IN *)&Route_X.rt_gateway;
-            pIp_X->sin_family = AF_INET;
-            pIp_X->sin_addr.s_addr = _pSrcIpParam_X->Gateway_X.sin_addr.s_addr;
-            pIp_X = (SOCKADDR_IN *)&Route_X.rt_dst;
-            pIp_X->sin_family = AF_INET;
-            pIp_X->sin_addr.s_addr = INADDR_ANY;
-            pIp_X = (SOCKADDR_IN *)&Route_X.rt_genmask;
-            pIp_X->sin_family = AF_INET;
-            pIp_X->sin_addr.s_addr = INADDR_ANY;
-
-            Route_X.rt_dev = _pSrcIpParam_X->pName_c;
-            Route_X.rt_flags = RTF_UP | RTF_GATEWAY;
-            Route_X.rt_metric = 0;
-            Sts_i = ioctl(Socket_i, SIOCDELRT, &Route_X);
-          }
-
-          // In all case we define the new gw
-          // if ( Sts_i >= 0 )
-          {
-            if (!BofSocket::S_IsIpAddressNull(&_pDstIpParam_X->Gateway_X))
-            {
-              memset(&Route_X, 0, sizeof(Route_X));
-              pIp_X = (SOCKADDR_IN *)&Route_X.rt_gateway;
-              pIp_X->sin_family = AF_INET;
-              pIp_X->sin_addr.s_addr = _pDstIpParam_X->Gateway_X.sin_addr.s_addr;
-              pIp_X = (SOCKADDR_IN *)&Route_X.rt_dst;
-              pIp_X->sin_family = AF_INET;
-              pIp_X->sin_addr.s_addr = INADDR_ANY;
-              pIp_X = (SOCKADDR_IN *)&Route_X.rt_genmask;
-              pIp_X->sin_family = AF_INET;
-              pIp_X->sin_addr.s_addr = INADDR_ANY;
-
-              Route_X.rt_dev = _pDstIpParam_X->pName_c;
-              Route_X.rt_flags = RTF_UP | RTF_GATEWAY;
-              Route_X.rt_metric = 0;
-              Sts_i = ioctl(Socket_i, SIOCADDRT, &Route_X);
-            }
-          }
-        }
-      }
-    }
-  }
-  close(Socket_i);
-
-  if (Sts_i >= 0)
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-  }
-}
 #endif
-#endif
-
 
 BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X)
 {
-  BOFERR                      Rts_E = BOF_ERR_ENOMEM;
-  ziflist_t *pIfList_X;
-  const char *p;
-  BOF_NETWORK_INTERFACE_PARAM NetworkInterface_X;
+  BOFERR Rts_E = BOF_ERR_INTERNAL;
+  BOF_NETWORK_INTERFACE_PARAM NetworkInterfaceParam_X;
 
-  _rListOfNetworkInterface_X.clear();
-  // TODO BHA ziflist_new only support ipv4
+#if defined(_WIN32)
+  // TODO: IPv6 support
+  ULONG AddressSize_U32 = 0;
+  DWORD rc;
+  int NbIter_i = 0;
+  IP_ADAPTER_ADDRESSES *pIpAddresses_X, *pCrtIpAddress_X;
+  IP_ADAPTER_UNICAST_ADDRESS *pUnicastAddress_X;
+  IP_ADAPTER_PREFIX *pAdapterPrefix_X;
+  WCHAR *pFriendlyName_wc;
+  size_t AsciiSize;
+  char *pAsciiFriendlyName_c, pText_c[NI_MAXHOST];
+  bool Valid_B;
+  BOF_SOCKADDR_IN IpAddress_X, NetMask_X, Broadcast_X;
 
-//BHA path czmq ziflist.c: static bool s_valid_flags(short flags)
-  pIfList_X = ziflist_new();
-  if (pIfList_X)
+  rc = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, nullptr, nullptr, &AddressSize_U32);
+  if (rc == ERROR_BUFFER_OVERFLOW)
   {
-    Rts_E = BOF_ERR_NO_ERROR;
-    // ziflist_print(pIfList_X);
-    p = ziflist_first(pIfList_X);
-    while (p)
+    do
     {
-      NetworkInterface_X.IpV6_B = false;
-
-      NetworkInterface_X.Name_S = p;
-      p = ziflist_address(pIfList_X);
-      NetworkInterface_X.IpAddress_S = p;
-      p = ziflist_broadcast(pIfList_X);
-      NetworkInterface_X.IpBroadcast_S = p;
-      p = ziflist_netmask(pIfList_X);
-      NetworkInterface_X.IpMask_S = p;
-      NetworkInterface_X.Info_X.MacAddress.clear();
-      Rts_E = Bof_GetNetworkInterfaceInfo(NetworkInterface_X.Name_S, NetworkInterface_X.Info_X);
-      if (Rts_E == BOF_ERR_NO_ERROR)
+      pIpAddresses_X = (IP_ADAPTER_ADDRESSES *)malloc(AddressSize_U32);
+      rc = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, nullptr, pIpAddresses_X, &AddressSize_U32);
+      if (rc == ERROR_BUFFER_OVERFLOW)
       {
-        _rListOfNetworkInterface_X.push_back(NetworkInterface_X);
-        p = ziflist_next(pIfList_X);
+        BOF_SAFE_FREE(pIpAddresses_X);
       }
       else
       {
         break;
       }
-    }
-    ziflist_destroy(&pIfList_X);
-  }
+      ++NbIter_i;
+    } while ((rc == ERROR_BUFFER_OVERFLOW) && (NbIter_i < 3));
 
-  return (Rts_E);
-
-}
-
-BOFERR Bof_GetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM & _rNewInterfaceParam_X)
-{
-  BOFERR                      Rts_E = BOF_ERR_ENOMEM;
-  ziflist_t *pIfList_X;
-  const char *p;
-  BOF_NETWORK_INTERFACE_PARAM NetworkInterface_X;
-
-  // TODO BHA ziflist_new only support ipv4
-  pIfList_X = ziflist_new();
-  if (pIfList_X)
-  {
-    Rts_E = BOF_ERR_NOT_FOUND;
-    // ziflist_print(pIfList_X);
-    p = ziflist_first(pIfList_X);
-    while (p)
+    if (rc == NO_ERROR)
     {
-      if (strcmp(p, _rInterfaceName_S.c_str()) == 0)
+      Rts_E = BOF_ERR_NO_ERROR;
+      pCrtIpAddress_X = pIpAddresses_X;
+      while ((pCrtIpAddress_X) && (Rts_E == BOF_ERR_NO_ERROR))
       {
-        _rNewInterfaceParam_X.IpV6_B = false;
-        _rNewInterfaceParam_X.Name_S = p;
-        p = ziflist_address(pIfList_X);
-        _rNewInterfaceParam_X.IpAddress_S = p;
-        p = ziflist_broadcast(pIfList_X);
-        _rNewInterfaceParam_X.IpBroadcast_S = p;
-        p = ziflist_netmask(pIfList_X);
-        _rNewInterfaceParam_X.IpMask_S = p;
-        Rts_E = Bof_GetNetworkInterfaceInfo(NetworkInterface_X.Name_S, _rNewInterfaceParam_X.Info_X);
-        break;
-      }
-      p = ziflist_next(pIfList_X);
-    }
-    ziflist_destroy(&pIfList_X);
-  }
-  return (Rts_E);
+        pUnicastAddress_X = pCrtIpAddress_X->FirstUnicastAddress;
+        pAdapterPrefix_X = pCrtIpAddress_X->FirstPrefix;
 
+        pFriendlyName_wc = pCrtIpAddress_X->FriendlyName;
+        AsciiSize = wcstombs(0, pFriendlyName_wc, 0) + 1;
+        pAsciiFriendlyName_c = (char *)malloc(AsciiSize);
+        wcstombs(pAsciiFriendlyName_c, pFriendlyName_wc, AsciiSize);
+
+        Valid_B = (pCrtIpAddress_X->OperStatus == IfOperStatusUp)
+          && (pUnicastAddress_X) && (pAdapterPrefix_X)
+          && ((pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET) || (pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET6))
+          && (pAdapterPrefix_X->PrefixLength <= 32);
+
+        if (Valid_B)
+        {
+          IpAddress_X = *(BOF_SOCKADDR_IN *)pUnicastAddress_X->Address.lpSockaddr;
+          IpAddress_X.sin_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
+          NetMask_X.sin_addr.s_addr = htonl((0xffffffffU) << (32 - pAdapterPrefix_X->PrefixLength));
+          NetMask_X.sin_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
+          Broadcast_X = IpAddress_X;
+          if (pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET)
+          {
+            Broadcast_X.sin_addr.s_addr |= ~(NetMask_X.sin_addr.s_addr);
+          }
+          else
+          {
+            Broadcast_X.sin_addr.s_addr |= ~(NetMask_X.sin_addr.s_addr);
+          }
+
+          Rts_E = Bof_GetIpMaskGw(pAsciiFriendlyName_c, (BOF_SOCKADDR *)&IpAddress_X, (BOF_SOCKADDR *)&NetMask_X, (BOF_SOCKADDR *)&Broadcast_X, NetworkInterfaceParam_X);
+          if (Rts_E == BOF_ERR_NO_ERROR)
+          {
+            _rListOfNetworkInterface_X.push_back(NetworkInterfaceParam_X);
+          }
+        }
+        BOF_SAFE_FREE(pAsciiFriendlyName_c);
+        pCrtIpAddress_X = pCrtIpAddress_X->Next;
+      }
+      BOF_SAFE_FREE(pIpAddresses_X);
+    }
+  }
+#else
+  struct ifaddrs *pListOfInterfaces;
+  struct ifaddrs *pInterface_X;
+  bool IpV6_B;
+
+  if (getifaddrs(&pListOfInterfaces) == 0)
+  {
+    pInterface_X = pListOfInterfaces;
+    Rts_E = BOF_ERR_NO_ERROR;
+    while ((pInterface_X) && (Rts_E == BOF_ERR_NO_ERROR))
+    {
+      IpV6_B = ((pInterface_X->ifa_addr) && (pInterface_X->ifa_addr->sa_family == AF_INET6));
+
+      //  On Solaris, loopback interfaces have a nullptr in ifa_broadaddr
+      if ((pInterface_X->ifa_addr)
+        && ((pInterface_X->ifa_broadaddr) || (IpV6_B))
+        && ((pInterface_X->ifa_addr->sa_family == AF_INET) || (IpV6_B))
+        // Seems to be needed for running VirtualBox VMs on MacOS (see #1802)
+        && ((pInterface_X->ifa_netmask->sa_family == AF_INET) || (IpV6_B))
+        && (IsFlagValid(pInterface_X->ifa_flags, IpV6_B)))
+      {
+        Rts_E = Bof_GetIpMaskGw(pInterface_X->ifa_name, pInterface_X->ifa_addr, pInterface_X->ifa_netmask, pInterface_X->ifa_broadaddr, NetworkInterfaceParam_X);
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          _rListOfNetworkInterface_X.push_back(NetworkInterfaceParam_X);
+        }
+      }
+      pInterface_X = pInterface_X->ifa_next;
+    }
+  }
+  freeifaddrs(pListOfInterfaces);
+#endif
+  return (Rts_E);
 }
 
-int32_t Bof_Compute_CidrMask(const std::string & _rIpV4Address_S)
+
+int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S)
 {
   int32_t Rts_S32 = -1;
   int     i, pIpVal_i[4];
@@ -818,48 +679,48 @@ int32_t Bof_Compute_CidrMask(const std::string & _rIpV4Address_S)
     {
       switch (pIpVal_i[i])
       {
-        case 0x80:
-          Rts_S32 += 1;
-          break;
+      case 0x80:
+        Rts_S32 += 1;
+        break;
 
-        case 0xC0:
-          Rts_S32 += 2;
-          break;
+      case 0xC0:
+        Rts_S32 += 2;
+        break;
 
-        case 0xE0:
-          Rts_S32 += 3;
-          break;
+      case 0xE0:
+        Rts_S32 += 3;
+        break;
 
-        case 0xF0:
-          Rts_S32 += 4;
-          break;
+      case 0xF0:
+        Rts_S32 += 4;
+        break;
 
-        case 0xF8:
-          Rts_S32 += 5;
-          break;
+      case 0xF8:
+        Rts_S32 += 5;
+        break;
 
-        case 0xFC:
-          Rts_S32 += 6;
-          break;
+      case 0xFC:
+        Rts_S32 += 6;
+        break;
 
-        case 0xFE:
-          Rts_S32 += 7;
-          break;
+      case 0xFE:
+        Rts_S32 += 7;
+        break;
 
-        case 0xFF:
-          Rts_S32 += 8;
-          break;
+      case 0xFF:
+        Rts_S32 += 8;
+        break;
 
-        default:
-          Finish_B = true;
-          break;
+      default:
+        Finish_B = true;
+        break;
       }
     }
   }
   return Rts_S32;
 }
 
-std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS & _rIpAddress_X, bool _ShowProtocol_B, bool _ShowPortNumber_B)
+std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowProtocol_B, bool _ShowPortNumber_B)
 {
   std::string Rts_S;
 
@@ -897,7 +758,7 @@ std::string Bof_SockAddrInToString(const struct sockaddr &_rSockAddress_X, bool 
   return (Bof_SockAddrInToString(SockAddressIn_X, _ShowPortNumber_B));
 }
 */
-std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN & _rSockAddressIn_X, bool _ShowPortNumber_B)
+std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN &_rSockAddressIn_X, bool _ShowPortNumber_B)
 {
   std::string Rts_S;
 
@@ -909,7 +770,7 @@ std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN & _rSockAddressIn_X, bo
   return Rts_S;
 }
 
-std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN6 & _rSockAddressIn_X, bool _ShowPortNumber_B)
+std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN6 &_rSockAddressIn_X, bool _ShowPortNumber_B)
 {
   std::string Rts_S;
   char *p_c, pToString_c[0x100];
@@ -931,7 +792,7 @@ std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN6 & _rSockAddressIn_X, b
   return Rts_S;
 }
 
-BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string & _rIpOrUrlAddress_S, std::vector<BOF_SOCKET_ADDRESS> &_rListOfIpAddress_X)
+BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string &_rIpOrUrlAddress_S, std::vector<BOF_SOCKET_ADDRESS> &_rListOfIpAddress_X)
 {
   BOFERR             Rts_E = BOF_ERR_EINVAL;
   struct addrinfo    Hint_X, *pServerInfo_X, *pInfo_X;
@@ -1006,7 +867,7 @@ BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string & _rIpOrUrlAddr
   }
   return Rts_E;
 }
-BOFERR Bof_IpAddressToSocketAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS & _rIpAddress_X)
+BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   BOFERR                 Rts_E = BOF_ERR_EINVAL;
   std::string::size_type PosColon, PosStartBracket, PosEndBracket;
@@ -1114,7 +975,7 @@ BOFERR Bof_IpAddressToSocketAddress(const std::string & _rIpAddress_S, BOF_SOCKE
   return Rts_E;
 }
 
-bool Bof_IsIpAddressEqual(bool CheckType_B, bool _CheckFamily_B, bool _CheckPort_B, const BOF_SOCKET_ADDRESS & _rSrcIpAddress_X, const BOF_SOCKET_ADDRESS & _rDstIpAddress_X)
+bool Bof_IsIpAddressEqual(bool CheckType_B, bool _CheckFamily_B, bool _CheckPort_B, const BOF_SOCKET_ADDRESS &_rSrcIpAddress_X, const BOF_SOCKET_ADDRESS &_rDstIpAddress_X)
 {
   bool Rts_B = false;
 
@@ -1162,7 +1023,7 @@ bool Bof_IsIpAddressEqual(bool CheckType_B, bool _CheckFamily_B, bool _CheckPort
   return Rts_B;
 }
 
-bool Bof_IsIpAddressNull(const BOF_SOCKET_ADDRESS & _rIpAddress_X)
+bool Bof_IsIpAddressNull(const BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   bool     Rts_B;
   uint32_t i_U32;
@@ -1185,7 +1046,7 @@ bool Bof_IsIpAddressNull(const BOF_SOCKET_ADDRESS & _rIpAddress_X)
   return Rts_B;
 }
 
-bool Bof_IsIpAddressNull(const std::string & _rIpAddress_S)
+bool Bof_IsIpAddressNull(const std::string &_rIpAddress_S)
 {
   bool               Rts_B = true;
   BOF_SOCKET_ADDRESS IpAddress_X;
@@ -1197,7 +1058,7 @@ bool Bof_IsIpAddressNull(const std::string & _rIpAddress_S)
   return Rts_B;
 }
 
-bool Bof_IsIpAddressLocalHost(const BOF_SOCKET_ADDRESS & _rIpAddress_X)
+bool Bof_IsIpAddressLocalHost(const BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   bool     Rts_B = false;
   uint32_t i_U32;
@@ -1232,7 +1093,7 @@ bool Bof_IsIpAddressLocalHost(const BOF_SOCKET_ADDRESS & _rIpAddress_X)
   return Rts_B;
 }
 
-bool Bof_IsIpAddressLocalHost(const std::string & _rIpAddress_S)
+bool Bof_IsIpAddressLocalHost(const std::string &_rIpAddress_S)
 {
   bool               Rts_B = true;
   BOF_SOCKET_ADDRESS IpAddress_X;
@@ -1246,7 +1107,7 @@ bool Bof_IsIpAddressLocalHost(const std::string & _rIpAddress_S)
 
 
 //std::vector<uint16_t> Bof_IpAddressToBin(const std::string &_rIpAddress_S, bool &_rIsIpV6_B)
-BOFERR Bof_IpAddressToBin(const std::string & _rIpAddress_S, bool &_rIsIpV6_B, std::vector<uint16_t> &_rIpBinDigitCollection)
+BOFERR Bof_IpAddressToBin(const std::string &_rIpAddress_S, bool &_rIsIpV6_B, std::vector<uint16_t> &_rIpBinDigitCollection)
 {
   BOFERR             Rts_E;
   BOF_SOCKET_ADDRESS InterfaceIpAddress_X, IpAddress_X;
@@ -1284,7 +1145,7 @@ IP multicast address range	Description	Routable
 234.0.0.0 to 234.255.255.255	Unicast-prefix-based	Yes
 239.0.0.0 to 239.255.255.255	Administratively scoped[1]	Yes
  */
-bool Bof_IsMulticastIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT & _rInterfaceIpAddressComponent_X, BOF_SOCKET_ADDRESS_COMPONENT & _rIpAddressComponent_X)
+bool Bof_IsMulticastIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddressComponent_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddressComponent_X)
 {
   bool                  Rts_B = false;
   BOFERR                Sts_E;
@@ -1372,29 +1233,29 @@ var regexUri = / ^ ([a - z][a - z0 - 9 + . - ] *) : (? : \ / \ / ((? : (? = ((? 
 //  8   == ?query
 //  9   == #fragment
 
-var regexUriDelim = / ^ (? : ([a - z0 - 9 + . - ] + :\ / \ / )((? : (? : [a - z0 - 9 - ._~!$ & '()*+,;=:]|%[0-9A-F]{2})*)@)?((?:[a-z0-9-._~!$&'() * +, ; =] | % [0 - 9A - F]{ 2 }) *)(:(? : \d *)) ? (\ / (? : [a - z0 - 9 - ._~!$ & '()*+,;=:@\/]|%[0-9A-F]{2})*)?|([a-z0-9+.-]+:)(\/?(?:[a-z0-9-._~!$&'() * +, ; = :@] | % [0 - 9A - F]{ 2 }) + (? : [a - z0 - 9 - ._~!$ & '()*+,;=:@\/]|%[0-9A-F]{2})*)?)(\?(?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *) ? (#(? : [a - z0 - 9 - ._~!$ & ()*+,;=:\/?@]|%[0-9A-F]{2})*)?$/i;
+var regexUriDelim = / ^ (? : ([a - z0 - 9 + . - ] + :\ / \ / )((? : (? : [a - z0 - 9 - ._~!$ & '()*+,;=:]|%[0-9A-F]{2})*)@)?((?:[a-z0-9-._~!$&'() * +, ; =] | % [0 - 9A - F]{ 2 }) *)(:(? : \d *)) ? (\ / (? : [a - z0 - 9 - ._~!$ & '()*+,;=:@\/]|%[0-9A-F]{2})*)?|([a-z0-9+.-]+:)(\/?(?:[a-z0-9-._~!$&'() * +, ; = :@] | % [0 - 9A - F]{ 2 }) + (? : [a - z0 - 9 - ._~!$ & '()*+,;=:@\/]|%[0-9A-F]{2})*)?)(\?(?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *) ? (#(? : [a - z0 - 9 - ._~!$ & () * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *) ? $ / i;
 
-                         //Validate a URL
-                         //Validates a URI with an http or https scheme.
-                         //- The different parts are kept in their own groups and can be recombined as
-                         //  $1://$2:$3$4?$5#$6
-                         //- Does not validate the host portion (domain); just makes sure the string
-                         //  consists of valid characters (does not include IPv6 nor IPvFuture
-                         //  addresses as valid).
+//Validate a URL
+//Validates a URI with an http or https scheme.
+//- The different parts are kept in their own groups and can be recombined as
+//  $1://$2:$3$4?$5#$6
+//- Does not validate the host portion (domain); just makes sure the string
+//  consists of valid characters (does not include IPv6 nor IPvFuture
+//  addresses as valid).
 
-                         var regexUrl = / ^ (https ? ) : \ / \ / ((? : [a - z0 - 9. - ] | % [0 - 9A - F]{ 2 }) { 3, })(? ::(\d + )) ? ((? : \ / (? : [a - z0 - 9 - ._~!$ & ()*+,;=:@]|%[0-9A-F]{2})*)*)(?:\?((?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *)) ? (? : #((? : [a - z0 - 9 - ._~!$ & '()*+,;=:\/?@]|%[0-9A-F]{2})*))?$/i;
+var regexUrl = / ^ (https ? ) : \ / \ / ((? : [a - z0 - 9. - ] | % [0 - 9A - F]{ 2 }) { 3, })(? ::(\d + )) ? ((? : \ / (? : [a - z0 - 9 - ._~!$ & () * +, ; = :@] | % [0 - 9A - F]{ 2 }) *) *)(? : \ ? ((? : [a - z0 - 9 - ._~!$ & '() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *)) ? (? : #((? : [a - z0 - 9 - ._~!$ & '() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *)) ? $ / i;
 
-                         //Validate a Mailto
-                         //Validates a URI with a mailto scheme.
-                         //- The different parts are kept in their own groups and can be recombined as
-                         //  $1:$2?$3
-                         //- Does not validate the email addresses themselves.
+//Validate a Mailto
+//Validates a URI with a mailto scheme.
+//- The different parts are kept in their own groups and can be recombined as
+//  $1:$2?$3
+//- Does not validate the email addresses themselves.
 
-                         var regexMailto = / ^ (mailto) : ((? : [a - z0 - 9 - ._~!$ & '()*+,;=:@]|%[0-9A-F]{2})+)?(?:\?((?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *)) ? $ / i;
+var regexMailto = / ^ (mailto) : ((? : [a - z0 - 9 - ._~!$ & '()*+,;=:@]|%[0-9A-F]{2})+)?(?:\?((?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *)) ? $ / i;
 
 #endif
 //TODO faire ipv6 version : is sep for port and :: is for ipv6
-BOFERR Bof_SplitUri(const std::string & _rUri_S, BOF_SOCKET_ADDRESS_COMPONENT & _rUri_X, std::string & _rPath_S, std::string & _rQuery_S, std::string & _rFragment_S)
+BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_rUri_X, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S)
 {
   BOFERR                 Rts_E = BOF_ERR_FORMAT;
   static const std::regex S_RegExUri("^([a-z][a-z0-9+.-]*):(?:\\/\\/((?:(?=((?:[a-z0-9-._~!$&'()*+,;=:]|%[0-9A-F]{2})*))(\\3)@)?(?=(\\[[0-9A-F:.]{2,}\\]|(?:[a-z0-9-._~!$&'()*+,;=]|%[0-9A-F]{2})*))\\5(?::(?=(\\d*))\\6)?)(\\/(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/]|%[0-9A-F]{2})*))\\8)?|(\\/?(?!\\/)(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/]|%[0-9A-F]{2})*))\\10)?)(?:\\?(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9A-F]{2})*))\\11)?(?:#(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9A-F]{2})*))\\12)?$");  //Static as it can takes time (on gcc 4.9 for example)
@@ -1478,7 +1339,7 @@ BOFERR Bof_SplitUri(const std::string & _rUri_S, BOF_SOCKET_ADDRESS_COMPONENT & 
  //TODO faire ipv6 version : is sep for port and :: is for ipv6
 
 
-BOFERR ParseIpAddress(const std::string & _rIpAddress_S, const std::string & _rProtocol_S, BOF_SOCKET_ADDRESS_COMPONENT & _rSockAddressComponent_X)
+BOFERR ParseIpAddress(const std::string &_rIpAddress_S, const std::string &_rProtocol_S, BOF_SOCKET_ADDRESS_COMPONENT &_rSockAddressComponent_X)
 {
   BOFERR                 Rts_E = BOF_ERR_TOO_SMALL;
   std::string::size_type PosEop, PosAfter, PosSeparator, Pos, PosColonPass, PosColonPort, PosAt, PosEndBracket;
@@ -1595,7 +1456,7 @@ BOFERR ParseIpAddress(const std::string & _rIpAddress_S, const std::string & _rP
   return Rts_E;
 }
 
-BOF_SOCK_TYPE Bof_SocketType(const std::string & _rIpAddress_S)
+BOF_SOCK_TYPE Bof_SocketType(const std::string &_rIpAddress_S)
 {
   BOF_SOCK_TYPE Rts_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
   std::string Protocol_S;
@@ -1621,7 +1482,7 @@ BOF_SOCK_TYPE Bof_SocketType(const std::string & _rIpAddress_S)
   return Rts_E;
 }
 
-BOFERR Bof_SplitIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT & _rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT & _rIpAddress_X)
+BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X)
 {
   BOFERR                 Rts_E = BOF_ERR_TOO_SMALL;
   std::string            Protocol_S, Address_S, Interface_S, TheAddress_S;
@@ -1685,14 +1546,14 @@ BOFERR Bof_SplitIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS_
   return Rts_E;
 }
 
-BOFERR Bof_SplitIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT & _rIpAddress_X)
+BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X)
 {
   BOF_SOCKET_ADDRESS_COMPONENT InterfaceIpAddress_X;
 
   return Bof_SplitIpAddress(_rIpAddress_S, InterfaceIpAddress_X, _rIpAddress_X);
 }
 
-BOFERR Bof_SplitIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS & _rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS & _rIpAddress_X)
+BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   BOFERR                       Rts_E;
   BOF_SOCKET_ADDRESS_COMPONENT InterfaceIpAddressComponent_X, IpAddressComponent_X;
@@ -1787,7 +1648,7 @@ BOFERR Bof_SplitIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS 
   return Rts_E;
 }
 
-BOFERR Bof_SplitIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS & _rIpAddress_X)
+BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   BOF_SOCKET_ADDRESS InterfaceIpAddress_X;
 
@@ -1795,7 +1656,7 @@ BOFERR Bof_SplitIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS 
 }
 
 
-BOFERR Bof_ResolveIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRESS & _rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS & _rIpAddress_X)
+BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   BOFERR                 Rts_E = BOF_ERR_TOO_SMALL;
   std::string            Protocol_S, Address_S, Interface_S;
@@ -1886,7 +1747,7 @@ BOFERR Bof_ResolveIpAddress(const std::string & _rIpAddress_S, BOF_SOCKET_ADDRES
   return Rts_E;
 }
 
-std::string Bof_BuildIpAddress(const BOF_SOCKET_ADDRESS & _rInterfaceIpAddress_X, const BOF_SOCKET_ADDRESS & _rIpAddress_X)
+std::string Bof_BuildIpAddress(const BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   std::string Rts_S;
 
@@ -1898,7 +1759,7 @@ std::string Bof_BuildIpAddress(const BOF_SOCKET_ADDRESS & _rInterfaceIpAddress_X
   return Rts_S;
 }
 
-BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X, const BOF_SOCKET_ADDRESS & _rIpAddress_X, BOF_SOCKET_ADDRESS & _rCompatibleIpAddress_X)
+BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rCompatibleIpAddress_X)
 {
   BOFERR             Rts_E = BOF_ERR_NOT_FOUND;
   uint32_t           i_U32, j_U32, TargetIp_U32, Ip_U32, Mask_U32, *pIp_U32, *pMask_U32;
@@ -1982,7 +1843,7 @@ BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_INTERFACE_PARAM>
   return Rts_E;
 }
 
-BOFERR Bof_SocketAddressToBin(BOF_SOCKET_ADDRESS & _rIpAddress_X, std::vector<uint16_t> &_rBinFormat)
+BOFERR Bof_SocketAddressToBin(BOF_SOCKET_ADDRESS &_rIpAddress_X, std::vector<uint16_t> &_rBinFormat)
 {
   BOFERR   Rts_E = BOF_ERR_EINVAL;
   uint32_t i_U32;
@@ -2023,7 +1884,7 @@ BOFERR Bof_SocketAddressToBin(BOF_SOCKET_ADDRESS & _rIpAddress_X, std::vector<ui
   return Rts_E;
 }
 
-BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, BOF_SOCKET_ADDRESS & _rIpAddress_X)
+BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -2069,7 +1930,7 @@ BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, BOF_SOCKET_ADD
   return Rts_E;
 }
 
-BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET * _pListOfPollOp_X, uint32_t & _rNbPollSet_U32)
+BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32)
 {
   BOFERR   Rts_E = BOF_ERR_EINVAL;
   uint32_t i_U32, NbREvent_U32;

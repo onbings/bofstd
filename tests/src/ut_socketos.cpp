@@ -850,7 +850,7 @@ void TestListAndSetupInterface(bool _IsIpV6_B)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   NewInterfaceParam_X.IpMask_S = "0.0.0.0";
-  Sts_E = Bof_GetNetworkInterfaceParam(InitialInterfaceParam_X.Name_S, NewInterfaceParam_X);
+//Removed  Sts_E = Bof_GetNetworkInterfaceParam(InitialInterfaceParam_X.Name_S, NewInterfaceParam_X);
   // EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_TRUE(NewInterfaceParam_X.IpMask_S == InitialInterfaceParam_X.IpMask_S);
 

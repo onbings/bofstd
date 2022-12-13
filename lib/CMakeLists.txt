@@ -336,14 +336,15 @@ target_link_libraries(bofstd-objects
 
   PRIVATE
 #    Qt5::Widgets
-    jsoncpp::jsoncpp
-    spdlog::spdlog
-	libzmq
-	czmq
-	yuv
-	mediainfo
 	date::date 
 	date::date-tz
+    jsoncpp::jsoncpp
+	mediainfo
+    spdlog::spdlog
+	yuv
+#	asio::asio
+#	czmq
+#	libzmq
 #	libzmq-static
 #	czmq-static
 #	ZLIB::ZLIB

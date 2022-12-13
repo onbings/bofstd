@@ -564,7 +564,7 @@ BOFERR ParseFileBuffer(BofPath &_rPathname, std::string &_rResult_S)
   EXPECT_EQ(Bof_ReadFile(_rPathname, BufferToDeleteAfterUsage_X), BOF_ERR_NO_ERROR);
   SubBuffer_X = BufferToDeleteAfterUsage_X;
   SubBuffer_X.MustBeDeleted_B = false;
-  SubBuffer_X.Size_U64 = 0x1000;
+  SubBuffer_X.Size_U64 = (SubBuffer_X.Capacity_U64 >= 0x1000) ? 0x1000 : SubBuffer_X.Capacity_U64;
   pFirstByteOutOfBuffer_U8 = BufferToDeleteAfterUsage_X.pData_U8 + BufferToDeleteAfterUsage_X.Capacity_U64;
 
   OffsetInBuffer_U64 = 0;

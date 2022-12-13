@@ -570,7 +570,7 @@ struct BOFSTD_EXPORT BOF_INTERFACE_INFO
 
 struct BOFSTD_EXPORT BOF_NETWORK_INTERFACE_PARAM
 {
-  bool        IpV6_B;        // Only ipV4 supported for now
+  bool IpV6_B;
   std::string Name_S;        // 16:IF_NAMESIZE linux 260: MAX_ADAPTER_NAME_LENGTH+4 win3�
   std::string IpAddress_S;
   std::string IpMask_S;
@@ -598,7 +598,6 @@ constexpr char BOF_INTERFACE_ADDRESS_SEPARATOR = '>';
 BOFSTD_EXPORT  BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X);
 BOFSTD_EXPORT BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X);  //TODO IpV6 version
 BOFSTD_EXPORT BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X); //TODO IpV6 version
-BOFSTD_EXPORT BOFERR Bof_GetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X); //TODO IpV6 version
 BOFSTD_EXPORT int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S);  //TODO IpV6 version
 //Defined above BOF_SOCKET_ADDRESS BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowType_B, bool _ShowPortNumber_B);
 BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN &_rSockAddressIn_X, bool _ShowPortNumber_B);

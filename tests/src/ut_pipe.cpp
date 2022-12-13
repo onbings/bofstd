@@ -80,7 +80,6 @@ static void *ServerThread(const std::atomic< bool > &_rIsThreadLoopMustExit_B, v
   return nullptr;
 }
 
-//#include <czmq.h>
 TEST(Pipe_Test, UdpPipe)
 {
   BOF_PIPE_PARAM PipeParam_X;
