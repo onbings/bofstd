@@ -522,7 +522,7 @@ END_BOF_NAMESPACE()
 namespace std
 {
   template <>
-  void swap(BOF::BofGuid &lhs, BOF::BofGuid &rhs) noexcept
+  void swap(BOF::BofGuid &lhs, BOF::BofGuid &rhs)
   {
     lhs.swap(rhs);
   }

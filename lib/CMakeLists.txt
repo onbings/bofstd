@@ -370,6 +370,12 @@ target_link_libraries(bofstd-objects
 #    Qt5::Widgets
 )
 else()
+if(UNIX)
+target_link_libraries(bofstd-objects
+  PRIVATE
+	rt
+)
+endif()
 endif()	
 
 # Defines
@@ -412,6 +418,7 @@ target_link_libraries(bofstd
 #PRIVATE 
 #	fmt::fmt   # Or use the header-only version   target_link_libraries(main PRIVATE fmt::fmt-header-only)
 )
+
 
 # Create alias
 add_library(ONBINGS::bofstd ALIAS bofstd)
