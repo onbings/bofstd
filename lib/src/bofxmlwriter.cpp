@@ -210,7 +210,7 @@ public:
                 }
               }                                                                   // for (j_U32 = FirstArrayEntry_U32; j_U32 <= LastArrayEntry_U32; j_U32++)
 
-              if ((Rts_E == BOF_ERR_NO_ERROR))
+              if (Rts_E == BOF_ERR_NO_ERROR)
               {
                 if (ItIsAnArray_B)                                                // array
                 {

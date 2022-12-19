@@ -323,7 +323,7 @@ void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInf
           }
           else
           {
-            Info_S += " I:'???'";
+            Info_S += " I:'\?\?\?'";
           }
 
           //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, pParam_c, BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);

@@ -630,8 +630,8 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
     }
   }
 #else
-#if defined(ANDROID)	
-#else	
+//#if defined(ANDROID)	
+//#else	
   struct ifaddrs *pListOfInterfaces;
   struct ifaddrs *pInterface_X;
   bool IpV6_B;
@@ -662,7 +662,7 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
     }
   }
   freeifaddrs(pListOfInterfaces);
-#endif  
+//#endif  
 #endif
   return (Rts_E);
 }

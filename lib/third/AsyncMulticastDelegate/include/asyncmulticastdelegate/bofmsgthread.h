@@ -26,7 +26,7 @@ public:
 
   uint32_t GetNbPendingRequest();
 
-  virtual void DispatchDelegate(DelegateLib::DelegateMsgBase *msg);
+  void DispatchDelegate(DelegateLib::DelegateMsgBase *msg) override;
 
 private:
   BofMsgThread(const BofMsgThread &);
