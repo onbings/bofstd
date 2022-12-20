@@ -474,7 +474,25 @@ if(NOT APPLE)
 
 endif()
 
+message("====CMAKE_RUNTIME_OUTPUT_DIRECTORY=====================>" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+message("====CMAKE_LIBRARY_OUTPUT_DIRECTORY=====================>" ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+message("====CMAKE_ARCHIVE_OUTPUT_DIRECTORY=====================>" ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+message("====CMAKE_INSTALL_BINDIR=====================>" ${CMAKE_INSTALL_BINDIR})
+message("====CMAKE_INSTALL_LIBDIR=====================>" ${CMAKE_INSTALL_LIBDIR})
 # Install the target runtime
+if (ANDROID)  
+install(
+  TARGETS  bofstd bofstd-objects
+  EXPORT   bofstd
+  RUNTIME  DESTINATION        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}     # For binaries and dll
+           COMPONENT          bofstd-runtime
+  LIBRARY  DESTINATION        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}     # For shared libraries
+           COMPONENT          bofstd-runtime
+           NAMELINK_COMPONENT bofstd-devel
+  ARCHIVE  DESTINATION        ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}     # For static libraries
+           COMPONENT          bofstd-devel
+)
+else()		   
 install(
   TARGETS  bofstd bofstd-objects
   EXPORT   bofstd
@@ -486,6 +504,7 @@ install(
   ARCHIVE  DESTINATION        ${CMAKE_INSTALL_LIBDIR}     # For static libraries
            COMPONENT          bofstd-devel
 )
+endif()		   
 
 # Install the public headers (don't forget the generated export directives)
 install(DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}/include/

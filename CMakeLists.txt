@@ -172,7 +172,7 @@ enable_testing()
 
 # Add configuration files to a dummy library to
 # make sure files are properly found
-if (VCPKG_TARGET_ANDROID)
+if(ANDROID)
 else()
 add_library(bofstd-config-files INTERFACE
   Config.cmake.in
@@ -282,7 +282,7 @@ install(
   EXPORT      bofstd
   FILE        bofstd-targets.cmake
   NAMESPACE   ONBINGS::
-  DESTINATION ${CMAKE_INSTALL_DATADIR}
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/bofstd
   COMPONENT   bofstd-devel
 )
 
@@ -296,7 +296,7 @@ set(INTERNAL_NAMESPACE ONBINGS)
 configure_package_config_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/bofstd
 )
 
 unset(INTERNAL_NAMESPACE)
@@ -309,11 +309,12 @@ write_basic_package_version_file(
 )
 
 # Install them
+#message("=============================>" ${CMAKE_INSTALL_DATADIR})
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-version.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-dependencies.cmake
-  DESTINATION ${CMAKE_INSTALL_DATADIR}
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/bofstd
   COMPONENT   bofstd-devel
 )
 
