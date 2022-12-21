@@ -18,7 +18,7 @@
 #               22 April 2022 updated with NMA cmake and vcpkg ideas 
 
 cmake_minimum_required(VERSION 3.15)
-if (VCPKG_TARGET_ANDROID)
+if(ANDROID_ABI)	#VCPKG_TARGET_ANDROID)
     message("ANDROID->include vcpkg_android.cmake")
     include("vcpkg_android.cmake")
 endif()

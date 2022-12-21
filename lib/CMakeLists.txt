@@ -479,6 +479,7 @@ message("====CMAKE_LIBRARY_OUTPUT_DIRECTORY=====================>" ${CMAKE_LIBRA
 message("====CMAKE_ARCHIVE_OUTPUT_DIRECTORY=====================>" ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 message("====CMAKE_INSTALL_BINDIR=====================>" ${CMAKE_INSTALL_BINDIR})
 message("====CMAKE_INSTALL_LIBDIR=====================>" ${CMAKE_INSTALL_LIBDIR})
+message("=CMAKE_FIND_ROOT_PATH==============>"${CMAKE_FIND_ROOT_PATH})	
 # Install the target runtime
 if (ANDROID)  
 install(
