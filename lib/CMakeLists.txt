@@ -1,3 +1,11 @@
+
+include(GNUInstallDirs)
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+
 # =============
 # == SOURCES ==
 # =============
@@ -479,6 +487,7 @@ message("====CMAKE_LIBRARY_OUTPUT_DIRECTORY=====================>" ${CMAKE_LIBRA
 message("====CMAKE_ARCHIVE_OUTPUT_DIRECTORY=====================>" ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 message("====CMAKE_INSTALL_BINDIR=====================>" ${CMAKE_INSTALL_BINDIR})
 message("====CMAKE_INSTALL_LIBDIR=====================>" ${CMAKE_INSTALL_LIBDIR})
+message("====CMAKE_INSTALL_INCLUDEDIR=================>" ${CMAKE_INSTALL_INCLUDEDIR})
 message("=CMAKE_FIND_ROOT_PATH==============>"${CMAKE_FIND_ROOT_PATH})	
 # Install the target runtime
 if (ANDROID)  
