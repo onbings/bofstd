@@ -18,23 +18,17 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
-    message("====CMAKE_SYSTEM_NAME=2222===================>" ${CMAKE_SYSTEM_NAME})
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-    message("====CMAKE_SYSTEM_NAME=3333=======hehe============>" ${CMAKE_SYSTEM_NAME})
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 
-    get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
-    message("====CMAKE_SYSTEM_NAME=3333=======check=ANDROID_NDK_HOME===========>" $ENV{ANDROID_NDK_HOME})
-    message("====CMAKE_SYSTEM_NAME=3333=======check=ANDROID_NDK_HOME2===========>" ${ANDROID_NDK_HOME})
-    message("====CMAKE_SYSTEM_NAME=3333=======check=VCPKG_ROOT===========>" $ENV{VCPKG_ROOT})
-    message("====CMAKE_SYSTEM_NAME=3333=======check=VCPKG_ROOT2===========>" ${VCPKG_ROOT})
-
-
-
+    if (NOT DEFINED ENV{VCPKG_ROOT})
+    set(ENV{VCPKG_ROOT} ${Z_VCPKG_ROOT_DIR})
+    message(STATUS "VCPKG_ROOT has been reset by vcpkg virtual env->reset it to " ${Z_VCPKG_ROOT_DIR})
+    endif()
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
@@ -75,8 +69,7 @@ endforeach()
     #
     # The variable must be stored in the cache in order to successfully the two toolchains. 
     #
-        message("====ANDROID_ABI=3333=======hehe============>" ${ANDROID_ABI})
-    message("====CMAKE_SYSTEM_NAME=3333=======hehe============>" ${CMAKE_SYSTEM_NAME})
+    message("====ANDROID_ABI=============>" ${ANDROID_ABI})
 
     if (ANDROID_ABI MATCHES "arm64-v8a")
         set(VCPKG_TARGET_TRIPLET "arm64-android" CACHE STRING "" FORCE)

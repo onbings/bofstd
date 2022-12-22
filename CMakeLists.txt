@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.15)
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     message("ANDROID->include vcpkg_android.cmake")
     include("vcpkg_android.cmake")
-    message("====CMAKE_SYSTEM_VERSION=ROOT=bha===================>" ${CMAKE_SYSTEM_VERSION})
+    message("====CMAKE_SYSTEM_VERSION=ROOT====================>" ${CMAKE_SYSTEM_VERSION})
 endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
