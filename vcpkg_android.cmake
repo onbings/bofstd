@@ -17,15 +17,15 @@
 # Note: VCPKG_TARGET_ANDROID is not an official Vcpkg variable. 
 # it is introduced for the need of this script
 
-message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
-message("==vcpkg_android.cmake==VCPKG_TARGET_ANDROID=====> " ${VCPKG_TARGET_ANDROID})
- message("==vcpkg_android.cmake=======> Start of variable")
- get_cmake_property(_variableNames VARIABLES)
- list (SORT _variableNames)
- foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
- endforeach()
- message("==vcpkg_android.cmake=======> End of variable")
+#message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
+#message("==vcpkg_android.cmake==VCPKG_TARGET_ANDROID=====> " ${VCPKG_TARGET_ANDROID})
+# message("==vcpkg_android.cmake=======> Start of variable")
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+# message("==vcpkg_android.cmake=======> End of variable")
 
 if (VCPKG_TARGET_ANDROID)
 #if(CMAKE_SYSTEM_NAME STREQUAL "Android")
@@ -36,7 +36,7 @@ if (VCPKG_TARGET_ANDROID)
     #
 	message("=vcpkg_android.cmake===ENV{ANDROID_NDK_HOME}=============>" ENV{ANDROID_NDK_HOME})
     if (NOT DEFINED ENV{ANDROID_NDK_HOME})
-        message("
+        message(FATAL_ERROR "
         Please set an environment variable ANDROID_NDK_HOME
         For example:
         export ANDROID_NDK_HOME=/home/your-account/Android/Sdk/ndk-bundle
@@ -50,7 +50,7 @@ if (VCPKG_TARGET_ANDROID)
     #
 	message("=vcpkg_android.cmake===ENV{VCPKG_ROOT}=============>" ENV{VCPKG_ROOT})
     if (NOT DEFINED ENV{VCPKG_ROOT})
-        message("
+        message(FATAL_ERROR "
         Please set an environment variable VCPKG_ROOT
         For example:
         export VCPKG_ROOT=/path/to/vcpkg
@@ -82,7 +82,7 @@ if (VCPKG_TARGET_ANDROID)
     elseif(ANDROID_ABI MATCHES "x86")
         set(VCPKG_TARGET_TRIPLET "x86-android" CACHE STRING "" FORCE)
     else()
-        message("
+        message(FATAL_ERROR "
         Please specify ANDROID_ABI
         For example
         cmake ... -DANDROID_ABI=armeabi-v7a
