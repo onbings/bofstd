@@ -21,6 +21,20 @@
     message("====CMAKE_SYSTEM_NAME=2222===================>" ${CMAKE_SYSTEM_NAME})
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     message("====CMAKE_SYSTEM_NAME=3333=======hehe============>" ${CMAKE_SYSTEM_NAME})
+
+    get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
+    message("====CMAKE_SYSTEM_NAME=3333=======check=ANDROID_NDK_HOME===========>" $ENV{ANDROID_NDK_HOME})
+    message("====CMAKE_SYSTEM_NAME=3333=======check=ANDROID_NDK_HOME2===========>" ${ANDROID_NDK_HOME})
+    message("====CMAKE_SYSTEM_NAME=3333=======check=VCPKG_ROOT===========>" $ENV{VCPKG_ROOT})
+    message("====CMAKE_SYSTEM_NAME=3333=======check=VCPKG_ROOT2===========>" ${VCPKG_ROOT})
+
+
+
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
