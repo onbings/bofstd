@@ -19,6 +19,9 @@
  * V 1.00  Jan 19 2017  BHA : Initial release
  */
 #include <bofstd/bofdatetime.h>
+#include <date/date.h>
+using namespace date::literals;
+using namespace std::chrono_literals;
 
 #if defined (_WIN32)
 #include <Winsock2.h>
@@ -40,7 +43,17 @@
 
 BEGIN_BOF_NAMESPACE()
 
-BofDateTime::BofDateTime()
+// Opaque pointer design pattern: defined privately here all private data and functions: all of these can now change without recompiling callers ...
+class BofDateTime::BofDateTimeImplementation
+{
+  // Opaque pointer design pattern: all public and protected stuff goes here ...
+public:
+  date::year_month_day mYmd;
+  date::weekday mWd;
+  date::hh_mm_ss<std::chrono::nanoseconds> mTime;
+};
+// Opaque pointer design pattern: ... set Implementation values ...
+BofDateTime::BofDateTime() : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   Reset();
 }
@@ -59,6 +72,7 @@ void BofDateTime::Reset()
 }
 
 BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
+  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = _Year_U16;
   mMonth_U8 = _Month_U8;
@@ -70,6 +84,7 @@ BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16,
   InitDateTime();
 }
 BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16)
+  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = _Year_U16;
   mMonth_U8 = _Month_U8;
@@ -81,6 +96,7 @@ BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16)
   InitDateTime();
 }
 BofDateTime::BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
+  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = 1970;
   mMonth_U8 = 1;
@@ -93,6 +109,7 @@ BofDateTime::BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U
 }
 
 BofDateTime::BofDateTime(const std::tm &_rTm_X, uint32_t _MicroSecond_U32)
+  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = static_cast<uint16_t>(_rTm_X.tm_year + 1900);
   mMonth_U8 = static_cast<uint8_t>(_rTm_X.tm_mon + 1);
@@ -237,7 +254,7 @@ bool BofDateTime::IsMidnight() const
 }
 uint8_t BofDateTime::DayOfWeek() const
 {
-  return static_cast<uint8_t>(mWd.c_encoding());
+  return static_cast<uint8_t>(mpsBofDateTimeImplementation->mWd.c_encoding());
 }
 uint16_t BofDateTime::Year() const
 {
@@ -267,10 +284,10 @@ uint32_t BofDateTime::MicroSecond() const
 {
   return mMicroSecond_U32;
 }
-date::year_month_day BofDateTime::YearMountDay() const
-{
-  return mYmd;
-}
+//date::year_month_day BofDateTime::YearMonthDay() const
+//{
+//  return mYmd;
+//}
 
 std::tm BofDateTime::Tm() const
 {
@@ -292,13 +309,14 @@ std::chrono::system_clock::time_point BofDateTime::TimePoint() const
 
 void BofDateTime::InitDateTime()
 {
-  mYmd = date::year_month_day(date::year(mYear_U16), date::month(mMonth_U8), date::day(mDay_U8));
-  mIsValid_B = mYmd.ok();
+  //no  mpsBofDateTimeImplementation = std::make_shared<BofDateTimeImplementation>();
+  mpsBofDateTimeImplementation->mYmd = date::year_month_day(date::year(mYear_U16), date::month(mMonth_U8), date::day(mDay_U8));
+  mIsValid_B = mpsBofDateTimeImplementation->mYmd.ok();
   if (mIsValid_B)
   {
     if (mMicroSecond_U32 < 1000000)
     {
-      mWd = date::weekday(mYmd);
+      mpsBofDateTimeImplementation->mWd = date::weekday(mpsBofDateTimeImplementation->mYmd);
       mTm_X.tm_year = mYear_U16 - 1900;
       mTm_X.tm_mon = mMonth_U8 - 1;
       mTm_X.tm_mday = mDay_U8;
@@ -320,7 +338,7 @@ void BofDateTime::InitDateTime()
       mTp += SubSec;
 
       auto DurationInDay = date::floor<date::days>(mTp);
-      mTime = date::make_time(std::chrono::nanoseconds(mTp - DurationInDay));
+      mpsBofDateTimeImplementation->mTime = date::make_time(std::chrono::nanoseconds(mTp - DurationInDay));
 //      std::cout.fill('0');
 //      std::cout << mYmd.day() << '-' << std::setw(2) << static_cast<unsigned>(mYmd.month()) << '-' << mYmd.year() << ' ' << mTime << '\n';
       //mDateTimeNum_lf = static_cast<double>(mTp.time_since_epoch().count()) + (static_cast<double>(mMicroSecond_U32) / 1000000.0);

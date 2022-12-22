@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
   //::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParseBuffer";  // MediaDetectorParam";
   //::testing::GTEST_FLAG(filter) = "Guid_Test.*:JsonParser_Test.*:XmlParser_Test.*";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.ListAndSetupInterface";
+ // ::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
   /*
 * under linux:
 [  PASSED  ] 144 tests.
