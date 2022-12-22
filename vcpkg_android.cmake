@@ -18,17 +18,12 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
-if(CMAKE_SYSTEM_NAME STREQUAL "Android")
- get_cmake_property(_variableNames VARIABLES)
- list (SORT _variableNames)
- foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
- endforeach()
-
-    if (NOT DEFINED ENV{VCPKG_ROOT})
-    set(ENV{VCPKG_ROOT} ${Z_VCPKG_ROOT_DIR})
-    message(STATUS "VCPKG_ROOT has been reset by vcpkg virtual env->reset it to " ${Z_VCPKG_ROOT_DIR})
-    endif()
+#if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
@@ -105,18 +100,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     # with the VCPKG_CHAINLOAD_TOOLCHAIN_FILE option.
     set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE $ENV{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake)
     set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
-	set(VCPKG_CMAKE_SYSTEM_VERSION 30)
-	set(CMAKE_SYSTEM_VERSION 30)
     set(CMAKE_VERBOSE_MAKEFILE on)
 	
     message("vcpkg_android.cmake: CMAKE_TOOLCHAIN_FILE was set to ${CMAKE_TOOLCHAIN_FILE}")
     message("vcpkg_android.cmake: VCPKG_CHAINLOAD_TOOLCHAIN_FILE was set to ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
     message("vcpkg_android.cmake: VCPKG_CMAKE_SYSTEM_VERSION was set to ${VCPKG_CMAKE_SYSTEM_VERSION}")
     message("vcpkg_android.cmake: CMAKE_SYSTEM_VERSION was set to ${CMAKE_SYSTEM_VERSION}")
-else()
-    message("====CMAKE_SYSTEM_NAME=4444=======krot============>" ${CMAKE_SYSTEM_NAME})
-
 endif()
-
-    message("====CMAKE_SYSTEM_NAME=5555=======exit============>" ${CMAKE_SYSTEM_NAME})
 
