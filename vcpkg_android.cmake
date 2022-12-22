@@ -18,12 +18,14 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
-#if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+
 # get_cmake_property(_variableNames VARIABLES)
 # list (SORT _variableNames)
 # foreach (_variableName ${_variableNames})
 #    message(STATUS "${_variableName}=${${_variableName}}")
 # endforeach()
+
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
