@@ -7,7 +7,7 @@
 # if (VCPKG_TARGET_ANDROID)  ==>BHA if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 #     include("cmake/vcpkg_android.cmake")
 # endif()
-# 
+#   
 # This script will:
 # 1 & 2. check the presence of needed env variables: ANDROID_NDK_HOME and VCPKG_ROOT
 # 3. set VCPKG_TARGET_TRIPLET according to ANDROID_ABI
