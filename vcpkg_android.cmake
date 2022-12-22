@@ -18,20 +18,21 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
-message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=bha====> " ${CMAKE_SYSTEM_NAME})
+message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 
- message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> Start of variable")
+ message("==vcpkg_android.cmake=======> Start of variable")
  get_cmake_property(_variableNames VARIABLES)
  list (SORT _variableNames)
  foreach (_variableName ${_variableNames})
     message(STATUS "${_variableName}=${${_variableName}}")
  endforeach()
- message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> End of variable")
+ message("==vcpkg_android.cmake=======> End of variable")
  
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
+	message("====ENV{ANDROID_NDK_HOME}=============>" ENV{ANDROID_NDK_HOME})
     if (NOT DEFINED ENV{ANDROID_NDK_HOME})
         message("
         Please set an environment variable ANDROID_NDK_HOME
@@ -45,6 +46,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     #
     # 2. Check the presence of environment variable VCPKG_ROOT
     #
+	message("====ENV{VCPKG_ROOT}=============>" ENV{VCPKG_ROOT})
     if (NOT DEFINED ENV{VCPKG_ROOT})
         message("
         Please set an environment variable VCPKG_ROOT
@@ -52,7 +54,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
         export VCPKG_ROOT=/path/to/vcpkg
         ")
     endif()
-
 
     #
     # 3. Set VCPKG_TARGET_TRIPLET according to ANDROID_ABI
@@ -70,7 +71,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     # The variable must be stored in the cache in order to successfully the two toolchains. 
     #
     message("====ANDROID_ABI=============>" ${ANDROID_ABI})
-
     if (ANDROID_ABI MATCHES "arm64-v8a")
         set(VCPKG_TARGET_TRIPLET "arm64-android" CACHE STRING "" FORCE)
     elseif(ANDROID_ABI MATCHES "armeabi-v7a")
@@ -106,6 +106,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE $ENV{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake)
     set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
     set(CMAKE_VERBOSE_MAKEFILE on)
+	set(VCPKG_CMAKE_SYSTEM_VERSION ${CMAKE_SYSTEM_VERSION})
 	
     message("vcpkg_android.cmake: CMAKE_TOOLCHAIN_FILE was set to ${CMAKE_TOOLCHAIN_FILE}")
     message("vcpkg_android.cmake: VCPKG_CHAINLOAD_TOOLCHAIN_FILE was set to ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
