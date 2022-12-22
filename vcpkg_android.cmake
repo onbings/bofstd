@@ -4,7 +4,7 @@
 # Helper script when using vcpkg with cmake. It should be triggered via the variable VCPKG_TARGET_ANDROID
 #
 # For example:
-# if (VCPKG_TARGET_ANDROID)
+# if (VCPKG_TARGET_ANDROID)  ==>BHA if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 #     include("cmake/vcpkg_android.cmake")
 # endif()
 # 
@@ -17,8 +17,8 @@
 # Note: VCPKG_TARGET_ANDROID is not an official Vcpkg variable. 
 # it is introduced for the need of this script
 
-if (VCPKG_TARGET_ANDROID)
-
+#if (VCPKG_TARGET_ANDROID)
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
