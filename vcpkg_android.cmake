@@ -19,11 +19,11 @@
 
 #if (VCPKG_TARGET_ANDROID)
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
+ get_cmake_property(_variableNames VARIABLES)
+ list (SORT _variableNames)
+ foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+ endforeach()
 
     if (NOT DEFINED ENV{VCPKG_ROOT})
     set(ENV{VCPKG_ROOT} ${Z_VCPKG_ROOT_DIR})
