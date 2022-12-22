@@ -18,7 +18,7 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
-message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
+message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=bha====> " ${CMAKE_SYSTEM_NAME})
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 
  message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> Start of variable")

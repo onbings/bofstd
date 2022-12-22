@@ -25,7 +25,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.1.16.62)
+project(bofstd VERSION 5.1.16.63)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.
