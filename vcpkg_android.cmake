@@ -18,20 +18,22 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
-message("====CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
+message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
+ message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> Start of variable")
+ get_cmake_property(_variableNames VARIABLES)
+ list (SORT _variableNames)
+ foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+ endforeach()
+ message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> End of variable")
  
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
     if (NOT DEFINED ENV{ANDROID_NDK_HOME})
-        message(FATAL_ERROR "
+        message("
         Please set an environment variable ANDROID_NDK_HOME
         For example:
         export ANDROID_NDK_HOME=/home/your-account/Android/Sdk/ndk-bundle
@@ -44,7 +46,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     # 2. Check the presence of environment variable VCPKG_ROOT
     #
     if (NOT DEFINED ENV{VCPKG_ROOT})
-        message(FATAL_ERROR "
+        message("
         Please set an environment variable VCPKG_ROOT
         For example:
         export VCPKG_ROOT=/path/to/vcpkg
@@ -78,7 +80,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     elseif(ANDROID_ABI MATCHES "x86")
         set(VCPKG_TARGET_TRIPLET "x86-android" CACHE STRING "" FORCE)
     else()
-        message(FATAL_ERROR "
+        message("
         Please specify ANDROID_ABI
         For example
         cmake ... -DANDROID_ABI=armeabi-v7a
