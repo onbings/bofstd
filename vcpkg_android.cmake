@@ -18,7 +18,9 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
+    message("====CMAKE_SYSTEM_NAME=2222===================>" ${CMAKE_SYSTEM_NAME})
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    message("====CMAKE_SYSTEM_NAME=3333=======hehe============>" ${CMAKE_SYSTEM_NAME})
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
@@ -59,6 +61,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     #
     # The variable must be stored in the cache in order to successfully the two toolchains. 
     #
+        message("====ANDROID_ABI=3333=======hehe============>" ${ANDROID_ABI})
+    message("====CMAKE_SYSTEM_NAME=3333=======hehe============>" ${CMAKE_SYSTEM_NAME})
+
     if (ANDROID_ABI MATCHES "arm64-v8a")
         set(VCPKG_TARGET_TRIPLET "arm64-android" CACHE STRING "" FORCE)
     elseif(ANDROID_ABI MATCHES "armeabi-v7a")
@@ -101,5 +106,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     message("vcpkg_android.cmake: VCPKG_CHAINLOAD_TOOLCHAIN_FILE was set to ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
     message("vcpkg_android.cmake: VCPKG_CMAKE_SYSTEM_VERSION was set to ${VCPKG_CMAKE_SYSTEM_VERSION}")
     message("vcpkg_android.cmake: CMAKE_SYSTEM_VERSION was set to ${CMAKE_SYSTEM_VERSION}")
+else()
+    message("====CMAKE_SYSTEM_NAME=4444=======krot============>" ${CMAKE_SYSTEM_NAME})
 
-endif(VCPKG_TARGET_ANDROID)
+endif()
+
+    message("====CMAKE_SYSTEM_NAME=5555=======exit============>" ${CMAKE_SYSTEM_NAME})
+
