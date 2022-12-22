@@ -4,7 +4,7 @@
 # Helper script when using vcpkg with cmake. It should be triggered via the variable VCPKG_TARGET_ANDROID
 #
 # For example:
-# if (VCPKG_TARGET_ANDROID)  ==>BHA if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+# if (VCPKG_TARGET_ANDROID)
 #     include("cmake/vcpkg_android.cmake")
 # endif()
 #   
@@ -17,10 +17,8 @@
 # Note: VCPKG_TARGET_ANDROID is not an official Vcpkg variable. 
 # it is introduced for the need of this script
 
-#if (VCPKG_TARGET_ANDROID)
 message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
-if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-
+message("==vcpkg_android.cmake==VCPKG_TARGET_ANDROID=====> " ${VCPKG_TARGET_ANDROID})
  message("==vcpkg_android.cmake=======> Start of variable")
  get_cmake_property(_variableNames VARIABLES)
  list (SORT _variableNames)
@@ -28,11 +26,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     message(STATUS "${_variableName}=${${_variableName}}")
  endforeach()
  message("==vcpkg_android.cmake=======> End of variable")
+
+if (VCPKG_TARGET_ANDROID)
+#if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+
  
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
-	message("====ENV{ANDROID_NDK_HOME}=============>" ENV{ANDROID_NDK_HOME})
+	message("=vcpkg_android.cmake===ENV{ANDROID_NDK_HOME}=============>" ENV{ANDROID_NDK_HOME})
     if (NOT DEFINED ENV{ANDROID_NDK_HOME})
         message("
         Please set an environment variable ANDROID_NDK_HOME
@@ -46,7 +48,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     #
     # 2. Check the presence of environment variable VCPKG_ROOT
     #
-	message("====ENV{VCPKG_ROOT}=============>" ENV{VCPKG_ROOT})
+	message("=vcpkg_android.cmake===ENV{VCPKG_ROOT}=============>" ENV{VCPKG_ROOT})
     if (NOT DEFINED ENV{VCPKG_ROOT})
         message("
         Please set an environment variable VCPKG_ROOT
@@ -70,7 +72,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     #
     # The variable must be stored in the cache in order to successfully the two toolchains. 
     #
-    message("====ANDROID_ABI=============>" ${ANDROID_ABI})
+    message("=vcpkg_android.cmake===ANDROID_ABI=============>" ${ANDROID_ABI})
     if (ANDROID_ABI MATCHES "arm64-v8a")
         set(VCPKG_TARGET_TRIPLET "arm64-android" CACHE STRING "" FORCE)
     elseif(ANDROID_ABI MATCHES "armeabi-v7a")
