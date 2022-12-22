@@ -18,6 +18,7 @@
 # it is introduced for the need of this script
 
 #if (VCPKG_TARGET_ANDROID)
+message("====CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME});
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 
 # get_cmake_property(_variableNames VARIABLES)
