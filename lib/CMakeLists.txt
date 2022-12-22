@@ -482,13 +482,7 @@ if(NOT APPLE)
 
 endif()
 
-message("====CMAKE_RUNTIME_OUTPUT_DIRECTORY=====================>" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-message("====CMAKE_LIBRARY_OUTPUT_DIRECTORY=====================>" ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-message("====CMAKE_ARCHIVE_OUTPUT_DIRECTORY=====================>" ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-message("====CMAKE_INSTALL_BINDIR=====================>" ${CMAKE_INSTALL_BINDIR})
-message("====CMAKE_INSTALL_LIBDIR=====================>" ${CMAKE_INSTALL_LIBDIR})
-message("====CMAKE_INSTALL_INCLUDEDIR=================>" ${CMAKE_INSTALL_INCLUDEDIR})
-message("=CMAKE_FIND_ROOT_PATH==============>"${CMAKE_FIND_ROOT_PATH})	
+message("====CMAKE_SYSTEM_VERSION=LIB====================>" ${CMAKE_SYSTEM_VERSION})
 # Install the target runtime
 if (ANDROID)  
 install(

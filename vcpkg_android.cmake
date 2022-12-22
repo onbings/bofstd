@@ -94,10 +94,12 @@ if (VCPKG_TARGET_ANDROID)
     set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE $ENV{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake)
     set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 	set(VCPKG_CMAKE_SYSTEM_VERSION 30)
-	set(CMAKE_VERBOSE_MAKEFILE on)
+	set(CMAKE_SYSTEM_VERSION 30)
+    set(CMAKE_VERBOSE_MAKEFILE on)
 	
     message("vcpkg_android.cmake: CMAKE_TOOLCHAIN_FILE was set to ${CMAKE_TOOLCHAIN_FILE}")
     message("vcpkg_android.cmake: VCPKG_CHAINLOAD_TOOLCHAIN_FILE was set to ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
     message("vcpkg_android.cmake: VCPKG_CMAKE_SYSTEM_VERSION was set to ${VCPKG_CMAKE_SYSTEM_VERSION}")
+    message("vcpkg_android.cmake: CMAKE_SYSTEM_VERSION was set to ${CMAKE_SYSTEM_VERSION}")
 
 endif(VCPKG_TARGET_ANDROID)
