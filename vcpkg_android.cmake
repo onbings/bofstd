@@ -8,25 +8,19 @@
 #     include("cmake/vcpkg_android.cmake")
 # endif()
 #   
-# This script will:
-# 1 & 2. check the presence of needed env variables: ANDROID_NDK_HOME and VCPKG_ROOT
-# 3. set VCPKG_TARGET_TRIPLET according to ANDROID_ABI
-# 4. Combine vcpkg and Android toolchains by setting CMAKE_TOOLCHAIN_FILE 
-#    and VCPKG_CHAINLOAD_TOOLCHAIN_FILE
-
 # Note: VCPKG_TARGET_ANDROID is not an official Vcpkg variable. 
 # it is introduced for the need of this script
 
-message("==vcpkg_android.cmake==VCPKG_TARGET_ANDROID=====> " ${VCPKG_TARGET_ANDROID})
+message("==vcpkg_android.cmake==INPUT:")
+message("==vcpkg_android.cmake==VCPKG_TARGET_ANDROID=> " ${VCPKG_TARGET_ANDROID})
 message("==vcpkg_android.cmake==ANDROID_NDK_HOME=====> " $ENV{ANDROID_NDK_HOME})
-message("==vcpkg_android.cmake==VCPKG_ROOT=====> " $ENV{VCPKG_ROOT})
-message("==vcpkg_android.cmake==ANDROID_ABI=====> " $ENV{ANDROID_ABI})
-message("==vcpkg_android.cmake==ANDROID_API=====> " $ENV{ANDROID_API})
-message("==vcpkg_android.cmake==BHA_ANDROID_ABI=====> " $ENV{BHA_ANDROID_ABI})
-message("==vcpkg_android.cmake==BHA_ANDROID_API=====> " $ENV{BHA_ANDROID_API})
-message("==vcpkg_android.cmake==BHA_ANDROID_ABI=====> " ${BHA_ANDROID_ABI})
-message("==vcpkg_android.cmake==BHA_ANDROID_API=====> " ${BHA_ANDROID_API})
-message("==vcpkg_android.cmake==VCPKG_TARGET_TRIPLET=====> " ${VCPKG_TARGET_TRIPLET})
+message("==vcpkg_android.cmake==VCPKG_ROOT===========> " $ENV{VCPKG_ROOT})
+message("==vcpkg_android.cmake==CPP_ANDROID_ROOT=====> " $ENV{CPP_ANDROID_ROOT})
+message("==vcpkg_android.cmake==CPP_ANDROID_BLD======> " $ENV{CPP_ANDROID_BLD})
+message("==vcpkg_android.cmake==CPP_ANDROID_REPO=====> " $ENV{CPP_ANDROID_REPO})
+message("==vcpkg_android.cmake==CPP_ANDROID_ABI======> " $ENV{CPP_ANDROID_ABI})
+message("==vcpkg_android.cmake==CPP_ANDROID_API======> " $ENV{CPP_ANDROID_API})
+
  message("==vcpkg_android.cmake=======> Start of variable")
  get_cmake_property(_variableNames VARIABLES)
  list (SORT _variableNames)
@@ -36,13 +30,9 @@ message("==vcpkg_android.cmake==VCPKG_TARGET_TRIPLET=====> " ${VCPKG_TARGET_TRIP
  message("==vcpkg_android.cmake=======> End of variable")
 
 if (VCPKG_TARGET_ANDROID)
-#if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-
- 
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
-	message("=vcpkg_android.cmake===ENV{ANDROID_NDK_HOME}=============>" $ENV{ANDROID_NDK_HOME})
     if (NOT DEFINED ENV{ANDROID_NDK_HOME})
         message(FATAL_ERROR "
         Please set an environment variable ANDROID_NDK_HOME
@@ -52,11 +42,9 @@ if (VCPKG_TARGET_ANDROID)
         export ANDROID_NDK_HOME=/home/your-account/Android/android-ndk-r21b
         ")
     endif()
-
     #
     # 2. Check the presence of environment variable VCPKG_ROOT
     #
-	message("=vcpkg_android.cmake===ENV{VCPKG_ROOT}=============>" $ENV{VCPKG_ROOT})
     if (NOT DEFINED ENV{VCPKG_ROOT})
         message(FATAL_ERROR "
         Please set an environment variable VCPKG_ROOT
@@ -66,12 +54,12 @@ if (VCPKG_TARGET_ANDROID)
     endif()
 
     #
-    # 3. Set VCPKG_TARGET_TRIPLET according to ANDROID_ABI
+    # 3. Set VCPKG_TARGET_TRIPLET according to CPP_ANDROID_ABI
     # 
     # There are four different Android ABI, each of which maps to 
     # a vcpkg triplet. The following table outlines the mapping from vcpkg architectures to android architectures
     #
-    # |VCPKG_TARGET_TRIPLET       | ANDROID_ABI          |
+    # |VCPKG_TARGET_TRIPLET       | CPP_ANDROID_ABI          |
     # |---------------------------|----------------------|
     # |arm64-android              | arm64-v8a            |
     # |arm-android                | armeabi-v7a          |
@@ -80,47 +68,39 @@ if (VCPKG_TARGET_ANDROID)
     #
     # The variable must be stored in the cache in order to successfully the two toolchains. 
     #
-    message("=vcpkg_android.cmake===ANDROID_ABI=============>" ${ANDROID_ABI})
-    if (ANDROID_ABI MATCHES "arm64-v8a")
-        set(VCPKG_TARGET_TRIPLET "arm64-android" CACHE STRING "" FORCE)
-    elseif(ANDROID_ABI MATCHES "armeabi-v7a")
-        set(VCPKG_TARGET_TRIPLET "arm-android" CACHE STRING "" FORCE)
-    elseif(ANDROID_ABI MATCHES "x86_64")
-        set(VCPKG_TARGET_TRIPLET "x64-android" CACHE STRING "" FORCE)
-    elseif(ANDROID_ABI MATCHES "x86")
-        set(VCPKG_TARGET_TRIPLET "x86-android" CACHE STRING "" FORCE)
+    if (CPP_ANDROID_ABI MATCHES "arm64-v8a")
+	    string(CONCAT CPP_VCPKG_TARGET_TRIPLET "arm64-android-" ${CPP_ANDROID_API})
+        set(VCPKG_TARGET_TRIPLET ${CPP_VCPKG_TARGET_TRIPLET} CACHE STRING "" FORCE)
+    elseif(CPP_ANDROID_ABI MATCHES "armeabi-v7a")
+	    string(CONCAT CPP_VCPKG_TARGET_TRIPLET "arm-android-" ${CPP_ANDROID_API})
+        set(VCPKG_TARGET_TRIPLET ${CPP_VCPKG_TARGET_TRIPLET} CACHE STRING "" FORCE)
+    elseif(CPP_ANDROID_ABI MATCHES "x86_64")
+	    string(CONCAT CPP_VCPKG_TARGET_TRIPLET "x64-android-" ${CPP_ANDROID_API})
+        set(VCPKG_TARGET_TRIPLET ${CPP_VCPKG_TARGET_TRIPLET} CACHE STRING "" FORCE)
+    elseif(CPP_ANDROID_ABI MATCHES "x86")
+	    string(CONCAT CPP_VCPKG_TARGET_TRIPLET "x86-android-" ${CPP_ANDROID_API})
+        set(VCPKG_TARGET_TRIPLET ${CPP_VCPKG_TARGET_TRIPLET} CACHE STRING "" FORCE)
     else()
         message(FATAL_ERROR "
-        Please specify ANDROID_ABI
+        Please specify CPP_ANDROID_ABI
         For example
-        cmake ... -DANDROID_ABI=armeabi-v7a
+        cmake ... -DCPP_ANDROID_ABI=armeabi-v7a
 
         Possible ABIs are: arm64-v8a, armeabi-v7a, x64-android, x86-android
         ")
     endif()
-    message("vcpkg_android.cmake: VCPKG_TARGET_TRIPLET was set to ${VCPKG_TARGET_TRIPLET}")
-
-
-    #
-    # 4. Combine vcpkg and Android toolchains
-    #
-
-    # vcpkg and android both provide dedicated toolchains:
-    #
-    # vcpkg_toolchain_file=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
-    # android_toolchain_file=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake
-    #
-    # When using vcpkg, the vcpkg toolchain shall be specified first. 
-    # However, vcpkg provides a way to preload and additional toolchain, 
-    # with the VCPKG_CHAINLOAD_TOOLCHAIN_FILE option.
-    set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE $ENV{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake)
-    set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
-    set(CMAKE_VERBOSE_MAKEFILE on)
-	set(VCPKG_CMAKE_SYSTEM_VERSION ${CMAKE_SYSTEM_VERSION})
 	
-    message("vcpkg_android.cmake: CMAKE_TOOLCHAIN_FILE was set to ${CMAKE_TOOLCHAIN_FILE}")
-    message("vcpkg_android.cmake: VCPKG_CHAINLOAD_TOOLCHAIN_FILE was set to ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
-    message("vcpkg_android.cmake: VCPKG_CMAKE_SYSTEM_VERSION was set to ${VCPKG_CMAKE_SYSTEM_VERSION}")
-    message("vcpkg_android.cmake: CMAKE_SYSTEM_VERSION was set to ${CMAKE_SYSTEM_VERSION}")
+    message("==vcpkg_android.cmake==OUTPUT:")
+    message("==vcpkg_android.cmake==VCPKG_TARGET_TRIPLET===========> " ${VCPKG_TARGET_TRIPLET})
+    message("==vcpkg_android.cmake==CMAKE_INSTALL_PREFIX===========> " ${CMAKE_INSTALL_PREFIX})
+    message("==vcpkg_android.cmake==CMAKE_TOOLCHAIN_FILE===========> " ${CMAKE_TOOLCHAIN_FILE})
+    message("==vcpkg_android.cmake==VCPKG_CHAINLOAD_TOOLCHAIN_FILE=> " ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE})
+    message("==vcpkg_android.cmake==CMAKE_BUILD_TYPE===============> " ${CMAKE_BUILD_TYPE})
+    message("==vcpkg_android.cmake==CMAKE_LIBRARY_OUTPUT_DIRECTORY=> " ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    message("==vcpkg_android.cmake==CMAKE_ARCHIVE_OUTPUT_DIRECTORY=> " ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+    message("==vcpkg_android.cmake==CMAKE_RUNTIME_OUTPUT_DIRECTORY=> " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    message("==vcpkg_android.cmake==CMAKE_DEBUG_POSTFIX============> " ${CMAKE_DEBUG_POSTFIX})
+    message("==vcpkg_android.cmake==VCPKG_CMAKE_SYSTEM_VERSION=====> " ${VCPKG_CMAKE_SYSTEM_VERSION})
+    message("==vcpkg_android.cmake==CMAKE_SYSTEM_VERSION===========> " ${CMAKE_SYSTEM_VERSION})
 endif()
 
