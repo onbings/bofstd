@@ -482,9 +482,9 @@ if(NOT APPLE)
 
 endif()
 
-message("====CMAKE_SYSTEM_VERSION=LIB====================>" ${CMAKE_SYSTEM_VERSION})
 # Install the target runtime
-if (ANDROID)  
+message("====ANDROID_PLATFORM==ROOT==================>" ${ANDROID_PLATFORM})
+if(NOT "${ANDROID_PLATFORM}")
 install(
   TARGETS  bofstd bofstd-objects
   EXPORT   bofstd
