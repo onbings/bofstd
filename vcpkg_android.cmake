@@ -17,15 +17,23 @@
 # Note: VCPKG_TARGET_ANDROID is not an official Vcpkg variable. 
 # it is introduced for the need of this script
 
-#message("==vcpkg_android.cmake==CMAKE_SYSTEM_NAME=====> " ${CMAKE_SYSTEM_NAME})
-#message("==vcpkg_android.cmake==VCPKG_TARGET_ANDROID=====> " ${VCPKG_TARGET_ANDROID})
-# message("==vcpkg_android.cmake=======> Start of variable")
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
-# message("==vcpkg_android.cmake=======> End of variable")
+message("==vcpkg_android.cmake==VCPKG_TARGET_ANDROID=====> " ${VCPKG_TARGET_ANDROID})
+message("==vcpkg_android.cmake==ANDROID_NDK_HOME=====> " $ENV{ANDROID_NDK_HOME})
+message("==vcpkg_android.cmake==VCPKG_ROOT=====> " $ENV{VCPKG_ROOT})
+message("==vcpkg_android.cmake==ANDROID_ABI=====> " $ENV{ANDROID_ABI})
+message("==vcpkg_android.cmake==ANDROID_API=====> " $ENV{ANDROID_API})
+message("==vcpkg_android.cmake==BHA_ANDROID_ABI=====> " $ENV{BHA_ANDROID_ABI})
+message("==vcpkg_android.cmake==BHA_ANDROID_API=====> " $ENV{BHA_ANDROID_API})
+message("==vcpkg_android.cmake==BHA_ANDROID_ABI=====> " ${BHA_ANDROID_ABI})
+message("==vcpkg_android.cmake==BHA_ANDROID_API=====> " ${BHA_ANDROID_API})
+message("==vcpkg_android.cmake==VCPKG_TARGET_TRIPLET=====> " ${VCPKG_TARGET_TRIPLET})
+ message("==vcpkg_android.cmake=======> Start of variable")
+ get_cmake_property(_variableNames VARIABLES)
+ list (SORT _variableNames)
+ foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+ endforeach()
+ message("==vcpkg_android.cmake=======> End of variable")
 
 if (VCPKG_TARGET_ANDROID)
 #if(CMAKE_SYSTEM_NAME STREQUAL "Android")
@@ -34,7 +42,7 @@ if (VCPKG_TARGET_ANDROID)
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #
-	message("=vcpkg_android.cmake===ENV{ANDROID_NDK_HOME}=============>" ENV{ANDROID_NDK_HOME})
+	message("=vcpkg_android.cmake===ENV{ANDROID_NDK_HOME}=============>" $ENV{ANDROID_NDK_HOME})
     if (NOT DEFINED ENV{ANDROID_NDK_HOME})
         message(FATAL_ERROR "
         Please set an environment variable ANDROID_NDK_HOME
@@ -48,7 +56,7 @@ if (VCPKG_TARGET_ANDROID)
     #
     # 2. Check the presence of environment variable VCPKG_ROOT
     #
-	message("=vcpkg_android.cmake===ENV{VCPKG_ROOT}=============>" ENV{VCPKG_ROOT})
+	message("=vcpkg_android.cmake===ENV{VCPKG_ROOT}=============>" $ENV{VCPKG_ROOT})
     if (NOT DEFINED ENV{VCPKG_ROOT})
         message(FATAL_ERROR "
         Please set an environment variable VCPKG_ROOT
