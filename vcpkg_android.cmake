@@ -10,26 +10,18 @@
 #   
 # Note: VCPKG_TARGET_ANDROID is not an official Vcpkg variable. 
 # it is introduced for the need of this script
+#cmake -DANDROID_PLATFORM=android-30 -DCPP_ANDROID_PRJ=%1 -DCPP_ANDROID_ABI=x86_64 -DANDROID_NDK_HOME=C:\Android\Sdk\ndk\25.1.8937393 -DVCPKG_ROOT=C:\pro\vcpkg -DCPP_ANDROID_REPO_BLD_ROOT=C:\Android -Wno-dev -DCMAKE_FIND_DEBUG_MODE=OFF -DCMAKE_INSTALL_PREFIX=%CPP_ANDROID_REPO%/%CPP_PRJ% -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=%CPP_TYPE% -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=lib/%CPP_ANDROID_ABI%/%CPP_TYPE% -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=lib/%CPP_ANDROID_ABI%/%CPP_TYPE% -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin/%CPP_ANDROID_ABI%/%CPP_TYPE% -DCMAKE_DEBUG_POSTFIX=_d -DVCPKG_OVERLAY_PORTS=C:/pro/github/onbings-vcpkg-registry/ports C:\pro\github\vcpkg-packaging-env
+#cmake -DANDROID_PLATFORM=android-30 -DCPP_ANDROID_PRJ=%1 -DCPP_ANDROID_ABI=x86_64 -DANDROID_NDK_HOME=C:\Android\Sdk\ndk\25.1.8937393 -DVCPKG_ROOT=C:\pro\vcpkg -DCPP_ANDROID_REPO_BLD_ROOT=%CPP_ANDROID_REPO_BLD_ROOT% -Wno-dev -DCMAKE_FIND_DEBUG_MODE=OFF -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=%CPP_TYPE% -DCMAKE_DEBUG_POSTFIX=_d -DVCPKG_OVERLAY_PORTS=C:/pro/github/onbings-vcpkg-registry/ports C:\pro\github\vcpkg-packaging-env
 
 message("==vcpkg_android.cmake==INPUT VAR:")
 message("==vcpkg_android.cmake==ANDROID_PLATFORM===============> " ${ANDROID_PLATFORM})
-message("==vcpkg_android.cmake==CMAKE_INSTALL_PREFIX===========> " ${CMAKE_INSTALL_PREFIX})
+message("==vcpkg_android.cmake==CPP_ANDROID_PRJ================> " ${CPP_ANDROID_PRJ})
+message("==vcpkg_android.cmake==CPP_ANDROID_ABI================> " ${CPP_ANDROID_ABI})
+message("==vcpkg_android.cmake==ANDROID_NDK_HOME===============> " ${ANDROID_NDK_HOME})
+message("==vcpkg_android.cmake==VCPKG_ROOT=====================> " ${VCPKG_ROOT})
+message("==vcpkg_android.cmake==DCPP_ANDROID_REPO_BLD_ROOT=====> " ${DCPP_ANDROID_REPO_BLD_ROOT})
 message("==vcpkg_android.cmake==CMAKE_BUILD_TYPE===============> " ${CMAKE_BUILD_TYPE})
-message("==vcpkg_android.cmake==CMAKE_TOOLCHAIN_FILE===========> " ${CMAKE_TOOLCHAIN_FILE})
-message("==vcpkg_android.cmake==VCPKG_CHAINLOAD_TOOLCHAIN_FILE=> " ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE})
-message("==vcpkg_android.cmake==CMAKE_LIBRARY_OUTPUT_DIRECTORY=> " ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-message("==vcpkg_android.cmake==CMAKE_ARCHIVE_OUTPUT_DIRECTORY=> " ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-message("==vcpkg_android.cmake==CMAKE_RUNTIME_OUTPUT_DIRECTORY=> " ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-message("==vcpkg_android.cmake==CMAKE_DEBUG_POSTFIX============> " ${CMAKE_DEBUG_POSTFIX})
-
-message("==vcpkg_android.cmake==INPUT ENV VAR:")
-message("==vcpkg_android.cmake==ANDROID_NDK_HOME=====> " $ENV{ANDROID_NDK_HOME})
-message("==vcpkg_android.cmake==VCPKG_ROOT===========> " $ENV{VCPKG_ROOT})
-message("==vcpkg_android.cmake==CPP_ANDROID_ROOT=====> " $ENV{CPP_ANDROID_ROOT})
-message("==vcpkg_android.cmake==CPP_ANDROID_BLD======> " $ENV{CPP_ANDROID_BLD})
-message("==vcpkg_android.cmake==CPP_ANDROID_REPO=====> " $ENV{CPP_ANDROID_REPO})
-message("==vcpkg_android.cmake==CPP_ANDROID_ABI======> " $ENV{CPP_ANDROID_ABI})
-message("==vcpkg_android.cmake==CPP_ANDROID_API======> " $ENV{CPP_ANDROID_API})
+message("==vcpkg_android.cmake==VCPKG_OVERLAY_PORTS============> " ${VCPKG_OVERLAY_PORTS})
 
 # message("==vcpkg_android.cmake=======> Start of variable")
 # get_cmake_property(_variableNames VARIABLES)
@@ -40,6 +32,23 @@ message("==vcpkg_android.cmake==CPP_ANDROID_API======> " $ENV{CPP_ANDROID_API})
 # message("==vcpkg_android.cmake=======> End of variable")
 
 if(NOT "${ANDROID_PLATFORM}")
+	string(CONCAT MKDIR ${DCPP_ANDROID_REPO_BLD_ROOT} "/bld/" ${CPP_ANDROID_PRJ} "/Debug")
+	message("Create Debug bld directory: " ${MKDIR}) 
+	file(MAKE_DIRECTORY ${MKDIR})
+	
+	string(CONCAT MKDIR ${DCPP_ANDROID_REPO_BLD_ROOT} "/bld/" ${CPP_ANDROID_PRJ} "/Release")
+	message("Create Release bld directory: " ${MKDIR}) 
+	file(MAKE_DIRECTORY ${MKDIR})
+	
+	string(CONCAT MKDIR ${DCPP_ANDROID_REPO_BLD_ROOT} "/repo/" ${CPP_ANDROID_PRJ})
+	message("Create repo directory: " ${MKDIR}) 
+	file(MAKE_DIRECTORY ${MKDIR})
+
+
+# -DCMAKE_INSTALL_PREFIX=%CPP_ANDROID_REPO%/%CPP_PRJ% -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%ANDROID_NDK_HOME%/build/cmake/android.toolchain.cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=%CPP_TYPE% -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=lib/%CPP_ANDROID_ABI%/%CPP_TYPE% -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=lib/%CPP_ANDROID_ABI%/%CPP_TYPE% -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin/%CPP_ANDROID_ABI%/%CPP_TYPE% -DCMAKE_DEBUG_POSTFIX=_d -DVCPKG_OVERLAY_PORTS=C:/pro/github/onbings-vcpkg-registry/ports C:\pro\github\vcpkg-packaging-env
+
+
+
     #
     # 1. Check the presence of environment variable ANDROID_NDK_HOME
     #

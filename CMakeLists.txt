@@ -18,14 +18,14 @@
 #               22 April 2022 updated with NMA cmake and vcpkg ideas 
 
 cmake_minimum_required(VERSION 3.15)
-message("====ANDROID_PLATFORM==ROOT==================>" ${ANDROID_PLATFORM})
-if(NOT "${ANDROID_PLATFORM}")
-    message("ANDROID->include vcpkg_android.cmake")
-    include("vcpkg_android.cmake")
-endif()
+message("====ANDROID_PLATFORM==ROOT=2=================>" ${ANDROID_PLATFORM})
+# if(NOT "${ANDROID_PLATFORM}")
+#     message("ANDROID->include vcpkg_android.cmake")
+#     include("vcpkg_android.cmake")
+# endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.1.16.67)
+project(bofstd VERSION 5.1.16.68)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.

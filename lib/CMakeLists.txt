@@ -483,7 +483,7 @@ if(NOT APPLE)
 endif()
 
 # Install the target runtime
-message("====ANDROID_PLATFORM==ROOT==================>" ${ANDROID_PLATFORM})
+message("====ANDROID_PLATFORM==LIB=2=================>" ${ANDROID_PLATFORM})
 if(NOT "${ANDROID_PLATFORM}")
 install(
   TARGETS  bofstd bofstd-objects
