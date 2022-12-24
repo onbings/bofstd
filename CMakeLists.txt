@@ -18,14 +18,14 @@
 #               22 April 2022 updated with NMA cmake and vcpkg ideas 
 
 cmake_minimum_required(VERSION 3.15)
-message("====ANDROID_PLATFORM==ROOT=2=================>" ${ANDROID_PLATFORM})
+message("====ANDROID_PLATFORM==ROOT=no=include=================>" ${ANDROID_PLATFORM})
 # if(NOT "${ANDROID_PLATFORM}")
 #     message("ANDROID->include vcpkg_android.cmake")
 #     include("vcpkg_android.cmake")
 # endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.1.16.68)
+project(bofstd VERSION 5.1.16.69)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.
@@ -283,7 +283,7 @@ install(
   EXPORT      bofstd
   FILE        bofstd-targets.cmake
   NAMESPACE   ONBINGS::
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/bofstd
+  DESTINATION ${CMAKE_INSTALL_DATADIR}
   COMPONENT   bofstd-devel
 )
 
@@ -297,7 +297,7 @@ set(INTERNAL_NAMESPACE ONBINGS)
 configure_package_config_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/bofstd
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}
 )
 
 unset(INTERNAL_NAMESPACE)
@@ -315,7 +315,7 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-version.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-dependencies.cmake
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/bofstd
+  DESTINATION ${CMAKE_INSTALL_DATADIR}
   COMPONENT   bofstd-devel
 )
 
