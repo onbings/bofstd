@@ -378,15 +378,15 @@ target_link_libraries(bofstd-objects
 #    Qt5::Widgets
 )
 else()
-  if( ANDROID )
-  else()
+###  if( ANDROID )
+###  else()
     if(UNIX)
        target_link_libraries(bofstd-objects
          PRIVATE
 	       rt
        )
     endif()
-  endif()
+###  endif()
 endif()	
 
 # Defines
@@ -483,20 +483,21 @@ if(NOT APPLE)
 endif()
 
 # Install the target runtime
-message("====ANDROID_PLATFORM==LIB=2=================>" ${ANDROID_PLATFORM})
-if(NOT "${ANDROID_PLATFORM}")
-install(
-  TARGETS  bofstd bofstd-objects
-  EXPORT   bofstd
-  RUNTIME  DESTINATION        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}     # For binaries and dll
-           COMPONENT          bofstd-runtime
-  LIBRARY  DESTINATION        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}     # For shared libraries
-           COMPONENT          bofstd-runtime
-           NAMELINK_COMPONENT bofstd-devel
-  ARCHIVE  DESTINATION        ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}     # For static libraries
-           COMPONENT          bofstd-devel
-)
-else()		   
+### message("====ANDROID_PLATFORM==LIB=2=================>" ${ANDROID_PLATFORM})
+### if(NOT "${ANDROID_PLATFORM}")
+### message("====ANDROID_PLATFORM==LIB=2=================>" ${ANDROID_PLATFORM})
+### install(
+###   TARGETS  bofstd bofstd-objects
+###   EXPORT   bofstd
+###   RUNTIME  DESTINATION        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}     # For binaries and dll
+###            COMPONENT          bofstd-runtime
+###   LIBRARY  DESTINATION        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}     # For shared libraries
+###            COMPONENT          bofstd-runtime
+###            NAMELINK_COMPONENT bofstd-devel
+###   ARCHIVE  DESTINATION        ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}     # For static libraries
+###            COMPONENT          bofstd-devel
+### )
+### else()		   
 install(
   TARGETS  bofstd bofstd-objects
   EXPORT   bofstd
@@ -508,7 +509,7 @@ install(
   ARCHIVE  DESTINATION        ${CMAKE_INSTALL_LIBDIR}     # For static libraries
            COMPONENT          bofstd-devel
 )
-endif()		   
+### endif()		   
 
 # Install the public headers (don't forget the generated export directives)
 install(DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}/include/
