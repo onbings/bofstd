@@ -346,7 +346,7 @@ target_link_libraries(bofstd-objects
 #    Qt5::Widgets
 	date::date 
 	date::date-tz
-	JsonCpp::JsonCpp
+	jsoncpp::jsoncpp 
 	mediainfo
     spdlog::spdlog
 	yuv
