@@ -18,13 +18,14 @@
 #               22 April 2022 updated with NMA cmake and vcpkg ideas 
 
 cmake_minimum_required(VERSION 3.15)
-if (VCPKG_TARGET_ANDROID)
-    message("ANDROID->include vcpkg_android.cmake")
-    include("vcpkg_android.cmake")
-endif()
+message("====ANDROID_PLATFORM==ROOT==================>" ${ANDROID_PLATFORM})
+# if(NOT "${ANDROID_PLATFORM}")
+#     message("ANDROID->include vcpkg_android.cmake")
+#     include("vcpkg_android.cmake")
+# endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.1.16.47)
+project(bofstd VERSION 5.1.16.71)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.
@@ -172,7 +173,7 @@ enable_testing()
 
 # Add configuration files to a dummy library to
 # make sure files are properly found
-if (VCPKG_TARGET_ANDROID)
+if(NOT "${ANDROID_PLATFORM}")
 else()
 add_library(bofstd-config-files INTERFACE
   Config.cmake.in
@@ -309,6 +310,7 @@ write_basic_package_version_file(
 )
 
 # Install them
+#message("=============================>" ${CMAKE_INSTALL_DATADIR})
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/bofstd-version.cmake

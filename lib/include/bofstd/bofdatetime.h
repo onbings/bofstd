@@ -21,9 +21,9 @@
 #pragma once
 //In this order
 #include <chrono>
-#include <date/date.h>
-using namespace date::literals;
-using namespace std::chrono_literals;
+//#include <date/date.h>
+//using namespace date::literals;
+//using namespace std::chrono_literals;
 
 #include <bofstd/bofstd.h>
 
@@ -62,7 +62,7 @@ public:
   uint8_t Second() const;
   uint32_t MicroSecond() const;
 
-  date::year_month_day YearMountDay() const;
+  //date::year_month_day YearMonthDay() const;
   std::tm Tm() const;
   std::time_t UtcTimeT() const;
   std::chrono::system_clock::time_point TimePoint() const;
@@ -82,12 +82,16 @@ private:
 
   std::tm mTm_X;
   std::time_t mTimeT;
-  date::year_month_day mYmd;
-  date::weekday mWd;
-  date::hh_mm_ss<std::chrono::nanoseconds> mTime;
+  //date::year_month_day mYmd;
+  //date::weekday mWd;
+  //date::hh_mm_ss<std::chrono::nanoseconds> mTime;
 
   std::chrono::system_clock::time_point mTp;
-//  double mDateTimeNum_lf;
+  // Opaque pointer design pattern: opaque type here
+private:
+  class BofDateTimeImplementation;
+
+  std::shared_ptr<BofDateTimeImplementation> mpsBofDateTimeImplementation;
 };
 
 BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BofDateTime &_rDateTime, uint8_t &_DayOfWeek_U8);  //0 is sunday

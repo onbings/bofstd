@@ -279,12 +279,15 @@ void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonSer
         }
 
         /* Try to lock file */
+#if defined(ANDROID)
+#else		
         if (lockf(mDaemonPidFileHandle_i, F_TLOCK, 0) == -1)
         {
           /* Couldn't get lock on lock file */
           mDaemonServiceParam_X.Sts_E = BOF_ERR_LOCK;
           DaemonExit("DaemonPidFileHandle lock", EXIT_FAILURE);
         }
+#endif		
         /* Get and format PID */
         sprintf(pBuf_c, "%d\n", getpid());
 
