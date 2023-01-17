@@ -28,6 +28,7 @@
 #include <bofstd/bofaudiostandard.h>
 #include <bofstd/boftimecode.h>
 #include <bofstd/bof2d.h>
+#include <bofstd/bofenum.h>
 
 #include "gtestrunner.h"
 
@@ -58,6 +59,13 @@ enum class WORKING_MODE : uint32_t
   GENERATE = 0,
   MAKE
 };
+enum class BOF2D_AUDIO_FORMAT :int32_t
+{
+  BOF2D_AUDIO_FORMAT_PCM = 0,
+  BOF2D_AUDIO_FORMAT_WAV,
+  BOF2D_AUDIO_FORMAT_MAX
+};
+extern BOF::BofEnum<BOF2D_AUDIO_FORMAT> S_Bof2dAudioFormatEnumConverter;
 
 struct ARRAYENTRY
 {
@@ -151,7 +159,34 @@ struct CLI_APPPARAM
     Size_X.Reset();
   }
 };
+BOF::BofEnum<BOF2D_AUDIO_FORMAT> S_Bof2dAudioFormatEnumConverter({
+  { BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_PCM, "PCM" },
+  { BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_WAV, "WAV" },
+  { BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_MAX, "MAX" },
+  }, BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_MAX);
+struct BOF2D_AUDIO_OPTION
+{
+  BOF::BofPath BasePath;
+  uint32_t NbChannel_U32;
+  uint64_t ChannelLayout_U64;
+  uint32_t SampleRateInHz_U32;
+  BOF2D_AUDIO_FORMAT Format_E;
 
+  BOF2D_AUDIO_OPTION()
+  {
+    Reset();
+  }
+
+  void Reset()
+  {
+    BasePath = "";
+    NbChannel_U32 = 0;
+    ChannelLayout_U64 = 0;
+    SampleRateInHz_U32 = 0;
+    Format_E = BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_MAX;
+  }
+};
+static BOF2D_AUDIO_OPTION S_AudioOption_X;
 static CLI_APPPARAM S_AppParam_X;
 
 BOFERR CmdLineParseResultUltimateCheck(int /*_Index_U32*/, const BOFPARAMETER & /*_rBofCommandlineOption_X*/, const bool _CheckOk_B, const char * /*_pOptNewVal_c*/)
@@ -222,7 +257,12 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
                                        {nullptr, std::string("tc"),     std::string("Specifies a timecode."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Tc, TC, 0, 0)},
                                        {nullptr, std::string("sz"),     std::string("Specifies a size."),                                                 std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Size_X, SIZE2D, 0, 0)},
 
-
+//Option
+{ nullptr, "A_BASEFN", "if defined, audio buffer will be saved in this file","","", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_AudioOption_X.BasePath, PATH, 0, 0) },
+{ nullptr, "A_NBCHNL", "Specifies the number of audio channel to generate","","", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_AudioOption_X.NbChannel_U32, UINT32, 0, 4096) },
+{ nullptr, "A_LAYOUT", "Specifies the channel layout to generate","","", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_AudioOption_X.ChannelLayout_U64, UINT64, 0, 0) },
+{ nullptr, "A_RATE", "Specifies the audio sample rate to generate","","", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_AudioOption_X.SampleRateInHz_U32, UINT32, 0, 128000) },
+{ nullptr, "A_FMT", "Specifies the audio format", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_AudioOption_X.Format_E, BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_PCM, BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_MAX, S_Bof2dAudioFormatEnumConverter, BOF2D_AUDIO_FORMAT) },
 };
 
 /*** Factory functions called at the beginning/end of each test case **********/
@@ -244,6 +284,23 @@ void CmdLineParser_Test::SetUp()
 void CmdLineParser_Test::TearDown()
 { }
 
+TEST_F(CmdLineParser_Test, Option)
+{
+  BofCommandLineParser BofCommandLineParser_O;
+
+  for (int i = 0; i < 10; i++)
+  {
+    S_AudioOption_X.Reset();
+    EXPECT_EQ(BofCommandLineParser_O.ToByte("--A_BASEFN=AudioOut;--A_NBCHNL=2;--A_LAYOUT=3;--A_RATE=48000;--A_FMT=WAV", S_pCommandLineOption_X, CmdLineParseResultUltimateCheck, CmdLineParseError), BOF_ERR_NO_ERROR);
+
+    EXPECT_TRUE(S_AudioOption_X.BasePath.IsValid());
+    EXPECT_EQ(S_AudioOption_X.ChannelLayout_U64, 3);
+    EXPECT_EQ(S_AudioOption_X.Format_E, BOF2D_AUDIO_FORMAT::BOF2D_AUDIO_FORMAT_WAV);
+    EXPECT_EQ(S_AudioOption_X.NbChannel_U32, 2);
+    EXPECT_EQ(S_AudioOption_X.SampleRateInHz_U32, 48000);
+  }
+}
+
 TEST_F(CmdLineParser_Test, CmdLine)
 {
   int                  Argc_i, Sts_i;
@@ -260,7 +317,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
 
   //strcpy(ppArgument_c[Argc_i], "--i4=udp://john.doe:password@192.168.1.2:23");
   //strcpy(ppArgument_c[Argc_i], "--i4=192.168.1.2:23");
-  //strcpy(ppArgument_c[Argc_i], "--i6=tcp://[0004:db8:0::1]:80");
+  //strcpy(ppArgument_c[Argc_i], "--u64=22");
   //pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   //Argc_i++;
   //goto l;

@@ -21,6 +21,7 @@
  */
 #include <bofstd/bofcommandlineparser.h>
 #include <bofstd/bofgetopt.h>
+#include <bofstd/bofstring.h>
 
 #include <regex>
 
@@ -42,6 +43,33 @@ BofCommandLineParser::~BofCommandLineParser()
 {
 }
 
+BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O)
+{
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+  std::vector<std::string> AudioOptionCollection;
+  BOF::BofCommandLineParser OptionParser;
+  int Argc_i, i;
+  char **ppArgv_c;
+
+  AudioOptionCollection = Bof_StringSplit(_rOption_S, ";");
+  Argc_i = static_cast<int>(AudioOptionCollection.size());
+  if (Argc_i)
+  {
+    Argc_i++; //For option 0: pgm name
+    ppArgv_c = new char *[Argc_i];
+    if (ppArgv_c)
+    {
+      ppArgv_c[0] = "AppNameBofCommandLineParser";
+      for (i = 1; i < Argc_i; i++)
+      {
+        ppArgv_c[i] = (char *)AudioOptionCollection[i-1].c_str();
+      }
+      Rts_E = ToByte(Argc_i, ppArgv_c, _rCommandLineOption_X, _ParseCallback_O, _ErrorCallback_O);
+      BOF_SAFE_DELETE_ARRAY(ppArgv_c);
+    }
+  }
+  return Rts_E;
+}
 
 BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O,
                                     const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O)
@@ -110,7 +138,7 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
         pGetOptLong_X[NbLongOpt_i].has_arg = 0;
         pGetOptLong_X[NbLongOpt_i].name = nullptr;
         pGetOptLong_X[NbLongOpt_i].val = 0;
-
+        getopt_reset();
         do
         {
           opterr = 0;                                                                                                                                                   //Callers store zero here to inhibit the error message `getopt' prints for unrecognized options.

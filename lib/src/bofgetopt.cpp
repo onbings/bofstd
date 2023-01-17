@@ -1078,7 +1078,11 @@ int getopt(int argc, char *const *argv, const char *optstring)
                           (int *)0,
                           0);
 }
-
+void getopt_reset()
+{
+  optind = 1;
+  __getopt_initialized = 0;
+}
 
 int getopt_long(int argc, char *const *argv, const char *optstring, const struct option *long_options, int *opt_index)
 {

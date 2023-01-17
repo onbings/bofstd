@@ -151,6 +151,8 @@ extern "C" {
 # endif /* __GNU_LIBRARY__ */
 
 # ifndef __need_getopt
+//BHA
+  extern void getopt_reset();
   extern int getopt_long(int _Argc_i, char *const *argv, const char *optstring, const struct option *long_options, int *opt_index);
 
   extern int getopt_long_only(int _Argc_i, char *const *__argv, const char *__shortopts, const struct option *__longopts, int *__longind);
