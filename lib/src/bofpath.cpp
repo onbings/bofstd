@@ -245,7 +245,17 @@ std::string BofPath::FullPathName(bool _Windows_B) const
   }
   return Rts_S;
 }
+std::string BofPath::FullPathNameWithoutExtension(bool _Windows_B) const
+{
+  std::string Rts_S;
 
+  Rts_S = DirectoryName(true, _Windows_B);
+  if (IsFile())
+  {
+    Rts_S += mFileNameWithoutExtension_S;
+  }
+  return Rts_S;
+}
 std::string BofPath::ToString(bool _Windows_B) const
 {
   return FullPathName(_Windows_B);

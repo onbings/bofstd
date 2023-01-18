@@ -172,6 +172,7 @@ public:
 		/// @return A std::string containing the full pathname.
 		/// @remarks None
 		std::string FullPathName(bool _Windows_B) const;
+		std::string FullPathNameWithoutExtension(bool _Windows_B) const;
 
 		/// @brief Returns the full pathname as a string (std::wstring).
 		/// @param _Windows_B : true if the full pathname must be returned with windows path separator (\) or unix one (/)
