@@ -50,7 +50,7 @@ std::string Bof_Sprintf(const std::string &_rFormat_S, Args ... _Args)
   snprintf(puInternalBuffer.get(), Size, _rFormat_S.c_str(), _Args ...);
   return std::string(puInternalBuffer.get(), puInternalBuffer.get() + Size - 1);            // We don't want the '\0' inside
 }
-
+#if 0
 template<typename ... Args>
 std::string Bof_SafeSprintf(const std::string &_rFmt_S, const Args &... _Args)
 {
@@ -73,4 +73,5 @@ std::wstring Bof_SafeFmtSprintf(const std::wstring &_rFmt_WS, const Args &... _A
 {
   return fmt::format(_rFmt_WS, _Args ...);
 }
+#endif
 END_BOF_NAMESPACE()
