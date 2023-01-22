@@ -50,7 +50,8 @@ BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::ve
   BOF::BofCommandLineParser OptionParser;
   int Argc_i, i;
   char **ppArgv_c;
-
+  std::string AppName_S = "AppNameBofCommandLineParser";
+  
   AudioOptionCollection = Bof_StringSplit(_rOption_S, ";");
   Argc_i = static_cast<int>(AudioOptionCollection.size());
   if (Argc_i)
@@ -59,7 +60,7 @@ BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::ve
     ppArgv_c = new char *[Argc_i];
     if (ppArgv_c)
     {
-      ppArgv_c[0] = "AppNameBofCommandLineParser";
+      ppArgv_c[0] = (char *)AppName_S.c_str();
       for (i = 1; i < Argc_i; i++)
       {
         ppArgv_c[i] = (char *)AudioOptionCollection[i-1].c_str();

@@ -171,7 +171,7 @@ public:
 					}
 					else
 					{
-						FormatttedOutput_S = Bof_SafeFmtSprintf(_pFmt_c, _Args ...);
+						FormatttedOutput_S = Bof_Sprintf(_pFmt_c, _Args ...);	//Bof_SafeFmtSprintf(_pFmt_c, _Args ...);
 					}
 					if (Rts_E == BOF_ERR_NO_ERROR)
 					{

@@ -378,15 +378,15 @@ target_link_libraries(bofstd-objects
 #    Qt5::Widgets
 )
 else()
-###  if( ANDROID )
-###  else()
+  if( ANDROID )
+  else()
     if(UNIX)
        target_link_libraries(bofstd-objects
          PRIVATE
 	       rt
        )
     endif()
-###  endif()
+  endif()
 endif()	
 
 # Defines

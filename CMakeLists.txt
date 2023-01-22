@@ -25,7 +25,7 @@ cmake_minimum_required(VERSION 3.15)
 # endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.1.16.73)
+project(bofstd VERSION 5.1.16.74)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.
@@ -46,8 +46,8 @@ endif()
 
 # Define options to enable/disable non-necessary artifacts
 option(BOFSTD_BUILD_TESTS    "Build units tests of bofstd"      ON)
-option(BOFSTD_BUILD_TOOLS    "Build companion tools of bofstd"  ON)
-option(BOFSTD_BUILD_EXAMPLES "Build examples of bofstd"         ON)
+option(BOFSTD_BUILD_TOOLS    "Build companion tools of bofstd"  OFF)
+option(BOFSTD_BUILD_EXAMPLES "Build examples of bofstd"         OFF)
 
 # Some options allow to tune the 'API & versioning' behaviour.
 #  - Do we want to create binaries with explicit version in them (e.g. libbofstd.so.1.0.1) ?
