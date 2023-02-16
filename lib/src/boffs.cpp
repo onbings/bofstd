@@ -524,10 +524,10 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
   //printf("Leave %s\n", _rPath.FullPathName(true).c_str());
   return Rts_E;
 }
-BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, std::vector<BOF_FILE_FOUND> &_rFileCollection)
+BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, uint32_t _MaxNumberOfResult_U32, std::vector<BOF_FILE_FOUND> &_rFileCollection)
 {
   _rFileCollection.clear();
-  BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool { _rFileCollection.push_back(_rFileFound_X); return true; };
+  BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool { _rFileCollection.push_back(_rFileFound_X); return (_rFileCollection.size() < _MaxNumberOfResult_U32) ? true:false; };
   BOFERR Rts_E = Bof_DirectoryParser(_rPath, _rPattern_S, _FileTypeToFind_E, _Recursive_B, Cb);
   return Rts_E;
 }

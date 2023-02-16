@@ -1236,7 +1236,7 @@ private:
 
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          Rts_E = Bof_FindFile(mLogChannelParam_X.FileLogPath.DirectoryName(false,false), Pattern_S, BOF_FILE_TYPE::BOF_FILE_REG, false, ListOfFile_X);
+          Rts_E = Bof_FindFile(mLogChannelParam_X.FileLogPath.DirectoryName(false,false), Pattern_S, BOF_FILE_TYPE::BOF_FILE_REG, false, 0xFFFFFFFF, ListOfFile_X);
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
             for (i_U32 = 0; i_U32 < ListOfFile_X.size(); i_U32++)

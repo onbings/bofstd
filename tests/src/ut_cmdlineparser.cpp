@@ -93,6 +93,7 @@ struct CLI_APPPARAM
   bool         AskHelp_B;
   WORKING_MODE WorkingMode_E;
 
+  std::vector<uint32_t> VecU32Collection;
   char               pSlnPath[256];
   double             Value_lf;
   uint32_t           Value_U32;
@@ -130,6 +131,8 @@ struct CLI_APPPARAM
     AskHelp_B = false;
     // Setup application default value
     WorkingMode_E = WORKING_MODE::GENERATE;
+
+    VecU32Collection.clear();
     pSlnPath[0] = 0;
     Value_lf = 0;
     Value_U32 = 0;
@@ -215,7 +218,8 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
                                        {nullptr, std::string("h"),        std::string("Ask help."),                                                         std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::NONE,                                                                                                         BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
                                        {nullptr, std::string("help"),     std::string("Ask help."),                                                         std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::NONE,                                                                                                         BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
 
-                                       {nullptr, std::string("u8"),       std::string("Specifies a u8."),                                                   std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Val_U8, UINT8, 0, 0)},
+                                       {nullptr, std::string("vec_u32"), std::string("Specifies a std::vector<uint32_t>."), std::string(""), std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VECTOR(S_AppParam_X.VecU32Collection, UINT32, 0, 0) },
+                                       {nullptr, std::string("u8"),       std::string("Specifies a u8."),                                                   std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Val_U8, UINT8, 0, 0) },
                                        {nullptr, std::string("u16"),      std::string("Specifies a u16."),                                                  std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Val_U16, UINT16, 0, 0)},
                                        {nullptr, std::string("u32"),      std::string("Specifies a u32."),                                                  std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Val_U32, UINT32, 0, 0)},
                                        {nullptr, std::string("u64"),      std::string("Specifies a u64."),                                                  std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Val_U64, UINT64, 0, 0)},
@@ -326,6 +330,11 @@ TEST_F(CmdLineParser_Test, CmdLine)
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
   strcpy(ppArgument_c[Argc_i], "--help");
+  pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+  Argc_i++;
+
+  
+  strcpy(ppArgument_c[Argc_i], "--vec_u32=1,2,3,100,101");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
@@ -475,6 +484,12 @@ TEST_F(CmdLineParser_Test, CmdLine)
   }
 
   //goto m;
+  EXPECT_EQ(S_AppParam_X.VecU32Collection[0], 1);
+  EXPECT_EQ(S_AppParam_X.VecU32Collection[1], 2);
+  EXPECT_EQ(S_AppParam_X.VecU32Collection[2], 3);
+  EXPECT_EQ(S_AppParam_X.VecU32Collection[3], 100);
+  EXPECT_EQ(S_AppParam_X.VecU32Collection[4], 101);
+
   EXPECT_EQ(S_AppParam_X.Val_U8, 1);
   EXPECT_EQ(S_AppParam_X.Val_U16, 2);
   EXPECT_EQ(S_AppParam_X.Val_U32, 3);

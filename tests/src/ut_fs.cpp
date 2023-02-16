@@ -487,7 +487,7 @@ TEST(Fs_Test, DirEnum)
 //  Sts_E = Bof_FindFile("C:\\bld\\evs-muse\\resources\\", "*", BOF::BOF_FILE_TYPE::BOF_FILE_DIR, false, FileCollection);
 
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 94); //64 file and 30 dir
   for (i_U32 = 0; i_U32 < FileCollection.size(); i_U32++)
@@ -497,7 +497,7 @@ TEST(Fs_Test, DirEnum)
     //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(), Bof_Eol());
   }
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 10);
   for (i_U32 = 0; i_U32 < FileCollection.size(); i_U32++)
@@ -507,33 +507,37 @@ TEST(Fs_Test, DirEnum)
     //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(), Bof_Eol());
   }
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_DIR, true, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_DIR, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 30);
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_ALL, true, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 62); //32 file and 30 dir
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.2", BOF_FILE_TYPE::BOF_FILE_REG, true, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.2", BOF_FILE_TYPE::BOF_FILE_REG, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 32);
 
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_DIR, false, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_DIR, false, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 10);
 
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_REG, true, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_REG, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 64);	//not 80 as the two last dir are empty
 
   FileCollection.clear();
-  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, FileCollection);
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(FileCollection.size(), 10);
 
+  FileCollection.clear();
+  Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 7, FileCollection);
+  EXPECT_EQ(Sts_E, BOF_ERR_CANCEL);
+  EXPECT_EQ(FileCollection.size(), 7);
 
 }
 

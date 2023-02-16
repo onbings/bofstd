@@ -99,7 +99,6 @@ int main(int argc, char *argv[])
   //	::testing::GTEST_FLAG(filter) ="JsonParser_Test.JsonCfg";
   //	::testing::GTEST_FLAG(filter) = "JsonWriter_Test.IpSwitcherSerDeser";
   //	::testing::GTEST_FLAG(filter) ="Timecode_Test.*:CmdLineParser_Test.CmdLine";
-  //	::testing::GTEST_FLAG(filter) ="CmdLineParser_Test.CmdLine";
   //	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
   ::testing::GTEST_FLAG(filter) = "Enum_Test.*";
   //	::testing::GTEST_FLAG(filter) = "String_Test.*:XmlParser_Test.*:JsonParser_Test.*:Bof2d_Test.*:Fs_Test.*";
@@ -114,6 +113,8 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParseBuffer";  // MediaDetectorParam";
   //::testing::GTEST_FLAG(filter) = "Guid_Test.*:JsonParser_Test.*:XmlParser_Test.*";
  // ::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
+//  	::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.CmdLine";
+//    ::testing::GTEST_FLAG(filter) = "Fs_Test.FileLayout:Fs_Test.DirEnum";
   /*
 * under linux:
 [  PASSED  ] 144 tests.
