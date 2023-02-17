@@ -334,7 +334,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   Argc_i++;
 
   
-  strcpy(ppArgument_c[Argc_i], "--vec_u32=1,2,3,100,101");
+  strcpy(ppArgument_c[Argc_i], "--vec_u32=  1, 2,3 , 100 , 101");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 

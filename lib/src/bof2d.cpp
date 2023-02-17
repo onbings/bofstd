@@ -684,7 +684,7 @@ BOFERR Bof_LoadBmpFile(BofPath &_rPath, BOF_BITMAP_INFO_HEADER &_rBmInfo_X, BOF_
   uint8_t                Val_UB;
   BOF_BITMAP_FILE_HEADER BmFile_X;
 
-  Rts_E = Bof_OpenFile(_rPath, true, Io);
+  Rts_E = Bof_OpenFile(_rPath, true, false, Io);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     Nb_U32 = sizeof(BOF_BITMAP_FILE_HEADER);
@@ -799,7 +799,7 @@ BOFERR Bof_LoadTgaFile(BofPath &_rPath, BOF_TGA_HEADER &_rTgaHeader_X, BOF_PALET
   uint32_t Nb_U32, Size_U32;
   uint8_t  pPalette_UB[8];
 
-  Rts_E = Bof_OpenFile(_rPath, true, Io);
+  Rts_E = Bof_OpenFile(_rPath, true, false, Io);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     Nb_U32 = sizeof(BOF_TGA_HEADER);

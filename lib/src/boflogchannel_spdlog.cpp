@@ -575,7 +575,7 @@ public:
       }
       if ((mLogChannelParam_X.LogSink_E == BOF_LOG_CHANNEL_SINK::TO_FILE) || (mLogChannelParam_X.LogSink_E == BOF_LOG_CHANNEL_SINK::TO_DAILYFILE))
       {
-        Rts_E = Bof_OpenFile(mLogChannelParam_X.FileLogPath, true, mIoLog);
+        Rts_E = Bof_OpenFile(mLogChannelParam_X.FileLogPath, true, false, mIoLog);
       }
       if (Rts_E == BOF_ERR_NO_ERROR)
       {

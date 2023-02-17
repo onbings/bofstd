@@ -250,7 +250,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
           Bof_GetCurrentDirectory(Pwd_S);
           mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str());
 
-          Rts_E = Bof_OpenFile(mScriptPath, true, IoScript);
+          Rts_E = Bof_OpenFile(mScriptPath, true, false, IoScript);
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellErrorColor_E, "Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E));

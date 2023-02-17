@@ -441,7 +441,7 @@ TEST(Fs_Test, FileLayout)
         Sts_E = Bof_DeleteFile(NewFile);
         EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-        Sts_E = Bof_OpenFile(File, true, Io);
+        Sts_E = Bof_OpenFile(File, true, false, Io);
         EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
         Pos_U64 = 0;

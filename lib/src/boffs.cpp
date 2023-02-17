@@ -629,7 +629,7 @@ BOFERR Bof_CreateTempFile(const BOF_FILE_PERMISSION _Permission_E, BofPath &_rPa
   return Rts_E;
 }
 
-BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, intptr_t &_rIo)
+BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, bool _Append_B, intptr_t &_rIo)
 {
   BOFERR Rts_E = BOF_ERR_NOT_OPENED;
   int Io_i, Flag_i;
@@ -643,8 +643,12 @@ BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, intptr_t &_rIo)
   Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i);
   if (Io_i != BOF_FS_INVALID_HANDLE)
   {
+    if (_Append_B)
+    {
+      Bof_SetFileIoPosition(Io_i, 0, BOF_SEEK_METHOD::BOF_SEEK_END);
+    }
     _rIo = static_cast<intptr_t> (Io_i);
-    Rts_E = BOF_ERR_NO_ERROR;
+    Rts_E =  BOF_ERR_NO_ERROR;
   }
   return (Rts_E);
 }
@@ -767,7 +771,7 @@ BOFERR Bof_ReadLine(const BofPath &_rPath, std::string &_rBuffer_S)
   Size_U64 = Bof_GetFileSize(_rPath);
   if (Size_U64 != static_cast<uint64_t> (-1))
   {
-    Rts_E = Bof_OpenFile(_rPath, true, Io);
+    Rts_E = Bof_OpenFile(_rPath, true, false, Io);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (_rBuffer_S.capacity() <= Size_U64)
@@ -867,7 +871,7 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsag
     _rBufferToDeleteAfterUsage_X.pData_U8 = new uint8_t[FileSize_U64];
     if (_rBufferToDeleteAfterUsage_X.pData_U8)
     {
-      Rts_E = Bof_OpenFile(_rPath, true, Io);
+      Rts_E = Bof_OpenFile(_rPath, true, false, Io);
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         Nb_U32 = static_cast<uint32_t>(_rBufferToDeleteAfterUsage_X.Capacity_U64);
