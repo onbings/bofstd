@@ -17,6 +17,8 @@
 #               06 March 2021 remove dependency on third party and cmake helpers
 #               22 April 2022 updated with NMA cmake and vcpkg ideas 
 
+#cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/github/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-static -DBOFSTD_GENERATE_HELP=ON C:/pro/github/bofstd
+
 cmake_minimum_required(VERSION 3.15)
 #message("====ANDROID_PLATFORM==ROOT==================>" ${ANDROID_PLATFORM})
 # if(NOT "${ANDROID_PLATFORM}")
@@ -25,7 +27,7 @@ cmake_minimum_required(VERSION 3.15)
 # endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/fixup_vs_crt.cmake)
 
-project(bofstd VERSION 5.2.3.1)
+project(bofstd VERSION 5.2.3.2)
 
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.

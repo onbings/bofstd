@@ -521,6 +521,10 @@ install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/bofstd_export.h
 #          DESTINATION include/spdlog-1.3.1		
 #          COMPONENT   bofstd-devel
 # )
+install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/vld/.	
+         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bofstd/vld
+         COMPONENT   bofstd-devel
+)
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include/asyncmulticastdelegate/.	
          DESTINATION include/asyncmulticastdelegate
          COMPONENT   bofstd-devel
