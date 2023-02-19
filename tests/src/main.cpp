@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParseBuffer";  // MediaDetectorParam";
   //::testing::GTEST_FLAG(filter) = "Guid_Test.*:JsonParser_Test.*:XmlParser_Test.*";
  // ::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
- // 	::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.CmdLine";
+//  	::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.CmdLine";
 //    ::testing::GTEST_FLAG(filter) = "Fs_Test.FileLayout:Fs_Test.DirEnum";
   /*
 * under linux:

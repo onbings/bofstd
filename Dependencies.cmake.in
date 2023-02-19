@@ -50,12 +50,12 @@ endif()
 
 find_package_dependency(spdlog REQUIRED)
 find_package_dependency(fmt REQUIRED)
-find_package_dependency(libyuv REQUIRED)
-find_package_dependency(ZLIB REQUIRED)
-find_package_dependency(ZenLib REQUIRED)
-find_package_dependency(MediaInfoLib REQUIRED)
 find_package_dependency(date REQUIRED)
-find_package_dependency(OpenSSL REQUIRED)
+#find_package_dependency(libyuv REQUIRED)
+#find_package_dependency(ZLIB REQUIRED)
+#find_package_dependency(ZenLib REQUIRED)
+#find_package_dependency(MediaInfoLib REQUIRED)
+#find_package_dependency(OpenSSL REQUIRED)
 
 
 #  find_package_dependency(linenoise-ng REQUIRED)

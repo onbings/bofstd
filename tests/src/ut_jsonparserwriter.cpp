@@ -24,7 +24,6 @@
 #include <bofstd/bofsocket.h>
 #include <bofstd/boffs.h>
 #include <bofstd/bofvideostandard.h>
-#include <bofstd/bof2d.h>
 
 #include "gtestrunner.h"
 

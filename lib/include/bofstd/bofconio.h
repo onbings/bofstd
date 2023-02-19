@@ -22,7 +22,6 @@
 #pragma once
 
 #include <bofstd/bofpath.h>
-#include <bofstd/bof2d.h>
 
 BEGIN_BOF_NAMESPACE()
 #define PrintfAt(x, y, pFormat, ...) PrintfAtColor(mForeColor_E, x, y, pFormat, __VA_ARGS__)
@@ -157,6 +156,7 @@ struct BOFSTD_EXPORT BOF_CONIO_PARAM
     EditOnMultiLine_B = true;
   }
 };
+
 
 class BOFSTD_EXPORT BofConio final
 {

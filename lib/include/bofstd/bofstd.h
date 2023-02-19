@@ -73,7 +73,62 @@ struct BOFSTD_EXPORT BOFSTDPARAM
 };
 
 extern BOFSTD_EXPORT BOFSTDPARAM GL_BofStdParam_X;
+/*!
+* Summary
+* Definition of a color in the RGBA color space
+*/
+struct BOFSTD_EXPORT BOF_RGBA
+{
+  uint8_t r_U8;                     /*! Color R component(Red)*/
+  uint8_t g_U8;                     /*! Color G component(Greeen)*/
+  uint8_t b_U8;                     /*! Color B component(Blue)*/
+  uint8_t a_U8;                     /*! Color alpha component(Opacity)*/
+  BOF_RGBA()
+  {
+    Reset();
+  }
 
+  BOF_RGBA(uint8_t _r_U8, uint8_t _g_U8, uint8_t _b_U8, uint8_t _a_U8)
+  {
+    r_U8 = _r_U8;
+    g_U8 = _g_U8;
+    b_U8 = _b_U8;
+    a_U8 = _a_U8;
+  }
+
+  void Reset()
+  {
+    r_U8 = 0;
+    g_U8 = 0;
+    b_U8 = 0;
+    a_U8 = 0;
+  }
+};
+/*!
+* Summary
+* Definition of a size entity
+*/
+struct BOFSTD_EXPORT BOF_SIZE
+{
+  uint32_t Width_U32;               /*! Width value*/
+  uint32_t Height_U32;              /*! Height value*/
+  BOF_SIZE()
+  {
+    Reset();
+  }
+
+  BOF_SIZE(uint32_t _Width_U32, uint32_t _Height_U32)
+  {
+    Width_U32 = _Width_U32;
+    Height_U32 = _Height_U32;
+  }
+
+  void Reset()
+  {
+    Width_U32 = 0;
+    Height_U32 = 0;
+  }
+};
 #define BOF                         onbings::bof
 #define BEGIN_BOF_NAMESPACE()       namespace onbings { namespace bof {
 #define END_BOF_NAMESPACE()         } }

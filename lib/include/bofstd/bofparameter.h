@@ -61,6 +61,8 @@ enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
   IP_FORMAT_PASSWORD = 0x00008000,
   IP_FORMAT_PORT = 0x000010000,
 
+  STR_FORMAT_ISREGEXP = 0x000020000,
+
   READ_ONLY = 0x80000000,									//This is a read only parameter
 //	WRITE_ONCE=0x00000020,								//Can only be written to once, after the first write op in turns into READ_ONLY
 };
@@ -107,7 +109,7 @@ struct BOFSTD_EXPORT BOFPARAMETER
   void *pUser;
   std::string Name_S;
   std::string Description_S;
-  std::string Format_S;      // For date/time format
+  std::string Format_S;      // For date/time format or specify STR_FORMAT_ISREGEXP for str type
   std::string Path_S;        // For xml/json parser
   BOFPARAMETER_ARG_FLAG ArgFlag_E;
   BOFPARAMETER_ARG_TYPE ArgType_E;

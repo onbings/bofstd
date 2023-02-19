@@ -23,7 +23,6 @@
 #include <bofstd/bofvideostandard.h>
 #include <bofstd/bofaudiostandard.h>
 #include <bofstd/boftimecode.h>
-#include <bofstd/bof2d.h>
 #include <bofstd/bofguid.h>
 #include <bofstd/bofuri.h>
 #include <bofstd/bofsystem.h>
@@ -248,7 +247,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   BofAudioStandard	 AudioStandard;
   BofTimecode			   TimeCode;
   int                Len_i, LenMin_i, LenMax_i;
-  bool               InsertInStdVector_B = false, ShortOpt_B, LastArrayArg_B;
+  bool               InsertInStdVector_B = false, ShortOpt_B, LastArrayArg_B, ContinueIfError_B;
   void *pValue;
   //BOF_PROTOCOL_TYPE ProtocolType_E = BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN;
   BOF_SIZE					 Size_X;
@@ -305,8 +304,10 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
         }
       }
     }
+
     do
     {
+      ContinueIfError_B = false;
       Rts_E = BOF_ERR_INIT;
       InsertInStdVector_B = false;
 
@@ -649,37 +650,49 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
 
               case BOFPARAMETER_ARG_TYPE::CHARSTRING:
               case BOFPARAMETER_ARG_TYPE::STDSTRING:
-                if (((LenMin_i) || (LenMax_i)) && (LenMin_i <= LenMax_i))
+                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::STR_FORMAT_ISREGEXP))
                 {
-                  if ((Len_i < LenMin_i) || (Len_i > LenMax_i))
+                  const std::regex Pattern(_rBofParameter_X.Format_S.c_str());
+                  if (!regex_match(pTheOptVal_c, Pattern))
                   {
-                    Len_i = LenMax_i;                    // No  -1 as max is the maximum number of char excluding the terminating 0
+                    ContinueIfError_B = true;
+                    Rts_E = BOF_ERR_FORMAT;
                   }
                 }
+                if (Rts_E == BOF_ERR_NO_ERROR)
+                {
+                  if (((LenMin_i) || (LenMax_i)) && (LenMin_i <= LenMax_i))
+                  {
+                    if ((Len_i < LenMin_i) || (Len_i > LenMax_i))
+                    {
+                      Len_i = LenMax_i;                    // No  -1 as max is the maximum number of char excluding the terminating 0
+                    }
+                  }
 
-                if (_rBofParameter_X.ArgType_E == BOFPARAMETER_ARG_TYPE::CHARSTRING)
-                {
-                  if (InsertInStdVector_B)
+                  if (_rBofParameter_X.ArgType_E == BOFPARAMETER_ARG_TYPE::CHARSTRING)
                   {
-                    Rts_E = BOF_ERR_NOT_AVAILABLE;
+                    if (InsertInStdVector_B)
+                    {
+                      Rts_E = BOF_ERR_NOT_AVAILABLE;
+                    }
+                    else
+                    {
+                      strncpy(static_cast<char*> (pValue), pTheOptVal_c, Len_i);
+                      static_cast<char*> (pValue)[Len_i] = 0;
+                    }
                   }
                   else
                   {
-                    strncpy(static_cast<char *> (pValue), pTheOptVal_c, Len_i);
-                    static_cast<char *> (pValue)[Len_i] = 0;
-                  }
-                }
-                else
-                {
-                  if (InsertInStdVector_B)
-                  {
-                    std::vector<std::string> *pVectorString;
-                    pVectorString = reinterpret_cast<std::vector<std::string> *>(pValue);
-                    pVectorString->push_back(std::string(pTheOptVal_c, Len_i));
-                  }
-                  else
-                  {
-                    *(static_cast<std::string *> (pValue)) = std::string(pTheOptVal_c, Len_i);
+                    if (InsertInStdVector_B)
+                    {
+                      std::vector<std::string>* pVectorString;
+                      pVectorString = reinterpret_cast<std::vector<std::string> *>(pValue);
+                      pVectorString->push_back(std::string(pTheOptVal_c, Len_i));
+                    }
+                    else
+                    {
+                      *(static_cast<std::string*> (pValue)) = std::string(pTheOptVal_c, Len_i);
+                    }
                   }
                 }
                 break;
@@ -1037,7 +1050,12 @@ DateTimeParse:
               {
                 pTheOptVal_c = pComaSep_c;
                 LastArrayArg_B = true;
+                Len_i = static_cast<int>(strlen(pTheOptVal_c));
               }
+            }
+            if (ContinueIfError_B)
+            {
+              Rts_E = BOF_ERR_NO_ERROR; //for STR_FORMAT_ISREGEXP is list rocessing
             }
           }
         }

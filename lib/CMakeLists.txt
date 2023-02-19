@@ -13,11 +13,6 @@ include(GNUInstallDirs)
 set(PUBLIC_INCLUDES_FILES
 )
 
-set(2D_FILES
-	include/bofstd/bof2d.h
-	src/bof2d.cpp
-)
-
 set(API_FILES
 	bofversioninfo.h   #generated in binary build dir with configure_file
 	include/bofstd/boferr.h
@@ -242,7 +237,6 @@ set(THREADING_FILES
 )
 
 set(SOURCES_FILES
-	${2D_FILES}
 	${API_FILES}
 	${BIT_FILES}
 	${CALLBACK_FILES}
@@ -270,7 +264,6 @@ set(SOURCES_FILES
 #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd PREFIX "public" FILES ${PUBLIC_INCLUDES_FILES})
 #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src            PREFIX "src"    FILES ${SOURCES_FILES})
 
-source_group("2d"		 FILES ${2D_FILES})
 source_group("Api"		 FILES ${API_FILES})
 source_group("Bit"		 FILES ${BIT_FILES})
 source_group("Callback"	 FILES ${CALLBACK_FILES})
@@ -343,13 +336,13 @@ target_link_libraries(bofstd-objects
     #ONBINGS::onbings-another-lib
 
   PRIVATE
-#    Qt5::Widgets
 	date::date 
 	date::date-tz
 	jsoncpp::jsoncpp 
-	mediainfo
     spdlog::spdlog
-	yuv
+#    Qt5::Widgets
+#	mediainfo
+#	yuv
 #	asio::asio
 #	czmq
 #	libzmq

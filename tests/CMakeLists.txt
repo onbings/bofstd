@@ -22,10 +22,6 @@ set(DATA_FILES
   ./data/sample-mp4-file.mp4
 )
 
-set(2D_FILES
-	src/ut_2d.cpp
-)
-
 set(API_FILES
 	include/gtestrunner.h
 	src/main.cpp
@@ -132,7 +128,6 @@ set(THREADING_FILES
 
 
 set(SOURCES_FILES
-	${2D_FILES}
 	${API_FILES}
 	${BIT_FILES}
 	${CALLBACK_FILES}
@@ -160,7 +155,6 @@ set(SOURCES_FILES
 #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd PREFIX "public" FILES ${PUBLIC_INCLUDES_FILES})
 #source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src            PREFIX "src"    FILES ${SOURCES_FILES})
 
-source_group("2d"		 FILES ${2D_FILES})
 source_group("Api"		 FILES ${API_FILES})
 source_group("Bit"		 FILES ${BIT_FILES})
 source_group("Callback"	 FILES ${CALLBACK_FILES})

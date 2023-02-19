@@ -27,7 +27,6 @@
 #include <bofstd/bofvideostandard.h>
 #include <bofstd/bofaudiostandard.h>
 #include <bofstd/boftimecode.h>
-#include <bofstd/bof2d.h>
 #include <bofstd/bofenum.h>
 
 #include "gtestrunner.h"
@@ -93,6 +92,7 @@ struct CLI_APPPARAM
   bool         AskHelp_B;
   WORKING_MODE WorkingMode_E;
 
+  std::vector<std::string> VecStringRegExpCollection;
   std::vector<uint32_t> VecU32Collection;
   char               pSlnPath[256];
   double             Value_lf;
@@ -218,6 +218,7 @@ static std::vector<BOFPARAMETER> S_pCommandLineOption_X =
                                        {nullptr, std::string("h"),        std::string("Ask help."),                                                         std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::NONE,                                                                                                         BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
                                        {nullptr, std::string("help"),     std::string("Ask help."),                                                         std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::NONE,                                                                                                         BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
 
+                                       {nullptr, std::string("vec_regexp"), std::string("Specifies a std::vector<std::string> regexp."), std::string("\\s*(0|91)?[6-9][0-9]{9}"), std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOFPARAMETER_ARG_FLAG::STR_FORMAT_ISREGEXP, BOF_PARAM_DEF_VECTOR(S_AppParam_X.VecStringRegExpCollection, STDSTRING, 0, 0) },
                                        {nullptr, std::string("vec_u32"), std::string("Specifies a std::vector<uint32_t>."), std::string(""), std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VECTOR(S_AppParam_X.VecU32Collection, UINT32, 0, 0) },
                                        {nullptr, std::string("u8"),       std::string("Specifies a u8."),                                                   std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Val_U8, UINT8, 0, 0) },
                                        {nullptr, std::string("u16"),      std::string("Specifies a u16."),                                                  std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,                                                                                     BOF_PARAM_DEF_VARIABLE(S_AppParam_X.Val_U16, UINT16, 0, 0)},
@@ -333,7 +334,13 @@ TEST_F(CmdLineParser_Test, CmdLine)
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
-  
+  //const regex pattern("\\s?(0|91)?[6-9][0-9]{9}"); is regular expression used to validate mobile number.
+  // 0) Trim white space char 1) Begins with 0 or 91    2) Then contains 6,7 or 8 or 9.   3) Then contains 9 digits
+  //The following input contains good and bad mobile number
+  strcpy(ppArgument_c[Argc_i], "--vec_regexp=  06123456789, 26123456789, 917123456789, 91712345678, 918123456789");
+  pArgv_c[Argc_i] = ppArgument_c[Argc_i];
+  Argc_i++;
+
   strcpy(ppArgument_c[Argc_i], "--vec_u32=  1, 2,3 , 100 , 101");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
@@ -484,6 +491,16 @@ TEST_F(CmdLineParser_Test, CmdLine)
   }
 
   //goto m;
+   //const regex pattern("(0|91)?[6-9][0-9]{9}"); is regular expression used to validate mobile number.
+  // 1) Begins with 0 or 91    2) Then contains 6,7 or 8 or 9.   3) Then contains 9 digits
+  //The following input contains good and bad mobile number
+  //strcpy(ppArgument_c[Argc_i], "--vec_regexp=  06123456789, 26123456789, 917123456789, 91712345678, 918123456789");
+
+  EXPECT_EQ(S_AppParam_X.VecStringRegExpCollection.size(), 3);
+  EXPECT_STREQ(S_AppParam_X.VecStringRegExpCollection[0].c_str(), "  06123456789");
+  EXPECT_STREQ(S_AppParam_X.VecStringRegExpCollection[1].c_str(), " 917123456789");
+  EXPECT_STREQ(S_AppParam_X.VecStringRegExpCollection[2].c_str(), " 918123456789");
+
   EXPECT_EQ(S_AppParam_X.VecU32Collection[0], 1);
   EXPECT_EQ(S_AppParam_X.VecU32Collection[1], 2);
   EXPECT_EQ(S_AppParam_X.VecU32Collection[2], 3);

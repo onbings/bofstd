@@ -1,18 +1,13 @@
 {
   "name": "bofstd",
-  "version": "5.1.16.77",
+  "version": "5.2.3.1",
   "description": "The onbings general purpose C++ Multiplatform library",
   "dependencies": [
     { "name": "date" },
     { "name": "fmt" },
     { "name": "gtest" },
     { "name": "jsoncpp" },
-    { "name": "libmediainfo" },
-    { "name": "libyuv" },
-    { "name": "libzen" },
     { "name": "linenoise-ng" },
-    { "name": "openssl" },
-    { "name": "spdlog" },
-    { "name": "zlib" }
+    { "name": "spdlog" }
   ]
 }
