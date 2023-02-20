@@ -75,6 +75,7 @@ struct BOFSTD_EXPORT BOF_BUFFER_ALLOCATE_HEADER
 struct BOFSTD_EXPORT BOF_BUFFER
 {
   bool MustBeDeleted_B;
+  bool MustBeFreeed_B;
   uint64_t Size_U64;
   uint64_t Capacity_U64;
   void *pUser;		//Used by Bof_AlignedMemAlloc for example
@@ -84,16 +85,26 @@ struct BOFSTD_EXPORT BOF_BUFFER
   {
     Reset();
   }
+/* Use SetStorage
   BOF_BUFFER(uint64_t _Capacity_U64, uint64_t _Size_U64, uint8_t *_pData_U8, bool _MustBeDeleted_B)
   {
     SetStorage(_Capacity_U64, _Size_U64, _pData_U8);
     MustBeDeleted_B = _MustBeDeleted_B;
+    MustBeFreeed_B = false;
   }
+  */
   ~BOF_BUFFER()
   {
     if (MustBeDeleted_B)
     {
       BOF_SAFE_DELETE_ARRAY(pData_U8);
+    }
+    else
+    {
+      if (MustBeFreeed_B)
+      {
+        BOF_SAFE_FREE(pData_U8);
+      }
     }
     Reset();
   }
@@ -101,6 +112,7 @@ struct BOFSTD_EXPORT BOF_BUFFER
   void Reset()
   {
     MustBeDeleted_B = false;
+    MustBeFreeed_B = false;
     pUser = nullptr;
     Size_U64 = 0;
     Capacity_U64 = 0;
@@ -114,13 +126,14 @@ struct BOFSTD_EXPORT BOF_BUFFER
   {
     BOF_ASSERT(_Capacity_U64 < 0x100000000);	//For the moment
     MustBeDeleted_B = false;
+    MustBeFreeed_B = false;
     if (_pData_U8)
     {
-      pData_U8 = _pData_U8;
+      pData_U8 = _pData_U8;   //Caller can set MustBeDeleted_B or MustBeFreeed_B if needed 
     }
     else
     {
-      pData_U8 = AllocStorage(_Capacity_U64);
+      pData_U8 = AllocStorage(_Capacity_U64); //Will set MustBeDeleted_B to true
     }
     Capacity_U64 = _Capacity_U64;
     if (_Size_U64 <= _Capacity_U64)
@@ -153,7 +166,15 @@ struct BOFSTD_EXPORT BOF_BUFFER
     {
       BOF_SAFE_DELETE_ARRAY(pData_U8);
     }
+    else
+    {
+      if (MustBeFreeed_B)
+      {
+        BOF_SAFE_FREE(pData_U8);
+      }
+    }
     MustBeDeleted_B = false;
+    MustBeFreeed_B = false;
     Capacity_U64 = 0;
     Size_U64 = 0;
   }

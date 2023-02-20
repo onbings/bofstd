@@ -927,8 +927,9 @@ BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rP
 BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, const std::string &_rRawData_S)
 {
   BOFERR Rts_E;
-  BOF_BUFFER Buffer_X(_rRawData_S.size(), _rRawData_S.size(), (uint8_t *)(_rRawData_S.c_str()), false);
+  BOF_BUFFER Buffer_X;
 
+  Buffer_X.SetStorage(_rRawData_S.size(), _rRawData_S.size(), (uint8_t*)(_rRawData_S.c_str()));
   Rts_E = Bof_WriteFile(_Permission_E, _rPath, Buffer_X);
   return Rts_E;
 }
