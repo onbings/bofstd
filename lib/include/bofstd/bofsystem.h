@@ -83,6 +83,13 @@ struct BOFSTD_EXPORT BOF_BUFFER
 
   BOF_BUFFER()
   {
+    //for ReleaseStorage in Reset
+    MustBeDeleted_B = false;
+    MustBeFreeed_B = false;
+    pUser = nullptr;
+    Size_U64 = 0;
+    Capacity_U64 = 0;
+    pData_U8 = nullptr;
     Reset();
   }
 /* Use SetStorage
