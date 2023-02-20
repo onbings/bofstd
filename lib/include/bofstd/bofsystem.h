@@ -95,22 +95,12 @@ struct BOFSTD_EXPORT BOF_BUFFER
   */
   ~BOF_BUFFER()
   {
-    if (MustBeDeleted_B)
-    {
-      BOF_SAFE_DELETE_ARRAY(pData_U8);
-    }
-    else
-    {
-      if (MustBeFreeed_B)
-      {
-        BOF_SAFE_FREE(pData_U8);
-      }
-    }
     Reset();
   }
 
   void Reset()
   {
+    ReleaseStorage();
     MustBeDeleted_B = false;
     MustBeFreeed_B = false;
     pUser = nullptr;
@@ -125,6 +115,8 @@ struct BOFSTD_EXPORT BOF_BUFFER
   uint8_t *SetStorage(uint64_t _Capacity_U64, uint64_t _Size_U64, uint8_t *_pData_U8)
   {
     BOF_ASSERT(_Capacity_U64 < 0x100000000);	//For the moment
+    ReleaseStorage();
+
     MustBeDeleted_B = false;
     MustBeFreeed_B = false;
     if (_pData_U8)
@@ -149,6 +141,8 @@ struct BOFSTD_EXPORT BOF_BUFFER
   uint8_t *AllocStorage(uint64_t _Capacity_U64)
   {
     BOF_ASSERT(_Capacity_U64 < 0x100000000);	//For the moment
+    ReleaseStorage();
+
     uint8_t *pRts = new uint8_t[static_cast<uint32_t>(_Capacity_U64)];
 
     if (pRts)
