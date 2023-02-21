@@ -135,7 +135,6 @@ struct BOFSTD_EXPORT BOFSTDPARAM
   }
 };
 
-extern BOFSTD_EXPORT BOFSTDPARAM GL_BofStdParam_X;
 /*!
 * Summary
 * Definition of a color in the RGBA color space
@@ -374,3 +373,5 @@ private:
 #define THROW_BOF_EXCEPTION(Header,Context,ErrorCode)      {std::ostringstream Where; Where << __FILE__ << ':' << __LINE__ << " (" << __func__ << ')'; BOF::BofException Exception(Header,Context, Where.str(),ErrorCode); throw Exception; }
 
 END_BOF_NAMESPACE()
+
+extern BOFSTD_EXPORT BOF::BOFSTDPARAM GL_BofStdParam_X;

@@ -42,8 +42,9 @@ DWORD  S_ModeIn_DW=0, S_ModeOut_DW=0;
 
 #endif
 
+BOFSTD_EXPORT BOF::BOFSTDPARAM GL_BofStdParam_X;
+
 BEGIN_BOF_NAMESPACE()
-BOFSTD_EXPORT BOFSTDPARAM GL_BofStdParam_X;
 static char S_pUnknownError_c[128];
 static std::map<BOFERR, const char *> S_ErrorCodeCollection{
 	{ BOF_ERR_NO_ERROR,          "No error"},
