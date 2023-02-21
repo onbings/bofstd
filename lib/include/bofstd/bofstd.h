@@ -55,6 +55,69 @@ using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint
 #endif
 #endif
 
+
+#define BOF                         onbings::bof
+#define BEGIN_BOF_NAMESPACE()       namespace onbings { namespace bof {
+#define END_BOF_NAMESPACE()         } }
+#define USE_BOF_NAMESPACE()         using namespace BOF;
+
+#if defined( _WIN32 )
+#define BOF_LITTLE_ENDIAN
+#else
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define BOF_LITTLE_ENDIAN
+#endif
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define BOF_BIG_ENDIAN
+#endif
+#if defined( __BIG_ENDIAN__ )
+#define BOF_BIG_ENDIAN
+#endif
+#if defined( __LITTLE_ENDIAN__ )
+#define BOF_LITTLE_ENDIAN
+#endif
+#endif
+#if defined( BOF_BIG_ENDIAN )
+#elif defined( BOF_LITTLE_ENDIAN )
+#else
+#error Define one of BOF_LITTLE_ENDIAN or BOF_BIG_ENDIAN
+#endif
+
+#if defined (_WIN32)
+#define strdup                      _strdup
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#if (_MSC_VER <= 1800)
+#define snprintf                    _snprintf
+#define unlink                      _unlink
+#else
+#define HAS_NOEXCEPT
+#endif
+#else
+#endif
+
+#if !defined(HAS_NOEXCEPT)
+#if defined(__clang__)
+#if __has_feature(cxx_noexcept)
+#define HAS_NOEXCEPT
+#endif
+#else
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) && __GNUC__ * 10 + __GNUC_MINOR__ >= 46 || \
+    defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 190023026
+#define HAS_NOEXCEPT
+#endif
+#endif
+#endif
+
+#ifdef HAS_NOEXCEPT
+#define NOEXCEPT noexcept
+#else
+#define NOEXCEPT
+#define constexpr
+#endif
+
+BEGIN_BOF_NAMESPACE()
+
 struct BOFSTD_EXPORT BOFSTDPARAM
 {
   bool AssertInRelease_B;
@@ -129,68 +192,6 @@ struct BOFSTD_EXPORT BOF_SIZE
     Height_U32 = 0;
   }
 };
-#define BOF                         onbings::bof
-#define BEGIN_BOF_NAMESPACE()       namespace onbings { namespace bof {
-#define END_BOF_NAMESPACE()         } }
-#define USE_BOF_NAMESPACE()         using namespace BOF;
-
-#if defined( _WIN32 )
-#define BOF_LITTLE_ENDIAN
-#else
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define BOF_LITTLE_ENDIAN
-#endif
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define BOF_BIG_ENDIAN
-#endif
-#if defined( __BIG_ENDIAN__ )
-#define BOF_BIG_ENDIAN
-#endif
-#if defined( __LITTLE_ENDIAN__ )
-#define BOF_LITTLE_ENDIAN
-#endif
-#endif
-#if defined( BOF_BIG_ENDIAN )
-#elif defined( BOF_LITTLE_ENDIAN )
-#else
-#error Define one of BOF_LITTLE_ENDIAN or BOF_BIG_ENDIAN
-#endif
-
-#if defined (_WIN32)
-#define strdup                      _strdup
-#define strncasecmp _strnicmp
-#define strcasecmp _stricmp
-#if (_MSC_VER <= 1800)
-#define snprintf                    _snprintf
-#define unlink                      _unlink
-#else
-#define HAS_NOEXCEPT
-#endif
-#else
-#endif
-
-#if !defined(HAS_NOEXCEPT)
-#if defined(__clang__)
-#if __has_feature(cxx_noexcept)
-#define HAS_NOEXCEPT
-#endif
-#else
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) && __GNUC__ * 10 + __GNUC_MINOR__ >= 46 || \
-    defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 190023026
-#define HAS_NOEXCEPT
-#endif
-#endif
-#endif
-
-#ifdef HAS_NOEXCEPT
-#define NOEXCEPT noexcept
-#else
-#define NOEXCEPT
-#define constexpr
-#endif
-
-BEGIN_BOF_NAMESPACE()
-
 #define BOF_INVALID_HANDLE_VALUE    ( (void *)-1)
 const intptr_t BOF_FS_INVALID_HANDLE = -1;
 

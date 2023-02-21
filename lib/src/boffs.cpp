@@ -891,6 +891,8 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsag
 BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)
 {
   BOFERR Rts_E = BOF_ERR_OPERATION_FAILED;
+#if 0
+//1200 ms for 32MB
 #pragma message("TODO: optimize this BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)")
   // Open the file: Note that we have to use binary mode as we want to return a string
   // representing matching the bytes of the file on the file system.
@@ -906,6 +908,15 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)
     Io.close();
     Rts_E = BOF_ERR_NO_ERROR;
   }
+#else
+//200 ms
+  BOF_BUFFER BufferToDeleteAfterUsage_X;
+  Rts_E = Bof_ReadFile(_rPath, BufferToDeleteAfterUsage_X);
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    _rRawData_S = std::string(BufferToDeleteAfterUsage_X.pData_U8, BufferToDeleteAfterUsage_X.pData_U8 + BufferToDeleteAfterUsage_X.Size_U64);
+  }
+#endif
   return Rts_E;
 }
 BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, const BOF_BUFFER &_rBuffer_X)

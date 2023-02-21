@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
  // ::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
 //  	::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.CmdLine";
 //    ::testing::GTEST_FLAG(filter) = "Fs_Test.FileLayout:Fs_Test.DirEnum";
+//  ::testing::GTEST_FLAG(filter) = "Fs_Test.ResetFileContentReOpenMode";
   /*
 * under linux:
 [  PASSED  ] 144 tests.
