@@ -387,7 +387,7 @@ endif()
 #disable exception in spd log and replace thme by assert(false) to avoid try around every sprintf
 target_compile_definitions(bofstd-objects
   PUBLIC
-	-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY=1	#MediaInfo dll is a shame -> use only the static lib version
+	#-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY=1	#MediaInfo dll is a shame -> use only the static lib version
 
   PRIVATE
     -Dbofstd_EXPORTS=1	#in lower case to define the SYMBOL BOFSTD_EXPORT (upper case)in bofstd_export.h

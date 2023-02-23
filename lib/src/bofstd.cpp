@@ -19,7 +19,58 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
+ /*
+ Republish a new version
+ - Change version in C:\pro\github\bofstd\CMakeLists.txt: project(bofstd VERSION 5.2.3.8)
+ - Change version in C:\pro\github\bofstd\vcpkg.json:     "version": "5.2.3.8",
 
+ Push all modified files to git and get git push ref:
+ get push ref 1ebfdb05a109ec6b0bafb7fd8259b4453f05bf7a		used also during last phase with the .\update-port.py command at rhe end of the procedure
+
+ - Change REF and SHA512 in C:\pro\github\onbings-vcpkg-registry\ports\bofstd\portfile.cmake
+   REF 1ebfdb05a109ec6b0bafb7fd8259b4453f05bf7a
+   SHA512 0
+
+ - Validate BofSrd and bofstd with the C:\pro\github\vcpkg-packaging-env project
+   cd C:\bld\a
+   del * \S \Q
+   cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic -DVCPKG_OVERLAY_PORTS=C:\pro\github\onbings-vcpkg-registry\ports\ C:\pro\github\vcpkg-packaging-env
+
+   [DEBUG] Downloading https:\\github.com\onbings\bofstd\archive\1ebfdb05a109ec6b0bafb7fd8259b4453f05bf7a.tar.gz
+   Error: Failed to download from mirror set:
+   File does not have the expected hash:
+              url : [ https:\\github.com\onbings\bofstd\archive\1ebfdb05a109ec6b0bafb7fd8259b4453f05bf7a.tar.gz ]
+        File path : [ C:\pro\vcpkg\downloads\onbings-bofstd-1ebfdb05a109ec6b0bafb7fd8259b4453f05bf7a.tar.gz.20964.part ]
+    Expected hash : [ 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 ]
+      Actual hash : [ e33ded711b18c07c4aaa20955c17b4bfb02a0449f238f7298ddb9be4f0e504878ddf20f58294c3f8b48059c3e74c101cc53daacc201429e8bc7c1350063315d0 ]
+
+   get the Actual hash  and put it back in SHA512 in C:\pro\github\onbings-vcpkg-registry\ports\bofstd\portfile.cmake
+
+   cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic -DVCPKG_OVERLAY_PORTS=C:\pro\github\onbings-vcpkg-registry\ports\ C:\pro\github\vcpkg-packaging-env
+   Should be ok, compile it with  cmake --build .
+
+   cd C:\pro\github\onbings-vcpkg-registry
+   git pull
+   python .\update-port.py bofstd 5.2.3.8 1ebfdb05a109ec6b0bafb7fd8259b4453f05bf7a
+   git push
+   git log
+   commit message should be "Update bofstd to 5.2.3.8\1ebfdb05a109ec6b0bafb7fd8259b4453f05bf7a"
+
+   get the new push git ref 4eb2199109841185f5075ecad7deed414f2c4f55
+
+   update baseline in your vcpkg-configuration of your project which want to use this new lib C:\pro\github\vcpkg-packaging-env\vcpkg-configuration.json
+
+   "baseline": "4eb2199109841185f5075ecad7deed414f2c4f55",
+
+ DLL:
+ doxygen:
+ cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic C:\pro\github\vcpkg-packaging-env
+ cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-static C:\pro\github\vcpkg-packaging-env
+
+ cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic C:\pro\github\vcpkg-packaging-env
+ LIB:
+ cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-static C:\pro\github\vcpkg-packaging-env
+ */
 #include <bofstd/bofsocket.h>
 #include <map>
 #include <locale.h>
