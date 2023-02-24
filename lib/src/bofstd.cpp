@@ -21,8 +21,8 @@
  */
  /*
  Republish a new version
- - Change version in C:\pro\github\bofstd\CMakeLists.txt: project(bofstd VERSION 5.2.3.9)
- - Change version in C:\pro\github\bofstd\vcpkg.json:     "version": "5.2.3.9",
+ - Change version in C:\pro\github\bofstd\CMakeLists.txt: project(bofstd VERSION 5.2.3.10)
+ - Change version in C:\pro\github\bofstd\vcpkg.json:     "version": "5.2.3.10",
 
  Push all modified files to git and get git push ref:
  get push ref 5aaecc288c7c81dd4cb407fdf27e2fda29b13960		used also during last phase with the .\update-port.py command at rhe end of the procedure
@@ -51,10 +51,10 @@
 
    cd C:\pro\github\onbings-vcpkg-registry
    git pull
-   python .\update-port.py bofstd 5.2.3.9 5aaecc288c7c81dd4cb407fdf27e2fda29b13960
+   python .\update-port.py bofstd 5.2.3.10 5aaecc288c7c81dd4cb407fdf27e2fda29b13960
    git push
    git log
-   commit message should be "Update bofstd to 5.2.3.9\5aaecc288c7c81dd4cb407fdf27e2fda29b13960"
+   commit message should be "Update bofstd to 5.2.3.10\5aaecc288c7c81dd4cb407fdf27e2fda29b13960"
 
    get the new push git ref 8c8de87e6b5b6fcfe568026faa0bf9f12767dbbc
 
