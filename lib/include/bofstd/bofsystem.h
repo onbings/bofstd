@@ -76,10 +76,12 @@ struct BOFSTD_EXPORT BOF_BUFFER
 {
   bool MustBeDeleted_B;
   bool MustBeFreeed_B;
+  uint64_t Offset_U64;    //For seek
   uint64_t Size_U64;
   uint64_t Capacity_U64;
   void *pUser;		//Used by Bof_AlignedMemAlloc for example
   uint8_t *pData_U8;
+  mutable std::mutex Mtx;
 
   BOF_BUFFER()
   {
@@ -87,6 +89,7 @@ struct BOFSTD_EXPORT BOF_BUFFER
     MustBeDeleted_B = false;
     MustBeFreeed_B = false;
     pUser = nullptr;
+    Offset_U64 = 0;
     Size_U64 = 0;
     Capacity_U64 = 0;
     pData_U8 = nullptr;
@@ -104,19 +107,59 @@ struct BOFSTD_EXPORT BOF_BUFFER
   {
     Reset();
   }
-
+  //Copy constructor as we use mutable std::mutex https://stackoverflow.com/questions/30340029/copy-class-with-stdmutex
+  BOF_BUFFER(const BOF_BUFFER &_rOther_X)
+  {
+    std::lock_guard<std::mutex> Lock(Mtx);
+    MustBeDeleted_B = false;  //Only one deleter  _rOther_X.MustBeDeleted_B;
+    MustBeFreeed_B = false;  //Only one deleter _rOther_X.MustBeFreeed_B;
+    pUser = _rOther_X.pUser;
+    Offset_U64 = _rOther_X.Offset_U64;
+    Size_U64 = _rOther_X.Size_U64;
+    Capacity_U64 = _rOther_X.Capacity_U64;
+    pData_U8 = _rOther_X.pData_U8;
+  }
+  BOF_BUFFER& operator =(const BOF_BUFFER &_rOther_X)
+  {
+    std::lock_guard<std::mutex> Lock(Mtx);
+    MustBeDeleted_B = false;  //Only one deleter _rOther_X.MustBeDeleted_B;
+    MustBeFreeed_B = false;  //Only one deleter _rOther_X.MustBeFreeed_B;
+    pUser = _rOther_X.pUser;
+    Offset_U64 = _rOther_X.Offset_U64;
+    Size_U64 = _rOther_X.Size_U64;
+    Capacity_U64 = _rOther_X.Capacity_U64;
+    pData_U8 = _rOther_X.pData_U8;
+    return *this;
+  }
+  BOF_BUFFER &operator =(const BOF_BUFFER &&_rrOther_X)
+  {
+    std::lock_guard<std::mutex> Lock(Mtx);
+    MustBeDeleted_B = false;  //Only one deleter _rrOther_X.MustBeDeleted_B;
+    MustBeFreeed_B = false;  //Only one deleter _rrOther_X.MustBeFreeed_B;
+    pUser = _rrOther_X.pUser;
+    Offset_U64 = _rrOther_X.Offset_U64;
+    Size_U64 = _rrOther_X.Size_U64;
+    Capacity_U64 = _rrOther_X.Capacity_U64;
+    pData_U8 = _rrOther_X.pData_U8;
+    return *this;
+  }
   void Reset()
   {
     ReleaseStorage();
+    std::lock_guard<std::mutex> Lock(Mtx);
     MustBeDeleted_B = false;
     MustBeFreeed_B = false;
     pUser = nullptr;
+    Offset_U64 = 0;
     Size_U64 = 0;
     Capacity_U64 = 0;
     pData_U8 = nullptr;
   }
+
   void Clear()
   {
+    std::lock_guard<std::mutex> Lock(Mtx);
+    Offset_U64 = 0;
     Size_U64 = 0;
   }
   uint8_t *SetStorage(uint64_t _Capacity_U64, uint64_t _Size_U64, uint8_t *_pData_U8)
@@ -134,7 +177,10 @@ struct BOFSTD_EXPORT BOF_BUFFER
     {
       pData_U8 = AllocStorage(_Capacity_U64); //Will set MustBeDeleted_B to true
     }
+    std::lock_guard<std::mutex> Lock(Mtx);
     Capacity_U64 = _Capacity_U64;
+
+    Offset_U64 = 0;
     if (_Size_U64 <= _Capacity_U64)
     {
       Size_U64 = _Size_U64;
@@ -143,9 +189,99 @@ struct BOFSTD_EXPORT BOF_BUFFER
     {
       Size_U64 = 0;
     }
-    return _pData_U8;
+    return pData_U8;
   }
-  uint8_t *AllocStorage(uint64_t _Capacity_U64)
+
+  uint64_t RemainToWrite()
+  {
+    //Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    return (Size_U64 <= Capacity_U64) ? Capacity_U64 - Size_U64:0;
+  }
+  uint64_t RemainToRead()
+  {
+    //Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    return (Offset_U64 < Size_U64) ?  Size_U64 - Offset_U64 : 0;
+  }
+  uint8_t *Seek(uint64_t _Offset_U64, uint64_t &_rRemain_U64)
+  {
+    uint8_t *pRts_U8 = nullptr;
+
+    std::lock_guard<std::mutex> Lock(Mtx);
+    if (_Offset_U64 <= Size_U64)
+    {
+      Offset_U64 = _Offset_U64;
+      _rRemain_U64 = Size_U64 - _Offset_U64;
+      pRts_U8 = &pData_U8[Offset_U64];
+    }
+    return pRts_U8;
+  }
+  uint8_t *Read(uint64_t _Size_U64, uint64_t &_rNbRead_U64)
+  {
+    uint8_t *pRts_U8 = nullptr;
+    uint64_t Remain_U64;
+
+    std::lock_guard<std::mutex> Lock(Mtx);
+    _rNbRead_U64 = 0;
+    if (IsValid())
+    {
+      Remain_U64 = RemainToRead();
+      _rNbRead_U64 = (Remain_U64 < _Size_U64) ? Remain_U64 : _Size_U64;
+      if (_rNbRead_U64)
+      {
+        pRts_U8 = &pData_U8[Offset_U64];
+        Offset_U64 += _rNbRead_U64;
+      }
+    }
+    return pRts_U8;
+  }
+  uint8_t *Write(uint64_t _Size_U64, const uint8_t *_pData_U8, uint64_t &_rNbWritten_U64)
+  {
+    uint8_t *pRts_U8 = nullptr;
+    uint64_t Free_U64;
+
+    std::lock_guard<std::mutex> Lock(Mtx);
+    _rNbWritten_U64 = 0;
+    if ((IsValid()) && (_pData_U8))
+    {
+      Free_U64 = RemainToWrite();
+      _rNbWritten_U64 = (_Size_U64 < Free_U64) ? _Size_U64 : Free_U64;
+      if (_rNbWritten_U64)
+      {
+        memcpy(&pData_U8[Size_U64], _pData_U8, static_cast<size_t>(_rNbWritten_U64));
+        Size_U64 += _rNbWritten_U64;
+        pRts_U8 = &pData_U8[Size_U64];
+      }
+    }
+    return pRts_U8;
+  }
+  bool IsValid()
+  {
+    bool Rts_B = false;
+
+    //Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    if ((pData_U8) && (Capacity_U64))
+    {
+      if ((Size_U64 <= Capacity_U64) && (Offset_U64 <= Size_U64))
+      {
+        Rts_B = true;
+      }
+    }
+    return Rts_B;
+  }
+
+  bool IsNull()
+  {
+    bool Rts_B = true;
+
+    //Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    if ((pData_U8) && (Capacity_U64))
+    {
+      Rts_B = false;
+    }
+    return Rts_B;
+  }
+
+  uint8_t *AllocStorage(uint64_t _Capacity_U64) 
   {
     BOF_ASSERT(_Capacity_U64 < 0x100000000);	//For the moment
     ReleaseStorage();
@@ -154,8 +290,10 @@ struct BOFSTD_EXPORT BOF_BUFFER
 
     if (pRts)
     {
+      std::lock_guard<std::mutex> Lock(Mtx);
       MustBeDeleted_B = true;
       Capacity_U64 = _Capacity_U64;
+      Offset_U64 = 0;
       Size_U64 = 0;
       pData_U8 = pRts;
     }
@@ -163,6 +301,7 @@ struct BOFSTD_EXPORT BOF_BUFFER
   }
   void ReleaseStorage()
   {
+    std::lock_guard<std::mutex> Lock(Mtx);
     if (MustBeDeleted_B)
     {
       BOF_SAFE_DELETE_ARRAY(pData_U8);
@@ -177,22 +316,8 @@ struct BOFSTD_EXPORT BOF_BUFFER
     MustBeDeleted_B = false;
     MustBeFreeed_B = false;
     Capacity_U64 = 0;
+    Offset_U64 = 0;
     Size_U64 = 0;
-  }
-  uint8_t *MemCpy(uint64_t _Size_U64, const uint8_t *_pData_U8)
-  {
-    uint8_t *pRts_U8 = nullptr;
-
-    if ((_pData_U8) && (pData_U8))
-    {
-      if ((_Size_U64 + Size_U64) <= Capacity_U64)
-      {
-        memcpy(&pData_U8[Size_U64], _pData_U8, static_cast<size_t>(_Size_U64));
-        Size_U64 += _Size_U64;
-        pRts_U8 = &pData_U8[Size_U64] + _Size_U64;
-      }
-    }
-    return pRts_U8;
   }
 };
 enum class BOF_ACCESS_SIZE : uint32_t

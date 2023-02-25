@@ -31,6 +31,87 @@
 
 USE_BOF_NAMESPACE()
 
+
+TEST(System_Test, Buffer)
+{
+  BOF_BUFFER Buffer_X, OtherBuffer_X;
+  constexpr uint32_t BUFFER_SIZE = 0x1000;
+  uint8_t pData_U8[BUFFER_SIZE + 32], pNewData_U8[BUFFER_SIZE + 32], *pAllocData_U8, *pIo_U8;
+  uint32_t i_U32;
+  uint64_t NbRead_U64, NbWritten_U64, RemainToRead_U64;
+
+  for (i_U32 = 0; i_U32 < BUFFER_SIZE + 32; i_U32++)
+  {
+    pData_U8[i_U32] = static_cast<uint8_t>(i_U32);
+    pNewData_U8[i_U32] = static_cast<uint8_t>(255 - i_U32);
+  }
+  EXPECT_FALSE(Buffer_X.IsValid());
+  EXPECT_TRUE(Buffer_X.IsNull());
+
+  pAllocData_U8 = Buffer_X.SetStorage(BUFFER_SIZE * 3, BUFFER_SIZE, nullptr);
+  EXPECT_EQ(Buffer_X.RemainToRead(), BUFFER_SIZE);
+  EXPECT_EQ(Buffer_X.RemainToWrite(), BUFFER_SIZE * 2);
+
+  EXPECT_NE(pAllocData_U8, nullptr);
+  EXPECT_TRUE(Buffer_X.IsValid());
+  EXPECT_FALSE(Buffer_X.IsNull());
+  for (i_U32 = 0; i_U32 < BUFFER_SIZE; i_U32++)
+  {
+    pAllocData_U8[i_U32] = static_cast<uint8_t>(i_U32);
+  }
+  OtherBuffer_X = Buffer_X;
+  pIo_U8 = OtherBuffer_X.Read(16, NbRead_U64);
+  EXPECT_EQ(pIo_U8, pAllocData_U8);
+  EXPECT_EQ(NbRead_U64, 16);
+  EXPECT_EQ(OtherBuffer_X.RemainToRead(), BUFFER_SIZE - 16);
+  EXPECT_EQ(OtherBuffer_X.RemainToWrite(), BUFFER_SIZE * 2);
+
+  pIo_U8 = OtherBuffer_X.Write(BUFFER_SIZE + 32, pNewData_U8, NbWritten_U64);
+  EXPECT_EQ(pIo_U8, &pAllocData_U8[BUFFER_SIZE + BUFFER_SIZE + 32]);
+  EXPECT_EQ(NbWritten_U64, BUFFER_SIZE + 32);
+  EXPECT_EQ(OtherBuffer_X.RemainToRead(), (BUFFER_SIZE - 16) + (BUFFER_SIZE + 32));
+  EXPECT_EQ(OtherBuffer_X.RemainToWrite(), (BUFFER_SIZE * 2) - (BUFFER_SIZE + 32));
+  for (i_U32 = 0; i_U32 < BUFFER_SIZE; i_U32++)
+  {
+    EXPECT_EQ(pAllocData_U8[i_U32], static_cast<uint8_t>(i_U32));
+  }
+  for (i_U32 = 0; i_U32 < BUFFER_SIZE + 32; i_U32++)
+  {
+    EXPECT_EQ(pAllocData_U8[BUFFER_SIZE + i_U32], static_cast<uint8_t>(255 - i_U32));
+  }
+
+  pIo_U8 = OtherBuffer_X.Seek(BUFFER_SIZE * 4, RemainToRead_U64);
+  EXPECT_EQ(pIo_U8, nullptr);
+
+  pIo_U8 = OtherBuffer_X.Seek(BUFFER_SIZE * 2, RemainToRead_U64);
+  EXPECT_NE(pIo_U8, nullptr);
+  EXPECT_EQ(RemainToRead_U64, 32);
+  EXPECT_EQ(OtherBuffer_X.RemainToRead(), 32);
+  EXPECT_EQ(OtherBuffer_X.RemainToWrite(), (BUFFER_SIZE * 2) - (BUFFER_SIZE + 32));
+
+
+  Buffer_X.ReleaseStorage();
+  EXPECT_FALSE(Buffer_X.IsValid());
+  EXPECT_TRUE(Buffer_X.IsNull());
+
+  Buffer_X.SetStorage(BUFFER_SIZE, 0, pData_U8);
+  EXPECT_TRUE(Buffer_X.IsValid());
+  EXPECT_FALSE(Buffer_X.IsNull());
+  EXPECT_EQ(Buffer_X.RemainToRead(), 0);
+  pIo_U8 = Buffer_X.Write(BUFFER_SIZE + 64, pNewData_U8, NbWritten_U64);
+  EXPECT_EQ(pIo_U8, &pData_U8[BUFFER_SIZE]);
+  EXPECT_EQ(NbWritten_U64, BUFFER_SIZE);
+  EXPECT_EQ(Buffer_X.RemainToRead(), BUFFER_SIZE);
+  EXPECT_EQ(Buffer_X.RemainToWrite(), 0);
+
+  Buffer_X.Clear();
+  EXPECT_TRUE(Buffer_X.IsValid());
+  EXPECT_FALSE(Buffer_X.IsNull());
+  Buffer_X.Reset();
+  EXPECT_FALSE(Buffer_X.IsValid());
+  EXPECT_TRUE(Buffer_X.IsNull());
+}
+
 TEST(System_Test, SystemUsageInfo)
 {
   BOF_SYSTEM_USAGE_INFO SystemUsageInfo_X;

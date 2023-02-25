@@ -157,7 +157,8 @@ BOFERR BofSocketIo::TransferDataBufferOwnershipTo(std::shared_ptr<BofSocketIo> _
 }
 BOFERR BofSocketIo::MemCpyInDataBuffer(uint64_t _BufferSize_U64, const uint8_t *_pData_U8)
 {
-  return (mDataBuffer_X.MemCpy(_BufferSize_U64, _pData_U8) != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_TOO_BIG;
+  uint64_t NbWritten_U64;
+  return (mDataBuffer_X.Write(_BufferSize_U64, _pData_U8, NbWritten_U64) != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_TOO_BIG;
 }
 BOF::BOF_BUFFER &BofSocketIo::DataBuffer()
 {
