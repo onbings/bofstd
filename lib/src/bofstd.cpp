@@ -25,10 +25,10 @@
  - Change version in C:\pro\github\bofstd\vcpkg.json:     "version": "5.2.3.12",
 
  Push all modified files to git and get git push ref:
- get push ref e70567b87eb4aa1e75edadc4d1666e2fffa862bd		used also during last phase with the .\update-port.py command at rhe end of the procedure
+ get push ref ee5136126438385714a8aacd1e4192c5dd90f48c		used also during last phase with the .\update-port.py command at rhe end of the procedure
 
  - Change REF and SHA512 in C:\pro\github\onbings-vcpkg-registry\ports\bofstd\portfile.cmake / C:\pro\evs-vcpkg-registry\ports\bofstd\portfile.cmake
-   REF e70567b87eb4aa1e75edadc4d1666e2fffa862bd
+   REF ee5136126438385714a8aacd1e4192c5dd90f48c
    SHA512 0
 
  - Validate BofSrd and bofstd with the C:\pro\github\vcpkg-packaging-env project
@@ -37,11 +37,11 @@
    cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic -DVCPKG_OVERLAY_PORTS=C:\pro\github\onbings-vcpkg-registry\ports\ C:\pro\github\vcpkg-packaging-env
    cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic -DVCPKG_OVERLAY_PORTS=C:\pro\evs-vcpkg-registry\ports\ C:\pro\vcpkg-packaging-env
 
-   [DEBUG] Downloading https:\\github.com\onbings\bofstd\archive\e70567b87eb4aa1e75edadc4d1666e2fffa862bd.tar.gz
+   [DEBUG] Downloading https:\\github.com\onbings\bofstd\archive\ee5136126438385714a8aacd1e4192c5dd90f48c.tar.gz
    Error: Failed to download from mirror set:
    File does not have the expected hash:
-              url : [ https:\\github.com\onbings\bofstd\archive\e70567b87eb4aa1e75edadc4d1666e2fffa862bd.tar.gz ]
-        File path : [ C:\pro\vcpkg\downloads\onbings-bofstd-e70567b87eb4aa1e75edadc4d1666e2fffa862bd.tar.gz.20964.part ]
+              url : [ https:\\github.com\onbings\bofstd\archive\ee5136126438385714a8aacd1e4192c5dd90f48c.tar.gz ]
+        File path : [ C:\pro\vcpkg\downloads\onbings-bofstd-ee5136126438385714a8aacd1e4192c5dd90f48c.tar.gz.20964.part ]
     Expected hash : [ 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 ]
       Actual hash : [ 92a91738360c047ee9c52108964c0f66040b776894afdcf720a16d6865d2488e26d8021659be8e22b076f76378e716f33022c4602b8a63c5f70dce631f3a0ae8 ]
 
@@ -52,10 +52,10 @@
 
    cd C:\pro\github\onbings-vcpkg-registry / cd c:\pro\evs-vcpkg-registry
    git pull
-   python .\update-port.py bofstd 5.2.3.12 e70567b87eb4aa1e75edadc4d1666e2fffa862bd
+   python .\update-port.py bofstd 5.2.3.12 ee5136126438385714a8aacd1e4192c5dd90f48c
    git push
    git log
-   commit message should be "Update bofstd to 5.2.3.12\e70567b87eb4aa1e75edadc4d1666e2fffa862bd"
+   commit message should be "Update bofstd to 5.2.3.12\ee5136126438385714a8aacd1e4192c5dd90f48c"
 
    get the new push git ref bf6851917ef574e02fb406c2f50d5956b7edd85d
 
