@@ -629,26 +629,42 @@ BOFERR Bof_CreateTempFile(const BOF_FILE_PERMISSION _Permission_E, BofPath &_rPa
   return Rts_E;
 }
 
-BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, bool _Append_B, intptr_t &_rIo)
+BOFERR Bof_OpenFile(const BOF::BofPath &_rPath, bool _ReadOnly_B, bool _Append_B, intptr_t &_rIo)
 {
   BOFERR Rts_E = BOF_ERR_NOT_OPENED;
   int Io_i, Flag_i;
-
+  /*
 #if defined (_WIN32)
-  Flag_i = _ReadOnly_B ? (_O_RDONLY | _O_BINARY) : (_O_RDWR | _O_BINARY);
+  Flag_i = _ReadOnly_B ? (_O_RDONLY | _O_BINARY) : (_O_RDWR | _O_BINARY | _O_CREAT);
+  if (_Append_B)
+  {
+    Flag_i |= _O_APPEND;
+  }
 #else
-  Flag_i = _ReadOnly_B ? (O_RDONLY) : (O_RDWR);
-#endif
-  _rIo = static_cast<intptr_t> (-1);
-  Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i);
-  if (Io_i != BOF_FS_INVALID_HANDLE)
+  */
+  //Flag_i = _ReadOnly_B ? (O_RDONLY) : (O_RDWR);
+  if (_ReadOnly_B)
+  {
+    Flag_i = (O_RDONLY | O_BINARY);
+  }
+  else
   {
     if (_Append_B)
     {
-      Bof_SetFileIoPosition(Io_i, 0, BOF_SEEK_METHOD::BOF_SEEK_END);
+      Flag_i = (O_RDWR | O_BINARY | O_CREAT | O_APPEND);
     }
+    else
+    {
+      Flag_i = (O_RDWR | O_BINARY | O_CREAT | O_TRUNC);
+    }
+  }
+  //#endif
+  _rIo = static_cast<intptr_t> (-1);
+  Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i);
+  if (Io_i != BOF::BOF_FS_INVALID_HANDLE)
+  {
     _rIo = static_cast<intptr_t> (Io_i);
-    Rts_E =  BOF_ERR_NO_ERROR;
+    Rts_E = BOF_ERR_NO_ERROR;
   }
   return (Rts_E);
 }
@@ -849,7 +865,7 @@ BOFERR Bof_WriteFile(intptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U
   {
     NbToWrite_U32 = _rNb_U32;
     _rNb_U32 = static_cast<uint32_t>(write(Io_i, _pBuffer_U8, _rNb_U32));
-    Rts_E = (NbToWrite_U32 == _rNb_U32) ? BOF_ERR_NO_ERROR : BOF_ERR_READ;
+    Rts_E = (NbToWrite_U32 == _rNb_U32) ? BOF_ERR_NO_ERROR : BOF_ERR_WRITE;
   }
   return (Rts_E);
 }
@@ -876,6 +892,7 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsag
       {
         Nb_U32 = static_cast<uint32_t>(_rBufferToDeleteAfterUsage_X.Capacity_U64);
         Rts_E = Bof_ReadFile(Io, Nb_U32, _rBufferToDeleteAfterUsage_X.pData_U8);
+        _rBufferToDeleteAfterUsage_X.Size_U64 = Nb_U32;
         Bof_CloseFile(Io);
       }
       if (Rts_E != BOF_ERR_NO_ERROR)
@@ -928,7 +945,7 @@ BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rP
   Rts_E = Bof_CreateFile(_Permission_E, _rPath, false, Io);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    Nb_U32 = static_cast<uint32_t>(_rBuffer_X.Capacity_U64);
+    Nb_U32 = static_cast<uint32_t>(_rBuffer_X.Size_U64);
     Rts_E = Bof_WriteFile(Io, Nb_U32, _rBuffer_X.pData_U8);
     Bof_CloseFile(Io);
   }
