@@ -120,7 +120,7 @@ struct BOFSTD_EXPORT BOF_SIZE
 //typedef void *BOF_HANDLE;
 //#define BOF_INVALID_HANDLE_VALUE    ((BOF_HANDLE)-1)
 const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
-#define BOF_IS_HANDLE_VALID(handle)	(((handle)!=NULL) && ((handle)!=BOF_INVALID_HANDLE_VALUE))
+#define BOF_IS_HANDLE_VALID(handle)	(((handle)!=0) && ((handle)!=BOF_INVALID_HANDLE_VALUE))
 #if defined(__cplusplus)
 #define BOF_EXTERN_C extern "C"
 #else

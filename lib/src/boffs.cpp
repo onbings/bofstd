@@ -36,6 +36,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#define O_BINARY 0  //It's a *nix thing. *nix operating systems don't do automatic linefeed conversion for I/O on "text" files so O_TEXT and O_BINARY flags wouldn't make sense.
+#define O_TEXT 0
 #endif
 
 BEGIN_BOF_NAMESPACE()
