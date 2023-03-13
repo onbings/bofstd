@@ -187,7 +187,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   std::string Pwd_S, ScriptLine_S, CmdLine_S;
   bool FirstCommand_B;
-  intptr_t IoScript = BOF_FS_INVALID_HANDLE;
+  uintptr_t IoScript = BOF_INVALID_HANDLE_VALUE;
   uint32_t i_U32;
   
   mFinish_B = true;
@@ -236,7 +236,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
       if (mExecScript_B)
       {
         Bof_CloseFile(IoScript);
-        IoScript = BOF_FS_INVALID_HANDLE;
+        IoScript = BOF_INVALID_HANDLE_VALUE;
         mExecScript_B = false;
         break;
       }
@@ -245,7 +245,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
     {
       if (mExecScript_B)
       {
-        if (IoScript == BOF_FS_INVALID_HANDLE)
+        if (IoScript == BOF_INVALID_HANDLE_VALUE)
         {
           Bof_GetCurrentDirectory(Pwd_S);
           mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str());
@@ -254,12 +254,12 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellErrorColor_E, "Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E));
-            IoScript = BOF_FS_INVALID_HANDLE;
+            IoScript = BOF_INVALID_HANDLE_VALUE;
             mExecScript_B = false;
           }
         }
 
-        if (IoScript != BOF_FS_INVALID_HANDLE)
+        if (IoScript != BOF_INVALID_HANDLE_VALUE)
         {
           if (Bof_ReadLine(IoScript, ScriptLine_S) == BOF_ERR_NO_ERROR)
           {
@@ -271,7 +271,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
           else
           {
             Bof_CloseFile(IoScript);
-            IoScript = BOF_FS_INVALID_HANDLE;
+            IoScript = BOF_INVALID_HANDLE_VALUE;
             mExecScript_B = false;
           }
         }

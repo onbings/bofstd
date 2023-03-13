@@ -32,7 +32,7 @@ TEST(Fs_Test, DirectoryManagement)
   std::string         CrtDir_S, NewDir_S;
   BOF_FILE_PERMISSION Permission_E;
   BofPath             CrtDir, NewPath, FileAsDirPath;
-  intptr_t            Io, Io2;
+  uintptr_t           Io, Io2;
   std::string         NewFull_S;
   BOF_FILE_TYPE       FileType_E;
   uint64_t Size_U64;
@@ -195,7 +195,7 @@ TEST(Fs_Test, FileManagement)
   std::string         CrtDir_S, NewDir_S;
   BOF_FILE_PERMISSION Permission_E;
   BofPath             CrtDir, NewPath, FileAsDirPath;
-  intptr_t            Io, Io2;
+  uintptr_t           Io, Io2;
   std::string         NewFull_S;
   uint64_t Size_U64;
   BOF_FILE_TYPE       FileType_E;
@@ -369,7 +369,7 @@ TEST(Fs_Test, FileLayout)
   //Permission_E  = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
   BofPath             CrtDir, DirLayoutRoot, Dir, File, NewFile;
   uint32_t            i_U32, j_U32, k_U32, Nb_U32;
-  intptr_t            Io;
+  uintptr_t           Io;
   std::string         Line_S, LineRead_S;
   uint64_t            Pos_U64, GetPos_U64, NewPos_U64, Size_U64, Size2_U64;
 
@@ -544,7 +544,7 @@ TEST(Fs_Test, DirEnum)
 
 TEST(Fs_Test, CreateTempFile)
 {
-  intptr_t Io;
+  uintptr_t Io;
   BOFERR   Sts_E;
   BofPath  DirPath, Path;
 
@@ -566,7 +566,7 @@ TEST(Fs_Test, ResetFileContentReOpenMode)
   BOF_FILE_PERMISSION Permission_E;
   std::string         Line_S, NewLine_S, LineRead_S, LineWrt_S;
   BofPath Dir, Path;
-  intptr_t Io;
+  uintptr_t Io;
   uint32_t Nb_U32;
 /*
   std::string RawData_S;
@@ -627,7 +627,7 @@ TEST(Fs_Test, ResetFileContent)
   BOF_FILE_PERMISSION Permission_E;
   std::string         Line_S, NewLine_S, LineRead_S, LineWrt_S;
   BofPath Dir, Path;
-  intptr_t Io;
+  uintptr_t Io;
   uint32_t Nb_U32;
 
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;

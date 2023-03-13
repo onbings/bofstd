@@ -124,7 +124,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
       Rts_E = BOF_ERR_EINVAL;
       // Name must start with Global\\->Responsabilities of the caller ! sinon			Rts_h = BOF_INVALID_HANDLE_VALUE;
 //			_rSharedMemory_X.pHandle = CreateFileMapping(BOF_INVALID_HANDLE_VALUE, &SecurityAttribute_X, PAGE_READWRITE | SEC_COMMIT, 0, _SizeInByte_U32, pName_c);
-      _rSharedMemory_X.pHandle = CreateFileMappingA(BOF_INVALID_HANDLE_VALUE, &SecurityAttribute_X, PAGE_READWRITE | SEC_COMMIT, 0, _SizeInByte_U32, _rSharedMemory_X.Name_S.c_str());
+      _rSharedMemory_X.pHandle = CreateFileMappingA(INVALID_HANDLE_VALUE, &SecurityAttribute_X, PAGE_READWRITE | SEC_COMMIT, 0, _SizeInByte_U32, _rSharedMemory_X.Name_S.c_str());
       if (_rSharedMemory_X.pHandle)
       {
         Rts_E = Bof_GetLastError(false);

@@ -37,8 +37,8 @@ struct BOF_STAT_VARIABLE
   T Max;                 /*! Maximum value */
   T Mean;                /*! Mean value */
   T MeanAcc;     /*! Accumulator needed for computing the mean */
-  uint32_t LockCount_U32;           /*! +1 for each call to V_EnterBench for example */
-  uint32_t NbSample_U32;  /*! Number of items accumulated */
+  uint64_t LockCount_U64;           /*! +1 for each call to V_EnterBench -1 for each V_LeaveBench */
+  uint64_t NbSample_U64;  /*! Number of items accumulated */
   BOF_STAT_VARIABLE()
   {
     Reset();
@@ -51,8 +51,8 @@ struct BOF_STAT_VARIABLE
     Max = 0;
     Mean = 0;
     MeanAcc = 0;
-    LockCount_U32 = 0;
-    NbSample_U32 = 0;
+    LockCount_U64 = 0;
+    NbSample_U64 = 0;
   }
 };
 
@@ -106,7 +106,7 @@ BOFERR Bof_UpdateStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X, T _Val)
   Rts_E = BOF_ERR_NO_ERROR;
 
   _rStatVar_X.Crt = _Val;
-  if (_rStatVar_X.NbSample_U32 == 0)
+  if (_rStatVar_X.NbSample_U64 == 0)
   {
     _rStatVar_X.Min = _Val;
     _rStatVar_X.Max = _Val;
@@ -152,8 +152,8 @@ BOFERR Bof_UpdateStatMean(BOF_STAT_VARIABLE<T> &_rStatVar_X)
     if (!RollOver_B)
     {
       _rStatVar_X.MeanAcc = TempAccumulator;
-      _rStatVar_X.NbSample_U32++;
-      RollOver_B = (_rStatVar_X.NbSample_U32 == 0);
+      _rStatVar_X.NbSample_U64++;
+      RollOver_B = (_rStatVar_X.NbSample_U64 == 0);
     }
     if (RollOver_B)
     {
@@ -161,12 +161,12 @@ BOFERR Bof_UpdateStatMean(BOF_STAT_VARIABLE<T> &_rStatVar_X)
       // un "roll-over" de notre accumulateur
       // On relance l'accumulateur a la valeur de la moyenne actuelle
       _rStatVar_X.MeanAcc = _rStatVar_X.Mean;
-      _rStatVar_X.NbSample_U32 = 1;
+      _rStatVar_X.NbSample_U64 = 1;
     }
 
-    BOF_ASSERT(_rStatVar_X.NbSample_U32 != 0);
+    BOF_ASSERT(_rStatVar_X.NbSample_U64 != 0);
     // On met a jour la moyenne
-    _rStatVar_X.Mean = static_cast<T>((_rStatVar_X.MeanAcc / _rStatVar_X.NbSample_U32));
+    _rStatVar_X.Mean = static_cast<T>((_rStatVar_X.MeanAcc / _rStatVar_X.NbSample_U64));
   }
   return Rts_E;
 }

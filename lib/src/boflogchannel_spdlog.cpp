@@ -132,7 +132,7 @@ private:
   std::shared_ptr<spdlog::sinks::stderr_color_sink_mt> mpsStdErrColorSink = nullptr;
   BOF_LOG_CHANNEL_PARAM                                mLogChannelParam_X;
   bool                                                 mLogOpened_B = false;
-  intptr_t                                             mIoLog = -1;
+  uintptr_t                                             mIoLog = -1;
   std::map < std::string, BOF_LOG_CHANNEL_CHARACTERISTIC>      mLogChannelCharacteristicCollection;
 public:
   BofLogChannelSpdLogImplementation()

@@ -21,8 +21,8 @@
  */
  /*
  Republish a new version
- - Change version in C:\pro\github\bofstd\CMakeLists.txt: project(bofstd VERSION 5.2.3.14)
- - Change version in C:\pro\github\bofstd\vcpkg.json:     "version": "5.2.3.14",
+ - Change version in C:\pro\github\bofstd\CMakeLists.txt: project(bofstd VERSION 5.3.0.1)
+ - Change version in C:\pro\github\bofstd\vcpkg.json:     "version": "5.3.0.1",
 
  Push all modified files to git and get git push ref:
  get push ref d1029d5a02901c009a78f5310256d3ce222dacac		used also during last phase with the .\update-port.py command at rhe end of the procedure
@@ -52,10 +52,10 @@
 
    cd C:\pro\github\onbings-vcpkg-registry / cd c:\pro\evs-vcpkg-registry
    git pull
-   python .\update-port.py bofstd 5.2.3.14 d1029d5a02901c009a78f5310256d3ce222dacac
+   python .\update-port.py bofstd 5.3.0.1 d1029d5a02901c009a78f5310256d3ce222dacac
    git push
    git log
-   commit message should be "Update bofstd to 5.2.3.14\d1029d5a02901c009a78f5310256d3ce222dacac"
+   commit message should be "Update bofstd to 5.3.0.1\d1029d5a02901c009a78f5310256d3ce222dacac"
 
    get the new push git ref bf6851917ef574e02fb406c2f50d5956b7edd85d
 
@@ -360,7 +360,7 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
 #endif
 
 //Activate ansi support
-	if (Out_h != BOF_INVALID_HANDLE_VALUE)
+	if (Out_h != INVALID_HANDLE_VALUE)
 	{
 		if (GetConsoleMode(Out_h, &S_ModeOut_DW))
 		{
@@ -371,7 +371,7 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
 			}
 		}
 	}
-	if (In_h != BOF_INVALID_HANDLE_VALUE)
+	if (In_h != INVALID_HANDLE_VALUE)
 	{
 		if (GetConsoleMode(In_h, &S_ModeIn_DW))
 		{
@@ -442,11 +442,11 @@ BOFERR Bof_Shutdown()
 	// Set output mode to handle virtual terminal sequences
 	HANDLE Out_h = GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
-	if (Out_h != BOF_INVALID_HANDLE_VALUE)
+	if (Out_h != INVALID_HANDLE_VALUE)
 	{
 		SetConsoleMode(Out_h, S_ModeOut_DW);
 	}
-	if (In_h != BOF_INVALID_HANDLE_VALUE)
+	if (In_h != INVALID_HANDLE_VALUE)
 	{
 		SetConsoleMode(In_h, S_ModeIn_DW);
 	}

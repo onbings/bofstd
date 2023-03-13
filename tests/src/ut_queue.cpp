@@ -30,31 +30,31 @@ USE_BOF_NAMESPACE()
 struct TestType
 {
   static std::set<const TestType *> constructed;
-  TestType() NOEXCEPT {
+  TestType() noexcept {
     assert(constructed.count(this) == 0);
     constructed.insert(this);
   };
-  TestType(const TestType &other) NOEXCEPT {
-    assert(constructed.count(this) == 0);
-    assert(constructed.count(&other) == 1);
-    constructed.insert(this);
-  };
-  TestType(TestType &&other) NOEXCEPT {
+  TestType(const TestType &other) noexcept {
     assert(constructed.count(this) == 0);
     assert(constructed.count(&other) == 1);
     constructed.insert(this);
   };
-  TestType &operator=(const TestType &other) NOEXCEPT {
+  TestType(TestType &&other) noexcept {
+    assert(constructed.count(this) == 0);
+    assert(constructed.count(&other) == 1);
+    constructed.insert(this);
+  };
+  TestType &operator=(const TestType &other) noexcept {
     assert(constructed.count(this) == 1);
     assert(constructed.count(&other) == 1);
     return *this;
   };
-  TestType &operator=(TestType &&other) NOEXCEPT {
+  TestType &operator=(TestType &&other) noexcept {
     assert(constructed.count(this) == 1);
     assert(constructed.count(&other) == 1);
     return *this;
   }
-  ~TestType() NOEXCEPT {
+  ~TestType() noexcept {
     assert(constructed.count(this) == 1);
     constructed.erase(this);
   };

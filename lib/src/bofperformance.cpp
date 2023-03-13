@@ -25,56 +25,73 @@
 #include <string.h>
 #include <stdarg.h>
 #include <inttypes.h>
+#include <memory>
+#if defined(__linux__)
+#else
+#include <Windows.h>
+#endif
 
 BEGIN_BOF_NAMESPACE()
 
+
 /*!
-   Description
-   The class constructor
-
-   Parameters
-   _NbItems_U32 - The number of items to profile
-
-   Returns
-   Nothing
-
-   Remarks
-   None
-
-   See also
-   Nothing
- */
-  BofProfiler::BofProfiler(uint32_t _NbItems_U32)
+Description
+  This function returns the current timestamp
+  of the per thread clock
+*/
+TheProfiler::PerThreadClock::time_point TheProfiler::PerThreadClock::now() noexcept
 {
-  uint32_t I_U32;
+#if defined(__linux__)
+  struct timespec Time_X;
+  // Get the per thread timestamp
+  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &Time_X);
+  return Clock::time_point(std::chrono::duration_cast<Clock::duration>(std::chrono::seconds(Time_X.tv_sec) + std::chrono::nanoseconds(Time_X.tv_nsec)));
+#else
+  // Not supported
+  //return Clock::time_point();
+  struct timespec Time_X;
+  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
+  //SYSTEMTIME   SystemTime_X;
 
+  GetThreadTimes(GetCurrentThread(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
+  //((float)UserTime.dwHighDateTime * 65.536 * 6.5536) + ((float)UserTime.dwLowDateTime / 10000000);
+  //uint64_t KernelTime_U64 = (Int64ShllMod32(KernelTime.dwHighDateTime, 32) | KernelTime.dwLowDateTime);
+  //uint64_t UserTime_U64 = (Int64ShllMod32(UserTime.dwHighDateTime, 32) | UserTime.dwLowDateTime);
+  //FileTimeToSystemTime(&UserTime_U64, &SystemTime_X);
+
+  //All times are expressed using FILETIME data structures.Such a structure contains two 32 - bit values that combine to form a 64 - bit count of 100 - nanosecond time units.
+  uint64_t UserTime_U64 = (Int64ShllMod32(UserTime.dwHighDateTime, 32) | UserTime.dwLowDateTime);
+  const uint32_t Nb100NsInOneSec_U32 = 10000000;
+  Time_X.tv_sec = UserTime_U64 / Nb100NsInOneSec_U32;
+  Time_X.tv_nsec = UserTime_U64 % Nb100NsInOneSec_U32;
+  return Clock::time_point(std::chrono::duration_cast<Clock::duration>(std::chrono::seconds(Time_X.tv_sec) + std::chrono::nanoseconds(Time_X.tv_nsec)));
+#endif
+}
+
+BofProfiler::BofProfiler(BOF_PROFILER_TYPE _ProfilerType_E, uint32_t _NbItems_U32)
+{
+  uint32_t i_U32;
+
+  mProfilerType_E = _ProfilerType_E;
   mNbItems_U32 = _NbItems_U32;
-  mpStats_X = new BOF_STAT_VARIABLE<uint64_t>[mNbItems_U32];
-  BOF_ASSERT(mpStats_X != nullptr);
 
-  for (I_U32 = 0; I_U32 < _NbItems_U32; I_U32++)
+  if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
   {
-    mpStats_X[I_U32].Reset();
-    mpStats_X[I_U32].Min = (uint64_t)-1;
+    mpStats_X = new BOF_STAT_VARIABLE<uint64_t>[mNbItems_U32];
+    BOF_ASSERT(mpStats_X != nullptr);
+
+    for (i_U32 = 0; i_U32 < _NbItems_U32; i_U32++)
+    {
+      mpStats_X[i_U32].Reset();
+      mpStats_X[i_U32].Min = (uint64_t)-1;
+    }
+  }
+  else
+  {
+    mpuExtendedProfiler = std::unique_ptr<ExtendedProfiler>(new ExtendedProfiler(_NbItems_U32));
   }
 }
 
-/*!
-   Description
-   The class destructor
-
-   Parameters
-   None
-
-   Returns
-   Nothing
-
-   Remarks
-   None
-
-   See also
-   Nothing
- */
 BofProfiler::~BofProfiler()
 {
   if (mpStats_X != nullptr)
@@ -103,9 +120,16 @@ void BofProfiler::V_EnterBench(uint32_t _ItemId_U32)
 {
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mpStats_X[_ItemId_U32].LockCount_U32++ == 0)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
     {
-      mpStats_X[_ItemId_U32].Crt = Bof_GetNsTickCount();
+      if (mpStats_X[_ItemId_U32].LockCount_U64++ == 0)
+      {
+        mpStats_X[_ItemId_U32].Crt = Bof_GetNsTickCount();
+      }
+    }
+    else
+    {
+      mpuExtendedProfiler->V_EnterBench(_ItemId_U32);
     }
   }
 }
@@ -133,17 +157,24 @@ void BofProfiler::V_LeaveBench(uint32_t _ItemId_U32)
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mpStats_X[_ItemId_U32].LockCount_U32)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
     {
-      if (--mpStats_X[_ItemId_U32].LockCount_U32 == 0)
+      if (mpStats_X[_ItemId_U32].LockCount_U64)
       {
-        Ticks1_U64 = mpStats_X[_ItemId_U32].Crt;
-        Ticks2_U64 = Bof_GetNsTickCount();
+        if (--mpStats_X[_ItemId_U32].LockCount_U64 == 0)
+        {
+          Ticks1_U64 = mpStats_X[_ItemId_U32].Crt;
+          Ticks2_U64 = Bof_GetNsTickCount();
 
-        mpStats_X[_ItemId_U32].Crt = (uint64_t)(Ticks2_U64 < Ticks1_U64 ? (uint64_t)-1 : 0) + Ticks2_U64 - Ticks1_U64;
+          mpStats_X[_ItemId_U32].Crt = (uint64_t)(Ticks2_U64 < Ticks1_U64 ? (uint64_t)-1 : 0) + Ticks2_U64 - Ticks1_U64;
 
-        Bof_UpdateStatVar(mpStats_X[_ItemId_U32], mpStats_X[_ItemId_U32].Crt);
+          Bof_UpdateStatVar(mpStats_X[_ItemId_U32], mpStats_X[_ItemId_U32].Crt);
+        }
       }
+    }
+    else
+    {
+      mpuExtendedProfiler->V_LeaveBench(_ItemId_U32);
     }
   }
 }
@@ -167,18 +198,33 @@ void BofProfiler::V_LeaveBench(uint32_t _ItemId_U32)
  */
 bool BofProfiler::GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X)
 {
-  bool Ret_B = false;
+  bool Rts_B = false;
+  BOF_STAT_VARIABLE<uint64_t> Stat_X;
 
   BOF_ASSERT(_pStats_X != nullptr);
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    memcpy(_pStats_X, &mpStats_X[_ItemId_U32], sizeof(BOF_STAT_VARIABLE<uint64_t>));
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    {
+      memcpy(_pStats_X, &mpStats_X[_ItemId_U32], sizeof(BOF_STAT_VARIABLE<uint64_t>));
+    }
+    else
+    {
+      auto TheTiming = mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E));
 
-    Ret_B = true;
+      Stat_X.Crt = ToProfileValue(TheTiming.GetLast());
+      Stat_X.Min = ToProfileValue(TheTiming.GetMin());
+      Stat_X.Mean = ToProfileValue(TheTiming.GetMean());
+      Stat_X.Max = ToProfileValue(TheTiming.GetMax());
+      Stat_X.NbSample_U64 = static_cast<uint64_t>(TheTiming.GetCount());
+
+      memcpy(_pStats_X, &Stat_X, sizeof(BOF_STAT_VARIABLE<uint64_t>));
+    }
+    Rts_B = true;
   }
 
-  return Ret_B;
+  return Rts_B;
 }
 
 /*!
@@ -200,16 +246,22 @@ bool BofProfiler::GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_p
  */
 bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
 {
-  bool Ret_B = false;
+  bool Rts_B = false;
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    Bof_UpdateStatVar(mpStats_X[_ItemId_U32], _Value_U64);
-
-    Ret_B = true;
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    {
+      Bof_UpdateStatVar(mpStats_X[_ItemId_U32], _Value_U64);
+    }
+    else
+    {
+      mpuExtendedProfiler->AddValue(_ItemId_U32, TicksToUnits(_Value_U64, PERF_NANOSECOND));
+    }
+    Rts_B = true;
   }
 
-  return Ret_B;
+  return Rts_B;
 }
 
 /*!
@@ -230,147 +282,29 @@ bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
  */
 void BofProfiler::ResetStats(uint32_t _ItemId_U32)
 {
-  uint32_t LockCount_U32;
+  uint32_t LockCount_U64;
   uint64_t Current_U64;
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    LockCount_U32 = mpStats_X[_ItemId_U32].LockCount_U32;
-    Current_U64 = mpStats_X[_ItemId_U32].Crt;
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    {
+      LockCount_U64 = mpStats_X[_ItemId_U32].LockCount_U64;
+      Current_U64 = mpStats_X[_ItemId_U32].Crt;
 
-    mpStats_X[_ItemId_U32].Reset();
-    mpStats_X[_ItemId_U32].Min = (uint64_t)-1;
+      mpStats_X[_ItemId_U32].Reset();
+      mpStats_X[_ItemId_U32].Min = (uint64_t)-1;
 
-    mpStats_X[_ItemId_U32].LockCount_U32 = LockCount_U32;
-    mpStats_X[_ItemId_U32].Crt = Current_U64;
+      mpStats_X[_ItemId_U32].LockCount_U64 = LockCount_U64;
+      mpStats_X[_ItemId_U32].Crt = Current_U64;
+    }
+    else
+    {
+      mpuExtendedProfiler->Reset(_ItemId_U32);
+    }
   }
 }
 
-/*!
-   Description
-   This function converts ticks to the specified unit value
-
-   Parameters
-   _Ticks_U64 - The ticks count
-   _Units_U8  - The value type in which to convert
-
-   Returns
-   The converted ticks expressed in the specified unit
-
-   0xFFFFFFFFFFFFFFFF means an error occurred.
-
-   Remarks
-   None
-
-   See also
-   Nothing
- */
-uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8)
-{
-  uint64_t Ret_U64 = (uint64_t)-1;
-  uint64_t Scale_U64;
-
-  switch (_Units_U8)
-  {
-    case PERF_SECOND:
-    {
-      Scale_U64 = 1;
-      break;
-    }
-    case PERF_MILLISECOND:
-    {
-      Scale_U64 = 1000;
-      break;
-    }
-    case PERF_MICROSECOND:
-    {
-      Scale_U64 = 1000000;
-      break;
-    }
-    case PERF_NANOSECOND:
-    {
-      Scale_U64 = 1000000000;
-      break;
-    }
-
-    default:
-    {
-      Scale_U64 = (uint64_t)-1;
-      break;
-    }
-  }
-
-  if (Scale_U64 != ((uint64_t)-1))   // && (CpuFreq_U64 != 0))
-  {
-    // Ret_U64 = ((_Ticks_U64 * Scale_U64) / CpuFreq_U64);
-    Ret_U64 = (_Ticks_U64 * Scale_U64);
-  }
-
-  return Ret_U64;
-}
-
-/*!
-   Description
-   This function converts the value expressed in the specified unit into its value in ticks
-
-   Parameters
-   _Value_U64 - The value
-   _Units_U8  - The value units
-
-   Returns
-   The converted value in ticks unit
-
-   0xFFFFFFFFFFFFFFFF means an error occurred.
-
-   Remarks
-   None
-
-   See also
-   Nothing
- */
-uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8)
-{
-  uint64_t Ret_U64 = (uint64_t)-1;
-  uint64_t Scale_U64;
-
-  switch (_Units_U8)
-  {
-    case PERF_SECOND:
-    {
-      Scale_U64 = 1;
-      break;
-    }
-    case PERF_MILLISECOND:
-    {
-      Scale_U64 = 1000;
-      break;
-    }
-    case PERF_MICROSECOND:
-    {
-      Scale_U64 = 1000000;
-      break;
-    }
-    case PERF_NANOSECOND:
-    {
-      Scale_U64 = 1000000000;
-      break;
-    }
-
-    default:
-    {
-      Scale_U64 = (uint64_t)-1;
-      break;
-    }
-  }
-
-  if (Scale_U64 != ((uint64_t)-1))   // && (CpuFreq_U64 != 0))
-  {
-    // Ret_U64 = ((_Value_U64 * CpuFreq_U64) / Scale_U64);
-    Ret_U64 = (_Value_U64 / Scale_U64);
-  }
-
-  return Ret_U64;
-}
 
 /*!
    Description
@@ -394,15 +328,109 @@ uint32_t BofProfiler::GetCount()
   return mNbItems_U32;
 }
 
+uint64_t BofProfiler::GetMin(uint32_t _ItemId_U32)
+{
+  uint64_t Rts_U64 = 0;
+  BOF_STAT_VARIABLE<uint64_t> Stats_X;
+
+  if (_ItemId_U32 < mNbItems_U32)
+  {
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    {
+      if (GetStats(_ItemId_U32, &Stats_X))
+      {
+        Rts_U64 = Stats_X.Min;
+      }
+    }
+    else
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMin());
+    }
+  }
+  return Rts_U64;
+}
+
+uint64_t BofProfiler::GetMax(uint32_t _ItemId_U32)
+{
+  uint64_t Rts_U64 = 0;
+  BOF_STAT_VARIABLE<uint64_t> Stats_X;
+
+  if (_ItemId_U32 < mNbItems_U32)
+  {
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    {
+      if (GetStats(_ItemId_U32, &Stats_X))
+      {
+        Rts_U64 = Stats_X.Max;
+      }
+    }
+    else
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMax());
+    }
+  }
+
+  return Rts_U64;
+}
+
+uint64_t BofProfiler::GetMean(uint32_t _ItemId_U32)
+{
+  uint64_t Rts_U64 = 0;
+  BOF_STAT_VARIABLE<uint64_t> Stats_X;
+
+  if (_ItemId_U32 < mNbItems_U32)
+  {
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    {
+      if (GetStats(_ItemId_U32, &Stats_X))
+      {
+        Rts_U64 = Stats_X.Mean;
+      }
+    }
+    else
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMean());
+    }
+  }
+  return Rts_U64;
+}
+
+uint64_t BofProfiler::GetLast(uint32_t _ItemId_U32)
+{
+  uint64_t Rts_U64 = 0;
+  BOF_STAT_VARIABLE<uint64_t> Stats_X;
+
+  if (_ItemId_U32 < mNbItems_U32)
+  {
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    {
+      if (GetStats(_ItemId_U32, &Stats_X))
+      {
+        Rts_U64 = Stats_X.Crt;
+      }
+    }
+    else
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetLast());
+    }
+  }
+
+  return Rts_U64;
+}
+
+
 /*!
    Description
-   This function retrieves the memory used by this object
+   This function converts ticks to the specified unit value
 
    Parameters
-   None
+   _Ticks_U64 - The ticks count
+   _Units_U8  - The value type in which to convert
 
    Returns
-   The size in bytes of the memory used by this object
+   The converted ticks expressed in the specified unit
+
+   0xFFFFFFFFFFFFFFFF means an error occurred.
 
    Remarks
    None
@@ -410,18 +438,118 @@ uint32_t BofProfiler::GetCount()
    See also
    Nothing
  */
-uint64_t BofProfiler::GetMemoryUsage()
+uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8)
 {
-  uint64_t Ret_U64 = 0;
+  uint64_t Rts_U64 = (uint64_t)-1;
+  uint64_t Scale_U64;
+  uint64_t CpuFreq_U64 = 1; // GL_NmaTimer_O.GetCpuFrequency();
 
-  Ret_U64 += sizeof(BofProfiler);
-
-  if (mpStats_X != nullptr)
+  switch (_Units_U8)
   {
-    Ret_U64 += (sizeof(BOF_STAT_VARIABLE<uint64_t>) * mNbItems_U32);
+    case PERF_SECOND:
+    {
+      Scale_U64 = 1;
+      break;
+    }
+    case PERF_MILLISECOND:
+    {
+      Scale_U64 = 1000;
+      break;
+    }
+    case PERF_MICROSECOND:
+    {
+      Scale_U64 = 1000000;
+      break;
+    }
+    case PERF_NANOSECOND:
+    {
+      Scale_U64 = 1000000000;
+      break;
+    }
+
+    default:
+    {
+      Scale_U64 = (uint64_t)-1;
+      break;
+    }
   }
 
-  return Ret_U64;
+  if ((Scale_U64 != ((uint64_t)-1)) && (CpuFreq_U64 != 0))
+  {
+    Rts_U64 = ((_Ticks_U64 * Scale_U64) / CpuFreq_U64);
+  }
+
+  return Rts_U64;
+}
+
+/*!
+   Description
+   This function converts the value expressed in the specified unit into its value in ticks
+
+   Parameters
+   _Value_U64 - The value
+   _Units_U8  - The value units
+
+   Returns
+   The converted value in ticks unit
+
+   0xFFFFFFFFFFFFFFFF means an error occurred.
+
+   Remarks
+   None
+
+   See also
+   Nothing
+ */
+uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8)
+{
+  uint64_t Rts_U64 = (uint64_t)-1;
+  uint64_t Scale_U64;
+  uint64_t CpuFreq_U64 = 1; // GL_NmaTimer_O.GetCpuFrequency();
+
+  switch (_Units_U8)
+  {
+    case PERF_SECOND:
+    {
+      Scale_U64 = 1;
+      break;
+    }
+    case PERF_MILLISECOND:
+    {
+      Scale_U64 = 1000;
+      break;
+    }
+    case PERF_MICROSECOND:
+    {
+      Scale_U64 = 1000000;
+      break;
+    }
+    case PERF_NANOSECOND:
+    {
+      Scale_U64 = 1000000000;
+      break;
+    }
+
+    default:
+    {
+      Scale_U64 = (uint64_t)-1;
+      break;
+    }
+  }
+
+  if ((Scale_U64 != ((uint64_t)-1)) && (CpuFreq_U64 != 0))
+  {
+    Rts_U64 = ((_Value_U64 * CpuFreq_U64) / Scale_U64);
+  }
+
+  return Rts_U64;
+}
+
+uint64_t BofProfiler::ToProfileValue(std::chrono::steady_clock::duration _Val)
+{
+  uint64_t Value_U64 = std::chrono::duration_cast<std::chrono::microseconds>(_Val).count();
+
+  return UnitsToTicks(Value_U64, PERF_MICROSECOND);
 }
 
 

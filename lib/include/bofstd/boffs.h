@@ -191,25 +191,25 @@ BOFFILEFOUND;
 using BOF_DIRECTORY_PARSER_CALLBACK = std::function<bool(const BOF_FILE_FOUND &_rFileFound_X)>;
 BOFSTD_EXPORT BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, BOF_DIRECTORY_PARSER_CALLBACK &_rDirectoryParserCallback);
 BOFSTD_EXPORT BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, uint32_t _MaxNumberOfResult_U32, std::vector<BOF_FILE_FOUND> &_rFileCollection);
-BOFSTD_EXPORT bool Bof_IsFileHandleValid(intptr_t _Io);
-BOFSTD_EXPORT BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, intptr_t &_rIo);
-BOFSTD_EXPORT BOFERR Bof_CreateTempFile(const BOF_FILE_PERMISSION _Permission_E, BofPath &_rPath, const std::string &_rExt_S, intptr_t &_rIo);
-BOFSTD_EXPORT BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, bool _Append_B, intptr_t &_rIo);
+BOFSTD_EXPORT bool Bof_IsFileHandleValid(uintptr_t _Io);
+BOFSTD_EXPORT BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, uintptr_t &_rIo);
+BOFSTD_EXPORT BOFERR Bof_CreateTempFile(const BOF_FILE_PERMISSION _Permission_E, BofPath &_rPath, const std::string &_rExt_S, uintptr_t &_rIo);
+BOFSTD_EXPORT BOFERR Bof_OpenFile(const BofPath &_rPath, bool _ReadOnly_B, bool _Append_B, uintptr_t &_rIo);
 
-BOFSTD_EXPORT int64_t Bof_SetFileIoPosition(intptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHOD _SeekMethod_E);
-BOFSTD_EXPORT int64_t Bof_GetFileIoPosition(intptr_t _Io);
+BOFSTD_EXPORT int64_t Bof_SetFileIoPosition(uintptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHOD _SeekMethod_E);
+BOFSTD_EXPORT int64_t Bof_GetFileIoPosition(uintptr_t _Io);
 
-BOFSTD_EXPORT BOFERR Bof_ReadLine(intptr_t _Io, std::string &_rLine_S);
-BOFSTD_EXPORT BOFERR Bof_WriteLine(intptr_t _Io, const std::string &_rLine_S);
+BOFSTD_EXPORT BOFERR Bof_ReadLine(uintptr_t _Io, std::string &_rLine_S);
+BOFSTD_EXPORT BOFERR Bof_WriteLine(uintptr_t _Io, const std::string &_rLine_S);
 
-BOFSTD_EXPORT BOFERR Bof_ReadFile(intptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8);
-BOFSTD_EXPORT BOFERR Bof_WriteFile(intptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8);
+BOFSTD_EXPORT BOFERR Bof_ReadFile(uintptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8);
+BOFSTD_EXPORT BOFERR Bof_WriteFile(uintptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8);
 
 BOFSTD_EXPORT BOFERR Bof_ReadLine(const BofPath &_rPath, std::string &_rBuffer_S);
 BOFSTD_EXPORT BOFERR Bof_WriteLine(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, bool _Append_B, const std::string &_rBuffer_S);
 
-BOFSTD_EXPORT BOFERR Bof_FlushFile(intptr_t _Io);
-BOFSTD_EXPORT BOFERR Bof_CloseFile(intptr_t &_rIo);
+BOFSTD_EXPORT BOFERR Bof_FlushFile(uintptr_t _Io);
+BOFSTD_EXPORT BOFERR Bof_CloseFile(uintptr_t &_rIo);
 
 BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsage_X);
 BOFSTD_EXPORT BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S);

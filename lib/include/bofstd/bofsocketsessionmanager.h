@@ -88,7 +88,7 @@ protected:
 
   std::vector<std::shared_ptr<BofSocketIo>> mConnectedSessionCollection;
   bool *mpActiveSession_B = nullptr;
-  intptr_t									mIo = -1;
+  uintptr_t									mIo = BOF_INVALID_HANDLE_VALUE;
 
 public:
   BofSocketSessionManager(IBofSocketSessionFactory *_pIBofSocketSessionFactory, BofSocketServer *_pBofSocketServer, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X);
