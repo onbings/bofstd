@@ -12,7 +12,6 @@ using namespace std;
 
 #if _WIN32
 #include <Windows.h>
-#include <Windows.h>
 static CRITICAL_SECTION _criticalSection;
 #elif __GNUC__ >= 4	//5 bha
 #include <mutex>
