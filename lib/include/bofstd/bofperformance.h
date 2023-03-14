@@ -38,11 +38,11 @@ BEGIN_BOF_NAMESPACE()
  */
   typedef enum
 {
-  PERF_SECOND,                         /*!  s */
-  PERF_MILLISECOND,                    /*! ms */
-  PERF_MICROSECOND,                    /*! �s */
-  PERF_NANOSECOND                      /*! ns */
-} PERF_UNITS;
+  BOF_PERF_SECOND,                         /*!  s */
+  BOF_PERF_MILLISECOND,                    /*! ms */
+  BOF_PERF_MICROSECOND,                    /*! �s */
+  BOF_PERF_NANOSECOND                      /*! ns */
+} BOF_PERF_UNITS;
 
 typedef enum
 {
@@ -384,8 +384,8 @@ public:
   void ResetStats(uint32_t _ItemId_U32);
 
   static  uint64_t ToProfileValue(std::chrono::steady_clock::duration _Val_O);
-  static uint64_t TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8);
-  static uint64_t UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8);
+  static uint64_t TicksToUnits(uint64_t _Ticks_U64, BOF_PERF_UNITS _Units_U8);
+  static uint64_t UnitsToTicks(uint64_t _Value_U64, BOF_PERF_UNITS _Units_U8);
 
   uint64_t GetMin(uint32_t _ItemId_U32);
   uint64_t GetMax(uint32_t _ItemId_U32);

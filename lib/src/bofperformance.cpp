@@ -256,7 +256,7 @@ bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
     }
     else
     {
-      mpuExtendedProfiler->AddValue(_ItemId_U32, TicksToUnits(_Value_U64, PERF_NANOSECOND));
+      mpuExtendedProfiler->AddValue(_ItemId_U32, TicksToUnits(_Value_U64, BOF_PERF_NANOSECOND));
     }
     Rts_B = true;
   }
@@ -438,7 +438,7 @@ uint64_t BofProfiler::GetLast(uint32_t _ItemId_U32)
    See also
    Nothing
  */
-uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8)
+uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, BOF_PERF_UNITS _Units_U8)
 {
   uint64_t Rts_U64 = (uint64_t)-1;
   uint64_t Scale_U64;
@@ -446,22 +446,22 @@ uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8)
 
   switch (_Units_U8)
   {
-    case PERF_SECOND:
+    case BOF_PERF_SECOND:
     {
       Scale_U64 = 1;
       break;
     }
-    case PERF_MILLISECOND:
+    case BOF_PERF_MILLISECOND:
     {
       Scale_U64 = 1000;
       break;
     }
-    case PERF_MICROSECOND:
+    case BOF_PERF_MICROSECOND:
     {
       Scale_U64 = 1000000;
       break;
     }
-    case PERF_NANOSECOND:
+    case BOF_PERF_NANOSECOND:
     {
       Scale_U64 = 1000000000;
       break;
@@ -501,7 +501,7 @@ uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, PERF_UNITS _Units_U8)
    See also
    Nothing
  */
-uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8)
+uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, BOF_PERF_UNITS _Units_U8)
 {
   uint64_t Rts_U64 = (uint64_t)-1;
   uint64_t Scale_U64;
@@ -509,22 +509,22 @@ uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, PERF_UNITS _Units_U8)
 
   switch (_Units_U8)
   {
-    case PERF_SECOND:
+    case BOF_PERF_SECOND:
     {
       Scale_U64 = 1;
       break;
     }
-    case PERF_MILLISECOND:
+    case BOF_PERF_MILLISECOND:
     {
       Scale_U64 = 1000;
       break;
     }
-    case PERF_MICROSECOND:
+    case BOF_PERF_MICROSECOND:
     {
       Scale_U64 = 1000000;
       break;
     }
-    case PERF_NANOSECOND:
+    case BOF_PERF_NANOSECOND:
     {
       Scale_U64 = 1000000000;
       break;
@@ -549,7 +549,7 @@ uint64_t BofProfiler::ToProfileValue(std::chrono::steady_clock::duration _Val)
 {
   uint64_t Value_U64 = std::chrono::duration_cast<std::chrono::microseconds>(_Val).count();
 
-  return UnitsToTicks(Value_U64, PERF_MICROSECOND);
+  return UnitsToTicks(Value_U64, BOF_PERF_MICROSECOND);
 }
 
 

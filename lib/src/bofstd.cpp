@@ -471,27 +471,6 @@ BOFERR Bof_Shutdown()
 }
 
 
-/*!
- * Check Cpu endianness.
- *
- * \param none
- *
- * \return true if the cpu is little endian.
- *
- * \remark Little Endian byte order is our default binary storage order as it is natively used in most modern cpu.
- */
-static uint8_t S_EndiannessCache_U8 = 0xFF;
-
-bool Bof_IsCpuLittleEndian()
-{
-	if (S_EndiannessCache_U8 == 0xFF)
-	{
-		int EndianVal_i = 0x69;
-		S_EndiannessCache_U8 = (*reinterpret_cast< char * > (&EndianVal_i) == 0x69) ? 0x01 : 0x00;
-	}
-	return ((S_EndiannessCache_U8 != 0) ? true : false);
-}
-
 bool Bof_IsWindows()
 {
 #if defined(_WIN32)

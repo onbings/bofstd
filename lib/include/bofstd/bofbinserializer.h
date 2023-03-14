@@ -47,7 +47,7 @@ BEGIN_BOF_NAMESPACE()
  */
   static uint8_t S_EndiannessCache_U8 = 0xFF;
 
-inline bool IsCpuLittleEndian()
+inline bool Bof_IsCpuLittleEndian()
 {
   if (S_EndiannessCache_U8 == 0xFF)
   {
@@ -73,7 +73,7 @@ inline bool IsCpuLittleEndian()
 template<typename T>
 T EndianScalar(bool _Swap_B, T _ScalarValue_T)
 {
-  if (_Swap_B)                         // (!IsCpuLittleEndian( ) )
+  if (_Swap_B)                         // (!Bof_IsCpuLittleEndian( ) )
   {
 #if defined (_MSC_VER)
 #pragma push_macro("__builtin_bswap16")
@@ -141,7 +141,7 @@ T EndianScalar(bool _Swap_B, T _ScalarValue_T)
 template<typename T>
 uint32_t ReadScalar(const void *_pValueAddress, T &_rValue_T)
 {
-  _rValue_T = EndianScalar(!IsCpuLittleEndian(), *reinterpret_cast<const T *> (_pValueAddress));
+  _rValue_T = EndianScalar(!Bof_IsCpuLittleEndian(), *reinterpret_cast<const T *> (_pValueAddress));
   return static_cast<uint32_t> (sizeof(T));
 }
 
@@ -181,7 +181,7 @@ uint32_t ReadNativeBlob(const void *_pValueAddress, T &_rValue_T)
 template<typename T>
 uint32_t WriteScalar(void *_pValueAddress, T _NewValue_T)
 {
-  *reinterpret_cast<T *> (_pValueAddress) = EndianScalar(!IsCpuLittleEndian(), _NewValue_T);
+  *reinterpret_cast<T *> (_pValueAddress) = EndianScalar(!Bof_IsCpuLittleEndian(), _NewValue_T);
   return static_cast<uint32_t> (sizeof(T));
 }
 
