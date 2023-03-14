@@ -4,12 +4,6 @@
 #include <iostream>
 #include <cassert>
 
-using namespace std;
-
-#ifndef CHAR_BIT
-#define CHAR_BIT	8 
-#endif
-
 #if _WIN32
 #include <Windows.h>
 static CRITICAL_SECTION _criticalSection;
@@ -19,6 +13,13 @@ static std::mutex _mutex;
 #else
 #error Must implement software lock if using xallocator
 #endif
+
+using namespace std;
+
+#ifndef CHAR_BIT
+#define CHAR_BIT	8 
+#endif
+
 static bool _xallocInitialized = false;
 
 // Define STATIC_POOLS to switch from heap blocks mode to static pools mode

@@ -21,6 +21,7 @@
  */
 #include <bofstd/bofsocketos.h>
 #include "bofstd/bofstringformatter.h"
+#include "bofstd/bofbinserializer.h"
 
 #include "gtestrunner.h"
 
