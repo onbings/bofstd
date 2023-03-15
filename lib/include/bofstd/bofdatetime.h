@@ -60,7 +60,9 @@ public:
   uint8_t Hour() const;
   uint8_t Minute() const;
   uint8_t Second() const;
+  uint32_t MilliSecond() const;
   uint32_t MicroSecond() const;
+  uint32_t NanoSecond() const;
 
   //date::year_month_day YearMonthDay() const;
   std::tm Tm() const;

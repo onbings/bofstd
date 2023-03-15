@@ -20,7 +20,6 @@
 #include <bofstd/bofshell.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/boffs.h>
-#include <bofstd/bofstringformatter.h>
 
 #include <regex>
 

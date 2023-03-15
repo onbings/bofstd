@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <cstdarg>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -33,6 +34,10 @@ static const char *S_pBofDefaultTrimCharList_c = " \a\f\n\r\t\v"; /*! Default ch
 
 BOFSTD_EXPORT std::string Bof_StringToLower(const std::string &_rStrToConvert_S);
 BOFSTD_EXPORT std::string Bof_StringToUpper(const std::string &_rStrToConvert_S);
+BOFSTD_EXPORT char *Bof_StringToUpperInPlace(char *_pStr_c);
+BOFSTD_EXPORT char *Bof_StrNCpy(char *_pDest_c, const char *_pSrc_c, size_t _NbMaxToCopy);
+BOFSTD_EXPORT int64_t Bof_CharToBinary(const char *_pStr_c);
+
 
 // @brief trim from end of string (right)
 // @param _rStrToTrim_S : Specifies the string to trim
@@ -203,13 +208,6 @@ BOFSTD_EXPORT BOFERR
 Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c,
                                         std::string &_rValue_S);
 
-// @brief Copies the first _NbMaxToCopy characters of _pSrc_c to _pDest_c. It is faster than the C strncpy standard function as destination is not padded with zeros until a total of _NbMaxToCopy characters have been written to it.
-// @param _pDest_c : Specifies a pointer to the destination array where the content is to be copied.
-// @param _pSrc_c : Specifies the C string to be copied.
-// @param _NbMaxToCopy : Specifies the Maximum number of characters to be copied from source.
-// @return 0 if the operation is successful
-// @remarks In every case a null terminating char is inserted in the  string which can erased the last character if the stribng is not long enougth
-BOFSTD_EXPORT char *Bof_FastZeroStrncpy(char *_pDest_c, const char *_pSrc_c, size_t _NbMaxToCopy);
 
 BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, int32_t &_rVal_S32);
 BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, uint32_t &_rVal_U32);
@@ -219,4 +217,18 @@ BOFSTD_EXPORT bool Bof_IsHexadecimal(const std::string &_rInput_S, uint32_t &_rV
 BOFSTD_EXPORT bool Bof_IsHexadecimal(const std::string &_rInput_S, uint64_t &_rVal_U64);
 BOFSTD_EXPORT bool Bof_IsDouble(const std::string &_rInput_S, double &_rVal_lf);
 
+BOFSTD_EXPORT char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...);
+
+///@brief Writes formatted data to a string like the C standard version (sprintf)
+///@@param _rFormat_S Specifies the Format-control string.
+///@@param _Args Specifies the Optional arguments.
+///@return A string containing the formatted data
+template<typename ... Args>
+std::string Bof_Sprintf(const std::string &_rFormat_S, Args ... _Args)
+{
+  size_t Size = snprintf(nullptr, 0, _rFormat_S.c_str(), _Args ...) + 1; // Extra space for '\0'
+  std::unique_ptr<char[]> puInternalBuffer(new char[Size]);
+  snprintf(puInternalBuffer.get(), Size, _rFormat_S.c_str(), _Args ...);
+  return std::string(puInternalBuffer.get(), puInternalBuffer.get() + Size - 1);            // We don't want the '\0' inside
+}
 END_BOF_NAMESPACE()

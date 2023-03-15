@@ -19,7 +19,7 @@
 * V 1.00  Jan 05 2019  BHA : Initial release
 */
 #include <bofstd/bofsocketio.h>
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 #include <bofstd/bofsocketsessionmanager.h>
 #include <bofstd/bofsocketserver.h>
 

@@ -23,7 +23,7 @@
  * V 1.00  Oct 21 2002  BHA : Initial release
  */
 #include <bofstd/bofpipe.h>
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 #if defined(_WIN32)
 #else
 #include <unistd.h>

@@ -140,7 +140,7 @@ template<typename Element>
 class BofList
 {
 public:
-  BofList(U32 _NbMaxElements_U32, bool _ThreadSafe_B = true, class BofList<Element> *_pNodePool_O = NULL);
+  BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B = true, class BofList<Element> *_pNodePool_O = NULL);
 
   virtual ~BofList();
 
@@ -186,17 +186,15 @@ public:
 
   bool Clear();
 
-  U32 GetCount();
+  uint32_t GetCount();
 
-  U32 GetCapacity();
+  uint32_t GetCapacity();
 
   bool IsFull();
 
   bool IsEmpty();
 
-  bool GetProfilingStats(U32 _ItemId_U32, BOF_STAT_VARIABLE *_pStats_X);
-
-  U64 GetMemoryUsage();
+  bool GetProfilingStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X);
 
   bool CheckConsistency();
 
@@ -217,8 +215,8 @@ protected:
 
 private:
 
-  U32 mNbElements_U32;
-  U32 mNbMaxElements_U32;
+  uint32_t mNbElements_U32;
+  uint32_t mNbMaxElements_U32;
   BofListNode<Element> *mpNodes_O;
   BofListNode<Element> *mpHead_O;
   BofListNode<Element> *mpQueue_O;
@@ -258,9 +256,9 @@ See also
   Nothing
 */
 template<typename Element>
-BofList<Element>::BofList(U32 _NbMaxElements_U32, bool _ThreadSafe_B /* = TRUE */, class BofList<Element> *_pNodePool_O /* = NULL */)
+BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = TRUE */, class BofList<Element> *_pNodePool_O /* = NULL */)
 {
-  U32 I_U32 = 0;
+  uint32_t I_U32 = 0;
 
 #if defined(CHECK_LIST_INTEGRITY)
   BOF_ASSERT(_NbMaxElements_U32 > 0);
@@ -270,7 +268,7 @@ BofList<Element>::BofList(U32 _NbMaxElements_U32, bool _ThreadSafe_B /* = TRUE *
   if (_ThreadSafe_B)
   {
     //BOFERR Sts_E=
-    Bof_CreateMutex("BofList", true, mMtx_X);
+    Bof_CreateMutex("BofList", true, true, mMtx_X);
   }
 
   // Allocate the memory
@@ -1934,9 +1932,9 @@ See also
   Nothing
 */
 template<typename Element>
-U32 BofList<Element>::GetCount()
+uint32_t BofList<Element>::GetCount()
 {
-  U32 Ret_U32 = 0;
+  uint32_t Ret_U32 = 0;
 
   Ret_U32 = mNbElements_U32;
 
@@ -1961,9 +1959,9 @@ See also
   Nothing
 */
 template<typename Element>
-U32 BofList<Element>::GetCapacity()
+uint32_t BofList<Element>::GetCapacity()
 {
-  U32 Ret_U32 = 0;
+  uint32_t Ret_U32 = 0;
 
   Ret_U32 = mNbMaxElements_U32;
 
@@ -2043,7 +2041,7 @@ See also
   Nothing
 */
 template<typename Element>
-bool BofList<Element>::GetProfilingStats(U32 _ItemId_U32, BOF_STAT_VARIABLE *_pStats_X)
+bool BofList<Element>::GetProfilingStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X)
 {
   bool Ret_B = false;
 
@@ -2062,41 +2060,6 @@ bool BofList<Element>::GetProfilingStats(U32 _ItemId_U32, BOF_STAT_VARIABLE *_pS
   }
 
   return Ret_B;
-}
-
-/*!
-Description
-  This function retrieves the memory used by this object
-
-Parameters
-  None
-
-Returns
-  The size in bytes of the memory used by this object
-
-Remarks
-  None
-
-See also
-  Nothing
-*/
-template<typename Element>
-U64 BofList<Element>::GetMemoryUsage()
-{
-  U64 Ret_U64 = 0;
-
-  Ret_U64 += sizeof(BofList<Element>);
-
-  if (mpNodes_O != NULL)
-  {
-    Ret_U64 += (sizeof(BofListNode<Element>) * mNbMaxElements_U32);
-  }
-  if (mpProfiler_O != NULL)
-  {
-    Ret_U64 += mpProfiler_O->GetMemoryUsage();
-  }
-
-  return Ret_U64;
 }
 
 /*!
@@ -2123,7 +2086,7 @@ template<typename Element>
 bool BofList<Element>::CheckConsistency()
 {
   bool Ret_B = false;
-  U32 NbElements_U32 = 0;
+  uint32_t NbElements_U32 = 0;
   BofListNode<Element> *pNode_O = NULL;
 
   Lock();

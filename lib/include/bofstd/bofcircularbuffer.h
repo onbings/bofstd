@@ -22,7 +22,7 @@
 #pragma once
 
 #include <bofstd/bofsystem.h>
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 
 #include <cstring>
 

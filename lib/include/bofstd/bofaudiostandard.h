@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 
 BEGIN_BOF_NAMESPACE()
 enum class BOF_AUDIO_SAMPLE_FORMAT :uint32_t //See vlc_fourcc.h VLC_CODEC_S24L32

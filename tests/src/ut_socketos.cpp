@@ -20,7 +20,7 @@
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
 #include <bofstd/bofsocketos.h>
-#include "bofstd/bofstringformatter.h"
+#include "bofstd/bofstring.h"
 #include "bofstd/bofbinserializer.h"
 
 #include "gtestrunner.h"

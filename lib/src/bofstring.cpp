@@ -391,30 +391,6 @@ Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString
   return Rts_E;
 }
 
-char *Bof_FastZeroStrncpy(char *_pDest_c, const char *_pSrc_c, size_t _NbMaxToCopy)
-{
-  char c_c, *pRts_c;
-
-  pRts_c = _pDest_c;
-  if ((_pDest_c) && (_pSrc_c) && (_NbMaxToCopy))
-  {
-    _NbMaxToCopy--;
-    c_c = 0x01;
-    while ((c_c) && (_NbMaxToCopy))
-    {
-      _NbMaxToCopy--;
-      c_c = *_pSrc_c++;
-      *_pDest_c++ = c_c;
-    }
-
-    if (c_c)
-    {
-      *_pDest_c = 0;
-    }
-  }
-
-  return (pRts_c);
-}
 
 bool Bof_StringBeginWith(bool _CaseInsensitive_B, const std::string &_rString_S, const std::string &_rBeginWithThis_S)
 {
@@ -463,6 +439,24 @@ bool Bof_StringContain(bool _CaseInsensitive_B, const std::string &_rString_S, c
   }
   return Rts_B;
 }
+
+char *Bof_StringToUpper(char *_pStr_c)
+{
+  char *pRts_c = nullptr, Ch_c;
+
+  if (_pStr_c)
+  {
+    pRts_c = _pStr_c;
+    Ch_c = *_pStr_c;
+    while (Ch_c)
+    {
+      *_pStr_c++ = (char)toupper(Ch_c);
+      Ch_c = *_pStr_c;
+    }
+  }
+  return(pRts_c);
+}
+
 std::vector<std::string> Bof_FindAllStringIncluding(bool _CaseInsensitive_B, bool _MustBeginWith_B, const std::string &_rStringToLookFor_S, const std::vector<std::string> &_rStringCollection)
 {
   std::vector<std::string> Rts;
@@ -542,4 +536,100 @@ bool Bof_IsDouble(const std::string &_rInput_S, double &_rVal_lf)
   Sts_i = sscanf(_rInput_S.c_str(), "%lf%c", &_rVal_lf, &Ch_c);
   return (Sts_i == 1);
 }
+/*!
+Description
+Copy a specified number of characters
+
+
+Parameters
+_pDest_c :	Specifies the destination string
+_pSrc_c :	Specifies the source string
+_MaxChar_U32 :	Specifies the maximum number of char to copy incuding the string terminating char
+
+Returns
+char *: 			\Returns a pointer to the destination string
+
+Remarks
+Prototype based on CLib function
+BUT WITH SOME DIFFERENCES:
+The StrNCpy() function copies a maximum of _MaxChar_U32-1 characters from the character array pointed
+to by _pSrc_c to the character array pointed to by _pDest_c. Neither dest nor source need necessarily
+point to null terminated character arrays. Also,_pSrc_c and _pDest_c must not overlap.
+
+If a null character ('\0') is reached in source before _MaxChar_U32-1 characters have been copied,
+StrNCpy() STOPS padding _pDest_c with null characters until _MaxChar_U32-1 characters have been added
+to dest.
+A null character is ALWAYS inserted in the pDest_c[_MaxChar_U32-1] array entry
+*/
+char *Bof_StringToUpperInPlace(char *_pDest_c, const char *_pSrc_c, size_t _NbMaxToCopy)
+{
+  char c_c, *pRts_c;
+
+  pRts_c = _pDest_c;
+  if ((_pDest_c) && (_pSrc_c) && (_NbMaxToCopy))
+  {
+    _NbMaxToCopy--;
+    c_c = 0x01;
+    while ((c_c) && (_NbMaxToCopy))
+    {
+      _NbMaxToCopy--;
+      c_c = *_pSrc_c++;
+      *_pDest_c++ = c_c;
+    }
+
+    if (c_c)
+    {
+      *_pDest_c = 0;
+    }
+  }
+
+  return (pRts_c);
+}
+
+/*!
+Description
+The function Bof_CharToBinary converts an string in base 8 (prefix 0) 10 (no prefix) our 16 prefix (0x/0X) to a binary value
+
+Parameters
+_pStr_c :					A pointer to the string being converted
+
+Returns
+int64_t: The integer value of the converted string is returned
+*/
+int64_t Bof_CharToBinary(const char *_pStr_c)
+{
+  int64_t   Rts_S64;
+  char *p_c;
+
+//  If the value of base is zero, the syntax expected is similar to that of integer constants, which is formed by a succession of :
+//  An optional sign character(+or -)
+//    An optional prefix indicating octal or hexadecimal base("0" or "0x" / "0X" respectively)
+//    A sequence of decimal digits(if no base prefix was specified) or either octal or hexadecimal digits if a specific prefix is present
+  Rts_S64 = strtol(_pStr_c, &p_c, 0);
+
+  return(Rts_S64);
+}
+
+BOFSTD_EXPORT char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...);
+
+char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...)
+{
+  char *pRts_c = nullptr;
+  std::va_list Arg;
+  int Size_i;
+
+  if ((_pBuffer_c) && (_MaxBufferSize_U32) && (_pFormat_c))
+  {
+    va_start(Arg, _pFormat_c);
+    Size_i = vsnprintf(_pBuffer_c, _MaxBufferSize_U32 - 1, _pFormat_c, Arg);
+    if (Size_i >= 0)
+    {
+      _pBuffer_c[Size_i] = 0;
+      pRts_c = _pBuffer_c;
+    }
+    va_end(Arg);
+  }
+  return pRts_c;
+}
+
 END_BOF_NAMESPACE()

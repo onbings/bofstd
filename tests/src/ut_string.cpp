@@ -416,61 +416,61 @@ TEST(String_Test, MultipleKeyValueString)
 	EXPECT_STREQ(Val_S.c_str(), "HELLO WORLD");
 
 }
-TEST(String_Test, Bof_FastZeroStrncpy)
+TEST(String_Test, Bof_StrNCpy)
 {
 	char pSrc_c[128], pDst_c[128];
 	int Len_i;
 
 	strcpy(pDst_c, "Abcd");
 	strcpy(pSrc_c, "efgH");
-	EXPECT_TRUE(Bof_FastZeroStrncpy(nullptr, pSrc_c, 1)==nullptr);
+	EXPECT_TRUE(Bof_StrNCpy(nullptr, pSrc_c, 1)==nullptr);
 	EXPECT_EQ(pDst_c[0], 'A');
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, nullptr, 1) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, nullptr, 1) == pDst_c);
 	EXPECT_EQ(pDst_c[0], 'A');
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, 0) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, 0) == pDst_c);
 	EXPECT_EQ(pDst_c[0], 'A');
 
 	Len_i = static_cast<int>(strlen(pSrc_c));
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, Len_i) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, Len_i) == pDst_c);
 	EXPECT_EQ(pDst_c[0], 'e');
 	EXPECT_EQ(pDst_c[Len_i - 2], 'g');
 	EXPECT_EQ(pDst_c[Len_i -1], 0);
 
 	strcpy(pDst_c, "Abcd");
 	strcpy(pSrc_c, "efgH");
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, 2) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, 2) == pDst_c);
 	EXPECT_EQ(pDst_c[0], 'e');
 	EXPECT_EQ(pDst_c[1], 0);
 
 	strcpy(pDst_c, "Abcd");
 	strcpy(pSrc_c, "efgH");
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, 1) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, 1) == pDst_c);
 	EXPECT_EQ(pDst_c[0], 0);
 
 
 	strcpy(pDst_c, "Abcdefgh");
 	strcpy(pSrc_c, "1234");
 	Len_i = static_cast<int>(strlen(pSrc_c)+1);
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, Len_i) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, Len_i) == pDst_c);
 	EXPECT_TRUE(memcmp(pDst_c,pSrc_c, Len_i)==0);
 
 	strcpy(pDst_c, "Abcdefgh");
 	strcpy(pSrc_c, "1234");	
 	Len_i = static_cast<int>(strlen(pDst_c)+1);
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, Len_i) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, Len_i) == pDst_c);
 	Len_i = static_cast<int>(strlen(pSrc_c));
 	EXPECT_TRUE(memcmp(pDst_c, pSrc_c, Len_i + 1) == 0);
 
 	strcpy(pDst_c, "1234");
 	strcpy(pSrc_c, "Abcdefgh");
 	Len_i = static_cast<int>(strlen(pSrc_c) + 1);
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, Len_i) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, Len_i) == pDst_c);
 	EXPECT_TRUE(memcmp(pDst_c, pSrc_c, Len_i) == 0);
 
 	strcpy(pDst_c, "1234");
 	strcpy(pSrc_c, "Abcdefgh");
 	Len_i = static_cast<int>(strlen(pDst_c) + 1);
-	EXPECT_TRUE(Bof_FastZeroStrncpy(pDst_c, pSrc_c, Len_i) == pDst_c);
+	EXPECT_TRUE(Bof_StrNCpy(pDst_c, pSrc_c, Len_i) == pDst_c);
 	EXPECT_TRUE(memcmp(pDst_c, pSrc_c, Len_i-1) == 0);
 	EXPECT_EQ(pDst_c[Len_i-1], 0);
 }

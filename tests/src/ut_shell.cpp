@@ -19,7 +19,7 @@
  * V 1.00  vendredi 30 mai 2014 16:51:15  b.harmel : Initial release
  */
 #include <bofstd/bofshell.h>
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 
 #include "gtestrunner.h"
 

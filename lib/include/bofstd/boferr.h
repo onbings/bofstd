@@ -237,6 +237,11 @@ BOF_ERR_EXIST,			/* Exist */
 BOF_ERR_DONT_EXIST,			/* Don't exist */
 BOF_ERR_OUT_OF_RANGE,			/* Out of range */
 BOF_ERR_EXCEPTION,			    ///< Exception
+BOF_ERR_ABORT,			    ///< Abort
+BOF_ERR_DMA,			    ///< Dma 
+BOF_ERR_DMA_IN,			    ///< Dma in
+BOF_ERR_DMA_OUT,			    ///< Dma out
+
 };
 #define BOF_ERR_EWOULDBLOCK  BOF_ERR_EAGAIN
 #define BOF_ERR_EDEADLOCK    BOF_ERR_EDEADLK

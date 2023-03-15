@@ -21,7 +21,6 @@
  */
 #include <bofstd/bofsocket.h>
 #include <bofstd/bofstring.h>
-#include <bofstd/bofstringformatter.h>
 
 #if _WIN32
  //#pragma warning(push)

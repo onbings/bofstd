@@ -23,7 +23,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-char *Bof_FastSnprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...)
+char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...)
 {
   char *pRts_c = nullptr;
   std::va_list Arg;

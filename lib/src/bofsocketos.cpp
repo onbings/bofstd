@@ -21,7 +21,6 @@
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofsocketos.h>
 #include <bofstd/bofstring.h>
-#include <bofstd/bofstringformatter.h>
 
 #include <map>
 #include <regex>

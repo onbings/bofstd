@@ -20,7 +20,6 @@
  */
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofstring.h>
-#include <bofstd/bofstringformatter.h>
 #include <bofstd/bofbit.h>
 
 #include <thread>
@@ -837,12 +836,49 @@ BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFu
 #else
       _rThread_X.ThreadId = 0;
 #endif
+      _rThread_X.pThreadExitCode = nullptr;
       Rts_E = BOF_ERR_NO_ERROR;
     }
   }
   return Rts_E;
 }
+/*!
+ * Description
+ * This function gets the exit code of the thread
+ *
+ * Parameters
+ * _Thread_h  - The handle obtained by the call to Bof_CreateThread
+ * _pRetCode  - The exit code of the thread
+ *
+ * Returns
+ * BOF_ERR_EINVAL                - Invalid arg
+ * BOF_ERR_RUNNING               - thread still running
+ * BOF_ERR_NO_ERROR              - The operation was successful
+ *
+ * Remarks
+ * None
+ */
+BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, void **_ppRetCode)
+{
+  BOFERR               Rts_E = BOF_ERR_EINVAL;
 
+  if (_rThread_X.Magic_U32 == BOF_THREAD_MAGIC)
+  {
+    if (_rThread_X.ThreadRunning_B)
+    {
+      Rts_E = BOF_ERR_RUNNING;
+    }
+    else
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+      if (_ppRetCode != nullptr)
+      {
+        *_ppRetCode = _rThread_X.pThreadExitCode;
+      }
+    }
+  }
+  return Rts_E;
+}
 bool Bof_IsThreadValid(BOF_THREAD &_rThread_X)
 {
   return (_rThread_X.Magic_U32 == BOF_THREAD_MAGIC);
@@ -915,6 +951,7 @@ static void *S_ThreadLauncher(void *_pContext)
     CloseHandle(pThreadHandle);
 #endif
     pThread_X->ThreadRunning_B = false;
+    pThread_X->pThreadExitCode = pRts;
   }
   return pRts;
 }

@@ -284,6 +284,14 @@ uint32_t BofDateTime::MicroSecond() const
 {
   return mMicroSecond_U32;
 }
+uint32_t BofDateTime::MilliSecond() const
+{
+  return (mMicroSecond_U32 / 1000);
+}
+uint32_t BofDateTime::NanoSecond() const
+{
+  return (mMicroSecond_U32 * 1000);
+}
 //date::year_month_day BofDateTime::YearMonthDay() const
 //{
 //  return mYmd;

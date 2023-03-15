@@ -45,7 +45,7 @@ BEGIN_BOF_NAMESPACE()
  *
  * \remark Little Endian byte order is our default binary storage order as it is natively used in most modern cpu.
  */
-  static uint8_t S_EndiannessCache_U8 = 0xFF;
+static uint8_t S_EndiannessCache_U8 = 0xFF;
 
 inline bool Bof_IsCpuLittleEndian()
 {
@@ -146,7 +146,7 @@ uint32_t ReadScalar(const void *_pValueAddress, T &_rValue_T)
 }
 
 /*!
- * Read a Binary Large OBject from a given address in native format
+ * Read a Binary Large Object from a given address in native format
  *
  * \tparam T Binary data data, ...
  *
@@ -244,5 +244,20 @@ size_t AlignOf()
 #endif
 }
 
+#define BOF_CPU_TO_LE_64(CPU_VAL)        BOF::EndianScalar(!BOF::Bof_IsCpuLittleEndian(), static_cast<uint64_t>(CPU_VAL))
+#define BOF_CPU_TO_LE_32(CPU_VAL)        BOF::EndianScalar(!BOF::Bof_IsCpuLittleEndian(), static_cast<uint32_t>(CPU_VAL)) 
+#define BOF_CPU_TO_LE_16(CPU_VAL)        BOF::EndianScalar(!BOF::Bof_IsCpuLittleEndian(), static_cast<uint16_t>(CPU_VAL))
+
+#define BOF_CPU_TO_BE_64(CPU_VAL)        BOF::EndianScalar( BOF::Bof_IsCpuLittleEndian(), static_cast<uint64_t>(CPU_VAL))
+#define BOF_CPU_TO_BE_32(CPU_VAL)        BOF::EndianScalar( BOF::Bof_IsCpuLittleEndian(), static_cast<uint32_t>(CPU_VAL)) 
+#define BOF_CPU_TO_BE_16(CPU_VAL)        BOF::EndianScalar( BOF::Bof_IsCpuLittleEndian(), static_cast<uint16_t>(CPU_VAL))
+
+#define BOF_LE_TO_CPU_64(CPU_VAL)        BOF::EndianScalar(!BOF::Bof_IsCpuLittleEndian(), static_cast<uint64_t>(CPU_VAL))
+#define BOF_LE_TO_CPU_32(CPU_VAL)        BOF::EndianScalar(!BOF::Bof_IsCpuLittleEndian(), static_cast<uint32_t>(CPU_VAL)) 
+#define BOF_LE_TO_CPU_16(CPU_VAL)        BOF::EndianScalar(!BOF::Bof_IsCpuLittleEndian(), static_cast<uint16_t>(CPU_VAL))
+
+#define BOF_BE_TO_CPU_64(CPU_VAL)        BOF::EndianScalar( BOF::Bof_IsCpuLittleEndian(), static_cast<uint64_t>(CPU_VAL))
+#define BOF_BE_TO_CPU_32(CPU_VAL)        BOF::EndianScalar( BOF::Bof_IsCpuLittleEndian(), static_cast<uint32_t>(CPU_VAL)) 
+#define BOF_BE_TO_CPU_16(CPU_VAL)        BOF::EndianScalar( BOF::Bof_IsCpuLittleEndian(), static_cast<uint16_t>(CPU_VAL))
 
 END_BOF_NAMESPACE()

@@ -24,7 +24,7 @@
 
 #include <bofstd/iboflogchannel.h>
 #include <bofstd/boflogchannel_spdlog.h>
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 
 #include <map>
 #include <memory>
@@ -163,7 +163,7 @@ public:
 					{
 						//FormatttedOutput_S = Bof_Sprintf(_pFmt_c, _Args ...);
 						//FormatttedOutput_S = Bof_SafeSprintf(_pFmt_c, _Args ...);
-						p_c = Bof_FastSnprintf(pBuffer_c, sizeof(pBuffer_c), _pFmt_c, _Args ...);  //Std::string maust be passed as Str_S.c_str() as Bof_FastSnprintf use C function
+						p_c = Bof_Snprintf(pBuffer_c, sizeof(pBuffer_c), _pFmt_c, _Args ...);  //Std::string maust be passed as Str_S.c_str() as Bof_FastSnprintf use C function
 						if (p_c)
 						{
 							FormatttedOutput_S = p_c;

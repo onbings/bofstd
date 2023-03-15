@@ -19,7 +19,7 @@
  * V 1.00  Dec 19 2017  BHA : Initial release
  */
 #include <bofstd/boftimecode.h>
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 
 BEGIN_BOF_NAMESPACE()
 BofTimecode::BofTimecode()

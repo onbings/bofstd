@@ -21,7 +21,7 @@
 */
 #include <bofstd/bofsocket.h>
 #include <bofstd/bofthread.h>
-#include "bofstd/bofstringformatter.h"
+#include "bofstd/bofstring.h"
 
 #include "gtestrunner.h"
 

@@ -30,13 +30,15 @@
 BEGIN_BOF_NAMESPACE()
 
 #define BOF_MS_TO_S(v)       (static_cast< uint32_t > ( (v) / 1e3) )
+#define BOF_MS_TO_US(v)      (static_cast< uint32_t > ( (v) * 1e3) )
 #define BOF_NANO_TO_MS(v)    (static_cast< uint64_t > ( (v) / 1e6) )
 #define BOF_NANO_TO_S(v)     (static_cast< uint64_t > ( (v) / 1e9) )
 
 #define BOF_S_TO_MS(v)       (static_cast< uint32_t > ( (v) * 1e3) )
+#define BOF_MS_TO_US(v)      (static_cast< uint32_t > ( (v) * 1e3) )
 #define BOF_MS_TO_NANO(v)    (static_cast< uint64_t > ( (v) * 1e6) )
 #define BOF_S_TO_NANO(v)     (static_cast< uint64_t > ( (v) * 1e9) )
-
+#define BOF_INFINITE_TIMEOUT ((uint32_t)-1)
 
 enum class BOF_SEEK_METHOD : uint32_t
 {
@@ -589,7 +591,6 @@ enum BOF_THREAD_PRIORITY
 };
 #endif
 
-
 using BofThreadFunction = std::function<void *(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)>;
 const uint32_t BOF_THREAD_MAGIC = 0xCBE89448;
 
@@ -604,6 +605,7 @@ struct BOFSTD_EXPORT BOF_THREAD
   BOF_THREAD_PRIORITY ThreadPriority_E;
   BofThreadFunction ThreadFunction;
   void *pUserContext;
+  void *pThreadExitCode;
 
 #if defined (_WIN32)
   void *pThread;          /*! Thread windows handle*/
@@ -639,6 +641,7 @@ struct BOFSTD_EXPORT BOF_THREAD
 #else
     ThreadId = 0;
 #endif
+    pThreadExitCode = nullptr;
   }
 };
 
@@ -721,6 +724,7 @@ BOFSTD_EXPORT int32_t Bof_ValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_
 BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY &_rMin_E, BOF_THREAD_PRIORITY &_rMax_E);
 BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY &_rPolicy_E, BOF_THREAD_PRIORITY &_rPriority_E);
 BOFSTD_EXPORT BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E);
+BOFSTD_EXPORT BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, void **_ppRetCode);
 BOFSTD_EXPORT BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFunction, void *_pUserContext, BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT bool Bof_IsThreadValid(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);

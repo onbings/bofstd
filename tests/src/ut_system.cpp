@@ -12,7 +12,7 @@
  * V 1.00  November 15 2016  BHA : Initial release
  */
 #include <bofstd/bofsystem.h>
-#include <bofstd/bofstringformatter.h>
+#include <bofstd/bofstring.h>
 #include <bofstd/boffs.h>
 #include <bofstd/bofvideostandard.h>
 #include <bofstd/bofaudiostandard.h>

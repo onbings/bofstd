@@ -59,7 +59,7 @@
 
    get the new push git ref bf6851917ef574e02fb406c2f50d5956b7edd85d
 
-   update baseline in your vcpkg-configuration of your project which want to use this new lib 
+   update baseline in your vcpkg-configuration of your project which want to use this new lib
    C:\pro\github\vcpkg-packaging-env\vcpkg-configuration.json   //bf6851917ef574e02fb406c2f50d5956b7edd85d
    C:\pro\vcpkg-packaging-env\vcpkg-configuration.json          //efddb77285b616de2e547d7c986d4d61646ffa13
    C:\pro\evs-muse\vcpkg-configuration.json                     //efddb77285b616de2e547d7c986d4d61646ffa13 and bf6851917ef574e02fb406c2f50d5956b7edd85d
@@ -78,13 +78,13 @@
 #include <locale.h>
 #include <bofversioninfo.h>
 
-//Just to check: see std::string Bof_GetVersion()
-//#include <libavutil/avutil.h>
-//#include <openssl/crypto.h>
-//#include <boost/version.hpp>
+ //Just to check: see std::string Bof_GetVersion()
+ //#include <libavutil/avutil.h>
+ //#include <openssl/crypto.h>
+ //#include <boost/version.hpp>
 
 #if defined(_WIN32)
-DWORD  S_ModeIn_DW=0, S_ModeOut_DW=0;
+DWORD  S_ModeIn_DW = 0, S_ModeOut_DW = 0;
 #else
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -100,7 +100,7 @@ BOFSTD_EXPORT BOF::BOFSTDPARAM GL_BofStdParam_X;
 BEGIN_BOF_NAMESPACE()
 static char S_pUnknownError_c[128];
 static std::map<BOFERR, const char *> S_ErrorCodeCollection{
-	{ BOF_ERR_NO_ERROR,          "No error"},
+  { BOF_ERR_NO_ERROR,          "No error"},
   { BOF_ERR_EPERM,		 	        "Operation not permitted"},
   { BOF_ERR_ENOENT,		 	      "No such file or directory"},
   { BOF_ERR_ESRCH,		 	        "No such process"},
@@ -150,7 +150,7 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
   { BOF_ERR_ELNRNG,	          "Link number out of range"},
   { BOF_ERR_EUNATCH,	          "Protocol driver not attached"},
   { BOF_ERR_ENOCSI,	          "No CSI structure available"},  //50
-  { BOF_ERR_EL2HLT,	          "Level 2 halted"},  
+  { BOF_ERR_EL2HLT,	          "Level 2 halted"},
   { BOF_ERR_EBADE,	            "Invalid exchange"},
   { BOF_ERR_EBADR,	            "Invalid request descriptor"},
   { BOF_ERR_EXFULL,	          "Exchange full"},
@@ -233,79 +233,83 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
   { BOF_ERR_ERFKILL,	          "Operation not possible due to RF-kill"},
   { BOF_ERR_EHWPOISON,	        "Memory page has hardware error"},
 
-    //Not errno compatble error code
-  { BOF_ERR_SPECIFIC,          "Specific" },
-  { BOF_ERR_ALREADY_OPENED,    "Already opened" },
-  { BOF_ERR_NOT_OPENED,        "Not opened" },
-  { BOF_ERR_CREATE,            "Error during create access" },
-  { BOF_ERR_READ,              "Error during read access" },
-  { BOF_ERR_WRITE,             "Error during write access" },
-  { BOF_ERR_PURGE,             "Error during purge access" },
-  { BOF_ERR_SEEK,              "Error during seek access" },
-  { BOF_ERR_BIND,              "Error during bind access" },
-  { BOF_ERR_CLOSE,             "Error during close access" },
-  { BOF_ERR_INTERNAL,          "Internal error" },
-  { BOF_ERR_INIT,              "Init error" },
-  { BOF_ERR_NOT_INIT,          "Not init error" },
-  { BOF_ERR_NO_MORE,           "No more handle/connection available" },
-  { BOF_ERR_TOO_SMALL,         "Buffer/value provided is too small" },
-  { BOF_ERR_TOO_BIG,         "Buffer/value provided is too large" },
-  { BOF_ERR_WRONG_SIZE,        "Bad buffer/value size" },
-  { BOF_ERR_FOUND,             "Resource found" },
-  { BOF_ERR_NOT_FOUND,         "Resource not found" },
-  { BOF_ERR_FREE,              "Object is free" },
-  { BOF_ERR_FULL,              "Object is full" },
-  { BOF_ERR_EMPTY,             "Object is empty" },
-  { BOF_ERR_EOF,               "End of File" },
-  { BOF_ERR_OPERATION_FAILED,  "Operation could not be completed" },
-  { BOF_ERR_OVERRUN,           "Overrun" },
-  { BOF_ERR_UNDERRUN,          "Underrun" },
-  { BOF_ERR_STARTED,           "Started" },
-  { BOF_ERR_STOPPED,           "Already stopped" },
-  { BOF_ERR_CANNOT_START,      "Cannot start requested operation" },
-  { BOF_ERR_CANNOT_STOP,       "Cannot stop requested operation" },
-  { BOF_ERR_INTERFACE,         "Bad interface" },
-  { BOF_ERR_PROTOCOL,          "Bad protocol" },
-  { BOF_ERR_ADDRESS,           "Bad address" },
-  { BOF_ERR_FORMAT,            "Bad format" },
-  { BOF_ERR_WRONG_MODE,        "Wrong mode" },
-  { BOF_ERR_NOT_AVAILABLE,     "Not available" },
-  { BOF_ERR_INVALID_COMMAND,   "Invalid command" },
-  { BOF_ERR_INVALID_ANSWER,    "Invalid answer" },
-  { BOF_ERR_INVALID_CHECKSUM,  "Invalid checksum" },
-  { BOF_ERR_INVALID_CHECKSUM,  "Invalid checksum" },
-  { BOF_ERR_BAD_TYPE,          "Bad type" },
-  { BOF_ERR_NOT_SUPPORTED,     "Not supported" },
-  { BOF_ERR_PARSER,            "Parser error" },
-  { BOF_ERR_INVALID_STATE,     "Invalid state" },
-  { BOF_ERR_YES,               "Yes" },
-  { BOF_ERR_NO,                "No" },
-  { BOF_ERR_CANCEL,            "Cancel" },
-  { BOF_ERR_INDEX,             "Index error" },
-  { BOF_ERR_CURSOR,            "Cursor error" },
-  { BOF_ERR_DUPLICATE,         "Duplicate value" },
-  { BOF_ERR_SET,               "Set error" },
-  { BOF_ERR_GET,               "Get error" },
-  { BOF_ERR_PENDING,           "Pending" },
-  { BOF_ERR_RUNNING,           "Running" },
-  { BOF_ERR_NOT_RUNNING,       "Not running" },
-  { BOF_ERR_LOCK,              "Lock error" },
-  { BOF_ERR_UNLOCK,            "Unlock error" },
-  { BOF_ERR_FINISHED,          "Finished" },
-  { BOF_ERR_SERIALIZE,         "Serialize" },
-  { BOF_ERR_DESERIALIZE,       "Deserialize" },
-  { BOF_ERR_INVALID_SRC,       "Invalid source" },
-  { BOF_ERR_INVALID_DST,       "Invalid destination" },
-  { BOF_ERR_BAD_STATUS,        "Bad status" },
-  { BOF_ERR_BAD_ID,            "Bad id" },
-  { BOF_ERR_INPUT,             "Input" },
-  { BOF_ERR_OUTPUT,            "Output" },
-  { BOF_ERR_CODEC,             "Codec" },
-	{ BOF_ERR_INVALID_HANDLE,		"Invalid handle value" },
-	{ BOF_ERR_EXIST,						"Exist" },
-	{ BOF_ERR_DONT_EXIST,			  "Don't exist" },
-	{	BOF_ERR_OUT_OF_RANGE,			"Out of range"},
-  { BOF_ERR_EXCEPTION,			    "Exception" },
+  //Not errno compatble error code
+{ BOF_ERR_SPECIFIC,          "Specific" },
+{ BOF_ERR_ALREADY_OPENED,    "Already opened" },
+{ BOF_ERR_NOT_OPENED,        "Not opened" },
+{ BOF_ERR_CREATE,            "Error during create access" },
+{ BOF_ERR_READ,              "Error during read access" },
+{ BOF_ERR_WRITE,             "Error during write access" },
+{ BOF_ERR_PURGE,             "Error during purge access" },
+{ BOF_ERR_SEEK,              "Error during seek access" },
+{ BOF_ERR_BIND,              "Error during bind access" },
+{ BOF_ERR_CLOSE,             "Error during close access" },
+{ BOF_ERR_INTERNAL,          "Internal error" },
+{ BOF_ERR_INIT,              "Init error" },
+{ BOF_ERR_NOT_INIT,          "Not init error" },
+{ BOF_ERR_NO_MORE,           "No more handle/connection available" },
+{ BOF_ERR_TOO_SMALL,         "Buffer/value provided is too small" },
+{ BOF_ERR_TOO_BIG,         "Buffer/value provided is too large" },
+{ BOF_ERR_WRONG_SIZE,        "Bad buffer/value size" },
+{ BOF_ERR_FOUND,             "Resource found" },
+{ BOF_ERR_NOT_FOUND,         "Resource not found" },
+{ BOF_ERR_FREE,              "Object is free" },
+{ BOF_ERR_FULL,              "Object is full" },
+{ BOF_ERR_EMPTY,             "Object is empty" },
+{ BOF_ERR_EOF,               "End of File" },
+{ BOF_ERR_OPERATION_FAILED,  "Operation could not be completed" },
+{ BOF_ERR_OVERRUN,           "Overrun" },
+{ BOF_ERR_UNDERRUN,          "Underrun" },
+{ BOF_ERR_STARTED,           "Started" },
+{ BOF_ERR_STOPPED,           "Already stopped" },
+{ BOF_ERR_CANNOT_START,      "Cannot start requested operation" },
+{ BOF_ERR_CANNOT_STOP,       "Cannot stop requested operation" },
+{ BOF_ERR_INTERFACE,         "Bad interface" },
+{ BOF_ERR_PROTOCOL,          "Bad protocol" },
+{ BOF_ERR_ADDRESS,           "Bad address" },
+{ BOF_ERR_FORMAT,            "Bad format" },
+{ BOF_ERR_WRONG_MODE,        "Wrong mode" },
+{ BOF_ERR_NOT_AVAILABLE,     "Not available" },
+{ BOF_ERR_INVALID_COMMAND,   "Invalid command" },
+{ BOF_ERR_INVALID_ANSWER,    "Invalid answer" },
+{ BOF_ERR_INVALID_CHECKSUM,  "Invalid checksum" },
+{ BOF_ERR_INVALID_CHECKSUM,  "Invalid checksum" },
+{ BOF_ERR_BAD_TYPE,          "Bad type" },
+{ BOF_ERR_NOT_SUPPORTED,     "Not supported" },
+{ BOF_ERR_PARSER,            "Parser error" },
+{ BOF_ERR_INVALID_STATE,     "Invalid state" },
+{ BOF_ERR_YES,               "Yes" },
+{ BOF_ERR_NO,                "No" },
+{ BOF_ERR_CANCEL,            "Cancel" },
+{ BOF_ERR_INDEX,             "Index error" },
+{ BOF_ERR_CURSOR,            "Cursor error" },
+{ BOF_ERR_DUPLICATE,         "Duplicate value" },
+{ BOF_ERR_SET,               "Set error" },
+{ BOF_ERR_GET,               "Get error" },
+{ BOF_ERR_PENDING,           "Pending" },
+{ BOF_ERR_RUNNING,           "Running" },
+{ BOF_ERR_NOT_RUNNING,       "Not running" },
+{ BOF_ERR_LOCK,              "Lock error" },
+{ BOF_ERR_UNLOCK,            "Unlock error" },
+{ BOF_ERR_FINISHED,          "Finished" },
+{ BOF_ERR_SERIALIZE,         "Serialize" },
+{ BOF_ERR_DESERIALIZE,       "Deserialize" },
+{ BOF_ERR_INVALID_SRC,       "Invalid source" },
+{ BOF_ERR_INVALID_DST,       "Invalid destination" },
+{ BOF_ERR_BAD_STATUS,        "Bad status" },
+{ BOF_ERR_BAD_ID,            "Bad id" },
+{ BOF_ERR_INPUT,             "Input" },
+{ BOF_ERR_OUTPUT,            "Output" },
+{ BOF_ERR_CODEC,             "Codec" },
+{ BOF_ERR_INVALID_HANDLE,		"Invalid handle value" },
+{ BOF_ERR_EXIST,						"Exist" },
+{ BOF_ERR_DONT_EXIST,			  "Don't exist" },
+{	BOF_ERR_OUT_OF_RANGE,			"Out of range"},
+{ BOF_ERR_EXCEPTION,			    "Exception" },
+{ BOF_ERR_ABORT,			    "Abort" },
+{ BOF_ERR_DMA,			    "Dma" },
+{ BOF_ERR_DMA_IN,			    "Dma In" },
+{ BOF_ERR_DMA_OUT,			    "Dma Out" },
 };
 
 /*** Defines *****************************************************************/
@@ -317,8 +321,8 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
 class BofStdInitializer
 {
 public:
-	BofStdInitializer() { Bof_Initialize(); }
-	~BofStdInitializer() { Bof_Shutdown(); }
+  BofStdInitializer() { Bof_Initialize(); }
+  ~BofStdInitializer() { Bof_Shutdown(); }
 };
 
 static BofStdInitializer S_BofStdInitializer;		//Just to call Bof_Initialize/Bof_Shutdown when the app linked with this lib is started/stopped
@@ -333,141 +337,141 @@ std::string Bof_GetVersion()
   //const char *pFfmpegVersion_c = av_version_info();
   //const char *pOpenSslVersion_c = OpenSSL_version(OPENSSL_VERSION); 
   //const char *pBoostVersion_c = BOOST_LIB_VERSION;
-    
-	return std::to_string(BOFSTD_VERSION_MAJOR ) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH) + "." + std::to_string(BOFSTD_VERSION_BUILD);
+
+  return std::to_string(BOFSTD_VERSION_MAJOR) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH) + "." + std::to_string(BOFSTD_VERSION_BUILD);
 }
 
 BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
 {
-	BOFERR Rts_E;
+  BOFERR Rts_E;
 
-	GL_BofStdParam_X = _rStdParam_X;
+  GL_BofStdParam_X = _rStdParam_X;
   GL_BofDbgPrintfStartTime_U32 = Bof_GetMsTickCount();
 
-	Rts_E = BofSocket::S_InitializeStack();
-	/* Set the locale to the POSIX C environment */
-	setlocale(LC_ALL, "C");
+  Rts_E = BofSocket::S_InitializeStack();
+  /* Set the locale to the POSIX C environment */
+  setlocale(LC_ALL, "C");
 #if defined(_WIN32)
-	SetConsoleOutputCP(65001);
+  SetConsoleOutputCP(65001);
 
-	// You need to enable ansi/vt100 control char under windows 10
-	// Set output mode to handle virtual terminal sequences
-	HANDLE Out_h = GetStdHandle(STD_OUTPUT_HANDLE);
-	HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
+  // You need to enable ansi/vt100 control char under windows 10
+  // Set output mode to handle virtual terminal sequences
+  HANDLE Out_h = GetStdHandle(STD_OUTPUT_HANDLE);
+  HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
 
-	//https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+  //https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING    0x0004
 #endif
 
 //Activate ansi support
-	if (Out_h != INVALID_HANDLE_VALUE)
-	{
-		if (GetConsoleMode(Out_h, &S_ModeOut_DW))
-		{
-			S_ModeOut_DW |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-			if (SetConsoleMode(Out_h, S_ModeOut_DW))
-			{
-				// wprintf(L"\x1b[31mThis text has a red foreground using SGR.31.\r\n");
-			}
-		}
-	}
-	if (In_h != INVALID_HANDLE_VALUE)
-	{
-		if (GetConsoleMode(In_h, &S_ModeIn_DW))
-		{
-			S_ModeIn_DW = static_cast<DWORD>(~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT));
-			if (SetConsoleMode(In_h, S_ModeIn_DW))
-			{
-			}
-	}
-}
+  if (Out_h != INVALID_HANDLE_VALUE)
+  {
+    if (GetConsoleMode(Out_h, &S_ModeOut_DW))
+    {
+      S_ModeOut_DW |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+      if (SetConsoleMode(Out_h, S_ModeOut_DW))
+      {
+        // wprintf(L"\x1b[31mThis text has a red foreground using SGR.31.\r\n");
+      }
+    }
+  }
+  if (In_h != INVALID_HANDLE_VALUE)
+  {
+    if (GetConsoleMode(In_h, &S_ModeIn_DW))
+    {
+      S_ModeIn_DW = static_cast<DWORD>(~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT));
+      if (SetConsoleMode(In_h, S_ModeIn_DW))
+      {
+      }
+    }
+  }
 
 
 #else
-	signal(SIGPIPE, SIG_IGN);
-	/*
-	tcgetattr(STDIN_FILENO, &S_SavedTermIos_X);
-	S_NewTermIos_X = S_SavedTermIos_X;
+  signal(SIGPIPE, SIG_IGN);
+  /*
+  tcgetattr(STDIN_FILENO, &S_SavedTermIos_X);
+  S_NewTermIos_X = S_SavedTermIos_X;
 
-	S_NewTermIos_X.c_lflag &= ~(ICANON | ECHO);
-	S_NewTermIos_X.c_cc[VMIN] = 1;
-	S_NewTermIos_X.c_cc[VTIME] = 0;
-	 */
-/*TO BE VALIDATED AS UT repport err on stderr
+  S_NewTermIos_X.c_lflag &= ~(ICANON | ECHO);
+  S_NewTermIos_X.c_cc[VMIN] = 1;
+  S_NewTermIos_X.c_cc[VTIME] = 0;
+   */
+   /*TO BE VALIDATED AS UT repport err on stderr
 
-"Child aborted" (exit code: 0)
+   "Child aborted" (exit code: 0)
 
-------- Stderr: -------
-eJwVxUEOgjAQAMC7r9gXuCGRBA4cMMGb1tQHkFIWXKUt6W5j/L1xLtOLUFbgCPhMgVDJBc/6xanwNvcrRcVPym9siea6WWrnmmqpJo/3nF7kFUtkVRJFSSV7wuA4Hv2+w8aR4NTCVVZ4qIwDdB2czWUcrB1v5p+xhx+4vSxS====
+   ------- Stderr: -------
+   eJwVxUEOgjAQAMC7r9gXuCGRBA4cMMGb1tQHkFIWXKUt6W5j/L1xLtOLUFbgCPhMgVDJBc/6xanwNvcrRcVPym9siea6WWrnmmqpJo/3nF7kFUtkVRJFSSV7wuA4Hv2+w8aR4NTCVVZ4qIwDdB2czWUcrB1v5p+xhx+4vSxS====
 
 
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &S_NewTermIos_X) < 0)
-	{
-		Rts_E=BOF_ERR_NOT_SUPPORTED;
-	}
-	*/
+     if (tcsetattr(STDIN_FILENO, TCSANOW, &S_NewTermIos_X) < 0)
+     {
+       Rts_E=BOF_ERR_NOT_SUPPORTED;
+     }
+     */
 #endif
-	return Rts_E;
+  return Rts_E;
 }
 
 const char *Bof_ErrorCode(BOFERR _ErrorCode_E)
 {
-	const char *pRts_c;
+  const char *pRts_c;
 
-	auto It = S_ErrorCodeCollection.find(_ErrorCode_E);
-	if (It == S_ErrorCodeCollection.end())
-	{
-//Not really thread safe but....
-		snprintf(S_pUnknownError_c, sizeof(S_pUnknownError_c), "Unknown error (%d/0x%X)", _ErrorCode_E, _ErrorCode_E);
-		pRts_c = S_pUnknownError_c;
-	}
-	else
-	{
-		pRts_c = It->second;
-	}
-	return pRts_c;
+  auto It = S_ErrorCodeCollection.find(_ErrorCode_E);
+  if (It == S_ErrorCodeCollection.end())
+  {
+    //Not really thread safe but....
+    snprintf(S_pUnknownError_c, sizeof(S_pUnknownError_c), "Unknown error (%d/0x%X)", _ErrorCode_E, _ErrorCode_E);
+    pRts_c = S_pUnknownError_c;
+  }
+  else
+  {
+    pRts_c = It->second;
+  }
+  return pRts_c;
 }
 
 
 
 BOFERR Bof_Shutdown()
 {
-	BOFERR Rts_E;
-		Rts_E = BofSocket::S_ShutdownStack();
+  BOFERR Rts_E;
+  Rts_E = BofSocket::S_ShutdownStack();
 
 #if defined(_WIN32)
-		printf("\x1b[0m");
+  printf("\x1b[0m");
 
-	// You need to enable ansi/vt100 control char under windows 10
-	// Set output mode to handle virtual terminal sequences
-	HANDLE Out_h = GetStdHandle(STD_OUTPUT_HANDLE);
-	HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
-	if (Out_h != INVALID_HANDLE_VALUE)
-	{
-		SetConsoleMode(Out_h, S_ModeOut_DW);
-	}
-	if (In_h != INVALID_HANDLE_VALUE)
-	{
-		SetConsoleMode(In_h, S_ModeIn_DW);
-	}
+  // You need to enable ansi/vt100 control char under windows 10
+  // Set output mode to handle virtual terminal sequences
+  HANDLE Out_h = GetStdHandle(STD_OUTPUT_HANDLE);
+  HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
+  if (Out_h != INVALID_HANDLE_VALUE)
+  {
+    SetConsoleMode(Out_h, S_ModeOut_DW);
+  }
+  if (In_h != INVALID_HANDLE_VALUE)
+  {
+    SetConsoleMode(In_h, S_ModeIn_DW);
+  }
 #else
-		/*TO BE VALIDATED AS UT repport err on stderr
+  /*TO BE VALIDATED AS UT repport err on stderr
 
-		"Child aborted" (exit code: 0)
+  "Child aborted" (exit code: 0)
 
-		------- Stderr: -------
-		eJwVxUEOgjAQAMC7r9gXuCGRBA4cMMGb1tQHkFIWXKUt6W5j/L1xLtOLUFbgCPhMgVDJBc/6xanwNvcrRcVPym9siea6WWrnmmqpJo/3nF7kFUtkVRJFSSV7wuA4Hv2+w8aR4NTCVVZ4qIwDdB2czWUcrB1v5p+xhx+4vSxS====
+  ------- Stderr: -------
+  eJwVxUEOgjAQAMC7r9gXuCGRBA4cMMGb1tQHkFIWXKUt6W5j/L1xLtOLUFbgCPhMgVDJBc/6xanwNvcrRcVPym9siea6WWrnmmqpJo/3nF7kFUtkVRJFSSV7wuA4Hv2+w8aR4NTCVVZ4qIwDdB2czWUcrB1v5p+xhx+4vSxS====
 */
 /*
-	printf("\x1b[0m");
-	tcsetattr(STDIN_FILENO, TCSANOW, &S_SavedTermIos_X);
-	*/
+  printf("\x1b[0m");
+  tcsetattr(STDIN_FILENO, TCSANOW, &S_SavedTermIos_X);
+  */
 #endif
-//Give some time to thread/logger to shutdown
+  //Give some time to thread/logger to shutdown
   BOF::Bof_MsSleep(1000);
 
-	return Rts_E;
+  return Rts_E;
 }
 
 
@@ -479,7 +483,7 @@ bool Bof_IsWindows()
   return false;
 #endif
 }
-BofException::BofException(std::string _Header_S, std::string _Context_S, std::string _Where_S, int32_t _ErrorCode_S32) : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32) 
+BofException::BofException(std::string _Header_S, std::string _Context_S, std::string _Where_S, int32_t _ErrorCode_S32) : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32)
 {
   std::ostringstream Msg;
   Msg << mHeader_S;

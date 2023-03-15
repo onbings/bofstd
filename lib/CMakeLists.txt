@@ -167,9 +167,6 @@ set(LOG_FILES
 	src/boflogsink_spdlog.cpp
 	include/bofstd/boflogger.h
 	src/boflogger.cpp	
-
-	include/bofstd/bofstringformatter.h
-	src/bofstringformatter.cpp
 )
 
 set(OBSERVER_FILES

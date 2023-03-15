@@ -39,7 +39,6 @@ Unit test:
 #include <bofstd/bofconio.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/bofsystem.h>
-#include <bofstd/bofstringformatter.h>
 
 #include <linenoise.hpp>
 

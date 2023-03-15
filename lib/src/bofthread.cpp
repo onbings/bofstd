@@ -26,7 +26,6 @@
  */
 #include <bofstd/bofthread.h>
 #include <bofstd/bofstring.h>
-#include <bofstd/bofstringformatter.h>
 
 #if defined (_WIN32)
  //https://stackoverflow.com/questions/10121560/stdthread-naming-your-thread
