@@ -78,17 +78,6 @@ typedef enum
   BOFTYPE_ALIGNON32BITS = 0xFFFFFFFF
 } BOFTYPE;
 
-/*! Return the minumum of two numbers*/
-inline static int32_t BOF_MIN(int32_t _Val1_S32, int32_t _Val2_S32)
-{
-  return (_Val1_S32 < _Val2_S32) ? _Val1_S32 : _Val2_S32;
-}
-
-/*! Return the maximum of two numbers*/
-inline static int32_t BOF_MAX(int32_t _Val1_S32, int32_t _Val2_S32)
-{
-  return (_Val1_S32 > _Val2_S32) ? _Val1_S32 : _Val2_S32;
-}
 
 /*! Return true if the tree is too heavy on the left side*/
 inline static int32_t LEFT_IMBALANCE(int32_t _Balance_S32)

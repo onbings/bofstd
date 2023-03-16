@@ -25,7 +25,6 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define DBG_INSERTSTRING(Index, snprintf, Remain, Rts)    { uint32_t NbChar = snprintf; Rts = 0; if (NbChar > 0) { Remain -= NbChar; Index += NbChar; } else{ Remain = 0; }  if (! Remain) { Rts = (uint32_t)-1; } }
 
 typedef enum
 {

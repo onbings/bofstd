@@ -288,6 +288,18 @@ BOFERR Bof_StringToBin(uint32_t _Base_U32, const char *_pAsciiNumber_c, T &_rCon
   return Rts_E;
 }
 
+template<typename T>
+inline T BOF_MIN(T _Val1, T _Val2)
+{
+  return (_Val1 < _Val2) ? _Val1 : _Val2;
+}
+
+template<typename T>
+inline T BOF_MAX(T _Val1, T _Val2)
+{
+  return (_Val1 > _Val2) ? _Val1 : _Val2;
+}
+
 class BOFSTD_EXPORT BofException : public std::exception
 {
 public:
