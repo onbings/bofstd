@@ -241,6 +241,7 @@ BOF_ERR_ABORT,			    ///< Abort
 BOF_ERR_DMA,			    ///< Dma 
 BOF_ERR_DMA_IN,			    ///< Dma in
 BOF_ERR_DMA_OUT,			    ///< Dma out
+BOF_ERR_STORAGE,			    ///< Dma out
 
 };
 #define BOF_ERR_EWOULDBLOCK  BOF_ERR_EAGAIN

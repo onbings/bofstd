@@ -194,6 +194,8 @@ set(SERDER_FILES
 )
 
 set(SOCKIO_FILES
+	include/bofstd/bofsocketthread.h
+	src/bofsocketthread.cpp
 	include/bofstd/bofsocketserver.h
 	src/bofsocketserver.cpp
 	include/bofstd/bofsocketio.h

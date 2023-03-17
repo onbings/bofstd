@@ -1105,22 +1105,6 @@ BOFERR Bof_ResetFileContent(const BofPath &_rPath, bool _ReOpenMode_B, int64_t _
   {
 #if defined (_WIN32)
     Rts_E = BOF_ERR_NOT_SUPPORTED;
-#if 0
-    HANDLE Io_h = CreateFileA(_rPath.FullPathName(false).c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    bad handle if file is already opened
-      //DWORD f = GetLastError(); 
-      if (Io_h != BOF_INVALID_HANDLE_VALUE)
-      {
-        if (SetFilePointer(Io_h, static_cast<LONG>(_Offset_S64), NULL, FILE_BEGIN) == _Offset_S64)
-        {
-          if (SetEndOfFile(Io_h))
-          {
-            Rts_E = BOF_ERR_NO_ERROR;
-          }
-        }
-        CloseHandle(Io_h);
-      }
-#endif
 #else
     if (!truncate64(_rPath.FullPathName(false).c_str(), _Offset_S64))
     {
