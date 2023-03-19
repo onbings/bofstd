@@ -585,6 +585,55 @@ char *Bof_StringToUpperInPlace(char *_pDest_c, const char *_pSrc_c, size_t _NbMa
 
   return (pRts_c);
 }
+/*!
+Description
+Copy a specified number of characters
+
+
+Parameters
+_pDest_c :	Specifies the destination string
+_pSrc_c :	Specifies the source string
+_MaxChar_U32 :	Specifies the maximum number of char to copy incuding the string terminating char
+
+Returns
+char *: 			\Returns a pointer to the destination string
+
+Remarks
+Prototype based on CLib function
+BUT WITH SOME DIFFERENCES:
+The StrNCpy() function copies a maximum of _MaxChar_U32-1 characters from the character array pointed
+to by _pSrc_c to the character array pointed to by _pDest_c. Neither dest nor source need necessarily
+point to null terminated character arrays. Also,_pSrc_c and _pDest_c must not overlap.
+
+If a null character ('\0') is reached in source before _MaxChar_U32-1 characters have been copied,
+StrNCpy() STOPS padding _pDest_c with null characters until _MaxChar_U32-1 characters have been added
+to dest.
+A null character is ALWAYS inserted in the pDest_c[_MaxChar_U32-1] array entry
+*/
+char *Bof_StrNCpy(char *_pDest_c, const char *_pSrc_c, uint32_t _MaxChar_U32)
+{
+  char  c_c, *pRts_c;
+
+  pRts_c = _pDest_c;
+  if ((_pDest_c) && (_pSrc_c) && (_MaxChar_U32))
+  {
+    _MaxChar_U32--;
+    c_c = 0x01;
+    while ((c_c) && (_MaxChar_U32))
+    {
+      _MaxChar_U32--;
+      c_c = *_pSrc_c++;
+      *_pDest_c++ = c_c;
+    }
+
+    if (c_c)
+    {
+      *_pDest_c = 0;
+    }
+  }
+
+  return(pRts_c);
+}
 
 /*!
 Description

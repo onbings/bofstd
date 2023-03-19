@@ -83,7 +83,7 @@ BofVideoStandard::BofVideoStandard(const std::string &_rStandard_S)
       Ar_lf = (double)Width_U32 / (double)Height_U32;
       Fr_lf = (double)Fps.Num() / (double)Fps.Den();
       AspectRatio = BofRational(Ar_lf, 10);
-      BOF_STRNCPY_NULL_CLIPPED(mCustomFormat_X.pDescription_c, _rStandard_S.c_str(), sizeof(mCustomFormat_X.pDescription_c));
+      Bof_StrNCpy(mCustomFormat_X.pDescription_c, _rStandard_S.c_str(), sizeof(mCustomFormat_X.pDescription_c));
       mCustomFormat_X.Fps_U32 = (uint32_t)Fr_lf;
       mCustomFormat_X.FrameRateNum_U32 = Fps.Num();
       mCustomFormat_X.FrameRateDen_U32 = Fps.Den();

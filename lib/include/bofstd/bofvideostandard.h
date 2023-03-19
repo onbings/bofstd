@@ -22,6 +22,7 @@
 #pragma once
 
 #include <bofstd/bofrational.h>
+#include <bofstd/bofstring.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -66,7 +67,7 @@ struct BOF_VIDEO_STANDARD_ENTRY
   {
     if (_pDescription_c)
     {
-      BOF_STRNCPY_NULL_CLIPPED(pDescription_c, _pDescription_c, sizeof(pDescription_c));
+      Bof_StrNCpy(pDescription_c, _pDescription_c, sizeof(pDescription_c));
     }
     else
     {

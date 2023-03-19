@@ -24,8 +24,8 @@
 #include <cstdint>
 
 BEGIN_BOF_NAMESPACE()
-
-
+//TODO: remove duplicate def
+#define DBG_INSERTSTRING(Index,SNPrintf,Remain,Rts)  {uint32_t NbChar=SNPrintf; Rts=0;if (NbChar>0){Remain-=NbChar;Index+=NbChar;}else{Remain=0;}if (!Remain){Rts=(uint32_t)-1;}}
 typedef enum
 {
   LTREE = 0,

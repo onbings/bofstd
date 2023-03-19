@@ -35,7 +35,7 @@ static const char *S_pBofDefaultTrimCharList_c = " \a\f\n\r\t\v"; /*! Default ch
 BOFSTD_EXPORT std::string Bof_StringToLower(const std::string &_rStrToConvert_S);
 BOFSTD_EXPORT std::string Bof_StringToUpper(const std::string &_rStrToConvert_S);
 BOFSTD_EXPORT char *Bof_StringToUpperInPlace(char *_pStr_c);
-BOFSTD_EXPORT char *Bof_StrNCpy(char *_pDest_c, const char *_pSrc_c, size_t _NbMaxToCopy);
+BOFSTD_EXPORT char *Bof_StrNCpy(char *_pDest_c, const char *_pSrc_c, uint32_t _MaxChar_U32);
 BOFSTD_EXPORT int64_t Bof_CharToBinary(const char *_pStr_c);
 
 
