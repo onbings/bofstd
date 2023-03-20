@@ -49,11 +49,13 @@ static uint8_t S_EndiannessCache_U8 = 0xFF;
 
 inline bool Bof_IsCpuLittleEndian()
 {
+//  printf("in:S_EndiannessCache_U8 = %x adr %p\n", S_EndiannessCache_U8, &S_EndiannessCache_U8);
   if (S_EndiannessCache_U8 == 0xFF)
   {
     int EndianVal_i = 0x69;
     S_EndiannessCache_U8 = (*reinterpret_cast<char *> (&EndianVal_i) == 0x69) ? 0x01 : 0x00;
   }
+  //printf("in:S_EndiannessCache_U8 = %x adr %p\n", S_EndiannessCache_U8, &S_EndiannessCache_U8);
   return ((S_EndiannessCache_U8 != 0) ? true : false);
 }
 
