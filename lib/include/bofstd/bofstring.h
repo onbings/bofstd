@@ -27,6 +27,54 @@
 #include <cstdarg>
 
 BEGIN_BOF_NAMESPACE()
+#define BOF_PARSER_SKIP_UNTIL_CHAR(p) \
+  {                             \
+    while ((*p) && (*p <= ' ')) \
+    {                           \
+      p++;                      \
+    }                           \
+  }
+#define BOF_PARSER_REVERSE_SKIP_UNTIL_CHAR(p) \
+  {                                    \
+    while ((*p) && (*p <= ' '))        \
+    {                                  \
+      p--;                             \
+    }                                  \
+  }
+#define BOF_PARSER_SKIP_UNTIL_SPACE(p) \
+  {                              \
+    while ((*p) && (*p != ' '))  \
+    {                            \
+      p++;                       \
+    }                            \
+  }
+#define BOF_PARSER_LOOK_FOR_ONE_CHAR(p,c,n) \
+  {                                    \
+    n=0;                               \
+    while ((*p) && (*p != c))          \
+    {                                  \
+      p++;                             \
+      n++;                             \
+    }                                  \
+  }
+#define BOF_PARSER_LOOK_FOR_TWO_CHAR(p,c1,c2,n)  \
+  {                                          \
+    n=0;                                     \
+    while ((*p) && (*p != c1) && (*p != c2)) \
+    {                                        \
+      p++;                                   \
+      n++;                                   \
+    }                                        \
+  }
+#define BOF_PARSER_SKIP_UNTIL_EOL(p,n) \
+  {                               \
+    n=0;                          \
+    while ((*p) && (*p >= ' '))   \
+    {                             \
+      p++;                        \
+      n++;                        \
+    }                             \
+  }
 
 BOFSTD_EXPORT std::string Bof_BuildFixedLengthLine(const char *_pLine_c, uint32_t _MinLength_U32, char _LeftChar_c, char _FillChar_c, char _RightChar_c);
 
