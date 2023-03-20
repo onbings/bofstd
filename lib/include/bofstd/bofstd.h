@@ -141,7 +141,7 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
 #define BOF_ALIGN_ADD_NB_PADDING_BYTE(v, a)                                             ((((v) % (a)) != 0) ? ((a)-((v) % (a))) : 0)  //If aligned add a zone of a byte before the next one
 #define BOF_ALIGN_VALUE_ON(v, a)																												(((v) + (a) - 1) & ~((a) - 1))
 #define BOF_SNPRINTF_NULL_CLIPPED(pBuffer, MaxBufferSize, Format, ...)                  {snprintf(pBuffer,MaxBufferSize,Format,##__VA_ARGS__);pBuffer[MaxBufferSize-1]=0;}
-#define BOF_STRNCPY_NULL_CLIPPED(pDst, pSrc, Count)                                     {strncpy(pDst, pSrc, Count);pDst[Count-1]=0;}
+//Use Bof_StrNCpy #define BOF_STRNCPY_NULL_CLIPPED(pDst, pSrc, Count)                                     {strncpy(pDst, pSrc, Count);pDst[Count-1]=0;}
 #define BOF_SET_ADDRESS_MAGIC_NUMBER(p, mn)                                             {(p)->MagicNumber_U64=(reinterpret_cast<uint64_t>(p) ^ static_cast<uint64_t>(mn));}
 #define BOF_CHECK_ADDRESS_MAGIC_NUMBER(s, p, mn)                                        {if (p) {s=((reinterpret_cast<uint64_t>(p) ^ (p)->MagicNumber_U64)==static_cast<uint64_t>(mn));} else s=0;}
 /*https://stackoverflow.com/questions/15832301/understanding-container-of-macro-in-the-linux-kernel

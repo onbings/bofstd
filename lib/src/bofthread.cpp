@@ -312,7 +312,7 @@ BOFERR BofThread::LockThreadCriticalSection(const char *_pLocker_c)
   BOF_ASSERT(_pLocker_c != nullptr);
   BOFERR Rts_E = Bof_LockMutex(mMtx_X);
   mLockBalance++;
-  BOF_STRNCPY_NULL_CLIPPED(mpLastLocker_c, _pLocker_c, sizeof(mpLastLocker_c));
+  Bof_StrNCpy(mpLastLocker_c, _pLocker_c, sizeof(mpLastLocker_c));
   mpLastLocker_c[0] = '+';
   //	printf("##############%s LOCK last %s count %d\n", mName_S.c_str(), mpLastLocker_c, mLockBalance.load());
 

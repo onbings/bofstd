@@ -301,7 +301,7 @@ public:
       if ((std::regex_search(_rItem.Path.FileNameWithExtension().c_str(), FnMatch, S_RegExFn)) && (FnMatch.size() == 1 + 7))
       {
         Rts_E = BOF_ERR_NO_ERROR;
-        BOF_STRNCPY_NULL_CLIPPED(pIdLsm_c, FnMatch[1].str().c_str(), sizeof(pIdLsm_c));
+        Bof_StrNCpy(pIdLsm_c, FnMatch[1].str().c_str(), sizeof(pIdLsm_c));
         Len_U32 = static_cast<uint32_t>(strlen(pIdLsm_c));
         if (Len_U32 >= 2)
         {
@@ -309,7 +309,7 @@ public:
           pIdLsm_c[Len_U32 - 1] = 0;
           Bof_StringToBin(10, pIdLsm_c, XtFile_X.IdLsm_U16);
         }
-        BOF_STRNCPY_NULL_CLIPPED(XtFile_X.pGuid_c, FnMatch[2].str().c_str(), sizeof(XtFile_X.pGuid_c));
+        Bof_StrNCpy(XtFile_X.pGuid_c, FnMatch[2].str().c_str(), sizeof(XtFile_X.pGuid_c));
         Bof_StringToBin(16, FnMatch[3].str().c_str(), XtFile_X.MacroSeq_U16);
         Bof_StringToBin(16, FnMatch[4].str().c_str(), XtFile_X.In_U32);
         Bof_StringToBin(16, FnMatch[5].str().c_str(), XtFile_X.Out_U32);

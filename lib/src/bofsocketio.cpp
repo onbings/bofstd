@@ -660,7 +660,7 @@ BOFERR BofSocketIo::S_ParseListLineBuffer(const std::string &_rBaseDirectory_S, 
         Rts_E = BOF_ERR_FORMAT;
         if ((pEol_c[-1] == '\r') && (SizeOfLine_U32 < sizeof(pListLine_c) - 16)) //-16  terminating null and paranoid
         {
-          BOF_STRNCPY_NULL_CLIPPED(pListLine_c, _pListLineBuffer_c, SizeOfLine_U32 + 1); //+1 nfor null char
+          Bof_StrNCpy(pListLine_c, _pListLineBuffer_c, SizeOfLine_U32 + 1); //+1 nfor null char
           _pListLineBuffer_c += SizeOfLine_U32;
           if ((std::regex_search(pListLine_c, ListMatch, S_RegExList)) && (ListMatch.size() == 1 + 7))
           {
@@ -852,7 +852,7 @@ BOFERR BofSocketIo::LockSocketCriticalSection(const char *_pLocker_c)
 {
   BOFERR Rts_E = Bof_LockMutex(mMtx_X);
   //BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  BOF_STRNCPY_NULL_CLIPPED(mpLastLocker_c, _pLocker_c, sizeof(mpLastLocker_c));
+  Bof_StrNCpy(mpLastLocker_c, _pLocker_c, sizeof(mpLastLocker_c));
   return Rts_E;
 }
 

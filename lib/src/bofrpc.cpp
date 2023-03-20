@@ -946,7 +946,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
         {
           Sts_B = false;
 
-          if (pRpcReqStack_O->Pop(&FctId_U16, 0, nullptr, nullptr))
+          if (pRpcReqStack_O->Pop(&FctId_U16))
           {
             _pRpcParserResult_X->FctId_U32 = FctId_U16;
             Rts_U32 = BOF_ERR_INVALID_COMMAND;
@@ -956,7 +956,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
               pRpcFct_X = &mBofRpcParam_X.pRpcFct_X[_pRpcParserResult_X->FctId_U32];
 
               // memcpy(_pRpcParserResult_X->pRpcFct_X,pRpcFct_X,sizeof(BOFRPCFUNCTION));
-              if (pRpcReqStack_O->Pop(&RpcRts_U16, 0, nullptr, nullptr))
+              if (pRpcReqStack_O->Pop(&RpcRts_U16))
               {
                 _pRpcParserResult_X->RpcRts_U32 = RpcRts_U16;
                 Sts_B = true;
