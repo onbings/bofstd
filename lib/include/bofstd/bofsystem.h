@@ -731,7 +731,7 @@ BOFSTD_EXPORT BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSiz
 BOFSTD_EXPORT BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT uint32_t Bof_CurrentThreadId();
 BOFSTD_EXPORT BOFERR Bof_GetMemoryState(uint64_t &_rAvailableFreeMemory_U64, uint64_t &_rTotalMemorySize_U64);
-BOFSTD_EXPORT uint32_t Bof_InterlockedCompareExchange(uint32_t volatile *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);
+BOFSTD_EXPORT uint32_t Bof_InterlockedCompareExchange(volatile uint32_t *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);
 BOFSTD_EXPORT bool Bof_IsPidRunning(uint32_t _Pid_U32);
 BOFSTD_EXPORT uint32_t Bof_GetCurrentPid();
 BOFSTD_EXPORT BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32 = nullptr);

@@ -311,6 +311,8 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
 { BOF_ERR_DMA_IN,			    "Dma In" },
   { BOF_ERR_DMA_OUT,			    "Dma Out" },
   { BOF_ERR_STORAGE,			    "Storage" },
+  { BOF_ERR_BUFFER,			    "Invalid Buffer" },
+  { BOF_ERR_ACCESS,			    "Access" },
 };
 
 /*** Defines *****************************************************************/

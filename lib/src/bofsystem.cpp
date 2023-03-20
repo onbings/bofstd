@@ -1115,13 +1115,14 @@ uint32_t Bof_CurrentThreadId()
 #endif
   return Rts_U32;
 }
-uint32_t Bof_InterlockedCompareExchange(uint32_t volatile *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32)
+uint32_t Bof_InterlockedCompareExchange(volatile uint32_t *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32)
 {
   uint32_t Rts_U32;
 
 #if defined (_WIN32)
   // The function returns the initial value of the Destination parameter.
-  Rts_U32 = InterlockedCompareExchange((LONG *)_pDestination_U32, _ValueToSetIfEqual_U32, _CheckIfEqualToThis_U32);
+  static_assert(sizeof(LONG) == sizeof(uint32_t));
+  Rts_U32 = InterlockedCompareExchange(_pDestination_U32, _ValueToSetIfEqual_U32, _CheckIfEqualToThis_U32);
 #else
   // The function returns the initial value of the Destination parameter.
   Rts_U32 = __sync_val_compare_and_swap(_pDestination_U32, _CheckIfEqualToThis_U32, _ValueToSetIfEqual_U32);

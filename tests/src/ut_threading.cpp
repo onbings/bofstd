@@ -264,7 +264,6 @@ TEST(Threading_Test, InterlockedCompareExchange)
 
 	S_InterlockedVal_U32 = 0;
 	EXPECT_EQ(S_InterlockedVal_U32, 0);
-	//uint32_t Bof_InterlockedCompareExchange(uint32_t volatile *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32)
 	Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 69, 1);
 	EXPECT_EQ(Val_U32, 0);
 	EXPECT_EQ(S_InterlockedVal_U32, 0);

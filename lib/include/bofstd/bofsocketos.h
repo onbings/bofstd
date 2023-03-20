@@ -21,6 +21,7 @@
 #pragma once
 
 #include <bofstd/bofflag.h>
+#include <bofstd/bofbinserializer.h>
 
 #include <cstdint>
 #include <vector>
@@ -434,37 +435,60 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
 //We want a memory footprint of 32 bit in network order
 struct BOF_IPV4_ADDR_U32
 {
-  uint32_t Ip_U32;
+  uint32_t IpAddress_U32;
   BOF_IPV4_ADDR_U32()
   {
     Reset();
   }
-
+  BOF_IPV4_ADDR_U32(uint32_t _Ip_U32)
+  {
+    IpAddress_U32 = BOF_CPU_TO_BE_32(_Ip_U32);
+  }
   BOF_IPV4_ADDR_U32(uint8_t _Ip1_U8, uint8_t _Ip2_U8, uint8_t _Ip3_U8, uint32_t _Ip4_U8)
   {
-    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&Ip_U32);
+    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
     *pIp_U8++ = static_cast<uint8_t>(_Ip1_U8);
     *pIp_U8++ = static_cast<uint8_t>(_Ip2_U8);
     *pIp_U8++ = static_cast<uint8_t>(_Ip3_U8);
     *pIp_U8++ = static_cast<uint8_t>(_Ip4_U8);
   }
+  BOF_IPV4_ADDR_U32(uint8_t *_pIp_U8)
+  {
+    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
+    *pIp_U8++ = *_pIp_U8++;
+    *pIp_U8++ = *_pIp_U8++;
+    *pIp_U8++ = *_pIp_U8++;
+    *pIp_U8++ = *_pIp_U8++;
+  }
   void Reset()
   {
-    Ip_U32 = 0;
+    IpAddress_U32 = 0;
   }
-  void Parse(BOF_SOCK_TYPE &_rSocketType_E, uint8_t &_rIp1_U8, uint8_t &_rIp2_U8, uint8_t &_rIp3_U8, uint8_t &_rIp4_U8)
+  bool IsNull()
   {
-    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&Ip_U32);
+   return(IpAddress_U32 == 0);
+  }
+  void Parse(uint8_t &_rIp1_U8, uint8_t &_rIp2_U8, uint8_t &_rIp3_U8, uint8_t &_rIp4_U8)
+  {
+    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
     _rIp1_U8 = *pIp_U8++;
     _rIp2_U8 = *pIp_U8++;
     _rIp3_U8 = *pIp_U8++;
     _rIp4_U8 = *pIp_U8++;
   }
-
+  uint32_t ToBinary()
+  {
+    return IpAddress_U32;
+  }
   std::string ToString()
   {
-    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&Ip_U32);
+    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
     return std::to_string(pIp_U8[0]) + '.' + std::to_string(pIp_U8[1]) + '.' + std::to_string(pIp_U8[2]) + '.' + std::to_string(pIp_U8[3]);
+  }
+  std::string ToString(uint16_t _Port_U16)
+  {
+    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
+    return std::to_string(pIp_U8[0]) + '.' + std::to_string(pIp_U8[1]) + '.' + std::to_string(pIp_U8[2]) + '.' + std::to_string(pIp_U8[3]) + ':' + std::to_string(_Port_U16);
   }
 };
 
