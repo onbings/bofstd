@@ -52,11 +52,11 @@ BOFERR Bof_SetFsPermission(const BOF_FILE_PERMISSION _Permission_E, const BofPat
 #if defined (_WIN32)
     // under windows only _S_IREAD and _S_IREAD are supported
     int Permission_i = 0;
-    if (Bof_IsBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IRUSR) || Bof_IsBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IRGRP) || Bof_IsBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IROTH))
+    if (Bof_IsAnyBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IRUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IRGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IROTH))
     {
       Permission_i |= _S_IREAD;
     }
-    if (Bof_IsBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IWUSR) || Bof_IsBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IWGRP) || Bof_IsBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IWOTH))
+    if (Bof_IsAnyBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IWUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IWGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IWOTH))
     {
       Permission_i |= _S_IWRITE;
     }
@@ -435,11 +435,11 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
             FileFound_X.FileType_E = BOF_FILE_TYPE::BOF_FILE_DIR;
-            EntryOk_B = ((Bof_IsBitFlagSet(_FileTypeToFind_E, FileFound_X.FileType_E) && (ItIsADirectory_B)));
+            EntryOk_B = ((Bof_IsAnyBitFlagSet(_FileTypeToFind_E, FileFound_X.FileType_E) && (ItIsADirectory_B)));
             if (!EntryOk_B)
             {
               FileFound_X.FileType_E = BOF_FILE_TYPE::BOF_FILE_REG;
-              EntryOk_B = ((Bof_IsBitFlagSet(_FileTypeToFind_E, FileFound_X.FileType_E) && (!ItIsADirectory_B)));
+              EntryOk_B = ((Bof_IsAnyBitFlagSet(_FileTypeToFind_E, FileFound_X.FileType_E) && (!ItIsADirectory_B)));
             }
             if ((EntryOk_B) && (!ItIsADirectory_B))
             {

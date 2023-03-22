@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
 //    ::testing::GTEST_FLAG(filter) = "Fs_Test.FileLayout:Fs_Test.DirEnum";
 //  ::testing::GTEST_FLAG(filter) = "Fs_Test.ResetFileContentReOpenMode";
 //  ::testing::GTEST_FLAG(filter) = "Api_Test.Endianness";
+ // ::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
   /*
 * under linux:
 [  PASSED  ] 144 tests.

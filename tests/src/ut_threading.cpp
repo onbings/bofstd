@@ -952,9 +952,9 @@ TEST(Threading_Test, SharedMemory)
 #else
 #endif
 	EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
-	Bof_DestroySharedMemory("MyShr");
+	EXPECT_NE(Bof_CloseSharedMemory(ShrMem_X), BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, ShrMem_X);
+	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 	EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
 	EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
@@ -974,7 +974,7 @@ TEST(Threading_Test, SharedMemory)
 		EXPECT_EQ(pCpyVal_U32[i_U32], i_U32);
 	}
 
-	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, AnotherShrMem_X);
+	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, AnotherShrMem_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
 	EXPECT_EQ(AnotherShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
 	EXPECT_STREQ(AnotherShrMem_X.Name_S.c_str(), "MyShr");
@@ -1004,7 +1004,7 @@ TEST(Threading_Test, SharedMemory)
 #endif
 	EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
 
-	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, ShrMem_X);
+	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
 	EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
 	EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
@@ -1022,7 +1022,7 @@ TEST(Threading_Test, SharedMemory)
 	{
 		pVal_U32[i_U32] = i_U32 * 3;
 	}
-	Sts_E=Bof_DestroySharedMemory("MyShr");
+	Sts_E=Bof_CloseSharedMemory(ShrMem_X);
 	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
 }

@@ -314,6 +314,7 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
   { BOF_ERR_BUFFER,			    "Invalid Buffer" },
   { BOF_ERR_ACCESS,			    "Access" },
   { BOF_ERR_RESET,			    "Reset" },
+  { BOF_ERR_MAP,			    "Map" },
 };
 
 /*** Defines *****************************************************************/

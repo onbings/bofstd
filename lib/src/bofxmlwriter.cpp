@@ -166,7 +166,7 @@ public:
                   {
                     NbActiveArrayElement_U32 = VectorCapacity_U32;
                   }
-                  if (Bof_IsBitFlagSet(_rXmlSchema_X[j_U32].ArgFlag_E, BOFPARAMETER_ARG_FLAG::XML_ATTRIBUTE))
+                  if (Bof_IsAnyBitFlagSet(_rXmlSchema_X[j_U32].ArgFlag_E, BOFPARAMETER_ARG_FLAG::XML_ATTRIBUTE))
                   {
                     Rts_E = (ixmlElement_setAttribute(ppXmlElementPerTag_X[SubTagList.size() - 1], _rXmlSchema_X[j_U32].Name_S.c_str(), pXmlValue_c) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
                   }

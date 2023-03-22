@@ -83,7 +83,7 @@ public:
       {
         Index_U32 = 0;
         snprintf(pOid_c, sizeof(pOid_c), "%s.%s", _rXmlSchema_X[i_U32].Path_S.c_str(), _rXmlSchema_X[i_U32].Name_S.c_str());
-        pXmlValue_c = GetFirstElementFromOid(Bof_IsBitFlagSet(_rXmlSchema_X[i_U32].ArgFlag_E, BOFPARAMETER_ARG_FLAG::XML_ATTRIBUTE), pOid_c);
+        pXmlValue_c = GetFirstElementFromOid(Bof_IsAnyBitFlagSet(_rXmlSchema_X[i_U32].ArgFlag_E, BOFPARAMETER_ARG_FLAG::XML_ATTRIBUTE), pOid_c);
         Finish_B = false;
 
         Rts_E = BOF_ERR_NO_ERROR;

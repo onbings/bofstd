@@ -52,8 +52,8 @@ VideoGeneratorFlag_E = BOFAV_NAMESPACE::BOFAV_VIDEO_GENERATOR_FLAG::BOFAV_VIDEO_
 ReferenceStatus_E = ReferenceStatus_E | GENLOCK_STATUS_FLAG::NOT_LOCKED;
 ReferenceStatus_E++;
 VideoGeneratorFlag_E++;
-if (Bof_IsBitFlagSet(BofAvVideoGeneratorParam_X.VideoGeneratorFlag_E, BOFAV_NAMESPACE::BOFAV_VIDEO_GENERATOR_FLAG::BOFAV_VIDEO_GENERATOR_FLAG_COUNTER))
-if (
+if (Bof_IsAnyBitFlagSet(BofAvVideoGeneratorParam_X.VideoGeneratorFlag_E, BOFAV_NAMESPACE::BOFAV_VIDEO_GENERATOR_FLAG::BOFAV_VIDEO_GENERATOR_FLAG_COUNTER))
+if (Bof_IsAllBitFlagSet(_AccessType_E, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE))
 */
 // Intentionally undefined for non-enum types.
 template<typename T, bool = std::is_enum<T>::value>
@@ -148,10 +148,22 @@ T operator--(T &_rFlag)
 }
 
 template<typename T, typename std::enable_if<IsItAnEnumBitFLag<T>::value>::type * = nullptr>
-bool Bof_IsBitFlagSet(T _Lhs, T _Rhs)
+bool Bof_IsAnyBitFlagSet(T _Lhs, T _Rhs)
 {
 	using u_t = typename std::underlying_type<T>::type;
-	return ((static_cast< u_t > (_Lhs) & static_cast< u_t > (_Rhs)) ? true : false);
+	u_t Lhs, Rhs;
+	Lhs = static_cast<u_t> (_Lhs);
+	Rhs = static_cast<u_t> (_Rhs);
+	return ((Lhs & Rhs) ? true : false);
 }
 
+template<typename T, typename std::enable_if<IsItAnEnumBitFLag<T>::value>::type * = nullptr>
+bool Bof_IsAllBitFlagSet(T _Lhs, T _Rhs)
+{
+	using u_t = typename std::underlying_type<T>::type;
+	u_t Lhs, Rhs;
+	Lhs = static_cast<u_t> (_Lhs);
+	Rhs = static_cast<u_t> (_Rhs);
+	return (((Lhs & Rhs) == (Rhs)) ? true : false);
+}
 END_BOF_NAMESPACE()

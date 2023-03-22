@@ -245,6 +245,7 @@ BOF_ERR_STORAGE,			    ///< Storage
 BOF_ERR_BUFFER,			    ///< Buffer
 BOF_ERR_ACCESS,			    ///< Access
 BOF_ERR_RESET,			    ///< Reset
+BOF_ERR_MAP,			    ///< Map
 };
 #define BOF_ERR_EWOULDBLOCK  BOF_ERR_EAGAIN
 #define BOF_ERR_EDEADLOCK    BOF_ERR_EDEADLK

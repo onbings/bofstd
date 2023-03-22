@@ -19,7 +19,7 @@
  * V 1.00  Jan 19 2017  BHA : Initial release
  */
 #pragma once
-#include <bofstd/bofstd.h>
+#include <bofstd/bofflag.h>
 
 #include <algorithm>
 #include <memory>
@@ -472,6 +472,17 @@ struct BOFSTD_EXPORT BOF_CONDITIONAL_VARIABLE
 };
 
 const uint32_t BOF_FILEMAPPING_MAGIC = 0x165464DE;
+enum class BOF_ACCESS_TYPE : uint32_t
+{
+  BOF_ACCESS_NONE = 0x00000000,
+
+  BOF_ACCESS_READ = 0x00000001,
+  BOF_ACCESS_WRITE = 0x00000002,
+};
+template<>
+struct IsItAnEnumBitFLag<BOF_ACCESS_TYPE> : std::true_type
+{
+};
 
 struct BOFSTD_EXPORT BOF_SHARED_MEMORY
 {
@@ -529,6 +540,13 @@ enum BOF_THREAD_PRIORITY
   016->032  -2
   000->015  -15
   */
+  //BOF_THREAD_PRIORITY_HIGHEST = 1,
+  //BOF_THREAD_PRIORITY_ABOVE_NORMAL = 2,
+  //BOF_THREAD_PRIORITY_NORMAL = 3,
+  //BOF_THREAD_PRIORITY_BELOW_NORMAL = 4,
+  //BOF_THREAD_PRIORITY_LOWEST = 5,
+  //BOF_THREAD_PRIORITY_ABOVE_IDLE = 6,
+
   BOF_THREAD_PRIORITY_IDLE = -15,
   BOF_THREAD_PRIORITY_TIME_CRITICAL = 15,
   BOF_THREAD_DEFAULT_PRIORITY = 0x7FFFFFFF,
@@ -698,20 +716,22 @@ typedef union semsetgetval
 }
 BOF_SEM_SETGETVAL;
 
-BOFSTD_EXPORT BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_SHARED_MEMORY &_rSharedMemory_X);
+BOFSTD_EXPORT BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, BOF_SHARED_MEMORY &_rSharedMemory_X);
 BOFSTD_EXPORT bool Bof_IsSharedMemoryValid(BOF_SHARED_MEMORY &_rSharedMemory_X);
 BOFSTD_EXPORT BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X);
-BOFSTD_EXPORT BOFERR Bof_DestroySharedMemory(const std::string &_rName_S);
+
 BOFSTD_EXPORT BOFERR Bof_CreateSemaphore(const std::string &_rName_S, int32_t _InitialCount_S32, BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT bool Bof_IsSemaphoreValid(BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT BOFERR Bof_SignalSemaphore(BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT BOFERR Bof_WaitForSemaphore(BOF_SEMAPHORE &_rSem_X, uint32_t _TimeoutInMs_U32);
 BOFSTD_EXPORT BOFERR Bof_DestroySemaphore(BOF_SEMAPHORE &_rSem_X);
+
 BOFSTD_EXPORT BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _PriorityInversionAware_B, BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT bool Bof_IsMutexValid(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
+
 BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool _NotifyAll_B*/ uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT bool Bof_IsEventValid(BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, /*bool _CancelIt_B*/ uint32_t _Instance_U32);
@@ -719,6 +739,7 @@ BOFSTD_EXPORT BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32
 BOFSTD_EXPORT bool Bof_IsEventSignaled(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
 BOFSTD_EXPORT BOFERR Bof_WaitForEvent(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint32_t _Instance_U32);
 BOFSTD_EXPORT BOFERR Bof_DestroyEvent(BOF_EVENT &_rEvent_X);
+
 BOFSTD_EXPORT BOF_THREAD_PRIORITY Bof_ThreadPriorityFromValue(int32_t _Priority_S32);
 BOFSTD_EXPORT int32_t Bof_ValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E);
 BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY &_rMin_E, BOF_THREAD_PRIORITY &_rMax_E);
@@ -730,6 +751,7 @@ BOFSTD_EXPORT bool Bof_IsThreadValid(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);
 BOFSTD_EXPORT BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT uint32_t Bof_CurrentThreadId();
+
 BOFSTD_EXPORT BOFERR Bof_GetMemoryState(uint64_t &_rAvailableFreeMemory_U64, uint64_t &_rTotalMemorySize_U64);
 BOFSTD_EXPORT uint32_t Bof_InterlockedCompareExchange(volatile uint32_t *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);
 BOFSTD_EXPORT bool Bof_IsPidRunning(uint32_t _Pid_U32);

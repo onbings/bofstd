@@ -21,6 +21,7 @@
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/bofbit.h>
+#include <bofstd/boffs.h>
 
 #include <thread>
 #include <random>
@@ -84,9 +85,11 @@ PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurity
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/statvfs.h>
+#include <signal.h>
+
+
 #endif
 
-#include <signal.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -94,7 +97,15 @@ static std::random_device S_Rd;
 static std::mt19937 S_RandomGenerator(S_Rd());
 static std::uniform_real_distribution<float> S_RandomFloatDistribution(0.0, 1.0f);
 
-BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_SHARED_MEMORY &_rSharedMemory_X)
+
+//TODO: When validated, remove functionS just after in the#if 0 with the old file mapppint api...
+
+//TODO: NMA ?
+//BHA->Should use Bof_OpenFileMapping and co in bofportability 
+//and Bof_CreateFileMapping does not correcly generate SemKey = ftok(pFile_c, (char) Id_i); ->use GenerateSystemVKey
+// if app crash shared memory stay active=>this is mainly use by nma to store event name->this should also work with Bof_OpenFileMapping=> a confimer avec nma
+
+BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, BOF_SHARED_MEMORY &_rSharedMemory_X)
 {
   BOFERR Rts_E = BOF_ERR_ALREADY_OPENED;
 
@@ -107,7 +118,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
     //	char                pName_c[512];
     PSECURITY_DESCRIPTOR pSecurityDescriptor_X;
     SECURITY_ATTRIBUTES  SecurityAttribute_X;
-
+    uint32_t Flag_U32;
     Rts_E = BOF_ERR_EACCES;
     // Name must start with Global\\->Responsabilities of the caller !
     if ((strncmp(_rSharedMemory_X.Name_S.c_str(), "Global\\", 7)) && (strncmp(_rSharedMemory_X.Name_S.c_str(), "Local\\", 6)))
@@ -117,24 +128,50 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
     pSecurityDescriptor_X = CreateWinSecurityDescriptor(&SecurityAttribute_X);
 
     if ((pSecurityDescriptor_X)
-        //			&& (Bof_MultiByteToWideChar(_rSharedMemory_X.Name_S.c_str(), sizeof(pName_wc) / sizeof(WCHAR), pName_wc)>=0)
-        )
+      //			&& (Bof_MultiByteToWideChar(_rSharedMemory_X.Name_S.c_str(), sizeof(pName_wc) / sizeof(WCHAR), pName_wc)>=0)
+      )
     {
       Rts_E = BOF_ERR_EINVAL;
       // Name must start with Global\\->Responsabilities of the caller ! sinon			Rts_h = BOF_INVALID_HANDLE_VALUE;
 //			_rSharedMemory_X.pHandle = CreateFileMapping(BOF_INVALID_HANDLE_VALUE, &SecurityAttribute_X, PAGE_READWRITE | SEC_COMMIT, 0, _SizeInByte_U32, pName_c);
-      _rSharedMemory_X.pHandle = CreateFileMappingA(INVALID_HANDLE_VALUE, &SecurityAttribute_X, PAGE_READWRITE | SEC_COMMIT, 0, _SizeInByte_U32, _rSharedMemory_X.Name_S.c_str());
+
+      Flag_U32 = 0;
+
+      if (Bof_IsAllBitFlagSet(_AccessType_E, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE))
+      {
+        Flag_U32 |= PAGE_READWRITE | SEC_COMMIT;
+      }
+      else if (Bof_IsAnyBitFlagSet(_AccessType_E, BOF_ACCESS_TYPE::BOF_ACCESS_READ))
+      {
+        Flag_U32 |= PAGE_READONLY;
+      }
+      else if (Bof_IsAnyBitFlagSet(_AccessType_E, BOF::BOF_ACCESS_TYPE::BOF_ACCESS_WRITE))
+      {
+        Flag_U32 |= PAGE_READWRITE | SEC_COMMIT;
+      }
+      _rSharedMemory_X.pHandle = CreateFileMappingA(INVALID_HANDLE_VALUE, &SecurityAttribute_X, Flag_U32, 0, _SizeInByte_U32, _rSharedMemory_X.Name_S.c_str());
       if (_rSharedMemory_X.pHandle)
       {
         Rts_E = Bof_GetLastError(false);
-        _rSharedMemory_X.Magic_U32 = BOF_FILEMAPPING_MAGIC;
-        _rSharedMemory_X.pBaseAddress = MapViewOfFile(_rSharedMemory_X.pHandle, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0);
+        if ((Rts_E == BOF_ERR_EEXIST) || (Rts_E == BOF_ERR_NO_ERROR))
+        {
+          _rSharedMemory_X.pBaseAddress = MapViewOfFile(_rSharedMemory_X.pHandle, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0);
+          if (_rSharedMemory_X.pBaseAddress == nullptr)
+          {
+            Rts_E = BOF_ERR_MAP;
+          }
+          else
+          {
+            _rSharedMemory_X.Magic_U32 = BOF_FILEMAPPING_MAGIC;
+          }
+        }
       }
     }
 
 #else
     std::string Name_S;
-    int Handle_i;
+    int Handle_i, Access_i;
+    mode_t Mode;
     Rts_E = BOF_ERR_EINVAL;
     if (isalpha(_rSharedMemory_X.Name_S[0]))
     {
@@ -144,14 +181,33 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
       Handle_i = -1;
       Rts_E = BOF_ERR_EEXIST;
 #else
-      Handle_i = shm_open(Name_S.c_str(), O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+      Access_i = O_CREAT | O_EXCL;
+      Mode = 0;
+      if (Bof_IsAllBitFlagSet(_AccessType_E, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE))
+      {
+        Access_i |= O_RDWR;
+        Mode |= S_IRUSR | S_IWUSR;
+      } 
+      else if (Bof_IsAnyBitFlagSet(_AccessType_E, BOF_ACCESS_TYPE::BOF_ACCESS_READ))
+      {
+        Access_i |= O_READ;
+        Mode |= S_IRUSR;
+      } 
+      else if (Bof_IsAnyBitFlagSet(_AccessType_E, BOF::BOF_ACCESS_TYPE::BOF_ACCESS_WRITE))
+      {
+        Access_i |= O_RDWR;
+        Mode |= S_IRUSR | S_IWUSR;
+      }
+      Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
       if (Handle_i >= 0)
       {
         Rts_E = (ftruncate(Handle_i, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_SIZE;
       }
       else
       {
-        Handle_i = shm_open(Name_S.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+//        Handle_i = shm_open(Name_S.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+        Access_i ^= O_EXCL;
+        Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
         if (Handle_i >= 0)
         {
           Rts_E = BOF_ERR_EEXIST;
@@ -201,6 +257,12 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X)
     if (_rSharedMemory_X.pBaseAddress)
     {
       Rts_E = (munmap(_rSharedMemory_X.pBaseAddress, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+      std::string Name_S = "/" + _rSharedMemory_X.Name_S;
+//#if defined(__ANDROID__)
+//      Rts_E = BOF_ERR_EEXIST;
+//#else
+      Rts_E = (shm_unlink(Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
+//#endif
     }
     //		Rts_E=Bof_DeleteSharedMemory(_rSharedMemory_X.Name_S);
 
@@ -211,27 +273,354 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X)
   return Rts_E;
 }
 
-BOFERR Bof_DestroySharedMemory(const std::string &_rName_S)
+//TODO: remove this after validation of Bof_OpenSharedMemory
+#if 0
+//This one is only under linux->put it after include
+uint64_t GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, int _Id_i)
 {
-  BOFERR Rts_E;
+  uint64_t Rts_U64 = 0;
+  char  pFn_c[256], *pId_c;
+  bool  FileLock_B;
+  uintptr_t Io;
 
-#if defined (_WIN32)
-  Rts_E = BOF_ERR_NO_ERROR;	//Shared memory dos not survive when its father process creator exit or die <-> posix linux behaviour
-#else
-  std::string Name_S;
-  Rts_E = BOF_ERR_EINVAL;
-  if (isalpha(_rName_S[0]))
+  if ((_pFn_c == NULL) || (_pFn_c[0] == 0))
   {
-    Name_S = "/" + _rName_S;
-#if defined(__ANDROID__)
-    Rts_E = BOF_ERR_EEXIST;
-#else
-    Rts_E = (shm_unlink(Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
-#endif
+    strcpy(pFn_c, "/dev/null");                                                                 // /dev/null is supposed to be present on alll unix station..
+    _CreateFn_B = false;
   }
-#endif
-  return Rts_E;
+  else
+  {
+    strcpy(pFn_c, _pFn_c);
+  }
+
+  if (_Id_i == 0)
+  {
+    //Check if id is set in filename. for example you can specify a path to your app exe such as /usr/mc/ucode followed by a numeric id->/usr/mc/ucode/23
+    pId_c = strrchr(pFn_c, '/');
+    if (pId_c != NULL)
+    {
+      _Id_i = atoi(pId_c + 1);
+      if (_Id_i == 0)
+      {
+        _Id_i = *(pId_c + 1);	// pFn_c[0];
+      }
+      else
+      {
+        *pId_c = (char)0;	//keep path to existing file and remove id component
+        //		_CreateFn_B = false;	//In that case the file must exist and could be on a read only disk
+      }
+    }
+  }
+
+  if (_CreateFn_B)
+  {
+    Bof_CreateFile(BOF::BOF_FILE_PERMISSION_READ_FOR_ALL | BOF::BOF_FILE_PERMISSION_WRITE_FOR_ALL, pFn_c, false, Io);  //If it fails, it will also fails on the following line
+  }
+  Rts_U64 = (uint64_t)ftok(pFn_c, _Id_i);                                                          //ftok need an exiting filename .
+  return Rts_U64;
 }
+/*!
+ * Description
+ * This function creates a file mapping
+ *
+ * Parameters
+ * _AccessType_U32   - The requested access type
+ * _pName_c          - The name of the shared memory
+ * _Size_U32         - The size in bytes of the shared memory
+ * _pAlreadyExist_B  - The optional pointer to where to store the flag indicating if the shared memory already exists
+ *
+ * Returns
+ * The handle to the shared memory
+ *
+ * Remarks
+ * None
+ */
+HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Size_U32, bool *_pAlreadyExist_B)
+{
+  HANDLE                Ret_h = NULL;
+  BOF_SHARED_MEM_HANDLE *pHandle_X = new BOF_SHARED_MEM_HANDLE();
+  bool Ok_B = false;
+  U32  Protect_U32 = 0;
+
+  if (pHandle_X != NULL)
+  {
+#if defined( __linux__ ) || defined(__APPLE__)
+
+    key_t SemKey;
+    //  int   Flag_i;
+      //char  pFile_c[512];
+      //char  *pId_c;
+    int   Id_i, Flag_i;
+
+
+
+
+
+    if (_pName_c != NULL)
+    {
+#if defined(__ANDROID__)
+#else
+#if 0
+      // Convert name to key
+      strncpy(pFile_c, _pName_c, sizeof(pFile_c));
+
+      // Convert the name to "File path" - "Projet Id" couple
+      pId_c = strrchr(pFile_c, '/');
+
+      if (pId_c != NULL)
+      {
+        *pId_c = '\0';
+        pId_c += 1;
+
+        Id_i = atoi(pId_c);
+
+        // Build the unique key
+        SemKey = ftok(pFile_c, (char)Id_i);
+      }
+#endif
+      //    IdKey = ftok("/dev/null", _pName_c[0]);                     //ftok need an exiting filename /dev/null is supposed to be present on alll unix station...
+      SemKey = Bof_GenerateSystemVKey(true, _pName_c, 0);
+      if (SemKey != -1)
+      {
+        // Get the semaphore if it already exists
+        pHandle_X->SharedMemId_i = shmget(SemKey, (size_t)_Size_U32, 0);
+
+        // The semaphore does not exist : create it
+        if (pHandle_X->SharedMemId_i == -1)
+        {
+          if (_pAlreadyExist_B != NULL)
+          {
+            *_pAlreadyExist_B = false;
+          }
+
+          // Creation flag
+          Flag_i = IPC_CREAT;
+
+          // Set the permissions flags
+          if ((_AccessType_U32 & BOF_THREAD_ACCESS_READ) == BOF_THREAD_ACCESS_READ)
+          {
+            Flag_i |= (S_IRUSR | S_IRGRP);
+          }
+
+          if ((_AccessType_U32 & BOF_THREAD_ACCESS_WRITE) == BOF_THREAD_ACCESS_WRITE)
+          {
+            Flag_i |= (S_IWUSR | S_IWGRP);
+          }
+
+          if ((_AccessType_U32 & BOF_THREAD_ACCESS_EXECUTE) == BOF_THREAD_ACCESS_EXECUTE)
+          {
+            Flag_i |= (S_IXUSR | S_IXGRP);
+          }
+
+          // Create the shared memory
+          pHandle_X->SharedMemId_i = (int)shmget(SemKey, (size_t)_Size_U32, Flag_i);
+
+          if (pHandle_X->SharedMemId_i >= 0)
+          {
+            Ok_B = true;
+          }
+        }
+        else
+        {
+          if (_pAlreadyExist_B != NULL)
+          {
+            *_pAlreadyExist_B = true;
+          }
+
+          Ok_B = true;
+        }
+      }
+#endif
+    }
+#else
+    TCHAR pName_W[256] = { 0 };
+    TCHAR *pName_c = pName_W;
+
+#if UNICODE
+    if (_pName_c != NULL)
+    {
+      // On convertit le nom du programme et les arguments en Unicode
+      MultiByteToWideChar(CP_ACP, 0, _pName_c, (int)strlen(_pName_c) + 1, pName_W, sizeof(pName_W) / sizeof(pName_W[0]));
+    }
+    else
+    {
+      pName_c = NULL;
+    }
+
+#else
+    pName_c = (TCHAR *)_pName_c;
+#endif
+
+    // Set the protection bits
+    if ((_AccessType_U32 & BOF_THREAD_ACCESS_NONE) == BOF_THREAD_ACCESS_NONE)
+    {
+      Protect_U32 = PAGE_NOACCESS;
+    }
+    else
+    {
+      if ((_AccessType_U32 & BOF_THREAD_ACCESS_EXECUTE_READWRITE) == BOF_THREAD_ACCESS_EXECUTE_READWRITE)
+      {
+        Protect_U32 |= PAGE_EXECUTE_READWRITE;
+      }
+      else if ((_AccessType_U32 & BOF_THREAD_ACCESS_EXECUTE_READ) == BOF_THREAD_ACCESS_EXECUTE_READ)
+      {
+        Protect_U32 |= PAGE_EXECUTE_READ;
+      }
+      else if ((_AccessType_U32 & BOF_THREAD_ACCESS_EXECUTE_WRITE) == BOF_THREAD_ACCESS_EXECUTE_WRITE)
+      {
+        Protect_U32 |= PAGE_EXECUTE_WRITECOPY;
+      }
+      else if ((_AccessType_U32 & BOF_THREAD_ACCESS_READWRITE) == BOF_THREAD_ACCESS_READWRITE)
+      {
+        Protect_U32 |= PAGE_READWRITE;
+      }
+      else if ((_AccessType_U32 & BOF_THREAD_ACCESS_READ) == BOF_THREAD_ACCESS_READ)
+      {
+        Protect_U32 |= PAGE_READONLY;
+      }
+      else if ((_AccessType_U32 & BOF_THREAD_ACCESS_WRITE) == BOF_THREAD_ACCESS_WRITE)
+      {
+        Protect_U32 |= PAGE_WRITECOPY;
+      }
+    }
+
+    // Create the file mapping
+    pHandle_X->SharedMem_h = CreateFileMapping(NULL, NULL, Protect_U32, 0, _Size_U32, pName_c);
+
+    if (pHandle_X->SharedMem_h != NULL)
+    {
+      Ok_B = true;
+
+      if (_pAlreadyExist_B != NULL)
+      {
+        *_pAlreadyExist_B = (GetLastError() == ERROR_ALREADY_EXISTS);
+      }
+    }
+#endif
+
+    if (Ok_B)
+    {
+      pHandle_X->Magic_U32 = BOFSHAREDMEM_MAGIC;
+
+      Ret_h = (HANDLE)pHandle_X;
+    }
+    else
+    {
+      SAFE_DELETE(pHandle_X);
+    }
+  }
+
+  return Ret_h;
+}
+
+
+
+
+
+/*!
+ * Description
+ * This function unmaps an opened file mapping
+ * from the current process space
+ *
+ * Parameters
+ * _pMap - The pointer to the mapped zone
+ *
+ * Returns
+ * BOF_THREAD_ERR_OK             - The operation was successful
+ * BOF_THREAD_ERR_INVALID_PARAM  - At least one parameter is not valid
+ * BOF_THREAD_ERR_INTERNAL_ERROR - An internal error occurred
+ * BOF_THREAD_ERR_WAIT_TIMEOUT   - A timeout occurred
+ * BOF_THREAD_ERR_ALREADY_EXIST  - The object already exist
+ *
+ * Remarks
+ * None
+ */
+uint32_t Bof_UnmapViewOfFile(void *_pMap)
+{
+  uint32_t Ret_U32 = (uint32_t)BOF_THREAD_ERR_OK;
+
+  if (_pMap != NULL)
+  {
+#if defined( __linux__ ) || defined(__APPLE__)
+#if defined(__ANDROID__)
+#else
+    if (shmdt(_pMap) == -1)
+    {
+      Ret_U32 = (uint32_t)BOF_THREAD_ERR_INTERNAL_ERROR;
+    }
+#endif
+#else
+    if (!UnmapViewOfFile(_pMap))
+    {
+      Ret_U32 = (uint32_t)BOF_THREAD_ERR_INTERNAL_ERROR;
+    }
+#endif
+}
+  else
+  {
+    Ret_U32 = (uint32_t)BOF_THREAD_ERR_INVALID_PARAM;
+  }
+
+  return Ret_U32;
+}
+
+/*!
+ * Description
+ * This function closes an opened file mapping
+ *
+ * Parameters
+ * _FileMap_h - The handle to the file mapping
+ *
+ * Returns
+ * BOF_THREAD_ERR_OK             - The operation was successful
+ * BOF_THREAD_ERR_INVALID_PARAM  - At least one parameter is not valid
+ * BOF_THREAD_ERR_INTERNAL_ERROR - An internal error occurred
+ * BOF_THREAD_ERR_WAIT_TIMEOUT   - A timeout occurred
+ * BOF_THREAD_ERR_ALREADY_EXIST  - The object already exist
+ *
+ * Remarks
+ * None
+ */
+uint32_t Bof_RemoveFileMapping(HANDLE _FileMap_h)
+{
+  uint32_t Ret_U32 = (uint32_t)BOF_THREAD_ERR_OK;
+  BOF_SHARED_MEM_HANDLE *pHandle_X = (BOF_SHARED_MEM_HANDLE *)_FileMap_h;
+
+  if ((pHandle_X != NULL) && (pHandle_X->Magic_U32 == BOFSHAREDMEM_MAGIC))
+  {
+#if defined( __linux__ ) || defined(__APPLE__)
+#if defined(__ANDROID__)
+#else
+    if (shmctl(pHandle_X->SharedMemId_i, IPC_RMID, NULL) != 0)
+    {
+      Ret_U32 = (uint32_t)BOF_THREAD_ERR_INTERNAL_ERROR;
+    }
+#endif
+#else
+    if (!CloseHandle(pHandle_X->SharedMem_h))
+    {
+      Ret_U32 = (uint32_t)BOF_THREAD_ERR_INTERNAL_ERROR;
+    }
+#endif
+
+    pHandle_X->Magic_U32 = 0;
+
+    SAFE_DELETE(pHandle_X);
+}
+  else
+  {
+    Ret_U32 = (uint32_t)BOF_THREAD_ERR_INVALID_PARAM;
+  }
+
+  return Ret_U32;
+}
+#endif
+
+
+
+
+
+
 
 BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _PriorityInversionAware_B, BOF_MUTEX &_rMtx_X)
 {
@@ -814,6 +1203,7 @@ BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_P
   return Rts_E;
 }
 
+
 BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFunction, void *_pUserContext, BOF_THREAD &_rThread_X)
 {
   BOFERR Rts_E = BOF_ERR_EEXIST;
@@ -956,7 +1346,8 @@ static void *S_ThreadLauncher(void *_pContext)
   return pRts;
 }
 
-BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32)
+BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, 
+  BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
   uint32_t Start_U32, Delta_U32;

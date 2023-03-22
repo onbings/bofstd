@@ -194,7 +194,7 @@ public:
           Rts_E = Bof_CreateDirectory(Permission_E, mLogChannelParam_X.FileLogPath.DirectoryName(true,false));
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
-            if (Bof_IsBitFlagSet(mLogChannelParam_X.LogFlag_E, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE))
+            if (Bof_IsAnyBitFlagSet(mLogChannelParam_X.LogFlag_E, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE))
             {
               DeleteLogStorage();
             }

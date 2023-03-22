@@ -100,7 +100,7 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
           {
             pGetOptShort_c[IndexInShortOpt_i++] = _rCommandLineOption_X[i].Name_S[0];
 
-            if (Bof_IsBitFlagSet(_rCommandLineOption_X[i].ArgFlag_E, BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG))
+            if (Bof_IsAnyBitFlagSet(_rCommandLineOption_X[i].ArgFlag_E, BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG))
             {
               pGetOptShort_c[IndexInShortOpt_i++] = ':';
             }

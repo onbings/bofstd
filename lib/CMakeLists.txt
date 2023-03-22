@@ -180,6 +180,7 @@ set(PROTOCOL_FILES
 )
 
 set(SERDER_FILES
+	src/bofbinserializer.cpp
 	include/bofstd/bofbinserializer.h
 	include/bofstd/bofparameter.h
 	src/bofparameter.cpp	

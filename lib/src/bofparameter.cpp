@@ -286,7 +286,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
     if ((!ShortOpt_B) && (_rBofParameter_X.ArrayCapacity_U32))
     {
       //"--a32=0xABCDEF,1,2,0xDEADBEEF,44,55,,"->But if you have a text with , it will break
-      if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::COMA_IS_NOT_A_SEPARATOR))
+      if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::COMA_IS_NOT_A_SEPARATOR))
       {
         pComaSep_c = nullptr;
       }
@@ -439,28 +439,28 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             {
               if (IpAddress_X.Ip_X.IpV6_B == (_rBofParameter_X.ArgType_E == BOFPARAMETER_ARG_TYPE::IPV6) ? true : false)
               {
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_SCHEME))
+                if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_SCHEME))
                 {
                   if (IpAddress_X.Protocol_S.empty())
                   {
                     Rts_E = BOF_ERR_PROTOCOL;
                   }
                 }
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_USER))
+                if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_USER))
                 {
                   if (IpAddress_X.User_S.empty())
                   {
                     Rts_E = BOF_ERR_EUSERS;
                   }
                 }
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PASSWORD))
+                if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PASSWORD))
                 {
                   if (IpAddress_X.Password_S.empty())
                   {
                     Rts_E = BOF_ERR_EACCES;
                   }
                 }
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT))
+                if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT))
                 {
                   if (IpAddress_X.Port_U16 == 0)
                   {
@@ -488,7 +488,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             if (Path.IsValid())
             {
               Rts_E = BOF_ERR_NO_ERROR;
-              if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::PATH_IS_DIR))
+              if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::PATH_IS_DIR))
               {
                 if (!Path.IsDirectory())
                 {
@@ -497,7 +497,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
               }
               if (Rts_E == BOF_ERR_NO_ERROR)
               {
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::PATH_IS_FILE))
+                if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::PATH_IS_FILE))
                 {
                   if (!Path.IsFile())
                   {
@@ -507,7 +507,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
               }
               if (Rts_E == BOF_ERR_NO_ERROR)
               {
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST))
+                if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST))
                 {
                   if (!Path.IsExist())
                   {
@@ -524,21 +524,21 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
             {
               Rts_E = BOF_ERR_NO_ERROR;
 
-              if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_SCHEME))
+              if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_SCHEME))
               {
                 if (Uri.Scheme().empty())
                 {
                   Rts_E = BOF_ERR_PROTOCOL;
                 }
               }
-              if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_AUTHORITY))
+              if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_AUTHORITY))
               {
                 if (Uri.Authority().empty())
                 {
                   Rts_E = BOF_ERR_EUSERS;
                 }
               }
-              if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_PATH))
+              if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_PATH))
               {
                 Uri.Path(Path_S);
                 if (Path_S.empty())
@@ -546,7 +546,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
                   Rts_E = BOF_ERR_EBADFD;
                 }
               }
-              if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_QUERY))
+              if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_QUERY))
               {
                 Uri.QueryParamCollection(Query_S);
                 if (Query_S.empty())
@@ -554,7 +554,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
                   Rts_E = BOF_ERR_EILSEQ;
                 }
               }
-              if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_FRAG))
+              if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::URI_NEED_FRAG))
               {
                 if (Uri.Fragment().empty())
                 {
@@ -613,11 +613,11 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
         }
         if (Rts_E == BOF_ERR_NO_ERROR) //&& (CheckOk_B))//Callback has confirmed and we have no error -> store it
         {
-          if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY))
+          if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY))
           {
             Rts_E = BOF_ERR_WRITE;
           }
-          else  //if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY))
+          else  //if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY))
           {
             if (ShortOpt_B)  //Short non required option
             {
@@ -650,7 +650,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
 
               case BOFPARAMETER_ARG_TYPE::CHARSTRING:
               case BOFPARAMETER_ARG_TYPE::STDSTRING:
-                if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::STR_FORMAT_ISREGEXP))
+                if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::STR_FORMAT_ISREGEXP))
                 {
                   const std::regex Pattern(_rBofParameter_X.Format_S.c_str());
                   if (!regex_match(pTheOptVal_c, Pattern))
@@ -1023,7 +1023,7 @@ DateTimeParse:
                 Rts_E = BOF_ERR_INTERNAL;
                 break;
             } // switch (_rBofParameter_X.ArgType_E)
-          } //else if (Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY))
+          } //else if (Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY))
         } //if ((Rts_E == BOF_ERR_NO_ERROR) && (CheckOk_B))/
 
         if (pComaSep_c)
@@ -1860,11 +1860,11 @@ DateTimeToString:
           }
           if (pRts_c)
           {
-            //  snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_SocketAddressToString(IpV4_X, false, Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT)).c_str());
-            bool Scheme_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_SCHEME);
-            bool User_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_USER);
-            bool Password_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PASSWORD);
-            bool Port_B = Bof_IsBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT);
+            //  snprintf(_pToString_c, _MaxSize_U32, "%s", Bof_SocketAddressToString(IpV4_X, false, Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT)).c_str());
+            bool Scheme_B = Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_SCHEME);
+            bool User_B = Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_USER);
+            bool Password_B = Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PASSWORD);
+            bool Port_B = Bof_IsAnyBitFlagSet(_rBofParameter_X.ArgFlag_E, BOFPARAMETER_ARG_FLAG::IP_FORMAT_PORT);
             snprintf(_pToString_c, _MaxSize_U32, "%s", IpAddressComponent_X.ToString(Scheme_B, User_B, Password_B, Port_B).c_str());
           }
         }
@@ -2131,7 +2131,7 @@ void BofParameter::S_BuildHelpString(const std::vector<BOFPARAMETER> &_rListOfPa
         //			p_c += std::sprintf(p_c, "%s ", S_ArgTypeToString(_rListOfParam_X[i_U32].ArgType_E));
         //		}
 
-        p_c += std::sprintf(p_c, "(%s) %s ", Bof_IsBitFlagSet(_rListOfParam_X[i_U32].ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY) ? "RO" : "RW", S_ArgTypeToString(_rListOfParam_X[i_U32].ArgType_E));
+        p_c += std::sprintf(p_c, "(%s) %s ", Bof_IsAnyBitFlagSet(_rListOfParam_X[i_U32].ArgFlag_E, BOFPARAMETER_ARG_FLAG::READ_ONLY) ? "RO" : "RW", S_ArgTypeToString(_rListOfParam_X[i_U32].ArgType_E));
         if (_rListOfParam_X[i_U32].ArgType_E == BOFPARAMETER_ARG_TYPE::CHARSTRING)
         {
           p_c += std::sprintf(p_c, "Value '%s' ", S_ParameterToString(Index_U32, _rListOfParam_X[i_U32], false, sizeof(pValue_c), pValue_c, VectorCapacity_U32));
