@@ -20,8 +20,8 @@
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
 #include <asyncmulticastdelegate/DelegateLib.h>
-#include <bofstd/bofasync.h>
 #include <asyncmulticastdelegate/xallocator.h>
+#include <bofstd/bofasync.h>
 
 #include "gtestrunner.h"
 
@@ -35,22 +35,48 @@ struct StructParam
 {
   int32_t val;
 };
-int32_t FreeFuncIntWithReturn0() { return TEST_INT; }
+int32_t FreeFuncIntWithReturn0()
+{
+  return TEST_INT;
+}
 
-void FreeFunc0() { }
+void FreeFunc0()
+{
+}
 
-void FreeFuncInt1(int32_t i) { EXPECT_TRUE(i == TEST_INT); }
+void FreeFuncInt1(int32_t i)
+{
+  EXPECT_TRUE(i == TEST_INT);
+}
 int32_t FreeFuncIntWithReturn1(int32_t i)
 {
   EXPECT_TRUE(i == TEST_INT);
   return i;
 }
-void FreeFuncPtrPtr1(StructParam **s) { EXPECT_TRUE((*s)->val == TEST_INT); }
-void FreeFuncStruct1(StructParam s) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructPtr1(StructParam *s) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructConstPtr1(const StructParam *s) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructRef1(StructParam &s) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructConstRef1(const StructParam &s) { EXPECT_TRUE(s.val == TEST_INT); }
+void FreeFuncPtrPtr1(StructParam **s)
+{
+  EXPECT_TRUE((*s)->val == TEST_INT);
+}
+void FreeFuncStruct1(StructParam s)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructPtr1(StructParam *s)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructConstPtr1(const StructParam *s)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructRef1(StructParam &s)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructConstRef1(const StructParam &s)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
 
 void FreeFuncInt2(int32_t i, int32_t i2)
 {
@@ -62,12 +88,30 @@ int32_t FreeFuncIntWithReturn2(int32_t i, int32_t i2)
   EXPECT_TRUE(i == TEST_INT);
   return i;
 }
-void FreeFuncPtrPtr2(StructParam **s, int32_t i) { EXPECT_TRUE((*s)->val == TEST_INT); }
-void FreeFuncStruct2(StructParam s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructPtr2(StructParam *s, int32_t i) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructConstPtr2(const StructParam *s, int32_t i) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructRef2(StructParam &s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructConstRef2(const StructParam &s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
+void FreeFuncPtrPtr2(StructParam **s, int32_t i)
+{
+  EXPECT_TRUE((*s)->val == TEST_INT);
+}
+void FreeFuncStruct2(StructParam s, int32_t i)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructPtr2(StructParam *s, int32_t i)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructConstPtr2(const StructParam *s, int32_t i)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructRef2(StructParam &s, int32_t i)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructConstRef2(const StructParam &s, int32_t i)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
 
 void FreeFuncInt3(int32_t i, int32_t i2, int32_t i3)
 {
@@ -80,12 +124,30 @@ int32_t FreeFuncIntWithReturn3(int32_t i, int32_t i2, int32_t i3)
   EXPECT_TRUE(i == TEST_INT);
   return i;
 }
-void FreeFuncPtrPtr3(StructParam **s, int32_t i, int32_t i2) { EXPECT_TRUE((*s)->val == TEST_INT); }
-void FreeFuncStruct3(StructParam s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructPtr3(StructParam *s, int32_t i, int32_t i2) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructConstPtr3(const StructParam *s, int32_t i, int32_t i2) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructRef3(StructParam &s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructConstRef3(const StructParam &s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
+void FreeFuncPtrPtr3(StructParam **s, int32_t i, int32_t i2)
+{
+  EXPECT_TRUE((*s)->val == TEST_INT);
+}
+void FreeFuncStruct3(StructParam s, int32_t i, int32_t i2)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructPtr3(StructParam *s, int32_t i, int32_t i2)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructConstPtr3(const StructParam *s, int32_t i, int32_t i2)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructRef3(StructParam &s, int32_t i, int32_t i2)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructConstRef3(const StructParam &s, int32_t i, int32_t i2)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
 
 void FreeFuncInt4(int32_t i, int32_t i2, int32_t i3, int32_t i4)
 {
@@ -98,12 +160,30 @@ int32_t FreeFuncIntWithReturn4(int32_t i, int32_t i2, int32_t i3, int32_t i4)
   EXPECT_TRUE(i == TEST_INT);
   return i;
 }
-void FreeFuncPtrPtr4(StructParam **s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE((*s)->val == TEST_INT); }
-void FreeFuncStruct4(StructParam s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructPtr4(StructParam *s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructConstPtr4(const StructParam *s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructRef4(StructParam &s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructConstRef4(const StructParam &s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
+void FreeFuncPtrPtr4(StructParam **s, int32_t i, int32_t i2, int32_t i3)
+{
+  EXPECT_TRUE((*s)->val == TEST_INT);
+}
+void FreeFuncStruct4(StructParam s, int32_t i, int32_t i2, int32_t i3)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructPtr4(StructParam *s, int32_t i, int32_t i2, int32_t i3)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructConstPtr4(const StructParam *s, int32_t i, int32_t i2, int32_t i3)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructRef4(StructParam &s, int32_t i, int32_t i2, int32_t i3)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructConstRef4(const StructParam &s, int32_t i, int32_t i2, int32_t i3)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
 
 void FreeFuncInt5(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5)
 {
@@ -117,39 +197,90 @@ int32_t FreeFuncIntWithReturn5(int32_t i, int32_t i2, int32_t i3, int32_t i4, in
   return i;
 }
 
-void FreeFuncPtrPtr5(StructParam **s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE((*s)->val == TEST_INT); }
-void FreeFuncStruct5(StructParam s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructPtr5(StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructConstPtr5(const StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s->val == TEST_INT); }
-void FreeFuncStructRef5(StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
-void FreeFuncStructConstRef5(const StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
+void FreeFuncPtrPtr5(StructParam **s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+{
+  EXPECT_TRUE((*s)->val == TEST_INT);
+}
+void FreeFuncStruct5(StructParam s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructPtr5(StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructConstPtr5(const StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+{
+  EXPECT_TRUE(s->val == TEST_INT);
+}
+void FreeFuncStructRef5(StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
+void FreeFuncStructConstRef5(const StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+{
+  EXPECT_TRUE(s.val == TEST_INT);
+}
 
 class TestClass0
 {
 public:
-  void MemberFunc0() { }
-  void MemberFunc0Const() const { }
-  int32_t MemberFuncWithReturn0() { return TEST_INT; }
+  void MemberFunc0()
+  {
+  }
+  void MemberFunc0Const() const
+  {
+  }
+  int32_t MemberFuncWithReturn0()
+  {
+    return TEST_INT;
+  }
 
-  static void StaticFunc0() { }
+  static void StaticFunc0()
+  {
+  }
 };
 
 class TestClass1
 {
 public:
-  void MemberFuncInt1(int32_t i) { EXPECT_TRUE(i == TEST_INT); }
-  void MemberFuncInt1Const(int32_t i) const { EXPECT_TRUE(i == TEST_INT); }
+  void MemberFuncInt1(int32_t i)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  void MemberFuncInt1Const(int32_t i) const
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
   int32_t MemberFuncIntWithReturn1(int32_t i)
   {
     EXPECT_TRUE(i == TEST_INT);
     return i;
   }
-  void MemberFuncStruct1(StructParam s) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructPtr1(StructParam *s) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructPtrPtr1(StructParam **s) { EXPECT_TRUE((*s)->val == TEST_INT); }
-  void MemberFuncStructConstPtr1(const StructParam *s) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructRef1(StructParam &s) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructConstRef1(const StructParam &s) { EXPECT_TRUE(s.val == TEST_INT); }
+  void MemberFuncStruct1(StructParam s)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructPtr1(StructParam *s)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructPtrPtr1(StructParam **s)
+  {
+    EXPECT_TRUE((*s)->val == TEST_INT);
+  }
+  void MemberFuncStructConstPtr1(const StructParam *s)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructRef1(StructParam &s)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructConstRef1(const StructParam &s)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
   void MemberFuncStructConstPtr1Bha(const StructParam *s)
   {
     //    if ((s->val % 1000) == 0)
@@ -161,112 +292,298 @@ public:
     //    { printf("2: %d\n", s->val); }
   }
 
-  static void StaticFuncInt1(int32_t i) { EXPECT_TRUE(i == TEST_INT); }
-  static void StaticFuncStruct1(StructParam s) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructPtr1(StructParam *s) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructConstPtr1(const StructParam *s) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructRef1(StructParam &s) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructConstRef1(const StructParam &s) { EXPECT_TRUE(s.val == TEST_INT); }
+  static void StaticFuncInt1(int32_t i)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  static void StaticFuncStruct1(StructParam s)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructPtr1(StructParam *s)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructConstPtr1(const StructParam *s)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructRef1(StructParam &s)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructConstRef1(const StructParam &s)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 };
 
 class TestClass2
 {
 public:
-  void MemberFuncInt2(int32_t i, int32_t i2) { EXPECT_TRUE(i == TEST_INT); }
-  void MemberFuncInt2Const(int32_t i, int32_t i2) const { EXPECT_TRUE(i == TEST_INT); }
+  void MemberFuncInt2(int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  void MemberFuncInt2Const(int32_t i, int32_t i2) const
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
   int32_t MemberFuncIntWithReturn2(int32_t i, int32_t i2)
   {
     EXPECT_TRUE(i == TEST_INT);
     return i;
   }
-  void MemberFuncStruct2(StructParam s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructPtr2(StructParam *s, int32_t i) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructPtrPtr2(StructParam **s, int32_t i) { EXPECT_TRUE((*s)->val == TEST_INT); }
-  void MemberFuncStructConstPtr2(const StructParam *s, int32_t i) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructRef2(StructParam &s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructConstRef2(const StructParam &s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
+  void MemberFuncStruct2(StructParam s, int32_t i)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructPtr2(StructParam *s, int32_t i)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructPtrPtr2(StructParam **s, int32_t i)
+  {
+    EXPECT_TRUE((*s)->val == TEST_INT);
+  }
+  void MemberFuncStructConstPtr2(const StructParam *s, int32_t i)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructRef2(StructParam &s, int32_t i)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructConstRef2(const StructParam &s, int32_t i)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 
-  static void StaticFuncInt2(int32_t i, int32_t i2) { EXPECT_TRUE(i == TEST_INT); }
-  static void StaticFuncStruct2(StructParam s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructPtr2(StructParam *s, int32_t i) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructConstPtr2(const StructParam *s, int32_t i) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructRef2(StructParam &s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructConstRef2(const StructParam &s, int32_t i) { EXPECT_TRUE(s.val == TEST_INT); }
+  static void StaticFuncInt2(int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  static void StaticFuncStruct2(StructParam s, int32_t i)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructPtr2(StructParam *s, int32_t i)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructConstPtr2(const StructParam *s, int32_t i)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructRef2(StructParam &s, int32_t i)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructConstRef2(const StructParam &s, int32_t i)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 };
 
 class TestClass3
 {
 public:
-  void MemberFuncInt3(int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(i == TEST_INT); }
-  void MemberFuncInt3Const(int32_t i, int32_t i2, int32_t i3) const { EXPECT_TRUE(i == TEST_INT); }
+  void MemberFuncInt3(int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  void MemberFuncInt3Const(int32_t i, int32_t i2, int32_t i3) const
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
   int32_t MemberFuncIntWithReturn3(int32_t i, int32_t i2, int32_t i3)
   {
     EXPECT_TRUE(i == TEST_INT);
     return i;
   }
-  void MemberFuncStruct3(StructParam s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructPtr3(StructParam *s, int32_t i, int32_t i2) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructPtrPtr3(StructParam **s, int32_t i, int32_t i2) { EXPECT_TRUE((*s)->val == TEST_INT); }
-  void MemberFuncStructConstPtr3(const StructParam *s, int32_t i, int32_t i2) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructRef3(StructParam &s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructConstRef3(const StructParam &s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
+  void MemberFuncStruct3(StructParam s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructPtr3(StructParam *s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructPtrPtr3(StructParam **s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE((*s)->val == TEST_INT);
+  }
+  void MemberFuncStructConstPtr3(const StructParam *s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructRef3(StructParam &s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructConstRef3(const StructParam &s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 
-  static void StaticFuncInt3(int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(i == TEST_INT); }
-  static void StaticFuncStruct3(StructParam s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructPtr3(StructParam *s, int32_t i, int32_t i2) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructConstPtr3(const StructParam *s, int32_t i, int32_t i2) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructRef3(StructParam &s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructConstRef3(const StructParam &s, int32_t i, int32_t i2) { EXPECT_TRUE(s.val == TEST_INT); }
+  static void StaticFuncInt3(int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  static void StaticFuncStruct3(StructParam s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructPtr3(StructParam *s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructConstPtr3(const StructParam *s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructRef3(StructParam &s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructConstRef3(const StructParam &s, int32_t i, int32_t i2)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 };
 
 class TestClass4
 {
 public:
-  void MemberFuncInt4(int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(i == TEST_INT); }
-  void MemberFuncInt4Const(int32_t i, int32_t i2, int32_t i3, int32_t i4) const { EXPECT_TRUE(i == TEST_INT); }
+  void MemberFuncInt4(int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  void MemberFuncInt4Const(int32_t i, int32_t i2, int32_t i3, int32_t i4) const
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
   int32_t MemberFuncIntWithReturn4(int32_t i, int32_t i2, int32_t i3, int32_t i4)
   {
     EXPECT_TRUE(i == TEST_INT);
     return i;
   }
-  void MemberFuncStruct4(StructParam s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructPtr4(StructParam *s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructPtrPtr4(StructParam **s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE((*s)->val == TEST_INT); }
-  void MemberFuncStructConstPtr4(const StructParam *s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructRef4(StructParam &s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructConstRef4(const StructParam &s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
+  void MemberFuncStruct4(StructParam s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructPtr4(StructParam *s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructPtrPtr4(StructParam **s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE((*s)->val == TEST_INT);
+  }
+  void MemberFuncStructConstPtr4(const StructParam *s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructRef4(StructParam &s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructConstRef4(const StructParam &s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 
-  static void StaticFuncInt4(int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(i == TEST_INT); }
-  static void StaticFuncStruct4(StructParam s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructPtr4(StructParam *s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructConstPtr4(const StructParam *s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructRef4(StructParam &s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructConstRef4(const StructParam &s, int32_t i, int32_t i2, int32_t i3) { EXPECT_TRUE(s.val == TEST_INT); }
+  static void StaticFuncInt4(int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  static void StaticFuncStruct4(StructParam s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructPtr4(StructParam *s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructConstPtr4(const StructParam *s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructRef4(StructParam &s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructConstRef4(const StructParam &s, int32_t i, int32_t i2, int32_t i3)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 };
 
 class TestClass5
 {
 public:
-  void MemberFuncInt5(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5) { EXPECT_TRUE(i == TEST_INT); }
-  void MemberFuncInt5Const(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5) const { EXPECT_TRUE(i == TEST_INT); }
+  void MemberFuncInt5(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  void MemberFuncInt5Const(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5) const
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
   int32_t MemberFuncIntWithReturn5(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5)
   {
     EXPECT_TRUE(i == TEST_INT);
     return i;
   }
-  void MemberFuncStruct5(StructParam s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructPtr5(StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructPtrPtr5(StructParam **s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE((*s)->val == TEST_INT); }
-  void MemberFuncStructConstPtr5(const StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s->val == TEST_INT); }
-  void MemberFuncStructRef5(StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
-  void MemberFuncStructConstRef5(const StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
+  void MemberFuncStruct5(StructParam s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructPtr5(StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructPtrPtr5(StructParam **s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE((*s)->val == TEST_INT);
+  }
+  void MemberFuncStructConstPtr5(const StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  void MemberFuncStructRef5(StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  void MemberFuncStructConstRef5(const StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 
-  static void StaticFuncInt5(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5) { EXPECT_TRUE(i == TEST_INT); }
-  static void StaticFuncStruct5(StructParam s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructPtr5(StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructConstPtr5(const StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s->val == TEST_INT); }
-  static void StaticFuncStructRef5(StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
-  static void StaticFuncStructConstRef5(const StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4) { EXPECT_TRUE(s.val == TEST_INT); }
+  static void StaticFuncInt5(int32_t i, int32_t i2, int32_t i3, int32_t i4, int32_t i5)
+  {
+    EXPECT_TRUE(i == TEST_INT);
+  }
+  static void StaticFuncStruct5(StructParam s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructPtr5(StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructConstPtr5(const StructParam *s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s->val == TEST_INT);
+  }
+  static void StaticFuncStructRef5(StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
+  static void StaticFuncStructConstRef5(const StructParam &s, int32_t i, int32_t i2, int32_t i3, int32_t i4)
+  {
+    EXPECT_TRUE(s.val == TEST_INT);
+  }
 };
 
 void SinglecastDelegateTests()
@@ -281,7 +598,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!FreeFunc0SinglecastDelegate);
   FreeFunc0SinglecastDelegate = MakeDelegate(&FreeFunc0);
   EXPECT_TRUE(FreeFunc0SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFunc0SinglecastDelegate);
+  // BHA	EXPECT_TRUE(FreeFunc0SinglecastDelegate);
   FreeFunc0SinglecastDelegate();
   FreeFunc0SinglecastDelegate.Clear();
   EXPECT_TRUE(!FreeFunc0SinglecastDelegate);
@@ -298,7 +615,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!MemberFunc0SinglecastDelegate);
   MemberFunc0SinglecastDelegate = MakeDelegate(&testClass0, &TestClass0::MemberFunc0);
   EXPECT_TRUE(MemberFunc0SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFunc0SinglecastDelegate);
+  // BHA	EXPECT_TRUE(MemberFunc0SinglecastDelegate);
   MemberFunc0SinglecastDelegate();
   MemberFunc0SinglecastDelegate.Clear();
   EXPECT_TRUE(!MemberFunc0SinglecastDelegate);
@@ -318,7 +635,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!FreeFuncInt1SinglecastDelegate);
   FreeFuncInt1SinglecastDelegate = MakeDelegate(&FreeFuncInt1);
   EXPECT_TRUE(FreeFuncInt1SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt1SinglecastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt1SinglecastDelegate);
   FreeFuncInt1SinglecastDelegate(TEST_INT);
   FreeFuncInt1SinglecastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt1SinglecastDelegate);
@@ -359,7 +676,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt1SinglecastDelegate);
   MemberFuncInt1SinglecastDelegate = MakeDelegate(&testClass1, &TestClass1::MemberFuncInt1);
   EXPECT_TRUE(MemberFuncInt1SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt1SinglecastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt1SinglecastDelegate);
   MemberFuncInt1SinglecastDelegate(TEST_INT);
   MemberFuncInt1SinglecastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt1SinglecastDelegate);
@@ -419,7 +736,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!FreeFuncInt2SinglecastDelegate);
   FreeFuncInt2SinglecastDelegate = MakeDelegate(&FreeFuncInt2);
   EXPECT_TRUE(FreeFuncInt2SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt2SinglecastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt2SinglecastDelegate);
   FreeFuncInt2SinglecastDelegate(TEST_INT, TEST_INT);
   FreeFuncInt2SinglecastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt2SinglecastDelegate);
@@ -460,7 +777,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt2SinglecastDelegate);
   MemberFuncInt2SinglecastDelegate = MakeDelegate(&testClass2, &TestClass2::MemberFuncInt2);
   EXPECT_TRUE(MemberFuncInt2SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt2SinglecastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt2SinglecastDelegate);
   MemberFuncInt2SinglecastDelegate(TEST_INT, TEST_INT);
   MemberFuncInt2SinglecastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt2SinglecastDelegate);
@@ -520,7 +837,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!FreeFuncInt3SinglecastDelegate);
   FreeFuncInt3SinglecastDelegate = MakeDelegate(&FreeFuncInt3);
   EXPECT_TRUE(FreeFuncInt3SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt3SinglecastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt3SinglecastDelegate);
   FreeFuncInt3SinglecastDelegate(TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt3SinglecastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt3SinglecastDelegate);
@@ -561,7 +878,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt3SinglecastDelegate);
   MemberFuncInt3SinglecastDelegate = MakeDelegate(&testClass3, &TestClass3::MemberFuncInt3);
   EXPECT_TRUE(MemberFuncInt3SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt3SinglecastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt3SinglecastDelegate);
   MemberFuncInt3SinglecastDelegate(TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt3SinglecastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt3SinglecastDelegate);
@@ -621,7 +938,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!FreeFuncInt4SinglecastDelegate);
   FreeFuncInt4SinglecastDelegate = MakeDelegate(&FreeFuncInt4);
   EXPECT_TRUE(FreeFuncInt4SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt4SinglecastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt4SinglecastDelegate);
   FreeFuncInt4SinglecastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt4SinglecastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt4SinglecastDelegate);
@@ -662,7 +979,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt4SinglecastDelegate);
   MemberFuncInt4SinglecastDelegate = MakeDelegate(&testClass4, &TestClass4::MemberFuncInt4);
   EXPECT_TRUE(MemberFuncInt4SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt4SinglecastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt4SinglecastDelegate);
   MemberFuncInt4SinglecastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt4SinglecastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt4SinglecastDelegate);
@@ -722,7 +1039,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!FreeFuncInt5SinglecastDelegate);
   FreeFuncInt5SinglecastDelegate = MakeDelegate(&FreeFuncInt5);
   EXPECT_TRUE(FreeFuncInt5SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt5SinglecastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt5SinglecastDelegate);
   FreeFuncInt5SinglecastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt5SinglecastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt5SinglecastDelegate);
@@ -763,7 +1080,7 @@ void SinglecastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt5SinglecastDelegate);
   MemberFuncInt5SinglecastDelegate = MakeDelegate(&testClass5, &TestClass5::MemberFuncInt5);
   EXPECT_TRUE(MemberFuncInt5SinglecastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt5SinglecastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt5SinglecastDelegate);
   MemberFuncInt5SinglecastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt5SinglecastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt5SinglecastDelegate);
@@ -830,10 +1147,10 @@ void MulticastDelegateTests()
   FreeFunc0MulticastDelegate += MakeDelegate(&FreeFunc0);
   FreeFunc0MulticastDelegate += MakeDelegate(&FreeFunc0);
   EXPECT_TRUE(FreeFunc0MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
   FreeFunc0MulticastDelegate();
   FreeFunc0MulticastDelegate -= MakeDelegate(&FreeFunc0);
-  //BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
   FreeFunc0MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFunc0MulticastDelegate);
 
@@ -845,7 +1162,7 @@ void MulticastDelegateTests()
   EXPECT_TRUE(!MemberFunc0MulticastDelegate);
   MemberFunc0MulticastDelegate += MakeDelegate(&testClass0, &TestClass0::MemberFunc0);
   EXPECT_TRUE(MemberFunc0MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
   MemberFunc0MulticastDelegate();
   MemberFunc0MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFunc0MulticastDelegate);
@@ -862,10 +1179,10 @@ void MulticastDelegateTests()
   FreeFuncInt1MulticastDelegate += MakeDelegate(&FreeFuncInt1);
   FreeFuncInt1MulticastDelegate += MakeDelegate(&FreeFuncInt1);
   EXPECT_TRUE(FreeFuncInt1MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
   FreeFuncInt1MulticastDelegate(TEST_INT);
   FreeFuncInt1MulticastDelegate -= MakeDelegate(&FreeFuncInt1);
-  //BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
   FreeFuncInt1MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt1MulticastDelegate);
 
@@ -897,7 +1214,7 @@ void MulticastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt1MulticastDelegate);
   MemberFuncInt1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncInt1);
   EXPECT_TRUE(MemberFuncInt1MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
   MemberFuncInt1MulticastDelegate(TEST_INT);
   MemberFuncInt1MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt1MulticastDelegate);
@@ -954,10 +1271,10 @@ void MulticastDelegateTests()
   FreeFuncInt2MulticastDelegate += MakeDelegate(&FreeFuncInt2);
   FreeFuncInt2MulticastDelegate += MakeDelegate(&FreeFuncInt2);
   EXPECT_TRUE(FreeFuncInt2MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
   FreeFuncInt2MulticastDelegate(TEST_INT, TEST_INT);
   FreeFuncInt2MulticastDelegate -= MakeDelegate(&FreeFuncInt2);
-  //BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
   FreeFuncInt2MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt2MulticastDelegate);
 
@@ -989,7 +1306,7 @@ void MulticastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt2MulticastDelegate);
   MemberFuncInt2MulticastDelegate += MakeDelegate(&testClass2, &TestClass2::MemberFuncInt2);
   EXPECT_TRUE(MemberFuncInt2MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
   MemberFuncInt2MulticastDelegate(TEST_INT, TEST_INT);
   MemberFuncInt2MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt2MulticastDelegate);
@@ -1046,10 +1363,10 @@ void MulticastDelegateTests()
   FreeFuncInt3MulticastDelegate += MakeDelegate(&FreeFuncInt3);
   FreeFuncInt3MulticastDelegate += MakeDelegate(&FreeFuncInt3);
   EXPECT_TRUE(FreeFuncInt3MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
   FreeFuncInt3MulticastDelegate(TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt3MulticastDelegate -= MakeDelegate(&FreeFuncInt3);
-  //BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
   FreeFuncInt3MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt3MulticastDelegate);
 
@@ -1081,7 +1398,7 @@ void MulticastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt3MulticastDelegate);
   MemberFuncInt3MulticastDelegate += MakeDelegate(&testClass3, &TestClass3::MemberFuncInt3);
   EXPECT_TRUE(MemberFuncInt3MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
   MemberFuncInt3MulticastDelegate(TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt3MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt3MulticastDelegate);
@@ -1138,10 +1455,10 @@ void MulticastDelegateTests()
   FreeFuncInt4MulticastDelegate += MakeDelegate(&FreeFuncInt4);
   FreeFuncInt4MulticastDelegate += MakeDelegate(&FreeFuncInt4);
   EXPECT_TRUE(FreeFuncInt4MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
   FreeFuncInt4MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt4MulticastDelegate -= MakeDelegate(&FreeFuncInt4);
-  //BHA EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
+  // BHA EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
   FreeFuncInt4MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt4MulticastDelegate);
 
@@ -1173,7 +1490,7 @@ void MulticastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt4MulticastDelegate);
   MemberFuncInt4MulticastDelegate += MakeDelegate(&testClass4, &TestClass4::MemberFuncInt4);
   EXPECT_TRUE(MemberFuncInt4MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
   MemberFuncInt4MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt4MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt4MulticastDelegate);
@@ -1230,10 +1547,10 @@ void MulticastDelegateTests()
   FreeFuncInt5MulticastDelegate += MakeDelegate(&FreeFuncInt5);
   FreeFuncInt5MulticastDelegate += MakeDelegate(&FreeFuncInt5);
   EXPECT_TRUE(FreeFuncInt5MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
   FreeFuncInt5MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt5MulticastDelegate -= MakeDelegate(&FreeFuncInt5);
-  //BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
   FreeFuncInt5MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt5MulticastDelegate);
 
@@ -1265,7 +1582,7 @@ void MulticastDelegateTests()
   EXPECT_TRUE(!MemberFuncInt5MulticastDelegate);
   MemberFuncInt5MulticastDelegate += MakeDelegate(&testClass5, &TestClass5::MemberFuncInt5);
   EXPECT_TRUE(MemberFuncInt5MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
   MemberFuncInt5MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt5MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt5MulticastDelegate);
@@ -1330,7 +1647,7 @@ void MulticastDelegateSafeTests()
   EXPECT_TRUE(!MemberFunc0MulticastDelegate);
   MemberFunc0MulticastDelegate += MakeDelegate(&testClass0, &TestClass0::MemberFunc0);
   EXPECT_TRUE(MemberFunc0MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
   MemberFunc0MulticastDelegate();
   MemberFunc0MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFunc0MulticastDelegate);
@@ -1343,7 +1660,7 @@ void MulticastDelegateSafeTests()
   EXPECT_TRUE(!MemberFuncInt1MulticastDelegate);
   MemberFuncInt1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncInt1);
   EXPECT_TRUE(MemberFuncInt1MulticastDelegate.Empty() == false);
-  //BHA EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
+  // BHA EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
   MemberFuncInt1MulticastDelegate(TEST_INT);
   MemberFuncInt1MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt1MulticastDelegate);
@@ -1356,7 +1673,7 @@ void MulticastDelegateSafeTests()
   EXPECT_TRUE(!MemberFuncInt2MulticastDelegate);
   MemberFuncInt2MulticastDelegate += MakeDelegate(&testClass2, &TestClass2::MemberFuncInt2);
   EXPECT_TRUE(MemberFuncInt2MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
   MemberFuncInt2MulticastDelegate(TEST_INT, TEST_INT);
   MemberFuncInt2MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt2MulticastDelegate);
@@ -1369,7 +1686,7 @@ void MulticastDelegateSafeTests()
   EXPECT_TRUE(!MemberFuncInt3MulticastDelegate);
   MemberFuncInt3MulticastDelegate += MakeDelegate(&testClass3, &TestClass3::MemberFuncInt3);
   EXPECT_TRUE(MemberFuncInt3MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
   MemberFuncInt3MulticastDelegate(TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt3MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt3MulticastDelegate);
@@ -1382,7 +1699,7 @@ void MulticastDelegateSafeTests()
   EXPECT_TRUE(!MemberFuncInt4MulticastDelegate);
   MemberFuncInt4MulticastDelegate += MakeDelegate(&testClass4, &TestClass4::MemberFuncInt4);
   EXPECT_TRUE(MemberFuncInt4MulticastDelegate.Empty() == false);
-  //BHA EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
+  // BHA EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
   MemberFuncInt4MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt4MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt4MulticastDelegate);
@@ -1395,7 +1712,7 @@ void MulticastDelegateSafeTests()
   EXPECT_TRUE(!MemberFuncInt5MulticastDelegate);
   MemberFuncInt5MulticastDelegate += MakeDelegate(&testClass5, &TestClass5::MemberFuncInt5);
   EXPECT_TRUE(MemberFuncInt5MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
   MemberFuncInt5MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt5MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt5MulticastDelegate);
@@ -1414,10 +1731,10 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   FreeFunc0MulticastDelegate += MakeDelegate(&FreeFunc0, _pTestThread);
   FreeFunc0MulticastDelegate += MakeDelegate(&FreeFunc0, _pTestThread);
   EXPECT_TRUE(FreeFunc0MulticastDelegate.Empty() == false);
-  //BHA EXPECT_TRUE(FreeFunc0MulticastDelegate);
+  // BHA EXPECT_TRUE(FreeFunc0MulticastDelegate);
   FreeFunc0MulticastDelegate();
   FreeFunc0MulticastDelegate -= MakeDelegate(&FreeFunc0, _pTestThread);
-  //BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
   FreeFunc0MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFunc0MulticastDelegate);
 
@@ -1430,7 +1747,7 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   MemberFunc0MulticastDelegate += MakeDelegate(&testClass0, &TestClass0::MemberFunc0, _pTestThread);
   MemberFunc0MulticastDelegate += MakeDelegate(&testClass0, &TestClass0::MemberFunc0Const, _pTestThread);
   EXPECT_TRUE(MemberFunc0MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
   if (MemberFunc0MulticastDelegate)
   {
     MemberFunc0MulticastDelegate();
@@ -1450,10 +1767,10 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   FreeFuncInt1MulticastDelegate += MakeDelegate(&FreeFuncInt1, _pTestThread);
   FreeFuncInt1MulticastDelegate += MakeDelegate(&FreeFuncInt1, _pTestThread);
   EXPECT_TRUE(FreeFuncInt1MulticastDelegate.Empty() == false);
-  //BHAASSERT_TRUE(FreeFuncInt1MulticastDelegate);
+  // BHAASSERT_TRUE(FreeFuncInt1MulticastDelegate);
   FreeFuncInt1MulticastDelegate(TEST_INT);
   FreeFuncInt1MulticastDelegate -= MakeDelegate(&FreeFuncInt1, _pTestThread);
-  //BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
   FreeFuncInt1MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt1MulticastDelegate);
 
@@ -1486,7 +1803,7 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   MemberFuncInt1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncInt1, _pTestThread);
   MemberFuncInt1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncInt1Const, _pTestThread);
   EXPECT_TRUE(MemberFuncInt1MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
   MemberFuncInt1MulticastDelegate(TEST_INT);
   MemberFuncInt1MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt1MulticastDelegate);
@@ -1546,10 +1863,10 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   FreeFuncInt2MulticastDelegate += MakeDelegate(&FreeFuncInt2, _pTestThread);
   FreeFuncInt2MulticastDelegate += MakeDelegate(&FreeFuncInt2, _pTestThread);
   EXPECT_TRUE(FreeFuncInt2MulticastDelegate.Empty() == false);
-  //BHAASSERT_TRUE(FreeFuncInt2MulticastDelegate);
+  // BHAASSERT_TRUE(FreeFuncInt2MulticastDelegate);
   FreeFuncInt2MulticastDelegate(TEST_INT, TEST_INT);
   FreeFuncInt2MulticastDelegate -= MakeDelegate(&FreeFuncInt2, _pTestThread);
-  //BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
   FreeFuncInt2MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt2MulticastDelegate);
 
@@ -1582,7 +1899,7 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   MemberFuncInt2MulticastDelegate += MakeDelegate(&testClass2, &TestClass2::MemberFuncInt2, _pTestThread);
   MemberFuncInt2MulticastDelegate += MakeDelegate(&testClass2, &TestClass2::MemberFuncInt2Const, _pTestThread);
   EXPECT_TRUE(MemberFuncInt2MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
   MemberFuncInt2MulticastDelegate(TEST_INT, TEST_INT);
   MemberFuncInt2MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt2MulticastDelegate);
@@ -1642,10 +1959,10 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   FreeFuncInt3MulticastDelegate += MakeDelegate(&FreeFuncInt3, _pTestThread);
   FreeFuncInt3MulticastDelegate += MakeDelegate(&FreeFuncInt3, _pTestThread);
   EXPECT_TRUE(FreeFuncInt3MulticastDelegate.Empty() == false);
-  //BHAASSERT_TRUE(FreeFuncInt3MulticastDelegate);
+  // BHAASSERT_TRUE(FreeFuncInt3MulticastDelegate);
   FreeFuncInt3MulticastDelegate(TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt3MulticastDelegate -= MakeDelegate(&FreeFuncInt3, _pTestThread);
-  //BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
   FreeFuncInt3MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt3MulticastDelegate);
 
@@ -1678,7 +1995,7 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   MemberFuncInt3MulticastDelegate += MakeDelegate(&testClass3, &TestClass3::MemberFuncInt3, _pTestThread);
   MemberFuncInt3MulticastDelegate += MakeDelegate(&testClass3, &TestClass3::MemberFuncInt3Const, _pTestThread);
   EXPECT_TRUE(MemberFuncInt3MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
   MemberFuncInt3MulticastDelegate(TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt3MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt3MulticastDelegate);
@@ -1738,10 +2055,10 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   FreeFuncInt4MulticastDelegate += MakeDelegate(&FreeFuncInt4, _pTestThread);
   FreeFuncInt4MulticastDelegate += MakeDelegate(&FreeFuncInt4, _pTestThread);
   EXPECT_TRUE(FreeFuncInt4MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
   FreeFuncInt4MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt4MulticastDelegate -= MakeDelegate(&FreeFuncInt4, _pTestThread);
-  //BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
   FreeFuncInt4MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt4MulticastDelegate);
 
@@ -1774,7 +2091,7 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   MemberFuncInt4MulticastDelegate += MakeDelegate(&testClass4, &TestClass4::MemberFuncInt4, _pTestThread);
   MemberFuncInt4MulticastDelegate += MakeDelegate(&testClass4, &TestClass4::MemberFuncInt4Const, _pTestThread);
   EXPECT_TRUE(MemberFuncInt4MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
   MemberFuncInt4MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt4MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt4MulticastDelegate);
@@ -1834,10 +2151,10 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   FreeFuncInt5MulticastDelegate += MakeDelegate(&FreeFuncInt5, _pTestThread);
   FreeFuncInt5MulticastDelegate += MakeDelegate(&FreeFuncInt5, _pTestThread);
   EXPECT_TRUE(FreeFuncInt5MulticastDelegate.Empty() == false);
-  //BHAASSERT_TRUE(FreeFuncInt5MulticastDelegate);
+  // BHAASSERT_TRUE(FreeFuncInt5MulticastDelegate);
   FreeFuncInt5MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt5MulticastDelegate -= MakeDelegate(&FreeFuncInt5, _pTestThread);
-  //BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
   FreeFuncInt5MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt5MulticastDelegate);
 
@@ -1870,7 +2187,7 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
   MemberFuncInt5MulticastDelegate += MakeDelegate(&testClass5, &TestClass5::MemberFuncInt5, _pTestThread);
   MemberFuncInt5MulticastDelegate += MakeDelegate(&testClass5, &TestClass5::MemberFuncInt5Const, _pTestThread);
   EXPECT_TRUE(MemberFuncInt5MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
   MemberFuncInt5MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt5MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt5MulticastDelegate);
@@ -1927,60 +2244,60 @@ void MulticastDelegateSafeAsyncTests(BofMsgThread *_pTestThread)
 void DelegateMemberSpTests()
 {
   std::shared_ptr<TestClass0> testClass0(new TestClass0());
-  auto                        DelegateMemberSp0 = MakeDelegate(testClass0, &TestClass0::MemberFunc0);
+  auto DelegateMemberSp0 = MakeDelegate(testClass0, &TestClass0::MemberFunc0);
   DelegateMemberSp0();
 
   std::shared_ptr<TestClass1> testClass1(new TestClass1());
-  auto                        DelegateMemberSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncInt1);
+  auto DelegateMemberSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncInt1);
   DelegateMemberSp1(TEST_INT);
 
   std::shared_ptr<TestClass2> testClass2(new TestClass2());
-  auto                        DelegateMemberSp2 = MakeDelegate(testClass2, &TestClass2::MemberFuncInt2);
+  auto DelegateMemberSp2 = MakeDelegate(testClass2, &TestClass2::MemberFuncInt2);
   DelegateMemberSp2(TEST_INT, TEST_INT);
 
   std::shared_ptr<TestClass3> testClass3(new TestClass3());
-  auto                        DelegateMemberSp3 = MakeDelegate(testClass3, &TestClass3::MemberFuncInt3);
+  auto DelegateMemberSp3 = MakeDelegate(testClass3, &TestClass3::MemberFuncInt3);
   DelegateMemberSp3(TEST_INT, TEST_INT, TEST_INT);
 
   std::shared_ptr<TestClass4> testClass4(new TestClass4());
-  auto                        DelegateMemberSp4 = MakeDelegate(testClass4, &TestClass4::MemberFuncInt4);
+  auto DelegateMemberSp4 = MakeDelegate(testClass4, &TestClass4::MemberFuncInt4);
   DelegateMemberSp4(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
 
   std::shared_ptr<TestClass5> testClass5(new TestClass5());
-  auto                        DelegateMemberSp5 = MakeDelegate(testClass5, &TestClass5::MemberFuncInt5);
+  auto DelegateMemberSp5 = MakeDelegate(testClass5, &TestClass5::MemberFuncInt5);
   DelegateMemberSp5(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
 }
 
 void DelegateMemberAsyncSpTests(BofMsgThread *_pTestThread)
 {
   std::shared_ptr<TestClass0> testClass0(new TestClass0());
-  auto                        DelegateMemberAsyncSp0 = MakeDelegate(testClass0, &TestClass0::MemberFunc0, _pTestThread);
+  auto DelegateMemberAsyncSp0 = MakeDelegate(testClass0, &TestClass0::MemberFunc0, _pTestThread);
   DelegateMemberAsyncSp0();
 
   std::shared_ptr<TestClass1> testClass1(new TestClass1());
-  auto                        DelegateMemberAsyncSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncInt1, _pTestThread);
+  auto DelegateMemberAsyncSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncInt1, _pTestThread);
   DelegateMemberAsyncSp1(TEST_INT);
 
   std::shared_ptr<TestClass2> testClass2(new TestClass2());
-  auto                        DelegateMemberAsyncSp2 = MakeDelegate(testClass2, &TestClass2::MemberFuncInt2, _pTestThread);
+  auto DelegateMemberAsyncSp2 = MakeDelegate(testClass2, &TestClass2::MemberFuncInt2, _pTestThread);
   DelegateMemberAsyncSp2(TEST_INT, TEST_INT);
 
   std::shared_ptr<TestClass3> testClass3(new TestClass3());
-  auto                        DelegateMemberAsyncSp3 = MakeDelegate(testClass3, &TestClass3::MemberFuncInt3, _pTestThread);
+  auto DelegateMemberAsyncSp3 = MakeDelegate(testClass3, &TestClass3::MemberFuncInt3, _pTestThread);
   DelegateMemberAsyncSp3(TEST_INT, TEST_INT, TEST_INT);
 
   std::shared_ptr<TestClass4> testClass4(new TestClass4());
-  auto                        DelegateMemberAsyncSp4 = MakeDelegate(testClass4, &TestClass4::MemberFuncInt4, _pTestThread);
+  auto DelegateMemberAsyncSp4 = MakeDelegate(testClass4, &TestClass4::MemberFuncInt4, _pTestThread);
   DelegateMemberAsyncSp4(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
 
   std::shared_ptr<TestClass5> testClass5(new TestClass5());
-  auto                        DelegateMemberAsyncSp5 = MakeDelegate(testClass5, &TestClass5::MemberFuncInt5, _pTestThread);
+  auto DelegateMemberAsyncSp5 = MakeDelegate(testClass5, &TestClass5::MemberFuncInt5, _pTestThread);
   DelegateMemberAsyncSp5(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
 }
 
 void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 {
-  const int   LOOP_CNT = 100;
+  const int LOOP_CNT = 100;
   StructParam structParam;
   structParam.val = TEST_INT;
   StructParam *pStructParam = &structParam;
@@ -1992,10 +2309,10 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   FreeFunc0MulticastDelegate += MakeDelegate(&FreeFunc0, _pTestThread, WAIT_INFINITE);
   FreeFunc0MulticastDelegate += MakeDelegate(&FreeFunc0, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(FreeFunc0MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
   FreeFunc0MulticastDelegate();
   FreeFunc0MulticastDelegate -= MakeDelegate(&FreeFunc0, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFunc0MulticastDelegate);
   FreeFunc0MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFunc0MulticastDelegate);
 
@@ -2005,12 +2322,12 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   MulticastDelegateSafe0 MemberFunc0MulticastDelegate;
   EXPECT_TRUE(MemberFunc0MulticastDelegate.Empty() == true);
   EXPECT_TRUE(!MemberFunc0MulticastDelegate);
-  //auto d1 = MakeDelegate(&testClass0, &TestClass0::MemberFunc0, _pTestThread, WAIT_INFINITE);
-  //MemberFunc0MulticastDelegate += d1;
+  // auto d1 = MakeDelegate(&testClass0, &TestClass0::MemberFunc0, _pTestThread, WAIT_INFINITE);
+  // MemberFunc0MulticastDelegate += d1;
   MemberFunc0MulticastDelegate += MakeDelegate(&testClass0, &TestClass0::MemberFunc0, _pTestThread, WAIT_INFINITE);
   MemberFunc0MulticastDelegate += MakeDelegate(&testClass0, &TestClass0::MemberFunc0Const, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(MemberFunc0MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFunc0MulticastDelegate);
   if (MemberFunc0MulticastDelegate)
   {
     MemberFunc0MulticastDelegate();
@@ -2025,7 +2342,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 
   // N=0 Free/Member Functions with Return
   auto FreeFuncIntWithReturn0Delegate = MakeDelegate(&FreeFuncIntWithReturn0, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncIntWithReturn0Delegate);
+  // BHA	EXPECT_TRUE(FreeFuncIntWithReturn0Delegate);
   if (FreeFuncIntWithReturn0Delegate)
   {
     EXPECT_TRUE(FreeFuncIntWithReturn0Delegate() == TEST_INT);
@@ -2034,7 +2351,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   }
 
   auto MemberFuncIntWithReturn0Delegate = MakeDelegate(&testClass0, &TestClass0::MemberFuncWithReturn0, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(MemberFuncIntWithReturn0Delegate);
+  // BHA	EXPECT_TRUE(MemberFuncIntWithReturn0Delegate);
   if (MemberFuncIntWithReturn0Delegate)
   {
     EXPECT_TRUE(MemberFuncIntWithReturn0Delegate() == TEST_INT);
@@ -2061,10 +2378,10 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   FreeFuncInt1MulticastDelegate += MakeDelegate(&FreeFuncInt1, _pTestThread, WAIT_INFINITE);
   FreeFuncInt1MulticastDelegate += MakeDelegate(&FreeFuncInt1, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(FreeFuncInt1MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
   FreeFuncInt1MulticastDelegate(TEST_INT);
   FreeFuncInt1MulticastDelegate -= MakeDelegate(&FreeFuncInt1, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt1MulticastDelegate);
   FreeFuncInt1MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt1MulticastDelegate);
 
@@ -2097,7 +2414,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   MemberFuncInt1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncInt1, _pTestThread, WAIT_INFINITE);
   MemberFuncInt1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncInt1Const, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(MemberFuncInt1MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt1MulticastDelegate);
   MemberFuncInt1MulticastDelegate(TEST_INT);
   MemberFuncInt1MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt1MulticastDelegate);
@@ -2156,7 +2473,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 
   // N=1 Free/Member Functions with Return
   auto FreeFuncIntWithReturn1Delegate = MakeDelegate(&FreeFuncIntWithReturn1, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncIntWithReturn1Delegate);
+  // BHA	EXPECT_TRUE(FreeFuncIntWithReturn1Delegate);
   if (FreeFuncIntWithReturn1Delegate)
   {
     EXPECT_TRUE(FreeFuncIntWithReturn1Delegate(TEST_INT) == TEST_INT);
@@ -2165,7 +2482,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   }
 
   auto MemberFuncIntWithReturn1Delegate = MakeDelegate(&testClass1, &TestClass1::MemberFuncIntWithReturn1, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(MemberFuncIntWithReturn1Delegate);
+  // BHA	EXPECT_TRUE(MemberFuncIntWithReturn1Delegate);
   if (MemberFuncIntWithReturn1Delegate)
   {
     EXPECT_TRUE(MemberFuncIntWithReturn1Delegate(TEST_INT) == TEST_INT);
@@ -2192,10 +2509,10 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   FreeFuncInt2MulticastDelegate += MakeDelegate(&FreeFuncInt2, _pTestThread, WAIT_INFINITE);
   FreeFuncInt2MulticastDelegate += MakeDelegate(&FreeFuncInt2, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(FreeFuncInt2MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
   FreeFuncInt2MulticastDelegate(TEST_INT, TEST_INT);
   FreeFuncInt2MulticastDelegate -= MakeDelegate(&FreeFuncInt2, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt2MulticastDelegate);
   FreeFuncInt2MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt2MulticastDelegate);
 
@@ -2228,7 +2545,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   MemberFuncInt2MulticastDelegate += MakeDelegate(&testClass2, &TestClass2::MemberFuncInt2, _pTestThread, WAIT_INFINITE);
   MemberFuncInt2MulticastDelegate += MakeDelegate(&testClass2, &TestClass2::MemberFuncInt2Const, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(MemberFuncInt2MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt2MulticastDelegate);
   MemberFuncInt2MulticastDelegate(TEST_INT, TEST_INT);
   MemberFuncInt2MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt2MulticastDelegate);
@@ -2283,7 +2600,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 
   // N=2 Free/Member Functions with Return
   auto FreeFuncIntWithReturn2Delegate = MakeDelegate(&FreeFuncIntWithReturn2, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncIntWithReturn2Delegate);
+  // BHA	EXPECT_TRUE(FreeFuncIntWithReturn2Delegate);
   if (FreeFuncIntWithReturn2Delegate)
   {
     EXPECT_TRUE(FreeFuncIntWithReturn2Delegate(TEST_INT, TEST_INT) == TEST_INT);
@@ -2292,7 +2609,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   }
 
   auto MemberFuncIntWithReturn2Delegate = MakeDelegate(&testClass2, &TestClass2::MemberFuncIntWithReturn2, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(MemberFuncIntWithReturn2Delegate);
+  // BHA	EXPECT_TRUE(MemberFuncIntWithReturn2Delegate);
   if (MemberFuncIntWithReturn2Delegate)
   {
     EXPECT_TRUE(MemberFuncIntWithReturn2Delegate(TEST_INT, TEST_INT) == TEST_INT);
@@ -2319,10 +2636,10 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   FreeFuncInt3MulticastDelegate += MakeDelegate(&FreeFuncInt3, _pTestThread, WAIT_INFINITE);
   FreeFuncInt3MulticastDelegate += MakeDelegate(&FreeFuncInt3, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(FreeFuncInt3MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
   FreeFuncInt3MulticastDelegate(TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt3MulticastDelegate -= MakeDelegate(&FreeFuncInt3, _pTestThread, WAIT_INFINITE);
-  //BHA EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
+  // BHA EXPECT_TRUE(FreeFuncInt3MulticastDelegate);
   FreeFuncInt3MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt3MulticastDelegate);
 
@@ -2355,7 +2672,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   MemberFuncInt3MulticastDelegate += MakeDelegate(&testClass3, &TestClass3::MemberFuncInt3, _pTestThread, WAIT_INFINITE);
   MemberFuncInt3MulticastDelegate += MakeDelegate(&testClass3, &TestClass3::MemberFuncInt3Const, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(MemberFuncInt3MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt3MulticastDelegate);
   MemberFuncInt3MulticastDelegate(TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt3MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt3MulticastDelegate);
@@ -2410,7 +2727,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 
   // N=3 Free/Member Functions with Return
   auto FreeFuncIntWithReturn3Delegate = MakeDelegate(&FreeFuncIntWithReturn3, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncIntWithReturn3Delegate);
+  // BHA	EXPECT_TRUE(FreeFuncIntWithReturn3Delegate);
   if (FreeFuncIntWithReturn3Delegate)
   {
     EXPECT_TRUE(FreeFuncIntWithReturn3Delegate(TEST_INT, TEST_INT, TEST_INT) == TEST_INT);
@@ -2419,7 +2736,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   }
 
   auto MemberFuncIntWithReturn3Delegate = MakeDelegate(&testClass3, &TestClass3::MemberFuncIntWithReturn3, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(MemberFuncIntWithReturn3Delegate);
+  // BHA	EXPECT_TRUE(MemberFuncIntWithReturn3Delegate);
   if (MemberFuncIntWithReturn3Delegate)
   {
     EXPECT_TRUE(MemberFuncIntWithReturn3Delegate(TEST_INT, TEST_INT, TEST_INT) == TEST_INT);
@@ -2446,10 +2763,10 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   FreeFuncInt4MulticastDelegate += MakeDelegate(&FreeFuncInt4, _pTestThread, WAIT_INFINITE);
   FreeFuncInt4MulticastDelegate += MakeDelegate(&FreeFuncInt4, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(FreeFuncInt4MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
   FreeFuncInt4MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt4MulticastDelegate -= MakeDelegate(&FreeFuncInt4, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt4MulticastDelegate);
   FreeFuncInt4MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt4MulticastDelegate);
 
@@ -2482,7 +2799,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   MemberFuncInt4MulticastDelegate += MakeDelegate(&testClass4, &TestClass4::MemberFuncInt4, _pTestThread, WAIT_INFINITE);
   MemberFuncInt4MulticastDelegate += MakeDelegate(&testClass4, &TestClass4::MemberFuncInt4Const, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(MemberFuncInt4MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt4MulticastDelegate);
   MemberFuncInt4MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt4MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt4MulticastDelegate);
@@ -2537,7 +2854,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 
   // N=4 Free/Member Functions with Return
   auto FreeFuncIntWithReturn4Delegate = MakeDelegate(&FreeFuncIntWithReturn4, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncIntWithReturn4Delegate);
+  // BHA	EXPECT_TRUE(FreeFuncIntWithReturn4Delegate);
   if (FreeFuncIntWithReturn4Delegate)
   {
     EXPECT_TRUE(FreeFuncIntWithReturn4Delegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT) == TEST_INT);
@@ -2546,7 +2863,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   }
 
   auto MemberFuncIntWithReturn4Delegate = MakeDelegate(&testClass4, &TestClass4::MemberFuncIntWithReturn4, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(MemberFuncIntWithReturn4Delegate);
+  // BHA	EXPECT_TRUE(MemberFuncIntWithReturn4Delegate);
   if (MemberFuncIntWithReturn4Delegate)
   {
     EXPECT_TRUE(MemberFuncIntWithReturn4Delegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT) == TEST_INT);
@@ -2573,10 +2890,10 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   FreeFuncInt5MulticastDelegate += MakeDelegate(&FreeFuncInt5, _pTestThread, WAIT_INFINITE);
   FreeFuncInt5MulticastDelegate += MakeDelegate(&FreeFuncInt5, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(FreeFuncInt5MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
   FreeFuncInt5MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   FreeFuncInt5MulticastDelegate -= MakeDelegate(&FreeFuncInt5, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(FreeFuncInt5MulticastDelegate);
   FreeFuncInt5MulticastDelegate.Clear();
   EXPECT_TRUE(!FreeFuncInt5MulticastDelegate);
 
@@ -2609,7 +2926,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   MemberFuncInt5MulticastDelegate += MakeDelegate(&testClass5, &TestClass5::MemberFuncInt5, _pTestThread, WAIT_INFINITE);
   MemberFuncInt5MulticastDelegate += MakeDelegate(&testClass5, &TestClass5::MemberFuncInt5Const, _pTestThread, WAIT_INFINITE);
   EXPECT_TRUE(MemberFuncInt5MulticastDelegate.Empty() == false);
-  //BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
+  // BHA	EXPECT_TRUE(MemberFuncInt5MulticastDelegate);
   MemberFuncInt5MulticastDelegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   MemberFuncInt5MulticastDelegate.Clear();
   EXPECT_TRUE(!MemberFuncInt5MulticastDelegate);
@@ -2664,7 +2981,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 
   // N=5 Free/Member Functions with Return
   auto FreeFuncIntWithReturn5Delegate = MakeDelegate(&FreeFuncIntWithReturn5, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(FreeFuncIntWithReturn5Delegate);
+  // BHA	EXPECT_TRUE(FreeFuncIntWithReturn5Delegate);
   if (FreeFuncIntWithReturn5Delegate)
   {
     EXPECT_TRUE(FreeFuncIntWithReturn5Delegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT) == TEST_INT);
@@ -2673,7 +2990,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   }
 
   auto MemberFuncIntWithReturn5Delegate = MakeDelegate(&testClass5, &TestClass5::MemberFuncIntWithReturn5, _pTestThread, WAIT_INFINITE);
-  //BHA	EXPECT_TRUE(MemberFuncIntWithReturn5Delegate);
+  // BHA	EXPECT_TRUE(MemberFuncIntWithReturn5Delegate);
   if (MemberFuncIntWithReturn5Delegate)
   {
     EXPECT_TRUE(MemberFuncIntWithReturn5Delegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT) == TEST_INT);
@@ -2693,7 +3010,6 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
     int ret = MemberFuncIntWithReturn5Delegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   }
 }
-
 
 TEST(Async_Test, AsyncMulticastDelegateLib)
 {
@@ -2721,10 +3037,10 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
 
 TEST(Async_Test, MulticastDelegatePerf)
 {
-  BofMsgThread       testThread;
-  TestClass1         testClass1;
+  BofMsgThread testThread;
+  TestClass1 testClass1;
   struct StructParam structParam;
-  uint32_t           StartInMs_U32, i_U32;
+  uint32_t StartInMs_U32, i_U32;
 
   testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY, 0);
 
@@ -2741,11 +3057,10 @@ TEST(Async_Test, MulticastDelegatePerf)
   printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
   MemberFuncStructConstPtr1MulticastDelegate.Clear();
 
-
   std::shared_ptr<TestClass1> psTestClass1(new TestClass1());
   MemberFuncStructConstPtr1MulticastDelegate += MakeDelegate(psTestClass1, &TestClass1::MemberFuncStructConstPtr2Bha, &testThread);
 
-  //auto DelegateMemberAsyncSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
+  // auto DelegateMemberAsyncSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < 100000; i_U32++)
   {
@@ -2775,17 +3090,16 @@ static int a = 0x12345678;
 static int b = 0x90ABCDEF;
 static int c = 0x87654321;
 
-//#include <type_traits>
+// #include <type_traits>
 TEST(Async_Test, AsyncNotifier)
 {
   BOF::BOF_MULTICAST_ASYNC_NOTIFIER_PARAM MulticastAsyncNotifierParam_X;
-  uint32_t                                 StartInMs_U32, i_U32;
-  NOTIFY_ARG                         MulticastNotifyArg_X;
+  uint32_t StartInMs_U32, i_U32;
+  NOTIFY_ARG MulticastNotifyArg_X;
   MulticastAsyncNotifierParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
   MulticastAsyncNotifierParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY;
   MulticastAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   //  MulticastAsyncNotifierParam_X.MaxPendingRequest_U32     = 100;
-
 
   //  std::cout << std::is_pointer<StructParam>::value << '\n';
   /*
@@ -2820,8 +3134,8 @@ TEST(Async_Test, AsyncNotifier)
 TEST(Async_Test, SyncNotifier)
 {
   BOF::BOF_MULTICAST_SYNC_NOTIFIER_PARAM MulticastSyncNotifierParam_X;
-  uint32_t                                 StartInMs_U32, i_U32;
-  NOTIFY_ARG                         MulticastNotifyArg_X;
+  uint32_t StartInMs_U32, i_U32;
+  NOTIFY_ARG MulticastNotifyArg_X;
   BOF::BofMulticastSyncNotifier<NOTIFY_ARG> MulticastSyncNotifier(MulticastSyncNotifierParam_X);
 
   ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback, &a), BOF_ERR_NO_ERROR);
@@ -2843,5 +3157,4 @@ TEST(Async_Test, SyncNotifier)
   ASSERT_EQ(MulticastSyncNotifier.Unregister(&MulticastNotifyCallback), BOF_ERR_NO_ERROR);
   ASSERT_NE(MulticastSyncNotifier.Notify(&MulticastNotifyArg_X), BOF_ERR_NO_ERROR);
   ASSERT_NE(MulticastSyncNotifier.Notify(&MulticastNotifyArg_X), BOF_ERR_NO_ERROR);
-
 }

@@ -107,6 +107,7 @@ set(SERDER_FILES
 	data/xmlparser.xml
 	src/ut_jsonparserwriter.cpp	
 	data/jsonparser.json	
+	src/ut_binserializer.cpp	
 )
 
 set(SOCKIO_FILES

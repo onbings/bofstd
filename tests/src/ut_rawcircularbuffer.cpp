@@ -24,9 +24,9 @@
 
 USE_BOF_NAMESPACE()
 
-#define NBPUSHSAMESIZE    16
+#define NBPUSHSAMESIZE 16
 
-class BofRawCircularBufferNoSlotsize_Test :public testing::Test
+class BofRawCircularBufferNoSlotsize_Test : public testing::Test
 {
 public:
   BofRawCircularBufferNoSlotsize_Test() : mpBofRawCircularBuffer_O(nullptr)
@@ -34,16 +34,15 @@ public:
   }
 
   // Per-test-case set-up. Called before the first test in this test case.
-  static void                   SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void                   TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
-  virtual void                  SetUp();
-  virtual void                  TearDown();
+  virtual void SetUp();
+  virtual void TearDown();
 
   BofRawCircularBuffer *mpBofRawCircularBuffer_O;
   BOF_RAW_CIRCULAR_BUFFER_PARAM mBofRawCircularBufferParam_X;
@@ -51,16 +50,15 @@ protected:
 private:
 };
 
-
 /*** Factory functions called at the beginning/end of each test case **********/
 
 void BofRawCircularBufferNoSlotsize_Test::SetUpTestCase()
-{}
-
+{
+}
 
 void BofRawCircularBufferNoSlotsize_Test::TearDownTestCase()
-{}
-
+{
+}
 
 void BofRawCircularBufferNoSlotsize_Test::SetUp()
 {
@@ -84,9 +82,9 @@ void BofRawCircularBufferNoSlotsize_Test::TearDown()
 TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
 {
   uint32_t Nb_U32, i_U32, Index_U32, Size_U32;
-  BOFERR   Sts_E;
-  bool     Sts_B;
-  uint8_t  pData_U8[0x1000];
+  BOFERR Sts_E;
+  bool Sts_B;
+  uint8_t pData_U8[0x1000];
   uint32_t pNb1_U32[8], pNb2_U32[8];
   uint8_t *ppData1_U8[8], *ppData2_U8[8];
 
@@ -143,7 +141,6 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
   EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.BufferSizeInByte_U32 - Size_U32 - sizeof(uint32_t) - sizeof(uint32_t)); // 1 uint32_t for size and another one for next push
   Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
   EXPECT_EQ(Nb_U32, Size_U32 + sizeof(uint32_t));
-
 
   Index_U32 = 0;
   Size_U32 = 9;
@@ -231,22 +228,22 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
   Index_U32 = 0;
   Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE) - sizeof(uint32_t);
 
-  Nb_U32 = Size_U32;               // 1
+  Nb_U32 = Size_U32; // 1
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 2;           // 2-3
+  Nb_U32 = Size_U32 * 2; // 2-3
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 4;           // 4-7
+  Nb_U32 = Size_U32 * 4; // 4-7
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32;               // 8
+  Nb_U32 = Size_U32; // 8
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
@@ -255,25 +252,25 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
   memset(pData_U8, 0, sizeof(pData_U8));
   Index_U32 = 0;
   // pop
-  Nb_U32 = Size_U32 * 8;           // 1
+  Nb_U32 = Size_U32 * 8; // 1
   Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   EXPECT_EQ(Nb_U32, Size_U32 * 1);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 8;           // 2-3
+  Nb_U32 = Size_U32 * 8; // 2-3
   Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   EXPECT_EQ(Nb_U32, Size_U32 * 2);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 8;           // 4-7
+  Nb_U32 = Size_U32 * 8; // 4-7
   Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   EXPECT_EQ(Nb_U32, Size_U32 * 4);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 8;           // 8
+  Nb_U32 = Size_U32 * 8; // 8
   Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   EXPECT_EQ(Nb_U32, Size_U32 * 1);
@@ -284,27 +281,26 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
     EXPECT_EQ(pData_U8[i_U32], (uint8_t)i_U32);
   }
 
-
   // Skip
   Index_U32 = 0;
   Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE) - sizeof(uint32_t);
 
-  Nb_U32 = Size_U32;               // 1
+  Nb_U32 = Size_U32; // 1
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 2;           // 2-3
+  Nb_U32 = Size_U32 * 2; // 2-3
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 4;           // 4-7
+  Nb_U32 = Size_U32 * 4; // 4-7
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32;               // 8
+  Nb_U32 = Size_U32; // 8
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
@@ -323,27 +319,26 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
   Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
   EXPECT_TRUE(Sts_B);
 
-
   // Peek
   Index_U32 = 0;
   Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE) - sizeof(uint32_t);
 
-  Nb_U32 = Size_U32;               // 1
+  Nb_U32 = Size_U32; // 1
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 2;           // 2-3
+  Nb_U32 = Size_U32 * 2; // 2-3
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32 * 4;           // 4-7
+  Nb_U32 = Size_U32 * 4; // 4-7
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
 
-  Nb_U32 = Size_U32;               // 8
+  Nb_U32 = Size_U32; // 8
   Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
   Index_U32 += Nb_U32;
@@ -428,7 +423,6 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
   Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
   EXPECT_EQ(0, Nb_U32);
 
-
   mpBofRawCircularBuffer_O->Reset();
 
   Nb_U32 = Size_U32;
@@ -454,15 +448,11 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
   EXPECT_TRUE(ppData1_U8[1] != nullptr);
   EXPECT_TRUE(ppData2_U8[1] != nullptr);
 
-
   Nb_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
   EXPECT_EQ(0, Nb_U32);
-
-
 }
 
-
-class BofRawCircularBufferWithSlotsize_Test :public testing::Test
+class BofRawCircularBufferWithSlotsize_Test : public testing::Test
 {
 public:
   BofRawCircularBufferWithSlotsize_Test() : mpBofRawCircularBuffer_O(nullptr)
@@ -470,16 +460,15 @@ public:
   }
 
   // Per-test-case set-up. Called before the first test in this test case.
-  static void                   SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void                   TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
-  virtual void                  SetUp();
-  virtual void                  TearDown();
+  virtual void SetUp();
+  virtual void TearDown();
 
   BofRawCircularBuffer *mpBofRawCircularBuffer_O;
   BOF_RAW_CIRCULAR_BUFFER_PARAM mBofRawCircularBufferParam_X;
@@ -487,16 +476,15 @@ protected:
 private:
 };
 
-
 /*** Factory functions called at the beginning/end of each test case **********/
 
 void BofRawCircularBufferWithSlotsize_Test::SetUpTestCase()
-{}
-
+{
+}
 
 void BofRawCircularBufferWithSlotsize_Test::TearDownTestCase()
-{}
-
+{
+}
 
 void BofRawCircularBufferWithSlotsize_Test::SetUp()
 {
@@ -520,9 +508,9 @@ void BofRawCircularBufferWithSlotsize_Test::TearDown()
 TEST_F(BofRawCircularBufferWithSlotsize_Test, CheckByteBuffer)
 {
   uint32_t Nb_U32, i_U32, Index_U32, Size_U32;
-  BOFERR   Sts_E;
-  bool     Sts_B;
-  uint8_t  pData_U8[0x1000];
+  BOFERR Sts_E;
+  bool Sts_B;
+  uint8_t pData_U8[0x1000];
   uint32_t pNb1_U32[8], pNb2_U32[8];
   uint8_t *ppData1_U8[8], *ppData2_U8[8];
 
@@ -579,7 +567,6 @@ TEST_F(BofRawCircularBufferWithSlotsize_Test, CheckByteBuffer)
   EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.NbMaxSlot_U32 - 1);
   Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
   EXPECT_EQ(Nb_U32, 1);
-
 
   Index_U32 = 0;
   Size_U32 = 9;
@@ -690,7 +677,6 @@ TEST_F(BofRawCircularBufferWithSlotsize_Test, CheckByteBuffer)
     EXPECT_EQ(pData_U8[i_U32], (uint8_t)i_U32);
   }
 
-
   // Skip
   Index_U32 = 0;
   Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE);
@@ -796,6 +782,4 @@ TEST_F(BofRawCircularBufferWithSlotsize_Test, CheckByteBuffer)
 
   Nb_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
   EXPECT_EQ(Size_U32, Nb_U32);
-
-
 }

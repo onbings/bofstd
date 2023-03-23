@@ -33,41 +33,41 @@ class BOFSTD_EXPORT BofLogChannelSpdLog final : public IBofLogChannel
   // Opaque pointer design pattern: all public and protected stuff goes here ...
 
 public:
-    BofLogChannelSpdLog();
+  BofLogChannelSpdLog();
 
-    virtual ~BofLogChannelSpdLog();                           // not virtual as class is 'final'
+  virtual ~BofLogChannelSpdLog(); // not virtual as class is 'final'
 
-    BOFERR V_Add(const BOF_LOG_CHANNEL_PARAM &_rLogParam_X) override;
+  BOFERR V_Add(const BOF_LOG_CHANNEL_PARAM &_rLogParam_X) override;
 
-    BOFERR V_Remove() override;
+  BOFERR V_Remove() override;
 
-    BOFERR V_Log(BOF_LOG_CHANNEL_LEVEL _Level_E, const std::string &_rLogMsg_S) override;
+  BOFERR V_Log(BOF_LOG_CHANNEL_LEVEL _Level_E, const std::string &_rLogMsg_S) override;
 
-    BOFERR V_Flush() override;
+  BOFERR V_Flush() override;
 
-    BOFERR V_LogChannelPathName(BofPath &_rLogPath) override;
+  BOFERR V_LogChannelPathName(BofPath &_rLogPath) override;
 
-    BOFERR V_OpenLogStorage(uint32_t _Offset_U32) override;
+  BOFERR V_OpenLogStorage(uint32_t _Offset_U32) override;
 
-    BOFERR V_ReadLogStorage(uint32_t _MaxLineToExtract_U32, std::vector<std::string> &_rExtractedLogLine_S) const override;
+  BOFERR V_ReadLogStorage(uint32_t _MaxLineToExtract_U32, std::vector<std::string> &_rExtractedLogLine_S) const override;
 
-    BOFERR V_CloseLogStorage() override;
+  BOFERR V_CloseLogStorage() override;
 
-    BOFERR V_DeleteLogStorage() override;
+  BOFERR V_DeleteLogStorage() override;
 
-    BOFERR V_LogLevel(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const override;
+  BOFERR V_LogLevel(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const override;
 
-    BOFERR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_LEVEL_COLOR _LogLevelColor_E) const override;
-    BOF_LOG_LEVEL_COLOR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const override;
+  BOFERR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_LEVEL_COLOR _LogLevelColor_E) const override;
+  BOF_LOG_LEVEL_COLOR V_LogLevelColor(BOF_LOG_CHANNEL_LEVEL _LogLevel_E) const override;
 
-    BOFERR V_LogHeader(const std::string &_rPattern_S) const override;
-    std::string V_LogHeader() const override;
+  BOFERR V_LogHeader(const std::string &_rPattern_S) const override;
+  std::string V_LogHeader() const override;
 
-    // Opaque pointer design pattern: opaque type here
+  // Opaque pointer design pattern: opaque type here
 private:
-    class BofLogChannelSpdLogImplementation;
+  class BofLogChannelSpdLogImplementation;
 
-    std::unique_ptr<BofLogChannelSpdLogImplementation> mpuBofLogChannelSpdLogImplementation;
+  std::unique_ptr<BofLogChannelSpdLogImplementation> mpuBofLogChannelSpdLogImplementation;
 };
 
 END_BOF_NAMESPACE()

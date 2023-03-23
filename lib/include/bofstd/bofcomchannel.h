@@ -23,12 +23,12 @@
 #include <bofstd/bofstd.h>
 
 #include <cstdint>
-#include <string>
 #include <memory>
+#include <string>
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_DEFAULT_CONNECT_STRING  "BOF_BHA_CON_0100"
+#define BOF_DEFAULT_CONNECT_STRING "BOF_BHA_CON_0100"
 
 enum class BOF_COM_CHANNEL_TYPE
 {
@@ -73,7 +73,7 @@ struct BOFSTD_EXPORT BOF_COM_CHANNEL_PARAM
 {
   std::string ChannelName_S;
   bool Blocking_B;
-  uint32_t ListenBackLog_U32;                               // 0->Client
+  uint32_t ListenBackLog_U32; // 0->Client
   uint32_t RcvBufferSize_U32;
   uint32_t SndBufferSize_U32;
 
@@ -96,7 +96,7 @@ class BOFSTD_EXPORT BofComChannel
 {
 protected:
   BOF_COM_CHANNEL_TYPE mComType_E;
-  const BOF_COM_CHANNEL_PARAM *mpBaseChannelParam_X;              // Base properties of each channel: we keep a pointer inside the member variable of the derived object to keep track of derived class actions on these data
+  const BOF_COM_CHANNEL_PARAM *mpBaseChannelParam_X; // Base properties of each channel: we keep a pointer inside the member variable of the derived object to keep track of derived class actions on these data
   static uint32_t S_mListenCounter_U32;
   uint32_t mConnectionTimer_U32;
   BOFERR mErrorCode_E;

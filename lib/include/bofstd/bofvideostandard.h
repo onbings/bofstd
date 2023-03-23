@@ -26,20 +26,18 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_VIDEO_STANDARD_ID(Width, Height, Fps, Type) \
-    ((uint32_t)((Width - 1) << 20) | (uint32_t)((Height - 1) << 8) | (uint32_t)((Fps - 1) << 2) | \
-     ((Type == 'i') ? 1 : (Type == 'p') ? 2 : (Type == 's') ? 3 : 0))
+#define BOF_VIDEO_STANDARD_ID(Width, Height, Fps, Type) ((uint32_t)((Width - 1) << 20) | (uint32_t)((Height - 1) << 8) | (uint32_t)((Fps - 1) << 2) | ((Type == 'i') ? 1 : (Type == 'p') ? 2 : (Type == 's') ? 3 : 0))
 
 typedef uint32_t VideoStandardId;
-//static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1920, 1080, 50, 'p');
+// static const VideoStandardId  DefaultVideoStandard = BOF_VIDEO_STANDARD_ID(1920, 1080, 50, 'p');
 struct BOF_VIDEO_STANDARD_ENTRY
 {
   //    const char *pIdText_c;
-  char     pDescription_c[32];
+  char pDescription_c[32];
   uint32_t NbCol_U32;
   uint32_t NbRow_U32;
   uint32_t Fps_U32;
-  char     Type_c;
+  char Type_c;
   uint32_t NbActiveCol_U32;
   uint32_t NbActiveRow_U32;
   uint32_t NbTotalCol_U32;
@@ -59,11 +57,9 @@ struct BOF_VIDEO_STANDARD_ENTRY
   {
     Reset();
   }
-  BOF_VIDEO_STANDARD_ENTRY(const char *_pDescription_c, uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32,
-    char _Type_c, uint32_t _NbActiveCol_U32, uint32_t _NbActiveRow_U32, uint32_t _NbTotalCol_U32, uint32_t _NbTotalRow_U32,
-    uint32_t _FrameRateNum_U32, uint32_t _FrameRateDen_U32, uint32_t _SwitchLine1_U32, uint32_t _SwitchLine2_U32, 
-    uint32_t _ImageAspectRatioNum_U32, uint32_t _ImageAspectRatioDen_U32, uint64_t _AudioClockRateNum_S64, 
-    uint64_t _AudioClockRateDen_U64, uint32_t _Smpte352PayloadId_U32, uint32_t _PidAncillaryData_U32)
+  BOF_VIDEO_STANDARD_ENTRY(const char *_pDescription_c, uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32, char _Type_c, uint32_t _NbActiveCol_U32, uint32_t _NbActiveRow_U32, uint32_t _NbTotalCol_U32, uint32_t _NbTotalRow_U32,
+                           uint32_t _FrameRateNum_U32, uint32_t _FrameRateDen_U32, uint32_t _SwitchLine1_U32, uint32_t _SwitchLine2_U32, uint32_t _ImageAspectRatioNum_U32, uint32_t _ImageAspectRatioDen_U32, uint64_t _AudioClockRateNum_S64,
+                           uint64_t _AudioClockRateDen_U64, uint32_t _Smpte352PayloadId_U32, uint32_t _PidAncillaryData_U32)
   {
     if (_pDescription_c)
     {
@@ -157,11 +153,10 @@ public:
   bool SegmentedFrame() const;
 
 private:
-
   static const BOF_VIDEO_STANDARD_ENTRY S_mpVideoStandardTable_X[];
   BOF_VIDEO_STANDARD_ENTRY mCustomFormat_X;
   const BOF_VIDEO_STANDARD_ENTRY *mpVideoStandardEntry_X = nullptr;
-  int                       mIndex_i;
+  int mIndex_i;
   static int S_FindIndex(const std::string &_rStandard_S);
   static int S_FindIndex(uint32_t _NbCol_U32, uint32_t _NbRow_U32, uint32_t _Fps_U32, char _Type_c);
 };

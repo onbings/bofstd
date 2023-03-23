@@ -23,42 +23,62 @@
 #include <bofstd/bofstream.h>
 
 #include <cstring>
-#include <iomanip>
 #include <fstream>
- //#include <openssl/sha.h>
+#include <iomanip>
+// #include <openssl/sha.h>
 
 BEGIN_BOF_NAMESPACE()
 
-#define S11     7
-#define S12     12
-#define S13     17
-#define S14     22
-#define S21     5
-#define S22     9
-#define S23     14
-#define S24     20
-#define S31     4
-#define S322    11
-#define S33     16
-#define S34     23
-#define S41     6
-#define S42     10
-#define S43     15
-#define S44     21
+#define S11 7
+#define S12 12
+#define S13 17
+#define S14 22
+#define S21 5
+#define S22 9
+#define S23 14
+#define S24 20
+#define S31 4
+#define S322 11
+#define S33 16
+#define S34 23
+#define S41 6
+#define S42 10
+#define S43 15
+#define S44 21
 
 /*! F,G,H and I are basic MD5 functions.*/
-#define F(x, y, z)                  ( ( (x) & (y) ) | ( (~x) & (z) ) )
-#define G(x, y, z)                  ( ( (x) & (z) ) | ( (y) & (~z) ) )
-#define H(x, y, z)                  ( (x) ^ (y) ^ (z) )
-#define I(x, y, z)                  ( (y) ^ ( (x) | (~z) ) )
+#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
+#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
+#define H(x, y, z) ((x) ^ (y) ^ (z))
+#define I(x, y, z) ((y) ^ ((x) | (~z)))
 
-#define ROTATE_LEFT(x, n)           ( ( (x) << (n) ) | ( (x) >> (32 - (n) ) ) ) // ROTATE_LEFT rotates x left n bits.
+#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32 - (n)))) // ROTATE_LEFT rotates x left n bits.
 
 /*! FF,GG,HH,and II transformations for rounds 1,2,3,and 4. Rotation is separate from addition to prevent recomputation.*/
-#define FF(a, b, c, d, x, s, ac)    { (a) += F( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
-#define GG(a, b, c, d, x, s, ac)    { (a) += G( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
-#define HH(a, b, c, d, x, s, ac)    { (a) += H( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
-#define II(a, b, c, d, x, s, ac)    { (a) += I( (b), (c), (d) ) + (x) + (uint32_t)(ac); (a) = ROTATE_LEFT( (a), (s) ); (a) += (b); }
+#define FF(a, b, c, d, x, s, ac)                                                                                                                                                                                                                               \
+  {                                                                                                                                                                                                                                                            \
+    (a) += F((b), (c), (d)) + (x) + (uint32_t)(ac);                                                                                                                                                                                                            \
+    (a) = ROTATE_LEFT((a), (s));                                                                                                                                                                                                                               \
+    (a) += (b);                                                                                                                                                                                                                                                \
+  }
+#define GG(a, b, c, d, x, s, ac)                                                                                                                                                                                                                               \
+  {                                                                                                                                                                                                                                                            \
+    (a) += G((b), (c), (d)) + (x) + (uint32_t)(ac);                                                                                                                                                                                                            \
+    (a) = ROTATE_LEFT((a), (s));                                                                                                                                                                                                                               \
+    (a) += (b);                                                                                                                                                                                                                                                \
+  }
+#define HH(a, b, c, d, x, s, ac)                                                                                                                                                                                                                               \
+  {                                                                                                                                                                                                                                                            \
+    (a) += H((b), (c), (d)) + (x) + (uint32_t)(ac);                                                                                                                                                                                                            \
+    (a) = ROTATE_LEFT((a), (s));                                                                                                                                                                                                                               \
+    (a) += (b);                                                                                                                                                                                                                                                \
+  }
+#define II(a, b, c, d, x, s, ac)                                                                                                                                                                                                                               \
+  {                                                                                                                                                                                                                                                            \
+    (a) += I((b), (c), (d)) + (x) + (uint32_t)(ac);                                                                                                                                                                                                            \
+    (a) = ROTATE_LEFT((a), (s));                                                                                                                                                                                                                               \
+    (a) += (b);                                                                                                                                                                                                                                                \
+  }
 
 /*
  * void main()
@@ -80,8 +100,7 @@ BEGIN_BOF_NAMESPACE()
  * }
  */
 
-  static uint8_t S_pMd5Padding_U8[] = { 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static uint8_t S_pMd5Padding_U8[] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /*!
  * Description
@@ -129,7 +148,8 @@ BofCryptoMd5::BofCryptoMd5()
  * None
  */
 BofCryptoMd5::~BofCryptoMd5()
-{}
+{
+}
 
 /*!
  * Description
@@ -320,42 +340,42 @@ void BofCryptoMd5::Transform(uint32_t *pState_U32, uint8_t *pBlock_U8)
   Decode(px_U32, pBlock_U8, 64);
 
   /* Round 1 */
-  FF(a_U32, b_U32, c_U32, d_U32, px_U32[0], S11, 0xd76aa478);   /* 1 */
-  FF(d_U32, a_U32, b_U32, c_U32, px_U32[1], S12, 0xe8c7b756);   /* 2 */
-  FF(c_U32, d_U32, a_U32, b_U32, px_U32[2], S13, 0x242070db);   /* 3 */
-  FF(b_U32, c_U32, d_U32, a_U32, px_U32[3], S14, 0xc1bdceee);   /* 4 */
-  FF(a_U32, b_U32, c_U32, d_U32, px_U32[4], S11, 0xf57c0faf);   /* 5 */
-  FF(d_U32, a_U32, b_U32, c_U32, px_U32[5], S12, 0x4787c62a);   /* 6 */
-  FF(c_U32, d_U32, a_U32, b_U32, px_U32[6], S13, 0xa8304613);   /* 7 */
-  FF(b_U32, c_U32, d_U32, a_U32, px_U32[7], S14, 0xfd469501);   /* 8 */
-  FF(a_U32, b_U32, c_U32, d_U32, px_U32[8], S11, 0x698098d8);   /* 9 */
-  FF(d_U32, a_U32, b_U32, c_U32, px_U32[9], S12, 0x8b44f7af);   /* 10 */
-  FF(c_U32, d_U32, a_U32, b_U32, px_U32[10], S13, 0xffff5bb1);  /* 11 */
-  FF(b_U32, c_U32, d_U32, a_U32, px_U32[11], S14, 0x895cd7be);  /* 12 */
-  FF(a_U32, b_U32, c_U32, d_U32, px_U32[12], S11, 0x6b901122);  /* 13 */
-  FF(d_U32, a_U32, b_U32, c_U32, px_U32[13], S12, 0xfd987193);  /* 14 */
-  FF(c_U32, d_U32, a_U32, b_U32, px_U32[14], S13, 0xa679438e);  /* 15 */
-  FF(b_U32, c_U32, d_U32, a_U32, px_U32[15], S14, 0x49b40821);  /* 16 */
+  FF(a_U32, b_U32, c_U32, d_U32, px_U32[0], S11, 0xd76aa478);  /* 1 */
+  FF(d_U32, a_U32, b_U32, c_U32, px_U32[1], S12, 0xe8c7b756);  /* 2 */
+  FF(c_U32, d_U32, a_U32, b_U32, px_U32[2], S13, 0x242070db);  /* 3 */
+  FF(b_U32, c_U32, d_U32, a_U32, px_U32[3], S14, 0xc1bdceee);  /* 4 */
+  FF(a_U32, b_U32, c_U32, d_U32, px_U32[4], S11, 0xf57c0faf);  /* 5 */
+  FF(d_U32, a_U32, b_U32, c_U32, px_U32[5], S12, 0x4787c62a);  /* 6 */
+  FF(c_U32, d_U32, a_U32, b_U32, px_U32[6], S13, 0xa8304613);  /* 7 */
+  FF(b_U32, c_U32, d_U32, a_U32, px_U32[7], S14, 0xfd469501);  /* 8 */
+  FF(a_U32, b_U32, c_U32, d_U32, px_U32[8], S11, 0x698098d8);  /* 9 */
+  FF(d_U32, a_U32, b_U32, c_U32, px_U32[9], S12, 0x8b44f7af);  /* 10 */
+  FF(c_U32, d_U32, a_U32, b_U32, px_U32[10], S13, 0xffff5bb1); /* 11 */
+  FF(b_U32, c_U32, d_U32, a_U32, px_U32[11], S14, 0x895cd7be); /* 12 */
+  FF(a_U32, b_U32, c_U32, d_U32, px_U32[12], S11, 0x6b901122); /* 13 */
+  FF(d_U32, a_U32, b_U32, c_U32, px_U32[13], S12, 0xfd987193); /* 14 */
+  FF(c_U32, d_U32, a_U32, b_U32, px_U32[14], S13, 0xa679438e); /* 15 */
+  FF(b_U32, c_U32, d_U32, a_U32, px_U32[15], S14, 0x49b40821); /* 16 */
 
-/* Round 2 */
-  GG(a_U32, b_U32, c_U32, d_U32, px_U32[1], S21, 0xf61e2562);   /* 17 */
-  GG(d_U32, a_U32, b_U32, c_U32, px_U32[6], S22, 0xc040b340);   /* 18 */
-  GG(c_U32, d_U32, a_U32, b_U32, px_U32[11], S23, 0x265e5a51);  /* 19 */
-  GG(b_U32, c_U32, d_U32, a_U32, px_U32[0], S24, 0xe9b6c7aa);   /* 20 */
-  GG(a_U32, b_U32, c_U32, d_U32, px_U32[5], S21, 0xd62f105d);   /* 21 */
-  GG(d_U32, a_U32, b_U32, c_U32, px_U32[10], S22, 0x2441453);   /* 22 */
-  GG(c_U32, d_U32, a_U32, b_U32, px_U32[15], S23, 0xd8a1e681);  /* 23 */
-  GG(b_U32, c_U32, d_U32, a_U32, px_U32[4], S24, 0xe7d3fbc8);   /* 24 */
-  GG(a_U32, b_U32, c_U32, d_U32, px_U32[9], S21, 0x21e1cde6);   /* 25 */
-  GG(d_U32, a_U32, b_U32, c_U32, px_U32[14], S22, 0xc33707d6);  /* 26 */
-  GG(c_U32, d_U32, a_U32, b_U32, px_U32[3], S23, 0xf4d50d87);   /* 27 */
-  GG(b_U32, c_U32, d_U32, a_U32, px_U32[8], S24, 0x455a14ed);   /* 28 */
-  GG(a_U32, b_U32, c_U32, d_U32, px_U32[13], S21, 0xa9e3e905);  /* 29 */
-  GG(d_U32, a_U32, b_U32, c_U32, px_U32[2], S22, 0xfcefa3f8);   /* 30 */
-  GG(c_U32, d_U32, a_U32, b_U32, px_U32[7], S23, 0x676f02d9);   /* 31 */
-  GG(b_U32, c_U32, d_U32, a_U32, px_U32[12], S24, 0x8d2a4c8a);  /* 32 */
+  /* Round 2 */
+  GG(a_U32, b_U32, c_U32, d_U32, px_U32[1], S21, 0xf61e2562);  /* 17 */
+  GG(d_U32, a_U32, b_U32, c_U32, px_U32[6], S22, 0xc040b340);  /* 18 */
+  GG(c_U32, d_U32, a_U32, b_U32, px_U32[11], S23, 0x265e5a51); /* 19 */
+  GG(b_U32, c_U32, d_U32, a_U32, px_U32[0], S24, 0xe9b6c7aa);  /* 20 */
+  GG(a_U32, b_U32, c_U32, d_U32, px_U32[5], S21, 0xd62f105d);  /* 21 */
+  GG(d_U32, a_U32, b_U32, c_U32, px_U32[10], S22, 0x2441453);  /* 22 */
+  GG(c_U32, d_U32, a_U32, b_U32, px_U32[15], S23, 0xd8a1e681); /* 23 */
+  GG(b_U32, c_U32, d_U32, a_U32, px_U32[4], S24, 0xe7d3fbc8);  /* 24 */
+  GG(a_U32, b_U32, c_U32, d_U32, px_U32[9], S21, 0x21e1cde6);  /* 25 */
+  GG(d_U32, a_U32, b_U32, c_U32, px_U32[14], S22, 0xc33707d6); /* 26 */
+  GG(c_U32, d_U32, a_U32, b_U32, px_U32[3], S23, 0xf4d50d87);  /* 27 */
+  GG(b_U32, c_U32, d_U32, a_U32, px_U32[8], S24, 0x455a14ed);  /* 28 */
+  GG(a_U32, b_U32, c_U32, d_U32, px_U32[13], S21, 0xa9e3e905); /* 29 */
+  GG(d_U32, a_U32, b_U32, c_U32, px_U32[2], S22, 0xfcefa3f8);  /* 30 */
+  GG(c_U32, d_U32, a_U32, b_U32, px_U32[7], S23, 0x676f02d9);  /* 31 */
+  GG(b_U32, c_U32, d_U32, a_U32, px_U32[12], S24, 0x8d2a4c8a); /* 32 */
 
-/* Round 3 */
+  /* Round 3 */
   HH(a_U32, b_U32, c_U32, d_U32, px_U32[5], S31, 0xfffa3942);   /* 33 */
   HH(d_U32, a_U32, b_U32, c_U32, px_U32[8], S322, 0x8771f681);  /* 34 */
   HH(c_U32, d_U32, a_U32, b_U32, px_U32[11], S33, 0x6d9d6122);  /* 35 */
@@ -373,23 +393,23 @@ void BofCryptoMd5::Transform(uint32_t *pState_U32, uint8_t *pBlock_U8)
   HH(c_U32, d_U32, a_U32, b_U32, px_U32[15], S33, 0x1fa27cf8);  /* 47 */
   HH(b_U32, c_U32, d_U32, a_U32, px_U32[2], S34, 0xc4ac5665);   /* 48 */
 
-/* Round 4 */
-  II(a_U32, b_U32, c_U32, d_U32, px_U32[0], S41, 0xf4292244);   /* 49 */
-  II(d_U32, a_U32, b_U32, c_U32, px_U32[7], S42, 0x432aff97);   /* 50 */
-  II(c_U32, d_U32, a_U32, b_U32, px_U32[14], S43, 0xab9423a7);  /* 51 */
-  II(b_U32, c_U32, d_U32, a_U32, px_U32[5], S44, 0xfc93a039);   /* 52 */
-  II(a_U32, b_U32, c_U32, d_U32, px_U32[12], S41, 0x655b59c3);  /* 53 */
-  II(d_U32, a_U32, b_U32, c_U32, px_U32[3], S42, 0x8f0ccc92);   /* 54 */
-  II(c_U32, d_U32, a_U32, b_U32, px_U32[10], S43, 0xffeff47d);  /* 55 */
-  II(b_U32, c_U32, d_U32, a_U32, px_U32[1], S44, 0x85845dd1);   /* 56 */
-  II(a_U32, b_U32, c_U32, d_U32, px_U32[8], S41, 0x6fa87e4f);   /* 57 */
-  II(d_U32, a_U32, b_U32, c_U32, px_U32[15], S42, 0xfe2ce6e0);  /* 58 */
-  II(c_U32, d_U32, a_U32, b_U32, px_U32[6], S43, 0xa3014314);   /* 59 */
-  II(b_U32, c_U32, d_U32, a_U32, px_U32[13], S44, 0x4e0811a1);  /* 60 */
-  II(a_U32, b_U32, c_U32, d_U32, px_U32[4], S41, 0xf7537e82);   /* 61 */
-  II(d_U32, a_U32, b_U32, c_U32, px_U32[11], S42, 0xbd3af235);  /* 62 */
-  II(c_U32, d_U32, a_U32, b_U32, px_U32[2], S43, 0x2ad7d2bb);   /* 63 */
-  II(b_U32, c_U32, d_U32, a_U32, px_U32[9], S44, 0xeb86d391);   /* 64 */
+  /* Round 4 */
+  II(a_U32, b_U32, c_U32, d_U32, px_U32[0], S41, 0xf4292244);  /* 49 */
+  II(d_U32, a_U32, b_U32, c_U32, px_U32[7], S42, 0x432aff97);  /* 50 */
+  II(c_U32, d_U32, a_U32, b_U32, px_U32[14], S43, 0xab9423a7); /* 51 */
+  II(b_U32, c_U32, d_U32, a_U32, px_U32[5], S44, 0xfc93a039);  /* 52 */
+  II(a_U32, b_U32, c_U32, d_U32, px_U32[12], S41, 0x655b59c3); /* 53 */
+  II(d_U32, a_U32, b_U32, c_U32, px_U32[3], S42, 0x8f0ccc92);  /* 54 */
+  II(c_U32, d_U32, a_U32, b_U32, px_U32[10], S43, 0xffeff47d); /* 55 */
+  II(b_U32, c_U32, d_U32, a_U32, px_U32[1], S44, 0x85845dd1);  /* 56 */
+  II(a_U32, b_U32, c_U32, d_U32, px_U32[8], S41, 0x6fa87e4f);  /* 57 */
+  II(d_U32, a_U32, b_U32, c_U32, px_U32[15], S42, 0xfe2ce6e0); /* 58 */
+  II(c_U32, d_U32, a_U32, b_U32, px_U32[6], S43, 0xa3014314);  /* 59 */
+  II(b_U32, c_U32, d_U32, a_U32, px_U32[13], S44, 0x4e0811a1); /* 60 */
+  II(a_U32, b_U32, c_U32, d_U32, px_U32[4], S41, 0xf7537e82);  /* 61 */
+  II(d_U32, a_U32, b_U32, c_U32, px_U32[11], S42, 0xbd3af235); /* 62 */
+  II(c_U32, d_U32, a_U32, b_U32, px_U32[2], S43, 0x2ad7d2bb);  /* 63 */
+  II(b_U32, c_U32, d_U32, a_U32, px_U32[9], S44, 0xeb86d391);  /* 64 */
 
   pState_U32[0] += a_U32;
   pState_U32[1] += b_U32;
@@ -480,9 +500,8 @@ std::string Bof_ComputeSha1(const std::string &_Input_S)
 }
 */
 
-static const size_t BLOCK_INTS = 16;  /* number of 32bit integers per SHA1 block */
+static const size_t BLOCK_INTS = 16; /* number of 32bit integers per SHA1 block */
 static const size_t BLOCK_BYTES = BLOCK_INTS * 4;
-
 
 inline static void S_Reset(uint32_t digest[], std::string &buffer, uint64_t &transforms)
 {
@@ -498,18 +517,15 @@ inline static void S_Reset(uint32_t digest[], std::string &buffer, uint64_t &tra
   transforms = 0;
 }
 
-
 inline static uint32_t S_Rol(const uint32_t value, const size_t bits)
 {
   return (value << bits) | (value >> (32 - bits));
 }
 
-
 inline static uint32_t S_Blk(const uint32_t block[BLOCK_INTS], const size_t i)
 {
   return S_Rol(block[(i + 13) & 15] ^ block[(i + 8) & 15] ^ block[(i + 2) & 15] ^ block[i], 1);
 }
-
 
 /*
  * (S_R0+S_R1), S_R2, S_R3, S_R4 are the different operations used in SHA1
@@ -521,14 +537,12 @@ inline static void S_R0(const uint32_t block[BLOCK_INTS], const uint32_t v, uint
   w = S_Rol(w, 30);
 }
 
-
 inline static void S_R1(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x, const uint32_t y, uint32_t &z, const size_t i)
 {
   block[i] = S_Blk(block, i);
   z += ((w & (x ^ y)) ^ y) + block[i] + 0x5a827999 + S_Rol(v, 5);
   w = S_Rol(w, 30);
 }
-
 
 inline static void S_R2(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x, const uint32_t y, uint32_t &z, const size_t i)
 {
@@ -537,7 +551,6 @@ inline static void S_R2(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &
   w = S_Rol(w, 30);
 }
 
-
 inline static void S_R3(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x, const uint32_t y, uint32_t &z, const size_t i)
 {
   block[i] = S_Blk(block, i);
@@ -545,14 +558,12 @@ inline static void S_R3(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &
   w = S_Rol(w, 30);
 }
 
-
 inline static void S_R4(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x, const uint32_t y, uint32_t &z, const size_t i)
 {
   block[i] = S_Blk(block, i);
   z += (w ^ x ^ y) + block[i] + 0xca62c1d6 + S_Rol(v, 5);
   w = S_Rol(w, 30);
 }
-
 
 /*
  * Hash a single 512-bit block. This is the core of the algorithm.
@@ -660,25 +671,19 @@ inline static void S_Transform(uint32_t digest[], uint32_t block[BLOCK_INTS], ui
   transforms++;
 }
 
-
 inline static void S_BufferToBlock(const std::string &buffer, uint32_t block[BLOCK_INTS])
 {
   /* Convert the std::string (byte buffer) to a uint32_t array (MSB) */
   for (size_t i = 0; i < BLOCK_INTS; i++)
   {
-    block[i] = (buffer[4 * i + 3] & 0xff)
-      | (buffer[4 * i + 2] & 0xff) << 8
-      | (buffer[4 * i + 1] & 0xff) << 16
-      | (buffer[4 * i + 0] & 0xff) << 24;
+    block[i] = (buffer[4 * i + 3] & 0xff) | (buffer[4 * i + 2] & 0xff) << 8 | (buffer[4 * i + 1] & 0xff) << 16 | (buffer[4 * i + 0] & 0xff) << 24;
   }
 }
-
 
 inline BofSha1::BofSha1()
 {
   S_Reset(mpDigest_U32, mBuffer_S, mTransform_U64);
 }
-
 
 void BofSha1::Update(const std::string &s)
 {
@@ -709,7 +714,6 @@ void BofSha1::Update(std::istream &is)
     mBuffer_S.clear();
   }
 }
-
 
 /*
  * Add padding and return the message digest.
@@ -759,7 +763,6 @@ std::string BofSha1::Final()
   return result.str();
 }
 
-
 std::string BofSha1::S_FromFile(const std::string &_rFilename_S)
 {
   std::ifstream Stream(_rFilename_S.c_str(), std::ios::binary);
@@ -779,6 +782,5 @@ std::string BofSha1::S_FromString(const std::string &_Input_S)
 {
   return S_FromBuffer(_Input_S.size(), _Input_S.c_str());
 }
-
 
 END_BOF_NAMESPACE()

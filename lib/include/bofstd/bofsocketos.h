@@ -20,51 +20,51 @@
  */
 #pragma once
 
-#include <bofstd/bofflag.h>
 #include <bofstd/bofbinserializer.h>
+#include <bofstd/bofflag.h>
 
 #include <cstdint>
-#include <vector>
 #include <string.h>
+#include <vector>
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #define NOMINMAX
 #include <WinSock2.h>
 #include <ws2tcpip.h>
-#define BOF_POLL_RDHUP 0	//does not exist in _WIN32
+#define BOF_POLL_RDHUP 0 // does not exist in _WIN32
 #else
-#define SOCKET_ERROR                 -1
+#define SOCKET_ERROR -1
 
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <poll.h>
+#include <sys/socket.h>
 
 #define BOF_POLL_RDHUP POLLRDHUP
 #endif
-#define BOF_POLL_IN     POLLIN
-#define BOF_POLL_OUT   POLLOUT
-#define BOF_POLL_HUP   POLLHUP
-#define BOF_POLL_ERR   POLLERR
-#define BOF_POLL_NVAL  POLLNVAL
+#define BOF_POLL_IN POLLIN
+#define BOF_POLL_OUT POLLOUT
+#define BOF_POLL_HUP POLLHUP
+#define BOF_POLL_ERR POLLERR
+#define BOF_POLL_NVAL POLLNVAL
 
 BEGIN_BOF_NAMESPACE()
 class BofSocketIo;
 
-#define BOFSOCKET_INVALID           static_cast<BOFSOCKET>(-1)        //INVALID_SOCKET
+#define BOFSOCKET_INVALID static_cast<BOFSOCKET>(-1) // INVALID_SOCKET
 #if defined(_WIN32)
 typedef SOCKET BOFSOCKET;
-typedef WSABUF  SCATTER_GATHER_BUFFER;
+typedef WSABUF SCATTER_GATHER_BUFFER;
 #else
-typedef int          BOFSOCKET;
+typedef int BOFSOCKET;
 typedef struct iovec SCATTER_GATHER_BUFFER;
 #endif
 
 struct BOFSTD_EXPORT BOF_POLL_SOCKET
 {
   BOFSOCKET Fd;
-  uint16_t  Event_U16;
-  uint16_t  Revent_U16;
+  uint16_t Event_U16;
+  uint16_t Revent_U16;
 
   BOF_POLL_SOCKET()
   {
@@ -82,7 +82,7 @@ struct BOFSTD_EXPORT BOF_POLL_SOCKET
 enum class BOF_POLL_SOCKET_OP : uint8_t
 {
   BOF_POLL_SOCKET_OP_NONE = ' ',
-  //BOF_POLL_SOCKET_OP_CANCEL_WAIT = 'C',
+  // BOF_POLL_SOCKET_OP_CANCEL_WAIT = 'C',
   BOF_POLL_SOCKET_OP_ADD_ENTRY = 'A',
   BOF_POLL_SOCKET_OP_QUIT = 'Q',
   BOF_POLL_SOCKET_OP_REMOVE_ENTRY = 'R',
@@ -94,10 +94,10 @@ enum class BOF_POLL_SOCKET_OP : uint8_t
 struct BOFSTD_EXPORT BOF_POLL_SOCKET_CMD
 {
   BOF_POLL_SOCKET_OP SocketOp_E;
-  uint8_t            pSpare_U8[3];
-  BOFSOCKET          SessionId;
-  uint32_t           AnswerTicket_U32;    //If not zero a BOF_POLL_SOCKET_CMD is sent back by the processing thread to the caller to provide sync mecanism. If 0 no result back (full async without synchro)
-  uint32_t           AnswerArg_U32;        //Optional arg value used by the snt back value.
+  uint8_t pSpare_U8[3];
+  BOFSOCKET SessionId;
+  uint32_t AnswerTicket_U32; // If not zero a BOF_POLL_SOCKET_CMD is sent back by the processing thread to the caller to provide sync mecanism. If 0 no result back (full async without synchro)
+  uint32_t AnswerArg_U32;    // Optional arg value used by the snt back value.
 
   BOF_POLL_SOCKET_CMD()
   {
@@ -115,38 +115,37 @@ struct BOFSTD_EXPORT BOF_POLL_SOCKET_CMD
 
 #pragma pack()
 
-//#define BOF_U32IPADDR_TO_U8IPADDR(Address, Ip1, Ip2, Ip3, Ip4)  {uint32_t Ip=htonl(Address);Ip1=static_cast<uint8_t>(Ip>>24);Ip2=static_cast<uint8_t>(Ip>>16);Ip3=static_cast<uint8_t>(Ip>>8);Ip4=static_cast<uint8_t>(Ip);}
+// #define BOF_U32IPADDR_TO_U8IPADDR(Address, Ip1, Ip2, Ip3, Ip4)  {uint32_t Ip=htonl(Address);Ip1=static_cast<uint8_t>(Ip>>24);Ip2=static_cast<uint8_t>(Ip>>16);Ip3=static_cast<uint8_t>(Ip>>8);Ip4=static_cast<uint8_t>(Ip);}
 
 enum class BOF_NETWORK_INTERFACE_FLAG : uint32_t
 {
-  BOF_IFF_NONE = 0x00000000,    /*! Nothing.*/
-  BOF_IFF_UP = 0x00000001,    /*! Interface is running.*/
-  BOF_IFF_BROADCAST = 0x00000002,    /*! Valid broadcast address set.*/
+  BOF_IFF_NONE = 0x00000000,        /*! Nothing.*/
+  BOF_IFF_UP = 0x00000001,          /*! Interface is running.*/
+  BOF_IFF_BROADCAST = 0x00000002,   /*! Valid broadcast address set.*/
   BOF_IFF_LOOPBACK = 0x00000004,    /*! Interface is a loopback interface.*/
-  BOF_IFF_POINTOPOINT = 0x00000008,    /*! Interface is a point - to - point link.*/
-  BOF_IFF_MULTICAST = 0x00000010,    /*! Supports multicast*/
+  BOF_IFF_POINTOPOINT = 0x00000008, /*! Interface is a point - to - point link.*/
+  BOF_IFF_MULTICAST = 0x00000010,   /*! Supports multicast*/
 };
-template<>
-struct IsItAnEnumBitFLag<BOF_NETWORK_INTERFACE_FLAG> : std::true_type
+template <> struct IsItAnEnumBitFLag<BOF_NETWORK_INTERFACE_FLAG> : std::true_type
 {
 };
 
 enum class BOF_SOCK_TYPE : int32_t
 {
   //		BOF_SOCK_UNDEF = 0,                /*! None */
-  BOF_SOCK_UNKNOWN = 0,                /*! None */
-  BOF_SOCK_TCP,                     /*! stream socket */
-  BOF_SOCK_UDP,                      /*! datagram socket */
-//	BOF_SOCK_RAW,                        /*! raw-protocol interface */
-//	BOF_SOCK_RDM,                        /*! reliably-delivered message */
-//	BOF_SOCK_SEQPACKET,                  /*! sequenced packet stream */
+  BOF_SOCK_UNKNOWN = 0, /*! None */
+  BOF_SOCK_TCP,         /*! stream socket */
+  BOF_SOCK_UDP,         /*! datagram socket */
+  //	BOF_SOCK_RAW,                        /*! raw-protocol interface */
+  //	BOF_SOCK_RDM,                        /*! reliably-delivered message */
+  //	BOF_SOCK_SEQPACKET,                  /*! sequenced packet stream */
 };
 
-typedef struct sockaddr     BOF_SOCKADDR;
-typedef struct sockaddr_in  BOF_SOCKADDR_IN;
+typedef struct sockaddr BOF_SOCKADDR;
+typedef struct sockaddr_in BOF_SOCKADDR_IN;
 typedef struct sockaddr_in6 BOF_SOCKADDR_IN6;
-typedef struct in_addr      BOF_IN_ADDR;
-typedef struct in6_addr     BOF_IN_ADDR6;
+typedef struct in_addr BOF_IN_ADDR;
+typedef struct in6_addr BOF_IN_ADDR6;
 
 struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS;
 BOFSTD_EXPORT BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
@@ -154,11 +153,11 @@ BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_r
 
 struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
 {
-  bool              Valid_B;
-  bool              IpV6_B;
-  BOF_SOCK_TYPE     SocketType_E;
-  BOF_SOCKADDR_IN   IpV4Address_X;
-  BOF_SOCKADDR_IN6  IpV6Address_X;
+  bool Valid_B;
+  bool IpV6_B;
+  BOF_SOCK_TYPE SocketType_E;
+  BOF_SOCKADDR_IN IpV4Address_X;
+  BOF_SOCKADDR_IN6 IpV6Address_X;
 
   BOF_SOCKET_ADDRESS()
   {
@@ -183,26 +182,17 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
     {
       if (IpV6_B)
       {
-        if ((IpV6Address_X.sin6_family != _rOther.IpV6Address_X.sin6_family)
-          || (IpV6Address_X.sin6_port != _rOther.IpV6Address_X.sin6_port)
+        if ((IpV6Address_X.sin6_family != _rOther.IpV6Address_X.sin6_family) || (IpV6Address_X.sin6_port != _rOther.IpV6Address_X.sin6_port)
 #if defined(_WIN32)
-          || (IpV6Address_X.sin6_addr.u.Word[0] != _rOther.IpV6Address_X.sin6_addr.u.Word[0])
-          || (IpV6Address_X.sin6_addr.u.Word[1] != _rOther.IpV6Address_X.sin6_addr.u.Word[1])
-          || (IpV6Address_X.sin6_addr.u.Word[2] != _rOther.IpV6Address_X.sin6_addr.u.Word[2])
-          || (IpV6Address_X.sin6_addr.u.Word[3] != _rOther.IpV6Address_X.sin6_addr.u.Word[3])
-          || (IpV6Address_X.sin6_addr.u.Word[4] != _rOther.IpV6Address_X.sin6_addr.u.Word[4])
-          || (IpV6Address_X.sin6_addr.u.Word[5] != _rOther.IpV6Address_X.sin6_addr.u.Word[5])
-          || (IpV6Address_X.sin6_addr.u.Word[6] != _rOther.IpV6Address_X.sin6_addr.u.Word[6])
-          || (IpV6Address_X.sin6_addr.u.Word[7] != _rOther.IpV6Address_X.sin6_addr.u.Word[7]))
+            || (IpV6Address_X.sin6_addr.u.Word[0] != _rOther.IpV6Address_X.sin6_addr.u.Word[0]) || (IpV6Address_X.sin6_addr.u.Word[1] != _rOther.IpV6Address_X.sin6_addr.u.Word[1]) ||
+            (IpV6Address_X.sin6_addr.u.Word[2] != _rOther.IpV6Address_X.sin6_addr.u.Word[2]) || (IpV6Address_X.sin6_addr.u.Word[3] != _rOther.IpV6Address_X.sin6_addr.u.Word[3]) ||
+            (IpV6Address_X.sin6_addr.u.Word[4] != _rOther.IpV6Address_X.sin6_addr.u.Word[4]) || (IpV6Address_X.sin6_addr.u.Word[5] != _rOther.IpV6Address_X.sin6_addr.u.Word[5]) ||
+            (IpV6Address_X.sin6_addr.u.Word[6] != _rOther.IpV6Address_X.sin6_addr.u.Word[6]) || (IpV6Address_X.sin6_addr.u.Word[7] != _rOther.IpV6Address_X.sin6_addr.u.Word[7]))
 #else
-          || (IpV6Address_X.sin6_addr.s6_addr16[0] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[0])
-          || (IpV6Address_X.sin6_addr.s6_addr16[1] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[1])
-          || (IpV6Address_X.sin6_addr.s6_addr16[2] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[2])
-          || (IpV6Address_X.sin6_addr.s6_addr16[3] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[3])
-          || (IpV6Address_X.sin6_addr.s6_addr16[4] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[4])
-          || (IpV6Address_X.sin6_addr.s6_addr16[5] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[5])
-          || (IpV6Address_X.sin6_addr.s6_addr16[6] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[6])
-          || (IpV6Address_X.sin6_addr.s6_addr16[7] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[7]))
+            || (IpV6Address_X.sin6_addr.s6_addr16[0] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[0]) || (IpV6Address_X.sin6_addr.s6_addr16[1] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[1]) ||
+            (IpV6Address_X.sin6_addr.s6_addr16[2] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[2]) || (IpV6Address_X.sin6_addr.s6_addr16[3] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[3]) ||
+            (IpV6Address_X.sin6_addr.s6_addr16[4] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[4]) || (IpV6Address_X.sin6_addr.s6_addr16[5] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[5]) ||
+            (IpV6Address_X.sin6_addr.s6_addr16[6] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[6]) || (IpV6Address_X.sin6_addr.s6_addr16[7] != _rOther.IpV6Address_X.sin6_addr.s6_addr16[7]))
 #endif
         {
           Rts_B = false;
@@ -214,9 +204,7 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
       }
       else
       {
-        if (   (IpV4Address_X.sin_family      != _rOther.IpV4Address_X.sin_family)
-            || (IpV4Address_X.sin_port        != _rOther.IpV4Address_X.sin_port)
-            || (IpV4Address_X.sin_addr.s_addr != _rOther.IpV4Address_X.sin_addr.s_addr))
+        if ((IpV4Address_X.sin_family != _rOther.IpV4Address_X.sin_family) || (IpV4Address_X.sin_port != _rOther.IpV4Address_X.sin_port) || (IpV4Address_X.sin_addr.s_addr != _rOther.IpV4Address_X.sin_addr.s_addr))
         {
           Rts_B = false;
         }
@@ -280,8 +268,8 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
 
   void Inc(int32_t _Inc_S32)
   {
-    uint32_t                         i_U32;
-    int32_t                          Val_S32;
+    uint32_t i_U32;
+    int32_t Val_S32;
     uint16_t *pIp_U16;
     uint8_t *pIp_U8;
 
@@ -423,16 +411,16 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
     IpV6Address_X.sin6_flowinfo = 0;
     IpV6Address_X.sin6_port = 0;
     IpV6Address_X.sin6_scope_id = 0;
-    //IpV6Address_X.sin6_scope_struct = 0;
+    // IpV6Address_X.sin6_scope_struct = 0;
   }
 };
 
-//typedef struct ip_addr
+// typedef struct ip_addr
 //{
-//  uint32_t Ip_U32;
-//} IP_ADDR;
-//#define ip_addr_t IP_ADDR
-//We want a memory footprint of 32 bit in network order
+//   uint32_t Ip_U32;
+// } IP_ADDR;
+// #define ip_addr_t IP_ADDR
+// We want a memory footprint of 32 bit in network order
 struct BOF_IPV4_ADDR_U32
 {
   uint32_t IpAddress_U32;
@@ -466,7 +454,7 @@ struct BOF_IPV4_ADDR_U32
   }
   bool IsNull()
   {
-   return(IpAddress_U32 == 0);
+    return (IpAddress_U32 == 0);
   }
   void Parse(uint8_t &_rIp1_U8, uint8_t &_rIp2_U8, uint8_t &_rIp3_U8, uint8_t &_rIp4_U8)
   {
@@ -497,12 +485,12 @@ BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SO
 
 struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
 {
-  std::string Protocol_S;   //Scheme  (cf BofUri)
-  std::string IpAddress_S;  //Authority (cf BofUri)
-  uint16_t    Port_U16;     //Authority (cf BofUri)
+  std::string Protocol_S;  // Scheme  (cf BofUri)
+  std::string IpAddress_S; // Authority (cf BofUri)
+  uint16_t Port_U16;       // Authority (cf BofUri)
 
-  std::string User_S;       //Authority (cf BofUri)
-  std::string Password_S;   //Authority (cf BofUri)
+  std::string User_S;     // Authority (cf BofUri)
+  std::string Password_S; // Authority (cf BofUri)
   BOF_SOCKET_ADDRESS Ip_X;
 
   BOF_SOCKET_ADDRESS_COMPONENT()
@@ -593,7 +581,7 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
           }
           else
           {
-            Rts << Protocol_S << ':';   //Will be followed by path for an uri
+            Rts << Protocol_S << ':'; // Will be followed by path for an uri
           }
         }
       }
@@ -616,10 +604,10 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
 
 struct BOFSTD_EXPORT BOF_INTERFACE_INFO
 {
-  std::string                IpGateway_S;
+  std::string IpGateway_S;
   BOF_NETWORK_INTERFACE_FLAG InterfaceFlag_E;
-  uint32_t                   MtuSize_U32;
-  std::vector<uint8_t>       MacAddress;
+  uint32_t MtuSize_U32;
+  std::vector<uint8_t> MacAddress;
 
   BOF_INTERFACE_INFO()
   {
@@ -638,7 +626,7 @@ struct BOFSTD_EXPORT BOF_INTERFACE_INFO
 struct BOFSTD_EXPORT BOF_NETWORK_INTERFACE_PARAM
 {
   bool IpV6_B;
-  std::string Name_S;        // 16:IF_NAMESIZE linux 260: MAX_ADAPTER_NAME_LENGTH+4 win3�
+  std::string Name_S; // 16:IF_NAMESIZE linux 260: MAX_ADAPTER_NAME_LENGTH+4 win3�
   std::string IpAddress_S;
   std::string IpMask_S;
   std::string IpBroadcast_S;
@@ -662,22 +650,22 @@ struct BOFSTD_EXPORT BOF_NETWORK_INTERFACE_PARAM
 
 constexpr char BOF_INTERFACE_ADDRESS_SEPARATOR = '>';
 
-BOFSTD_EXPORT  BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X);
-BOFSTD_EXPORT BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X);  //TODO IpV6 version
-BOFSTD_EXPORT BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X); //TODO IpV6 version
-BOFSTD_EXPORT int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S);  //TODO IpV6 version
-//Defined above BOF_SOCKET_ADDRESS BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowType_B, bool _ShowPortNumber_B);
+BOFSTD_EXPORT BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X);
+BOFSTD_EXPORT BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X); // TODO IpV6 version
+BOFSTD_EXPORT BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X);                   // TODO IpV6 version
+BOFSTD_EXPORT int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S);                                                             // TODO IpV6 version
+// Defined above BOF_SOCKET_ADDRESS BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowType_B, bool _ShowPortNumber_B);
 BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN &_rSockAddressIn_X, bool _ShowPortNumber_B);
 BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN6 &_rSockAddressIn_X, bool _ShowPortNumber_B);
 BOFSTD_EXPORT BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string &_rIpOrUrlAddress_S, std::vector<BOF_SOCKET_ADDRESS> &_rListOfIpAddress_X);
-//Defined above BOF_SOCKET_ADDRESS BOFSTD_EXPORT BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X, std::string *_pIpAddress_S= nullptr);
+// Defined above BOF_SOCKET_ADDRESS BOFSTD_EXPORT BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X, std::string *_pIpAddress_S= nullptr);
 BOFSTD_EXPORT BOFERR Bof_SocketAddressToBin(BOF_SOCKET_ADDRESS &_rIpAddress_X, std::vector<uint16_t> &_rBinFormat);
 BOFSTD_EXPORT BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, BOF_SOCKET_ADDRESS &_rIpAddress_X);
 BOFSTD_EXPORT BOFERR Bof_IpAddressToBin(const std::string &_rIpAddress_S, bool &_rIsIpV6_B, std::vector<uint16_t> &_rIpBinDigitCollection);
 BOFSTD_EXPORT BOF_SOCK_TYPE Bof_SocketType(const std::string &_rIpAddress_S);
 BOFSTD_EXPORT BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_rUri_X, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S);
 BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
-//Defined above BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
+// Defined above BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
 BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);
 BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
 BOFSTD_EXPORT BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);

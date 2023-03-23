@@ -21,10 +21,10 @@
  */
 #include "bofstd/bofobserver.h"
 
-#include <iostream>
-#include <list>
-#include <iterator>
 #include <algorithm>
+#include <iostream>
+#include <iterator>
+#include <list>
 
 BofObserver::~BofObserver()
 {
@@ -38,14 +38,14 @@ BofObserver::~BofObserver()
 }
 
 void BofObserver::V_ObservableNotify(BofObservable * /*_pObservable_O*/, uint64_t /*_User_U64*/, void * /*_pUser*/)
-{}
+{
+}
 
 void BofObserver::RegisterObservable(BofObservable *_pBofObservable_O)
 {
   std::lock_guard<std::mutex> Lock_O(mCsObserver_O);
   mListOfObservable_O.push_back(_pBofObservable_O);
 }
-
 
 void BofObserver::UnregisterObservable(BofObservable *_pBofObservable_O)
 {
@@ -75,7 +75,8 @@ void BofObserver::ObserverNotifyAll(uint64_t _User_U64, void *_pUser)
 }
 
 BofObservable::BofObservable()
-{}
+{
+}
 
 BofObservable::~BofObservable()
 {
@@ -101,7 +102,6 @@ void BofObservable::RegisterObserver(BofObserver *_pBofObserver_O)
   _pBofObserver_O->RegisterObservable(this);
 }
 
-
 void BofObservable::UnregisterObserver(BofObserver *_pBofObserver_O)
 {
   // Idem BofObserver::RegisterObserver
@@ -118,9 +118,9 @@ void BofObservable::UnregisterObserver(BofObserver *_pBofObserver_O)
   }
 }
 
-
 void BofObservable::V_ObserverNotifyAll(BofObserver * /*_pObserver_O*/, uint64_t /*_User_U64*/, void * /*_pUser*/)
-{}
+{
+}
 
 void BofObservable::ObservableNotify(uint64_t _User_U64, void *_pUser)
 {

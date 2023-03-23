@@ -31,7 +31,6 @@ BEGIN_BOF_NAMESPACE()
 class BofJsonWriter::JsonWriterImplementation
 {
 public:
-
   JsonWriterImplementation()
   {
   }
@@ -44,9 +43,9 @@ public:
   {
     Json::Value Rts;
 
-    //int y = sizeof(long);	//4
-    //y = sizeof(unsigned long);	//4
-    //y = sizeof(unsigned long long); //8
+    // int y = sizeof(long);	//4
+    // y = sizeof(unsigned long);	//4
+    // y = sizeof(unsigned long long); //8
 
     if (_pJsonValue_c)
     {
@@ -58,51 +57,51 @@ public:
       {
         switch (_ArgType_E)
         {
-          case BOFPARAMETER_ARG_TYPE::BOOL:
-            if (strcmp(_pJsonValue_c, "true") == 0)
-            {
-              Rts = Json::Value(true);
-            }
-            else
-            {
-              Rts = Json::Value(false);
-            }
-            break;
+        case BOFPARAMETER_ARG_TYPE::BOOL:
+          if (strcmp(_pJsonValue_c, "true") == 0)
+          {
+            Rts = Json::Value(true);
+          }
+          else
+          {
+            Rts = Json::Value(false);
+          }
+          break;
 
-          case BOFPARAMETER_ARG_TYPE::UINT8:
-            Rts = Json::Value(static_cast<uint8_t>(std::stoul(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::UINT16:
-            Rts = Json::Value(static_cast<uint16_t>(std::stoul(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::UINT32:
-            Rts = Json::Value(static_cast<uint32_t>(std::stoul(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::UINT64:
-            Rts = Json::Value(static_cast<uint64_t>(std::stoull(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::INT8:
-            Rts = Json::Value(static_cast<int8_t>(std::stol(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::INT16:
-            Rts = Json::Value(static_cast<int16_t>(std::stol(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::INT32:
-            Rts = Json::Value(static_cast<int32_t>(std::stol(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::INT64:
-            Rts = Json::Value(static_cast<int64_t>(std::stoll(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::FLOAT:
-            Rts = Json::Value(static_cast<float>(std::stof(_pJsonValue_c)));
-            break;
-          case BOFPARAMETER_ARG_TYPE::DOUBLE:
-            Rts = Json::Value(static_cast<double>(std::stold(_pJsonValue_c)));
-            break;
+        case BOFPARAMETER_ARG_TYPE::UINT8:
+          Rts = Json::Value(static_cast<uint8_t>(std::stoul(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::UINT16:
+          Rts = Json::Value(static_cast<uint16_t>(std::stoul(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::UINT32:
+          Rts = Json::Value(static_cast<uint32_t>(std::stoul(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::UINT64:
+          Rts = Json::Value(static_cast<uint64_t>(std::stoull(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::INT8:
+          Rts = Json::Value(static_cast<int8_t>(std::stol(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::INT16:
+          Rts = Json::Value(static_cast<int16_t>(std::stol(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::INT32:
+          Rts = Json::Value(static_cast<int32_t>(std::stol(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::INT64:
+          Rts = Json::Value(static_cast<int64_t>(std::stoll(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::FLOAT:
+          Rts = Json::Value(static_cast<float>(std::stof(_pJsonValue_c)));
+          break;
+        case BOFPARAMETER_ARG_TYPE::DOUBLE:
+          Rts = Json::Value(static_cast<double>(std::stold(_pJsonValue_c)));
+          break;
 
-          default:
-            Rts = Json::Value(_pJsonValue_c);
-            break;
+        default:
+          Rts = Json::Value(_pJsonValue_c);
+          break;
         }
       }
     }
@@ -155,153 +154,166 @@ public:
 
             switch (SubTagList.size())
             {
-              case 1:
+            case 1: {
+              if (ItIsAnArray_B)
               {
-                if (ItIsAnArray_B)
+                if (SubTagList[0] == "")
                 {
-                  if (SubTagList[0] == "")
-                  {
-                    Root_O[Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
-                  else
-                  {
-                    Root_O[SubTagList[0]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
+                  Root_O[Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
                 else
                 {
-                  Root_O[SubTagList[0]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
+                  Root_O[SubTagList[0]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
               }
-              break;
-
-              case 2:
+              else
               {
-                if (ItIsAnArray_B)
+                Root_O[SubTagList[0]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                ;
+              }
+            }
+            break;
+
+            case 2: {
+              if (ItIsAnArray_B)
+              {
+                if (SubTagList[1] == "")
                 {
-                  if (SubTagList[1] == "")
-                  {
-                    Root_O[SubTagList[0]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
-                  else
-                  {
-                    Root_O[SubTagList[0]][Index_U32][SubTagList[1]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
+                  Root_O[SubTagList[0]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
                 else
                 {
-                  Root_O[SubTagList[0]][SubTagList[1]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
+                  Root_O[SubTagList[0]][Index_U32][SubTagList[1]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
               }
-              break;
-
-              case 3:
+              else
               {
-                if (ItIsAnArray_B)
+                Root_O[SubTagList[0]][SubTagList[1]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                ;
+              }
+            }
+            break;
+
+            case 3: {
+              if (ItIsAnArray_B)
+              {
+                if (SubTagList[2] == "")
                 {
-                  if (SubTagList[2] == "")
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
-                  else
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][Index_U32][SubTagList[2]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
+                  Root_O[SubTagList[0]][SubTagList[1]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
                 else
                 {
-                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
+                  Root_O[SubTagList[0]][SubTagList[1]][Index_U32][SubTagList[2]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
               }
-              break;
-
-              case 4:
+              else
               {
-                if (ItIsAnArray_B)
+                Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                ;
+              }
+            }
+            break;
+
+            case 4: {
+              if (ItIsAnArray_B)
+              {
+                if (SubTagList[3] == "")
                 {
-                  if (SubTagList[3] == "")
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
-                  else
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][Index_U32][SubTagList[3]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
                 else
                 {
-                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][Index_U32][SubTagList[3]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
               }
-              break;
-
-              case 5:
+              else
               {
-                if (ItIsAnArray_B)
+                Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                ;
+              }
+            }
+            break;
+
+            case 5: {
+              if (ItIsAnArray_B)
+              {
+                if (SubTagList[4] == "")
                 {
-                  if (SubTagList[4] == "")
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
-                  else
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][Index_U32][SubTagList[4]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
                 else
                 {
-                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][Index_U32][SubTagList[4]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
               }
-              break;
-
-              case 6:
+              else
               {
-                if (ItIsAnArray_B)
+                Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                ;
+              }
+            }
+            break;
+
+            case 6: {
+              if (ItIsAnArray_B)
+              {
+                if (SubTagList[5] == "")
                 {
-                  if (SubTagList[5] == "")
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
-                  else
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][Index_U32][SubTagList[5]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
                 else
                 {
-                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][Index_U32][SubTagList[5]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
               }
-              break;
-
-              case 7:
+              else
               {
-                if (ItIsAnArray_B)
+                Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                ;
+              }
+            }
+            break;
+
+            case 7: {
+              if (ItIsAnArray_B)
+              {
+                if (SubTagList[6] == "")
                 {
-                  if (SubTagList[6] == "")
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
-                  else
-                  {
-                    Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]][Index_U32][SubTagList[6]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
-                  }
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]][Index_U32] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
                 else
                 {
-                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]][SubTagList[6]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);;
+                  Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]][Index_U32][SubTagList[6]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                  ;
                 }
               }
-              break;
-
-              default:
+              else
               {
+                Root_O[SubTagList[0]][SubTagList[1]][SubTagList[2]][SubTagList[3]][SubTagList[4]][SubTagList[5]][SubTagList[6]] = GetJsonValue(_AllTypeInString_B, _rJsonSchema_X[i_U32].ArgType_E, pJsonValue_c);
+                ;
               }
-              break;
+            }
+            break;
+
+            default: {
+            }
+            break;
             }
 
-            if (ItIsAnArray_B)                          // array
+            if (ItIsAnArray_B) // array
             {
               Index_U32++;
 
@@ -317,13 +329,13 @@ public:
               }
             }
           } while (!Finish_B);
-        }                                               // if (BofParameter::S_ParameterToString(Index_U32, _rJsonSchema_X[i_U32], false, sizeof(pJsonValue_c), pJsonValue_c))
+        } // if (BofParameter::S_ParameterToString(Index_U32, _rJsonSchema_X[i_U32], false, sizeof(pJsonValue_c), pJsonValue_c))
         else
         {
           NbActiveArrayElement_U32 = 0;
         }
-      }                                                 // if ( Bof_SplitString(pOid_c, '.', &NbSubTag_U32, &ppSubTag_c[0]) == 0 )
-    }                                                   // for (i_U32 = 0; i_U32 < _rJsonSchema_X.size(); i_U32++)
+      } // if ( Bof_SplitString(pOid_c, '.', &NbSubTag_U32, &ppSubTag_c[0]) == 0 )
+    }   // for (i_U32 = 0; i_U32 < _rJsonSchema_X.size(); i_U32++)
     if (_ShortFormat_B)
     {
       _rJsonOutput_S = JsonFastWriter_O.write(Root_O);
@@ -339,14 +351,13 @@ public:
 };
 
 // Opaque pointer design pattern: ... set Implementation values ...
-BofJsonWriter::BofJsonWriter()
-  : mpuJsonWriterImplementation(new JsonWriterImplementation())
-{}
-
+BofJsonWriter::BofJsonWriter() : mpuJsonWriterImplementation(new JsonWriterImplementation())
+{
+}
 
 BofJsonWriter::~BofJsonWriter()
-{}
-
+{
+}
 
 BOFERR BofJsonWriter::FromByte(bool _ShortFormat_B, bool _AllTypeInString_B, const std::vector<BOFPARAMETER> &_rJsonSchema_X, std::string &_rJsonOutput_S)
 {

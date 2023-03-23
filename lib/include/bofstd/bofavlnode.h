@@ -1,5 +1,3 @@
-/*$T Bof/BofAvlNode.h GC 1.140 02/11/08 12:15:58 */
-
 /*
  * File      : BofAvlNode.h
  *
@@ -54,11 +52,11 @@ typedef enum
 
 typedef enum
 {
-  BOF_CMP_LESSOREQUAL = -2,         /*! less or equal than (Special Parameter for Search method)*/
-  BOF_CMP_LESS = -1,         /*! less than*/
+  BOF_CMP_LESSOREQUAL = -2,   /*! less or equal than (Special Parameter for Search method)*/
+  BOF_CMP_LESS = -1,          /*! less than*/
   BOF_CMP_EQUAL = 0,          /*! equal to*/
-  BOF_CMP_GREATER = 1,          /*! greater than */
-  BOF_CMP_GREATEROREQUAL = 2,          /*! greater or equal than (Special Parameter for Search method)*/
+  BOF_CMP_GREATER = 1,        /*! greater than */
+  BOF_CMP_GREATEROREQUAL = 2, /*! greater or equal than (Special Parameter for Search method)*/
   BOFCMP_ALIGNON32BITS = 0xFFFFFFFF
 } BOFCMP;
 
@@ -78,13 +76,11 @@ typedef enum
   BOFTYPE_ALIGNON32BITS = 0xFFFFFFFF
 } BOFTYPE;
 
-
 /*! Return true if the tree is too heavy on the left side*/
 inline static int32_t LEFT_IMBALANCE(int32_t _Balance_S32)
 {
   return _Balance_S32 < LEFT_HEAVY;
 }
-
 
 /*! Return true if the tree is too heavy on the right side*/
 inline static int32_t RIGHT_IMBALANCE(int32_t _Balance_S32)
@@ -92,28 +88,24 @@ inline static int32_t RIGHT_IMBALANCE(int32_t _Balance_S32)
   return _Balance_S32 > RIGHT_HEAVY;
 }
 
-template<typename KeyType>
-class BofAvlTree;
+template <typename KeyType> class BofAvlTree;
 
 /*!
  * Class "BofAvlNode" implement an AVL Tree
  */
-template<typename KeyType>
-class BofAvlNode
+template <typename KeyType> class BofAvlNode
 {
 private:
-  KeyType *mpData;                  /*! GetData field*/
+  KeyType *mpData;                              /*! GetData field*/
   BofAvlNode<KeyType> *mpSubTree[MAX_SUBTREES]; /*! Pointers to subtrees*/
-  int32_t mBalance_S32;             /*! GetBalance factor*/
+  int32_t mBalance_S32;                         /*! GetBalance factor*/
 private:
-
   // Disallow copying and assignment
   BofAvlNode(const BofAvlNode<KeyType> &) = delete;
 
   BofAvlNode &operator=(const BofAvlNode<KeyType> &) = delete;
 
 public:
-
   // Return the opposite direction of the given index
   static WHICHAVLSUBTREE Opposite(WHICHAVLSUBTREE _Direction_E)
   {
@@ -265,26 +257,21 @@ private:
  * V 1.00  Wed Sep 6 2006  BHA : Initial release
  *
  */
-template<typename KeyType>
-BofAvlNode<KeyType>::BofAvlNode()
+template <typename KeyType> BofAvlNode<KeyType>::BofAvlNode()
 {
   Clear();
 }
 
-
-template<typename KeyType>
-BofAvlNode<KeyType>::~BofAvlNode()
+template <typename KeyType> BofAvlNode<KeyType>::~BofAvlNode()
 {
   // No it is destroyed by the tree object !   BOF_SAFE_DELETE(mpSubTree[LEFTSUBTREE]);
   // No it is destroyed by the tree object !   BOF_SAFE_DELETE(mpSubTree[RIGHTSUBTREE]);
 }
 
-
 /*!
  * Look for the given key,return nullptr if not found,otherwise return the item's address.
  */
-template<typename KeyType>
-BofAvlNode<KeyType> *BofAvlNode<KeyType>::Search(uint32_t _Index_U32, KeyType *_pKey, BofAvlNode<KeyType> *_pRoot, BOFCMP _Cmp_E)
+template <typename KeyType> BofAvlNode<KeyType> *BofAvlNode<KeyType>::Search(uint32_t _Index_U32, KeyType *_pKey, BofAvlNode<KeyType> *_pRoot, BOFCMP _Cmp_E)
 {
   BOFCMP CmpResult_E, PrevCmpResult_E;
 
@@ -382,33 +369,27 @@ BofAvlNode<KeyType> *BofAvlNode<KeyType>::Search(uint32_t _Index_U32, KeyType *_
   return (_pRoot) ? _pRoot : nullptr;
 }
 
-
 /*!
  * Insert the given key,return nullptr if it was inserted,otherwise return the existing item with the same key.
  */
-template<typename KeyType>
-BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *&_pRoot)
+template <typename KeyType> BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *&_pRoot)
 {
   int32_t Change_S32;
 
   return Insert(_pAvlTree, _pKey, nullptr, _pRoot, Change_S32);
 }
 
-
 /*!
  * Delete the given key from the tree. Return the corresponding node,or return nullptr if it was not found.
  */
-template<typename KeyType>
-KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *&_pRoot, BOFCMP Cmp_E)
+template <typename KeyType> KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *&_pRoot, BOFCMP Cmp_E)
 {
   int32_t Change_S32;
 
   return Delete(_pAvlTree, _pKey, _pRoot, Change_S32, Cmp_E);
 }
 
-
-template<typename KeyType>
-int32_t BofAvlNode<KeyType>::GetHeight() const
+template <typename KeyType> int32_t BofAvlNode<KeyType>::GetHeight() const
 {
   int32_t LeftHeight_S32 = (mpSubTree[LEFTSUBTREE]) ? mpSubTree[LEFTSUBTREE]->GetHeight() : 0;
   int32_t RightHeight_S32 = (mpSubTree[RIGHTSUBTREE]) ? mpSubTree[RIGHTSUBTREE]->GetHeight() : 0;
@@ -416,16 +397,12 @@ int32_t BofAvlNode<KeyType>::GetHeight() const
   return 1 + BOF_MAX(LeftHeight_S32, RightHeight_S32);
 }
 
-
 /*!
  * Verify this tree is a valid AVL tree, return true if it is, return false otherwise
  */
-template<typename KeyType>
-int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U32, uint32_t *_pNbNode_U32) const
+template <typename KeyType> int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U32, uint32_t *_pNbNode_U32) const
 {
-  int32_t Rts_S32 = 1, LeftHeight_S32,
-    RightHeight_S32,
-    DiffHeight_S32;
+  int32_t Rts_S32 = 1, LeftHeight_S32, RightHeight_S32, DiffHeight_S32;
   BOFTYPE KeyType_E;
   char pVal_c[128], pVal2_c[128];
 
@@ -483,8 +460,7 @@ int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U32, uint32_t *_pNbNode_U32) 
   }
 
   // Verify that parent link is valid
-  if ((mpSubTree[LEFTSUBTREE]) && (mpSubTree[LEFTSUBTREE]->GetSubtree(PARENTSUBTREE))
-      && (mpSubTree[LEFTSUBTREE]->GetSubtree(PARENTSUBTREE) != this))
+  if ((mpSubTree[LEFTSUBTREE]) && (mpSubTree[LEFTSUBTREE]->GetSubtree(PARENTSUBTREE)) && (mpSubTree[LEFTSUBTREE]->GetSubtree(PARENTSUBTREE) != this))
   {
     Rts_S32 = 0;
     GetKey(_Index_U32, &KeyType_E, sizeof(pVal_c), pVal_c);
@@ -493,8 +469,7 @@ int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U32, uint32_t *_pNbNode_U32) 
     // BOFDBG_OUTPUT_0(DBG_DB, 0, "LEFT: Node %s is not the parent of node %s\r\n", pVal_c, pVal2_c);
   }
 
-  if ((mpSubTree[RIGHTSUBTREE]) && (mpSubTree[RIGHTSUBTREE]->GetSubtree(PARENTSUBTREE))
-      && (mpSubTree[RIGHTSUBTREE]->GetSubtree(PARENTSUBTREE) != this))
+  if ((mpSubTree[RIGHTSUBTREE]) && (mpSubTree[RIGHTSUBTREE]->GetSubtree(PARENTSUBTREE)) && (mpSubTree[RIGHTSUBTREE]->GetSubtree(PARENTSUBTREE) != this))
   {
     Rts_S32 = 0;
     GetKey(_Index_U32, &KeyType_E, sizeof(pVal_c), pVal_c);
@@ -506,7 +481,6 @@ int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U32, uint32_t *_pNbNode_U32) 
   return Rts_S32;
 }
 
-
 /*!
  * Insert the given key into the given tree. Return the node if
  * it already exists. Otherwise return nullptr to indicate that
@@ -515,8 +489,7 @@ int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U32, uint32_t *_pNbNode_U32) 
  * of the insertion (otherwise "change" will be 0).
  *
  */
-template<typename KeyType>
-BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *_pParent, BofAvlNode<KeyType> *&_pRoot, int32_t &Change_S32)
+template <typename KeyType> BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *_pParent, BofAvlNode<KeyType> *&_pRoot, int32_t &Change_S32)
 {
   BofAvlNode<KeyType> *pRts = nullptr;
   int32_t Increase_S32;
@@ -539,7 +512,7 @@ BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree,
     }
     else
     {
-      pRts = (BofAvlNode<KeyType> *) 0x6996AA55; // Signal error
+      pRts = (BofAvlNode<KeyType> *)0x6996AA55; // Signal error
     }
   }
   else
@@ -559,7 +532,7 @@ BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree,
       // if already here - dont insert !
       if (!pRts)
       {
-        Increase_S32 = static_cast<int32_t>(CmpResult_E) * Change_S32;   // set balance factor increment
+        Increase_S32 = static_cast<int32_t>(CmpResult_E) * Change_S32; // set balance factor increment
       }
     }
     else
@@ -571,7 +544,7 @@ BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree,
 
     if (!pRts)
     {
-      _pRoot->mBalance_S32 += Increase_S32;        // update balance factor
+      _pRoot->mBalance_S32 += Increase_S32; // update balance factor
 
       /*
        * re-balance if needed -- height of current tree increases only if its
@@ -584,9 +557,7 @@ BofAvlNode<KeyType> *BofAvlNode<KeyType>::Insert(BofAvlTree<KeyType> *_pAvlTree,
   return pRts;
 }
 
-
-template<typename KeyType>
-KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *&_pRoot, int32_t &Change_S32, BOFCMP _Cmp_E)
+template <typename KeyType> KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_pKey, BofAvlNode<KeyType> *&_pRoot, int32_t &Change_S32, BOFCMP _Cmp_E)
 {
   KeyType *pRts;
   KeyType *pSuccessor;
@@ -621,16 +592,16 @@ KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_p
       if (pRts)
       {
         Return_B = false;
-        Decrease_S32 = static_cast<int32_t>(CmpResult_E) * Change_S32;            // set balance factor decrement
+        Decrease_S32 = static_cast<int32_t>(CmpResult_E) * Change_S32; // set balance factor decrement
       }
       else
       {
-        Return_B = true;                                    // return(nullptr)
+        Return_B = true; // return(nullptr)
       }
     }
     else
-    {                                                       // Found key at this node
-      pRts = _pRoot->mpData;                                // set return value
+    {                        // Found key at this node
+      pRts = _pRoot->mpData; // set return value
 
       /*!
        * At this point we know "CmpResult_E" is zero and "_pRoot" points to
@@ -654,7 +625,7 @@ KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_p
 
         // We have a leaf -- remove it, no parent update
         // Static allocation				BOF_SAFE_DELETE(_pRoot);
-        Change_S32 = HEIGHT_CHANGE;                         // height changed from 1 to 0
+        Change_S32 = HEIGHT_CHANGE; // height changed from 1 to 0
         _pRoot = nullptr;
       }
       else
@@ -700,7 +671,7 @@ KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_p
 
     if (!Return_B)
     {
-      _pRoot->mBalance_S32 -= Decrease_S32;                 // update balance factor
+      _pRoot->mBalance_S32 -= Decrease_S32; // update balance factor
 
       /*!
        * Rebalance if necessary -- the height of current tree changes if one
@@ -715,11 +686,11 @@ KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_p
       {
         if (_pRoot->mBalance_S32)
         {
-          Change_S32 = ReBalance(_pRoot);                   // rebalance and see if height changed
+          Change_S32 = ReBalance(_pRoot); // rebalance and see if height changed
         }
         else
         {
-          Change_S32 = HEIGHT_CHANGE;                       // balanced because subtree decreased
+          Change_S32 = HEIGHT_CHANGE; // balanced because subtree decreased
         }
       }
       else
@@ -731,7 +702,6 @@ KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_p
 
   return pRts;
 }
-
 
 /*!
  * Perform an XX rotation for the given direction 'X'.
@@ -786,8 +756,7 @@ KeyType *BofAvlNode<KeyType>::Delete(BofAvlTree<KeyType> *_pAvlTree, KeyType *_p
  \ 0   2
  \
  */
-template<typename KeyType>
-int32_t BofAvlNode<KeyType>::RotateOnce(BofAvlNode<KeyType> *&_pRoot, WHICHAVLSUBTREE _Direction_E)
+template <typename KeyType> int32_t BofAvlNode<KeyType>::RotateOnce(BofAvlNode<KeyType> *&_pRoot, WHICHAVLSUBTREE _Direction_E)
 {
   WHICHAVLSUBTREE OtherDirection_E = Opposite(_Direction_E);
 
@@ -821,7 +790,6 @@ int32_t BofAvlNode<KeyType>::RotateOnce(BofAvlNode<KeyType> *&_pRoot, WHICHAVLSU
 
   return HeightChange_S32;
 }
-
 
 /*!
  * Perform an XY rotation for the given direction 'X'
@@ -872,8 +840,7 @@ int32_t BofAvlNode<KeyType>::RotateOnce(BofAvlNode<KeyType> *&_pRoot, WHICHAVLSU
  \      / \
  \ 1   3
  */
-template<typename KeyType>
-int32_t BofAvlNode<KeyType>::RotateTwice(BofAvlNode<KeyType> *&_pRoot, WHICHAVLSUBTREE _Direction_E)
+template <typename KeyType> int32_t BofAvlNode<KeyType>::RotateTwice(BofAvlNode<KeyType> *&_pRoot, WHICHAVLSUBTREE _Direction_E)
 {
   WHICHAVLSUBTREE OtherDirection_E = Opposite(_Direction_E);
 
@@ -914,12 +881,10 @@ int32_t BofAvlNode<KeyType>::RotateTwice(BofAvlNode<KeyType> *&_pRoot, WHICHAVLS
   return HEIGHT_CHANGE;
 }
 
-
 /*!
  * Rebalance a (sub)tree if it has become imbalanced
  */
-template<typename KeyType>
-int32_t BofAvlNode<KeyType>::ReBalance(BofAvlNode<KeyType> *&_pRoot)
+template <typename KeyType> int32_t BofAvlNode<KeyType>::ReBalance(BofAvlNode<KeyType> *&_pRoot)
 {
   int32_t HeightChange_S32 = HEIGHT_NOCHANGE;
 
@@ -958,7 +923,6 @@ int32_t BofAvlNode<KeyType>::ReBalance(BofAvlNode<KeyType> *&_pRoot)
   return HeightChange_S32;
 }
 
-
 /*!
  * Perform a comparison of the given key against the given
  * item using the given criteria (min, max, or equivalence
@@ -967,40 +931,36 @@ int32_t BofAvlNode<KeyType>::ReBalance(BofAvlNode<KeyType> *&_pRoot)
  * BOF_CMP_LESS if this key is less than the item's key
  * BOF_CMP_GREATER if this key is greater than item's key
  */
-template<typename KeyType>
-BOFCMP BofAvlNode<KeyType>::Compare(uint32_t _Index_U32, KeyType *_pKey, BOFCMP Cmp_E) const
+template <typename KeyType> BOFCMP BofAvlNode<KeyType>::Compare(uint32_t _Index_U32, KeyType *_pKey, BOFCMP Cmp_E) const
 {
   BOFCMP Rts_E;
 
   switch (Cmp_E)
   {
-    default:
+  default:
 
-    case BOF_CMP_EQUAL:
-    {                                  // Standard comparison
-      if (mpData)
-      {
-        Rts_E = mpData->Compare(_Index_U32, _pKey);
-      }
-      else
-      {
-        // A delete has occured !!
-        Rts_E = BOF_CMP_LESS;
-      }
+  case BOF_CMP_EQUAL: { // Standard comparison
+    if (mpData)
+    {
+      Rts_E = mpData->Compare(_Index_U32, _pKey);
     }
-    break;
+    else
+    {
+      // A delete has occured !!
+      Rts_E = BOF_CMP_LESS;
+    }
+  }
+  break;
 
-    case BOF_CMP_LESS:
-    {                                  // Find the minimal element in this tree
-      Rts_E = (mpSubTree[LEFTSUBTREE] == nullptr) ? BOF_CMP_EQUAL : BOF_CMP_LESS;
-    }
-    break;
+  case BOF_CMP_LESS: { // Find the minimal element in this tree
+    Rts_E = (mpSubTree[LEFTSUBTREE] == nullptr) ? BOF_CMP_EQUAL : BOF_CMP_LESS;
+  }
+  break;
 
-    case BOF_CMP_GREATER:
-    {                                  // Find the maximal element in this tree
-      Rts_E = (mpSubTree[RIGHTSUBTREE] == nullptr) ? BOF_CMP_EQUAL : BOF_CMP_GREATER;
-    }
-    break;
+  case BOF_CMP_GREATER: { // Find the maximal element in this tree
+    Rts_E = (mpSubTree[RIGHTSUBTREE] == nullptr) ? BOF_CMP_EQUAL : BOF_CMP_GREATER;
+  }
+  break;
   }
 
   return Rts_E;

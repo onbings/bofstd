@@ -29,9 +29,9 @@ TEST(Uart_Test, Uart)
 {
   BofUart *pBofUart_O;
   BOF_UART_PARAM Params_X;
-  uint32_t       i_U32, j_U32, Nb_U32, pBaud_U32[3];
-  BOFERR         Sts_E;
-  uint8_t        pBuffer_U8[128];
+  uint32_t i_U32, j_U32, Nb_U32, pBaud_U32[3];
+  BOFERR Sts_E;
+  uint8_t pBuffer_U8[128];
 
   pBaud_U32[0] = 9600;
   pBaud_U32[1] = 19200;
@@ -57,7 +57,7 @@ TEST(Uart_Test, Uart)
 
     // The port has been opened
     EXPECT_TRUE(pBofUart_O != nullptr);
-    if (pBofUart_O->IsPortOpened())	//Check if hardware is present
+    if (pBofUart_O->IsPortOpened()) // Check if hardware is present
     {
       EXPECT_EQ(pBofUart_O->LastErrorCode(), 0);
       Nb_U32 = sizeof(pBuffer_U8);
@@ -79,6 +79,5 @@ TEST(Uart_Test, Uart)
     }
     BOF_SAFE_DELETE(pBofUart_O);
     EXPECT_TRUE(pBofUart_O == nullptr);
-
   }
 }

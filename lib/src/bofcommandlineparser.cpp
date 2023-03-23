@@ -25,9 +25,9 @@
 
 #include <regex>
 
-#if defined( _WIN32 )
+#if defined(_WIN32)
 #include <ws2tcpip.h> // for sockaddrin_6
-#define snprintf    _snprintf
+#define snprintf _snprintf
 #else
 #include <stdlib.h>
 #endif
@@ -37,7 +37,6 @@ BEGIN_BOF_NAMESPACE()
 BofCommandLineParser::BofCommandLineParser()
 {
 }
-
 
 BofCommandLineParser::~BofCommandLineParser()
 {
@@ -51,19 +50,19 @@ BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::ve
   int Argc_i, i;
   char **ppArgv_c;
   std::string AppName_S = "AppNameBofCommandLineParser";
-  
+
   AudioOptionCollection = Bof_StringSplit(_rOption_S, ";");
   Argc_i = static_cast<int>(AudioOptionCollection.size());
   if (Argc_i)
   {
-    Argc_i++; //For option 0: pgm name
+    Argc_i++; // For option 0: pgm name
     ppArgv_c = new char *[Argc_i];
     if (ppArgv_c)
     {
       ppArgv_c[0] = (char *)AppName_S.c_str();
       for (i = 1; i < Argc_i; i++)
       {
-        ppArgv_c[i] = (char *)AudioOptionCollection[i-1].c_str();
+        ppArgv_c[i] = (char *)AudioOptionCollection[i - 1].c_str();
       }
       Rts_E = ToByte(Argc_i, ppArgv_c, _rCommandLineOption_X, _ParseCallback_O, _ErrorCallback_O);
       BOF_SAFE_DELETE_ARRAY(ppArgv_c);
@@ -72,15 +71,13 @@ BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::ve
   return Rts_E;
 }
 
-BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O,
-                                    const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O)
+BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O)
 {
   BOFERR Rts_E = BOF_ERR_PARSER;
   int i, Sts_i, IndexInShortOpt_i, NbLongOpt_i, IndexInLongOpt_i, IndexInCommandLineOption_i;
   char pGetOptShort_c[256], pError_c[256], ShortOpt_c;
   const char *pOpt_c, *pOptVal_c;
   struct option pGetOptLong_X[512];
-
 
   if ((_ppArgv_c) && (_Argc_i))
   {
@@ -95,8 +92,8 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
       {
         if (_rCommandLineOption_X[i].Name_S.size() == 1)
         {
-          //Short option
-          if ((IndexInShortOpt_i < static_cast<int>((sizeof(pGetOptShort_c) - 3))) && (_rCommandLineOption_X[i].Name_S != "?")) //Cannot use '?' as opt (special return value of getopt)
+          // Short option
+          if ((IndexInShortOpt_i < static_cast<int>((sizeof(pGetOptShort_c) - 3))) && (_rCommandLineOption_X[i].Name_S != "?")) // Cannot use '?' as opt (special return value of getopt)
           {
             pGetOptShort_c[IndexInShortOpt_i++] = _rCommandLineOption_X[i].Name_S[0];
 
@@ -107,13 +104,13 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
           }
           else
           {
-            Rts_E = BOF_ERR_PARSER;  //-2
+            Rts_E = BOF_ERR_PARSER; //-2
             break;
           }
         }
         else
         {
-          //Long option
+          // Long option
           if (NbLongOpt_i < (static_cast<int>(sizeof(pGetOptLong_X) - 2)))
           {
             pGetOptLong_X[NbLongOpt_i].flag = nullptr;
@@ -125,7 +122,7 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
           }
           else
           {
-            Rts_E = BOF_ERR_PARSER;  // -3;
+            Rts_E = BOF_ERR_PARSER; // -3;
             break;
           }
         }
@@ -142,8 +139,8 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
         getopt_reset();
         do
         {
-          opterr = 0;                                                                                                                                                   //Callers store zero here to inhibit the error message `getopt' prints for unrecognized options.
-          IndexInLongOpt_i = -1;                                                                                                                                                  // getopt_long stores the option index here.
+          opterr = 0;            // Callers store zero here to inhibit the error message `getopt' prints for unrecognized options.
+          IndexInLongOpt_i = -1; // getopt_long stores the option index here.
           Sts_i = getopt_long(_Argc_i, _ppArgv_c, pGetOptShort_c, pGetOptLong_X, &IndexInLongOpt_i);
 
           if (Sts_i != -1)
@@ -182,7 +179,7 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
             }
             else
             {
-              //LongOption:only --opt=...
+              // LongOption:only --opt=...
               for (i = 0; i < static_cast<int>(_rCommandLineOption_X.size()); i++)
               {
                 if (_rCommandLineOption_X[i].Name_S.size() != 1)
@@ -204,10 +201,10 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
             }
             else
             {
-              pOpt_c = _rCommandLineOption_X[IndexInCommandLineOption_i].Name_S.c_str();                                                                                                                                                       // _ppArgv_c[optind - 1];
+              pOpt_c = _rCommandLineOption_X[IndexInCommandLineOption_i].Name_S.c_str(); // _ppArgv_c[optind - 1];
             }
 
-            if (Sts_i == '?')                                                                                                                                                                                        //unrecognized option in optopt
+            if (Sts_i == '?') // unrecognized option in optopt
             {
               snprintf(pError_c, sizeof(pError_c), "%s", pOpt_c);
             }
@@ -218,15 +215,15 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
             }
             else
             {
-              Rts_E = BOF_ERR_PARSER;  //-2;
+              Rts_E = BOF_ERR_PARSER; //-2;
 
               if (_ErrorCallback_O != nullptr)
               {
-                //Call error callback
+                // Call error callback
                 _ErrorCallback_O(pError_c);
               }
             }
-          }                     //if (Sts_i != -1)
+          } // if (Sts_i != -1)
         } while (Sts_i >= 0);
       }
 
@@ -243,11 +240,9 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
   return Rts_E;
 }
 
-
 void BofCommandLineParser::BuildHelpString(const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const std::string &_rTitle_S, std::string &_rHelpString_S)
 {
   BofParameter::S_BuildHelpString(_rCommandLineOption_X, 0xFFFFFFFF, _rTitle_S, _rHelpString_S);
 }
-
 
 END_BOF_NAMESPACE()

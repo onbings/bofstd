@@ -18,8 +18,8 @@
  *
  * V 1.00  Dec 19 2017  BHA : Initial release
  */
-#include <bofstd/boftimecode.h>
 #include <bofstd/bofstring.h>
+#include <bofstd/boftimecode.h>
 
 BEGIN_BOF_NAMESPACE()
 BofTimecode::BofTimecode()
@@ -95,7 +95,7 @@ BofTimecode::BofTimecode(const char *_pTc_c)
           BofTimeCodeStruct_X.TcFlag_U8 |= static_cast<uint8_t>(((Num_i == 1000) && (Den_i == 30)) ? BOF_TIMECODE_FLAG_NTSC : 0);
           BofTimeCodeStruct_X.NbDay_U16 = static_cast<uint16_t>(NbDaySinceUnixEpoch_U32);
           mTcValid_B = (FromByteStruct(BofTimeCodeStruct_X) == BOF_ERR_NO_ERROR);
-          mRate = BofRational(Num_i, Den_i, false);	//Modified in FromByteStruct
+          mRate = BofRational(Num_i, Den_i, false); // Modified in FromByteStruct
         }
       }
     }
@@ -233,7 +233,7 @@ std::string BofTimecode::ToString(bool _ShowDate_B, const std::string &_rFormatD
   return Rts_S;
 }
 
-//ISO-8601: no
+// ISO-8601: no
 std::string BofTimecode::ToString(bool _ShowDate_B)
 {
   std::string Rts_S;
@@ -267,18 +267,12 @@ std::string BofTimecode::ToString(bool _ShowDate_B)
         return sstr.str();
       };
   */
-
 }
 
 bool BofTimecode::operator==(const BofTimecode &_Rhs) const
 {
   BOF_TIMECODE RhsTc_X = _Rhs.ToByteStruct();
-  return ((mTc_X.NbDay_U16 == RhsTc_X.NbDay_U16)
-          && (mTc_X.Hour_U8 == RhsTc_X.Hour_U8)
-          && (mTc_X.Minute_U8 == RhsTc_X.Minute_U8)
-          && (mTc_X.Second_U8 == RhsTc_X.Second_U8)
-          && (mTc_X.Frame_U8 == RhsTc_X.Frame_U8)
-          && (mTc_X.TcFlag_U8 == RhsTc_X.TcFlag_U8));
+  return ((mTc_X.NbDay_U16 == RhsTc_X.NbDay_U16) && (mTc_X.Hour_U8 == RhsTc_X.Hour_U8) && (mTc_X.Minute_U8 == RhsTc_X.Minute_U8) && (mTc_X.Second_U8 == RhsTc_X.Second_U8) && (mTc_X.Frame_U8 == RhsTc_X.Frame_U8) && (mTc_X.TcFlag_U8 == RhsTc_X.TcFlag_U8));
 }
 
 bool BofTimecode::operator!=(const BofTimecode &_Rhs) const
@@ -370,7 +364,7 @@ BOFERR BofTimecode::S_ValidateTimecode(const BOF_TIMECODE &_rBofTimeCodeStruct_X
   }
   return Rts_E;
 }
-//https://en.wikipedia.org/wiki/Linear_timecode
+// https://en.wikipedia.org/wiki/Linear_timecode
 BOFERR BofTimecode::S_BinToTimeCode(uint64_t _Tc_U64, BOF_TIMECODE &_rTc_X)
 {
   BOFERR Rts_E;
@@ -427,7 +421,7 @@ BOFERR BofTimecode::S_BinToTimeCode(uint64_t _Tc_U64, BOF_TIMECODE &_rTc_X)
   Rts_E = S_ValidateTimecode(_rTc_X);
   return Rts_E;
 }
-//https://en.wikipedia.org/wiki/Linear_timecode
+// https://en.wikipedia.org/wiki/Linear_timecode
 BOFERR BofTimecode::S_TimeCodeToBin(const BOF_TIMECODE &_rTc_X, uint64_t &_rTc_U64)
 {
   BOFERR Rts_E;

@@ -69,22 +69,22 @@
  */
 #pragma once
 
-#include <bofstd/bofstack.h>
 #include <bofstd/bofcomchannel.h>
+#include <bofstd/bofstack.h>
 
 #include <string.h>
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_RPC_MAXFCT           256    /*!<Max number of Rpc function*/
-#define BOF_RPC_MAXFCTARG        16     /*!<Max number of argument per RPC function*/
-#define BOF_RPC_VARTYPEMASK      0xFF
-#define BOF_RPC_MAXSTRINGSIZE    256
-#define BOF_RPC_MAXHELPSIZE      64
+#define BOF_RPC_MAXFCT 256   /*!<Max number of Rpc function*/
+#define BOF_RPC_MAXFCTARG 16 /*!<Max number of argument per RPC function*/
+#define BOF_RPC_VARTYPEMASK 0xFF
+#define BOF_RPC_MAXSTRINGSIZE 256
+#define BOF_RPC_MAXHELPSIZE 64
 #define BOF_RPCIN
-#define BOF_RPCINOUT             *
-#define BOF_RPCOUT               *
-#define BOF_RPCMAGICNUMBER       0x4248 // BH
+#define BOF_RPCINOUT *
+#define BOF_RPCOUT *
+#define BOF_RPCMAGICNUMBER 0x4248 // BH
 
 /*
    #define BOF_RPC_ALLOCATEARRAY(Var, NbItem, ItemSize)																																																\
@@ -95,7 +95,7 @@ BEGIN_BOF_NAMESPACE()
    #define BOF_RPC_DELETEARRAY(Var)                   { BOF_SAFE_DELETE(Var->pItem); }
  */
 
-  typedef enum
+typedef enum
 {
   BOF_RPC_VAR_UNDEF = 0,
   BOF_RPC_VAR_VOID,
@@ -113,8 +113,7 @@ BEGIN_BOF_NAMESPACE()
   BOF_RPC_VAR_DOUBLE,
   BOF_RPC_VAR_ARRAY,
   RPCVARTYPE_ALIGNON32BITS = 0xFFFFFFFF
-}
-BOF_RPC_VAR_TYPE;
+} BOF_RPC_VAR_TYPE;
 
 typedef enum
 {
@@ -122,22 +121,19 @@ typedef enum
   BOF_RPC_OUT = 0x0200,
   BOF_RPC_INOUT = 0x0400,
   BOF_RPCQUALIFIER_ALIGNON32BITS = 0xFFFFFFFF
-}
-BOFRPCQUALIFIER;
+} BOFRPCQUALIFIER;
 
 typedef enum
 {
   BOF_RPC_FLAG_USECHECKSUM = 0x0001,
   BOF_RPCFLAG_ALIGNON16BITS = 0xFFFF
-}
-BOFRPCFLAG;
+} BOFRPCFLAG;
 typedef struct
 {
   uint32_t ItemSize_U32;
   uint32_t NbItem_U32;
-  void *pItem;                  // This item must be the last one
-}
-BOF_RPC_VAR_BINARY, *BOF_RPC_VAR_ARRAYIN, *BOF_RPC_VAR_ARRAYOUT, *BOF_RPC_VAR_ARRAYINOUT;
+  void *pItem; // This item must be the last one
+} BOF_RPC_VAR_BINARY, *BOF_RPC_VAR_ARRAYIN, *BOF_RPC_VAR_ARRAYOUT, *BOF_RPC_VAR_ARRAYINOUT;
 
 typedef void BOFRPCVOID;
 typedef uint8_t BOFRPCU8;
@@ -151,10 +147,9 @@ typedef float BOFRPCFLOAT;
 typedef double BOFRPCDOUBLE;
 typedef void *BOFRPCSERVERARG;
 
-#define BOFRPCSTRING(Var, Len)    char Var[Len]
+#define BOFRPCSTRING(Var, Len) char Var[Len]
 
 #pragma pack(1)
-
 
 struct BOFSTD_EXPORT BOF_RPC_FUNCTION
 {
@@ -166,8 +161,7 @@ struct BOFSTD_EXPORT BOF_RPC_FUNCTION
     Reset();
   }
 
-  BOF_RPC_FUNCTION(uint16_t _NbArg_U16, uint16_t a1, uint16_t a2, uint16_t a3, uint16_t a4, uint16_t a5, uint16_t a6, uint16_t a7, uint16_t a8, uint16_t a9, uint16_t a10, uint16_t a11, uint16_t a12,
-                   uint16_t a13, uint16_t a14, uint16_t a15, uint16_t a16)
+  BOF_RPC_FUNCTION(uint16_t _NbArg_U16, uint16_t a1, uint16_t a2, uint16_t a3, uint16_t a4, uint16_t a5, uint16_t a6, uint16_t a7, uint16_t a8, uint16_t a9, uint16_t a10, uint16_t a11, uint16_t a12, uint16_t a13, uint16_t a14, uint16_t a15, uint16_t a16)
   {
     NbArg_U16 = _NbArg_U16;
     pArg_U16[0] = a1;
@@ -197,8 +191,7 @@ struct BOFSTD_EXPORT BOF_RPC_FUNCTION
 
 struct BOFSTD_EXPORT BOFRPCVAR
 {
-  union
-  {
+  union {
     void *pVal;
     uint8_t Val_U8;
     int8_t Val_S8;
@@ -267,10 +260,10 @@ struct BOFSTD_EXPORT BOF_RPC_PARSER_RESULT
 
 struct BOFSTD_EXPORT BOF_RPC_PARAM
 {
-  BOFERR ErrorCode_E;        /*! Return an optional error code */
+  BOFERR ErrorCode_E; /*! Return an optional error code */
   bool MultiThreadAware_B;
-  uint32_t MaxStackSize_U32;   /*! Specify the rpc stack max size*/
-  uint32_t UseChecksum_B;      /*! True if checksum computaion, insertion and control must be used during transfert: Not bool to be sure of structure size and aligment on different cpu*/
+  uint32_t MaxStackSize_U32; /*! Specify the rpc stack max size*/
+  uint32_t UseChecksum_B;    /*! True if checksum computaion, insertion and control must be used during transfert: Not bool to be sure of structure size and aligment on different cpu*/
   uint32_t NbRpcFunction_U32;
   BOF_RPC_FUNCTION pRpcFct_X[BOF_RPC_MAXFCT];
 
@@ -299,9 +292,9 @@ struct BOFSTD_EXPORT BOF_RPC_PARAM
 struct BOFSTD_EXPORT BOF_RPC_STATE
 {
   // BOFRPCPARAM
-  /* 000 */  uint32_t MaxStackSize_U32;   /*! Specify the rpc stack max size*/
+  /* 000 */ uint32_t MaxStackSize_U32;        /*! Specify the rpc stack max size*/
   /* 004 */ uint32_t RpcControlParamSize_U32; /*! No more used in bofstd ->keep for bofmp compat -> to be removed laterSpecify the size of the basic Rpc data object (1, 2 or 4 bytes)*/
-  /* 008 */ uint32_t UseChecksum_B;      /*! True if checksum computaion, insertion and control must be used during transfert: Not bool to be sure of structure size and aligment on different cpu*/
+  /* 008 */ uint32_t UseChecksum_B;           /*! True if checksum computaion, insertion and control must be used during transfert: Not bool to be sure of structure size and aligment on different cpu*/
   /* 012 */ uint32_t MaxStringSize_U32;
   /* 016 */ uint32_t NbRpcFunction_U32;
 
@@ -324,9 +317,9 @@ struct BOFSTD_EXPORT BOF_RPC_STATE
   /* 132 */ uint8_t pAnsRpcStack_U8[64];
 
   // GBEUCPCCMDCHANNEL
-  /* 196 */ uint8_t Flag_U8;            /*! Communication handshake control*/
-  /* 197 */ uint8_t GbeCmd_U8;          /*! Command id*/
-  /* 198 */ uint8_t Sts_U8;             /*! command status */
+  /* 196 */ uint8_t Flag_U8;   /*! Communication handshake control*/
+  /* 197 */ uint8_t GbeCmd_U8; /*! Command id*/
+  /* 198 */ uint8_t Sts_U8;    /*! command status */
   /* 199 */ uint8_t Spare_U8;
   /* 200 */ uint32_t CommandTimeout_U32; /*! timeout linked to pending rpc request->0 if none*/
   /* 204 */ uint32_t CmdTimer_U32;
@@ -389,8 +382,10 @@ private:
   BofStack *mpRpcAnsStack_O;
   bool mLittleEndian_B;
   static uint16_t S_mRpcCmdTag_U16;
+
 protected:
   BOF_RPC_STATE mRpcState_X;
+
 public:
   BofRpc(BOF_RPC_PARAM *pBofRpcClientParam_X);
 
@@ -428,7 +423,6 @@ public:
   uint32_t IsRpcLittleEndian(uint8_t *_pRpcFrameBuffer_U8, bool *_pLittleEndian_B, bool *_pMustSwap_B);
 
   uint32_t WaitForRpcFrame(BofComChannel *_pBofComChannel_O, uint32_t _TimeoutInMs_U32, uint32_t *_pMaxRpcFrameSizeInByte_U32, uint8_t *_pRpcFrame_U8);
-
 
   uint32_t CheckAndResetStackPointerToRpcControlSize(BofStack *_pStack);
 

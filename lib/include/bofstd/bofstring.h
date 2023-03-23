@@ -22,58 +22,58 @@
 
 #include <bofstd/bofstd.h>
 
+#include <cstdarg>
 #include <cstdint>
 #include <vector>
-#include <cstdarg>
 
 BEGIN_BOF_NAMESPACE()
-#define BOF_PARSER_SKIP_UNTIL_CHAR(p) \
-  {                             \
-    while ((*p) && (*p <= ' ')) \
-    {                           \
-      p++;                      \
-    }                           \
+#define BOF_PARSER_SKIP_UNTIL_CHAR(p)                                                                                                                                                                                                                          \
+  {                                                                                                                                                                                                                                                            \
+    while ((*p) && (*p <= ' '))                                                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                                                          \
+      p++;                                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
   }
-#define BOF_PARSER_REVERSE_SKIP_UNTIL_CHAR(p) \
-  {                                    \
-    while ((*p) && (*p <= ' '))        \
-    {                                  \
-      p--;                             \
-    }                                  \
+#define BOF_PARSER_REVERSE_SKIP_UNTIL_CHAR(p)                                                                                                                                                                                                                  \
+  {                                                                                                                                                                                                                                                            \
+    while ((*p) && (*p <= ' '))                                                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                                                          \
+      p--;                                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
   }
-#define BOF_PARSER_SKIP_UNTIL_SPACE(p) \
-  {                              \
-    while ((*p) && (*p != ' '))  \
-    {                            \
-      p++;                       \
-    }                            \
+#define BOF_PARSER_SKIP_UNTIL_SPACE(p)                                                                                                                                                                                                                         \
+  {                                                                                                                                                                                                                                                            \
+    while ((*p) && (*p != ' '))                                                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                                                          \
+      p++;                                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
   }
-#define BOF_PARSER_LOOK_FOR_ONE_CHAR(p,c,n) \
-  {                                    \
-    n=0;                               \
-    while ((*p) && (*p != c))          \
-    {                                  \
-      p++;                             \
-      n++;                             \
-    }                                  \
+#define BOF_PARSER_LOOK_FOR_ONE_CHAR(p, c, n)                                                                                                                                                                                                                  \
+  {                                                                                                                                                                                                                                                            \
+    n = 0;                                                                                                                                                                                                                                                     \
+    while ((*p) && (*p != c))                                                                                                                                                                                                                                  \
+    {                                                                                                                                                                                                                                                          \
+      p++;                                                                                                                                                                                                                                                     \
+      n++;                                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
   }
-#define BOF_PARSER_LOOK_FOR_TWO_CHAR(p,c1,c2,n)  \
-  {                                          \
-    n=0;                                     \
-    while ((*p) && (*p != c1) && (*p != c2)) \
-    {                                        \
-      p++;                                   \
-      n++;                                   \
-    }                                        \
+#define BOF_PARSER_LOOK_FOR_TWO_CHAR(p, c1, c2, n)                                                                                                                                                                                                             \
+  {                                                                                                                                                                                                                                                            \
+    n = 0;                                                                                                                                                                                                                                                     \
+    while ((*p) && (*p != c1) && (*p != c2))                                                                                                                                                                                                                   \
+    {                                                                                                                                                                                                                                                          \
+      p++;                                                                                                                                                                                                                                                     \
+      n++;                                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
   }
-#define BOF_PARSER_SKIP_UNTIL_EOL(p,n) \
-  {                               \
-    n=0;                          \
-    while ((*p) && (*p >= ' '))   \
-    {                             \
-      p++;                        \
-      n++;                        \
-    }                             \
+#define BOF_PARSER_SKIP_UNTIL_EOL(p, n)                                                                                                                                                                                                                        \
+  {                                                                                                                                                                                                                                                            \
+    n = 0;                                                                                                                                                                                                                                                     \
+    while ((*p) && (*p >= ' '))                                                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                                                          \
+      p++;                                                                                                                                                                                                                                                     \
+      n++;                                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
   }
 
 BOFSTD_EXPORT std::string Bof_BuildFixedLengthLine(const char *_pLine_c, uint32_t _MinLength_U32, char _LeftChar_c, char _FillChar_c, char _RightChar_c);
@@ -85,7 +85,6 @@ BOFSTD_EXPORT std::string Bof_StringToUpper(const std::string &_rStrToConvert_S)
 BOFSTD_EXPORT char *Bof_StringToUpperInPlace(char *_pStr_c);
 BOFSTD_EXPORT char *Bof_StrNCpy(char *_pDest_c, const char *_pSrc_c, uint32_t _MaxChar_U32);
 BOFSTD_EXPORT int64_t Bof_CharToBinary(const char *_pStr_c);
-
 
 // @brief trim from end of string (right)
 // @param _rStrToTrim_S : Specifies the string to trim
@@ -170,7 +169,7 @@ BOFSTD_EXPORT size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint3
 
 // @brief Converts a std::string into a std::wstring.
 // @param _rUtf8Str_S : Specifies a reference to a multi byte string to convert
-// @return The std::wstring representation of _rUtf8Str_S 
+// @return The std::wstring representation of _rUtf8Str_S
 // @remarks None
 BOFSTD_EXPORT std::wstring Bof_Utf8ToUtf16(const std::string &_rUtf8Str_S);
 
@@ -185,7 +184,7 @@ BOFSTD_EXPORT size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, ui
 
 // @brief Converts a std::wstring into a std::string.
 // @param _rUtf16Str_WS : Specifies a reference to a wide sharacter.
-// @return The std::string representation of _rUtf16Str_WS 
+// @return The std::string representation of _rUtf16Str_WS
 // @remarks None
 BOFSTD_EXPORT std::string Bof_Utf16ToUtf8(const std::wstring &_rUtf16Str_S);
 // @brief Check if a string begin with a given string
@@ -213,7 +212,6 @@ BOFSTD_EXPORT bool Bof_StringContain(bool _CaseInsensitive_B, const std::string 
 // @remarks None
 BOFSTD_EXPORT std::vector<std::string> Bof_FindAllStringIncluding(bool _CaseSensitiveSearch_B, bool _MustBeginWith_B, const std::string &_rStringToLookFor_S, const std::vector<std::string> &_rStringCollection);
 
-
 // @brief Modify the input string by removing specified or unspecified successive character
 // @param _rInputString_S : Specifies the string to parse
 // @param _Char_c : Specifies the char to check for duplicate successive removal. If 0 is speced all dusplicate successive character are removed
@@ -229,8 +227,7 @@ BOFSTD_EXPORT void Bof_RemoveDuplicateSuccessiveCharacter(std::string &_rInputSt
 // @param _rValue_U32 : Returns the unsigned integer option value
 // @return 0 if the operation is successful
 // @remarks Ex "TO=123;CONNECT=Hello word;Val=-1"
-BOFSTD_EXPORT BOFERR Bof_GetUnsignedIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S,
-                                                                      const char _KeyValueSeparator_c, uint32_t &_rValue_U32);
+BOFSTD_EXPORT BOFERR Bof_GetUnsignedIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c, uint32_t &_rValue_U32);
 
 // @brief Returns the signed integer key value of a key name. Each Key Value pair is composed of a key name, a separator and the key value.
 // @param _rMultiKeyValueString_S : Specifies the multi key value string to parse
@@ -240,9 +237,7 @@ BOFSTD_EXPORT BOFERR Bof_GetUnsignedIntegerFromMultipleKeyValueString(const std:
 // @param _rValue_S32 : Returns the signed integer value
 // @return 0 if the operation is successful
 // @remarks Ex "TO=123;CONNECT=Hello word;Val=-1"
-BOFSTD_EXPORT BOFERR
-Bof_GetIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c,
-                                         int32_t &_rValue_S32);
+BOFSTD_EXPORT BOFERR Bof_GetIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c, int32_t &_rValue_S32);
 
 // @brief Returns the string key value of a key name. Each Key Value pair is composed of a key name, a separator and the key value.
 // @param _rMultiKeyValueString_S : Specifies the multi key value string to parse
@@ -252,10 +247,7 @@ Bof_GetIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueStrin
 // @param _rValue_S : Returns the string key value
 // @return 0 if the operation is successful
 // @remarks Ex "TO=123;CONNECT=Hello word;Val=-1"
-BOFSTD_EXPORT BOFERR
-Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c,
-                                        std::string &_rValue_S);
-
+BOFSTD_EXPORT BOFERR Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c, std::string &_rValue_S);
 
 BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, int32_t &_rVal_S32);
 BOFSTD_EXPORT bool Bof_IsDecimal(const std::string &_rInput_S, uint32_t &_rVal_U32);
@@ -271,12 +263,11 @@ BOFSTD_EXPORT char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, 
 ///@@param _rFormat_S Specifies the Format-control string.
 ///@@param _Args Specifies the Optional arguments.
 ///@return A string containing the formatted data
-template<typename ... Args>
-std::string Bof_Sprintf(const std::string &_rFormat_S, Args ... _Args)
+template <typename... Args> std::string Bof_Sprintf(const std::string &_rFormat_S, Args... _Args)
 {
-  size_t Size = snprintf(nullptr, 0, _rFormat_S.c_str(), _Args ...) + 1; // Extra space for '\0'
+  size_t Size = snprintf(nullptr, 0, _rFormat_S.c_str(), _Args...) + 1; // Extra space for '\0'
   std::unique_ptr<char[]> puInternalBuffer(new char[Size]);
-  snprintf(puInternalBuffer.get(), Size, _rFormat_S.c_str(), _Args ...);
-  return std::string(puInternalBuffer.get(), puInternalBuffer.get() + Size - 1);            // We don't want the '\0' inside
+  snprintf(puInternalBuffer.get(), Size, _rFormat_S.c_str(), _Args...);
+  return std::string(puInternalBuffer.get(), puInternalBuffer.get() + Size - 1); // We don't want the '\0' inside
 }
 END_BOF_NAMESPACE()

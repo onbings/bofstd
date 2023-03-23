@@ -24,8 +24,15 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_RAW_CIRCULAR_BUFFER_LOCK(Sts)   {Sts=mRawCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mRawCbMtx_X):BOF_ERR_NO_ERROR;}
-#define BOF_RAW_CIRCULAR_BUFFER_UNLOCK()    {if (mRawCircularBufferParam_X.MultiThreadAware_B) Bof_UnlockMutex(mRawCbMtx_X);}
+#define BOF_RAW_CIRCULAR_BUFFER_LOCK(Sts)                                                                                                                                                                                                                      \
+  {                                                                                                                                                                                                                                                            \
+    Sts = mRawCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mRawCbMtx_X) : BOF_ERR_NO_ERROR;                                                                                                                                                        \
+  }
+#define BOF_RAW_CIRCULAR_BUFFER_UNLOCK()                                                                                                                                                                                                                       \
+  {                                                                                                                                                                                                                                                            \
+    if (mRawCircularBufferParam_X.MultiThreadAware_B)                                                                                                                                                                                                          \
+      Bof_UnlockMutex(mRawCbMtx_X);                                                                                                                                                                                                                            \
+  }
 
 /*!
  * Description
@@ -44,7 +51,7 @@ BEGIN_BOF_NAMESPACE()
  * ~BofRawCircularBuffer
  */
 
-  BofRawCircularBuffer::BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &_rRawCircularBufferParam_X)
+BofRawCircularBuffer::BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &_rRawCircularBufferParam_X)
 {
   mRawCircularBufferParam_X = _rRawCircularBufferParam_X;
   mNbSlot_U32 = 0;
@@ -168,7 +175,7 @@ BofRawCircularBuffer::~BofRawCircularBuffer()
 BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _Nb_U32, const uint8_t *_pData_U8)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  bool   EnoughSpace_B;
+  bool EnoughSpace_B;
 
   if ((_Nb_U32) && (_Nb_U32 < 0x80000000) && (_pData_U8)) // Bit 31 is used to signal locked zone
   {
@@ -218,7 +225,7 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _Nb_U32, const uint8_t *_pData_
  */
 BOFERR BofRawCircularBuffer::PopBuffer(uint32_t *_pNbMax_U32, uint8_t *_pData_U8)
 {
-  BOFERR   Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t Nb_U32, PopIndex_U32;
 
   if ((_pNbMax_U32) && (_pData_U8))
@@ -231,7 +238,7 @@ BOFERR BofRawCircularBuffer::PopBuffer(uint32_t *_pNbMax_U32, uint8_t *_pData_U8
         PopIndex_U32 = mPopIndex_U32;
         Nb_U32 = ReadNbHeader(&PopIndex_U32);
 
-        if (Nb_U32 & 0x80000000)         // Bit 31 is used to signal locked zone
+        if (Nb_U32 & 0x80000000) // Bit 31 is used to signal locked zone
         {
           Rts_E = BOF_ERR_NOT_AVAILABLE;
           Nb_U32 = 0;
@@ -262,11 +269,10 @@ BOFERR BofRawCircularBuffer::PopBuffer(uint32_t *_pNbMax_U32, uint8_t *_pData_U8
   return Rts_E;
 }
 
-
 uint32_t BofRawCircularBuffer::GetNbFreeElement()
 {
   uint32_t Rts_U32 = 0;
-  BOFERR   Sts_E;
+  BOFERR Sts_E;
 
   BOF_RAW_CIRCULAR_BUFFER_LOCK(Sts_E);
   if (Sts_E == BOF_ERR_NO_ERROR)
@@ -283,7 +289,6 @@ uint32_t BofRawCircularBuffer::GetNbFreeElement()
   }
   return Rts_U32;
 }
-
 
 void BofRawCircularBuffer::Reset()
 {
@@ -302,10 +307,9 @@ void BofRawCircularBuffer::Reset()
   }
 }
 
-
 BOFERR BofRawCircularBuffer::Peek(uint32_t _Index_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8)
 {
-  BOFERR   Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t Nb_U32, PopIndex_U32, j_U32;
 
   if ((_pNbMax_U32) && (_pData_U8))
@@ -323,9 +327,9 @@ BOFERR BofRawCircularBuffer::Peek(uint32_t _Index_U32, uint32_t *_pNbMax_U32, ui
           {
             Nb_U32 = ReadNbHeader(&PopIndex_U32);
 
-            if (Nb_U32 & 0x80000000)     // Bit 31 is used to signal locked zone
+            if (Nb_U32 & 0x80000000) // Bit 31 is used to signal locked zone
             {
-              Nb_U32 &= 0x7FFFFFFF;      // Bit 31 is used to signal locked zone
+              Nb_U32 &= 0x7FFFFFFF; // Bit 31 is used to signal locked zone
             }
 
             if (mSlotSize_U32)
@@ -345,7 +349,7 @@ BOFERR BofRawCircularBuffer::Peek(uint32_t _Index_U32, uint32_t *_pNbMax_U32, ui
         }
         Nb_U32 = ReadNbHeader(&PopIndex_U32);
 
-        if (Nb_U32 & 0x80000000)         // Bit 31 is used to signal locked zone
+        if (Nb_U32 & 0x80000000) // Bit 31 is used to signal locked zone
         {
           Rts_E = BOF_ERR_NOT_AVAILABLE;
           Nb_U32 = 0;
@@ -372,10 +376,9 @@ BOFERR BofRawCircularBuffer::Peek(uint32_t _Index_U32, uint32_t *_pNbMax_U32, ui
   return Rts_E;
 }
 
-
 BOFERR BofRawCircularBuffer::Skip()
 {
-  BOFERR   Rts_E;
+  BOFERR Rts_E;
   uint32_t Nb_U32, PopIndex_U32;
 
   BOF_RAW_CIRCULAR_BUFFER_LOCK(Rts_E);
@@ -386,7 +389,7 @@ BOFERR BofRawCircularBuffer::Skip()
       PopIndex_U32 = mPopIndex_U32;
       Nb_U32 = ReadNbHeader(&PopIndex_U32);
 
-      if (Nb_U32 & 0x80000000)           // Bit 31 is used to signal locked zone
+      if (Nb_U32 & 0x80000000) // Bit 31 is used to signal locked zone
       {
         Rts_E = BOF_ERR_NOT_AVAILABLE;
       }
@@ -406,12 +409,11 @@ BOFERR BofRawCircularBuffer::Skip()
   return Rts_E;
 }
 
-
 BOFERR BofRawCircularBuffer::LockBuffer(uint32_t _Nb_U32, uint32_t *_pNb1_U32, uint8_t **_ppData1_U8, uint32_t *_pNb2_U32, uint8_t **_ppData2_U8)
 {
-  BOFERR   Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t Nb_U32;
-  bool     EnoughSpace_B;
+  bool EnoughSpace_B;
 
   if ((_Nb_U32) && (_pNb1_U32) && (_ppData1_U8) && (_pNb2_U32) && (_ppData2_U8))
   {
@@ -434,7 +436,7 @@ BOFERR BofRawCircularBuffer::LockBuffer(uint32_t _Nb_U32, uint32_t *_pNb1_U32, u
 
       if (EnoughSpace_B)
       {
-        WriteNbHeader(nullptr, _Nb_U32 | 0x80000000);                                           //Bit 31 is used to signal locked zone (PopBuffer)
+        WriteNbHeader(nullptr, _Nb_U32 | 0x80000000); // Bit 31 is used to signal locked zone (PopBuffer)
         *_ppData1_U8 = &mpData_U8[mPushIndex_U32];
 
         if (mSlotSize_U32)
@@ -478,7 +480,7 @@ BOFERR BofRawCircularBuffer::LockBuffer(uint32_t _Nb_U32, uint32_t *_pNb1_U32, u
 
 BOFERR BofRawCircularBuffer::UnlockBuffer(const uint8_t *_pLockedBuffer_U8, uint32_t _Nb_U32) // , const uint8_t *_pData_U8)
 {
-  BOFERR   Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t PopIndex_U32, PushIndex_U32, Nb_U32;
 
   if ((_Nb_U32) && (_pLockedBuffer_U8))
@@ -490,16 +492,16 @@ BOFERR BofRawCircularBuffer::UnlockBuffer(const uint8_t *_pLockedBuffer_U8, uint
       {
         PopIndex_U32 = static_cast<uint32_t>(_pLockedBuffer_U8 - mpData_U8 - sizeof(uint32_t));
         PushIndex_U32 = PopIndex_U32;
-        Nb_U32 = ReadNbHeader(&PopIndex_U32);                                            //Bit 31 is used to signal locked zone: Written by LockBuffer
+        Nb_U32 = ReadNbHeader(&PopIndex_U32); // Bit 31 is used to signal locked zone: Written by LockBuffer
 
         if (Nb_U32 & 0x80000000)
         {
-          Nb_U32 &= 0x7FFFFFFF;                                                                 // Bit 31 is used to signal locked zone
+          Nb_U32 &= 0x7FFFFFFF; // Bit 31 is used to signal locked zone
 
-          if (_Nb_U32 <= Nb_U32)                                                                // Normally they should be equal...
+          if (_Nb_U32 <= Nb_U32) // Normally they should be equal...
           {
             Rts_E = WriteNbHeader(&PushIndex_U32,
-                                  Nb_U32);                                      // Write Nb_U32 and not _Nb_U32 because all other var control have been computed by LockBuffer based on this value...
+                                  Nb_U32); // Write Nb_U32 and not _Nb_U32 because all other var control have been computed by LockBuffer based on this value...
             // Rts_U32 = WritePayload(&PushIndex_U32, _Nb_U32, _pData_U8);
           }
           else
@@ -517,7 +519,6 @@ BOFERR BofRawCircularBuffer::UnlockBuffer(const uint8_t *_pLockedBuffer_U8, uint
   }
   return Rts_E;
 }
-
 
 // if _pPopIndex_U32 is not null we do not update circular buffer control var and we return the new popIndex value to the caller
 uint32_t BofRawCircularBuffer::ReadNbHeader(uint32_t *_pPopIndex_U32)
@@ -577,10 +578,9 @@ uint32_t BofRawCircularBuffer::ReadNbHeader(uint32_t *_pPopIndex_U32)
   return Rts_U32;
 }
 
-
 BOFERR BofRawCircularBuffer::WriteNbHeader(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32)
 {
-  BOFERR   Rts_E = BOF_ERR_NO_ERROR;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
   uint32_t PushIndex_U32;
 
   // No security check (private fct caller has checked everything)
@@ -637,10 +637,9 @@ BOFERR BofRawCircularBuffer::WriteNbHeader(uint32_t *_pPushIndex_U32, uint32_t _
   return Rts_E;
 }
 
-
 BOFERR BofRawCircularBuffer::ReadPayload(uint32_t *_pPopIndex_U32, uint32_t _Nb_U32, uint8_t *_pData_U8)
 {
-  BOFERR   Rts_E = BOF_ERR_NO_ERROR;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
   uint32_t Nb_U32, PopIndex_U32, NbElementInBuffer_U32;
 
   // No security check (private fct caller has checked everything)
@@ -714,12 +713,11 @@ BOFERR BofRawCircularBuffer::ReadPayload(uint32_t *_pPopIndex_U32, uint32_t _Nb_
   return Rts_E;
 }
 
-
 // if _pData_U8 is null we just reserve (lock) a buffer for later use (LockBuffer)
 // if _pPushIndex_U32 not null, Data is pushed from *_pPushIndex_U32 (Push Locked Buffer)
 BOFERR BofRawCircularBuffer::WritePayload(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8)
 {
-  BOFERR   Rts_E = BOF_ERR_NO_ERROR;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
   uint32_t Nb_U32, PushIndex_U32, NbElementInBuffer_U32;
 
   // No security check (private fct caller has checked everything)

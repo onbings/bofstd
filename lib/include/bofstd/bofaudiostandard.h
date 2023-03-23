@@ -24,19 +24,18 @@
 #include <bofstd/bofstring.h>
 
 BEGIN_BOF_NAMESPACE()
-enum class BOF_AUDIO_SAMPLE_FORMAT :uint32_t //See vlc_fourcc.h VLC_CODEC_S24L32
+enum class BOF_AUDIO_SAMPLE_FORMAT : uint32_t // See vlc_fourcc.h VLC_CODEC_S24L32
 {
   BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN = 0,
   BOF_AUDIO_SAMPLE_FORMAT_S24L32,
   BOF_AUDIO_SAMPLE_FORMAT_MAX,
 };
 
-
 //            "AudioStandard": "16xS24L32@48000",
-#define BOF_AUDIO_STANDARD_ID(mono, freq, format)   (((uint64_t)(mono & 0xFF) << 56) | (((uint64_t)((freq & 0xFFFFFFFF))) << 32) | (((uint64_t)((format & 0xFF))) << 24))
+#define BOF_AUDIO_STANDARD_ID(mono, freq, format) (((uint64_t)(mono & 0xFF) << 56) | (((uint64_t)((freq & 0xFFFFFFFF))) << 32) | (((uint64_t)((format & 0xFF))) << 24))
 
 typedef uint64_t AudioStandardId;
-static const AudioStandardId  DefaultAudioStandard = BOF_AUDIO_STANDARD_ID(16, 48000, static_cast<uint32_t>(BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32));
+static const AudioStandardId DefaultAudioStandard = BOF_AUDIO_STANDARD_ID(16, 48000, static_cast<uint32_t>(BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32));
 
 class BOFSTD_EXPORT BofAudioStandard
 {

@@ -23,8 +23,8 @@
 
 #include <bofstd/bofstd.h>
 
-#include <streambuf>
 #include <sstream>
+#include <streambuf>
 
 BEGIN_BOF_NAMESPACE()
 

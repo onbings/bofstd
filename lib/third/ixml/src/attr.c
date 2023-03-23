@@ -30,25 +30,22 @@
  *
  ******************************************************************************/
 
-
 #include "ixmlparser.h"
-
 
 #include <string.h>
 
-
 void ixmlAttr_init(IN IXML_Attr *attr)
 {
-  if (attr != NULL) {
+  if (attr != NULL)
+  {
     memset(attr, 0, sizeof(IXML_Attr));
   }
 }
 
-
 void ixmlAttr_free(IN IXML_Attr *attr)
 {
-  if (attr != NULL) {
+  if (attr != NULL)
+  {
     ixmlNode_free((IXML_Node *)attr);
   }
 }
-

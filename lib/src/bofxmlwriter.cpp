@@ -19,9 +19,9 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofxmlwriter.h>
-#include <bofstd/bofstring.h>
 #include <bofstd/boffs.h>
+#include <bofstd/bofstring.h>
+#include <bofstd/bofxmlwriter.h>
 
 #include <ixml.h>
 
@@ -68,7 +68,7 @@ public:
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         // create root
-//				printf("DBG: create0 %s\r\n", SubTagList[0].c_str());
+        //				printf("DBG: create0 %s\r\n", SubTagList[0].c_str());
         Rts_E = (ixmlDocument_createElementEx(pXmlDoc_X, SubTagList[0].c_str(), &pXmlRoot_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
@@ -79,12 +79,12 @@ public:
             Rts_E = (ixmlElement_setAttribute(pXmlRoot_X, "xmlns:xsd", "http://www.w3.org/2001/XMLSchema") == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
             if (Rts_E == BOF_ERR_NO_ERROR)
             {
-              Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *> (pXmlDoc_X), reinterpret_cast<IXML_Node *> (pXmlRoot_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
+              Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *>(pXmlDoc_X), reinterpret_cast<IXML_Node *>(pXmlRoot_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
             }
           }
         }
       }
-    }                                                           // if (Bof_SplitString(pOid_c, '.', &NbSubTag_U32, &ppSubTag_c[0]) == 0)
+    } // if (Bof_SplitString(pOid_c, '.', &NbSubTag_U32, &ppSubTag_c[0]) == 0)
 
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
@@ -108,8 +108,7 @@ public:
             if (Rts_E == BOF_ERR_NO_ERROR)
             {
               // Link it
-              Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *> (ppXmlElementPerTag_X[j_U32 - 1]), reinterpret_cast<IXML_Node *> (ppXmlElementPerTag_X[j_U32])) == 0) ? BOF_ERR_NO_ERROR
-                : BOF_ERR_CREATE;
+              Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *>(ppXmlElementPerTag_X[j_U32 - 1]), reinterpret_cast<IXML_Node *>(ppXmlElementPerTag_X[j_U32])) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
             }
             if (Rts_E != BOF_ERR_NO_ERROR)
             {
@@ -139,7 +138,7 @@ public:
                   break;
                 }
               }
-            }                                                           // if (_rXmlSchema_X[i_U32].ArrayCapacity_U32)
+            } // if (_rXmlSchema_X[i_U32].ArrayCapacity_U32)
             else
             {
               // Single element
@@ -176,14 +175,14 @@ public:
                     Rts_E = (ixmlDocument_createElementEx(pXmlDoc_X, _rXmlSchema_X[j_U32].Name_S.c_str(), &pXmlElement_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
                     if (Rts_E == BOF_ERR_NO_ERROR)
                     {
-                      Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *> (pXmlParent_X), reinterpret_cast<IXML_Node *> (pXmlElement_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
+                      Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *>(pXmlParent_X), reinterpret_cast<IXML_Node *>(pXmlElement_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
 
                       if (Rts_E == BOF_ERR_NO_ERROR)
                       {
-                        Rts_E = (ixmlDocument_createTextNodeEx(pXmlDoc_X, pXmlValue_c, reinterpret_cast<IXML_Node **> (&pXmlArg_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
+                        Rts_E = (ixmlDocument_createTextNodeEx(pXmlDoc_X, pXmlValue_c, reinterpret_cast<IXML_Node **>(&pXmlArg_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
                         if (Rts_E == BOF_ERR_NO_ERROR)
                         {
-                          Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *> (pXmlElement_X), reinterpret_cast<IXML_Node *> (pXmlArg_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
+                          Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *>(pXmlElement_X), reinterpret_cast<IXML_Node *>(pXmlArg_X)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
                         }
                       }
                     }
@@ -208,11 +207,11 @@ public:
                 {
                   break;
                 }
-              }                                                                   // for (j_U32 = FirstArrayEntry_U32; j_U32 <= LastArrayEntry_U32; j_U32++)
+              } // for (j_U32 = FirstArrayEntry_U32; j_U32 <= LastArrayEntry_U32; j_U32++)
 
               if (Rts_E == BOF_ERR_NO_ERROR)
               {
-                if (ItIsAnArray_B)                                                // array
+                if (ItIsAnArray_B) // array
                 {
                   if (Index_U32 < NbActiveArrayElement_U32)
                   {
@@ -223,8 +222,7 @@ public:
                     if (Rts_E == BOF_ERR_NO_ERROR)
                     {
                       // Link it
-                      Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *> (ppXmlElementPerTag_X[SubTagList.size() - 2]),
-                               reinterpret_cast<IXML_Node *> (ppXmlElementPerTag_X[SubTagList.size() - 1])) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
+                      Rts_E = (ixmlNode_appendChild(reinterpret_cast<IXML_Node *>(ppXmlElementPerTag_X[SubTagList.size() - 2]), reinterpret_cast<IXML_Node *>(ppXmlElementPerTag_X[SubTagList.size() - 1])) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
                       if (Rts_E == BOF_ERR_NO_ERROR)
                       {
                         pXmlParent_X = ppXmlElementPerTag_X[SubTagList.size() - 1]; // If array->parent of all element
@@ -236,19 +234,19 @@ public:
                 }
               }
             } while ((!Finish_B) && (Rts_E == BOF_ERR_NO_ERROR));
-          } //if (Rts_E == BOF_ERR_NO_ERROR)
+          } // if (Rts_E == BOF_ERR_NO_ERROR)
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             break;
           }
-        }     //if (SubTagList.size() > 0)
-        i_U32 = LastArrayEntry_U32;    //Normal et voulu
-      }                                                                           // for (i_U32 = 0; i_U32 < _rXmlSchema_X.size(); i_U32++)
+        }                           // if (SubTagList.size() > 0)
+        i_U32 = LastArrayEntry_U32; // Normal et voulu
+      }                             // for (i_U32 = 0; i_U32 < _rXmlSchema_X.size(); i_U32++)
 
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         // pXmlContent = ixmlPrintDocument(pXmlDoc_X);
-        pXmlContent = ixmlNodetoString(reinterpret_cast<IXML_Node *> (pXmlDoc_X));
+        pXmlContent = ixmlNodetoString(reinterpret_cast<IXML_Node *>(pXmlDoc_X));
 
         if (pXmlContent != nullptr)
         {
@@ -256,8 +254,8 @@ public:
           _rXmlOutput_S += pXmlContent;
           ixmlFreeDOMString(pXmlContent);
         }
-      }                                                                           // if (Rts_i == 0)
-    }                                                                             // if (Rts_i == 0)
+      } // if (Rts_i == 0)
+    }   // if (Rts_i == 0)
 
     if (pXmlDoc_X)
     {
@@ -268,18 +266,17 @@ public:
 };
 
 // Opaque pointer design pattern: ... set Implementation values ...
-BofXmlWriter::BofXmlWriter()
-  : mpuXmlWriterImplementation(new XmlWriterImplementation())
-{}
-
+BofXmlWriter::BofXmlWriter() : mpuXmlWriterImplementation(new XmlWriterImplementation())
+{
+}
 
 BofXmlWriter::~BofXmlWriter()
-{}
+{
+}
 
 BOFERR BofXmlWriter::FromByte(const std::string &_rXmlDeclare_S, const std::vector<BOFPARAMETER> &_rXmlSchema_X, std::string &_rXmlOutput_S)
 {
   return mpuXmlWriterImplementation->FromByte(_rXmlDeclare_S, _rXmlSchema_X, _rXmlOutput_S);
 }
-
 
 END_BOF_NAMESPACE()

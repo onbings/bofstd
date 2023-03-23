@@ -27,10 +27,10 @@ BEGIN_BOF_NAMESPACE()
 
 struct BOFSTD_EXPORT BOF_RAW_CIRCULAR_BUFFER_PARAM
 {
-  bool     MultiThreadAware_B;                                            /*! true if the object is used in a multi threaded application (use mCs)*/
-  uint32_t BufferSizeInByte_U32;                                          /*!	Specifies the maximum number of byte inside inside the queue*/
-  uint32_t NbMaxSlot_U32;                                                 /*! Specifies the maximum number of buffer inside the queue (if 0 the whole BufferSizeInByte_U32 can be used)*/
-  uint8_t *pData_U8;                                                     /*! Pointer to queue storage buffer used to record queue element*/
+  bool MultiThreadAware_B;       /*! true if the object is used in a multi threaded application (use mCs)*/
+  uint32_t BufferSizeInByte_U32; /*!	Specifies the maximum number of byte inside inside the queue*/
+  uint32_t NbMaxSlot_U32;        /*! Specifies the maximum number of buffer inside the queue (if 0 the whole BufferSizeInByte_U32 can be used)*/
+  uint8_t *pData_U8;             /*! Pointer to queue storage buffer used to record queue element*/
   BOF_RAW_CIRCULAR_BUFFER_PARAM()
   {
     Reset();
@@ -85,18 +85,20 @@ class BOFSTD_EXPORT BofRawCircularBuffer
 {
 private:
   BOF_RAW_CIRCULAR_BUFFER_PARAM mRawCircularBufferParam_X;
-  uint32_t                      mNbSlot_U32;                               /*! Current number of buffer stored inside the raw queue */
-  //uint32_t                      mNbMaxSlot_U32;                            /*! Maximum number of buffer which can be stored inside the queue. If it is 0, the whole buffer size is used to store a maximum number of buffer otherwise of constant slot size is used to store variable buffer length (see class comment) */
-  uint32_t                      mSlotSize_U32;                             /*! if mNbMaxSlot_U32 != 0 this is the slot size which is used to store variable buffer length (adjusted mNbElementInBuffer_U32/mNbMaxBuffer_U32 (see class comment) otherwize 0 */
-  bool                          mDataPreAllocated_B;                       /*! true if mpData_U8 is provided by the caller (!! if mNbMaxBuffer_U32 is different from zero, extra storage is needed to record lenth of each slot (see class comment) */
-  uint8_t *mpData_U8;                                /*! Pointer to queue storage buffer used to record queue element*/
-  uint32_t                      mPushIndex_U32;                            /*! Current position of the write index inside the queue*/
-  uint32_t                      mPopIndex_U32;                             /*! Current position of the read index inside the queue*/
-  //uint32_t                      mBufferCapacity_U32;                       /*! The maximum number of element inside the queue*/
-  uint32_t                      mNbElementInBuffer_U32;                    /*! Current number of element inside the queue*/
-  uint32_t                      mLevelMax_U32;                             /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
-  BOF_MUTEX                     mRawCbMtx_X;                                    /*! Provide a serialized access to shared resources in a multi threaded environment*/
-  BOFERR                        mErrorCode_E;
+  uint32_t mNbSlot_U32; /*! Current number of buffer stored inside the raw queue */
+  // uint32_t                      mNbMaxSlot_U32;                            /*! Maximum number of buffer which can be stored inside the queue. If it is 0, the whole buffer size is used to store a maximum number of buffer otherwise of constant slot size
+  // is used to store variable buffer length (see class comment) */
+  uint32_t mSlotSize_U32;   /*! if mNbMaxSlot_U32 != 0 this is the slot size which is used to store variable buffer length (adjusted mNbElementInBuffer_U32/mNbMaxBuffer_U32 (see class comment) otherwize 0 */
+  bool mDataPreAllocated_B; /*! true if mpData_U8 is provided by the caller (!! if mNbMaxBuffer_U32 is different from zero, extra storage is needed to record lenth of each slot (see class comment) */
+  uint8_t *mpData_U8;       /*! Pointer to queue storage buffer used to record queue element*/
+  uint32_t mPushIndex_U32;  /*! Current position of the write index inside the queue*/
+  uint32_t mPopIndex_U32;   /*! Current position of the read index inside the queue*/
+  // uint32_t                      mBufferCapacity_U32;                       /*! The maximum number of element inside the queue*/
+  uint32_t mNbElementInBuffer_U32; /*! Current number of element inside the queue*/
+  uint32_t mLevelMax_U32;          /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
+  BOF_MUTEX mRawCbMtx_X;           /*! Provide a serialized access to shared resources in a multi threaded environment*/
+  BOFERR mErrorCode_E;
+
 public:
   BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &_rRawCircularBufferParam_X);
   virtual ~BofRawCircularBuffer();
@@ -104,15 +106,36 @@ public:
   BofRawCircularBuffer &operator=(const BofRawCircularBuffer &) = delete; // Disallow copying
   BofRawCircularBuffer(const BofRawCircularBuffer &) = delete;
 
-  BOFERR LastErrorCode() { return mErrorCode_E; }
+  BOFERR LastErrorCode()
+  {
+    return mErrorCode_E;
+  }
   BOFERR LockRawQueue();
   BOFERR UnlockRawQueue();
-  bool IsEmpty() { return mNbElementInBuffer_U32 == 0; }
-  bool IsFull() { return GetNbFreeElement() == 0; }
-  uint32_t GetSlotSize() { return mSlotSize_U32; }
-  uint32_t GetNbElement() { return mSlotSize_U32 ? mNbSlot_U32 : mNbElementInBuffer_U32; }
-  uint32_t GetCapacity() { return mSlotSize_U32 ? mRawCircularBufferParam_X.NbMaxSlot_U32 : mRawCircularBufferParam_X.BufferSizeInByte_U32; }
-  uint32_t GetMaxLevel() { return mLevelMax_U32; }
+  bool IsEmpty()
+  {
+    return mNbElementInBuffer_U32 == 0;
+  }
+  bool IsFull()
+  {
+    return GetNbFreeElement() == 0;
+  }
+  uint32_t GetSlotSize()
+  {
+    return mSlotSize_U32;
+  }
+  uint32_t GetNbElement()
+  {
+    return mSlotSize_U32 ? mNbSlot_U32 : mNbElementInBuffer_U32;
+  }
+  uint32_t GetCapacity()
+  {
+    return mSlotSize_U32 ? mRawCircularBufferParam_X.NbMaxSlot_U32 : mRawCircularBufferParam_X.BufferSizeInByte_U32;
+  }
+  uint32_t GetMaxLevel()
+  {
+    return mLevelMax_U32;
+  }
   void Reset();
   uint32_t GetNbFreeElement();
   BOFERR PushBuffer(uint32_t _Nb_U32, const uint8_t *_pData_U8);

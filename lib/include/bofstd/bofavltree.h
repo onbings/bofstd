@@ -1,5 +1,3 @@
-/*$T Bof/BofAvlTree.h GC 1.140 02/11/08 12:15:58 */
-
 /*
  * File      : BofAvlTree.h
  *
@@ -20,12 +18,29 @@
  */
 #pragma once
 
-#include <stdio.h>
 #include <cstdint>
+#include <stdio.h>
 
 BEGIN_BOF_NAMESPACE()
-//TODO: remove duplicate def
-#define DBG_INSERTSTRING(Index,SNPrintf,Remain,Rts)  {uint32_t NbChar=SNPrintf; Rts=0;if (NbChar>0){Remain-=NbChar;Index+=NbChar;}else{Remain=0;}if (!Remain){Rts=(uint32_t)-1;}}
+// TODO: remove duplicate def
+#define DBG_INSERTSTRING(Index, SNPrintf, Remain, Rts)                                                                                                                                                                                                         \
+  {                                                                                                                                                                                                                                                            \
+    uint32_t NbChar = SNPrintf;                                                                                                                                                                                                                                \
+    Rts = 0;                                                                                                                                                                                                                                                   \
+    if (NbChar > 0)                                                                                                                                                                                                                                            \
+    {                                                                                                                                                                                                                                                          \
+      Remain -= NbChar;                                                                                                                                                                                                                                        \
+      Index += NbChar;                                                                                                                                                                                                                                         \
+    }                                                                                                                                                                                                                                                          \
+    else                                                                                                                                                                                                                                                       \
+    {                                                                                                                                                                                                                                                          \
+      Remain = 0;                                                                                                                                                                                                                                              \
+    }                                                                                                                                                                                                                                                          \
+    if (!Remain)                                                                                                                                                                                                                                               \
+    {                                                                                                                                                                                                                                                          \
+      Rts = (uint32_t)-1;                                                                                                                                                                                                                                      \
+    }                                                                                                                                                                                                                                                          \
+  }
 typedef enum
 {
   LTREE = 0,
@@ -39,18 +54,17 @@ typedef enum
  * that represents the root-node of and BofAvlTree. Most of the member
  * functions simply delegate to the root BofAvlNode.
  */
-template<typename KeyType>
-class BofAvlTree
+template <typename KeyType> class BofAvlTree
 {
 private:
-  BofAvlNode <KeyType> *mpRoot;       /*! The root of the tree*/
+  BofAvlNode<KeyType> *mpRoot; /*! The root of the tree*/
   uint32_t mIndex_U32;
   uint32_t mNbNode_U32;
   uint32_t mNbMaxElement_U32;
-  BofAvlNode <KeyType> *mpNextRamDbFreeNode;
-  BofAvlNode <KeyType> *mpNodeList;
-private:
+  BofAvlNode<KeyType> *mpNextRamDbFreeNode;
+  BofAvlNode<KeyType> *mpNodeList;
 
+private:
   // Disallow copying and assingment
   BofAvlTree(const BofAvlTree<KeyType> &) = delete;
 
@@ -100,7 +114,7 @@ public:
     return mNbNode_U32;
   }
 
-  BofAvlNode <KeyType> *GetNextFreeNode()
+  BofAvlNode<KeyType> *GetNextFreeNode()
   {
     BofAvlNode<KeyType> *pRts = mpNextRamDbFreeNode;
 
@@ -112,18 +126,18 @@ public:
     return pRts;
   }
 
-  void SetNextFreeNode(BofAvlNode <KeyType> *_pNode)
+  void SetNextFreeNode(BofAvlNode<KeyType> *_pNode)
   {
     _pNode->SetParent(mpNextRamDbFreeNode);
     mpNextRamDbFreeNode = _pNode;
   }
 
-  BofAvlNode <KeyType> *Search(KeyType *_pKey, BOFCMP _Cmp_E)
+  BofAvlNode<KeyType> *Search(KeyType *_pKey, BOFCMP _Cmp_E)
   {
     return BofAvlNode<KeyType>::Search(mIndex_U32, _pKey, mpRoot, _Cmp_E);
   }
 
-  BofAvlNode <KeyType> *Insert(KeyType *_pKey)
+  BofAvlNode<KeyType> *Insert(KeyType *_pKey)
   {
     BofAvlNode<KeyType> *pRts = BofAvlNode<KeyType>::Insert(this, _pKey, mpRoot);
 
@@ -152,13 +166,13 @@ public:
     return mIndex_U32;
   }
 
-  BofAvlNode <KeyType> *GetFirst();
+  BofAvlNode<KeyType> *GetFirst();
 
-  BofAvlNode <KeyType> *GetLast();
+  BofAvlNode<KeyType> *GetLast();
 
-  BofAvlNode <KeyType> *GetNext(BofAvlNode <KeyType> *_pNode);
+  BofAvlNode<KeyType> *GetNext(BofAvlNode<KeyType> *_pNode);
 
-  BofAvlNode <KeyType> *GetPrevious(BofAvlNode <KeyType> *_pNode);
+  BofAvlNode<KeyType> *GetPrevious(BofAvlNode<KeyType> *_pNode);
 
   int32_t Check(uint32_t *_pNbNode_U32) const;
 
@@ -186,8 +200,7 @@ public:
  * V 1.00  Wed Sep 6 2006  BHA : Initial release
  *
  */
-template<typename KeyType>
-BofAvlTree<KeyType>::BofAvlTree(uint32_t _NbMaxElement_U32, uint32_t _Index_U32, uint32_t *_pErrorCode_U32)
+template <typename KeyType> BofAvlTree<KeyType>::BofAvlTree(uint32_t _NbMaxElement_U32, uint32_t _Index_U32, uint32_t *_pErrorCode_U32)
 {
   uint32_t i_U32, Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
 
@@ -222,26 +235,19 @@ BofAvlTree<KeyType>::BofAvlTree(uint32_t _NbMaxElement_U32, uint32_t _Index_U32,
   }
 }
 
-
-template<typename KeyType>
-BofAvlTree<KeyType>::~BofAvlTree()
+template <typename KeyType> BofAvlTree<KeyType>::~BofAvlTree()
 {
   BOF_SAFE_DELETE_ARRAY(mpNodeList);
 }
 
-
-template<typename KeyType>
-static void Dump(uint32_t _Index_U32, AVLTRAVERSALORDER Order_E, const BofAvlNode <KeyType> *_pNode, int32_t _Level_S32, uint32_t *_pNbMaxChar_U32, char *_pBuffer_c, uint32_t *_pNbCharWritten_U32)
+template <typename KeyType> static void Dump(uint32_t _Index_U32, AVLTRAVERSALORDER Order_E, const BofAvlNode<KeyType> *_pNode, int32_t _Level_S32, uint32_t *_pNbMaxChar_U32, char *_pBuffer_c, uint32_t *_pNbCharWritten_U32)
 {
   uint32_t Len_U32, Remain_U32, Sts_U32;
   BOFTYPE KeyType_E;
   char pVal_c[2048], pIndent_c[2048];
   (void)Sts_U32;
 
-  if ((_pNbMaxChar_U32)
-      && (_pNbCharWritten_U32)
-      && (_pBuffer_c)
-      )
+  if ((_pNbMaxChar_U32) && (_pNbCharWritten_U32) && (_pBuffer_c))
   {
     Remain_U32 = (*_pNbMaxChar_U32 - 2); // nullptr terminating + paranoid
     if (Remain_U32)
@@ -289,18 +295,13 @@ static void Dump(uint32_t _Index_U32, AVLTRAVERSALORDER Order_E, const BofAvlNod
   }
 }
 
-
-template<typename KeyType>
-static void Dump(uint32_t _Index_U32, const BofAvlNode <KeyType> *_pNode, int32_t _Level_S32, uint32_t *_pNbMaxChar_U32, char *_pBuffer_c, uint32_t *_pNbCharWritten_U32)
+template <typename KeyType> static void Dump(uint32_t _Index_U32, const BofAvlNode<KeyType> *_pNode, int32_t _Level_S32, uint32_t *_pNbMaxChar_U32, char *_pBuffer_c, uint32_t *_pNbCharWritten_U32)
 {
   uint32_t Remain_U32, Sts_U32;
 
   (void)Sts_U32;
 
-  if ((_pNbMaxChar_U32)
-      && (_pBuffer_c)
-      && (_pNbCharWritten_U32)
-      )
+  if ((_pNbMaxChar_U32) && (_pBuffer_c) && (_pNbCharWritten_U32))
   {
     Remain_U32 = (*_pNbMaxChar_U32 - 2); // nullptr terminating + paranoid
     if (Remain_U32)
@@ -343,29 +344,23 @@ static void Dump(uint32_t _Index_U32, const BofAvlNode <KeyType> *_pNode, int32_
           }
         }
       }
-    }                                  // if non-empty tree
+    } // if non-empty tree
   }
 }
 
-
 // Dump the tree to the given output stream
-template<typename KeyType>
-uint32_t BofAvlTree<KeyType>::DumpTree(uint32_t *_pNbMaxChar_U32, char *_pBuffer_c)
+template <typename KeyType> uint32_t BofAvlTree<KeyType>::DumpTree(uint32_t *_pNbMaxChar_U32, char *_pBuffer_c)
 {
   uint32_t Rts_U32 = 0;
 
-  if ((_pNbMaxChar_U32)
-      && (_pBuffer_c)
-      )
+  if ((_pNbMaxChar_U32) && (_pBuffer_c))
   {
     Dump(mIndex_U32, mpRoot, 0, _pNbMaxChar_U32, _pBuffer_c, &Rts_U32);
   }
   return Rts_U32;
 }
 
-
-template<typename KeyType>
-BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetFirst()
+template <typename KeyType> BofAvlNode<KeyType> *BofAvlTree<KeyType>::GetFirst()
 {
   BofAvlNode<KeyType> *pRts = nullptr;
 
@@ -382,9 +377,7 @@ BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetFirst()
   return pRts;
 }
 
-
-template<typename KeyType>
-BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetLast()
+template <typename KeyType> BofAvlNode<KeyType> *BofAvlTree<KeyType>::GetLast()
 {
   BofAvlNode<KeyType> *pRts = nullptr;
 
@@ -401,9 +394,7 @@ BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetLast()
   return pRts;
 }
 
-
-template<typename KeyType>
-BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetNext(BofAvlNode <KeyType> *_pNode)
+template <typename KeyType> BofAvlNode<KeyType> *BofAvlTree<KeyType>::GetNext(BofAvlNode<KeyType> *_pNode)
 {
   BofAvlNode<KeyType> *pRts = nullptr;
   bool SearchHead_B;
@@ -450,9 +441,7 @@ BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetNext(BofAvlNode <KeyType> *_pNode)
   return pRts;
 }
 
-
-template<typename KeyType>
-BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetPrevious(BofAvlNode <KeyType> *_pNode)
+template <typename KeyType> BofAvlNode<KeyType> *BofAvlTree<KeyType>::GetPrevious(BofAvlNode<KeyType> *_pNode)
 {
   BofAvlNode<KeyType> *pRts = nullptr;
   bool SearchHead_B;
@@ -499,9 +488,7 @@ BofAvlNode <KeyType> *BofAvlTree<KeyType>::GetPrevious(BofAvlNode <KeyType> *_pN
   return pRts;
 }
 
-
-template<typename KeyType>
-int32_t BofAvlTree<KeyType>::Check(uint32_t *_pNbNode_U32) const
+template <typename KeyType> int32_t BofAvlTree<KeyType>::Check(uint32_t *_pNbNode_U32) const
 {
   int32_t Rts_S32 = 1;
   uint32_t i_U32, Total_U32;

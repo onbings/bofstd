@@ -29,10 +29,10 @@
 
 BEGIN_BOF_NAMESPACE()
 
-//https://www.fluentcpp.com/2018/05/15/make-sfinae-pretty-1-what-value-sfinae-brings-to-code/
-//https://stackoverflow.com/questions/6972368/stdenable-if-to-conditionally-compile-a-member-function
-//template< typename T>
-template<typename T> //,	typename = typename std::enable_if<std::is_function<typename std::remove_pointer<T>::type>::value	>::type>
+// https://www.fluentcpp.com/2018/05/15/make-sfinae-pretty-1-what-value-sfinae-brings-to-code/
+// https://stackoverflow.com/questions/6972368/stdenable-if-to-conditionally-compile-a-member-function
+// template< typename T>
+template <typename T> //,	typename = typename std::enable_if<std::is_function<typename std::remove_pointer<T>::type>::value	>::type>
 class BofCallbackCollection
 {
 
@@ -83,10 +83,10 @@ public:
     return mTheInstance;
   }
 
-  BofCallbackCollection(BofCallbackCollection const &) = delete; // Copy construct
-  BofCallbackCollection(BofCallbackCollection &&) = delete; // Move construct
+  BofCallbackCollection(BofCallbackCollection const &) = delete;            // Copy construct
+  BofCallbackCollection(BofCallbackCollection &&) = delete;                 // Move construct
   BofCallbackCollection &operator=(BofCallbackCollection const &) = delete; // Copy assign
-  BofCallbackCollection &operator=(BofCallbackCollection &&) = delete; // Move assign
+  BofCallbackCollection &operator=(BofCallbackCollection &&) = delete;      // Move assign
   BOFERR Register(const T &_rCallback, uint32_t &_rId_U32)
   {
     BOFERR Rts_E = Bof_LockMutex(mMtxCallbackCollection_X);
@@ -122,8 +122,7 @@ public:
     return Rts_E;
   }
 
-  template<typename ... Args>
-  BOFERR Call(uint32_t _Id_U32, const Args &... _Args)
+  template <typename... Args> BOFERR Call(uint32_t _Id_U32, const Args &..._Args)
   {
     bool HasFailed_B;
 
@@ -144,7 +143,7 @@ public:
         {
           //				static_assert(std::is_same<typename T::result_type, void>::value, "Oops");
           Rts_E = BOF_ERR_NO_ERROR;
-          CallIt(It->second.Callback, HasFailed_B, _Args ...);
+          CallIt(It->second.Callback, HasFailed_B, _Args...);
           if ((mUnregisterIfFail_B) && (HasFailed_B))
           {
             mCallbackCollection.erase(It);
@@ -157,8 +156,7 @@ public:
     return Rts_E;
   }
 
-  template<typename ... Args>
-  BOFERR Call(const Args &... _Args)
+  template <typename... Args> BOFERR Call(const Args &..._Args)
   {
     BOFERR Rts_E = Bof_LockMutex(mMtxCallbackCollection_X);
     bool HasFailed_B;
@@ -178,7 +176,7 @@ public:
                   else
         */
         {
-          CallIt(It->second.Callback, HasFailed_B, _Args ...);
+          CallIt(It->second.Callback, HasFailed_B, _Args...);
           if ((mUnregisterIfFail_B) && (HasFailed_B))
           {
             It = mCallbackCollection.erase(It);
@@ -194,42 +192,37 @@ public:
     return Rts_E;
   }
 
-  template<typename Q = T, typename ... Args>
-  typename std::enable_if<std::is_integral<typename Q::result_type>::value || std::is_pointer<typename Q::result_type>::value || std::is_enum<typename Q::result_type>::value, void>::type
-    UnregisterIfFail(bool _UnregisterIfFail_B)
+  template <typename Q = T, typename... Args>
+  typename std::enable_if<std::is_integral<typename Q::result_type>::value || std::is_pointer<typename Q::result_type>::value || std::is_enum<typename Q::result_type>::value, void>::type UnregisterIfFail(bool _UnregisterIfFail_B)
   {
     mUnregisterIfFail_B = _UnregisterIfFail_B;
   }
 
 private:
-  //public:
-  //If we call do_stuff1 T Must be a function returning a void value
+  // public:
+  // If we call do_stuff1 T Must be a function returning a void value
   //		void do_stuff1(int, typename std::enable_if<std::is_same<typename T::result_type, void>::value,	std::nullptr_t>::type = nullptr);
   //		{	printf("do_stuff1 void(%d)\n", _Arg_i);	}
-  //If we call do_stuff2 T Must be a function returning an int value
+  // If we call do_stuff2 T Must be a function returning an int value
   //		int do_stuff2(int, typename std::enable_if<std::is_same<typename T::result_type, int>::value,	std::nullptr_t>::type = nullptr);
   //		{	printf(""do_stuff2 int(%d)\n",_Arg_i); return _Arg_i*2;	}
 
-  template<typename Q = T, typename ... Args>
-  typename std::enable_if<std::is_same<typename Q::result_type, void>::value, void>::type
-    CallIt(const T &_rFunction, bool &_rHasFailed_B, const Args &... _Args)
+  template <typename Q = T, typename... Args> typename std::enable_if<std::is_same<typename Q::result_type, void>::value, void>::type CallIt(const T &_rFunction, bool &_rHasFailed_B, const Args &..._Args)
   {
     _rHasFailed_B = false;
-    _rFunction(_Args ...);
+    _rFunction(_Args...);
   }
 
-  //typename std::enable_if<!std::is_same<typename Q::result_type, void>::value, typename Q::result_type>::type CallIt(T _Function, const Args &... _Args)
-  template<typename Q = T, typename ... Args>
-  typename std::enable_if<
-    std::is_integral<typename Q::result_type>::value || std::is_pointer<typename Q::result_type>::value || std::is_enum<typename Q::result_type>::value, typename Q::result_type>::type
-    CallIt(const T &_rFunction, bool &_rHasFailed_B, const Args &... _Args)
+  // typename std::enable_if<!std::is_same<typename Q::result_type, void>::value, typename Q::result_type>::type CallIt(T _Function, const Args &... _Args)
+  template <typename Q = T, typename... Args>
+  typename std::enable_if<std::is_integral<typename Q::result_type>::value || std::is_pointer<typename Q::result_type>::value || std::is_enum<typename Q::result_type>::value, typename Q::result_type>::type CallIt(const T &_rFunction, bool &_rHasFailed_B,
+                                                                                                                                                                                                                     const Args &..._Args)
   {
     typename Q::result_type Rts;
-    Rts = _rFunction(_Args ...);
+    Rts = _rFunction(_Args...);
     _rHasFailed_B = Rts ? true : false;
     return Rts;
   }
-
 };
 
 END_BOF_NAMESPACE()

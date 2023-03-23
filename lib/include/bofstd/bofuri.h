@@ -21,11 +21,11 @@
  */
 #pragma once
 
-#include <bofstd/bofsocketos.h>
 #include <bofstd/bofpath.h>
+#include <bofstd/bofsocketos.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 BEGIN_BOF_NAMESPACE()
 /// @brief This class implements an Uri parser. An uri is defined in https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
@@ -37,61 +37,61 @@ BEGIN_BOF_NAMESPACE()
 ///    https ://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top
 ///    └─┬─┘    └───────────┬──────────────┘└───────┬───────┘ └───────────┬─────────────┘ └┬┘
 ///    scheme          authority                  path                 query           fragment
-///    
+///
 ///    ldap ://[2001:db8::7]/c=GB?objectClass?one
 ///    └┬─┘   └─────┬─────┘└─┬─┘ └──────┬──────┘
 ///    scheme   authority   path      query
-///    
+///
 ///    mailto : John.Doe@example.com
 ///    └─┬──┘ └────┬─────────────┘
 ///    scheme     path
-///    
+///
 ///    news : comp.infosystems.www.servers.unix
 ///    └┬─┘ └─────────────┬─────────────────┘
 ///    scheme            path
-///    
+///
 ///    tel : +1 - 816 - 555 - 1212
 ///    └┬┘ └──────┬──────┘
 ///    scheme    path
-///    
+///
 ///    telnet ://192.0.2.16:80/
 ///    └─┬──┘   └─────┬─────┘│
 ///    scheme     authority  path
-///    
+///
 ///    urn : oasis:names:specification:docbook:dtd:xml:4.1.2
 ///    └┬┘ └──────────────────────┬──────────────────────┘
 ///    scheme                    path
 ///
 /// For bofstd it is:
-/// - a protocol string (scheme)		-> scheme + authority: BOF_SOCKET_ADDRESS_COMPONENT 
+/// - a protocol string (scheme)		-> scheme + authority: BOF_SOCKET_ADDRESS_COMPONENT
 /// - an address string (authority)	-> scheme + authority: BOF_SOCKET_ADDRESS_COMPONENT
 /// - a path (path)									-> BofPath
 /// - an query parameter string			-> std::map<std::string, std::string>
-///   Start from the last ? in the sring after the path. Its syntax is not well defined, but by 
+///   Start from the last ? in the sring after the path. Its syntax is not well defined, but by
 ///   convention is most often a sequence of attribute–value pairs separated by a delimiter.
 ///		Query delimiter		Example
 ///		Ampersand(&)			key1 = value1 & key2 = value2
 ///		Semicolon(;)  		key1 = value1; key2 = value2
 /// - An optional fragment component -> std::string
-///   It is preceded by a hash(#).The fragment contains a fragment identifier providing direction 
-///   to a secondary resource, such as a section heading in an article identified by the remainder 
-///   of the URI.When the primary resource is an HTML document, the fragment is often an id 
+///   It is preceded by a hash(#).The fragment contains a fragment identifier providing direction
+///   to a secondary resource, such as a section heading in an article identified by the remainder
+///   of the URI.When the primary resource is an HTML document, the fragment is often an id
 ///   attribute of a specific element, andweb browsers will scroll this element into view.
-/// 
-/// Upper/lower case: So on both server types, it’s best to make sure you only use lower-case characters in your internal 
-/// links — on Apache, you do it to avoid file not found errors, and on IIS you do it to avoid dupe content. 
-/// To be on the safe side, it’s also a good idea on IIS to rewrite requests for URLs that contain upper-case characters 
+///
+/// Upper/lower case: So on both server types, it’s best to make sure you only use lower-case characters in your internal
+/// links — on Apache, you do it to avoid file not found errors, and on IIS you do it to avoid dupe content.
+/// To be on the safe side, it’s also a good idea on IIS to rewrite requests for URLs that contain upper-case characters
 /// to the lower-case equivalent.
 class BOFSTD_EXPORT BofUri
 {
 private:
-  BOF_SOCKET_ADDRESS_COMPONENT				mSchemeAuthority_X;
-  BofPath															mPath;
-  std::map<std::string, std::string>	mQueryParamCollection;
-  std::string												  mFragment_S;
+  BOF_SOCKET_ADDRESS_COMPONENT mSchemeAuthority_X;
+  BofPath mPath;
+  std::map<std::string, std::string> mQueryParamCollection;
+  std::string mFragment_S;
 
-  char																mQueryParamDelimiter_c = '&';
-  bool																mValid_B = false;
+  char mQueryParamDelimiter_c = '&';
+  bool mValid_B = false;
 
 public:
   /// @brief Initializes a new instance of the Uri class.
@@ -164,7 +164,7 @@ public:
   /// @brief Compares two object to check for equality
   /// @param _rOther_O A reference to another Uri class instance.
   /// @return true if both object are equal
-  /// @remarks Equal operator. 
+  /// @remarks Equal operator.
   bool operator==(const BofUri &_rOther_O) const;
 
   /// @brief Compares two object to check for difference
@@ -212,7 +212,7 @@ public:
   /// @param [in] _rPath_S : specifies a string representing the path.
   /// @return A BOFERR value which is BOF_ERR_NO_ERROR if the call is successful.
   /// @remarks Must be a linux (not windows) path type
-  //BOFERR SetPath(const std::string &_rPath_S);
+  // BOFERR SetPath(const std::string &_rPath_S);
 
   /// @brief Set the path characteristics of the usri
   /// @param [in] _rPath : specifies a BofPath representing the path.
@@ -299,7 +299,7 @@ public:
   /// @param [in] _QueryDelimiter_c specify the character to use to separate the different option.
   /// @return A string representing the uti instance.
   /// @remarks None.
-  std::string	ToString() const;
+  std::string ToString() const;
 
   /// @brief Esccape "special" characters in url
   /// @param _rIn_S : Specifies the url to encode.
@@ -328,6 +328,5 @@ private:
   /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
   /// @remarks None
   BOFERR ExtractQueryParamIntoCollection(const std::string &_rQueryParam_S, std::map<std::string, std::string> &_rQueryParamCollection);
-
 };
 END_BOF_NAMESPACE()

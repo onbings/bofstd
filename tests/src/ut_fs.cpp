@@ -19,8 +19,8 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/boffs.h>
 #include "bofstd/bofstring.h"
+#include <bofstd/boffs.h>
 
 #include "gtestrunner.h"
 
@@ -28,13 +28,13 @@ USE_BOF_NAMESPACE()
 
 TEST(Fs_Test, DirectoryManagement)
 {
-  BOFERR              Sts_E;
-  std::string         CrtDir_S, NewDir_S;
+  BOFERR Sts_E;
+  std::string CrtDir_S, NewDir_S;
   BOF_FILE_PERMISSION Permission_E;
-  BofPath             CrtDir, NewPath, FileAsDirPath;
-  uintptr_t           Io, Io2;
-  std::string         NewFull_S;
-  BOF_FILE_TYPE       FileType_E;
+  BofPath CrtDir, NewPath, FileAsDirPath;
+  uintptr_t Io, Io2;
+  std::string NewFull_S;
+  BOF_FILE_TYPE FileType_E;
   uint64_t Size_U64;
 
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
@@ -46,7 +46,7 @@ TEST(Fs_Test, DirectoryManagement)
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
   Size_U64 = Bof_GetFileSize(FileAsDirPath);
   Sts_E = Bof_DeleteFile(FileAsDirPath);
-  EXPECT_TRUE((Size_U64 == 0xFFFFFFFFFFFFFFFF) || (Size_U64 == 0x7FFFFFFFFFFFFFFF));  //Linux 0x7FFFFFFFFFFFFFFF Win 0xFFFFFFFFFFFFFFFF ???
+  EXPECT_TRUE((Size_U64 == 0xFFFFFFFFFFFFFFFF) || (Size_U64 == 0x7FFFFFFFFFFFFFFF)); // Linux 0x7FFFFFFFFFFFFFFF Win 0xFFFFFFFFFFFFFFFF ???
 
   Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/"), true);
   Sts_E = Bof_CleanupDirectory(true, BofPath(FileAsDirPath.FullPathName(false) + "/../babar2/"), true);
@@ -56,11 +56,9 @@ TEST(Fs_Test, DirectoryManagement)
 
   NewFull_S = CrtDir.FullPathName(false) + "babar1/";
 
-
   NewPath = CrtDir;
-  Sts_E = NewPath.Combine("/babar1/");    //Remove double //
+  Sts_E = NewPath.Combine("/babar1/"); // Remove double //
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
 
   NewPath = CrtDir;
   Sts_E = NewPath.Combine("babar1/");
@@ -127,7 +125,6 @@ TEST(Fs_Test, DirectoryManagement)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Io2, -1);
 
-
   Sts_E = Bof_CreateDirectory(Permission_E, NewPath);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
@@ -191,14 +188,14 @@ TEST(Fs_Test, DirectoryManagement)
 
 TEST(Fs_Test, FileManagement)
 {
-  BOFERR              Sts_E;
-  std::string         CrtDir_S, NewDir_S;
+  BOFERR Sts_E;
+  std::string CrtDir_S, NewDir_S;
   BOF_FILE_PERMISSION Permission_E;
-  BofPath             CrtDir, NewPath, FileAsDirPath;
-  uintptr_t           Io, Io2;
-  std::string         NewFull_S;
+  BofPath CrtDir, NewPath, FileAsDirPath;
+  uintptr_t Io, Io2;
+  std::string NewFull_S;
   uint64_t Size_U64;
-  BOF_FILE_TYPE       FileType_E;
+  BOF_FILE_TYPE FileType_E;
 
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -276,7 +273,6 @@ TEST(Fs_Test, FileManagement)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Io2, -1);
 
-
   Sts_E = Bof_CreateDirectory(Permission_E, NewPath);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
@@ -340,9 +336,9 @@ TEST(Fs_Test, FileManagement)
 
 TEST(Fs_Test, EntireFile)
 {
-  BOFERR              Sts_E;
+  BOFERR Sts_E;
   BOF_FILE_PERMISSION Permission_E;
-  std::string         Line_S, LineRead_S;
+  std::string Line_S, LineRead_S;
   BofPath Dir, Path;
 
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
@@ -364,14 +360,14 @@ TEST(Fs_Test, EntireFile)
 }
 TEST(Fs_Test, FileLayout)
 {
-  BOFERR              Sts_E;
+  BOFERR Sts_E;
   BOF_FILE_PERMISSION Permission_E;
-  //Permission_E  = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
-  BofPath             CrtDir, DirLayoutRoot, Dir, File, NewFile;
-  uint32_t            i_U32, j_U32, k_U32, Nb_U32;
-  uintptr_t           Io;
-  std::string         Line_S, LineRead_S;
-  uint64_t            Pos_U64, GetPos_U64, NewPos_U64, Size_U64, Size2_U64;
+  // Permission_E  = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
+  BofPath CrtDir, DirLayoutRoot, Dir, File, NewFile;
+  uint32_t i_U32, j_U32, k_U32, Nb_U32;
+  uintptr_t Io;
+  std::string Line_S, LineRead_S;
+  uint64_t Pos_U64, GetPos_U64, NewPos_U64, Size_U64, Size2_U64;
 
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -391,7 +387,6 @@ TEST(Fs_Test, FileLayout)
 
   Sts_E = Bof_GetCurrentDirectory(Dir);
   EXPECT_TRUE(DirLayoutRoot == Dir);
-
 
   for (i_U32 = 0; i_U32 < 10; i_U32++)
   {
@@ -469,11 +464,11 @@ TEST(Fs_Test, FileLayout)
 // Must be after FileLayout
 TEST(Fs_Test, DirEnum)
 {
-  BOFERR                        Sts_E;
-  BofPath                       CrtDir, DirLayoutRoot, Path;
-  BOF_FILE_FOUND                FileFound_X;
-  std::vector< BOF_FILE_FOUND > FileCollection;
-  uint32_t                      i_U32;
+  BOFERR Sts_E;
+  BofPath CrtDir, DirLayoutRoot, Path;
+  BOF_FILE_FOUND FileFound_X;
+  std::vector<BOF_FILE_FOUND> FileCollection;
+  uint32_t i_U32;
   BofDateTime DateTime;
 
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
@@ -483,18 +478,19 @@ TEST(Fs_Test, DirEnum)
   Sts_E = DirLayoutRoot.Combine("TstRoot/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-//  FileCollection.clear();
-//  Sts_E = Bof_FindFile("C:\\bld\\evs-muse\\resources\\", "*", BOF::BOF_FILE_TYPE::BOF_FILE_DIR, false, FileCollection);
+  //  FileCollection.clear();
+  //  Sts_E = Bof_FindFile("C:\\bld\\evs-muse\\resources\\", "*", BOF::BOF_FILE_TYPE::BOF_FILE_DIR, false, FileCollection);
 
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(FileCollection.size(), 94); //64 file and 30 dir
+  EXPECT_EQ(FileCollection.size(), 94); // 64 file and 30 dir
   for (i_U32 = 0; i_U32 < FileCollection.size(); i_U32++)
   {
     //		Sts_E = Bof_TimeInSecSince1970_To_BofDateTime(FileCollection[i_U32].LastAccess_X, DateTime_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(), Bof_Eol());
+    //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(),
+    //Bof_Eol());
   }
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 0xFFFFFFFF, FileCollection);
@@ -504,7 +500,8 @@ TEST(Fs_Test, DirEnum)
   {
     //  Sts_E = Bof_TimeInSecSince1970_To_BofDateTime(FileCollection[i_U32].LastAccess_X, DateTime_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(), Bof_Eol());
+    //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(),
+    //Bof_Eol());
   }
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_DIR, true, 0xFFFFFFFF, FileCollection);
@@ -513,7 +510,7 @@ TEST(Fs_Test, DirEnum)
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(FileCollection.size(), 62); //32 file and 30 dir
+  EXPECT_EQ(FileCollection.size(), 62); // 32 file and 30 dir
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.2", BOF_FILE_TYPE::BOF_FILE_REG, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -527,7 +524,7 @@ TEST(Fs_Test, DirEnum)
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_REG, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_EQ(FileCollection.size(), 64);	//not 80 as the two last dir are empty
+  EXPECT_EQ(FileCollection.size(), 64); // not 80 as the two last dir are empty
 
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 0xFFFFFFFF, FileCollection);
@@ -538,15 +535,13 @@ TEST(Fs_Test, DirEnum)
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 7, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_CANCEL);
   EXPECT_EQ(FileCollection.size(), 7);
-
 }
-
 
 TEST(Fs_Test, CreateTempFile)
 {
   uintptr_t Io;
-  BOFERR   Sts_E;
-  BofPath  DirPath, Path;
+  BOFERR Sts_E;
+  BofPath DirPath, Path;
 
   Sts_E = Bof_GetCurrentDirectory(DirPath);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -562,24 +557,24 @@ TEST(Fs_Test, CreateTempFile)
 
 TEST(Fs_Test, ResetFileContentReOpenMode)
 {
-  BOFERR              Sts_E;
+  BOFERR Sts_E;
   BOF_FILE_PERMISSION Permission_E;
-  std::string         Line_S, NewLine_S, LineRead_S, LineWrt_S;
+  std::string Line_S, NewLine_S, LineRead_S, LineWrt_S;
   BofPath Dir, Path;
   uintptr_t Io;
   uint32_t Nb_U32;
-/*
-  std::string RawData_S;
-  uint32_t Start_U32, Delta_U32, i_U32;
-  //https://www.learningcontainer.com/sample-docx-file-for-testing/
-  for (i_U32 = 0; i_U32 < 10; i_U32++)
-  {
-    Start_U32 = BOF::Bof_GetMsTickCount();
-    Sts_E = Bof_ReadFile("C:/Users/User/Downloads/32-MB-docx-file-download.docx", RawData_S);
-    Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
-    printf("[%d] Delta %d ms Sz %zd B %zd KB %zd MB Err %s\n", i_U32, Delta_U32, RawData_S.size(), RawData_S.size() / 1024, RawData_S.size() / 1024 / 1024,BOF::Bof_ErrorCode(Sts_E));
-  }
-*/
+  /*
+    std::string RawData_S;
+    uint32_t Start_U32, Delta_U32, i_U32;
+    //https://www.learningcontainer.com/sample-docx-file-for-testing/
+    for (i_U32 = 0; i_U32 < 10; i_U32++)
+    {
+      Start_U32 = BOF::Bof_GetMsTickCount();
+      Sts_E = Bof_ReadFile("C:/Users/User/Downloads/32-MB-docx-file-download.docx", RawData_S);
+      Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
+      printf("[%d] Delta %d ms Sz %zd B %zd KB %zd MB Err %s\n", i_U32, Delta_U32, RawData_S.size(), RawData_S.size() / 1024, RawData_S.size() / 1024 / 1024,BOF::Bof_ErrorCode(Sts_E));
+    }
+  */
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
   Line_S = "Hello World";
 
@@ -617,15 +612,14 @@ TEST(Fs_Test, ResetFileContentReOpenMode)
 
   EXPECT_EQ(Bof_CloseFile(Io), BOF_ERR_NO_ERROR);
   EXPECT_EQ(Bof_ReadFile(Path, LineRead_S), BOF_ERR_NO_ERROR);
-  EXPECT_STREQ(LineRead_S.c_str(), "");	//Extra zero are inserted at the beginning as Io has an offset of Line_S.size() but the file has been shrinked to O byte->write add extra 0 upp to crt file pos LineWrt_S.c_str());
-
+  EXPECT_STREQ(LineRead_S.c_str(), ""); // Extra zero are inserted at the beginning as Io has an offset of Line_S.size() but the file has been shrinked to O byte->write add extra 0 upp to crt file pos LineWrt_S.c_str());
 }
 
 TEST(Fs_Test, ResetFileContent)
 {
-  BOFERR              Sts_E;
+  BOFERR Sts_E;
   BOF_FILE_PERMISSION Permission_E;
-  std::string         Line_S, NewLine_S, LineRead_S, LineWrt_S;
+  std::string Line_S, NewLine_S, LineRead_S, LineWrt_S;
   BofPath Dir, Path;
   uintptr_t Io;
   uint32_t Nb_U32;
@@ -670,6 +664,6 @@ TEST(Fs_Test, ResetFileContent)
   EXPECT_EQ(Bof_CloseFile(Io), BOF_ERR_NO_ERROR);
   EXPECT_EQ(Bof_ReadFile(Path, LineRead_S), BOF_ERR_NO_ERROR);
   //	EXPECT_STREQ(LineRead_S.c_str(), (Line_S + LineWrt_S).c_str());
-  EXPECT_STREQ(LineRead_S.c_str(), Line_S.c_str());	//Extra zero are inserted at the beginning as Io has an offset of Line_S.size() but the file has been shrinked to O byte->write add extra 0 upp to crt file pos LineWrt_S.c_str());
+  EXPECT_STREQ(LineRead_S.c_str(), Line_S.c_str()); // Extra zero are inserted at the beginning as Io has an offset of Line_S.size() but the file has been shrinked to O byte->write add extra 0 upp to crt file pos LineWrt_S.c_str());
 #endif
 }

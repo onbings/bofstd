@@ -23,8 +23,15 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_STRING_CIRCULAR_BUFFER_LOCK(Sts)   {Sts=mStringCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mStringCbMtx_X):BOF_ERR_NO_ERROR;}
-#define BOF_STRING_CIRCULAR_BUFFER_UNLOCK()    {if (mStringCircularBufferParam_X.MultiThreadAware_B) Bof_UnlockMutex(mStringCbMtx_X);}
+#define BOF_STRING_CIRCULAR_BUFFER_LOCK(Sts)                                                                                                                                                                                                                   \
+  {                                                                                                                                                                                                                                                            \
+    Sts = mStringCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mStringCbMtx_X) : BOF_ERR_NO_ERROR;                                                                                                                                                  \
+  }
+#define BOF_STRING_CIRCULAR_BUFFER_UNLOCK()                                                                                                                                                                                                                    \
+  {                                                                                                                                                                                                                                                            \
+    if (mStringCircularBufferParam_X.MultiThreadAware_B)                                                                                                                                                                                                       \
+      Bof_UnlockMutex(mStringCbMtx_X);                                                                                                                                                                                                                         \
+  }
 
 /*!
  * Description
@@ -45,65 +52,64 @@ BEGIN_BOF_NAMESPACE()
 
 BofStringCircularBuffer::BofStringCircularBuffer(const BOF_STRING_CIRCULAR_BUFFER_PARAM &_rStringCircularBufferParam_X)
 {
-	mNbCharInBuffer_U32 = 0;
-	mNbSnapshotCharInBuffer_U32 = 0;
-	mNbElementInBuffer_U32 = 0;
-	mpData_c = nullptr;
-	mPushIndex_U32 = 0;
-	mPopIndex_U32 = 0;
-	mPopSnapshotIndex_U32 = 0;
-	mOverflow_B = false;
-	mLevelMax_U32 = 0;
+  mNbCharInBuffer_U32 = 0;
+  mNbSnapshotCharInBuffer_U32 = 0;
+  mNbElementInBuffer_U32 = 0;
+  mpData_c = nullptr;
+  mPushIndex_U32 = 0;
+  mPopIndex_U32 = 0;
+  mPopSnapshotIndex_U32 = 0;
+  mOverflow_B = false;
+  mLevelMax_U32 = 0;
 
   mStringCircularBufferParam_X = _rStringCircularBufferParam_X;
-	if (mStringCircularBufferParam_X.Blocking_B)
-	{
-		mErrorCode_E = (mStringCircularBufferParam_X.MultiThreadAware_B) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_MODE;
-	}
-	else
-	{
-		mErrorCode_E = BOF_ERR_NO_ERROR;
-	}
-	if (mErrorCode_E == BOF_ERR_NO_ERROR)
-	{
-		mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cbs_canread_" + std::to_string(_rStringCircularBufferParam_X.BufferSizeInByte_U32) + "_evt", false, 1, false, mCanReadEvent_X) : BOF_ERR_NO_ERROR;
-		if (mErrorCode_E == BOF_ERR_NO_ERROR)
-		{
-			mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cbs_canwrite_" + std::to_string(_rStringCircularBufferParam_X.BufferSizeInByte_U32) + "_evt", false, 1, false, mCanWriteEvent_X)
-			                           : BOF_ERR_NO_ERROR;
-			if (mErrorCode_E == BOF_ERR_NO_ERROR)
-			{
-				mErrorCode_E = _rStringCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", true, true, mStringCbMtx_X) : BOF_ERR_NO_ERROR;
-				if (mErrorCode_E == BOF_ERR_NO_ERROR)
-				{
-					if (mErrorCode_E == BOF_ERR_NO_ERROR)
-					{
-						if (_rStringCircularBufferParam_X.pData_c)
-						{
-							mDataPreAllocated_B = true;
-							mpData_c = _rStringCircularBufferParam_X.pData_c;
-						}
-						else
-						{
-							mDataPreAllocated_B = false;
+  if (mStringCircularBufferParam_X.Blocking_B)
+  {
+    mErrorCode_E = (mStringCircularBufferParam_X.MultiThreadAware_B) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_MODE;
+  }
+  else
+  {
+    mErrorCode_E = BOF_ERR_NO_ERROR;
+  }
+  if (mErrorCode_E == BOF_ERR_NO_ERROR)
+  {
+    mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cbs_canread_" + std::to_string(_rStringCircularBufferParam_X.BufferSizeInByte_U32) + "_evt", false, 1, false, mCanReadEvent_X) : BOF_ERR_NO_ERROR;
+    if (mErrorCode_E == BOF_ERR_NO_ERROR)
+    {
+      mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cbs_canwrite_" + std::to_string(_rStringCircularBufferParam_X.BufferSizeInByte_U32) + "_evt", false, 1, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
+      if (mErrorCode_E == BOF_ERR_NO_ERROR)
+      {
+        mErrorCode_E = _rStringCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", true, true, mStringCbMtx_X) : BOF_ERR_NO_ERROR;
+        if (mErrorCode_E == BOF_ERR_NO_ERROR)
+        {
+          if (mErrorCode_E == BOF_ERR_NO_ERROR)
+          {
+            if (_rStringCircularBufferParam_X.pData_c)
+            {
+              mDataPreAllocated_B = true;
+              mpData_c = _rStringCircularBufferParam_X.pData_c;
+            }
+            else
+            {
+              mDataPreAllocated_B = false;
 
-							// mpData_c=(DataType *)new uint8_t[mStringCircularBufferParam_X.BufferSizeInByte_U32 * sizeof(DataType)];
-							mpData_c = new char[mStringCircularBufferParam_X.BufferSizeInByte_U32];
-						}
+              // mpData_c=(DataType *)new uint8_t[mStringCircularBufferParam_X.BufferSizeInByte_U32 * sizeof(DataType)];
+              mpData_c = new char[mStringCircularBufferParam_X.BufferSizeInByte_U32];
+            }
 
-						if (mpData_c)
-						{
-							mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_SignalEvent(mCanWriteEvent_X, 0) : BOF_ERR_NO_ERROR;
-						}
-						else
-						{
-							mErrorCode_E = BOF_ERR_ENOMEM;
-						}
-					}
-				}
-			}
-		}
-	}
+            if (mpData_c)
+            {
+              mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_SignalEvent(mCanWriteEvent_X, 0) : BOF_ERR_NO_ERROR;
+            }
+            else
+            {
+              mErrorCode_E = BOF_ERR_ENOMEM;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 /*!
@@ -126,58 +132,56 @@ BofStringCircularBuffer::BofStringCircularBuffer(const BOF_STRING_CIRCULAR_BUFFE
 
 BofStringCircularBuffer::~BofStringCircularBuffer()
 {
-	Bof_DestroyMutex(mStringCbMtx_X);
+  Bof_DestroyMutex(mStringCbMtx_X);
 
-	if (!mDataPreAllocated_B)
-	{
-		BOF_SAFE_DELETE_ARRAY(mpData_c);
-	}
-	Bof_DestroyEvent(mCanReadEvent_X);
-	Bof_DestroyEvent(mCanWriteEvent_X);
+  if (!mDataPreAllocated_B)
+  {
+    BOF_SAFE_DELETE_ARRAY(mpData_c);
+  }
+  Bof_DestroyEvent(mCanReadEvent_X);
+  Bof_DestroyEvent(mCanWriteEvent_X);
 }
 
 /*!
-* Description
-* This function stores a byte stream (up to _Size_U32+1 long) inside the circular buffer.
-* If the last data byte of the stream is not the mByteStreamDelimiter_U8 it is replaced by this delimiter
-* If this one is full the structure reacts according to the _Overwrite_B parameter specified
-* when the circular buffer has been created.
-*
-* Parameters
-* _Size_U32: Specify the number of element to push 
-* _pData_U8: Specifies the data byte stream to store in the circular buffer.
-*
-* Returns
-* uint32_t: BOF_ERR_NO_ERROR if the operation is successful
-*
-* Remarks
-* None
-*
-* See Also
-* Pop
-*/
+ * Description
+ * This function stores a byte stream (up to _Size_U32+1 long) inside the circular buffer.
+ * If the last data byte of the stream is not the mByteStreamDelimiter_U8 it is replaced by this delimiter
+ * If this one is full the structure reacts according to the _Overwrite_B parameter specified
+ * when the circular buffer has been created.
+ *
+ * Parameters
+ * _Size_U32: Specify the number of element to push
+ * _pData_U8: Specifies the data byte stream to store in the circular buffer.
+ *
+ * Returns
+ * uint32_t: BOF_ERR_NO_ERROR if the operation is successful
+ *
+ * Remarks
+ * None
+ *
+ * See Also
+ * Pop
+ */
 
 BOFERR BofStringCircularBuffer::PushBinary(uint32_t _Size_U32, const char *_pData_c, uint32_t _BlockingTimeouItInMs_U32)
 {
-	BOFERR Rts_E = BOF_ERR_EINVAL;
-	uint32_t i_U32, Nb_U32;
-	uint32_t NbElementInBuffer_U32;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  uint32_t i_U32, Nb_U32;
+  uint32_t NbElementInBuffer_U32;
 
-	if (_pData_c)
-	{
-		RetryPush:
-		NbElementInBuffer_U32 = mNbElementInBuffer_U32;
-		Rts_E = ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanWriteEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
-		if (Rts_E == BOF_ERR_NO_ERROR)
-		{
+  if (_pData_c)
+  {
+  RetryPush:
+    NbElementInBuffer_U32 = mNbElementInBuffer_U32;
+    Rts_E = ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanWriteEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
+    if (Rts_E == BOF_ERR_NO_ERROR)
+    {
       BOF_STRING_CIRCULAR_BUFFER_LOCK(Rts_E);
-      if (Rts_E==BOF_ERR_NO_ERROR)
+      if (Rts_E == BOF_ERR_NO_ERROR)
       {
-        Nb_U32 = _Size_U32 + 1;                   // Copy data and add a null-terminated string delimitter
+        Nb_U32 = _Size_U32 + 1; // Copy data and add a null-terminated string delimitter
 
-        if ((!mStringCircularBufferParam_X.Overwrite_B) &&
-            ((mNbCharInBuffer_U32 + Nb_U32) > mStringCircularBufferParam_X.BufferSizeInByte_U32)
-          )
+        if ((!mStringCircularBufferParam_X.Overwrite_B) && ((mNbCharInBuffer_U32 + Nb_U32) > mStringCircularBufferParam_X.BufferSizeInByte_U32))
         {
           Rts_E = BOF_ERR_FULL;
         }
@@ -186,7 +190,7 @@ BOFERR BofStringCircularBuffer::PushBinary(uint32_t _Size_U32, const char *_pDat
           Rts_E = BOF_ERR_NO_ERROR;
           if (Nb_U32)
           {
-            Nb_U32--;  //0 will be 'hard' copied as it cold not be present in the buffer
+            Nb_U32--; // 0 will be 'hard' copied as it cold not be present in the buffer
             for (i_U32 = 0; i_U32 < Nb_U32; i_U32++)
             {
               mpData_c[mPushIndex_U32] = _pData_c[i_U32];
@@ -199,7 +203,7 @@ BOFERR BofStringCircularBuffer::PushBinary(uint32_t _Size_U32, const char *_pDat
                 mPushIndex_U32 = 0;
               }
             }
-            //Push 0
+            // Push 0
             mpData_c[mPushIndex_U32] = 0;
             mNbCharInBuffer_U32++;
 
@@ -233,24 +237,24 @@ BOFERR BofStringCircularBuffer::PushBinary(uint32_t _Size_U32, const char *_pDat
         }
         BOF_STRING_CIRCULAR_BUFFER_UNLOCK();
       }
-			if ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32))
-			{
-				if (Rts_E == BOF_ERR_NO_ERROR)
-				{
-					if ((mStringCircularBufferParam_X.Overwrite_B) || (NbElementInBuffer_U32 < mStringCircularBufferParam_X.BufferSizeInByte_U32))
-					{
-						Bof_SignalEvent(mCanWriteEvent_X, 0);
-					}
-					Bof_SignalEvent(mCanReadEvent_X, 0);
-				}
-				if (Rts_E == BOF_ERR_FULL)
-				{
-					goto RetryPush; //We have been preempt between Bof_WaitForEvent and Bof_LockMutex
-				}
-			}
-		}
-	}
-	return Rts_E;
+      if ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32))
+      {
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          if ((mStringCircularBufferParam_X.Overwrite_B) || (NbElementInBuffer_U32 < mStringCircularBufferParam_X.BufferSizeInByte_U32))
+          {
+            Bof_SignalEvent(mCanWriteEvent_X, 0);
+          }
+          Bof_SignalEvent(mCanReadEvent_X, 0);
+        }
+        if (Rts_E == BOF_ERR_FULL)
+        {
+          goto RetryPush; // We have been preempt between Bof_WaitForEvent and Bof_LockMutex
+        }
+      }
+    }
+  }
+  return Rts_E;
 }
 
 /*!
@@ -277,13 +281,13 @@ BOFERR BofStringCircularBuffer::PushBinary(uint32_t _Size_U32, const char *_pDat
 
 BOFERR BofStringCircularBuffer::PushString(const char *_pData_c, uint32_t _BlockingTimeouItInMs_U32)
 {
-	BOFERR Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
 
-	if (_pData_c)
-	{
-		Rts_E = PushBinary(static_cast<uint32_t>(strlen(_pData_c)), _pData_c, _BlockingTimeouItInMs_U32);
-	}
-	return Rts_E;
+  if (_pData_c)
+  {
+    Rts_E = PushBinary(static_cast<uint32_t>(strlen(_pData_c)), _pData_c, _BlockingTimeouItInMs_U32);
+  }
+  return Rts_E;
 }
 
 /*!
@@ -308,21 +312,21 @@ BOFERR BofStringCircularBuffer::PushString(const char *_pData_c, uint32_t _Block
  */
 BOFERR BofStringCircularBuffer::PopString(uint32_t *_pNbMax_U32, char *_pData_c, uint32_t _BlockingTimeouItInMs_U32)
 {
-	BOFERR Rts_E = BOF_ERR_EINVAL;
-	uint32_t i_U32, Nb_U32, NbElementInBuffer_U32;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  uint32_t i_U32, Nb_U32, NbElementInBuffer_U32;
 
-	if ((_pNbMax_U32) && (_pData_c))
-	{
-		RetryPop:
-		Rts_E = ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
-		if (Rts_E == BOF_ERR_NO_ERROR)
-		{
+  if ((_pNbMax_U32) && (_pData_c))
+  {
+  RetryPop:
+    Rts_E = ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
+    if (Rts_E == BOF_ERR_NO_ERROR)
+    {
       BOF_STRING_CIRCULAR_BUFFER_LOCK(Rts_E);
-      if (Rts_E==BOF_ERR_NO_ERROR)
+      if (Rts_E == BOF_ERR_NO_ERROR)
       {
         NbElementInBuffer_U32 = mNbElementInBuffer_U32;
-        Nb_U32                = 0;
-        Rts_E                 = BOF_ERR_EMPTY;
+        Nb_U32 = 0;
+        Rts_E = BOF_ERR_EMPTY;
 
         if (mStringCircularBufferParam_X.SnapshotMode_B)
         {
@@ -396,7 +400,7 @@ BOFERR BofStringCircularBuffer::PopString(uint32_t *_pNbMax_U32, char *_pData_c,
                 {
                   mNbElementInBuffer_U32--;
                   NbElementInBuffer_U32 = mNbElementInBuffer_U32;
-                  Nb_U32                = i_U32 + 1;
+                  Nb_U32 = i_U32 + 1;
                   break;
                 }
               }
@@ -409,24 +413,24 @@ BOFERR BofStringCircularBuffer::PopString(uint32_t *_pNbMax_U32, char *_pData_c,
 
         BOF_STRING_CIRCULAR_BUFFER_UNLOCK();
       }
-			if ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32))
-			{
-				if (Rts_E == BOF_ERR_NO_ERROR)
-				{
-					if (NbElementInBuffer_U32)
-					{
-						Bof_SignalEvent(mCanReadEvent_X, 0);
-					}
-					Bof_SignalEvent(mCanWriteEvent_X, 0);
-				}
-				if (Rts_E == BOF_ERR_EMPTY)
-				{
-					goto RetryPop;
-				}
-			}
-		}
-	}
-	return Rts_E;
+      if ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32))
+      {
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          if (NbElementInBuffer_U32)
+          {
+            Bof_SignalEvent(mCanReadEvent_X, 0);
+          }
+          Bof_SignalEvent(mCanWriteEvent_X, 0);
+        }
+        if (Rts_E == BOF_ERR_EMPTY)
+        {
+          goto RetryPop;
+        }
+      }
+    }
+  }
+  return Rts_E;
 }
 
 /*!
@@ -453,12 +457,12 @@ BOFERR BofStringCircularBuffer::PopString(uint32_t *_pNbMax_U32, char *_pData_c,
 
 uint32_t BofStringCircularBuffer::ResyncSnapshot(uint32_t _Index_U32)
 {
-	uint32_t Rts_U32=0;
-	int32_t IndexOnTheOldest_S32;
+  uint32_t Rts_U32 = 0;
+  int32_t IndexOnTheOldest_S32;
   BOFERR Sts_E;
 
   BOF_STRING_CIRCULAR_BUFFER_LOCK(Sts_E);
-  if (Sts_E==BOF_ERR_NO_ERROR)
+  if (Sts_E == BOF_ERR_NO_ERROR)
   {
     Rts_U32 = mNbCharInBuffer_U32;
 
@@ -490,7 +494,7 @@ uint32_t BofStringCircularBuffer::ResyncSnapshot(uint32_t _Index_U32)
 
     BOF_STRING_CIRCULAR_BUFFER_UNLOCK();
   }
-	return Rts_U32;
+  return Rts_U32;
 }
 
 void BofStringCircularBuffer::Reset()
@@ -498,9 +502,9 @@ void BofStringCircularBuffer::Reset()
   BOFERR Sts_E;
 
   BOF_STRING_CIRCULAR_BUFFER_LOCK(Sts_E);
-  if (Sts_E==BOF_ERR_NO_ERROR)
+  if (Sts_E == BOF_ERR_NO_ERROR)
   {
-    mOverflow_B   = false;
+    mOverflow_B = false;
     mLevelMax_U32 = mPushIndex_U32 = mPopIndex_U32 = mPopSnapshotIndex_U32 = mNbCharInBuffer_U32 = mNbSnapshotCharInBuffer_U32 = mNbElementInBuffer_U32 = 0;
 
     BOF_STRING_CIRCULAR_BUFFER_UNLOCK();

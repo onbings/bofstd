@@ -70,13 +70,11 @@ public:
 
   // virtual Info Status() const = 0;
 
-
 protected:
   void ObservableNotify(uint64_t _User_U64, void *_pUser);
 
 public:
   virtual void V_ObserverNotifyAll(BofObserver *_pObserver_O, uint64_t _User_U64, void *_pUser);
-
 };
 
 #if 0

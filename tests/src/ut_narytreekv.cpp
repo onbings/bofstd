@@ -22,8 +22,8 @@
 
 #include "gtestrunner.h"
 
-#include <memory>
 #include <iostream>
+#include <memory>
 
 struct TREE_NODE
 {
@@ -43,9 +43,14 @@ struct TREE_NODE
     Val_U32 = 0;
     Val_S = "";
   }
-  bool operator == (const TREE_NODE &_rIt) const { return ((Val_U32 == _rIt.Val_U32) && (Val_S == _rIt.Val_S)); }
-  bool operator != (const TREE_NODE &_rIt) const { return (!operator == (_rIt)); }
-
+  bool operator==(const TREE_NODE &_rIt) const
+  {
+    return ((Val_U32 == _rIt.Val_U32) && (Val_S == _rIt.Val_S));
+  }
+  bool operator!=(const TREE_NODE &_rIt) const
+  {
+    return (!operator==(_rIt));
+  }
 };
 
 std::ostream &operator<<(std::ostream &_rOs, TREE_NODE const &_rArg)
@@ -176,7 +181,7 @@ MountPoint [NULL]
   KeyCollection.clear();
   KeyCollection.push_back("Dir4");
   KeyCollection.push_back("FileE");
-  ParentHandle = pNodeHandle[HandleIndex_U32 - 5];	//Dir4
+  ParentHandle = pNodeHandle[HandleIndex_U32 - 5]; // Dir4
 
   EXPECT_EQ(puBofNaryTreeKv->Search(ParentHandle, KeyCollection, &SearchHandle2), BOF_ERR_NO_ERROR);
   EXPECT_TRUE(SearchHandle1 == SearchHandle2);
@@ -221,14 +226,14 @@ MountPoint [NULL]
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
   std::cout << ToString_S;
 
-  ParentHandle = pNodeHandle[HandleIndex_U32 - 3];	//Remove FileE
+  ParentHandle = pNodeHandle[HandleIndex_U32 - 3]; // Remove FileE
   ToString_S = puBofNaryTreeKv->ToString(true, ParentHandle);
   std::cout << ToString_S;
   puBofNaryTreeKv->ClearTree(ParentHandle);
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
   std::cout << ToString_S;
 
-  ParentHandle = pNodeHandle[HandleIndex_U32 - 5];	//Remove Dir4
+  ParentHandle = pNodeHandle[HandleIndex_U32 - 5]; // Remove Dir4
   ToString_S = puBofNaryTreeKv->ToString(true, ParentHandle);
   std::cout << ToString_S;
   puBofNaryTreeKv->ClearTree(ParentHandle);

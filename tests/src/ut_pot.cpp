@@ -23,21 +23,21 @@
 
 #include "gtestrunner.h"
 
-#include <thread> 
+#include <thread>
 
 USE_BOF_NAMESPACE()
 
 struct BOF_POT_ELEMENT
 {
-  uint32_t    MagicNumber_U32;
-  uint8_t     Byte_U8;
-  uint16_t    Word_U16;
-  uint32_t    Long_U32;
+  uint32_t MagicNumber_U32;
+  uint8_t Byte_U8;
+  uint16_t Word_U16;
+  uint32_t Long_U32;
   BOF_POT_ELEMENT()
   {
     Reset();
   }
-  void        Reset()
+  void Reset()
   {
     MagicNumber_U32 = 0;
     Byte_U8 = 0;
@@ -46,48 +46,50 @@ struct BOF_POT_ELEMENT
   }
 };
 
-class BofPot_Test :public testing::Test
+class BofPot_Test : public testing::Test
 {
 public:
   BofPot_Test() : mpBofPot_O(nullptr)
   {
   }
 
-  virtual ~BofPot_Test() {}
+  virtual ~BofPot_Test()
+  {
+  }
 
   // Per-test-case set-up. Called before the first test in this test case.
-  static void               SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void               TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
-  virtual void              SetUp();
-  virtual void              TearDown();
+  virtual void SetUp();
+  virtual void TearDown();
 
-  BofPot< BOF_POT_ELEMENT > *mpBofPot_O;
-  BOF_POT_PARAM             mBofPotParam_X;
-  void                      PotTest();
+  BofPot<BOF_POT_ELEMENT> *mpBofPot_O;
+  BOF_POT_PARAM mBofPotParam_X;
+  void PotTest();
 
 private:
 };
 
-
 /*** Factory functions called at the beginning/end of each test case **********/
 
 void BofPot_Test::SetUpTestCase()
-{}
-
+{
+}
 
 void BofPot_Test::TearDownTestCase()
-{}
+{
+}
 
-#define BOFPOTMAGIC    0x12345678
+#define BOFPOTMAGIC 0x12345678
 
 void BofPot_Test::SetUp()
-{}
+{
+}
 
 void BofPot_Test::TearDown()
 {
@@ -103,7 +105,7 @@ TEST_F(BofPot_Test, PotWithMagic)
   mBofPotParam_X.MagicNumber_U32 = BOFPOTMAGIC;
   mBofPotParam_X.PotCapacity_U32 = 128;
   mBofPotParam_X.Blocking_B = false;
-  mpBofPot_O = new BofPot< BOF_POT_ELEMENT >(mBofPotParam_X);
+  mpBofPot_O = new BofPot<BOF_POT_ELEMENT>(mBofPotParam_X);
 
   EXPECT_TRUE(mpBofPot_O != nullptr);
   EXPECT_TRUE(mpBofPot_O->LastErrorCode() == BOF_ERR_NO_ERROR);
@@ -119,7 +121,7 @@ TEST_F(BofPot_Test, PotWithoutMagic)
   mBofPotParam_X.MagicNumber_U32 = 0; // BOFPOTMAGIC;
   mBofPotParam_X.PotCapacity_U32 = 128;
   mBofPotParam_X.Blocking_B = false;
-  mpBofPot_O = new BofPot< BOF_POT_ELEMENT >(mBofPotParam_X);
+  mpBofPot_O = new BofPot<BOF_POT_ELEMENT>(mBofPotParam_X);
 
   EXPECT_TRUE(mpBofPot_O != nullptr);
   EXPECT_TRUE(mpBofPot_O->LastErrorCode() == BOF_ERR_NO_ERROR);
@@ -128,10 +130,10 @@ TEST_F(BofPot_Test, PotWithoutMagic)
 }
 void BofPot_Test::PotTest()
 {
-  uint32_t        i_U32, Nb_U32, Index_U32;
+  uint32_t i_U32, Nb_U32, Index_U32;
   BOF_POT_ELEMENT *pPotElem1_X, *pPotElem2_X;
-  bool            Sts_B;
-  BOFERR          Sts_E;
+  bool Sts_B;
+  BOFERR Sts_E;
 
   Sts_E = mpBofPot_O->IsPotElementLocked(nullptr);
   EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
@@ -197,7 +199,6 @@ void BofPot_Test::PotTest()
   Nb_U32 = mpBofPot_O->GetNbFreeElement();
   EXPECT_EQ(mBofPotParam_X.PotCapacity_U32 - 1, Nb_U32);
 
-
   pPotElem2_X = mpBofPot_O->Lock(0);
   if (mBofPotParam_X.MagicNumber_U32)
   {
@@ -250,7 +251,6 @@ void BofPot_Test::PotTest()
   Nb_U32 = mpBofPot_O->GetCapacity();
   EXPECT_EQ(mBofPotParam_X.PotCapacity_U32, Nb_U32);
 
-
   Sts_E = mpBofPot_O->IsPotElementLocked(pPotElem1_X);
   EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
 
@@ -259,8 +259,6 @@ void BofPot_Test::PotTest()
 
   Index_U32 = mpBofPot_O->GetIndexOfEntry(pPotElem1_X);
   EXPECT_EQ(0, Index_U32);
-
-
 
   pPotElem1_X = mpBofPot_O->GetIndexedPotElement(mBofPotParam_X.PotCapacity_U32);
   EXPECT_TRUE(pPotElem1_X == nullptr);
@@ -272,7 +270,6 @@ void BofPot_Test::PotTest()
   EXPECT_EQ(pPotElem1_X->Byte_U8, 1);
   EXPECT_EQ(pPotElem1_X->Word_U16, 2);
   EXPECT_EQ(pPotElem1_X->Long_U32, 3);
-
 
   Sts_E = mpBofPot_O->ClearPot(0);
 
@@ -329,8 +326,6 @@ void BofPot_Test::PotTest()
   EXPECT_EQ((mBofPotParam_X.PotCapacity_U32 / 2) - 1, Nb_U32);
 
   // DataType *LookForPotElementInUseStartingFromIndex(uint32_t _Index_U32);
-
-
 }
 
 BOF_MUTEX S_GetReleaseMtx_X;
@@ -394,7 +389,7 @@ BOFERR ReleaseValue(uint32_t /*_Id_U32*/, uint32_t _NbLoop_U32, BofPot<uint64_t>
   return Rts_E;
 }
 
-const uint32_t NB_MAX_CLIENT = 32; // 32;
+const uint32_t NB_MAX_CLIENT = 32;    // 32;
 const uint32_t NB_GET_PER_CLIENT = 8; // 16000;
 TEST_F(BofPot_Test, BlockingMode)
 {

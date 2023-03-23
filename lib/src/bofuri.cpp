@@ -19,8 +19,8 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofuri.h>
 #include "bofstd/bofstring.h"
+#include <bofstd/bofuri.h>
 
 #include <iterator>
 
@@ -43,7 +43,7 @@ BofUri::BofUri(const char *_pUri_c)
   else
   {
     mValid_B = false;
-    //InitUriField("");
+    // InitUriField("");
   }
 }
 
@@ -123,7 +123,7 @@ BofUri &BofUri::operator=(const char *_pNewUri_c)
   }
   else
   {
-    //InitUriField("");
+    // InitUriField("");
     mValid_B = false;
   }
   return *this;
@@ -136,13 +136,12 @@ BofUri &BofUri::operator=(const std::string &_rNewUri_S)
 }
 
 BofUri::~BofUri()
-{}
-
+{
+}
 
 bool BofUri::operator==(const BofUri &_rOther_O) const
 {
-  return ((mSchemeAuthority_X == _rOther_O.mSchemeAuthority_X) && (mPath == _rOther_O.mPath) &&
-          (mQueryParamCollection == _rOther_O.mQueryParamCollection) && (mFragment_S == _rOther_O.mFragment_S) &&
+  return ((mSchemeAuthority_X == _rOther_O.mSchemeAuthority_X) && (mPath == _rOther_O.mPath) && (mQueryParamCollection == _rOther_O.mQueryParamCollection) && (mFragment_S == _rOther_O.mFragment_S) &&
           (mQueryParamDelimiter_c == _rOther_O.mQueryParamDelimiter_c) && (mValid_B == _rOther_O.mValid_B));
 }
 
@@ -172,8 +171,8 @@ BOFERR BofUri::SetScheme(const std::string &_rScheme_S)
 {
   BOFERR Rts_E;
 
-  mSchemeAuthority_X.Protocol_S = _rScheme_S; //Needed by ToString below 
-  InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+  mSchemeAuthority_X.Protocol_S = _rScheme_S; // Needed by ToString below
+  InitUriField(ToString());                   // Can fail if path is not set for example -> Rts is ok but is valid is false
   Rts_E = BOF_ERR_NO_ERROR;
 
   return Rts_E;
@@ -181,7 +180,7 @@ BOFERR BofUri::SetScheme(const std::string &_rScheme_S)
 BOFERR BofUri::SetAuthority(const std::string &_rAuthority_S)
 {
   BOFERR Rts_E;
-  BOF_SOCKET_ADDRESS_COMPONENT				SchemeAuthority_X;
+  BOF_SOCKET_ADDRESS_COMPONENT SchemeAuthority_X;
 
   if (_rAuthority_S == "")
   {
@@ -193,11 +192,11 @@ BOFERR BofUri::SetAuthority(const std::string &_rAuthority_S)
   }
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    mSchemeAuthority_X.User_S = SchemeAuthority_X.User_S; //Needed by ToString below 
-    mSchemeAuthority_X.Password_S = SchemeAuthority_X.Password_S; //Needed by ToString below 
-    mSchemeAuthority_X.IpAddress_S = SchemeAuthority_X.IpAddress_S; //Needed by ToString below 
-    mSchemeAuthority_X.Port_U16 = SchemeAuthority_X.Port_U16; //Needed by ToString below 
-    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    mSchemeAuthority_X.User_S = SchemeAuthority_X.User_S;           // Needed by ToString below
+    mSchemeAuthority_X.Password_S = SchemeAuthority_X.Password_S;   // Needed by ToString below
+    mSchemeAuthority_X.IpAddress_S = SchemeAuthority_X.IpAddress_S; // Needed by ToString below
+    mSchemeAuthority_X.Port_U16 = SchemeAuthority_X.Port_U16;       // Needed by ToString below
+    InitUriField(ToString());                                       // Can fail if path is not set for example -> Rts is ok but is valid is false
   }
   return Rts_E;
 }
@@ -205,13 +204,13 @@ BOFERR BofUri::SetAuthority(const std::string &_rAuthority_S)
 BOFERR BofUri::SetSchemeAuthority(const std::string &_rSchemeAuthority_S)
 {
   BOFERR Rts_E;
-  BOF_SOCKET_ADDRESS_COMPONENT				SchemeAuthority_X;
+  BOF_SOCKET_ADDRESS_COMPONENT SchemeAuthority_X;
 
   Rts_E = Bof_SplitIpAddress(_rSchemeAuthority_S, SchemeAuthority_X);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    mSchemeAuthority_X = SchemeAuthority_X; //Needed by ToString below
-    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    mSchemeAuthority_X = SchemeAuthority_X; // Needed by ToString below
+    InitUriField(ToString());               // Can fail if path is not set for example -> Rts is ok but is valid is false
     Rts_E = BOF_ERR_NO_ERROR;
   }
   return Rts_E;
@@ -223,8 +222,8 @@ BOFERR BofUri::SetSchemeAuthority(const BOF_SOCKET_ADDRESS_COMPONENT &_rSchemeAu
 
   if ((_rSchemeAuthority_X.Protocol_S != "") && (_rSchemeAuthority_X.IpAddress_S != ""))
   {
-    mSchemeAuthority_X = _rSchemeAuthority_X; //Needed by ToString below
-    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    mSchemeAuthority_X = _rSchemeAuthority_X; // Needed by ToString below
+    InitUriField(ToString());                 // Can fail if path is not set for example -> Rts is ok but is valid is false
     Rts_E = BOF_ERR_NO_ERROR;
   }
   return Rts_E;
@@ -251,8 +250,8 @@ BOFERR BofUri::SetPath(const BofPath &_rPath)
 
   if (Path.IsValid())
   {
-    mPath = Path; //Needed by ToString below
-    InitUriField(ToString()); //Can fail if scheme is not set for example -> Rts is ok but is valid is false
+    mPath = Path;             // Needed by ToString below
+    InitUriField(ToString()); // Can fail if scheme is not set for example -> Rts is ok but is valid is false
     Rts_E = BOF_ERR_NO_ERROR;
   }
   return Rts_E;
@@ -261,8 +260,8 @@ BOFERR BofUri::SetQueryParamCollection(const std::map<std::string, std::string> 
 {
   BOFERR Rts_E;
 
-  mQueryParamCollection = _rQueryParamCollection; //Needed by ToString below
-  InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+  mQueryParamCollection = _rQueryParamCollection; // Needed by ToString below
+  InitUriField(ToString());                       // Can fail if path is not set for example -> Rts is ok but is valid is false
   Rts_E = BOF_ERR_NO_ERROR;
   return Rts_E;
 }
@@ -286,8 +285,8 @@ BOFERR BofUri::AddToQueryParamCollection(const std::string &_rKey_S, const std::
   const auto &_rIt = mQueryParamCollection.find(_rKey_S);
   if (_rIt == mQueryParamCollection.cend())
   {
-    mQueryParamCollection[_rKey_S] = _rValue_S; //Needed by ToString below
-    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    mQueryParamCollection[_rKey_S] = _rValue_S; // Needed by ToString below
+    InitUriField(ToString());                   // Can fail if path is not set for example -> Rts is ok but is valid is false
     Rts_E = BOF_ERR_NO_ERROR;
   }
   return Rts_E;
@@ -300,8 +299,8 @@ BOFERR BofUri::RemoveFromQueryParamCollection(const std::string &_rQueryParamKey
   const auto &_rIt = mQueryParamCollection.find(_rQueryParamKeyToRemove_S);
   if (_rIt != mQueryParamCollection.cend())
   {
-    mQueryParamCollection.erase(_rQueryParamKeyToRemove_S); //Needed by ToString below
-    InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+    mQueryParamCollection.erase(_rQueryParamKeyToRemove_S); // Needed by ToString below
+    InitUriField(ToString());                               // Can fail if path is not set for example -> Rts is ok but is valid is false
     Rts_E = BOF_ERR_NO_ERROR;
   }
   return Rts_E;
@@ -309,8 +308,8 @@ BOFERR BofUri::RemoveFromQueryParamCollection(const std::string &_rQueryParamKey
 BOFERR BofUri::SetFragment(const std::string &_rFragment_S)
 {
   BOFERR Rts_E;
-  mFragment_S = _rFragment_S; //Needed by ToString below
-  InitUriField(ToString()); //Can fail if path is not set for example -> Rts is ok but is valid is false
+  mFragment_S = _rFragment_S; // Needed by ToString below
+  InitUriField(ToString());   // Can fail if path is not set for example -> Rts is ok but is valid is false
   Rts_E = BOF_ERR_NO_ERROR;
   return Rts_E;
 }
@@ -334,7 +333,7 @@ std::string BofUri::Authority() const
   Rts_X = mSchemeAuthority_X;
   Rts_X.Protocol_S = "";
 
-  return  Rts_X.ToString(true, true, true, true);
+  return Rts_X.ToString(true, true, true, true);
 }
 const BOF_SOCKET_ADDRESS &BofUri::IpAddress(std::string &_rIpAddress_S) const
 {
@@ -374,7 +373,7 @@ const std::string &BofUri::Fragment() const
 {
   return mFragment_S;
 }
-std::string	BofUri::ToString() const
+std::string BofUri::ToString() const
 {
   std::ostringstream Rts;
 
@@ -540,7 +539,8 @@ std::string BofUri::S_UrlEncode(const std::string &_rIn_S)
     Char_i = c_c;
     // uncomment this if you want to encode spaces with +
     /*if (c==' ') new_str += '+';
-    else */if (isalnum(c_c) || c_c == '-' || c_c == '_' || c_c == '.' || c_c == '~')
+    else */
+    if (isalnum(c_c) || c_c == '-' || c_c == '_' || c_c == '.' || c_c == '~')
     {
       Rts_S += c_c;
     }

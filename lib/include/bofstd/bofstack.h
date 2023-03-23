@@ -29,10 +29,10 @@ BEGIN_BOF_NAMESPACE()
 
 struct BOFSTD_EXPORT BOF_STACK_PARAM
 {
-  bool MultiThreadAware_B;                                /*! true if the object is used in a multi threaded application (use mCs)*/
+  bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mCs)*/
   uint32_t MaxStackSize_U32;
   bool SwapByte_B;
-  void *pData;                                            /*! Specifies a pointer to the stack buffer zone (pre-allocated buffer). Set to nullptr if the memory must be allocated/deleted by the object */
+  void *pData; /*! Specifies a pointer to the stack buffer zone (pre-allocated buffer). Set to nullptr if the memory must be allocated/deleted by the object */
 
   BOF_STACK_PARAM()
   {
@@ -59,20 +59,22 @@ struct BOFSTD_EXPORT BOF_STACK_PARAM
 class BOFSTD_EXPORT BofStack
 {
 private:
-  bool mDataPreAllocated_B;                       /*! true if mpData_U8 is provided by the caller*/
-  uint32_t mMaxStackSize_U32;                         /*!<Maximum size of stack*/
-  BOF_MUTEX mMtx_X;                                    /*! Provide a serialized access to shared resources in a multi threaded environement*/
+  bool mDataPreAllocated_B;   /*! true if mpData_U8 is provided by the caller*/
+  uint32_t mMaxStackSize_U32; /*!<Maximum size of stack*/
+  BOF_MUTEX mMtx_X;           /*! Provide a serialized access to shared resources in a multi threaded environement*/
   BOFERR mErrorCode_E;
+
 protected:
-  uint8_t *mpStack_U8;                               /*!<Pointer to stack storage*/
-  bool mSwapByte_B;                               /*!<true if binary data must be swapped (little/Big endian representation*/
+  uint8_t *mpStack_U8; /*!<Pointer to stack storage*/
+  bool mSwapByte_B;    /*!<true if binary data must be swapped (little/Big endian representation*/
   uint8_t *mpStackLocation_U8;
+
 public:
   BofStack(const BOF_STACK_PARAM &_rStackParam_X);
 
   virtual ~BofStack();
 
-  BofStack &operator=(const BofStack &) = delete;             // Disallow copying
+  BofStack &operator=(const BofStack &) = delete; // Disallow copying
   BofStack(const BofStack &) = delete;
 
   BOFERR LastErrorCode()
@@ -147,10 +149,10 @@ public:
 
   bool AdjustStackBufferLocation(int32_t _Offset_S32)
   {
-    int32_t NewPtr_S32 = (static_cast<int32_t> (GetStackPointer()) + _Offset_S32);
+    int32_t NewPtr_S32 = (static_cast<int32_t>(GetStackPointer()) + _Offset_S32);
     bool Rts_B = false;
 
-    if ((NewPtr_S32 <= static_cast<int32_t> (mMaxStackSize_U32)) && (NewPtr_S32 >= 0))
+    if ((NewPtr_S32 <= static_cast<int32_t>(mMaxStackSize_U32)) && (NewPtr_S32 >= 0))
     {
       mpStackLocation_U8 = &mpStack_U8[NewPtr_S32];
       Rts_B = true;

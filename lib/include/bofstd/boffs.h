@@ -1,30 +1,30 @@
 /*
-* Copyright (c) 2000-2020, Onbings All rights reserved.
-*
-* THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-* KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-* PURPOSE.
-*
-* This module defines the boffs interface. It wraps file system dependent system call
-*
-* Name:        bofsystem.h
-* Author:      Bernard HARMEL: b.harmel@gmail.com
-* Revision:    1.0
-*
-* Rem:         Nothing
-*
-* History:
-*
-* V 1.00  Jan 19 2017  BHA : Initial release
-*/
+ * Copyright (c) 2000-2020, Onbings All rights reserved.
+ *
+ * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ *
+ * This module defines the boffs interface. It wraps file system dependent system call
+ *
+ * Name:        bofsystem.h
+ * Author:      Bernard HARMEL: b.harmel@gmail.com
+ * Revision:    1.0
+ *
+ * Rem:         Nothing
+ *
+ * History:
+ *
+ * V 1.00  Jan 19 2017  BHA : Initial release
+ */
 #pragma once
 
 #include <bofstd/bofdatetime.h>
-#include <bofstd/bofsystem.h>
-#include <bofstd/bofpath.h>
 #include <bofstd/bofflag.h>
+#include <bofstd/bofpath.h>
 #include <bofstd/bofstring.h>
+#include <bofstd/bofsystem.h>
 
 #include <vector>
 
@@ -32,23 +32,22 @@ BEGIN_BOF_NAMESPACE()
 
 enum class BOF_FILE_PERMISSION : uint32_t
 {
-  //Comes from linux->OCTAL values
-  BOF_PERM_S_ISUID = 04000,  //set-user-ID (set process effective user ID onexecve(2))
-  BOF_PERM_S_ISGID = 02000,  //set-group-ID (set process effective group ID on xecve(2); mandatory locking, as described in fcntl(2); take a new file's group from parent directory, as described in chown(2) and mkdir(2))
-  BOF_PERM_S_ISVTX = 01000,    //sticky bit (restricted deletion flag, as described in unlink(2))
-  BOF_PERM_S_IRUSR = 00400,  //read by owner
-  BOF_PERM_S_IWUSR = 00200,    //write by owner
-  BOF_PERM_S_IXUSR = 00100,    //execute/search by owner ("search" applies for directories, and means that entries within the directory can be accessed)
-  BOF_PERM_S_IRGRP = 00040,    //read by group
-  BOF_PERM_S_IWGRP = 00020,    //write by group
-  BOF_PERM_S_IXGRP = 00010,    //execute/search by group
-  BOF_PERM_S_IROTH = 00004,    //read by others
-  BOF_PERM_S_IWOTH = 00002,    //write by others
-  BOF_PERM_S_IXOTH = 00001,    //execute/search by others
-  BOF_PERM_S_NONE = 00000,   //special none value
+  // Comes from linux->OCTAL values
+  BOF_PERM_S_ISUID = 04000, // set-user-ID (set process effective user ID onexecve(2))
+  BOF_PERM_S_ISGID = 02000, // set-group-ID (set process effective group ID on xecve(2); mandatory locking, as described in fcntl(2); take a new file's group from parent directory, as described in chown(2) and mkdir(2))
+  BOF_PERM_S_ISVTX = 01000, // sticky bit (restricted deletion flag, as described in unlink(2))
+  BOF_PERM_S_IRUSR = 00400, // read by owner
+  BOF_PERM_S_IWUSR = 00200, // write by owner
+  BOF_PERM_S_IXUSR = 00100, // execute/search by owner ("search" applies for directories, and means that entries within the directory can be accessed)
+  BOF_PERM_S_IRGRP = 00040, // read by group
+  BOF_PERM_S_IWGRP = 00020, // write by group
+  BOF_PERM_S_IXGRP = 00010, // execute/search by group
+  BOF_PERM_S_IROTH = 00004, // read by others
+  BOF_PERM_S_IWOTH = 00002, // write by others
+  BOF_PERM_S_IXOTH = 00001, // execute/search by others
+  BOF_PERM_S_NONE = 00000,  // special none value
 };
-template<>
-struct IsItAnEnumBitFLag<BOF_FILE_PERMISSION> : std::true_type
+template <> struct IsItAnEnumBitFLag<BOF_FILE_PERMISSION> : std::true_type
 {
 };
 
@@ -59,7 +58,8 @@ const BOF_FILE_PERMISSION BOF_FILE_PERMISSION_ALL_FOR_ALL = (BOF_FILE_PERMISSION
 const BOF_FILE_PERMISSION BOF_FILE_PERMISSION_READ_FOR_ALL = (BOF_FILE_PERMISSION::BOF_PERM_S_IRUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IRGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IROTH);
 const BOF_FILE_PERMISSION BOF_FILE_PERMISSION_WRITE_FOR_ALL = (BOF_FILE_PERMISSION::BOF_PERM_S_IWUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IWGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IWOTH);
 const BOF_FILE_PERMISSION BOF_FILE_PERMISSION_EXEC_FOR_ALL = (BOF_FILE_PERMISSION::BOF_PERM_S_IXUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IXGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IXOTH);
-const BOF_FILE_PERMISSION BOF_FILE_PERMISSION_DEFAULT_RW = (BOF_FILE_PERMISSION::BOF_PERM_S_IRUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IWUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IRGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IWGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IROTH);
+const BOF_FILE_PERMISSION BOF_FILE_PERMISSION_DEFAULT_RW =
+    (BOF_FILE_PERMISSION::BOF_PERM_S_IRUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IWUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IRGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IWGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IROTH);
 
 enum class BOF_FILE_TYPE : uint32_t
 {
@@ -74,10 +74,9 @@ enum class BOF_FILE_TYPE : uint32_t
   BOF_FILE_FIFO = 0x00000040,
 
   BOF_FILE_UNK = 0x80000000,
-  BOF_FILE_ALL = 0xFFFFFFFF, //For Bof_FindFile
+  BOF_FILE_ALL = 0xFFFFFFFF, // For Bof_FindFile
 };
-template<>
-struct IsItAnEnumBitFLag<BOF_FILE_TYPE> : std::true_type
+template <> struct IsItAnEnumBitFLag<BOF_FILE_TYPE> : std::true_type
 {
 };
 
@@ -132,11 +131,11 @@ BOFSTD_EXPORT BOFERR Bof_RemoveDirectory(const BofPath &_rPath);
 
 struct BOFSTD_EXPORT BOF_FILE_FOUND
 {
-  BofPath       Path;
-  uint64_t      Size_U64;
-  BofDateTime   Creation;
-  BofDateTime   LastAccess;
-  BofDateTime   LastWrite;
+  BofPath Path;
+  uint64_t Size_U64;
+  BofDateTime Creation;
+  BofDateTime LastAccess;
+  BofDateTime LastWrite;
   BOF_FILE_TYPE FileType_E;
 
   BOF_FILE_FOUND()
@@ -154,16 +153,16 @@ struct BOFSTD_EXPORT BOF_FILE_FOUND
   }
 };
 #if 0
-#define FA_DIRECTORY                            0
+#define FA_DIRECTORY 0
 
-#define _A_NORMAL                               0x00 /*! Normal file - No read/write restrictions */
-#define _A_RDONLY                               0x01 /*! Read only file */
-#define _A_HIDDEN                               0x02 /*! Hidden file */
-#define _A_SYSTEM                               0x04 /*! System file */
-#define _A_SUBDIR                               0x10 /*! Subdirectory */
-#define _A_ARCH                                 0x20 /*! Archive file */
+#define _A_NORMAL 0x00 /*! Normal file - No read/write restrictions */
+#define _A_RDONLY 0x01 /*! Read only file */
+#define _A_HIDDEN 0x02 /*! Hidden file */
+#define _A_SYSTEM 0x04 /*! System file */
+#define _A_SUBDIR 0x10 /*! Subdirectory */
+#define _A_ARCH 0x20   /*! Archive file */
 
-#define BOFFILEENUMINTERNALSTATE_MAGICNUMBER    0xFDBDC564
+#define BOFFILEENUMINTERNALSTATE_MAGICNUMBER 0xFDBDC564
 typedef struct
 {
   U32   MagicNumber_U32;

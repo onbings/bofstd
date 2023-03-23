@@ -25,7 +25,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-//uint64_t GreatestCommonDivisor(const uint64_t a, const uint64_t b);
+// uint64_t GreatestCommonDivisor(const uint64_t a, const uint64_t b);
 
 class BOFSTD_EXPORT BofRational
 {
@@ -79,7 +79,7 @@ public:
   }
   inline bool operator<(const int64_t val) const
   {
-    return (mNumerator_S64 < (int64_t)(mDenominator_U64 *val));
+    return (mNumerator_S64 < (int64_t)(mDenominator_U64 * val));
   }
   inline bool operator<=(const BofRational &r) const
   {
@@ -247,7 +247,7 @@ public:
   }
 
 protected:
-  int64_t  mNumerator_S64; // signed value
+  int64_t mNumerator_S64;    // signed value
   uint64_t mDenominator_U64; // unsigned value
 
   void Normalize();
@@ -260,7 +260,6 @@ protected:
       Normalize();
     }
   }
-
 };
 
 inline bool operator==(const int64_t i, const BofRational &r)
@@ -312,6 +311,5 @@ inline BofRational operator/(const int64_t i, const BofRational &r)
 {
   return (BofRational(i) / r);
 }
-
 
 END_BOF_NAMESPACE()

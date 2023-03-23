@@ -25,17 +25,16 @@
 
 #include <bofstd/bofsystem.h>
 
+#include <atomic>
+#include <cassert>
+#include <condition_variable>
+#include <mutex>
 #include <queue>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <cassert>
-#include <atomic>
 
 BEGIN_BOF_NAMESPACE()
 
-template<typename T>
-class BofQueue
+template <typename T> class BofQueue
 {
 private:
   //	std::queue<T> mQueue;
@@ -44,13 +43,14 @@ private:
   std::condition_variable mCvNotEmpty;
   std::condition_variable mCvNotFull;
   uint32_t mMaxSize_U32;
+
 public:
   /*
    * Max size 0 for ever growing queue
    */
   BofQueue(uint32_t _MaxSize_U32) : mMaxSize_U32(_MaxSize_U32)
   {
-    //Pre allocate memory
+    // Pre allocate memory
     if (_MaxSize_U32)
     {
       //		mQueue.resize(_MaxSize_U32);
@@ -58,7 +58,8 @@ public:
   }
 
   virtual ~BofQueue()
-  {}
+  {
+  }
 
   uint32_t Capacity()
   {
@@ -81,8 +82,8 @@ public:
   }
 
   /*
-  * timeout 0 for ever waiting queue
-  */
+   * timeout 0 for ever waiting queue
+   */
   BOFERR Pop(uint32_t _TimeoutInMs_U32, T &_rItem)
   {
     BOFERR Rts_E = BOF_ERR_NO_ERROR;
@@ -130,7 +131,7 @@ public:
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       mQueue.push(_rItem);
-      WaitingLock.unlock();    //Avoid mutex contention
+      WaitingLock.unlock(); // Avoid mutex contention
       mCvNotEmpty.notify_one();
     }
     return Rts_E;

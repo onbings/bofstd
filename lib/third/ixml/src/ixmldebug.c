@@ -4,41 +4,33 @@
  * \file
  */
 
-
 #include "autoconfig.h"
 
-
 #include "ixmldebug.h"
-
 
 #include <stdarg.h>
 #include <stdio.h>
 
-
 #ifdef DEBUG
-void IxmlPrintf(
-  const char *DbgFileName,
-  int DbgLineNo,
-  const char *FunctionName,
-  const char *FmtStr,
-  ...)
+void IxmlPrintf(const char *DbgFileName, int DbgLineNo, const char *FunctionName, const char *FmtStr, ...)
 {
   va_list ArgList;
 
   FILE *fp = stdout;
   fprintf(fp, "(%s::%s), line %d", DbgFileName, FunctionName, DbgLineNo);
-  if (FmtStr) {
+  if (FmtStr)
+  {
     fprintf(fp, ": ");
     va_start(ArgList, FmtStr);
     vfprintf(fp, FmtStr, ArgList);
     fflush(fp);
     va_end(ArgList);
   }
-  else {
+  else
+  {
     fprintf(fp, "\n");
   }
 }
-
 
 void printNodes(IXML_Node *tmpRoot, int depth)
 {
@@ -49,9 +41,11 @@ void printNodes(IXML_Node *tmpRoot, int depth)
   const DOMString NodeValue;
   const DOMString NodeName;
   NodeList1 = ixmlNode_getChildNodes(tmpRoot);
-  for (i = 0; i < 100; ++i) {
+  for (i = 0; i < 100; ++i)
+  {
     ChildNode1 = ixmlNodeList_item(NodeList1, i);
-    if (ChildNode1 == NULL) {
+    if (ChildNode1 == NULL)
+    {
       break;
     }
 
@@ -66,6 +60,4 @@ void printNodes(IXML_Node *tmpRoot, int depth)
   }
 }
 
-
 #endif
-

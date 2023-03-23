@@ -23,19 +23,18 @@
 #include <bofstd/boffs.h>
 
 #if defined(_WIN32)
-#include <stdio.h>
 #include <io.h>
+#include <stdio.h>
 #else
 #include <signal.h>
 #include <unistd.h>
 #endif
 
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdarg.h>
-
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -63,7 +62,7 @@ void SignalHandler(int _Signal_i)
   }
 }
 */
-//https://stackoverflow.com/questions/17954432/creating-a-daemon-in-linux
+// https://stackoverflow.com/questions/17954432/creating-a-daemon-in-linux
 void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonServiceParam_X)
 {
   mDaemonPidFileHandle_i = -1;
@@ -91,7 +90,7 @@ void BofDaemonService::Shutdown()
   }
   if (mLogActive_B)
   {
-    //closelog();
+    // closelog();
     mLogActive_B = false;
   }
 }
@@ -120,7 +119,6 @@ BofDaemonService::BofDaemonService()
 
 BofDaemonService::~BofDaemonService()
 {
-
 }
 BofDaemonService &BofDaemonService::S_Instance()
 {
@@ -136,24 +134,24 @@ void SignalHandler(int _Signal_i)
   syslog(BofDaemonService::S_Instance().GetSyslogPriority(), "SignalHandler(%d)", _Signal_i);
   switch (_Signal_i)
   {
-    case SIGHUP:
-      syslog(BofDaemonService::S_Instance().GetSyslogPriority(), "Received SIGHUP signal.");
-      break;
-    case SIGINT:
-    case SIGTERM:
-      //
-    case SIGSTOP:
-      syslog(BofDaemonService::S_Instance().GetSyslogPriority(), "Daemon exiting");
-      BofDaemonService::S_Instance().Shutdown();
-      exit(EXIT_SUCCESS);
-      break;
-    default:
-      syslog(BofDaemonService::S_Instance().GetSyslogPriority(), "Unhandled signal %s", strsignal(_Signal_i));
-      break;
+  case SIGHUP:
+    syslog(BofDaemonService::S_Instance().GetSyslogPriority(), "Received SIGHUP signal.");
+    break;
+  case SIGINT:
+  case SIGTERM:
+    //
+  case SIGSTOP:
+    syslog(BofDaemonService::S_Instance().GetSyslogPriority(), "Daemon exiting");
+    BofDaemonService::S_Instance().Shutdown();
+    exit(EXIT_SUCCESS);
+    break;
+  default:
+    syslog(BofDaemonService::S_Instance().GetSyslogPriority(), "Unhandled signal %s", strsignal(_Signal_i));
+    break;
   }
 }
 
-//https://stackoverflow.com/questions/17954432/creating-a-daemon-in-linux
+// https://stackoverflow.com/questions/17954432/creating-a-daemon-in-linux
 void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonServiceParam_X)
 {
   pid_t Pid;
@@ -190,24 +188,23 @@ void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonSer
       /* If we got a good PID, then we can exit the parent process. */
       if (Pid > 0)
       {
-        //Success: Let the parent terminate 
+        // Success: Let the parent terminate
         mDaemonServiceParam_X.Sts_E = BOF_ERR_NO_ERROR;
         exit(EXIT_SUCCESS);
       }
 
       //-------------------- At this point we are executing as the child process ----------------------------------------
 
-            //Bof_WriteFile(BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL, /tmp/bha, false, "1\n")
+      // Bof_WriteFile(BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL, /tmp/bha, false, "1\n")
 
-            // Create a new SID for the child process: The calling process becomes the leader of the new session and the process group leader of the new process group. 
-            // The process is now detached from its controlling terminal (CTTY).
+      // Create a new SID for the child process: The calling process becomes the leader of the new session and the process group leader of the new process group.
+      // The process is now detached from its controlling terminal (CTTY).
       Sid = setsid();
       if (Sid < 0)
       {
         mDaemonServiceParam_X.Sts_E = BOF_ERR_CREATE;
         exit(EXIT_FAILURE);
       }
-
 
       /*
       n Linux, a daemon is typically created by forking twice with the intermediate process exiting after forking the grandchild. This has the effect of orphaning the grandchild process.
@@ -226,7 +223,6 @@ void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonSer
         mDaemonServiceParam_X.Sts_E = BOF_ERR_NO_ERROR;
         exit(EXIT_SUCCESS);
       }
-
 
       /* Change the file mode mask: Change the file mode mask according to the needs of the daemon. */
       umask(0);
@@ -249,8 +245,8 @@ void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonSer
         mLogActive_B = true;
         /* Open the log file ->check /etc/syslog.conf to check syslog channel message routing -> result in /var/log/user.log */
         setlogmask(LOG_UPTO(mDaemonServiceParam_X.DaemonServiceLogPriority_i));
-        //openlog(mDaemonServiceParam_X.Name_S.c_str(), LOG_CONS | LOG_PID | LOG_NDELAY, LOG_DAEMON);
-        openlog(mDaemonServiceParam_X.Name_S.c_str(), LOG_PID | LOG_NDELAY, mDaemonServiceParam_X.DaemonServiceLogFacility_i);    //LOG_USER as LOG_DAEMON is not active on my system
+        // openlog(mDaemonServiceParam_X.Name_S.c_str(), LOG_CONS | LOG_PID | LOG_NDELAY, LOG_DAEMON);
+        openlog(mDaemonServiceParam_X.Name_S.c_str(), LOG_PID | LOG_NDELAY, mDaemonServiceParam_X.DaemonServiceLogFacility_i); // LOG_USER as LOG_DAEMON is not active on my system
         DaemonServiceLog("---Daemon started '%s'-----------------------------------", mDaemonServiceParam_X.Name_S.c_str());
       }
       // Register action to detect the "stop daemon"
@@ -280,14 +276,14 @@ void BofDaemonService::CreateDaemonService(BOF_DAEMON_SERVICE_PARAM &_rDaemonSer
 
         /* Try to lock file */
 #if defined(ANDROID)
-#else		
+#else
         if (lockf(mDaemonPidFileHandle_i, F_TLOCK, 0) == -1)
         {
           /* Couldn't get lock on lock file */
           mDaemonServiceParam_X.Sts_E = BOF_ERR_LOCK;
           DaemonExit("DaemonPidFileHandle lock", EXIT_FAILURE);
         }
-#endif		
+#endif
         /* Get and format PID */
         sprintf(pBuf_c, "%d\n", getpid());
 
@@ -363,7 +359,6 @@ BofDaemonService::BofDaemonService()
 
 BofDaemonService::~BofDaemonService()
 {
-
 }
 
 BofDaemonService &BofDaemonService::S_Instance()

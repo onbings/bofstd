@@ -7,23 +7,22 @@
 
 #include "gtestrunner.h"
 
-#include <stdexcept>
-#include <stdint.h>  // uint32_t
-#include <climits>      // INT_MAX
-#include <cmath>        // std::signbit
-#include <cstring>      // std::strlen
-#include <iterator>     // std::back_inserter
-#include <list>         // std::list
-#include <memory>       // std::unique_ptr
-#include <type_traits>  // std::is_default_constructible
+#include <climits> // INT_MAX
+#include <cmath>   // std::signbit
 #include <cstdarg>
 #include <cstdio>
+#include <cstring>  // std::strlen
+#include <iterator> // std::back_inserter
+#include <list>     // std::list
 #include <locale>
+#include <memory> // std::unique_ptr
+#include <stdexcept>
+#include <stdint.h> // uint32_t
 #include <string>
-//#include <xmemory>
+#include <type_traits> // std::is_default_constructible
+// #include <xmemory>
 
 #include "fmt/os.h"
-
 
 // Captures file output by redirecting it to a pipe.
 // The output it can handle is limited by the pipe capacity.
@@ -31,8 +30,8 @@ class output_redirect
 {
 private:
   FILE *file_;
-  fmt::file original_;  // Original file passed to redirector.
-  fmt::file read_end_;  // Read end of the pipe where the output is redirected.
+  fmt::file original_; // Original file passed to redirector.
+  fmt::file read_end_; // Read end of the pipe where the output is redirected.
 
   void flush();
   void restore();
@@ -49,83 +48,81 @@ public:
   std::string restore_and_read();
 };
 
-#define FMT_TEST_THROW_(statement, expected_exception, expected_message, fail) \
-  GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                \
-  if (::testing::AssertionResult gtest_ar = ::testing::AssertionSuccess()) {   \
-    std::string gtest_expected_message = expected_message;                     \
-    bool gtest_caught_expected = false;                                        \
-    try {                                                                      \
-      GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);               \
-    } catch (expected_exception const& e) {                                    \
-      if (gtest_expected_message != e.what()) {                                \
-        gtest_ar << #statement                                                 \
-            " throws an exception with a different message.\n"                 \
-                 << "Expected: " << gtest_expected_message << "\n"             \
-                 << "  Actual: " << e.what();                                  \
-        goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);            \
-      }                                                                        \
-      gtest_caught_expected = true;                                            \
-    } catch (...) {                                                            \
-      gtest_ar << "Expected: " #statement                                      \
-                  " throws an exception of type " #expected_exception          \
-                  ".\n  Actual: it throws a different type.";                  \
-      goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);              \
-    }                                                                          \
-    if (!gtest_caught_expected) {                                              \
-      gtest_ar << "Expected: " #statement                                      \
-                  " throws an exception of type " #expected_exception          \
-                  ".\n  Actual: it throws nothing.";                           \
-      goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);              \
-    }                                                                          \
-  } else                                                                       \
-    GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__)                      \
-        : fail(gtest_ar.failure_message())
+#define FMT_TEST_THROW_(statement, expected_exception, expected_message, fail)                                                                                                                                                                                 \
+  GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                                                                                                                                                                                                \
+  if (::testing::AssertionResult gtest_ar = ::testing::AssertionSuccess())                                                                                                                                                                                     \
+  {                                                                                                                                                                                                                                                            \
+    std::string gtest_expected_message = expected_message;                                                                                                                                                                                                     \
+    bool gtest_caught_expected = false;                                                                                                                                                                                                                        \
+    try                                                                                                                                                                                                                                                        \
+    {                                                                                                                                                                                                                                                          \
+      GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                                                                                                                                                                                               \
+    }                                                                                                                                                                                                                                                          \
+    catch (expected_exception const &e)                                                                                                                                                                                                                        \
+    {                                                                                                                                                                                                                                                          \
+      if (gtest_expected_message != e.what())                                                                                                                                                                                                                  \
+      {                                                                                                                                                                                                                                                        \
+        gtest_ar << #statement " throws an exception with a different message.\n"                                                                                                                                                                              \
+                 << "Expected: " << gtest_expected_message << "\n"                                                                                                                                                                                             \
+                 << "  Actual: " << e.what();                                                                                                                                                                                                                  \
+        goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);                                                                                                                                                                                            \
+      }                                                                                                                                                                                                                                                        \
+      gtest_caught_expected = true;                                                                                                                                                                                                                            \
+    }                                                                                                                                                                                                                                                          \
+    catch (...)                                                                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                                                          \
+      gtest_ar << "Expected: " #statement " throws an exception of type " #expected_exception ".\n  Actual: it throws a different type.";                                                                                                                      \
+      goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);                                                                                                                                                                                              \
+    }                                                                                                                                                                                                                                                          \
+    if (!gtest_caught_expected)                                                                                                                                                                                                                                \
+    {                                                                                                                                                                                                                                                          \
+      gtest_ar << "Expected: " #statement " throws an exception of type " #expected_exception ".\n  Actual: it throws nothing.";                                                                                                                               \
+      goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);                                                                                                                                                                                              \
+    }                                                                                                                                                                                                                                                          \
+  }                                                                                                                                                                                                                                                            \
+  else                                                                                                                                                                                                                                                         \
+    GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__) : fail(gtest_ar.failure_message())
 
 // Tests that the statement throws the expected exception and the exception's
 // what() method returns expected message.
-#define EXPECT_THROW_MSG(statement, expected_exception, expected_message) \
-  FMT_TEST_THROW_(statement, expected_exception, expected_message,        \
-                  GTEST_NONFATAL_FAILURE_)
+#define EXPECT_THROW_MSG(statement, expected_exception, expected_message) FMT_TEST_THROW_(statement, expected_exception, expected_message, GTEST_NONFATAL_FAILURE_)
 
-#  define FMT_TEST_WRITE_(statement, expected_output, file, fail)              \
-    GTEST_AMBIGUOUS_ELSE_BLOCKER_                                              \
-    if (::testing::AssertionResult gtest_ar = ::testing::AssertionSuccess()) { \
-      std::string gtest_expected_output = expected_output;                     \
-      output_redirect gtest_redir(file);                                       \
-      GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);               \
-      std::string gtest_output = gtest_redir.restore_and_read();               \
-      if (gtest_output != gtest_expected_output) {                             \
-        gtest_ar << #statement " produces different output.\n"                 \
-                 << "Expected: " << gtest_expected_output << "\n"              \
-                 << "  Actual: " << gtest_output;                              \
-        goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);            \
-      }                                                                        \
-    } else                                                                     \
-      GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__)                    \
-          : fail(gtest_ar.failure_message())
+#define FMT_TEST_WRITE_(statement, expected_output, file, fail)                                                                                                                                                                                                \
+  GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                                                                                                                                                                                                \
+  if (::testing::AssertionResult gtest_ar = ::testing::AssertionSuccess())                                                                                                                                                                                     \
+  {                                                                                                                                                                                                                                                            \
+    std::string gtest_expected_output = expected_output;                                                                                                                                                                                                       \
+    output_redirect gtest_redir(file);                                                                                                                                                                                                                         \
+    GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                                                                                                                                                                                                 \
+    std::string gtest_output = gtest_redir.restore_and_read();                                                                                                                                                                                                 \
+    if (gtest_output != gtest_expected_output)                                                                                                                                                                                                                 \
+    {                                                                                                                                                                                                                                                          \
+      gtest_ar << #statement " produces different output.\n"                                                                                                                                                                                                   \
+               << "Expected: " << gtest_expected_output << "\n"                                                                                                                                                                                                \
+               << "  Actual: " << gtest_output;                                                                                                                                                                                                                \
+      goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);                                                                                                                                                                                              \
+    }                                                                                                                                                                                                                                                          \
+  }                                                                                                                                                                                                                                                            \
+  else                                                                                                                                                                                                                                                         \
+    GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__) : fail(gtest_ar.failure_message())
 
 // Tests that the statement writes the expected output to file.
-#  define EXPECT_WRITE(file, statement, expected_output) \
-    FMT_TEST_WRITE_(statement, expected_output, file, GTEST_NONFATAL_FAILURE_)
+#define EXPECT_WRITE(file, statement, expected_output) FMT_TEST_WRITE_(statement, expected_output, file, GTEST_NONFATAL_FAILURE_)
 
-inline std::string system_error_message(int error_code,
-                                        const std::string &message)
+inline std::string system_error_message(int error_code, const std::string &message)
 {
   auto ec = std::error_code(error_code, std::generic_category());
   return std::system_error(ec, message).what();
 }
 
-#define EXPECT_SYSTEM_ERROR(statement, error_code, message) \
-  EXPECT_THROW_MSG(statement, std::system_error,            \
-                   system_error_message(error_code, message))
+#define EXPECT_SYSTEM_ERROR(statement, error_code, message) EXPECT_THROW_MSG(statement, std::system_error, system_error_message(error_code, message))
 #ifdef _MSC_VER
-#  define FMT_VSNPRINTF vsprintf_s
+#define FMT_VSNPRINTF vsprintf_s
 #else
-#  define FMT_VSNPRINTF vsnprintf
+#define FMT_VSNPRINTF vsnprintf
 #endif
 
-template <size_t SIZE>
-void safe_sprintf(char(&buffer)[SIZE], const char *format, ...)
+template <size_t SIZE> void safe_sprintf(char (&buffer)[SIZE], const char *format, ...)
 {
   std::va_list args;
   va_start(args, format);
@@ -158,19 +155,22 @@ private:
   static const Char empty[];
 
 public:
-  explicit basic_test_string(const Char *value = empty) : value_(value) {}
+  explicit basic_test_string(const Char *value = empty) : value_(value)
+  {
+  }
 
-  const std::basic_string<Char> &value() const { return value_; }
+  const std::basic_string<Char> &value() const
+  {
+    return value_;
+  }
 };
 
-template <typename Char> const Char basic_test_string<Char>::empty[] = { 0 };
+template <typename Char> const Char basic_test_string<Char>::empty[] = {0};
 
 typedef basic_test_string<char> test_string;
 typedef basic_test_string<wchar_t> test_wstring;
 
-template <typename Char>
-std::basic_ostream<Char> &operator<<(std::basic_ostream<Char> &os,
-                                     const basic_test_string<Char> &s)
+template <typename Char> std::basic_ostream<Char> &operator<<(std::basic_ostream<Char> &os, const basic_test_string<Char> &s)
 {
   os << s.value();
   return os;
@@ -181,11 +181,22 @@ class date
   int year_, month_, day_;
 
 public:
-  date(int year, int month, int day) : year_(year), month_(month), day_(day) {}
+  date(int year, int month, int day) : year_(year), month_(month), day_(day)
+  {
+  }
 
-  int year() const { return year_; }
-  int month() const { return month_; }
-  int day() const { return day_; }
+  int year() const
+  {
+    return year_;
+  }
+  int month() const
+  {
+    return month_;
+  }
+  int day() const
+  {
+    return day_;
+  }
 };
 
 // Returns a locale with the given name if available or classic locale othewise.
@@ -198,7 +209,10 @@ using fmt::runtime;
 using fmt::string_view;
 using fmt::detail::max_value;
 
-enum { buffer_size = 256 };
+enum
+{
+  buffer_size = 256
+};
 
 struct uint32_pair
 {
@@ -207,17 +221,19 @@ struct uint32_pair
 
 TEST(util_test, bit_cast)
 {
-  auto s = fmt::detail::bit_cast<uint32_pair>(uint64_t{ 42 });
+  auto s = fmt::detail::bit_cast<uint32_pair>(uint64_t{42});
   EXPECT_EQ(fmt::detail::bit_cast<uint64_t>(s), 42ull);
-  s = fmt::detail::bit_cast<uint32_pair>(~uint64_t{ 0 });
+  s = fmt::detail::bit_cast<uint32_pair>(~uint64_t{0});
   EXPECT_EQ(fmt::detail::bit_cast<uint64_t>(s), ~0ull);
 }
 
 // Increment a number in a string.
 void increment(char *s)
 {
-  for (int i = static_cast<int>(std::strlen(s)) - 1; i >= 0; --i) {
-    if (s[i] != '9') {
+  for (int i = static_cast<int>(std::strlen(s)) - 1; i >= 0; --i)
+  {
+    if (s[i] != '9')
+    {
       ++s[i];
       break;
     }
@@ -251,20 +267,17 @@ TEST(util_test, parse_nonnegative_int)
   EXPECT_EQ(fmt::detail::parse_nonnegative_int(begin, end, -1), -1);
 }
 
-
 TEST(util_test, utf8_to_utf16)
 {
-  //BHATODO FIX  auto u = fmt::detail::utf8_to_utf16("лошадка");
-//BHATODO FIX  EXPECT_EQ(L"\x043B\x043E\x0448\x0430\x0434\x043A\x0430", u.str());
-//BHATODO FIX  EXPECT_EQ(7, u.size());
-  // U+10437 { DESERET SMALL LETTER YEE }
-//BHATODO FIX  EXPECT_EQ(L"\xD801\xDC37", fmt::detail::utf8_to_utf16("𐐷").str());
-  EXPECT_THROW_MSG(fmt::detail::utf8_to_utf16("\xc3\x28"), std::runtime_error,
-                   "invalid utf8");
-//BHATODO FIX  EXPECT_THROW_MSG(fmt::detail::utf8_to_utf16(fmt::string_view("л", 1)),std::runtime_error, "invalid utf8");
+  // BHATODO FIX  auto u = fmt::detail::utf8_to_utf16("лошадка");
+  // BHATODO FIX  EXPECT_EQ(L"\x043B\x043E\x0448\x0430\x0434\x043A\x0430", u.str());
+  // BHATODO FIX  EXPECT_EQ(7, u.size());
+  //  U+10437 { DESERET SMALL LETTER YEE }
+  // BHATODO FIX  EXPECT_EQ(L"\xD801\xDC37", fmt::detail::utf8_to_utf16("𐐷").str());
+  EXPECT_THROW_MSG(fmt::detail::utf8_to_utf16("\xc3\x28"), std::runtime_error, "invalid utf8");
+  // BHATODO FIX  EXPECT_THROW_MSG(fmt::detail::utf8_to_utf16(fmt::string_view("л", 1)),std::runtime_error, "invalid utf8");
   EXPECT_EQ(L"123456", fmt::detail::utf8_to_utf16("123456").str());
 }
-
 
 TEST(util_test, utf8_to_utf16_empty_string)
 {
@@ -273,8 +286,8 @@ TEST(util_test, utf8_to_utf16_empty_string)
   EXPECT_EQ(L"", u.str());
   EXPECT_EQ(s.size(), u.size());
 }
-//https://github.com/fmtlib/fmt/issues/2011
-//fmtd.lib(fmtd.dll) : error LNK2005 : "protected: __cdecl fmt::v8::detail::buffer<char>::buffer<char>(char *,unsigned __int64,unsigned __int64)" (? ? 0 ? $buffer@D@detail@v8@fmt@@IEAA@PEAD_K1@Z) already defined in boflogchannel_spdlog.obj
+// https://github.com/fmtlib/fmt/issues/2011
+// fmtd.lib(fmtd.dll) : error LNK2005 : "protected: __cdecl fmt::v8::detail::buffer<char>::buffer<char>(char *,unsigned __int64,unsigned __int64)" (? ? 0 ? $buffer@D@detail@v8@fmt@@IEAA@PEAD_K1@Z) already defined in boflogchannel_spdlog.obj
 #if 00
 TEST(util_test, format_system_error)
 {
@@ -287,14 +300,17 @@ TEST(util_test, format_system_error)
   // Check if std::allocator throws on allocating max size_t / 2 chars.
   size_t max_size = max_value<size_t>() / 2;
   bool throws_on_alloc = false;
-  try {
+  try
+  {
     auto alloc = std::allocator<char>();
     alloc.deallocate(alloc.allocate(max_size), max_size);
   }
-  catch (const std::bad_alloc &) {
+  catch (const std::bad_alloc &)
+  {
     throws_on_alloc = true;
   }
-  if (!throws_on_alloc) {
+  if (!throws_on_alloc)
+  {
     fmt::print("warning: std::allocator allocates {} chars", max_size);
     return;
   }
@@ -308,10 +324,12 @@ TEST(util_test, system_error)
   EXPECT_EQ(test_error.code(), ec);
 
   auto error = std::system_error(std::error_code());
-  try {
+  try
+  {
     throw fmt::system_error(EDOM, "test {}", "error");
   }
-  catch (const std::system_error &e) {
+  catch (const std::system_error &e)
+  {
     error = e;
   }
   fmt::memory_buffer message;
@@ -325,8 +343,7 @@ TEST(util_test, report_system_error)
   fmt::memory_buffer out;
   fmt::format_system_error(out, EDOM, "test error");
   out.push_back('\n');
-  EXPECT_WRITE(stderr, fmt::report_system_error(EDOM, "test error"),
-               to_string(out));
+  EXPECT_WRITE(stderr, fmt::report_system_error(EDOM, "test error"), to_string(out));
 }
 
 TEST(memory_buffer_test, ctor)
@@ -371,25 +388,25 @@ TEST(memory_buffer_test, move_assignment)
   EXPECT_GT(buffer2.capacity(), 5u);
 }
 
-
-template <typename Allocator, size_t MaxSize>
-class max_size_allocator : public Allocator
+template <typename Allocator, size_t MaxSize> class max_size_allocator : public Allocator
 {
 public:
   using typename Allocator::value_type;
-  size_t max_size() const /*FMT_NOEXCEPT*/ { return MaxSize; }
+  size_t max_size() const /*FMT_NOEXCEPT*/
+  {
+    return MaxSize;
+  }
   value_type *allocate(size_t n)
   {
-    if (n > max_size()) {
+    if (n > max_size())
+    {
       throw std::length_error("size > max_size");
     }
-    return std::allocator_traits<Allocator>::allocate(
-      *static_cast<Allocator *>(this), n);
+    return std::allocator_traits<Allocator>::allocate(*static_cast<Allocator *>(this), n);
   }
   void deallocate(value_type *p, size_t n)
   {
-    std::allocator_traits<Allocator>::deallocate(*static_cast<Allocator *>(this),
-                                                 p, n);
+    std::allocator_traits<Allocator>::deallocate(*static_cast<Allocator *>(this), p, n);
   }
 };
 
@@ -400,7 +417,7 @@ TEST(memory_buffer_test, max_size_allocator)
   basic_memory_buffer<char, 10, test_allocator> buffer;
   buffer.resize(128);
   // new_capacity = 128 + 128/2 = 192 > 160
-  buffer.resize(160);  // Shouldn't throw.
+  buffer.resize(160); // Shouldn't throw.
 }
 
 TEST(memory_buffer_test, max_size_allocator_overflow)
@@ -428,15 +445,15 @@ TEST(format_test, escape)
 
 TEST(format_test, unmatched_braces)
 {
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{")), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("}")), format_error,
-                   "unmatched '}' in format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0{}")), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{")), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("}")), format_error, "unmatched '}' in format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0{}")), format_error, "invalid format string");
 }
 
-TEST(format_test, no_args) { EXPECT_EQ("test", fmt::format("test")); }
+TEST(format_test, no_args)
+{
+  EXPECT_EQ("test", fmt::format("test"));
+}
 
 TEST(format_test, args_in_different_positions)
 {
@@ -451,37 +468,27 @@ TEST(format_test, args_in_different_positions)
 
 TEST(format_test, arg_errors)
 {
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{")), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{?}")), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0")), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0}")), format_error,
-                   "argument not found");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{00}"), 42), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{")), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{?}")), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0")), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0}")), format_error, "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{00}"), 42), format_error, "invalid format string");
 
   char format_str[buffer_size];
   safe_sprintf(format_str, "{%u", INT_MAX);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error, "invalid format string");
   safe_sprintf(format_str, "{%u}", INT_MAX);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error, "argument not found");
 
   safe_sprintf(format_str, "{%u", INT_MAX + 1u);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error, "invalid format string");
   safe_sprintf(format_str, "{%u}", INT_MAX + 1u);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str)), format_error, "argument not found");
 }
 
 template <int N> struct test_format
 {
-  template <typename... T>
-  static std::string format(fmt::string_view fmt, const T&... args)
+  template <typename... T> static std::string format(fmt::string_view fmt, const T &...args)
   {
     return test_format<N - 1>::format(fmt, N - 1, args...);
   }
@@ -489,8 +496,7 @@ template <int N> struct test_format
 
 template <> struct test_format<0>
 {
-  template <typename... T>
-  static std::string format(fmt::string_view fmt, const T&... args)
+  template <typename... T> static std::string format(fmt::string_view fmt, const T &...args)
   {
     return fmt::format(runtime(fmt), args...);
   }
@@ -499,56 +505,40 @@ template <> struct test_format<0>
 TEST(format_test, many_args)
 {
   EXPECT_EQ("19", test_format<20>::format("{19}"));
-  EXPECT_THROW_MSG(test_format<20>::format("{20}"), format_error,
-                   "argument not found");
-  EXPECT_THROW_MSG(test_format<21>::format("{21}"), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG(test_format<20>::format("{20}"), format_error, "argument not found");
+  EXPECT_THROW_MSG(test_format<21>::format("{21}"), format_error, "argument not found");
   using fmt::detail::max_packed_args;
   std::string format_str = fmt::format("{{{}}}", max_packed_args + 1);
-  EXPECT_THROW_MSG(test_format<max_packed_args>::format(format_str),
-                   format_error, "argument not found");
+  EXPECT_THROW_MSG(test_format<max_packed_args>::format(format_str), format_error, "argument not found");
 }
 
 TEST(format_test, named_arg)
 {
-  EXPECT_EQ("1/a/A", fmt::format("{_1}/{a_}/{A_}", fmt::arg("a_", 'a'),
-            fmt::arg("A_", "A"), fmt::arg("_1", 1)));
+  EXPECT_EQ("1/a/A", fmt::format("{_1}/{a_}/{A_}", fmt::arg("a_", 'a'), fmt::arg("A_", "A"), fmt::arg("_1", 1)));
   EXPECT_EQ(" -42", fmt::format("{0:{width}}", -42, fmt::arg("width", 4)));
-  EXPECT_EQ("st",
-            fmt::format("{0:.{precision}}", "str", fmt::arg("precision", 2)));
+  EXPECT_EQ("st", fmt::format("{0:.{precision}}", "str", fmt::arg("precision", 2)));
   EXPECT_EQ("1 2", fmt::format("{} {two}", 1, fmt::arg("two", 2)));
-  EXPECT_EQ("42",
-            fmt::format("{c}", fmt::arg("a", 0), fmt::arg("b", 0),
-            fmt::arg("c", 42), fmt::arg("d", 0), fmt::arg("e", 0),
-            fmt::arg("f", 0), fmt::arg("g", 0), fmt::arg("h", 0),
-            fmt::arg("i", 0), fmt::arg("j", 0), fmt::arg("k", 0),
-            fmt::arg("l", 0), fmt::arg("m", 0), fmt::arg("n", 0),
-            fmt::arg("o", 0), fmt::arg("p", 0)));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{a}")), format_error,
-                   "argument not found");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{a}"), 42), format_error,
-                   "argument not found");
+  EXPECT_EQ("42", fmt::format("{c}", fmt::arg("a", 0), fmt::arg("b", 0), fmt::arg("c", 42), fmt::arg("d", 0), fmt::arg("e", 0), fmt::arg("f", 0), fmt::arg("g", 0), fmt::arg("h", 0), fmt::arg("i", 0), fmt::arg("j", 0), fmt::arg("k", 0), fmt::arg("l", 0),
+                              fmt::arg("m", 0), fmt::arg("n", 0), fmt::arg("o", 0), fmt::arg("p", 0)));
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{a}")), format_error, "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{a}"), 42), format_error, "argument not found");
 }
 
 TEST(format_test, auto_arg_index)
 {
   EXPECT_EQ("abc", fmt::format("{}{}{}", 'a', 'b', 'c'));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0}{}"), 'a', 'b'), format_error,
-                   "cannot switch from manual to automatic argument indexing");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{}{0}"), 'a', 'b'), format_error,
-                   "cannot switch from automatic to manual argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0}{}"), 'a', 'b'), format_error, "cannot switch from manual to automatic argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{}{0}"), 'a', 'b'), format_error, "cannot switch from automatic to manual argument indexing");
   EXPECT_EQ("1.2", fmt::format("{:.{}}", 1.2345, 2));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0}:.{}"), 1.2345, 2),
-                   format_error,
-                   "cannot switch from manual to automatic argument indexing");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:.{0}}"), 1.2345, 2),
-                   format_error,
-                   "cannot switch from automatic to manual argument indexing");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{}")), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0}:.{}"), 1.2345, 2), format_error, "cannot switch from manual to automatic argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:.{0}}"), 1.2345, 2), format_error, "cannot switch from automatic to manual argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{}")), format_error, "argument not found");
 }
 
-TEST(format_test, empty_specs) { EXPECT_EQ("42", fmt::format("{0:}", 42)); }
+TEST(format_test, empty_specs)
+{
+  EXPECT_EQ("42", fmt::format("{0:}", 42));
+}
 
 TEST(format_test, left_align)
 {
@@ -606,10 +596,8 @@ TEST(format_test, center_align)
 
 TEST(format_test, fill)
 {
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{<5}"), 'c'), format_error,
-                   "invalid fill character '{'");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{<5}}"), 'c'), format_error,
-                   "invalid fill character '{'");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{<5}"), 'c'), format_error, "invalid fill character '{'");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{<5}}"), 'c'), format_error, "invalid fill character '{'");
   EXPECT_EQ("**42", fmt::format("{0:*>4}", 42));
   EXPECT_EQ("**-42", fmt::format("{0:*>5}", -42));
   EXPECT_EQ("***42", fmt::format("{0:*>5}", 42u));
@@ -621,14 +609,11 @@ TEST(format_test, fill)
   EXPECT_EQ("**-42", fmt::format("{0:*>5}", -42.0l));
   EXPECT_EQ("c****", fmt::format("{0:*<5}", 'c'));
   EXPECT_EQ("abc**", fmt::format("{0:*<5}", "abc"));
-  EXPECT_EQ("**0xface",
-            fmt::format("{0:*>8}", reinterpret_cast<void *>(0xface)));
+  EXPECT_EQ("**0xface", fmt::format("{0:*>8}", reinterpret_cast<void *>(0xface)));
   EXPECT_EQ("foo=", fmt::format("{:}=", "foo"));
-  EXPECT_EQ(std::string("\0\0\0*", 4),
-            fmt::format(string_view("{:\0>4}", 6), '*'));
+  EXPECT_EQ(std::string("\0\0\0*", 4), fmt::format(string_view("{:\0>4}", 6), '*'));
   EXPECT_EQ("жж42", fmt::format("{0:ж>4}", 42));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:\x80\x80\x80\x80\x80>}"), 0),
-                   format_error, "invalid type specifier");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:\x80\x80\x80\x80\x80>}"), 0), format_error, "invalid type specifier");
 }
 
 TEST(format_test, plus_sign)
@@ -636,25 +621,17 @@ TEST(format_test, plus_sign)
   EXPECT_EQ("+42", fmt::format("{0:+}", 42));
   EXPECT_EQ("-42", fmt::format("{0:+}", -42));
   EXPECT_EQ("+42", fmt::format("{0:+}", 42));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 42u), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 42u), format_error, "format specifier requires signed argument");
   EXPECT_EQ("+42", fmt::format("{0:+}", 42l));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 42ul), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 42ul), format_error, "format specifier requires signed argument");
   EXPECT_EQ("+42", fmt::format("{0:+}", 42ll));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 42ull), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 42ull), format_error, "format specifier requires signed argument");
   EXPECT_EQ("+42", fmt::format("{0:+}", 42.0));
   EXPECT_EQ("+42", fmt::format("{0:+}", 42.0l));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+"), 'c'), format_error,
-                   "missing '}' in format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 'c'), format_error,
-                   "invalid format specifier for char");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), "abc"), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0:+}"), reinterpret_cast<void *>(0x42)),
-    format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+"), 'c'), format_error, "missing '}' in format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), 'c'), format_error, "invalid format specifier for char");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), "abc"), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:+}"), reinterpret_cast<void *>(0x42)), format_error, "format specifier requires numeric argument");
 }
 
 TEST(format_test, minus_sign)
@@ -662,25 +639,17 @@ TEST(format_test, minus_sign)
   EXPECT_EQ("42", fmt::format("{0:-}", 42));
   EXPECT_EQ("-42", fmt::format("{0:-}", -42));
   EXPECT_EQ("42", fmt::format("{0:-}", 42));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 42u), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 42u), format_error, "format specifier requires signed argument");
   EXPECT_EQ("42", fmt::format("{0:-}", 42l));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 42ul), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 42ul), format_error, "format specifier requires signed argument");
   EXPECT_EQ("42", fmt::format("{0:-}", 42ll));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 42ull), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 42ull), format_error, "format specifier requires signed argument");
   EXPECT_EQ("42", fmt::format("{0:-}", 42.0));
   EXPECT_EQ("42", fmt::format("{0:-}", 42.0l));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-"), 'c'), format_error,
-                   "missing '}' in format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 'c'), format_error,
-                   "invalid format specifier for char");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), "abc"), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0:-}"), reinterpret_cast<void *>(0x42)),
-    format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-"), 'c'), format_error, "missing '}' in format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), 'c'), format_error, "invalid format specifier for char");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), "abc"), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:-}"), reinterpret_cast<void *>(0x42)), format_error, "format specifier requires numeric argument");
 }
 
 TEST(format_test, space_sign)
@@ -688,25 +657,17 @@ TEST(format_test, space_sign)
   EXPECT_EQ(" 42", fmt::format("{0: }", 42));
   EXPECT_EQ("-42", fmt::format("{0: }", -42));
   EXPECT_EQ(" 42", fmt::format("{0: }", 42));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 42u), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 42u), format_error, "format specifier requires signed argument");
   EXPECT_EQ(" 42", fmt::format("{0: }", 42l));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 42ul), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 42ul), format_error, "format specifier requires signed argument");
   EXPECT_EQ(" 42", fmt::format("{0: }", 42ll));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 42ull), format_error,
-                   "format specifier requires signed argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 42ull), format_error, "format specifier requires signed argument");
   EXPECT_EQ(" 42", fmt::format("{0: }", 42.0));
   EXPECT_EQ(" 42", fmt::format("{0: }", 42.0l));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: "), 'c'), format_error,
-                   "missing '}' in format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 'c'), format_error,
-                   "invalid format specifier for char");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), "abc"), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0: }"), reinterpret_cast<void *>(0x42)),
-    format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: "), 'c'), format_error, "missing '}' in format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), 'c'), format_error, "invalid format specifier for char");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), "abc"), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0: }"), reinterpret_cast<void *>(0x42)), format_error, "format specifier requires numeric argument");
 }
 
 TEST(format_test, hash_flag)
@@ -750,15 +711,10 @@ TEST(format_test, hash_flag)
   EXPECT_EQ("0.", fmt::format("{:#.0f}", 0.01));
   EXPECT_EQ("0.50", fmt::format("{:#.2g}", 0.5));
   EXPECT_EQ("0.", fmt::format("{:#.0f}", 0.5));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:#"), 'c'), format_error,
-                   "missing '}' in format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:#}"), 'c'), format_error,
-                   "invalid format specifier for char");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:#}"), "abc"), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0:#}"), reinterpret_cast<void *>(0x42)),
-    format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:#"), 'c'), format_error, "missing '}' in format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:#}"), 'c'), format_error, "invalid format specifier for char");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:#}"), "abc"), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:#}"), reinterpret_cast<void *>(0x42)), format_error, "format specifier requires numeric argument");
 }
 
 TEST(format_test, zero_flag)
@@ -772,15 +728,10 @@ TEST(format_test, zero_flag)
   EXPECT_EQ("00042", fmt::format("{0:05}", 42ull));
   EXPECT_EQ("-000042", fmt::format("{0:07}", -42.0));
   EXPECT_EQ("-000042", fmt::format("{0:07}", -42.0l));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:0"), 'c'), format_error,
-                   "missing '}' in format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:05}"), 'c'), format_error,
-                   "invalid format specifier for char");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:05}"), "abc"), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0:05}"), reinterpret_cast<void *>(0x42)),
-    format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:0"), 'c'), format_error, "missing '}' in format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:05}"), 'c'), format_error, "invalid format specifier for char");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:05}"), "abc"), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:05}"), reinterpret_cast<void *>(0x42)), format_error, "format specifier requires numeric argument");
 }
 
 TEST(format_test, width)
@@ -788,20 +739,16 @@ TEST(format_test, width)
   char format_str[buffer_size];
   safe_sprintf(format_str, "{0:%u", UINT_MAX);
   increment(format_str + 3);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
   size_t size = std::strlen(format_str);
   format_str[size] = '}';
   format_str[size + 1] = 0;
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
 
   safe_sprintf(format_str, "{0:%u", INT_MAX + 1u);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
   safe_sprintf(format_str, "{0:%u}", INT_MAX + 1u);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
   EXPECT_EQ(" -42", fmt::format("{0:4}", -42));
   EXPECT_EQ("   42", fmt::format("{0:5}", 42u));
   EXPECT_EQ("   -42", fmt::format("{0:6}", -42l));
@@ -810,8 +757,7 @@ TEST(format_test, width)
   EXPECT_EQ("     42", fmt::format("{0:7}", 42ull));
   EXPECT_EQ("   -1.23", fmt::format("{0:8}", -1.23));
   EXPECT_EQ("    -1.23", fmt::format("{0:9}", -1.23l));
-  EXPECT_EQ("    0xcafe",
-            fmt::format("{0:10}", reinterpret_cast<void *>(0xcafe)));
+  EXPECT_EQ("    0xcafe", fmt::format("{0:10}", reinterpret_cast<void *>(0xcafe)));
   EXPECT_EQ("x          ", fmt::format("{0:11}", 'x'));
   EXPECT_EQ("str         ", fmt::format("{0:12}", "str"));
   EXPECT_EQ(fmt::format("{:*^6}", "🤡"), "**🤡**");
@@ -826,48 +772,34 @@ TEST(format_test, runtime_width)
   char format_str[buffer_size];
   safe_sprintf(format_str, "{0:{%u", UINT_MAX);
   increment(format_str + 4);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "invalid format string");
   size_t size = std::strlen(format_str);
   format_str[size] = '}';
   format_str[size + 1] = 0;
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "argument not found");
   format_str[size + 1] = '}';
   format_str[size + 2] = 0;
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "argument not found");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{"), 0), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{}"), 0), format_error,
-                   "cannot switch from manual to automatic argument indexing");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{?}}"), 0), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{"), 0), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{}"), 0), format_error, "cannot switch from manual to automatic argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{?}}"), 0), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0), format_error, "argument not found");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{0:}}"), 0), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{0:}}"), 0), format_error, "invalid format string");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, -1), format_error,
-                   "negative width");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, (INT_MAX + 1u)),
-                   format_error, "number is too big");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, -1l), format_error,
-                   "negative width");
-  if (fmt::detail::const_check(sizeof(long) > sizeof(int))) {
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, -1), format_error, "negative width");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, (INT_MAX + 1u)), format_error, "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, -1l), format_error, "negative width");
+  if (fmt::detail::const_check(sizeof(long) > sizeof(int)))
+  {
     long value = INT_MAX;
-    EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, (value + 1)),
-                     format_error, "number is too big");
+    EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, (value + 1)), format_error, "number is too big");
   }
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, (INT_MAX + 1ul)),
-                   format_error, "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, (INT_MAX + 1ul)), format_error, "number is too big");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, '0'), format_error,
-                   "width is not integer");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, 0.0), format_error,
-                   "width is not integer");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, '0'), format_error, "width is not integer");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{1}}"), 0, 0.0), format_error, "width is not integer");
 
   EXPECT_EQ(" -42", fmt::format("{0:{1}}", -42, 4));
   EXPECT_EQ("   42", fmt::format("{0:{1}}", 42u, 5));
@@ -877,8 +809,7 @@ TEST(format_test, runtime_width)
   EXPECT_EQ("     42", fmt::format("{0:{1}}", 42ull, 7));
   EXPECT_EQ("   -1.23", fmt::format("{0:{1}}", -1.23, 8));
   EXPECT_EQ("    -1.23", fmt::format("{0:{1}}", -1.23l, 9));
-  EXPECT_EQ("    0xcafe",
-            fmt::format("{0:{1}}", reinterpret_cast<void *>(0xcafe), 10));
+  EXPECT_EQ("    0xcafe", fmt::format("{0:{1}}", reinterpret_cast<void *>(0xcafe), 10));
   EXPECT_EQ("x          ", fmt::format("{0:{1}}", 'x', 11));
   EXPECT_EQ("str         ", fmt::format("{0:{1}}", "str", 12));
 }
@@ -888,86 +819,62 @@ TEST(format_test, precision)
   char format_str[buffer_size];
   safe_sprintf(format_str, "{0:.%u", UINT_MAX);
   increment(format_str + 4);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
   size_t size = std::strlen(format_str);
   format_str[size] = '}';
   format_str[size + 1] = 0;
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
 
   safe_sprintf(format_str, "{0:.%u", INT_MAX + 1u);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
   safe_sprintf(format_str, "{0:.%u}", INT_MAX + 1u);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "number is too big");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:."), 0), format_error,
-                   "missing precision specifier");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.}"), 0), format_error,
-                   "missing precision specifier");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:."), 0), format_error, "missing precision specifier");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.}"), 0), format_error, "missing precision specifier");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2"), 0), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42u), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42u), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42l), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42l), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42ul), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42ul), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42ll), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42ll), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42ull), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42ull), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:3.0}"), 'x'), format_error,
-                   "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2"), 0), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42u), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42u), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42l), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42l), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42ul), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42ul), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42ll), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42ll), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), 42ull), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), 42ull), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:3.0}"), 'x'), format_error, "precision not allowed for this argument type");
   EXPECT_EQ("1.2", fmt::format("{0:.2}", 1.2345));
   EXPECT_EQ("1.2", fmt::format("{0:.2}", 1.2345l));
   EXPECT_EQ("1.2e+56", fmt::format("{:.2}", 1.234e56));
   EXPECT_EQ("1.1", fmt::format("{0:.3}", 1.1));
   EXPECT_EQ("1e+00", fmt::format("{:.0e}", 1.0L));
   EXPECT_EQ("  0.0e+00", fmt::format("{:9.1e}", 0.0));
-  EXPECT_EQ(
-    fmt::format("{:.494}", 4.9406564584124654E-324),
-    "4.9406564584124654417656879286822137236505980261432476442558568250067550"
-    "727020875186529983636163599237979656469544571773092665671035593979639877"
-    "479601078187812630071319031140452784581716784898210368871863605699873072"
-    "305000638740915356498438731247339727316961514003171538539807412623856559"
-    "117102665855668676818703956031062493194527159149245532930545654440112748"
-    "012970999954193198940908041656332452475714786901472678015935523861155013"
-    "480352649347201937902681071074917033322268447533357208324319361e-324");
-  EXPECT_EQ(
-    fmt::format("{:.1074f}", 1.1125369292536e-308),
-    "0.0000000000000000000000000000000000000000000000000000000000000000000000"
-    "000000000000000000000000000000000000000000000000000000000000000000000000"
-    "000000000000000000000000000000000000000000000000000000000000000000000000"
-    "000000000000000000000000000000000000000000000000000000000000000000000000"
-    "000000000000000000000111253692925360019747947051741965785554081512200979"
-    "355021686109411883779182127659725163430929750364498219730822952552570601"
-    "152163505899912777129583674906301179059298598412303893909188340988729019"
-    "014361467448914817838555156840459458527907308695109202499990850735085304"
-    "478476991912072201449236975063640913461919914396877093174125167509869762"
-    "482369631100360266123742648159508919592746619553246586039571522788247697"
-    "156360766271842991667238355464496455107749716934387136380536472531224398"
-    "559833794807213172371254492216255558078524900147957309382830827524104234"
-    "530961756787819847850302379672357738807808384667004752163416921762619527"
-    "462847642037420991432005657440259928195996762610375541867198059294212446"
-    "81962777939941034720757232455434770912461317493580281734466552734375");
+  EXPECT_EQ(fmt::format("{:.494}", 4.9406564584124654E-324), "4.9406564584124654417656879286822137236505980261432476442558568250067550"
+                                                             "727020875186529983636163599237979656469544571773092665671035593979639877"
+                                                             "479601078187812630071319031140452784581716784898210368871863605699873072"
+                                                             "305000638740915356498438731247339727316961514003171538539807412623856559"
+                                                             "117102665855668676818703956031062493194527159149245532930545654440112748"
+                                                             "012970999954193198940908041656332452475714786901472678015935523861155013"
+                                                             "480352649347201937902681071074917033322268447533357208324319361e-324");
+  EXPECT_EQ(fmt::format("{:.1074f}", 1.1125369292536e-308), "0.0000000000000000000000000000000000000000000000000000000000000000000000"
+                                                            "000000000000000000000000000000000000000000000000000000000000000000000000"
+                                                            "000000000000000000000000000000000000000000000000000000000000000000000000"
+                                                            "000000000000000000000000000000000000000000000000000000000000000000000000"
+                                                            "000000000000000000000111253692925360019747947051741965785554081512200979"
+                                                            "355021686109411883779182127659725163430929750364498219730822952552570601"
+                                                            "152163505899912777129583674906301179059298598412303893909188340988729019"
+                                                            "014361467448914817838555156840459458527907308695109202499990850735085304"
+                                                            "478476991912072201449236975063640913461919914396877093174125167509869762"
+                                                            "482369631100360266123742648159508919592746619553246586039571522788247697"
+                                                            "156360766271842991667238355464496455107749716934387136380536472531224398"
+                                                            "559833794807213172371254492216255558078524900147957309382830827524104234"
+                                                            "530961756787819847850302379672357738807808384667004752163416921762619527"
+                                                            "462847642037420991432005657440259928195996762610375541867198059294212446"
+                                                            "81962777939941034720757232455434770912461317493580281734466552734375");
 
 #if 0
   std::string outputs[] = {
@@ -1006,18 +913,10 @@ TEST(format_test, precision)
   EXPECT_EQ("1e+01", fmt::format("{:.0e}", 9.5));
   EXPECT_EQ("1.0e-34", fmt::format("{:.1e}", 1e-34));
 
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0:.2}"), reinterpret_cast<void *>(0xcafe)),
-    format_error, "precision not allowed for this argument type");
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0:.2f}"), reinterpret_cast<void *>(0xcafe)),
-    format_error, "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:.{}e}"), 42.0,
-                   fmt::detail::max_value<int>()),
-                   format_error, "number is too big");
-  EXPECT_THROW_MSG(
-    (void)fmt::format("{:.2147483646f}", -2.2121295195081227E+304),
-    format_error, "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2}"), reinterpret_cast<void *>(0xcafe)), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.2f}"), reinterpret_cast<void *>(0xcafe)), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:.{}e}"), 42.0, fmt::detail::max_value<int>()), format_error, "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format("{:.2147483646f}", -2.2121295195081227E+304), format_error, "number is too big");
 
   EXPECT_EQ("st", fmt::format("{0:.2}", "str"));
 }
@@ -1027,97 +926,54 @@ TEST(format_test, runtime_precision)
   char format_str[buffer_size];
   safe_sprintf(format_str, "{0:.{%u", UINT_MAX);
   increment(format_str + 5);
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "invalid format string");
   size_t size = std::strlen(format_str);
   format_str[size] = '}';
   format_str[size + 1] = 0;
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "argument not found");
   format_str[size + 1] = '}';
   format_str[size + 2] = 0;
-  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), 0), format_error, "argument not found");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{"), 0), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{}"), 0), format_error,
-                   "cannot switch from manual to automatic argument indexing");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{?}}"), 0), format_error,
-                   "invalid format string");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}"), 0, 0), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0), format_error,
-                   "argument not found");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{"), 0), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{}"), 0), format_error, "cannot switch from manual to automatic argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{?}}"), 0), format_error, "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}"), 0, 0), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0), format_error, "argument not found");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{0:}}"), 0), format_error,
-                   "invalid format string");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{0:}}"), 0), format_error, "invalid format string");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, -1), format_error,
-                   "negative precision");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, (INT_MAX + 1u)),
-                   format_error, "number is too big");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, -1l), format_error,
-                   "negative precision");
-  if (fmt::detail::const_check(sizeof(long) > sizeof(int))) {
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, -1), format_error, "negative precision");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, (INT_MAX + 1u)), format_error, "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, -1l), format_error, "negative precision");
+  if (fmt::detail::const_check(sizeof(long) > sizeof(int)))
+  {
     long value = INT_MAX;
-    EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, (value + 1)),
-                     format_error, "number is too big");
+    EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, (value + 1)), format_error, "number is too big");
   }
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, (INT_MAX + 1ul)),
-                   format_error, "number is too big");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, (INT_MAX + 1ul)), format_error, "number is too big");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, '0'), format_error,
-                   "precision is not integer");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, 0.0), format_error,
-                   "precision is not integer");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, '0'), format_error, "precision is not integer");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 0, 0.0), format_error, "precision is not integer");
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42, 2), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42, 2), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42u, 2), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42u, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42l, 2), format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42l, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42ul, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42ul, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42ll, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42ll, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42ull, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42ull, 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:3.{1}}"), 'x', 0),
-                   format_error,
-                   "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42u, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42u, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42l, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42l, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42ul, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42ul, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42ll, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42ll, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), 42ull, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), 42ull, 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:3.{1}}"), 'x', 0), format_error, "precision not allowed for this argument type");
   EXPECT_EQ("1.2", fmt::format("{0:.{1}}", 1.2345, 2));
   EXPECT_EQ("1.2", fmt::format("{1:.{0}}", 2, 1.2345l));
 
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"),
-                   reinterpret_cast<void *>(0xcafe), 2),
-                   format_error,
-                   "precision not allowed for this argument type");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"),
-                   reinterpret_cast<void *>(0xcafe), 2),
-                   format_error,
-                   "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}}"), reinterpret_cast<void *>(0xcafe), 2), format_error, "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:.{1}f}"), reinterpret_cast<void *>(0xcafe), 2), format_error, "precision not allowed for this argument type");
 
   EXPECT_EQ("st", fmt::format("{0:.{1}}", "str", 2));
 }
@@ -1141,26 +997,24 @@ TEST(format_test, format_short)
   EXPECT_EQ("42", fmt::format("{0:d}", us));
 }
 
-template <typename T>
-void check_unknown_types(const T &value, const char *types, const char *)
+template <typename T> void check_unknown_types(const T &value, const char *types, const char *)
 {
   char format_str[buffer_size];
   const char *special = ".0123456789L}";
-  for (int i = CHAR_MIN; i <= CHAR_MAX; ++i) {
+  for (int i = CHAR_MIN; i <= CHAR_MAX; ++i)
+  {
     char c = static_cast<char>(i);
-    if (std::strchr(types, c) || std::strchr(special, c) || !c) continue;
+    if (std::strchr(types, c) || std::strchr(special, c) || !c)
+      continue;
     safe_sprintf(format_str, "{0:10%c}", c);
     const char *message = "invalid type specifier";
-    EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), value),
-                     format_error, message)
-      << format_str << " " << message;
+    EXPECT_THROW_MSG((void)fmt::format(runtime(format_str), value), format_error, message) << format_str << " " << message;
   }
 }
 
 TEST(format_test, format_int)
 {
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:v"), 42), format_error,
-                   "invalid type specifier");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:v"), 42), format_error, "invalid type specifier");
   check_unknown_types(42, "bBdoxXnLc", "integer");
   EXPECT_EQ("x", fmt::format("{:c}", static_cast<int>('x')));
 }
@@ -1173,15 +1027,12 @@ TEST(format_test, format_bin)
   EXPECT_EQ("-101010", fmt::format("{0:b}", -42));
   EXPECT_EQ("11000000111001", fmt::format("{0:b}", 12345));
   EXPECT_EQ("10010001101000101011001111000", fmt::format("{0:b}", 0x12345678));
-  EXPECT_EQ("10010000101010111100110111101111",
-            fmt::format("{0:b}", 0x90ABCDEF));
-  EXPECT_EQ("11111111111111111111111111111111",
-            fmt::format("{0:b}", max_value<uint32_t>()));
+  EXPECT_EQ("10010000101010111100110111101111", fmt::format("{0:b}", 0x90ABCDEF));
+  EXPECT_EQ("11111111111111111111111111111111", fmt::format("{0:b}", max_value<uint32_t>()));
 }
 
 #if FMT_USE_INT128
-constexpr auto int128_max = static_cast<__int128_t>(
-  (static_cast<__uint128_t>(1) << ((__SIZEOF_INT128__ * CHAR_BIT) - 1)) - 1);
+constexpr auto int128_max = static_cast<__int128_t>((static_cast<__uint128_t>(1) << ((__SIZEOF_INT128__ * CHAR_BIT) - 1)) - 1);
 constexpr auto int128_min = -int128_max - 1;
 
 constexpr auto uint128_max = ~static_cast<__uint128_t>(0);
@@ -1199,18 +1050,12 @@ TEST(format_test, format_dec)
 #if FMT_USE_INT128
   EXPECT_EQ("0", fmt::format("{0}", static_cast<__int128_t>(0)));
   EXPECT_EQ("0", fmt::format("{0}", static_cast<__uint128_t>(0)));
-  EXPECT_EQ("9223372036854775808",
-            fmt::format("{0}", static_cast<__int128_t>(INT64_MAX) + 1));
-  EXPECT_EQ("-9223372036854775809",
-            fmt::format("{0}", static_cast<__int128_t>(INT64_MIN) - 1));
-  EXPECT_EQ("18446744073709551616",
-            fmt::format("{0}", static_cast<__int128_t>(UINT64_MAX) + 1));
-  EXPECT_EQ("170141183460469231731687303715884105727",
-            fmt::format("{0}", int128_max));
-  EXPECT_EQ("-170141183460469231731687303715884105728",
-            fmt::format("{0}", int128_min));
-  EXPECT_EQ("340282366920938463463374607431768211455",
-            fmt::format("{0}", uint128_max));
+  EXPECT_EQ("9223372036854775808", fmt::format("{0}", static_cast<__int128_t>(INT64_MAX) + 1));
+  EXPECT_EQ("-9223372036854775809", fmt::format("{0}", static_cast<__int128_t>(INT64_MIN) - 1));
+  EXPECT_EQ("18446744073709551616", fmt::format("{0}", static_cast<__int128_t>(UINT64_MAX) + 1));
+  EXPECT_EQ("170141183460469231731687303715884105727", fmt::format("{0}", int128_max));
+  EXPECT_EQ("-170141183460469231731687303715884105728", fmt::format("{0}", int128_min));
+  EXPECT_EQ("340282366920938463463374607431768211455", fmt::format("{0}", uint128_max));
 #endif
 
   char buffer[buffer_size];
@@ -1241,18 +1086,12 @@ TEST(format_test, format_hex)
 #if FMT_USE_INT128
   EXPECT_EQ("0", fmt::format("{0:x}", static_cast<__int128_t>(0)));
   EXPECT_EQ("0", fmt::format("{0:x}", static_cast<__uint128_t>(0)));
-  EXPECT_EQ("8000000000000000",
-            fmt::format("{0:x}", static_cast<__int128_t>(INT64_MAX) + 1));
-  EXPECT_EQ("-8000000000000001",
-            fmt::format("{0:x}", static_cast<__int128_t>(INT64_MIN) - 1));
-  EXPECT_EQ("10000000000000000",
-            fmt::format("{0:x}", static_cast<__int128_t>(UINT64_MAX) + 1));
-  EXPECT_EQ("7fffffffffffffffffffffffffffffff",
-            fmt::format("{0:x}", int128_max));
-  EXPECT_EQ("-80000000000000000000000000000000",
-            fmt::format("{0:x}", int128_min));
-  EXPECT_EQ("ffffffffffffffffffffffffffffffff",
-            fmt::format("{0:x}", uint128_max));
+  EXPECT_EQ("8000000000000000", fmt::format("{0:x}", static_cast<__int128_t>(INT64_MAX) + 1));
+  EXPECT_EQ("-8000000000000001", fmt::format("{0:x}", static_cast<__int128_t>(INT64_MIN) - 1));
+  EXPECT_EQ("10000000000000000", fmt::format("{0:x}", static_cast<__int128_t>(UINT64_MAX) + 1));
+  EXPECT_EQ("7fffffffffffffffffffffffffffffff", fmt::format("{0:x}", int128_max));
+  EXPECT_EQ("-80000000000000000000000000000000", fmt::format("{0:x}", int128_min));
+  EXPECT_EQ("ffffffffffffffffffffffffffffffff", fmt::format("{0:x}", uint128_max));
 #endif
 
   char buffer[buffer_size];
@@ -1280,18 +1119,12 @@ TEST(format_test, format_oct)
 #if FMT_USE_INT128
   EXPECT_EQ("0", fmt::format("{0:o}", static_cast<__int128_t>(0)));
   EXPECT_EQ("0", fmt::format("{0:o}", static_cast<__uint128_t>(0)));
-  EXPECT_EQ("1000000000000000000000",
-            fmt::format("{0:o}", static_cast<__int128_t>(INT64_MAX) + 1));
-  EXPECT_EQ("-1000000000000000000001",
-            fmt::format("{0:o}", static_cast<__int128_t>(INT64_MIN) - 1));
-  EXPECT_EQ("2000000000000000000000",
-            fmt::format("{0:o}", static_cast<__int128_t>(UINT64_MAX) + 1));
-  EXPECT_EQ("1777777777777777777777777777777777777777777",
-            fmt::format("{0:o}", int128_max));
-  EXPECT_EQ("-2000000000000000000000000000000000000000000",
-            fmt::format("{0:o}", int128_min));
-  EXPECT_EQ("3777777777777777777777777777777777777777777",
-            fmt::format("{0:o}", uint128_max));
+  EXPECT_EQ("1000000000000000000000", fmt::format("{0:o}", static_cast<__int128_t>(INT64_MAX) + 1));
+  EXPECT_EQ("-1000000000000000000001", fmt::format("{0:o}", static_cast<__int128_t>(INT64_MIN) - 1));
+  EXPECT_EQ("2000000000000000000000", fmt::format("{0:o}", static_cast<__int128_t>(UINT64_MAX) + 1));
+  EXPECT_EQ("1777777777777777777777777777777777777777777", fmt::format("{0:o}", int128_max));
+  EXPECT_EQ("-2000000000000000000000000000000000000000000", fmt::format("{0:o}", int128_min));
+  EXPECT_EQ("3777777777777777777777777777777777777777777", fmt::format("{0:o}", uint128_max));
 #endif
 
   char buffer[buffer_size];
@@ -1346,8 +1179,7 @@ TEST(format_test, format_double)
   EXPECT_EQ(buffer, fmt::format("{:a}", -42.0));
   safe_sprintf(buffer, "%A", -42.0);
   EXPECT_EQ(buffer, fmt::format("{:A}", -42.0));
-  EXPECT_EQ("9223372036854775808.000000",
-            fmt::format("{:f}", 9223372036854775807.0));
+  EXPECT_EQ("9223372036854775808.000000", fmt::format("{:f}", 9223372036854775807.0));
 }
 
 TEST(format_test, precision_rounding)
@@ -1363,11 +1195,9 @@ TEST(format_test, precision_rounding)
   EXPECT_EQ("0.00123", fmt::format("{:.3}", 0.00123));
   EXPECT_EQ("0.1", fmt::format("{:.16g}", 0.1));
   EXPECT_EQ("1", fmt::format("{:.0}", 1.0));
-  EXPECT_EQ("225.51575035152063720",
-            fmt::format("{:.17f}", 225.51575035152064));
+  EXPECT_EQ("225.51575035152063720", fmt::format("{:.17f}", 225.51575035152064));
   EXPECT_EQ("-761519619559038.2", fmt::format("{:.1f}", -761519619559038.2));
-  EXPECT_EQ("1.9156918820264798e-56",
-            fmt::format("{}", 1.9156918820264798e-56));
+  EXPECT_EQ("1.9156918820264798e-56", fmt::format("{}", 1.9156918820264798e-56));
   EXPECT_EQ("0.0000", fmt::format("{:.4f}", 7.2809479766055470e-15));
 
   // Trigger a rounding error in Grisu by a specially chosen number.
@@ -1400,11 +1230,13 @@ TEST(format_test, format_nan)
   EXPECT_EQ("+nan  ", fmt::format("{:<+06}", nan));
   EXPECT_EQ(" +nan ", fmt::format("{:^+06}", nan));
   EXPECT_EQ("  +nan", fmt::format("{:>+06}", nan));
-  if (std::signbit(-nan)) {
+  if (std::signbit(-nan))
+  {
     EXPECT_EQ("-nan", fmt::format("{}", -nan));
     EXPECT_EQ("  -nan", fmt::format("{:+06}", -nan));
   }
-  else {
+  else
+  {
     fmt::print("Warning: compiler doesn't handle negative NaN correctly");
   }
   EXPECT_EQ(" nan", fmt::format("{: }", nan));
@@ -1456,11 +1288,10 @@ TEST(format_test, format_char)
   EXPECT_EQ("a", fmt::format("{0}", 'a'));
   EXPECT_EQ("z", fmt::format("{0:c}", 'z'));
   int n = 'x';
-  for (const char *type = types + 1; *type; ++type) {
+  for (const char *type = types + 1; *type; ++type)
+  {
     std::string format_str = fmt::format("{{:{}}}", *type);
-    EXPECT_EQ(fmt::format(runtime(format_str), n),
-              fmt::format(runtime(format_str), 'x'))
-      << format_str;
+    EXPECT_EQ(fmt::format(runtime(format_str), n), fmt::format(runtime(format_str), 'x')) << format_str;
   }
   EXPECT_EQ(fmt::format("{:02X}", n), fmt::format("{:02X}", 'x'));
 }
@@ -1484,12 +1315,12 @@ TEST(format_test, format_cstring)
   EXPECT_EQ("test", fmt::format("{0:s}", "test"));
   char nonconst[] = "nonconst";
   EXPECT_EQ("nonconst", fmt::format("{0}", nonconst));
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("{0}"), static_cast<const char *>(nullptr)),
-    format_error, "string pointer is null");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0}"), static_cast<const char *>(nullptr)), format_error, "string pointer is null");
 }
 
-void function_pointer_test(int, double, std::string) {}
+void function_pointer_test(int, double, std::string)
+{
+}
 
 TEST(format_test, format_pointer)
 {
@@ -1497,27 +1328,20 @@ TEST(format_test, format_pointer)
   EXPECT_EQ("0x0", fmt::format("{0}", static_cast<void *>(nullptr)));
   EXPECT_EQ("0x1234", fmt::format("{0}", reinterpret_cast<void *>(0x1234)));
   EXPECT_EQ("0x1234", fmt::format("{0:p}", reinterpret_cast<void *>(0x1234)));
-  EXPECT_EQ("0x" + std::string(sizeof(void *) * CHAR_BIT / 4, 'f'),
-            fmt::format("{0}", reinterpret_cast<void *>(~uintptr_t())));
-  EXPECT_EQ("0x1234",
-            fmt::format("{}", fmt::ptr(reinterpret_cast<int *>(0x1234))));
+  EXPECT_EQ("0x" + std::string(sizeof(void *) * CHAR_BIT / 4, 'f'), fmt::format("{0}", reinterpret_cast<void *>(~uintptr_t())));
+  EXPECT_EQ("0x1234", fmt::format("{}", fmt::ptr(reinterpret_cast<int *>(0x1234))));
   std::unique_ptr<int> up(new int(1));
-  EXPECT_EQ(fmt::format("{}", fmt::ptr(up.get())),
-            fmt::format("{}", fmt::ptr(up)));
+  EXPECT_EQ(fmt::format("{}", fmt::ptr(up.get())), fmt::format("{}", fmt::ptr(up)));
   std::shared_ptr<int> sp(new int(1));
-  EXPECT_EQ(fmt::format("{}", fmt::ptr(sp.get())),
-            fmt::format("{}", fmt::ptr(sp)));
-  EXPECT_EQ(fmt::format("{}", fmt::detail::bit_cast<const void *>(
-    &function_pointer_test)),
-    fmt::format("{}", fmt::ptr(function_pointer_test)));
+  EXPECT_EQ(fmt::format("{}", fmt::ptr(sp.get())), fmt::format("{}", fmt::ptr(sp)));
+  EXPECT_EQ(fmt::format("{}", fmt::detail::bit_cast<const void *>(&function_pointer_test)), fmt::format("{}", fmt::ptr(function_pointer_test)));
   EXPECT_EQ("0x0", fmt::format("{}", nullptr));
 }
 
 TEST(format_test, format_string)
 {
   EXPECT_EQ("test", fmt::format("{0}", std::string("test")));
-  EXPECT_THROW((void)fmt::format(fmt::runtime("{:x}"), std::string("test")),
-               fmt::format_error);
+  EXPECT_THROW((void)fmt::format(fmt::runtime("{:x}"), std::string("test")), fmt::format_error);
 }
 
 TEST(format_test, format_string_view)
@@ -1527,7 +1351,9 @@ TEST(format_test, format_string_view)
 }
 
 #ifdef FMT_USE_STRING_VIEW
-struct string_viewable {};
+struct string_viewable
+{
+};
 
 FMT_BEGIN_NAMESPACE
 template <> struct formatter<string_viewable> : formatter<std::string_view>
@@ -1547,15 +1373,15 @@ TEST(format_test, format_std_string_view)
 
 struct explicitly_convertible_to_std_string_view
 {
-  explicit operator std::string_view() const { return "foo"; }
+  explicit operator std::string_view() const
+  {
+    return "foo";
+  }
 };
 
-template <>
-struct fmt::formatter<explicitly_convertible_to_std_string_view>
-  : formatter<std::string_view>
+template <> struct fmt::formatter<explicitly_convertible_to_std_string_view> : formatter<std::string_view>
 {
-  auto format(explicitly_convertible_to_std_string_view v, format_context &ctx)
-    -> decltype(ctx.out())
+  auto format(explicitly_convertible_to_std_string_view v, format_context &ctx) -> decltype(ctx.out())
   {
     return format_to(ctx.out(), "'{}'", std::string_view(v));
   }
@@ -1563,14 +1389,16 @@ struct fmt::formatter<explicitly_convertible_to_std_string_view>
 
 TEST(format_test, format_explicitly_convertible_to_std_string_view)
 {
-  EXPECT_EQ("'foo'",
-            fmt::format("{}", explicitly_convertible_to_std_string_view()));
+  EXPECT_EQ("'foo'", fmt::format("{}", explicitly_convertible_to_std_string_view()));
 }
 #endif
 
 struct converible_to_anything
 {
-  template <typename T> operator T() const { return T(); }
+  template <typename T> operator T() const
+  {
+    return T();
+  }
 };
 
 FMT_BEGIN_NAMESPACE
@@ -1581,8 +1409,7 @@ template <> struct formatter<converible_to_anything>
     return ctx.begin();
   }
 
-  auto format(converible_to_anything, format_context &ctx)
-    -> decltype(ctx.out())
+  auto format(converible_to_anything, format_context &ctx) -> decltype(ctx.out())
   {
     return format_to(ctx.out(), "foo");
   }
@@ -1594,16 +1421,18 @@ TEST(format_test, format_convertible_to_anything)
   EXPECT_EQ("foo", fmt::format("{}", converible_to_anything()));
 }
 
-class Answer {};
+class Answer
+{
+};
 
 FMT_BEGIN_NAMESPACE
 template <> struct formatter<date>
 {
-  template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin())
+  template <typename ParseContext> FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin())
   {
     auto it = ctx.begin();
-    if (it != ctx.end() && *it == 'd') ++it;
+    if (it != ctx.end() && *it == 'd')
+      ++it;
     return it;
   }
 
@@ -1616,8 +1445,7 @@ template <> struct formatter<date>
 
 template <> struct formatter<Answer> : formatter<int>
 {
-  template <typename FormatContext>
-  auto format(Answer, FormatContext &ctx) -> decltype(ctx.out())
+  template <typename FormatContext> auto format(Answer, FormatContext &ctx) -> decltype(ctx.out())
   {
     return formatter<int>::format(42, ctx);
   }
@@ -1626,8 +1454,7 @@ FMT_END_NAMESPACE
 
 TEST(format_test, format_custom)
 {
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:s}"), date(2012, 12, 9)),
-                   format_error, "unknown format specifier");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:s}"), date(2012, 12, 9)), format_error, "unknown format specifier");
   EXPECT_EQ("42", fmt::format("{0}", Answer()));
   EXPECT_EQ("0042", fmt::format("{:04}", Answer()));
 }
@@ -1635,17 +1462,14 @@ TEST(format_test, format_custom)
 TEST(format_test, format_to_custom)
 {
   char buf[10] = {};
-  auto end =
-    &*fmt::format_to(fmt::detail::make_checked(buf, 10), "{}", Answer());
+  auto end = &*fmt::format_to(fmt::detail::make_checked(buf, 10), "{}", Answer());
   EXPECT_EQ(end, buf + 2);
   EXPECT_STREQ(buf, "42");
 }
 
 TEST(format_test, format_string_from_speed_test)
 {
-  EXPECT_EQ("1.2340000000:0042:+3.13:str:0x3e8:X:%",
-            fmt::format("{0:0.10f}:{1:04}:{2:+g}:{3}:{4}:{5}:%", 1.234, 42,
-            3.13, "str", reinterpret_cast<void *>(1000), 'X'));
+  EXPECT_EQ("1.2340000000:0042:+3.13:str:0x3e8:X:%", fmt::format("{0:0.10f}:{1:04}:{2:+g}:{3}:{4}:{5}:%", 1.234, 42, 3.13, "str", reinterpret_cast<void *>(1000), 'X'));
 }
 
 TEST(format_test, format_examples)
@@ -1661,20 +1485,20 @@ TEST(format_test, format_examples)
 
   const char *filename = "nonexistent";
   FILE *ftest = safe_fopen(filename, "r");
-  if (ftest) fclose(ftest);
+  if (ftest)
+    fclose(ftest);
   int error_code = errno;
   EXPECT_TRUE(ftest == nullptr);
   EXPECT_SYSTEM_ERROR(
-    {
-      FILE * f = safe_fopen(filename, "r");
-      if (!f)
-        throw fmt::system_error(errno, "Cannot open file '{}'", filename);
-      fclose(f);
-    },
-    error_code, "Cannot open file 'nonexistent'");
+      {
+        FILE *f = safe_fopen(filename, "r");
+        if (!f)
+          throw fmt::system_error(errno, "Cannot open file '{}'", filename);
+        fclose(f);
+      },
+      error_code, "Cannot open file 'nonexistent'");
 
-  EXPECT_EQ("First, thou shalt count to three",
-            fmt::format("First, thou shalt count to {0}", "three"));
+  EXPECT_EQ("First, thou shalt count to three", fmt::format("First, thou shalt count to {0}", "three"));
   EXPECT_EQ("Bring me a shrubbery", fmt::format("Bring me a {}", "shrubbery"));
   EXPECT_EQ("From 1 to 3", fmt::format("From {} to {}", 1, 3));
 
@@ -1687,38 +1511,28 @@ TEST(format_test, format_examples)
   EXPECT_EQ("c, b, a", fmt::format("{2}, {1}, {0}", 'a', 'b', 'c'));
   EXPECT_EQ("abracadabra", fmt::format("{0}{1}{0}", "abra", "cad"));
 
-  EXPECT_EQ("left aligned                  ",
-            fmt::format("{:<30}", "left aligned"));
-  EXPECT_EQ("                 right aligned",
-            fmt::format("{:>30}", "right aligned"));
-  EXPECT_EQ("           centered           ",
-            fmt::format("{:^30}", "centered"));
-  EXPECT_EQ("***********centered***********",
-            fmt::format("{:*^30}", "centered"));
+  EXPECT_EQ("left aligned                  ", fmt::format("{:<30}", "left aligned"));
+  EXPECT_EQ("                 right aligned", fmt::format("{:>30}", "right aligned"));
+  EXPECT_EQ("           centered           ", fmt::format("{:^30}", "centered"));
+  EXPECT_EQ("***********centered***********", fmt::format("{:*^30}", "centered"));
 
   EXPECT_EQ("+3.140000; -3.140000", fmt::format("{:+f}; {:+f}", 3.14, -3.14));
   EXPECT_EQ(" 3.140000; -3.140000", fmt::format("{: f}; {: f}", 3.14, -3.14));
   EXPECT_EQ("3.140000; -3.140000", fmt::format("{:-f}; {:-f}", 3.14, -3.14));
 
-  EXPECT_EQ("int: 42;  hex: 2a;  oct: 52",
-            fmt::format("int: {0:d};  hex: {0:x};  oct: {0:o}", 42));
-  EXPECT_EQ("int: 42;  hex: 0x2a;  oct: 052",
-            fmt::format("int: {0:d};  hex: {0:#x};  oct: {0:#o}", 42));
+  EXPECT_EQ("int: 42;  hex: 2a;  oct: 52", fmt::format("int: {0:d};  hex: {0:x};  oct: {0:o}", 42));
+  EXPECT_EQ("int: 42;  hex: 0x2a;  oct: 052", fmt::format("int: {0:d};  hex: {0:#x};  oct: {0:#o}", 42));
 
   EXPECT_EQ("The answer is 42", fmt::format("The answer is {}", 42));
-  EXPECT_THROW_MSG(
-    (void)fmt::format(runtime("The answer is {:d}"), "forty-two"),
-    format_error, "invalid type specifier");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("The answer is {:d}"), "forty-two"), format_error, "invalid type specifier");
 
-  EXPECT_WRITE(
-    stdout, fmt::print("{}", std::numeric_limits<double>::infinity()), "inf");
+  EXPECT_WRITE(stdout, fmt::print("{}", std::numeric_limits<double>::infinity()), "inf");
 }
 
 TEST(format_test, print)
 {
   EXPECT_WRITE(stdout, fmt::print("Don't {}!", "panic"), "Don't panic!");
-  EXPECT_WRITE(stderr, fmt::print(stderr, "Don't {}!", "panic"),
-               "Don't panic!");
+  EXPECT_WRITE(stderr, fmt::print(stderr, "Don't {}!", "panic"), "Don't panic!");
 }
 
 TEST(format_test, variadic)
@@ -1734,9 +1548,7 @@ TEST(format_test, dynamic)
   args.emplace_back(fmt::detail::make_arg<ctx>("abc1"));
   args.emplace_back(fmt::detail::make_arg<ctx>(1.5f));
 
-  std::string result = fmt::vformat(
-    "{} and {} and {}",
-    fmt::format_args(args.data(), static_cast<int>(args.size())));
+  std::string result = fmt::vformat("{} and {} and {}", fmt::format_args(args.data(), static_cast<int>(args.size())));
 
   EXPECT_EQ("42 and abc1 and 1.5", result);
 }
@@ -1754,40 +1566,42 @@ TEST(format_test, group_digits_view)
   EXPECT_EQ(fmt::format("{:8}", fmt::group_digits(1000)), "   1,000");
 }
 
-enum test_enum { foo, bar };
+enum test_enum
+{
+  foo,
+  bar
+};
 
 TEST(format_test, join)
 {
   using fmt::join;
-  int v1[3] = { 1, 2, 3 };
+  int v1[3] = {1, 2, 3};
   auto v2 = std::vector<float>();
   v2.push_back(1.2f);
   v2.push_back(3.4f);
-  void *v3[2] = { &v1[0], &v1[1] };
+  void *v3[2] = {&v1[0], &v1[1]};
 
   EXPECT_EQ("(1, 2, 3)", fmt::format("({})", join(v1, v1 + 3, ", ")));
   EXPECT_EQ("(1)", fmt::format("({})", join(v1, v1 + 1, ", ")));
   EXPECT_EQ("()", fmt::format("({})", join(v1, v1, ", ")));
   EXPECT_EQ("(001, 002, 003)", fmt::format("({:03})", join(v1, v1 + 3, ", ")));
-  EXPECT_EQ("(+01.20, +03.40)",
-            fmt::format("({:+06.2f})", join(v2.begin(), v2.end(), ", ")));
+  EXPECT_EQ("(+01.20, +03.40)", fmt::format("({:+06.2f})", join(v2.begin(), v2.end(), ", ")));
 
   EXPECT_EQ("1, 2, 3", fmt::format("{0:{1}}", join(v1, v1 + 3, ", "), 1));
 
-  EXPECT_EQ(fmt::format("{}, {}", v3[0], v3[1]),
-            fmt::format("{}", join(v3, v3 + 2, ", ")));
+  EXPECT_EQ(fmt::format("{}, {}", v3[0], v3[1]), fmt::format("{}", join(v3, v3 + 2, ", ")));
 
   EXPECT_EQ("(1, 2, 3)", fmt::format("({})", join(v1, ", ")));
   EXPECT_EQ("(+01.20, +03.40)", fmt::format("({:+06.2f})", join(v2, ", ")));
 
-  auto v4 = std::vector<test_enum>{ foo, bar, foo };
+  auto v4 = std::vector<test_enum>{foo, bar, foo};
   EXPECT_EQ("0 1 0", fmt::format("{}", join(v4, " ")));
 }
 
 #ifdef __cpp_lib_byte
 TEST(format_test, join_bytes)
 {
-  auto v = std::vector<std::byte>{ std::byte(1), std::byte(2), std::byte(3) };
+  auto v = std::vector<std::byte>{std::byte(1), std::byte(2), std::byte(3)};
   EXPECT_EQ("1, 2, 3", fmt::format("{}", fmt::join(v, ", ")));
 }
 #endif
@@ -1800,8 +1614,7 @@ std::string vformat_message(int id, const char *format, fmt::format_args args)
   return to_string(buffer);
 }
 
-template <typename... Args>
-std::string format_message(int id, const char *format, const Args&... args)
+template <typename... Args> std::string format_message(int id, const char *format, const Args &...args)
 {
   auto va = fmt::make_format_args(args...);
   return vformat_message(id, format, va);
@@ -1809,13 +1622,10 @@ std::string format_message(int id, const char *format, const Args&... args)
 
 TEST(format_test, format_message_example)
 {
-  EXPECT_EQ("[42] something happened",
-            format_message(42, "{} happened", "something"));
+  EXPECT_EQ("[42] something happened", format_message(42, "{} happened", "something"));
 }
 
-template <typename... Args>
-void print_error(const char *file, int line, const char *format,
-                 const Args&... args)
+template <typename... Args> void print_error(const char *file, int line, const char *format, const Args &...args)
 {
   fmt::print("{}: {}: ", file, line);
   fmt::print(format, args...);
@@ -1823,18 +1633,21 @@ void print_error(const char *file, int line, const char *format,
 
 TEST(format_test, unpacked_args)
 {
-  EXPECT_EQ("0123456789abcdefg",
-            fmt::format("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 0, 1, 2, 3, 4, 5,
-            6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f', 'g'));
+  EXPECT_EQ("0123456789abcdefg", fmt::format("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f', 'g'));
 }
 
-struct string_like {};
-fmt::string_view to_string_view(string_like) { return "foo"; }
+struct string_like
+{
+};
+fmt::string_view to_string_view(string_like)
+{
+  return "foo";
+}
 
-constexpr char with_null[3] = { '{', '}', '\0' };
-constexpr char no_null[2] = { '{', '}' };
-static FMT_CONSTEXPR_DECL const char static_with_null[3] = { '{', '}', '\0' };
-static FMT_CONSTEXPR_DECL const char static_no_null[2] = { '{', '}' };
+constexpr char with_null[3] = {'{', '}', '\0'};
+constexpr char no_null[2] = {'{', '}'};
+static FMT_CONSTEXPR_DECL const char static_with_null[3] = {'{', '}', '\0'};
+static FMT_CONSTEXPR_DECL const char static_no_null[2] = {'{', '}'};
 
 TEST(format_test, compile_time_string)
 {
@@ -1844,8 +1657,7 @@ TEST(format_test, compile_time_string)
 
 #if FMT_USE_NONTYPE_TEMPLATE_PARAMETERS
   using namespace fmt::literals;
-  EXPECT_EQ("foobar", fmt::format(FMT_STRING("{foo}{bar}"), "bar"_a = "bar",
-            "foo"_a = "foo"));
+  EXPECT_EQ("foobar", fmt::format(FMT_STRING("{foo}{bar}"), "bar"_a = "bar", "foo"_a = "foo"));
   EXPECT_EQ("", fmt::format(FMT_STRING("")));
   EXPECT_EQ("", fmt::format(FMT_STRING(""), "arg"_a = 42));
 #endif
@@ -1886,20 +1698,20 @@ TEST(format_test, custom_format_compile_time_string)
 
 using namespace fmt::literals;
 
-#  if FMT_GCC_VERSION
-#    define FMT_CHECK_DEPRECATED_UDL_FORMAT 1
-#  elif FMT_CLANG_VERSION && defined(__has_warning)
-#    if __has_warning("-Wdeprecated-declarations")
-#      define FMT_CHECK_DEPRECATED_UDL_FORMAT 1
-#    endif
-#  endif
-#  ifndef FMT_CHECK_DEPRECATED_UDL_FORMAT
-#    define FMT_CHECK_DEPRECATED_UDL_FORMAT 0
-#  endif
+#if FMT_GCC_VERSION
+#define FMT_CHECK_DEPRECATED_UDL_FORMAT 1
+#elif FMT_CLANG_VERSION && defined(__has_warning)
+#if __has_warning("-Wdeprecated-declarations")
+#define FMT_CHECK_DEPRECATED_UDL_FORMAT 1
+#endif
+#endif
+#ifndef FMT_CHECK_DEPRECATED_UDL_FORMAT
+#define FMT_CHECK_DEPRECATED_UDL_FORMAT 0
+#endif
 
-#  if FMT_CHECK_DEPRECATED_UDL_FORMAT
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#if FMT_CHECK_DEPRECATED_UDL_FORMAT
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 TEST(format_test, format_udl)
 {
@@ -1909,31 +1721,31 @@ TEST(format_test, format_udl)
   EXPECT_EQ("{}"_format(date(2015, 10, 21)), "2015-10-21");
 }
 
-#    pragma GCC diagnostic pop
-#  endif
+#pragma GCC diagnostic pop
+#endif
 
 TEST(format_test, named_arg_udl)
 {
-  auto udl_a = fmt::format("{first}{second}{first}{third}", "first"_a = "abra",
-                           "second"_a = "cad", "third"_a = 99);
-  EXPECT_EQ(
-    fmt::format("{first}{second}{first}{third}", fmt::arg("first", "abra"),
-    fmt::arg("second", "cad"), fmt::arg("third", 99)),
-    udl_a);
+  auto udl_a = fmt::format("{first}{second}{first}{third}", "first"_a = "abra", "second"_a = "cad", "third"_a = 99);
+  EXPECT_EQ(fmt::format("{first}{second}{first}{third}", fmt::arg("first", "abra"), fmt::arg("second", "cad"), fmt::arg("third", 99)), udl_a);
 }
-#endif  // FMT_USE_USER_DEFINED_LITERALS
+#endif // FMT_USE_USER_DEFINED_LITERALS
 
-TEST(format_test, enum) { EXPECT_EQ("0", fmt::format("{}", foo)); }
+TEST(format_test, enum)
+{
+  EXPECT_EQ("0", fmt::format("{}", foo));
+}
 
 TEST(format_test, formatter_not_specialized)
 {
-  static_assert(!fmt::has_formatter<fmt::formatter<test_enum>,
-                fmt::format_context>::value,
-                "");
+  static_assert(!fmt::has_formatter<fmt::formatter<test_enum>, fmt::format_context>::value, "");
 }
 
 #if FMT_HAS_FEATURE(cxx_strong_enums)
-enum big_enum : unsigned long long { big_enum_value = 5000000000ULL };
+enum big_enum : unsigned long long
+{
+  big_enum_value = 5000000000ULL
+};
 
 TEST(format_test, strong_enum)
 {
@@ -1948,9 +1760,17 @@ TEST(format_test, non_null_terminated_format_string)
 
 struct variant
 {
-  enum { int_type, string_type } type;
-  explicit variant(int) : type(int_type) {}
-  explicit variant(const char *) : type(string_type) {}
+  enum
+  {
+    int_type,
+    string_type
+  } type;
+  explicit variant(int) : type(int_type)
+  {
+  }
+  explicit variant(const char *) : type(string_type)
+  {
+  }
 };
 
 FMT_BEGIN_NAMESPACE
@@ -1972,40 +1792,34 @@ TEST(format_test, dynamic_formatter)
   EXPECT_EQ("42", fmt::format("{:d}", num));
   EXPECT_EQ("foo", fmt::format("{:s}", str));
   EXPECT_EQ(" 42 foo ", fmt::format("{:{}} {:{}}", num, 3, str, 4));
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{}}"), num), format_error,
-                   "cannot switch from manual to automatic argument indexing");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:{0}}"), num), format_error,
-                   "cannot switch from automatic to manual argument indexing");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:+}"), str), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:-}"), str), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{: }"), str), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:#}"), str), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:0}"), str), format_error,
-                   "format specifier requires numeric argument");
-  EXPECT_THROW_MSG((void)fmt::format(runtime("{:.2}"), num), format_error,
-                   "precision not allowed for this argument type");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{0:{}}"), num), format_error, "cannot switch from manual to automatic argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:{0}}"), num), format_error, "cannot switch from automatic to manual argument indexing");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:+}"), str), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:-}"), str), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{: }"), str), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:#}"), str), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:0}"), str), format_error, "format specifier requires numeric argument");
+  EXPECT_THROW_MSG((void)fmt::format(runtime("{:.2}"), num), format_error, "precision not allowed for this argument type");
 }
 
-namespace adl_test {
-  namespace fmt {
-    namespace detail {
-      struct foo {};
-      template <typename, typename OutputIt> void write(OutputIt, foo) = delete;
-    }  // namespace detail
-  }  // namespace fmt
-}  // namespace adl_test
+namespace adl_test
+{
+namespace fmt
+{
+namespace detail
+{
+struct foo
+{
+};
+template <typename, typename OutputIt> void write(OutputIt, foo) = delete;
+} // namespace detail
+} // namespace fmt
+} // namespace adl_test
 
 FMT_BEGIN_NAMESPACE
-template <>
-struct formatter<adl_test::fmt::detail::foo> : formatter<std::string>
+template <> struct formatter<adl_test::fmt::detail::foo> : formatter<std::string>
 {
-  template <typename FormatContext>
-  auto format(adl_test::fmt::detail::foo, FormatContext &ctx)
-    -> decltype(ctx.out())
+  template <typename FormatContext> auto format(adl_test::fmt::detail::foo, FormatContext &ctx) -> decltype(ctx.out())
   {
     return formatter<std::string>::format("foo", ctx);
   }
@@ -2014,7 +1828,10 @@ FMT_END_NAMESPACE
 
 struct convertible_to_int
 {
-  operator int() const { return value; }
+  operator int() const
+  {
+    return value;
+  }
 
   int value = 42;
 };
@@ -2026,7 +1843,10 @@ TEST(format_test, to_string)
   EXPECT_EQ(fmt::to_string(adl_test::fmt::detail::foo()), "foo");
   EXPECT_EQ(fmt::to_string(convertible_to_int()), "42");
 
-  enum foo : unsigned char { zero };
+  enum foo : unsigned char
+  {
+    zero
+  };
   EXPECT_EQ(fmt::to_string(zero), "0");
 }
 
@@ -2078,14 +1898,16 @@ TEST(format_test, format_to_vector)
 struct nongrowing_container
 {
   using value_type = char;
-  void push_back(char) { throw std::runtime_error("can't take it any more"); }
+  void push_back(char)
+  {
+    throw std::runtime_error("can't take it any more");
+  }
 };
 
 TEST(format_test, format_to_propagates_exceptions)
 {
   auto c = nongrowing_container();
-  EXPECT_THROW(fmt::format_to(std::back_inserter(c), "{}", 42),
-               std::runtime_error);
+  EXPECT_THROW(fmt::format_to(std::back_inserter(c), "{}", 42), std::runtime_error);
 }
 
 TEST(format_test, format_to_n)
@@ -2146,13 +1968,16 @@ struct test_output_iterator
     ++data;
     return tmp;
   }
-  char &operator*() { return *data; }
+  char &operator*()
+  {
+    return *data;
+  }
 };
 
 TEST(format_test, format_to_n_output_iterator)
 {
   char buf[10] = {};
-  fmt::format_to_n(test_output_iterator{ buf }, 10, "{}", 42);
+  fmt::format_to_n(test_output_iterator{buf}, 10, "{}", 42);
   EXPECT_STREQ(buf, "42");
 }
 
@@ -2161,74 +1986,69 @@ struct test_error_handler
 {
   const char *&error;
 
-  FMT_CONSTEXPR test_error_handler(const char *&err) : error(err) {}
+  FMT_CONSTEXPR test_error_handler(const char *&err) : error(err)
+  {
+  }
 
-  FMT_CONSTEXPR test_error_handler(const test_error_handler &other)
-    : error(other.error)
+  FMT_CONSTEXPR test_error_handler(const test_error_handler &other) : error(other.error)
   {
   }
 
   FMT_CONSTEXPR void on_error(const char *message)
   {
-    if (!error) error = message;
+    if (!error)
+      error = message;
   }
 };
 
 FMT_CONSTEXPR size_t len(const char *s)
 {
   size_t len = 0;
-  while (*s++) ++len;
+  while (*s++)
+    ++len;
   return len;
 }
 
 FMT_CONSTEXPR bool equal(const char *s1, const char *s2)
 {
-  if (!s1 || !s2) return s1 == s2;
-  while (*s1 && *s1 == *s2) {
+  if (!s1 || !s2)
+    return s1 == s2;
+  while (*s1 && *s1 == *s2)
+  {
     ++s1;
     ++s2;
   }
   return *s1 == *s2;
 }
 
-template <typename... Args>
-FMT_CONSTEXPR bool test_error(const char *fmt, const char *expected_error)
+template <typename... Args> FMT_CONSTEXPR bool test_error(const char *fmt, const char *expected_error)
 {
   const char *actual_error = nullptr;
   auto s = string_view(fmt, len(fmt));
-  auto checker =
-    fmt::detail::format_string_checker<char, test_error_handler, Args...>(
-    s, test_error_handler(actual_error));
+  auto checker = fmt::detail::format_string_checker<char, test_error_handler, Args...>(s, test_error_handler(actual_error));
   fmt::detail::parse_format_string<true>(s, checker);
   return equal(actual_error, expected_error);
 }
 
-#  define EXPECT_ERROR_NOARGS(fmt, error) \
-    static_assert(test_error(fmt, error), "")
-#  define EXPECT_ERROR(fmt, error, ...) \
-    static_assert(test_error<__VA_ARGS__>(fmt, error), "")
+#define EXPECT_ERROR_NOARGS(fmt, error) static_assert(test_error(fmt, error), "")
+#define EXPECT_ERROR(fmt, error, ...) static_assert(test_error<__VA_ARGS__>(fmt, error), "")
 
 TEST(format_test, format_string_errors)
 {
   EXPECT_ERROR_NOARGS("foo", nullptr);
   EXPECT_ERROR_NOARGS("}", "unmatched '}' in format string");
   EXPECT_ERROR("{0:s", "unknown format specifier", date);
-#  if !FMT_MSC_VER || FMT_MSC_VER >= 1916
+#if !FMT_MSC_VER || FMT_MSC_VER >= 1916
   // This causes an detail compiler error in MSVC2017.
   EXPECT_ERROR("{:{<}", "invalid fill character '{'", int);
   EXPECT_ERROR("{:10000000000}", "number is too big", int);
   EXPECT_ERROR("{:.10000000000}", "number is too big", int);
   EXPECT_ERROR_NOARGS("{:x}", "argument not found");
-  EXPECT_ERROR("{:+}", "format specifier requires numeric argument",
-               const char *);
-  EXPECT_ERROR("{:-}", "format specifier requires numeric argument",
-               const char *);
-  EXPECT_ERROR("{:#}", "format specifier requires numeric argument",
-               const char *);
-  EXPECT_ERROR("{: }", "format specifier requires numeric argument",
-               const char *);
-  EXPECT_ERROR("{:0}", "format specifier requires numeric argument",
-               const char *);
+  EXPECT_ERROR("{:+}", "format specifier requires numeric argument", const char *);
+  EXPECT_ERROR("{:-}", "format specifier requires numeric argument", const char *);
+  EXPECT_ERROR("{:#}", "format specifier requires numeric argument", const char *);
+  EXPECT_ERROR("{: }", "format specifier requires numeric argument", const char *);
+  EXPECT_ERROR("{:0}", "format specifier requires numeric argument", const char *);
   EXPECT_ERROR("{:+}", "format specifier requires signed argument", unsigned);
   EXPECT_ERROR("{:-}", "format specifier requires signed argument", unsigned);
   EXPECT_ERROR("{: }", "format specifier requires signed argument", unsigned);
@@ -2242,18 +2062,15 @@ TEST(format_test, format_string_errors)
   EXPECT_ERROR("{:d}", "invalid type specifier", const char *);
   EXPECT_ERROR("{:d}", "invalid type specifier", std::string);
   EXPECT_ERROR("{:s}", "invalid type specifier", void *);
-#  else
+#else
   fmt::print("warning: constexpr is broken in this version of MSVC\n");
-#  endif
-#  if FMT_USE_NONTYPE_TEMPLATE_PARAMETERS
+#endif
+#if FMT_USE_NONTYPE_TEMPLATE_PARAMETERS
   EXPECT_ERROR("{foo}", "named argument is not found", decltype("bar"_a = 42));
-  EXPECT_ERROR("{foo}", "named argument is not found",
-               decltype(fmt::arg("foo", 42)));
-#  else
-  EXPECT_ERROR("{foo}",
-               "compile-time checks for named arguments require C++20 support",
-               int);
-#  endif
+  EXPECT_ERROR("{foo}", "named argument is not found", decltype(fmt::arg("foo", 42)));
+#else
+  EXPECT_ERROR("{foo}", "compile-time checks for named arguments require C++20 support", int);
+#endif
   EXPECT_ERROR_NOARGS("{10000000000}", "argument not found");
   EXPECT_ERROR_NOARGS("{0x}", "invalid format string");
   EXPECT_ERROR_NOARGS("{-}", "invalid format string");
@@ -2264,12 +2081,8 @@ TEST(format_test, format_string_errors)
   EXPECT_ERROR("{:.x}", "missing precision specifier", int);
   EXPECT_ERROR_NOARGS("{}", "argument not found");
   EXPECT_ERROR("{1}", "argument not found", int);
-  EXPECT_ERROR("{1}{}",
-               "cannot switch from manual to automatic argument indexing", int,
-               int);
-  EXPECT_ERROR("{}{1}",
-               "cannot switch from automatic to manual argument indexing", int,
-               int);
+  EXPECT_ERROR("{1}{}", "cannot switch from manual to automatic argument indexing", int, int);
+  EXPECT_ERROR("{}{1}", "cannot switch from automatic to manual argument indexing", int, int);
 }
 
 TEST(format_test, vformat_to)
@@ -2285,7 +2098,7 @@ TEST(format_test, vformat_to)
   EXPECT_EQ("42", s);
 }
 
-#endif  // FMT_USE_CONSTEXPR
+#endif // FMT_USE_CONSTEXPR
 
 TEST(format_test, char_traits_is_not_ambiguous)
 {
@@ -2300,7 +2113,9 @@ TEST(format_test, char_traits_is_not_ambiguous)
 #endif
 }
 
-struct check_back_appender {};
+struct check_back_appender
+{
+};
 
 FMT_BEGIN_NAMESPACE
 template <> struct formatter<check_back_appender>
@@ -2310,12 +2125,10 @@ template <> struct formatter<check_back_appender>
     return ctx.begin();
   }
 
-  template <typename Context>
-  auto format(check_back_appender, Context &ctx) -> decltype(ctx.out())
+  template <typename Context> auto format(check_back_appender, Context &ctx) -> decltype(ctx.out())
   {
     auto out = ctx.out();
-    static_assert(std::is_same<decltype(++out), decltype(out) &>::value,
-                  "needs to satisfy weakly_incrementable");
+    static_assert(std::is_same<decltype(++out), decltype(out) &>::value, "needs to satisfy weakly_incrementable");
     *out = 'y';
     return ++out;
   }
@@ -2329,29 +2142,22 @@ TEST(format_test, back_insert_slicing)
 
 template <typename Char, typename T> bool check_enabled_formatter()
 {
-  static_assert(std::is_default_constructible<fmt::formatter<T, Char>>::value,
-                "");
+  static_assert(std::is_default_constructible<fmt::formatter<T, Char>>::value, "");
   return true;
 }
 
 template <typename Char, typename... T> void check_enabled_formatters()
 {
-  auto dummy = { check_enabled_formatter<Char, T>()... };
+  auto dummy = {check_enabled_formatter<Char, T>()...};
   (void)dummy;
 }
 
 TEST(format_test, test_formatters_enabled)
 {
-  check_enabled_formatters<char, bool, char, signed char, unsigned char, short,
-    unsigned short, int, unsigned, long, unsigned long,
-    long long, unsigned long long, float, double,
-    long double, void *, const void *, char *, const char *,
-    std::string, std::nullptr_t>();
-  check_enabled_formatters<wchar_t, bool, wchar_t, signed char, unsigned char,
-    short, unsigned short, int, unsigned, long,
-    unsigned long, long long, unsigned long long, float,
-    double, long double, void *, const void *, wchar_t *,
-    const wchar_t *, std::wstring, std::nullptr_t>();
+  check_enabled_formatters<char, bool, char, signed char, unsigned char, short, unsigned short, int, unsigned, long, unsigned long, long long, unsigned long long, float, double, long double, void *, const void *, char *, const char *, std::string,
+                           std::nullptr_t>();
+  check_enabled_formatters<wchar_t, bool, wchar_t, signed char, unsigned char, short, unsigned short, int, unsigned, long, unsigned long, long long, unsigned long long, float, double, long double, void *, const void *, wchar_t *, const wchar_t *,
+                           std::wstring, std::nullptr_t>();
 }
 
 TEST(format_int_test, data)
@@ -2487,8 +2293,4 @@ TEST(memory_buffer_test, exception_in_deallocate)
 }
 #endif
 
-
-
 #endif
-
-

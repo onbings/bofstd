@@ -6,7 +6,7 @@
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
  * PURPOSE.
  *
- * This module implements the bofdatetime interface. 
+ * This module implements the bofdatetime interface.
  *
  * Name:        bofdatetime.h
  * Author:      Bernard HARMEL: b.harmel@gmail.com
@@ -23,23 +23,21 @@
 using namespace date::literals;
 using namespace std::chrono_literals;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #include <Winsock2.h>
 #include <conio.h>
 #else
-#include <unistd.h>
-#include <sys/types.h>
+#include <sys/mman.h>
+#include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/sysinfo.h>
-#include <sys/mman.h>
 #include <sys/time.h>
-#include <sys/sysinfo.h>
-#include <sys/time.h>
-#include <sys/resource.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
-#include <iostream> 
-#include <iomanip> 
+#include <iomanip>
+#include <iostream>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -71,8 +69,7 @@ void BofDateTime::Reset()
   InitDateTime();
 }
 
-BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
-  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
+BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32) : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = _Year_U16;
   mMonth_U8 = _Month_U8;
@@ -83,8 +80,7 @@ BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16,
   mMicroSecond_U32 = _MicroSecond_U32;
   InitDateTime();
 }
-BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16)
-  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
+BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16) : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = _Year_U16;
   mMonth_U8 = _Month_U8;
@@ -95,8 +91,7 @@ BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16)
   mMicroSecond_U32 = 0;
   InitDateTime();
 }
-BofDateTime::BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
-  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
+BofDateTime::BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32) : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = 1970;
   mMonth_U8 = 1;
@@ -108,8 +103,7 @@ BofDateTime::BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U
   InitDateTime();
 }
 
-BofDateTime::BofDateTime(const std::tm &_rTm_X, uint32_t _MicroSecond_U32)
-  : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
+BofDateTime::BofDateTime(const std::tm &_rTm_X, uint32_t _MicroSecond_U32) : mpsBofDateTimeImplementation(new BofDateTimeImplementation())
 {
   mYear_U16 = static_cast<uint16_t>(_rTm_X.tm_year + 1900);
   mMonth_U8 = static_cast<uint8_t>(_rTm_X.tm_mon + 1);
@@ -163,7 +157,7 @@ std::string BofDateTime::ToString(const std::string &_rFormat_S)
     MicroSecond_S = std::to_string(mMicroSecond_U32);
     while (PosPercentQ != std::string::npos)
     {
-      //Need to remove %q because il lead to an assertion during strftime call as it is not supported
+      // Need to remove %q because il lead to an assertion during strftime call as it is not supported
       Format_S = Format_S.erase(PosPercentQ, 2);
       Format_S.insert(PosPercentQ, MicroSecond_S);
       PosPercentQ = Format_S.find("%q", PosPercentQ);
@@ -183,7 +177,6 @@ std::string BofDateTime::ToString(const std::string &_rFormat_S)
   return ToString_S;
 }
 
-
 BofDateTime BofDateTime::FromString(const std::string &_rDateTime_S, const std::string &_rFormat_S)
 {
   char *p_c;
@@ -198,15 +191,15 @@ BofDateTime BofDateTime::FromString(const std::string &_rDateTime_S, const std::
   PosPercentQ = Format_S.find("%q");
   if (PosPercentQ != std::string::npos)
   {
-    //Manage only one instance of %q and this one whould be the last one of the format string
+    // Manage only one instance of %q and this one whould be the last one of the format string
     AddMicroSec_B = true;
-    //Need to remove %q because il lead to an assertion during strftime call as it is not supported
+    // Need to remove %q because il lead to an assertion during strftime call as it is not supported
     Format_S = Format_S.erase(PosPercentQ, 2);
   }
 
-  //In case the input string contains more characters than required by the format string, the return value points right after the last consumed
-  //input character.In case the whole input string is consumed, the return value points to the null byte at the end of the string.
-  //If strptime() fails to match all of the format string and therefore an error occurred, the function returns NULL.
+  // In case the input string contains more characters than required by the format string, the return value points right after the last consumed
+  // input character.In case the whole input string is consumed, the return value points to the null byte at the end of the string.
+  // If strptime() fails to match all of the format string and therefore an error occurred, the function returns NULL.
 
   memset(&TmInfo_X, 0, sizeof(TmInfo_X));
   TmInfo_X.tm_mday = 1;
@@ -230,8 +223,7 @@ BofDateTime BofDateTime::FromString(const std::string &_rDateTime_S, const std::
 
 bool BofDateTime::operator==(const BofDateTime &_Other) const
 {
-  return ((mYear_U16 == _Other.Year()) && (mMonth_U8 == _Other.Month()) && (mDay_U8 == _Other.Day()) && (mHour_U8 == _Other.Hour()) &&
-          (mMinute_U8 == _Other.Minute()) && (mSecond_U8 == _Other.Second()) && (mMicroSecond_U32 == _Other.MicroSecond()));
+  return ((mYear_U16 == _Other.Year()) && (mMonth_U8 == _Other.Month()) && (mDay_U8 == _Other.Day()) && (mHour_U8 == _Other.Hour()) && (mMinute_U8 == _Other.Minute()) && (mSecond_U8 == _Other.Second()) && (mMicroSecond_U32 == _Other.MicroSecond()));
 }
 
 bool BofDateTime::operator!=(const BofDateTime &_Other) const
@@ -292,10 +284,10 @@ uint32_t BofDateTime::NanoSecond() const
 {
   return (mMicroSecond_U32 * 1000);
 }
-//date::year_month_day BofDateTime::YearMonthDay() const
+// date::year_month_day BofDateTime::YearMonthDay() const
 //{
-//  return mYmd;
-//}
+//   return mYmd;
+// }
 
 std::tm BofDateTime::Tm() const
 {
@@ -309,15 +301,14 @@ std::chrono::system_clock::time_point BofDateTime::TimePoint() const
 {
   return mTp;
 }
-//double BofDateTime::DateTimeNumber() const
+// double BofDateTime::DateTimeNumber() const
 //{
-//  return mDateTimeNum_lf;
-//}
-
+//   return mDateTimeNum_lf;
+// }
 
 void BofDateTime::InitDateTime()
 {
-  //no  mpsBofDateTimeImplementation = std::make_shared<BofDateTimeImplementation>();
+  // no  mpsBofDateTimeImplementation = std::make_shared<BofDateTimeImplementation>();
   mpsBofDateTimeImplementation->mYmd = date::year_month_day(date::year(mYear_U16), date::month(mMonth_U8), date::day(mDay_U8));
   mIsValid_B = mpsBofDateTimeImplementation->mYmd.ok();
   if (mIsValid_B)
@@ -347,9 +338,9 @@ void BofDateTime::InitDateTime()
 
       auto DurationInDay = date::floor<date::days>(mTp);
       mpsBofDateTimeImplementation->mTime = date::make_time(std::chrono::nanoseconds(mTp - DurationInDay));
-//      std::cout.fill('0');
-//      std::cout << mYmd.day() << '-' << std::setw(2) << static_cast<unsigned>(mYmd.month()) << '-' << mYmd.year() << ' ' << mTime << '\n';
-      //mDateTimeNum_lf = static_cast<double>(mTp.time_since_epoch().count()) + (static_cast<double>(mMicroSecond_U32) / 1000000.0);
+      //      std::cout.fill('0');
+      //      std::cout << mYmd.day() << '-' << std::setw(2) << static_cast<unsigned>(mYmd.month()) << '-' << mYmd.year() << ' ' << mTime << '\n';
+      // mDateTimeNum_lf = static_cast<double>(mTp.time_since_epoch().count()) + (static_cast<double>(mMicroSecond_U32) / 1000000.0);
     }
     else
     {
@@ -365,7 +356,7 @@ void BofDateTime::InitDateTime()
  */
 bool Bof_IsLeapYear(uint16_t _Year_U16)
 {
-//  return ((_Year_U16 % 4 == 0 && _Year_U16 % 100 != 0) || (_Year_U16 % 400 == 0)) ? true : false;
+  //  return ((_Year_U16 % 4 == 0 && _Year_U16 % 100 != 0) || (_Year_U16 % 400 == 0)) ? true : false;
   return (date::year(_Year_U16).is_leap());
 }
 
@@ -373,7 +364,7 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BofDateTime &_rDateTime)
 {
   BOFERR Rts_E = BOF_ERR_INTERNAL;
 
-#if defined( _WIN32 )
+#if defined(_WIN32)
   FILETIME FileTime_X;
   SYSTEMTIME SystemTime_X;
 
@@ -387,7 +378,7 @@ BOFERR Bof_FileTimeToSystemTime(uint64_t _FileTime_U64, BofDateTime &_rDateTime)
   }
 #else
   time_t t = (time_t)_FileTime_U64;
-  struct tm *pNow_X = localtime(&t); //Or gmtime ?
+  struct tm *pNow_X = localtime(&t); // Or gmtime ?
 
   if (pNow_X)
   {
@@ -403,14 +394,14 @@ BOFERR Bof_Now(BofDateTime &_rDateTime)
 {
   BOFERR Rts_E = BOF_ERR_INTERNAL;
 
-  std::chrono::system_clock::time_point TimePoint{ std::chrono::system_clock::now() };
+  std::chrono::system_clock::time_point TimePoint{std::chrono::system_clock::now()};
   auto DurationInDay = date::floor<date::days>(TimePoint);
   date::year_month_day Ymd(DurationInDay);
   auto Time = date::make_time(TimePoint - DurationInDay);
 
-  //std::cout.fill('0');
-  //std::cout << Ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(Ymd.month()) << '-' << Ymd.year() << ' ' << Time << '\n';
-  //std::cout << TimePoint.time_since_epoch().count() << std::endl;
+  // std::cout.fill('0');
+  // std::cout << Ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(Ymd.month()) << '-' << Ymd.year() << ' ' << Time << '\n';
+  // std::cout << TimePoint.time_since_epoch().count() << std::endl;
 
   _rDateTime = BofDateTime((uint32_t)Ymd.day(), (uint32_t)Ymd.month(), (int)Ymd.year(), Time.hours().count(), Time.minutes().count(), Time.seconds().count(), std::chrono::duration_cast<std::chrono::microseconds>(Time.subseconds()).count());
   Rts_E = _rDateTime.IsValid() ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
@@ -423,11 +414,11 @@ BOFERR Bof_NbDaySinceUnixEpoch_To_BofDateTime(uint32_t _NbDaySinceUnixEpoch_U32,
   BOFERR Rts_E;
 
   date::year_month_day Epoch = date::year(1970) / date::jan / date::day(1); // Assuming you're referring to the traditional Unix epoch (some systems such as Cocoa on OS X use the first day of the millenium, Jan 1, 2001 as their epoch)
-  //std::cout.fill('0');
-  //std::cout << Epoch.day() << '-' << std::setw(2) << static_cast<unsigned>(Epoch.month()) << '-' << Epoch.year() << '\n';
+  // std::cout.fill('0');
+  // std::cout << Epoch.day() << '-' << std::setw(2) << static_cast<unsigned>(Epoch.month()) << '-' << Epoch.year() << '\n';
 
-  date::year_month_day Ymd = date::sys_days( Epoch ) + date::days(_NbDaySinceUnixEpoch_U32);
-  //std::cout << Ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(Ymd.month()) << '-' << Ymd.year() << '\n';
+  date::year_month_day Ymd = date::sys_days(Epoch) + date::days(_NbDaySinceUnixEpoch_U32);
+  // std::cout << Ymd.day() << '-' << std::setw(2) << static_cast<unsigned>(Ymd.month()) << '-' << Ymd.year() << '\n';
 
   //  _rDateTime = BofDateTime((uint32_t)Ymd.day(), (uint32_t)Ymd.month(), (int)Ymd.year(), Time.hours().count(), Time.minutes().count(), Time.seconds().count(), std::chrono::duration_cast<std::chrono::microseconds>(Time.subseconds()).count());
   _rDateTime = BofDateTime((uint32_t)Ymd.day(), (uint32_t)Ymd.month(), (int)Ymd.year(), 0, 0, 0, 0);
@@ -443,7 +434,7 @@ BOFERR Bof_BofDateTime_To_NbDaySinceUnixEpoch(const BofDateTime &_rDateTime, uin
   if (_rDateTime.IsValid())
   {
     date::year_month_day Ymd = date::year_month_day(date::year(_rDateTime.Year()), date::month(_rDateTime.Month()), date::day(_rDateTime.Day()));
-//    _rNbDaySinceUnixEpoch_U32 = date::days(Ymd).count() - date::days(Epoch).count();
+    //    _rNbDaySinceUnixEpoch_U32 = date::days(Ymd).count() - date::days(Epoch).count();
     _rNbDaySinceUnixEpoch_U32 = date::sys_days(Ymd).time_since_epoch().count();
     Rts_E = BOF_ERR_NO_ERROR;
   }
@@ -472,8 +463,8 @@ BOFERR Bof_SetDateTime(const BofDateTime &_rDateTime)
 
   if (_rDateTime.IsValid())
   {
-#if defined (_WIN32)
-    SYSTEMTIME           SystemTime_X;
+#if defined(_WIN32)
+    SYSTEMTIME SystemTime_X;
 
     SystemTime_X.wYear = _rDateTime.Year();
     SystemTime_X.wMonth = _rDateTime.Month();
@@ -502,10 +493,7 @@ BOFERR Bof_SetDateTime(const BofDateTime &_rDateTime)
     pDate_X->tm_min = _rDateTime.Minute();
     pDate_X->tm_sec = _rDateTime.Second();
 
-    const struct timeval Tv_X =
-    {
-      mktime(pDate_X), 0
-    };
+    const struct timeval Tv_X = {mktime(pDate_X), 0};
     if (settimeofday(&Tv_X, nullptr) == 0)
     {
       Rts_E = BOF_ERR_NO_ERROR;
@@ -532,8 +520,8 @@ BOFERR Bof_DiffDateTime(const BofDateTime &_rFirstDateTime, const BofDateTime &_
     auto OffsetInHmsus = Duration - NbDay;
     auto Time = date::make_time(OffsetInHmsus);
 
-    //std::cout << _rDiffDay_S32 << std::endl;
-    //std::cout << Time << std::endl;
+    // std::cout << _rDiffDay_S32 << std::endl;
+    // std::cout << Time << std::endl;
 
     _rDiffTime = BofDateTime(Time.hours().count(), Time.minutes().count(), Time.seconds().count(), std::chrono::duration_cast<std::chrono::microseconds>(Time.subseconds()).count());
     _rDiffTime.ClearDate();
@@ -544,9 +532,8 @@ BOFERR Bof_DiffDateTime(const BofDateTime &_rFirstDateTime, const BofDateTime &_
 
 END_BOF_NAMESPACE()
 
-
-#if defined (_WIN32)
-//https://stackoverflow.com/questions/321849/strptime-equivalent-on-windows
+#if defined(_WIN32)
+// https://stackoverflow.com/questions/321849/strptime-equivalent-on-windows
 char *strptime(const char *s, const char *f, struct tm *tm)
 {
   // Isn't the C++ standard lib nice? std::get_time is defined such that its
@@ -566,5 +553,3 @@ char *strptime(const char *s, const char *f, struct tm *tm)
 }
 #else
 #endif
-
-

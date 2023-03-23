@@ -40,7 +40,7 @@ Timelesschunk name: cg2
 Timelesschunk sub: data1
 */
 
-//https://www.urldecoder.org/
+// https://www.urldecoder.org/
 TEST(Uri_Test, UrlEscape)
 {
   EXPECT_STREQ(BofUri::S_UrlEncode("").c_str(), "");
@@ -91,7 +91,7 @@ TEST(Uri_Test, UriConstructorDestructor)
 
   Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey#top");
   EXPECT_TRUE(Uri.IsValid());
-  //printf("Uri: '%s'\n", Uri.ToString().c_str());
+  // printf("Uri: '%s'\n", Uri.ToString().c_str());
   EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
@@ -105,11 +105,11 @@ TEST(Uri_Test, UriConstructorDestructor)
   EXPECT_STREQ(Uri.Authority().c_str(), "john.doe@www.google.com:123");
 
   IpAddress_X = Uri.IpAddress(IpAddress_S);
-  //Can chage (google.com) EXPECT_STREQ(IpAddress_S.c_str(), "myprotocol://142.251.36.4:123");
+  // Can chage (google.com) EXPECT_STREQ(IpAddress_S.c_str(), "myprotocol://142.251.36.4:123");
   EXPECT_EQ(IpAddress_X.Port(), 123);
   EXPECT_FALSE(IpAddress_X.IpV6_B);
   EXPECT_EQ(IpAddress_X.SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN);
-  //EXPECT_EQ(IpAddress_X.IpV4Address_X;              IpV6_B;
+  // EXPECT_EQ(IpAddress_X.IpV4Address_X;              IpV6_B;
 
   Path = Uri.Path(Path_S);
   EXPECT_STREQ(Path_S.c_str(), "/forum/questions/file.txt");
@@ -175,10 +175,10 @@ TEST(Uri_Test, Set)
 
 TEST(Uri_Test, QueryParamCollection)
 {
-  //BOF_SOCKET_ADDRESS_COMPONENT SchemeAuthority_X;
-  std::string  QueryParamCollection_S;
-  //BOF_SOCKET_ADDRESS IpAddress_X;
-  //BofPath Path;
+  // BOF_SOCKET_ADDRESS_COMPONENT SchemeAuthority_X;
+  std::string QueryParamCollection_S;
+  // BOF_SOCKET_ADDRESS IpAddress_X;
+  // BofPath Path;
   std::map<std::string, std::string> QueryParamCollection;
   BofUri Uri;
 
@@ -225,5 +225,4 @@ TEST(Uri_Test, QueryParamCollection)
   QueryParamCollection = Uri.QueryParamCollection(QueryParamCollection_S);
   EXPECT_STREQ(QueryParamCollection_S.c_str(), "a=1&b&c=3");
   EXPECT_EQ(QueryParamCollection.size(), 3);
-
 }

@@ -23,29 +23,10 @@
 
 BEGIN_BOF_NAMESPACE()
 
-const char *GL_pRpcType_c[] =          /*! RPC type of variable (in the same orger than RPCKEYWORD)*/
-{
-  "RPCRETURNVALUE",
-  "RPCSERVERARG",
-  "RPCARRAYIN",
-  "RPCARRAYOUT",
-  "RPCARRAYINOUT",
-  "RPCIN",
-  "RPCOUT",
-  "RPCINOUT",
-  "RPCVOID",
-  "RPCU8",
-  "RPCSBYTE",
-  "RPCU16",
-  "RPCSWORD",
-  "RPCU32",
-  "RPCSLONG",
-  "RPCSTRING",
-  "RPCFLOAT",
-  "RPCDOUBLE"
-};
+const char *GL_pRpcType_c[] = /*! RPC type of variable (in the same orger than RPCKEYWORD)*/
+    {"RPCRETURNVALUE", "RPCSERVERARG", "RPCARRAYIN", "RPCARRAYOUT", "RPCARRAYINOUT", "RPCIN", "RPCOUT", "RPCINOUT", "RPCVOID", "RPCU8", "RPCSBYTE", "RPCU16", "RPCSWORD", "RPCU32", "RPCSLONG", "RPCSTRING", "RPCFLOAT", "RPCDOUBLE"};
 
-uint16_t   BofRpc::S_mRpcCmdTag_U16 = 0;
+uint16_t BofRpc::S_mRpcCmdTag_U16 = 0;
 
 /*!
  * Description
@@ -85,16 +66,15 @@ void DumpRpcFrame(bool Trx_B, char *pTxt_c, uint32_t Nb_U32, uint8_t *pData_U8)
   }
 }
 
-
 #ifdef BHBH
 uint32_t Bof_BuildRpcFunctionTable(TCHAR *pFnIn_tc, TCHAR *pFnOut_tc, TCHAR *pVarName_tc, uint32_t *pErrorLine_U32)
 {
-  uint32_t    Rts_U32 = -1, NbArg_U32, Line_U32;
+  uint32_t Rts_U32 = -1, NbArg_U32, Line_U32;
   FILE *IoIn_X, *IoOut_X;
-  TCHAR       pIn_tc[4096], pOut_tc[4096], pModifier_tc[32], *p_tc, pHelp_tc[RPC_MAXHELPSIZE + 1];
-  uint32_t    i_U32, NextI_U32, NbToken_U32;
+  TCHAR pIn_tc[4096], pOut_tc[4096], pModifier_tc[32], *p_tc, pHelp_tc[RPC_MAXHELPSIZE + 1];
+  uint32_t i_U32, NextI_U32, NbToken_U32;
   PARSERTOKEN pToken_X[64];
-  bool        Error_B, FirstVar_B;
+  bool Error_B, FirstVar_B;
 
   /*
    * RPCFUNCTION GL_pRpcFct_X[]=
@@ -118,16 +98,12 @@ uint32_t Bof_BuildRpcFunctionTable(TCHAR *pFnIn_tc, TCHAR *pFnOut_tc, TCHAR *pVa
         Error_B = false;
         Line_U32 = 0;
 
-        while ((!Error_B)
-               && (fgets(pIn_tc, sizeof(pIn_tc), IoIn_X))
-               )
+        while ((!Error_B) && (fgets(pIn_tc, sizeof(pIn_tc), IoIn_X)))
         {
           Line_U32++;
           NbToken_U32 = 64;
 
-          if ((Bof_Parser(pIn_tc, sizeof(GL_pRpcType_c) / sizeof(GL_pRpcType_c[0]), GL_pRpcType_c, &NbToken_U32, pToken_X, " (,)", (TCHAR *)GL_pRpcType_c[KW_RPCRETURNVALUE], ";"))
-              && (pToken_X[1].KeywordId_U32 == PARSER_SYMBOL)
-              )
+          if ((Bof_Parser(pIn_tc, sizeof(GL_pRpcType_c) / sizeof(GL_pRpcType_c[0]), GL_pRpcType_c, &NbToken_U32, pToken_X, " (,)", (TCHAR *)GL_pRpcType_c[KW_RPCRETURNVALUE], ";")) && (pToken_X[1].KeywordId_U32 == PARSER_SYMBOL))
           {
             NbArg_U32 = 0;
             p_tc = pOut_tc;
@@ -136,8 +112,7 @@ uint32_t Bof_BuildRpcFunctionTable(TCHAR *pFnIn_tc, TCHAR *pFnOut_tc, TCHAR *pVa
             FirstVar_B = true;
 
             while ((i_U32 < NbToken_U32 - 1) // last is ;
-                   && (!Error_B)
-                   )
+                   && (!Error_B))
             {
               if (pToken_X[i_U32].KeywordId_U32 != PARSER_SYMBOL)
               {
@@ -174,9 +149,7 @@ uint32_t Bof_BuildRpcFunctionTable(TCHAR *pFnIn_tc, TCHAR *pFnOut_tc, TCHAR *pVa
                 }
                 else
                 {
-                  if ((pToken_X[i_U32 + 1].KeywordId_U32 != PARSER_SYMBOL)
-                      && (pToken_X[i_U32 + 2].KeywordId_U32 == PARSER_SYMBOL)
-                      )
+                  if ((pToken_X[i_U32 + 1].KeywordId_U32 != PARSER_SYMBOL) && (pToken_X[i_U32 + 2].KeywordId_U32 == PARSER_SYMBOL))
                   {
                     if (pToken_X[i_U32 + 1].KeywordId_U32 == KW_RPCIN)
                     {
@@ -198,9 +171,7 @@ uint32_t Bof_BuildRpcFunctionTable(TCHAR *pFnIn_tc, TCHAR *pFnOut_tc, TCHAR *pVa
                   }
                   else
                   {
-                    if ((pToken_X[i_U32].KeywordId_U32 == KW_RPCSTRING)
-                        && (pToken_X[i_U32 + 1].KeywordId_U32 == PARSER_SYMBOL)
-                        )
+                    if ((pToken_X[i_U32].KeywordId_U32 == KW_RPCSTRING) && (pToken_X[i_U32 + 1].KeywordId_U32 == PARSER_SYMBOL))
                     {
                       NextI_U32 = i_U32 + 2;
                     }
@@ -227,65 +198,55 @@ uint32_t Bof_BuildRpcFunctionTable(TCHAR *pFnIn_tc, TCHAR *pFnOut_tc, TCHAR *pVa
 
                 switch (pToken_X[i_U32].KeywordId_U32)
                 {
-                  case KW_RPCARRAYIN:
-                  case KW_RPCARRAYOUT:
-                  case KW_RPCARRAYINOUT:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_ARRAY", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCARRAYIN:
+                case KW_RPCARRAYOUT:
+                case KW_RPCARRAYINOUT: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_ARRAY", pModifier_tc));
+                }
+                break;
 
-                  case KW_RPCU8:
-                  case KW_RPCSBYTE:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U8", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCU8:
+                case KW_RPCSBYTE: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U8", pModifier_tc));
+                }
+                break;
 
-                  case KW_RPCU16:
-                  case KW_RPCSWORD:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U16", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCU16:
+                case KW_RPCSWORD: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U16", pModifier_tc));
+                }
+                break;
 
-                  case KW_RPCU32:
-                  case KW_RPCSLONG:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U32", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCU32:
+                case KW_RPCSLONG: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U32", pModifier_tc));
+                }
+                break;
 
-                  case KW_RPCSTRING:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_CHAR", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCSTRING: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_CHAR", pModifier_tc));
+                }
+                break;
 
-                  case KW_RPCFLOAT:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_FLOAT", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCFLOAT: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_FLOAT", pModifier_tc));
+                }
+                break;
 
-                  case KW_RPCDOUBLE:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_DOUBLE", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCDOUBLE: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_DOUBLE", pModifier_tc));
+                }
+                break;
 
-                  case KW_RPCSERVERARG:
-                  {
-                    p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U32", pModifier_tc));
-                  }
-                  break;
+                case KW_RPCSERVERARG: {
+                  p_tc += (_stprintf(p_tc, "%s|RPC_VAR_U32", pModifier_tc));
+                }
+                break;
 
-
-                  default:
-                  {
-                    Error_B = true;
-                  }
-                  break;
+                default: {
+                  Error_B = true;
+                }
+                break;
                 }
               }
               else
@@ -364,13 +325,10 @@ BofRpc::BofRpc(BOF_RPC_PARAM *_pBofRpcParam_X)
     mRpcState_X.MaxStringSize_U32 = BOF_RPC_MAXSTRINGSIZE;
     mRpcState_X.NbRpcFunction_U32 = mBofRpcParam_X.NbRpcFunction_U32;
 
-
     Sof_U16 = BOF_RPCMAGICNUMBER;
     pSof_U8 = (uint8_t *)&Sof_U16;
 
-    if ((pSof_U8[0] == (BOF_RPCMAGICNUMBER >> 8))
-        && (pSof_U8[1] == (uint8_t)(BOF_RPCMAGICNUMBER & 0xFF))
-        )
+    if ((pSof_U8[0] == (BOF_RPCMAGICNUMBER >> 8)) && (pSof_U8[1] == (uint8_t)(BOF_RPCMAGICNUMBER & 0xFF)))
     {
       mLittleEndian_B = false;
     }
@@ -474,10 +432,7 @@ uint32_t BofRpc::BuildRpcRequest(BOF_RPC_PARSER_RESULT *_pRpcRequest_X, ...)
 
   va_start(VaList_X, _pRpcRequest_X);
 
-  if ((_pRpcRequest_X)
-      && (_pRpcRequest_X->FctId_U32 < BOF_RPC_MAXFCT)
-      && (mpRpcReqStack_O)
-      )
+  if ((_pRpcRequest_X) && (_pRpcRequest_X->FctId_U32 < BOF_RPC_MAXFCT) && (mpRpcReqStack_O))
   {
     _pRpcRequest_X->pRpcStack_U8 = mpRpcReqStack_O->GetStackBuffer();
     pRpcFct_X = &mBofRpcParam_X.pRpcFct_X[_pRpcRequest_X->FctId_U32];
@@ -487,129 +442,118 @@ uint32_t BofRpc::BuildRpcRequest(BOF_RPC_PARSER_RESULT *_pRpcRequest_X, ...)
     for (i_U32 = 0; i_U32 < pRpcFct_X->NbArg_U16; i_U32++)
     {
       VarType_E = (BOF_RPC_VAR_TYPE)(pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_VARTYPEMASK);
-      RpcIn_B = ((pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
-                 || (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_INOUT)
-                 );
+      RpcIn_B = ((pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN) || (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_INOUT));
 
       switch (VarType_E)
       {
-        case BOF_RPC_VAR_VOID:
-        {
-          Sts_B = true;
-        }
-        break;
+      case BOF_RPC_VAR_VOID: {
+        Sts_B = true;
+      }
+      break;
 
-        case BOF_RPC_VAR_CHAR:
-        {
-          pVal_U8 = (uint8_t *)va_arg(VaList_X, char *);
-          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push((char *)pVal_U8) : true;
-        }
-        break;
+      case BOF_RPC_VAR_CHAR: {
+        pVal_U8 = (uint8_t *)va_arg(VaList_X, char *);
+        Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push((char *)pVal_U8) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_U8:
-        case BOF_RPC_VAR_S8:
+      case BOF_RPC_VAR_U8:
+      case BOF_RPC_VAR_S8: {
+        if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
         {
-          if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
-          {
-            Val_U8 = (uint8_t)va_arg(VaList_X, uint32_t);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U8) : true;
-          }
-          else
-          {
-            pVal_U8 = va_arg(VaList_X, uint8_t *);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U8) : true;
-          }
+          Val_U8 = (uint8_t)va_arg(VaList_X, uint32_t);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U8) : true;
         }
-        break;
-
-        case BOF_RPC_VAR_U16:
-        case BOF_RPC_VAR_S16:
+        else
         {
-          if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
-          {
-            Val_U16 = (uint16_t)va_arg(VaList_X, uint32_t);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U16) : true;
-          }
-          else
-          {
-            pVal_U16 = va_arg(VaList_X, uint16_t *);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U16) : true;
-          }
+          pVal_U8 = va_arg(VaList_X, uint8_t *);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U8) : true;
         }
-        break;
+      }
+      break;
 
-        case BOF_RPC_VAR_U32:
-        case BOF_RPC_VAR_S32:
+      case BOF_RPC_VAR_U16:
+      case BOF_RPC_VAR_S16: {
+        if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
         {
-          if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
-          {
-            Val_U32 = va_arg(VaList_X, uint32_t);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U32) : true;
-          }
-          else
-          {
-            pVal_U32 = va_arg(VaList_X, uint32_t *);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U32) : true;
-          }
+          Val_U16 = (uint16_t)va_arg(VaList_X, uint32_t);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U16) : true;
         }
-        break;
-
-        case BOF_RPC_VAR_U64:
-        case BOF_RPC_VAR_S64:
+        else
         {
-          if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
-          {
-            Val_U64 = va_arg(VaList_X, uint64_t);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U64) : true;
-          }
-          else
-          {
-            pVal_U64 = va_arg(VaList_X, uint64_t *);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U64) : true;
-          }
+          pVal_U16 = va_arg(VaList_X, uint16_t *);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U16) : true;
         }
-        break;
+      }
+      break;
 
-        case BOF_RPC_VAR_FLOAT:
+      case BOF_RPC_VAR_U32:
+      case BOF_RPC_VAR_S32: {
+        if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
         {
-          if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
-          {
-            Val_f = (float)va_arg(VaList_X, double);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_f) : true;
-          }
-          else
-          {
-            pVal_f = (float *)va_arg(VaList_X, double *);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_f) : true;
-          }
+          Val_U32 = va_arg(VaList_X, uint32_t);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U32) : true;
         }
-        break;
-
-        case BOF_RPC_VAR_DOUBLE:
+        else
         {
-          if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
-          {
-            Val_ff = va_arg(VaList_X, double);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_ff) : true;
-          }
-          else
-          {
-            pVal_ff = va_arg(VaList_X, double *);
-            Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_ff) : true;
-          }
+          pVal_U32 = va_arg(VaList_X, uint32_t *);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U32) : true;
         }
-        break;
+      }
+      break;
 
-        case BOF_RPC_VAR_ARRAY:
+      case BOF_RPC_VAR_U64:
+      case BOF_RPC_VAR_S64: {
+        if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
         {
-          pVal_U8 = (uint8_t *)va_arg(VaList_X, char *);
-          Sts_B = (RpcIn_B) ? Push(mpRpcReqStack_O, true, (BOF_RPC_VAR_ARRAYINOUT)pVal_U8) : true;
+          Val_U64 = va_arg(VaList_X, uint64_t);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_U64) : true;
         }
-        break;
+        else
+        {
+          pVal_U64 = va_arg(VaList_X, uint64_t *);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_U64) : true;
+        }
+      }
+      break;
 
-        default:
-          Sts_B = false;
-          break;
+      case BOF_RPC_VAR_FLOAT: {
+        if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
+        {
+          Val_f = (float)va_arg(VaList_X, double);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_f) : true;
+        }
+        else
+        {
+          pVal_f = (float *)va_arg(VaList_X, double *);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_f) : true;
+        }
+      }
+      break;
+
+      case BOF_RPC_VAR_DOUBLE: {
+        if (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_IN)
+        {
+          Val_ff = va_arg(VaList_X, double);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(Val_ff) : true;
+        }
+        else
+        {
+          pVal_ff = va_arg(VaList_X, double *);
+          Sts_B = (RpcIn_B) ? mpRpcReqStack_O->Push(*pVal_ff) : true;
+        }
+      }
+      break;
+
+      case BOF_RPC_VAR_ARRAY: {
+        pVal_U8 = (uint8_t *)va_arg(VaList_X, char *);
+        Sts_B = (RpcIn_B) ? Push(mpRpcReqStack_O, true, (BOF_RPC_VAR_ARRAYINOUT)pVal_U8) : true;
+      }
+      break;
+
+      default:
+        Sts_B = false;
+        break;
       }
 
       if (!Sts_B)
@@ -628,9 +572,9 @@ uint32_t BofRpc::BuildRpcRequest(BOF_RPC_PARSER_RESULT *_pRpcRequest_X, ...)
         Flag_U16 |= BOF_RPC_FLAG_USECHECKSUM;
       }
 
-      if (mpRpcReqStack_O->Push(static_cast<uint16_t> (0)))                                                                                                                          // Dumy rts
+      if (mpRpcReqStack_O->Push(static_cast<uint16_t>(0))) // Dumy rts
       {
-        if (mpRpcReqStack_O->Push(static_cast<uint16_t> (_pRpcRequest_X->FctId_U32)))
+        if (mpRpcReqStack_O->Push(static_cast<uint16_t>(_pRpcRequest_X->FctId_U32)))
         {
           S_mRpcCmdTag_U16++;
 
@@ -642,7 +586,7 @@ uint32_t BofRpc::BuildRpcRequest(BOF_RPC_PARSER_RESULT *_pRpcRequest_X, ...)
           if (mBofRpcParam_X.UseChecksum_B)
           {
             if (PushTopRpcControlParam(mpRpcReqStack_O, BOF_RPCMAGICNUMBER, Flag_U16, (uint16_t)_pRpcRequest_X->TimeOut_U32, S_mRpcCmdTag_U16,
-                mpRpcReqStack_O->GetStackPointer() + 2)) // Insert Sof and length for Mtx comptutation
+                                       mpRpcReqStack_O->GetStackPointer() + 2)) // Insert Sof and length for Mtx comptutation
             {
               Cs_U32 = 0;
 
@@ -650,7 +594,7 @@ uint32_t BofRpc::BuildRpcRequest(BOF_RPC_PARSER_RESULT *_pRpcRequest_X, ...)
               {
                 Cs_U32 += _pRpcRequest_X->pRpcStack_U8[i_U32];
               }
-              Sts_B = mpRpcReqStack_O->Push(static_cast<uint16_t> (Cs_U32));
+              Sts_B = mpRpcReqStack_O->Push(static_cast<uint16_t>(Cs_U32));
             }
           }
           else
@@ -662,7 +606,7 @@ uint32_t BofRpc::BuildRpcRequest(BOF_RPC_PARSER_RESULT *_pRpcRequest_X, ...)
           {
             _pRpcRequest_X->RpcStackLen_U32 = mpRpcReqStack_O->GetStackPointer();
 
-            if (PushTopRpcControlParam(mpRpcReqStack_O, BOF_RPCMAGICNUMBER, Flag_U16, (uint16_t)_pRpcRequest_X->TimeOut_U32, S_mRpcCmdTag_U16, _pRpcRequest_X->RpcStackLen_U32))        // Push size
+            if (PushTopRpcControlParam(mpRpcReqStack_O, BOF_RPCMAGICNUMBER, Flag_U16, (uint16_t)_pRpcRequest_X->TimeOut_U32, S_mRpcCmdTag_U16, _pRpcRequest_X->RpcStackLen_U32)) // Push size
             {
               Rts_U32 = BOF_ERR_NO_ERROR;
             }
@@ -701,10 +645,7 @@ uint32_t BofRpc::BuildRpcAnswer(BOF_RPC_PARSER_RESULT *_pRpcParserResult_X)
   BOF_RPC_FUNCTION *pRpcFct_X;
   BOF_RPC_VAR_TYPE VarType_E;
 
-  if ((mpRpcAnsStack_O)
-      && (_pRpcParserResult_X)
-      && (_pRpcParserResult_X->FctId_U32 < BOF_RPC_MAXFCT)
-      )
+  if ((mpRpcAnsStack_O) && (_pRpcParserResult_X) && (_pRpcParserResult_X->FctId_U32 < BOF_RPC_MAXFCT))
   {
     _pRpcParserResult_X->pRpcStack_U8 = mpRpcAnsStack_O->GetStackBuffer();
     pRpcFct_X = &mBofRpcParam_X.pRpcFct_X[_pRpcParserResult_X->FctId_U32];
@@ -715,73 +656,62 @@ uint32_t BofRpc::BuildRpcAnswer(BOF_RPC_PARSER_RESULT *_pRpcParserResult_X)
     for (i_U32 = 0; i_U32 < pRpcFct_X->NbArg_U16; i_U32++)
     {
       VarType_E = (BOF_RPC_VAR_TYPE)(pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_VARTYPEMASK);
-      RpcOut_B = ((pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_OUT)
-                  || (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_INOUT)
-                  );
+      RpcOut_B = ((pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_OUT) || (pRpcFct_X->pArg_U16[i_U32] & BOF_RPC_INOUT));
 
       switch (VarType_E)
       {
-        case BOF_RPC_VAR_VOID:
-        {
-          Sts_B = true;
-        }
-        break;
+      case BOF_RPC_VAR_VOID: {
+        Sts_B = true;
+      }
+      break;
 
-        case BOF_RPC_VAR_CHAR:
-        {
-          Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.pVal_c) : true;
-        }
-        break;
+      case BOF_RPC_VAR_CHAR: {
+        Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.pVal_c) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_U8:
-        case BOF_RPC_VAR_S8:
-        {
-          Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U8) : true;
-        }
-        break;
+      case BOF_RPC_VAR_U8:
+      case BOF_RPC_VAR_S8: {
+        Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U8) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_U16:
-        case BOF_RPC_VAR_S16:
-        {
-          Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U16) : true;
-        }
-        break;
+      case BOF_RPC_VAR_U16:
+      case BOF_RPC_VAR_S16: {
+        Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U16) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_U32:
-        case BOF_RPC_VAR_S32:
-        {
-          Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U32) : true;
-        }
-        break;
+      case BOF_RPC_VAR_U32:
+      case BOF_RPC_VAR_S32: {
+        Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U32) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_U64:
-        case BOF_RPC_VAR_S64:
-        {
-          Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U64) : true;
-        }
-        break;
+      case BOF_RPC_VAR_U64:
+      case BOF_RPC_VAR_S64: {
+        Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_U64) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_FLOAT:
-        {
-          Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_f) : true;
-        }
-        break;
+      case BOF_RPC_VAR_FLOAT: {
+        Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_f) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_DOUBLE:
-        {
-          Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_ff) : true;
-        }
-        break;
+      case BOF_RPC_VAR_DOUBLE: {
+        Sts_B = (RpcOut_B) ? mpRpcAnsStack_O->Push(_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_ff) : true;
+      }
+      break;
 
-        case BOF_RPC_VAR_ARRAY:
-        {
-          Sts_B = (RpcOut_B) ? Push(mpRpcAnsStack_O, true, &_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_X) : true;
-        }
-        break;
+      case BOF_RPC_VAR_ARRAY: {
+        Sts_B = (RpcOut_B) ? Push(mpRpcAnsStack_O, true, &_pRpcParserResult_X->pRpcVar_X[i_U32].VALUE.Val_X) : true;
+      }
+      break;
 
-        default:
-          Sts_B = false;
-          break;
+      default:
+        Sts_B = false;
+        break;
       }
 
       if (!Sts_B)
@@ -800,9 +730,9 @@ uint32_t BofRpc::BuildRpcAnswer(BOF_RPC_PARSER_RESULT *_pRpcParserResult_X)
         Flag_U16 |= BOF_RPC_FLAG_USECHECKSUM;
       }
 
-      if (mpRpcAnsStack_O->Push(static_cast<uint16_t> (_pRpcParserResult_X->RpcRts_U32)))
+      if (mpRpcAnsStack_O->Push(static_cast<uint16_t>(_pRpcParserResult_X->RpcRts_U32)))
       {
-        if (mpRpcAnsStack_O->Push(static_cast<uint16_t> (_pRpcParserResult_X->FctId_U32)))
+        if (mpRpcAnsStack_O->Push(static_cast<uint16_t>(_pRpcParserResult_X->FctId_U32)))
         {
           if (mBofRpcParam_X.UseChecksum_B)
           {
@@ -814,7 +744,7 @@ uint32_t BofRpc::BuildRpcAnswer(BOF_RPC_PARSER_RESULT *_pRpcParserResult_X)
               {
                 Cs_U32 += _pRpcParserResult_X->pRpcStack_U8[i_U32];
               }
-              Sts_B = mpRpcAnsStack_O->Push(static_cast<uint16_t> (Cs_U32));
+              Sts_B = mpRpcAnsStack_O->Push(static_cast<uint16_t>(Cs_U32));
             }
           }
           else
@@ -865,11 +795,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
   BOF_RPC_FUNCTION *pRpcFct_X = nullptr;
   BofStack *pRpcReqStack_O = nullptr;
 
-  if ((_pRpcFrameBuffer_U8)
-      && (_pRpcParserResult_X)
-      && (mpRpcReqStack_O)
-      && (mpRpcAnsStack_O)
-      )
+  if ((_pRpcFrameBuffer_U8) && (_pRpcParserResult_X) && (mpRpcReqStack_O) && (mpRpcAnsStack_O))
   {
     if (_RpcAnswer_B)
     {
@@ -884,7 +810,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
 
     Flag_U16 = 0;
     TheTag_U16 = 0;
-    memcpy(_pRpcParserResult_X->pRpcStack_U8, _pRpcFrameBuffer_U8, 16);                         // Put rpc header on stack
+    memcpy(_pRpcParserResult_X->pRpcStack_U8, _pRpcFrameBuffer_U8, 16); // Put rpc header on stack
     pRpcReqStack_O->SetStackPointer(16);
 
     if (IsRpcLittleEndian(_pRpcParserResult_X->pRpcStack_U8, &LittleEndian_B, &MustSwap_B) == BOF_ERR_NO_ERROR)
@@ -894,9 +820,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
       _pRpcParserResult_X->TimeOut_U32 = TimeOutInMs_U16;
       Rts_U32 = BOF_ERR_TOO_BIG;
 
-      if ((Sof_U16 == BOF_RPCMAGICNUMBER)
-          && (RpcFrameSizeInByte_U32 <= pRpcReqStack_O->GetStackSize())
-          )
+      if ((Sof_U16 == BOF_RPCMAGICNUMBER) && (RpcFrameSizeInByte_U32 <= pRpcReqStack_O->GetStackSize()))
       {
         _pRpcParserResult_X->RpcStackLen_U32 = RpcFrameSizeInByte_U32;
         memcpy(_pRpcParserResult_X->pRpcStack_U8, _pRpcFrameBuffer_U8, RpcFrameSizeInByte_U32); // Copy all Rpc header on stack
@@ -929,9 +853,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
 
         _pRpcParserResult_X->RpcTag_U16 = TheTag_U16;
 
-        if ((_RpcAnswer_B)
-            && (ExpectedTag_U16)
-            )
+        if ((_RpcAnswer_B) && (ExpectedTag_U16))
         {
           Sts_B = false;
           Rts_U32 = BOF_ERR_NOT_FOUND;
@@ -971,74 +893,62 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
           {
             if (_RpcAnswer_B)
             {
-              RpcParam_B = ((pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_OUT)
-                            || (pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_INOUT)
-                            );
+              RpcParam_B = ((pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_OUT) || (pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_INOUT));
             }
             else
             {
-              RpcParam_B = ((pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_IN)
-                            || (pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_INOUT)
-                            );
+              RpcParam_B = ((pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_IN) || (pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_INOUT));
             }
             _pRpcParserResult_X->pRpcVar_X[i_S32].Arg_U16 = pRpcFct_X->pArg_U16[i_S32];
             _pRpcParserResult_X->pRpcVar_X[i_S32].Type_E = (BOF_RPC_VAR_TYPE)(pRpcFct_X->pArg_U16[i_S32] & BOF_RPC_VARTYPEMASK);
 
             switch (_pRpcParserResult_X->pRpcVar_X[i_S32].Type_E)
             {
-              case BOF_RPC_VAR_VOID:
-              {
-                Sts_B = true;
-              }
-              break;
+            case BOF_RPC_VAR_VOID: {
+              Sts_B = true;
+            }
+            break;
 
-              case BOF_RPC_VAR_CHAR:
-              {
-                Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.pVal_c) : true;
-              }
-              break;
+            case BOF_RPC_VAR_CHAR: {
+              Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.pVal_c) : true;
+            }
+            break;
 
-              case BOF_RPC_VAR_U8:
-              case BOF_RPC_VAR_S8:
-              {
-                Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_U8) : true;
-              }
-              break;
+            case BOF_RPC_VAR_U8:
+            case BOF_RPC_VAR_S8: {
+              Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_U8) : true;
+            }
+            break;
 
-              case BOF_RPC_VAR_U16:
-              case BOF_RPC_VAR_S16:
-              {
-                Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_U16) : true;
-              }
-              break;
+            case BOF_RPC_VAR_U16:
+            case BOF_RPC_VAR_S16: {
+              Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_U16) : true;
+            }
+            break;
 
-              case BOF_RPC_VAR_U32:
-              case BOF_RPC_VAR_S32:
-              {
-                Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_U32) : true;
-              }
-              break;
+            case BOF_RPC_VAR_U32:
+            case BOF_RPC_VAR_S32: {
+              Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_U32) : true;
+            }
+            break;
 
-              case BOF_RPC_VAR_FLOAT:
-              {
-                Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_f) : true;
-              }
-              break;
+            case BOF_RPC_VAR_FLOAT: {
+              Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_f) : true;
+            }
+            break;
 
-              case BOF_RPC_VAR_DOUBLE:
-              {
-                Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_ff) : true;
-              }
-              break;
+            case BOF_RPC_VAR_DOUBLE: {
+              Sts_B = (RpcParam_B) ? pRpcReqStack_O->Pop(&_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_ff) : true;
+            }
+            break;
 
-              case BOF_RPC_VAR_ARRAY:
-              {
-                Sts_B = (RpcParam_B) ? Pop(pRpcReqStack_O, true, &_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_X, &Nb_U32) : true;
-              }
+            case BOF_RPC_VAR_ARRAY: {
+              Sts_B = (RpcParam_B) ? Pop(pRpcReqStack_O, true, &_pRpcParserResult_X->pRpcVar_X[i_S32].VALUE.Val_X, &Nb_U32) : true;
+            }
+            break;
+            default:
+              Sts_B = false;
               break;
-              default:
-                Sts_B = false;
-                break;
             }
 
             if (!Sts_B)
@@ -1060,8 +970,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
       mRpcState_X.AnsTimeOut_U32 = _pRpcParserResult_X->TimeOut_U32;
       mRpcState_X.AnsTag_U16 = TheTag_U16;
       mRpcState_X.AnsFlag_U16 = Flag_U16;
-      memcpy(mRpcState_X.pAnsRpcStack_U8, _pRpcParserResult_X->pRpcStack_U8,
-             (mRpcState_X.AnsRpcStackLen_U32 < sizeof(mRpcState_X.pAnsRpcStack_U8)) ? mRpcState_X.AnsRpcStackLen_U32 : sizeof(mRpcState_X.pAnsRpcStack_U8));
+      memcpy(mRpcState_X.pAnsRpcStack_U8, _pRpcParserResult_X->pRpcStack_U8, (mRpcState_X.AnsRpcStackLen_U32 < sizeof(mRpcState_X.pAnsRpcStack_U8)) ? mRpcState_X.AnsRpcStackLen_U32 : sizeof(mRpcState_X.pAnsRpcStack_U8));
     }
     else
     {
@@ -1072,8 +981,7 @@ uint32_t BofRpc::ParseRpcFrame(bool _RpcAnswer_B, uint8_t *_pRpcFrameBuffer_U8, 
       mRpcState_X.ReqTimeOut_U32 = _pRpcParserResult_X->TimeOut_U32;
       mRpcState_X.ReqTag_U16 = TheTag_U16;
       mRpcState_X.ReqFlag_U16 = Flag_U16;
-      memcpy(mRpcState_X.pReqRpcStack_U8, _pRpcParserResult_X->pRpcStack_U8,
-             (mRpcState_X.ReqRpcStackLen_U32 < sizeof(mRpcState_X.pReqRpcStack_U8)) ? mRpcState_X.ReqRpcStackLen_U32 : sizeof(mRpcState_X.pReqRpcStack_U8));
+      memcpy(mRpcState_X.pReqRpcStack_U8, _pRpcParserResult_X->pRpcStack_U8, (mRpcState_X.ReqRpcStackLen_U32 < sizeof(mRpcState_X.pReqRpcStack_U8)) ? mRpcState_X.ReqRpcStackLen_U32 : sizeof(mRpcState_X.pReqRpcStack_U8));
     }
 
     // if (Rts_U32==BOF_ERR_NO_ERROR)
@@ -1105,23 +1013,16 @@ uint32_t BofRpc::IsRpcLittleEndian(uint8_t *_pRpcFrameBuffer_U8, bool *_pLittleE
 {
   uint32_t Rts_U32 = BOF_ERR_EINVAL;
 
-  if ((_pRpcFrameBuffer_U8)
-      && (_pLittleEndian_B)
-      && (_pMustSwap_B)
-      )
+  if ((_pRpcFrameBuffer_U8) && (_pLittleEndian_B) && (_pMustSwap_B))
   {
     Rts_U32 = BOF_ERR_NO_ERROR;
 
-    if ((_pRpcFrameBuffer_U8[0] == (BOF_RPCMAGICNUMBER >> 8))
-        && (_pRpcFrameBuffer_U8[1] == (uint8_t)(BOF_RPCMAGICNUMBER & 0xFF))
-        )
+    if ((_pRpcFrameBuffer_U8[0] == (BOF_RPCMAGICNUMBER >> 8)) && (_pRpcFrameBuffer_U8[1] == (uint8_t)(BOF_RPCMAGICNUMBER & 0xFF)))
     {
       *_pLittleEndian_B = false;
       *_pMustSwap_B = mLittleEndian_B;
     }
-    else if ((_pRpcFrameBuffer_U8[1] == (BOF_RPCMAGICNUMBER >> 8))
-             && (_pRpcFrameBuffer_U8[0] == (uint8_t)(BOF_RPCMAGICNUMBER & 0xFF))
-             )
+    else if ((_pRpcFrameBuffer_U8[1] == (BOF_RPCMAGICNUMBER >> 8)) && (_pRpcFrameBuffer_U8[0] == (uint8_t)(BOF_RPCMAGICNUMBER & 0xFF)))
     {
       *_pLittleEndian_B = true;
       *_pMustSwap_B = !mLittleEndian_B;
@@ -1157,23 +1058,16 @@ uint32_t BofRpc::WaitForRpcFrame(BofComChannel *_pBofComChannel_O, uint32_t _Tim
   uint8_t *pStack_U8;
   bool LittleEndian_B, MustSwap_B;
 
-
-  if ((_pBofComChannel_O)
-      && (_pMaxRpcFrameSizeInByte_U32)
-      && (_pRpcFrame_U8)
-      && (mpRpcReqStack_O)
-      )
+  if ((_pBofComChannel_O) && (_pMaxRpcFrameSizeInByte_U32) && (_pRpcFrame_U8) && (mpRpcReqStack_O))
   {
-    HeaderLen_U32 = 2 + 2 + 2 + 2 + 2;                      // Read Sof,Flag,To,Tag and Stack len
+    HeaderLen_U32 = 2 + 2 + 2 + 2 + 2; // Read Sof,Flag,To,Tag and Stack len
     Nb_U32 = HeaderLen_U32;
     Rts_U32 = _pBofComChannel_O->V_ReadData(_TimeoutInMs_U32, Nb_U32, _pRpcFrame_U8);
 
-    if ((Rts_U32 == BOF_ERR_NO_ERROR)
-        && (Nb_U32 == HeaderLen_U32)
-        )
+    if ((Rts_U32 == BOF_ERR_NO_ERROR) && (Nb_U32 == HeaderLen_U32))
     {
       pStack_U8 = mpRpcReqStack_O->GetStackBuffer();
-      memcpy(pStack_U8, _pRpcFrame_U8, Nb_U32);             // Put rpc header on stack
+      memcpy(pStack_U8, _pRpcFrame_U8, Nb_U32); // Put rpc header on stack
       mpRpcReqStack_O->SetStackPointer(Nb_U32);
 
       if (IsRpcLittleEndian(pStack_U8, &LittleEndian_B, &MustSwap_B) == BOF_ERR_NO_ERROR)
@@ -1182,9 +1076,7 @@ uint32_t BofRpc::WaitForRpcFrame(BofComChannel *_pBofComChannel_O, uint32_t _Tim
         PopTopRpcControlParam(mpRpcReqStack_O, &Sof_U16, &Flag_U16, &TimeOutInMs_U16, &TheTag_U16, &RpcFrameSizeInByte_U32);
         Rts_U32 = BOF_ERR_TOO_BIG;
 
-        if ((Sof_U16 == BOF_RPCMAGICNUMBER)
-            && (RpcFrameSizeInByte_U32 <= mpRpcReqStack_O->GetStackSize())
-            )
+        if ((Sof_U16 == BOF_RPCMAGICNUMBER) && (RpcFrameSizeInByte_U32 <= mpRpcReqStack_O->GetStackSize()))
         {
           Nb_U32 = RpcFrameSizeInByte_U32 - HeaderLen_U32; // Read Stack
           Rts_U32 = _pBofComChannel_O->V_ReadData(_TimeoutInMs_U32, Nb_U32, &_pRpcFrame_U8[HeaderLen_U32]);
@@ -1256,7 +1148,7 @@ uint32_t BofRpc::ResetStackPointerToRpcPayload(BofStack *_pStack)
   {
     _pStack->LockStack();
     Rts_U32 = BOF_ERR_NO_ERROR;
-    _pStack->SetStackPointer(2 + 2 + 2 + 2 + 2);            // 2+2+2: Sof,Flag,To,Tag,Len
+    _pStack->SetStackPointer(2 + 2 + 2 + 2 + 2); // 2+2+2: Sof,Flag,To,Tag,Len
     _pStack->UnlockStack();
   }
   return Rts_U32;
@@ -1296,9 +1188,9 @@ bool BofRpc::Push(BofStack *_pStack, bool PushData_B, BOF_RPC_VAR_ARRAYINOUT pRp
         _pStack->AdjustStackBufferLocation(Nb_U32);
       }
 
-      if (_pStack->Push(static_cast<uint16_t> (pRpcArray->ItemSize_U32)))
+      if (_pStack->Push(static_cast<uint16_t>(pRpcArray->ItemSize_U32)))
       {
-        Rts_B = _pStack->Push(static_cast<uint16_t> (pRpcArray->NbItem_U32));
+        Rts_B = _pStack->Push(static_cast<uint16_t>(pRpcArray->NbItem_U32));
       }
     }
     _pStack->UnlockStack();
@@ -1350,7 +1242,7 @@ bool BofRpc::PushTopRpcControlParam(BofStack *_pStack, uint16_t Sof_U16, uint16_
 
           if (Rts_B)
           {
-            Rts_B = _pStack->Push(static_cast<uint16_t> (Val_U32));
+            Rts_B = _pStack->Push(static_cast<uint16_t>(Val_U32));
           }
         }
       }

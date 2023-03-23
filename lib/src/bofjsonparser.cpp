@@ -22,8 +22,8 @@
 #include <bofstd/bofjsonparser.h>
 #include <bofstd/bofstring.h>
 
-#include <regex>
 #include <json/json.h>
+#include <regex>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -90,7 +90,6 @@ p = mRoot_O["MmgwSetting"]["Board"][1]["InHr"][2]["VideoStandard"].asCString();
 printf("%s\n", p);
 #endif
 
-
 struct JSON_OID_TAG
 {
   uint32_t CrtArrayIndex_U32;
@@ -99,22 +98,24 @@ struct JSON_OID_TAG
   uint32_t ElemSize_U32;
   std::string SubOid_S;
   std::string ArrayElem_S;
-  JSON_OID_TAG() {	}
+  JSON_OID_TAG()
+  {
+  }
   JSON_OID_TAG(const std::string &_rSubOid_S, const std::string &_rArrayElem_S)
   {
-    ArraySize_U32 = 0;	//Init in GetFirstElementFromOid and in GetNExtArray
-    ArrayMaxSize_U32 = 0;	//Init in ToByte
+    ArraySize_U32 = 0;    // Init in GetFirstElementFromOid and in GetNExtArray
+    ArrayMaxSize_U32 = 0; // Init in ToByte
     SubOid_S = _rSubOid_S;
     CrtArrayIndex_U32 = 0;
-    ElemSize_U32 = 0;	//Init in ToByte
-    ArrayElem_S = _rArrayElem_S;	//If this is "" it is a raw array else [n].ArrayElem_S
+    ElemSize_U32 = 0;            // Init in ToByte
+    ArrayElem_S = _rArrayElem_S; // If this is "" it is a raw array else [n].ArrayElem_S
   }
 };
 // Opaque pointer design pattern: defined privately here all private data and functions: all of these can now change without recompiling callers ...
 class BofJsonParser::JsonParserImplementation
 {
 public:
-  Json::Value mRoot_O;  // will contains the mRoot_O value after parsing.
+  Json::Value mRoot_O; // will contains the mRoot_O value after parsing.
   bool mJsonFileOk_B;
   std::string mLastError_S;
   char *mpJsonBuffer_c;
@@ -181,7 +182,7 @@ public:
 
         snprintf(pOid_c, sizeof(pOid_c), "%s.%s", _rJsonSchema_X[i_U32].Path_S.c_str(), _rJsonSchema_X[i_U32].Name_S.c_str());
         pJsonValue_c = GetFirstElementFromOid(pOid_c, ValueAsString_S);
-        ArrayIndex_U32 = 1;	//0 is nbmaxmultiarrayentry in BOF_PARAM_DEF_MULTI_ARRAY
+        ArrayIndex_U32 = 1; // 0 is nbmaxmultiarrayentry in BOF_PARAM_DEF_MULTI_ARRAY
         for (j_U32 = 0; j_U32 < mJsonOidTagCollection.size(); j_U32++)
         {
           if (mJsonOidTagCollection[j_U32].ArraySize_U32)
@@ -198,64 +199,64 @@ public:
             }
             else
             {
-              if (ArrayIndex_U32 < 3)	//BOF_NB_ELEM_IN_ARRAY(JsonParam_X.pExtraParam_U32))
+              if (ArrayIndex_U32 < 3) // BOF_NB_ELEM_IN_ARRAY(JsonParam_X.pExtraParam_U32))
               {
                 mJsonOidTagCollection[j_U32].ElemSize_U32 = JsonParam_X.pExtraParam_U32[ArrayIndex_U32++];
               }
             }
           }
-        } //for (j_U32 = 0; j_U32 < mJsonOidTagCollection.size(); j_U32++)
+        } // for (j_U32 = 0; j_U32 < mJsonOidTagCollection.size(); j_U32++)
 
-/*
- * At this point you should have:
- * mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>}
- [0] = {onbings::bof::JSON_OID_TAG}
-  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
-  ArraySize_U32 = {uint32_t} 0 [0x0]
-  ElemSize_U32 = {uint32_t} 0 [0x0]
-  SubOid_S = {std::__cxx11::string} "MmgwSetting"
-  ArrayElem_S = {std::__cxx11::string} ""
- [1] = {onbings::bof::JSON_OID_TAG}
-  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
-  ArraySize_U32 = {uint32_t} 2 [0x2]
-  ElemSize_U32 = {uint32_t} 13116 [0x333c]
-  SubOid_S = {std::__cxx11::string} "Board"
-  ArrayElem_S = {std::__cxx11::string} ""
- [2] = {onbings::bof::JSON_OID_TAG}
-  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
-  ArraySize_U32 = {uint32_t} 3 [0x3]
-  ElemSize_U32 = {uint32_t} 1076 [0x434]
-  SubOid_S = {std::__cxx11::string} "InHr"
-  ArrayElem_S = {std::__cxx11::string} "VideoStandard"
+        /*
+         * At this point you should have:
+         * mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>}
+         [0] = {onbings::bof::JSON_OID_TAG}
+          CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+          ArraySize_U32 = {uint32_t} 0 [0x0]
+          ElemSize_U32 = {uint32_t} 0 [0x0]
+          SubOid_S = {std::__cxx11::string} "MmgwSetting"
+          ArrayElem_S = {std::__cxx11::string} ""
+         [1] = {onbings::bof::JSON_OID_TAG}
+          CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+          ArraySize_U32 = {uint32_t} 2 [0x2]
+          ElemSize_U32 = {uint32_t} 13116 [0x333c]
+          SubOid_S = {std::__cxx11::string} "Board"
+          ArrayElem_S = {std::__cxx11::string} ""
+         [2] = {onbings::bof::JSON_OID_TAG}
+          CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+          ArraySize_U32 = {uint32_t} 3 [0x3]
+          ElemSize_U32 = {uint32_t} 1076 [0x434]
+          SubOid_S = {std::__cxx11::string} "InHr"
+          ArrayElem_S = {std::__cxx11::string} "VideoStandard"
 
-mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>}
- [0] = {onbings::bof::JSON_OID_TAG}
-  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
-  ArraySize_U32 = {uint32_t} 0 [0x0]
-  ElemSize_U32 = {uint32_t} 0 [0x0]
-  SubOid_S = {std::__cxx11::string} "MmgwSetting"
-  ArrayElem_S = {std::__cxx11::string} ""
- [1] = {onbings::bof::JSON_OID_TAG}
-  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
-  ArraySize_U32 = {uint32_t} 2 [0x2]
-  ElemSize_U32 = {uint32_t} 13116 [0x333c]
-  SubOid_S = {std::__cxx11::string} "Board"
-  ArrayElem_S = {std::__cxx11::string} ""
- [2] = {onbings::bof::JSON_OID_TAG}
-  CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
-  ArraySize_U32 = {uint32_t} 3 [0x3]
-  ElemSize_U32 = {uint32_t} 1076 [0x434]
-  SubOid_S = {std::__cxx11::string} "InHr"
-  ArrayElem_S = {std::__cxx11::string} ""
- [3] = {onbings::bof::JSON_OID_TAG}
-  CrtArrayIndex_U32 = {uint32_t} 1 [0x1]
-  ArraySize_U32 = {uint32_t} 2 [0x2]
-  ElemSize_U32 = {uint32_t} 56 [0x38]
-  SubOid_S = {std::__cxx11::string} "AudioIpAddress"
-  ArrayElem_S = {std::__cxx11::string} ""
- */
+        mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>}
+         [0] = {onbings::bof::JSON_OID_TAG}
+          CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+          ArraySize_U32 = {uint32_t} 0 [0x0]
+          ElemSize_U32 = {uint32_t} 0 [0x0]
+          SubOid_S = {std::__cxx11::string} "MmgwSetting"
+          ArrayElem_S = {std::__cxx11::string} ""
+         [1] = {onbings::bof::JSON_OID_TAG}
+          CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+          ArraySize_U32 = {uint32_t} 2 [0x2]
+          ElemSize_U32 = {uint32_t} 13116 [0x333c]
+          SubOid_S = {std::__cxx11::string} "Board"
+          ArrayElem_S = {std::__cxx11::string} ""
+         [2] = {onbings::bof::JSON_OID_TAG}
+          CrtArrayIndex_U32 = {uint32_t} 0 [0x0]
+          ArraySize_U32 = {uint32_t} 3 [0x3]
+          ElemSize_U32 = {uint32_t} 1076 [0x434]
+          SubOid_S = {std::__cxx11::string} "InHr"
+          ArrayElem_S = {std::__cxx11::string} ""
+         [3] = {onbings::bof::JSON_OID_TAG}
+          CrtArrayIndex_U32 = {uint32_t} 1 [0x1]
+          ArraySize_U32 = {uint32_t} 2 [0x2]
+          ElemSize_U32 = {uint32_t} 56 [0x38]
+          SubOid_S = {std::__cxx11::string} "AudioIpAddress"
+          ArrayElem_S = {std::__cxx11::string} ""
+         */
 
- //Compatibility with non BOF_PARAM_DEF_MULTI_ARRAY type
+        // Compatibility with non BOF_PARAM_DEF_MULTI_ARRAY type
         if (JsonParam_X.ArrayCapacity_U32 == 0)
         {
           JsonParam_X.ArrayCapacity_U32 = 1;
@@ -264,7 +265,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
         {
           JsonParam_X.pExtraParam_U32[0] = 1;
         }
-        //printf("GetFirstElementFromOid %s='%s' base %p elemsz %d\n", pOid_c, pJsonValue_c, JsonParam_X.pValue, mJsonOidTagCollection[(mFirstJsonArrayTagIndex_U32 == 0xFFFFFFFF) ? 0 : mFirstJsonArrayTagIndex_U32].ElemSize_U32);
+        // printf("GetFirstElementFromOid %s='%s' base %p elemsz %d\n", pOid_c, pJsonValue_c, JsonParam_X.pValue, mJsonOidTagCollection[(mFirstJsonArrayTagIndex_U32 == 0xFFFFFFFF) ? 0 : mFirstJsonArrayTagIndex_U32].ElemSize_U32);
 
         for (k_U32 = 0; k_U32 < JsonParam_X.pExtraParam_U32[0]; k_U32++)
         {
@@ -292,7 +293,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
                 if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32) // NbEntry is 0 for non array descriptor
                 {
                   pJsonValue_c = GetNextElementFromOid(ValueAsString_S);
-                  //printf("GetNextElementFromOid %s\n", pJsonValue_c ? pJsonValue_c : "null");
+                  // printf("GetNextElementFromOid %s\n", pJsonValue_c ? pJsonValue_c : "null");
 
                   if (pJsonValue_c)
                   {
@@ -310,7 +311,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
                       ResetAllLowerLevelIndex(mSecondJsonArrayTagIndex_U32);
                       Finish_B = !GetNextArray(mSecondJsonArrayTagIndex_U32);
                     }
-                    //printf("GetNextArray %s\n", Finish_B ? "No more" : "Ok got next");
+                    // printf("GetNextArray %s\n", Finish_B ? "No more" : "Ok got next");
 
                     if (Finish_B)
                     {
@@ -320,29 +321,29 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
                     {
                       Index_U32 = 0;
                       pJsonValue_c = mLastJsonValue_O.asCString();
-                      //printf("GetNextArray val %s\n", pJsonValue_c ? pJsonValue_c : "null");
+                      // printf("GetNextArray val %s\n", pJsonValue_c ? pJsonValue_c : "null");
 
                       if (JsonParam_X.ArrayCapacity_U32 != 0xFFFFFFFF)
                       {
-                        //Go to next array address, mSecondJsonArrayTagIndex_U32 is different from 0
+                        // Go to next array address, mSecondJsonArrayTagIndex_U32 is different from 0
                         pArrayBaseAddress_U8 = reinterpret_cast<uint8_t *>(JsonParam_X.pValue) + mJsonOidTagCollection[mSecondJsonArrayTagIndex_U32].ElemSize_U32;
-                        //printf("GetNextArray ptr %p elemsize %d\n", pArrayBaseAddress_U8, mJsonOidTagCollection[mSecondJsonArrayTagIndex_U32].ElemSize_U32);
+                        // printf("GetNextArray ptr %p elemsize %d\n", pArrayBaseAddress_U8, mJsonOidTagCollection[mSecondJsonArrayTagIndex_U32].ElemSize_U32);
                         JsonParam_X.pValue = pArrayBaseAddress_U8;
                       }
                     }
-                  } //else if if (pJsonValue_c)
+                  } // else if if (pJsonValue_c)
                 }
-                else //if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32)
+                else // if (Index_U32 < _rJsonSchema_X[i_U32].ArrayCapacity_U32)
                 {
-                  Rts_E = BOF_ERR_NO_ERROR;                               // End of array
+                  Rts_E = BOF_ERR_NO_ERROR; // End of array
                 }
               }
-            }  // while ((!Finish_B) && (pJsonValue_c) && (Rts_E == BOF_ERR_NO_ERROR))                                                          // while
+            } // while ((!Finish_B) && (pJsonValue_c) && (Rts_E == BOF_ERR_NO_ERROR))                                                          // while
             if ((Rts_E != BOF_ERR_NO_ERROR) || (pJsonValue_c == nullptr))
             {
               break;
             }
-          } //for (j_U32 = 0; j_U32 < JsonParam_X.ArrayCapacity_U32; j_U32++)
+          } // for (j_U32 = 0; j_U32 < JsonParam_X.ArrayCapacity_U32; j_U32++)
 
           if (mJsonOidTagCollection.size())
           {
@@ -356,7 +357,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
                 Finish_B = true;
               }
             }
-            //printf("Inner loop GetNextArray %s\n", Finish_B ? "No more" : "Ok got next");
+            // printf("Inner loop GetNextArray %s\n", Finish_B ? "No more" : "Ok got next");
             if (Finish_B)
             {
               break;
@@ -371,7 +372,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
             }
           }
         }
-      } //for (i_U32 = 0; i_U32 < _rJsonSchema_X.size(); i_U32++)
+      } // for (i_U32 = 0; i_U32 < _rJsonSchema_X.size(); i_U32++)
     }
     return Rts_E;
   }
@@ -418,24 +419,24 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
               Rts_E = BOF_ERR_PARSER;
             }
           }
-        }                                                            // While
+        } // While
         if (Rts_E != BOF_ERR_NO_ERROR)
         {
           break;
         }
-      }                                                              // for
+      } // for
     }
     return Rts_E;
   }
 
-  //New enhanced json parser with multi array def
+  // New enhanced json parser with multi array def
   //"MmgwSetting.Board.%.InHr.%" "VideoStandard"
   //"MmgwSetting.Board%.InHr.%.AudioIpAddress.%" ""
-  //const char *p;
-  //p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][0].asCString();
-  //p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][1].asCString();
-  //p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["VideoStandard"].asCString();
-  //p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][1]["VideoStandard"].asCString();
+  // const char *p;
+  // p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][0].asCString();
+  // p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["AudioIpAddress"][1].asCString();
+  // p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][0]["VideoStandard"].asCString();
+  // p=mRoot_O["MmgwSetting"]["Board"][0]["InHr"][1]["VideoStandard"].asCString();
   const char *GetFirstElementFromOid(const char *_pOid_c, std::string &_rValueAsString_S)
   {
     const char *pRts_c = nullptr;
@@ -477,16 +478,16 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
               mLastJsonArray_O = mLastJsonValue_O;
               NextArrayElem_S = "";
               SubOid_S = "NotEmpty";
-              //printf("mJsonOidTagCollection push array sz %d of %s\n",mLastJsonArray_O.size(),SubOidCollection[i_U32-1].c_str());
-//Last entry
+              // printf("mJsonOidTagCollection push array sz %d of %s\n",mLastJsonArray_O.size(),SubOidCollection[i_U32-1].c_str());
+              // Last entry
               NbArrayDetected_U32++;
               if (NbArrayDetected_U32 > 3)
               {
-                break;	//We only handle a max of 3 array and if the third one exist it must be a the last raw item in the suboid list
+                break; // We only handle a max of 3 array and if the third one exist it must be a the last raw item in the suboid list
               }
               if (i_U32 == (SubOidCollection.size() - 1))
               {
-                break;  //Not possible in our case raw array have a "" element name just after (see after)
+                break; // Not possible in our case raw array have a "" element name just after (see after)
               }
 
               if (i_U32 < (SubOidCollection.size() - 1))
@@ -540,7 +541,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
               mJsonOidTagCollection.push_back(JSON_OID_TAG(SubOidCollection[i_U32], ""));
             }
           }
-        } //for (i_U32 = 0; i_U32 < mSubTagList.size(); i_U32++)
+        } // for (i_U32 = 0; i_U32 < mSubTagList.size(); i_U32++)
 
         if (i_U32 == SubOidCollection.size())
         {
@@ -673,16 +674,16 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
        */
       JsonTagArray_X = mJsonOidTagCollection[_Level_U32];
       JsonTagArray_X.CrtArrayIndex_U32++;
-      //printf("%d<%d\n",JsonTagArray_X.CrtArrayIndex_U32, JsonTagArray_X.ArraySize_U32);
+      // printf("%d<%d\n",JsonTagArray_X.CrtArrayIndex_U32, JsonTagArray_X.ArraySize_U32);
 
       if (JsonTagArray_X.CrtArrayIndex_U32 < JsonTagArray_X.ArraySize_U32)
       {
         mJsonOidTagCollection[_Level_U32] = JsonTagArray_X;
-        mLastJsonValue_O = mRoot_O;	//[mJsonOidTagCollection[0].SubOid_S];
+        mLastJsonValue_O = mRoot_O; //[mJsonOidTagCollection[0].SubOid_S];
         for (i_U32 = 0; i_U32 < mJsonOidTagCollection.size(); i_U32++)
         {
           mLastJsonValue_O = mLastJsonValue_O[mJsonOidTagCollection[i_U32].SubOid_S];
-          //printf("[%s]", mJsonOidTagCollection[i_U32].SubOid_S.c_str());
+          // printf("[%s]", mJsonOidTagCollection[i_U32].SubOid_S.c_str());
           if (mLastJsonValue_O.isNull())
           {
             break;
@@ -701,12 +702,12 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
               if (i_U32 == _Level_U32)
               {
                 mLastJsonValue_O = mLastJsonValue_O[JsonTagArray_X.CrtArrayIndex_U32];
-                //printf("[%d]", JsonTagArray_X.CrtArrayIndex_U32);
+                // printf("[%d]", JsonTagArray_X.CrtArrayIndex_U32);
               }
               else
               {
                 mLastJsonValue_O = mLastJsonValue_O[mJsonOidTagCollection[i_U32].CrtArrayIndex_U32];
-                //printf("[%d]", mJsonOidTagCollection[i_U32].CrtArrayIndex_U32);
+                // printf("[%d]", mJsonOidTagCollection[i_U32].CrtArrayIndex_U32);
               }
               if (mJsonOidTagCollection[i_U32].ArrayElem_S == "")
               {
@@ -714,7 +715,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
               else
               {
                 mLastJsonValue_O = mLastJsonValue_O[mJsonOidTagCollection[i_U32].ArrayElem_S];
-                //printf("[%s]", mJsonOidTagCollection[i_U32].ArrayElem_S.c_str());
+                // printf("[%s]", mJsonOidTagCollection[i_U32].ArrayElem_S.c_str());
               }
             }
           }
@@ -729,7 +730,7 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
         }
       }
     }
-    //printf("%s", Rts_B ? " Ok\n":" Bad\n");
+    // printf("%s", Rts_B ? " Ok\n":" Bad\n");
     return Rts_B;
   }
   bool IsValid()
@@ -756,26 +757,24 @@ mJsonOidTagCollection = {std::vector<onbings::bof::JSON_OID_TAG, std::allocator>
 };
 
 // Opaque pointer design pattern: ... set Implementation values ...
-BofJsonParser::BofJsonParser(const std::string &_rJsonInput_S)
-  : mpuJsonParserImplementation(new JsonParserImplementation(_rJsonInput_S))
-{}
+BofJsonParser::BofJsonParser(const std::string &_rJsonInput_S) : mpuJsonParserImplementation(new JsonParserImplementation(_rJsonInput_S))
+{
+}
 
 BofJsonParser::~BofJsonParser()
-{}
-
+{
+}
 
 BOFERR BofJsonParser::ToByte(const std::vector<BOFPARAMETER> &_rJsonSchema_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFJSONPARSER_ERROR_CALLBACK _ErrorCallback_O)
 {
   return mpuJsonParserImplementation->ToByte(_rJsonSchema_X, _ParseCallback_O, _ErrorCallback_O);
 }
 
-
 const char *BofJsonParser::GetFirstElementFromOid(const char *_pOid_c)
 {
   std::string ValueAsString_S;
   return mpuJsonParserImplementation->GetFirstElementFromOid(_pOid_c, ValueAsString_S);
 }
-
 
 const char *BofJsonParser::GetNextElementFromOid()
 {
@@ -799,12 +798,12 @@ std::string BofJsonParser::S_RootName(const std::string &_rJsonIn_S)
   std::string Rts_S;
 
 #if 1
-  static const std::regex S_RegExJsonFirstTag("\\{[^\"]*\"([^\t\n\v\f\r\"]*)");  //Static as it can takes time (on gcc 4.9 for example)
+  static const std::regex S_RegExJsonFirstTag("\\{[^\"]*\"([^\t\n\v\f\r\"]*)"); // Static as it can takes time (on gcc 4.9 for example)
   std::smatch MatchString;
 
   if (std::regex_search(_rJsonIn_S, MatchString, S_RegExJsonFirstTag))
   {
-    if (MatchString.size() == 2)  //Size=2 because we have a capture group ()
+    if (MatchString.size() == 2) // Size=2 because we have a capture group ()
     {
       Rts_S = MatchString[1].str();
     }

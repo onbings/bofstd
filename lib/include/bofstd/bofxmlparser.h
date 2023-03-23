@@ -25,9 +25,9 @@
 #include <bofstd/bofpath.h>
 #include <bofstd/bofsocket.h>
 
-#include <vector>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <vector>
 
 BEGIN_BOF_NAMESPACE()
 typedef std::function<bool(int __Sts_i, const BOFPARAMETER &rXmlEntry_X, const char *_pValue_c)> BOFXMLPARSER_ERROR_CALLBACK;
@@ -38,7 +38,7 @@ class BOFSTD_EXPORT BofXmlParser
 public:
   BofXmlParser(const std::string &_rXmlInput_S);
 
-  BofXmlParser &operator=(const BofXmlParser &) = delete;     // Disallow copying
+  BofXmlParser &operator=(const BofXmlParser &) = delete; // Disallow copying
   BofXmlParser(const BofXmlParser &) = delete;
 
   BOFERR ToByte(const std::vector<BOFPARAMETER> &_rXmlSchema_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFXMLPARSER_ERROR_CALLBACK _ErrorCallback_O);
@@ -49,8 +49,8 @@ public:
 
   bool IsValid();
 
-  std::string RootName();                          //From the parsed string
-  static std::string S_RootName(const std::string &_rXmlIn_S);    //From a string
+  std::string RootName();                                      // From the parsed string
+  static std::string S_RootName(const std::string &_rXmlIn_S); // From a string
   virtual ~BofXmlParser();
 
   BofXmlParser &operator=(const std::string &_rXmlInput_S);

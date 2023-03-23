@@ -19,8 +19,8 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofxmlparser.h>
 #include <bofstd/bofstring.h>
+#include <bofstd/bofxmlparser.h>
 
 #include <ixml.h>
 
@@ -103,7 +103,7 @@ public:
           }
           else
           {
-            if (_rXmlSchema_X[i_U32].ArrayCapacity_U32)               // Array
+            if (_rXmlSchema_X[i_U32].ArrayCapacity_U32) // Array
             {
               Index_U32++;
               if (Index_U32 < _rXmlSchema_X[i_U32].ArrayCapacity_U32) // NbEntry is 0 for non array descriptor
@@ -117,16 +117,16 @@ public:
               }
               else
               {
-                Rts_E = BOF_ERR_NO_ERROR;                              // End of arraybo
+                Rts_E = BOF_ERR_NO_ERROR; // End of arraybo
               }
             }
           }
-        }                                                             // while
+        } // while
         if (Rts_E != BOF_ERR_NO_ERROR)
         {
           break;
         }
-      }                                                               // for
+      } // for
     }
     return Rts_E;
   }
@@ -149,7 +149,6 @@ public:
    *
    */
 
-
   const char *GetFirstElementFromOid(bool _ItIsAnAttributte_B, const char *_pOid_c)
   {
     const char *pRts_c = nullptr;
@@ -170,7 +169,7 @@ public:
       mSubTagList = Bof_StringSplit(mpTag_c, ".");
       if (mSubTagList.size() > 0)
       {
-        pXmlElement_X = reinterpret_cast<IXML_Element *> (mpXmlDoc_X);
+        pXmlElement_X = reinterpret_cast<IXML_Element *>(mpXmlDoc_X);
         pXmlNode_X = nullptr;
 
         for (i_U32 = 0; i_U32 < mSubTagList.size(); i_U32++)
@@ -190,7 +189,7 @@ public:
             }
             else
             {
-              pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *> (pXmlElement_X), mSubTagList[i_U32].c_str());
+              pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *>(pXmlElement_X), mSubTagList[i_U32].c_str());
               if (pXmlElement_X)
               {
                 if ((pXmlElement_X->n.firstChild) && (pXmlElement_X->n.firstChild->nodeType == eTEXT_NODE))
@@ -202,14 +201,14 @@ public:
           }
           else
           {
-            pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *> (pXmlElement_X), mSubTagList[i_U32].c_str());
+            pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *>(pXmlElement_X), mSubTagList[i_U32].c_str());
           }
 
           if (!pXmlElement_X)
           {
             break;
           }
-        }                              // for (i_U32 = 0; i_U32 < NbSubTag_U32; i_U32++)
+        } // for (i_U32 = 0; i_U32 < NbSubTag_U32; i_U32++)
         mpLastXmlElementFound_X = pXmlElement_X;
         mpLastXmlNodeFound_X = pXmlNode_X;
 
@@ -217,8 +216,8 @@ public:
         {
           pRts_c = pXmlNode_X->nodeValue;
         }
-      }                                // if (Bof_SplitString(pTag_c, '.', &NbSubTag_U32, &ppSubTag_c) == 0)
-    }                                  // if ((mpXmlDoc_X) && (_pOid_c) && (strlen(_pOid_c) < sizeof(pTag_c)))
+      } // if (Bof_SplitString(pTag_c, '.', &NbSubTag_U32, &ppSubTag_c) == 0)
+    }   // if ((mpXmlDoc_X) && (_pOid_c) && (strlen(_pOid_c) < sizeof(pTag_c)))
     return pRts_c;
   }
 
@@ -236,7 +235,7 @@ public:
       pXmlElement_X = mpLastXmlElementFound_X;
 
       NextNodeExist_B = false;
-      pParentXmlElement_X = reinterpret_cast<IXML_Element *> (pXmlElement_X->n.parentNode);
+      pParentXmlElement_X = reinterpret_cast<IXML_Element *>(pXmlElement_X->n.parentNode);
 
       if (pParentXmlElement_X)
       {
@@ -246,7 +245,7 @@ public:
          *  <author>Gambardella, Matthew< / author> <<<<<<<<<<<<<<<<<<<---------------------
          * </book>
          */
-        pSiblingXmlElement_X = reinterpret_cast<IXML_Element *> (pParentXmlElement_X->n.nextSibling);
+        pSiblingXmlElement_X = reinterpret_cast<IXML_Element *>(pParentXmlElement_X->n.nextSibling);
 
         if (pSiblingXmlElement_X)
         {
@@ -264,7 +263,7 @@ public:
            *    <author>Gambardella, Matthew< / author>
            * </book>
            */
-          pSiblingXmlElement_X = reinterpret_cast<IXML_Element *> (pXmlElement_X->n.nextSibling);
+          pSiblingXmlElement_X = reinterpret_cast<IXML_Element *>(pXmlElement_X->n.nextSibling);
 
           if (pSiblingXmlElement_X)
           {
@@ -281,7 +280,7 @@ public:
       {
         if (mLastElementWasAnXmlAttribute_B)
         {
-          pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *> (pXmlElement_X), mSubTagList[mSubTagList.size() - 2].c_str());
+          pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *>(pXmlElement_X), mSubTagList[mSubTagList.size() - 2].c_str());
 
           if (pXmlElement_X)
           {
@@ -300,7 +299,7 @@ public:
         }
         else
         {
-          pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *> (pXmlElement_X), mSubTagList[mSubTagList.size() - 1].c_str());
+          pXmlElement_X = ixmlDocument_getElementById(reinterpret_cast<IXML_Document *>(pXmlElement_X), mSubTagList[mSubTagList.size() - 1].c_str());
 
           if (pXmlElement_X)
           {
@@ -346,26 +345,23 @@ public:
 };
 
 // Opaque pointer design pattern: ... set Implementation values ...
-BofXmlParser::BofXmlParser(const std::string &_rXmlInput_S)
-  : mpXmlParserImplementation_O(new XmlParserImplementation(_rXmlInput_S))
-{}
-
+BofXmlParser::BofXmlParser(const std::string &_rXmlInput_S) : mpXmlParserImplementation_O(new XmlParserImplementation(_rXmlInput_S))
+{
+}
 
 BofXmlParser::~BofXmlParser()
-{}
-
+{
+}
 
 BOFERR BofXmlParser::ToByte(const std::vector<BOFPARAMETER> &_rXmlSchema_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFXMLPARSER_ERROR_CALLBACK _ErrorCallback_O)
 {
   return mpXmlParserImplementation_O->ToByte(_rXmlSchema_X, _ParseCallback_O, _ErrorCallback_O);
 }
 
-
 const char *BofXmlParser::GetFirstElementFromOid(bool _ItIsAnAttributte_B, const char *_pOid_c)
 {
   return mpXmlParserImplementation_O->GetFirstElementFromOid(_ItIsAnAttributte_B, _pOid_c);
 }
-
 
 const char *BofXmlParser::GetNextElementFromOid()
 {
@@ -388,12 +384,12 @@ std::string BofXmlParser::RootName()
 std::string BofXmlParser::S_RootName(const std::string &_rXmlIn_S)
 {
   std::string Rts_S;
-  static std::regex S_RegExXmlTagExcludingCommentPrologOrEnd("<([^-\?/][^ \t\n\v\f\r>]*)"); //Static as it can takes time (on gcc 4.9 for example)
+  static std::regex S_RegExXmlTagExcludingCommentPrologOrEnd("<([^-\?/][^ \t\n\v\f\r>]*)"); // Static as it can takes time (on gcc 4.9 for example)
   std::smatch MatchString;
 
   if (std::regex_search(_rXmlIn_S, MatchString, S_RegExXmlTagExcludingCommentPrologOrEnd))
   {
-    if (MatchString.size() == 2)  //Size=2 because we have a capture group ()
+    if (MatchString.size() == 2) // Size=2 because we have a capture group ()
     {
       Rts_S = MatchString[1].str();
     }

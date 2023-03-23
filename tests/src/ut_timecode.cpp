@@ -122,7 +122,6 @@ TEST(Timecode_Test, Construct)
   EXPECT_TRUE(Tc1.IsNtsc());
   EXPECT_TRUE(Tc1.IsOddField());
   EXPECT_EQ(Tc1.FrameTime(), 1000.0f / 30.0f);
-
 }
 TEST(Timecode_Test, Operator)
 {
@@ -167,7 +166,9 @@ TEST(Timecode_Test, Operator)
   EXPECT_EQ(Diff_U64, 40);
   Sts_E = Bof_DiffDateTime(DateTime3, DateTime2, DiffTime, DiffDay_S32);
   EXPECT_EQ(Sts_E, 0);
-  DiffInField_U64 = static_cast<uint64_t>(((static_cast<uint64_t>(DiffDay_S32) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(DiffTime.Hour() * 60 * 60 * 1000) + static_cast<uint64_t>(DiffTime.Minute() * 60 * 1000) + static_cast<uint64_t>(DiffTime.Second() * 1000) + static_cast<uint64_t>(DiffTime.MicroSecond() / 1000)) / static_cast<uint64_t>(Tc2.FieldTime()));
+  DiffInField_U64 = static_cast<uint64_t>(((static_cast<uint64_t>(DiffDay_S32) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(DiffTime.Hour() * 60 * 60 * 1000) + static_cast<uint64_t>(DiffTime.Minute() * 60 * 1000) +
+                                           static_cast<uint64_t>(DiffTime.Second() * 1000) + static_cast<uint64_t>(DiffTime.MicroSecond() / 1000)) /
+                                          static_cast<uint64_t>(Tc2.FieldTime()));
   Diff_U64 = Tc3 - Tc2;
   EXPECT_EQ(Diff_U64, DiffInField_U64);
 

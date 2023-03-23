@@ -22,17 +22,16 @@
 #include <bofstd/bofsystem.h>
 
 #include <cassert>
-#include <string.h>
-#include <stdarg.h>
 #include <inttypes.h>
 #include <memory>
+#include <stdarg.h>
+#include <string.h>
 #if defined(__linux__)
 #else
 #include <Windows.h>
 #endif
 
 BEGIN_BOF_NAMESPACE()
-
 
 /*!
 Description
@@ -48,18 +47,18 @@ TheProfiler::PerThreadClock::time_point TheProfiler::PerThreadClock::now() noexc
   return Clock::time_point(std::chrono::duration_cast<Clock::duration>(std::chrono::seconds(Time_X.tv_sec) + std::chrono::nanoseconds(Time_X.tv_nsec)));
 #else
   // Not supported
-  //return Clock::time_point();
+  // return Clock::time_point();
   struct timespec Time_X;
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  //SYSTEMTIME   SystemTime_X;
+  // SYSTEMTIME   SystemTime_X;
 
   GetThreadTimes(GetCurrentThread(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
   //((float)UserTime.dwHighDateTime * 65.536 * 6.5536) + ((float)UserTime.dwLowDateTime / 10000000);
-  //uint64_t KernelTime_U64 = (Int64ShllMod32(KernelTime.dwHighDateTime, 32) | KernelTime.dwLowDateTime);
-  //uint64_t UserTime_U64 = (Int64ShllMod32(UserTime.dwHighDateTime, 32) | UserTime.dwLowDateTime);
-  //FileTimeToSystemTime(&UserTime_U64, &SystemTime_X);
+  // uint64_t KernelTime_U64 = (Int64ShllMod32(KernelTime.dwHighDateTime, 32) | KernelTime.dwLowDateTime);
+  // uint64_t UserTime_U64 = (Int64ShllMod32(UserTime.dwHighDateTime, 32) | UserTime.dwLowDateTime);
+  // FileTimeToSystemTime(&UserTime_U64, &SystemTime_X);
 
-  //All times are expressed using FILETIME data structures.Such a structure contains two 32 - bit values that combine to form a 64 - bit count of 100 - nanosecond time units.
+  // All times are expressed using FILETIME data structures.Such a structure contains two 32 - bit values that combine to form a 64 - bit count of 100 - nanosecond time units.
   uint64_t UserTime_U64 = (Int64ShllMod32(UserTime.dwHighDateTime, 32) | UserTime.dwLowDateTime);
   const uint32_t Nb100NsInOneSec_U32 = 10000000;
   Time_X.tv_sec = UserTime_U64 / Nb100NsInOneSec_U32;
@@ -305,7 +304,6 @@ void BofProfiler::ResetStats(uint32_t _ItemId_U32)
   }
 }
 
-
 /*!
    Description
    This function returns the number of items
@@ -418,7 +416,6 @@ uint64_t BofProfiler::GetLast(uint32_t _ItemId_U32)
   return Rts_U64;
 }
 
-
 /*!
    Description
    This function converts ticks to the specified unit value
@@ -446,32 +443,27 @@ uint64_t BofProfiler::TicksToUnits(uint64_t _Ticks_U64, BOF_PERF_UNITS _Units_U8
 
   switch (_Units_U8)
   {
-    case BOF_PERF_SECOND:
-    {
-      Scale_U64 = 1;
-      break;
-    }
-    case BOF_PERF_MILLISECOND:
-    {
-      Scale_U64 = 1000;
-      break;
-    }
-    case BOF_PERF_MICROSECOND:
-    {
-      Scale_U64 = 1000000;
-      break;
-    }
-    case BOF_PERF_NANOSECOND:
-    {
-      Scale_U64 = 1000000000;
-      break;
-    }
+  case BOF_PERF_SECOND: {
+    Scale_U64 = 1;
+    break;
+  }
+  case BOF_PERF_MILLISECOND: {
+    Scale_U64 = 1000;
+    break;
+  }
+  case BOF_PERF_MICROSECOND: {
+    Scale_U64 = 1000000;
+    break;
+  }
+  case BOF_PERF_NANOSECOND: {
+    Scale_U64 = 1000000000;
+    break;
+  }
 
-    default:
-    {
-      Scale_U64 = (uint64_t)-1;
-      break;
-    }
+  default: {
+    Scale_U64 = (uint64_t)-1;
+    break;
+  }
   }
 
   if ((Scale_U64 != ((uint64_t)-1)) && (CpuFreq_U64 != 0))
@@ -509,32 +501,27 @@ uint64_t BofProfiler::UnitsToTicks(uint64_t _Value_U64, BOF_PERF_UNITS _Units_U8
 
   switch (_Units_U8)
   {
-    case BOF_PERF_SECOND:
-    {
-      Scale_U64 = 1;
-      break;
-    }
-    case BOF_PERF_MILLISECOND:
-    {
-      Scale_U64 = 1000;
-      break;
-    }
-    case BOF_PERF_MICROSECOND:
-    {
-      Scale_U64 = 1000000;
-      break;
-    }
-    case BOF_PERF_NANOSECOND:
-    {
-      Scale_U64 = 1000000000;
-      break;
-    }
+  case BOF_PERF_SECOND: {
+    Scale_U64 = 1;
+    break;
+  }
+  case BOF_PERF_MILLISECOND: {
+    Scale_U64 = 1000;
+    break;
+  }
+  case BOF_PERF_MICROSECOND: {
+    Scale_U64 = 1000000;
+    break;
+  }
+  case BOF_PERF_NANOSECOND: {
+    Scale_U64 = 1000000000;
+    break;
+  }
 
-    default:
-    {
-      Scale_U64 = (uint64_t)-1;
-      break;
-    }
+  default: {
+    Scale_U64 = (uint64_t)-1;
+    break;
+  }
   }
 
   if ((Scale_U64 != ((uint64_t)-1)) && (CpuFreq_U64 != 0))
@@ -551,7 +538,6 @@ uint64_t BofProfiler::ToProfileValue(std::chrono::steady_clock::duration _Val)
 
   return UnitsToTicks(Value_U64, BOF_PERF_MICROSECOND);
 }
-
 
 BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U32, uint64_t _MaxTimeInNs_U64)
 {
@@ -618,18 +604,18 @@ BOFERR BofPerfPointResetTrigger(BOF_PERF_POINT_MGR *_pPerfPointMgr_X)
     }
     else
     {
-      Rts_E = BOF_ERR_ECANCELED; //not started
+      Rts_E = BOF_ERR_ECANCELED; // not started
     }
   }
   return Rts_E;
 }
 BOFERR BofPerfPointAdd(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, const char *_pPointName_c, ...)
 {
-  BOFERR                  Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   int Sts_i;
   BOF_PERF_POINT_ENTRY *pEntry_X;
-  va_list              Arg;
-  char                 pLine_c[BOF_PERF_POINT_NAME_MAX_CHAR + 0x100];
+  va_list Arg;
+  char pLine_c[BOF_PERF_POINT_NAME_MAX_CHAR + 0x100];
 
   if ((_pPerfPointMgr_X) && (_pPerfPointMgr_X->MgrMagicNumber_U32 == BOF_PERF_POINT_MAGIC_NUMBER) && (_pPointName_c) && (strlen(_pPointName_c) < BOF_PERF_POINT_NAME_MAX_CHAR))
   {
@@ -672,17 +658,17 @@ BOFERR BofPerfPointAdd(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, const char *_pPoint
         }
         else
         {
-          Rts_E = BOF_ERR_EOVERFLOW; //Too big
+          Rts_E = BOF_ERR_EOVERFLOW; // Too big
         }
       }
       else
       {
-        Rts_E = BOF_ERR_EXFULL; //full
+        Rts_E = BOF_ERR_EXFULL; // full
       }
     }
     else
     {
-      Rts_E = BOF_ERR_ECANCELED; //not started
+      Rts_E = BOF_ERR_ECANCELED; // not started
     }
   }
   return Rts_E;
@@ -690,10 +676,10 @@ BOFERR BofPerfPointAdd(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, const char *_pPoint
 
 BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ForceTrigger_B)
 {
-  BOFERR                  Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   BOF_PERF_POINT_ENTRY *pEntry_X;
-  uint32_t             i_U32;
-  uint64_t             Delta_U64;
+  uint32_t i_U32;
+  uint64_t Delta_U64;
 
   if ((_pPerfPointMgr_X) && (_pPerfPointMgr_X->MgrMagicNumber_U32 == BOF_PERF_POINT_MAGIC_NUMBER))
   {
@@ -708,7 +694,8 @@ BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ForceTrigger
         }
         else
         {
-          printf("%s: %d entries, Min %" PRId64 " Max %" PRId64 " >>Overtime detected<< (%" PRId64 ")\n", _pPerfPointMgr_X->pMgrName_c, _pPerfPointMgr_X->NbEntry_U32, _pPerfPointMgr_X->MinInNs_U64, _pPerfPointMgr_X->MaxInNs_U64, _pPerfPointMgr_X->OverTimeInNs_U64);
+          printf("%s: %d entries, Min %" PRId64 " Max %" PRId64 " >>Overtime detected<< (%" PRId64 ")\n", _pPerfPointMgr_X->pMgrName_c, _pPerfPointMgr_X->NbEntry_U32, _pPerfPointMgr_X->MinInNs_U64, _pPerfPointMgr_X->MaxInNs_U64,
+                 _pPerfPointMgr_X->OverTimeInNs_U64);
         }
         pEntry_X = _pPerfPointMgr_X->pEntry_X;
         for (i_U32 = 0; i_U32 < _pPerfPointMgr_X->NbEntry_U32; i_U32++)
@@ -721,7 +708,8 @@ BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ForceTrigger
           {
             Delta_U64 = 0;
           }
-          printf("[%03d] Ts %-14" PRId64 " ns Abs %-10" PRId64 " ns %-4" PRId64 " ms Prv %-10" PRId64 " ns %-4" PRId64 " ms Step %s:%s", i_U32, pEntry_X->TimeStampInNs_U64, pEntry_X->Delta_U64, pEntry_X->Delta_U64 / 1000000, Delta_U64, Delta_U64 / 1000000, _pPerfPointMgr_X->pMgrName_c, pEntry_X->pPointName_c);
+          printf("[%03d] Ts %-14" PRId64 " ns Abs %-10" PRId64 " ns %-4" PRId64 " ms Prv %-10" PRId64 " ns %-4" PRId64 " ms Step %s:%s", i_U32, pEntry_X->TimeStampInNs_U64, pEntry_X->Delta_U64, pEntry_X->Delta_U64 / 1000000, Delta_U64, Delta_U64 / 1000000,
+                 _pPerfPointMgr_X->pMgrName_c, pEntry_X->pPointName_c);
           pEntry_X++;
         }
         Rts_E = BOF_ERR_EL2NSYNC;
@@ -729,12 +717,13 @@ BOFERR BofPerfPointStop(BOF_PERF_POINT_MGR *_pPerfPointMgr_X, bool _ForceTrigger
       else
       {
         Rts_E = BOF_ERR_NO_ERROR;
-        //       DBG_OUT(LOGLEVEL_DEBUG, LOG_MASK_MISC, DRIVER_MSG_HEADER, "%s: %d entries with no over time (%lld), Min %lld Max %lld\n", _pPerfPointMgr_X->pMgrName_c, _pPerfPointMgr_X->NbEntry_U32, _pPerfPointMgr_X->OverTimeInNs_U64, _pPerfPointMgr_X->MinInNs_U64, _pPerfPointMgr_X->MaxInNs_U64);
+        //       DBG_OUT(LOGLEVEL_DEBUG, LOG_MASK_MISC, DRIVER_MSG_HEADER, "%s: %d entries with no over time (%lld), Min %lld Max %lld\n", _pPerfPointMgr_X->pMgrName_c, _pPerfPointMgr_X->NbEntry_U32, _pPerfPointMgr_X->OverTimeInNs_U64,
+        //       _pPerfPointMgr_X->MinInNs_U64, _pPerfPointMgr_X->MaxInNs_U64);
       }
     }
     else
     {
-      Rts_E = BOF_ERR_ECANCELED; //not started
+      Rts_E = BOF_ERR_ECANCELED; // not started
     }
   }
   return Rts_E;
@@ -751,6 +740,5 @@ BOFERR BofPerfPointClose(BOF_PERF_POINT_MGR *_pPerfPointMgr_X)
   }
   return Rts_E;
 }
-
 
 END_BOF_NAMESPACE()

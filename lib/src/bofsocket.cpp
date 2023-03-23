@@ -23,26 +23,25 @@
 #include <bofstd/bofstring.h>
 
 #if _WIN32
- //#pragma warning(push)
- //#pragma warning(disable:4996)
+// #pragma warning(push)
+// #pragma warning(disable:4996)
 #include <WinSock2.h>
 #include <iphlpapi.h>
 #else
-#include <unistd.h>
 #include <fcntl.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <poll.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 BEGIN_BOF_NAMESPACE()
 
 std::atomic<int32_t> BofSocket::S_mBofSocketBalance;
 
-BofSocket::BofSocket()
-  : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
+BofSocket::BofSocket() : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
   mSocket = BOFSOCKET_INVALID;
   mMaxUdpLen_U32 = 0;
@@ -52,25 +51,22 @@ BofSocket::BofSocket()
   mConnected_B = false;
 }
 
-BofSocket::BofSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
-  : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
+BofSocket::BofSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
   mSocket = BOFSOCKET_INVALID;
   InitializeSocket(_rBofSocketParam_X);
 }
 
-BofSocket::BofSocket(BOFSOCKET _Socket_h, const BOF_SOCKET_PARAM &_rBofSocketParam_X)
-  : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
+BofSocket::BofSocket(BOFSOCKET _Socket_h, const BOF_SOCKET_PARAM &_rBofSocketParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
   mSocket = (BOFSOCKET)_Socket_h;
   InitializeSocket(_rBofSocketParam_X);
-
 }
 
 BofSocket::~BofSocket()
 {
   S_mBofSocketBalance--;
-  //BOF_DBG_PRINTF("@@@%s ~BofSocket %08X Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mSocket,S_mBofSocketBalance.load());
+  // BOF_DBG_PRINTF("@@@%s ~BofSocket %08X Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mSocket,S_mBofSocketBalance.load());
 
   ShutdownSocket();
 }
@@ -79,9 +75,9 @@ BOFERR BofSocket::ShutdownSocket()
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   struct ip_mreq IpV4MulticastRequest_X;   /* multicast request structure */
-  struct ipv6_mreq IpV6MulticastRequest_X;   /* multicast request structure */
+  struct ipv6_mreq IpV6MulticastRequest_X; /* multicast request structure */
 
-  //BOF_DBG_PRINTF("Socket[%08X] Shutdown\n", mSocket);
+  // BOF_DBG_PRINTF("Socket[%08X] Shutdown\n", mSocket);
   if (mSocket != BOFSOCKET_INVALID)
   {
     if (!Bof_IsIpAddressNull(mDstIpAddress_X) && (!mBofSocketParam_X.MulticastSender_B))
@@ -95,7 +91,6 @@ BOFERR BofSocket::ShutdownSocket()
           IpV6MulticastRequest_X.ipv6mr_interface = htonl(INADDR_ANY);
           if (setsockopt(mSocket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&IpV6MulticastRequest_X, sizeof(IpV6MulticastRequest_X)) < 0)
           {
-
           }
         }
         else
@@ -104,14 +99,13 @@ BOFERR BofSocket::ShutdownSocket()
           IpV4MulticastRequest_X.imr_interface.s_addr = htonl(INADDR_ANY);
           if (setsockopt(mSocket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&IpV4MulticastRequest_X, sizeof(IpV4MulticastRequest_X)) < 0)
           {
-
           }
         }
       }
     }
 
-    shutdown(mSocket, 2);            // SD_BOTH ))
-#if defined (_WIN32)
+    shutdown(mSocket, 2); // SD_BOTH ))
+#if defined(_WIN32)
     closesocket(mSocket);
 #else
     close(mSocket);
@@ -127,8 +121,8 @@ BOFERR BofSocket::ShutdownSocket()
 
 BOFERR BofSocket::S_InitializeStack()
 {
-#if defined (_WIN32)
-  BOFERR  Rts_E = BOF_ERR_INIT;
+#if defined(_WIN32)
+  BOFERR Rts_E = BOF_ERR_INIT;
   WSADATA Info_X;
   if (!WSAStartup(MAKEWORD(1, 1), &Info_X))
   {
@@ -149,7 +143,7 @@ BOFERR BofSocket::S_ShutdownStack()
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   WSACleanup();
 #else
 #endif
@@ -166,7 +160,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
   BOFERR Rts_E;
   std::vector<BOF_NETWORK_INTERFACE_PARAM> ListOfNetworkInterface_X;
   bool Bind_B;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
   BOF_SOCKET_ADDRESS Ip_X;
 
   mMaxUdpLen_U32 = 0;
@@ -184,7 +178,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
   {
     if (Bof_IsIpAddressNull(mSrcIpAddress_X))
     {
-      //No it is INADDR_ANY			Rts_E = BOF_ERR_INVALID_SRC;
+      // No it is INADDR_ANY			Rts_E = BOF_ERR_INVALID_SRC;
     }
   }
 
@@ -198,7 +192,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
       }
       else
       {
-        mMulticastIpAddress_X.IpV4Address_X.sin_port = mSrcIpAddress_X.IpV4Address_X.sin_port;	//Multicast port is specified in BindIpAddress_S
+        mMulticastIpAddress_X.IpV4Address_X.sin_port = mSrcIpAddress_X.IpV4Address_X.sin_port; // Multicast port is specified in BindIpAddress_S
       }
     }
     else
@@ -220,13 +214,13 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
 #if defined(_WIN32)
             mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 #else
-            //Not always supported						mSocket = socket(AF_UNIX, SOCK_DGRAM, IPPROTO_UDP);		//Udp local host is not reliable in linux except if you use unix domain socket
-            mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);		//Udp local host is reliable in windows and AF_UNIX does not exist
+            // Not always supported						mSocket = socket(AF_UNIX, SOCK_DGRAM, IPPROTO_UDP);		//Udp local host is not reliable in linux except if you use unix domain socket
+            mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP); // Udp local host is reliable in windows and AF_UNIX does not exist
 #endif
           }
           else
           {
-            mSocket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);	//Unreliable by design
+            mSocket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP); // Unreliable by design
           }
         }
         else
@@ -244,13 +238,13 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
             mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
             //						mSocket = socket(AF_UNIX, SOCK_DGRAM, IPPROTO_UDP);	//Udp local host is reliable in windows and AF_UNIX does not exist
 #else
-            //Not always supported								mSocket = socket(AF_UNIX, SOCK_DGRAM, IPPROTO_UDP);		//Udp local host is not reliable in linux except if you use unix domain socket
-            mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);	//Unreliable by design
+            // Not always supported								mSocket = socket(AF_UNIX, SOCK_DGRAM, IPPROTO_UDP);		//Udp local host is not reliable in linux except if you use unix domain socket
+            mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP); // Unreliable by design
 #endif
           }
           else
           {
-            mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);	//Unreliable by design
+            mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP); // Unreliable by design
           }
         }
         else
@@ -274,7 +268,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
   }
   mErrorCode_E = Rts_E;
   S_mBofSocketBalance++;
-  //BOF_DBG_PRINTF("@@@%s InitializeSocket %08X Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
+  // BOF_DBG_PRINTF("@@@%s InitializeSocket %08X Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
 
   return Rts_E;
 }
@@ -297,7 +291,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   socklen_t Len_i;
   uint32_t Val_U32;
-  struct ip_mreq IpV4MulticastRequest_X; /* multicast request structure */
+  struct ip_mreq IpV4MulticastRequest_X;   /* multicast request structure */
   struct ipv6_mreq IpV6MulticastRequest_X; /* multicast request structure */
   BOF_SOCKET_ADDRESS MulticastClient_X;
   std::vector<uint16_t> BinFormat;
@@ -308,7 +302,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
     Len_i = sizeof(uint32_t);
     Val_U32 = 1;
 
-    if (setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char *> (&Val_U32), Len_i))
+    if (setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char *>(&Val_U32), Len_i))
     {
       Rts_E = BOF_ERR_ADDRESS;
     }
@@ -321,7 +315,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
     {
 #if _WIN32
       Len_i = sizeof(uint32_t);
-      if (getsockopt(mSocket, SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char *> (&mMaxUdpLen_U32), &Len_i) == BOFSOCKET_INVALID)
+      if (getsockopt(mSocket, SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char *>(&mMaxUdpLen_U32), &Len_i) == BOFSOCKET_INVALID)
       {
         Rts_E = BOF_ERR_WRONG_SIZE;
       }
@@ -330,9 +324,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
 #endif
       mBofSocketParam_X.NoDelay_B = false;
 
-      if ((Rts_E == BOF_ERR_NO_ERROR) &&
-          (mBofSocketParam_X.BroadcastPort_U16)
-          )
+      if ((Rts_E == BOF_ERR_NO_ERROR) && (mBofSocketParam_X.BroadcastPort_U16))
       {
         mDstIpAddress_X.Set(_IpV6_B, BOF_SOCK_TYPE::BOF_SOCK_UDP, 255, 255, 255, 255, mBofSocketParam_X.BroadcastPort_U16);
 
@@ -340,7 +332,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
         Val_U32 = 0xFFFFFFFF;
 
         // Allows broadcast transmission for udp
-        if (setsockopt(mSocket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char *> (&Val_U32), Len_i))
+        if (setsockopt(mSocket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char *>(&Val_U32), Len_i))
         {
           Rts_E = BOF_ERR_INIT;
         }
@@ -356,7 +348,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
       {
         Len_i = sizeof(uint32_t);
         Val_U32 = 1;
-        if (setsockopt(mSocket, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char *> (&Val_U32), Len_i))
+        if (setsockopt(mSocket, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char *>(&Val_U32), Len_i))
         {
           Rts_E = BOF_ERR_INIT;
         }
@@ -369,9 +361,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
     Rts_E = SetSocketBufferSize(mBofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32, mBofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32);
   }
 
-  if ((Rts_E == BOF_ERR_NO_ERROR)
-      && (!mBofSocketParam_X.BaseChannelParam_X.Blocking_B)
-      )
+  if ((Rts_E == BOF_ERR_NO_ERROR) && (!mBofSocketParam_X.BaseChannelParam_X.Blocking_B))
   {
     Rts_E = SetNonBlockingMode(!mBofSocketParam_X.BaseChannelParam_X.Blocking_B);
   }
@@ -383,30 +373,30 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
     {
       if (mBofSocketParam_X.MulticastSender_B)
       {
-        //https://www.ibm.com/support/knowledgecenter/en/ssw_i5_54/rzab6/x1multicast.htm: Disable loopback so you do not receive your own datagrams
+        // https://www.ibm.com/support/knowledgecenter/en/ssw_i5_54/rzab6/x1multicast.htm: Disable loopback so you do not receive your own datagrams
         Len_i = sizeof(uint32_t);
         Val_U32 = (mBofSocketParam_X.EnableLocalMulticast_B) ? 1 : 0;
 
-        if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_LOOP, reinterpret_cast<char *> (&Val_U32), Len_i))
+        if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_LOOP, reinterpret_cast<char *>(&Val_U32), Len_i))
         {
           Rts_E = BOF_ERR_INIT;
         }
         // Set local interface for outbound multicast datagrams. The IP address specified must be associated with a local, multicast-capable interface.
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          _Bind_B = false;	//Do not call getsockname for multicast sender
+          _Bind_B = false; // Do not call getsockname for multicast sender
           mDstIpAddress_X = mMulticastIpAddress_X;
 
           if (mMulticastIpInterfaceAddress_X.IpV6_B)
           {
-            if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *> (&mMulticastIpInterfaceAddress_X.IpV6Address_X.sin6_addr.s6_addr), 16) < 0)
+            if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *>(&mMulticastIpInterfaceAddress_X.IpV6Address_X.sin6_addr.s6_addr), 16) < 0)
             {
               Rts_E = BOF_ERR_INIT;
             }
           }
           else
           {
-            if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *> (&mMulticastIpInterfaceAddress_X.IpV4Address_X.sin_addr.s_addr), sizeof(mMulticastIpInterfaceAddress_X.IpV4Address_X.sin_addr.s_addr)) < 0)
+            if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *>(&mMulticastIpInterfaceAddress_X.IpV4Address_X.sin_addr.s_addr), sizeof(mMulticastIpInterfaceAddress_X.IpV4Address_X.sin_addr.s_addr)) < 0)
             {
               Rts_E = BOF_ERR_INIT;
             }
@@ -430,7 +420,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
           if (_IpV6_B)
           {
             //            Bind to the proper port number with the IP address specified as INADDR_ANY
-#if defined (_WIN32)
+#if defined(_WIN32)
 #else
             if (mBofSocketParam_X.FilterMulticastOnIpAddress_B)
             {
@@ -441,14 +431,14 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
             {
               MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, 0, 0, 0, 0, htons(mMulticastIpAddress_X.IpV6Address_X.sin6_port));
             }
-            if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&MulticastClient_X.IpV6Address_X), sizeof(MulticastClient_X.IpV6Address_X)) == SOCKET_ERROR)
+            if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&MulticastClient_X.IpV6Address_X), sizeof(MulticastClient_X.IpV6Address_X)) == SOCKET_ERROR)
             {
               Rts_E = BOF_ERR_BIND;
             }
           }
           else
           {
-#if defined (_WIN32)
+#if defined(_WIN32)
 #else
             if (mBofSocketParam_X.FilterMulticastOnIpAddress_B)
             {
@@ -459,7 +449,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
             {
               MulticastClient_X.Set(_IpV6_B, mMulticastIpInterfaceAddress_X.SocketType_E, 0, 0, 0, 0, htons(mMulticastIpAddress_X.IpV4Address_X.sin_port)); // htons mandatory !!!
             }
-            if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&MulticastClient_X.IpV4Address_X), sizeof(MulticastClient_X.IpV4Address_X)) == SOCKET_ERROR)
+            if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&MulticastClient_X.IpV4Address_X), sizeof(MulticastClient_X.IpV4Address_X)) == SOCKET_ERROR)
             {
               Rts_E = BOF_ERR_BIND;
             }
@@ -471,10 +461,10 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
         {
           if (_IpV6_B)
           {
-            IpV6MulticastRequest_X.ipv6mr_interface = 0;  //.s6_addr, mMulticastIpInterfaceAddress_X.IpV6Address_X.sin6_addr.s6_addr, 16);
+            IpV6MulticastRequest_X.ipv6mr_interface = 0; //.s6_addr, mMulticastIpInterfaceAddress_X.IpV6Address_X.sin6_addr.s6_addr, 16);
             memcpy(IpV6MulticastRequest_X.ipv6mr_multiaddr.s6_addr, mMulticastIpAddress_X.IpV6Address_X.sin6_addr.s6_addr, 16);
 
-            if (setsockopt(mSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char *> (&IpV6MulticastRequest_X), sizeof(IpV6MulticastRequest_X)))
+            if (setsockopt(mSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char *>(&IpV6MulticastRequest_X), sizeof(IpV6MulticastRequest_X)))
             {
               Rts_E = BOF_ERR_INIT;
             }
@@ -484,7 +474,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
             IpV4MulticastRequest_X.imr_interface.s_addr = mMulticastIpInterfaceAddress_X.IpV4Address_X.sin_addr.s_addr;
             IpV4MulticastRequest_X.imr_multiaddr.s_addr = mMulticastIpAddress_X.IpV4Address_X.sin_addr.s_addr;
 
-            if (setsockopt(mSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char *> (&IpV4MulticastRequest_X), sizeof(IpV4MulticastRequest_X)))
+            if (setsockopt(mSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char *>(&IpV4MulticastRequest_X), sizeof(IpV4MulticastRequest_X)))
             {
               Rts_E = BOF_ERR_INIT;
             }
@@ -499,14 +489,14 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
       {
         if (_IpV6_B)
         {
-          if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mSrcIpAddress_X.IpV6Address_X), sizeof(mSrcIpAddress_X.IpV6Address_X)) == SOCKET_ERROR)
+          if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mSrcIpAddress_X.IpV6Address_X), sizeof(mSrcIpAddress_X.IpV6Address_X)) == SOCKET_ERROR)
           {
             Rts_E = BOF_ERR_BIND;
           }
         }
         else
         {
-          if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mSrcIpAddress_X.IpV4Address_X), sizeof(mSrcIpAddress_X.IpV4Address_X)) == SOCKET_ERROR)
+          if (bind(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mSrcIpAddress_X.IpV4Address_X), sizeof(mSrcIpAddress_X.IpV4Address_X)) == SOCKET_ERROR)
           {
             int32_t NativeErrorCode_S32;
             Rts_E = Bof_GetLastError(true, &NativeErrorCode_S32);
@@ -519,9 +509,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
     }
   }
 
-  if ((Rts_E == BOF_ERR_NO_ERROR) &&
-      (mBofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32) && (IsTcp())
-      )
+  if ((Rts_E == BOF_ERR_NO_ERROR) && (mBofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32) && (IsTcp()))
   {
     if (listen(mSocket, mBofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32) == SOCKET_ERROR)
     {
@@ -529,22 +517,20 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
     }
   }
 
-  if ((Rts_E == BOF_ERR_NO_ERROR) && (mBofSocketParam_X.NoDelay_B)
-      )
+  if ((Rts_E == BOF_ERR_NO_ERROR) && (mBofSocketParam_X.NoDelay_B))
   {
     Rts_E = DisableNagle();
   }
 
-
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    if (_Bind_B)	//Do not call getsockname for multicast sender
+    if (_Bind_B) // Do not call getsockname for multicast sender
     {
       // We need this to get back the port value of a binding to port 0 (->ftp PASV for example
       if (_IpV6_B)
       {
         Len_i = sizeof(BOF_SOCKADDR_IN6);
-        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mSrcIpAddress_X.IpV6Address_X), &Len_i) == SOCKET_ERROR) // get allocated port if port was 0
+        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mSrcIpAddress_X.IpV6Address_X), &Len_i) == SOCKET_ERROR) // get allocated port if port was 0
         {
           Rts_E = BOF_ERR_INIT;
         }
@@ -552,7 +538,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
       else
       {
         Len_i = sizeof(BOF_SOCKADDR_IN);
-        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mSrcIpAddress_X.IpV4Address_X), &Len_i) == SOCKET_ERROR) // get allocated port if port was 0
+        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mSrcIpAddress_X.IpV4Address_X), &Len_i) == SOCKET_ERROR) // get allocated port if port was 0
         {
           int32_t NativeErrorCode_S32;
           Rts_E = Bof_GetLastError(true, &NativeErrorCode_S32);
@@ -574,14 +560,14 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
   return Rts_E;
 }
 
-//Nonblocking=true->socket is in non block state: 
-//WIn32: When FIONBIO is set, the socket is marked nonblocking
-//Linux: The O_NONBLOCK flag is set if the file is to be treated as non-blocking, and is not present if the file is blocking.
+// Nonblocking=true->socket is in non block state:
+// WIn32: When FIONBIO is set, the socket is marked nonblocking
+// Linux: The O_NONBLOCK flag is set if the file is to be treated as non-blocking, and is not present if the file is blocking.
 BOFERR BofSocket::SetNonBlockingMode(bool _NonBlocking_B)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   // Set the socket as non-blocking
   uint32_t NonBlocking_U32 = (_NonBlocking_B) ? 1 : 0;
   if (ioctlsocket(mSocket, FIONBIO, (u_long *)&NonBlocking_U32))
@@ -611,7 +597,7 @@ BOFERR BofSocket::SetNonBlockingMode(bool _NonBlocking_B)
     {
       Rts_E = BOF_ERR_INIT;
     }
-}
+  }
 #endif
 
   // Update parameters
@@ -676,9 +662,7 @@ BOFERR BofSocket::SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _Snd
     }
   }
 
-  if ((Rts_E == BOF_ERR_NO_ERROR) &&
-      (_SndBufferSize_U32)
-      )
+  if ((Rts_E == BOF_ERR_NO_ERROR) && (_SndBufferSize_U32))
   {
     Len_i = sizeof(uint32_t);
     Val_U32 = _SndBufferSize_U32;
@@ -706,7 +690,6 @@ BOFERR BofSocket::SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _Snd
 
   return Rts_E;
 }
-
 
 BOFERR BofSocket::DisableNagle()
 {
@@ -796,11 +779,11 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
   std::string Val_S, Option_S;
   //	uint32_t Err_U32;
 
-  bool IsIpV6_B = false, Blocking_B;      //TODO
+  bool IsIpV6_B = false, Blocking_B; // TODO
 
   if (mSocket != BOFSOCKET_INVALID)
   {
-    //Option_S = _rOption_S;
+    // Option_S = _rOption_S;
 
     Rts_E = Bof_ResolveIpAddress(_rTarget_S, Ip_X, mDstIpAddress_X);
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -836,13 +819,12 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
     }
   }
 
-
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     if (IsUdp())
     {
-      //TO=100;CON=HELLO WORLD
-      //TimeoutInMs_U32 = (Bof_GetUnsignedIntegerFromMultipleKeyValueString(_rOption_S, ";", "TO", '=', Val_U32) == BOF_ERR_NO_ERROR) ? Val_U32 : 100;
+      // TO=100;CON=HELLO WORLD
+      // TimeoutInMs_U32 = (Bof_GetUnsignedIntegerFromMultipleKeyValueString(_rOption_S, ";", "TO", '=', Val_U32) == BOF_ERR_NO_ERROR) ? Val_U32 : 100;
       Option_S = (Bof_GetStringFromMultipleKeyValueString(_rOption_S, ";", "CON", '=', Val_S) == BOF_ERR_NO_ERROR) ? Val_S : BOFSOCKET_UDP_CONNECT;
 
       ProcessUdpConnectProtocol_B = (mBofSocketParam_X.BroadcastPort_U16 == 0);
@@ -851,11 +833,11 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
         Rts_E = BOF_ERR_ENOTCONN;
         if (IsIpV6_B)
         {
-          Nb_i = static_cast<int>(sendto(mSocket, Option_S.c_str(), static_cast<int>(Option_S.size()), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV6Address_X), sizeof(BOF_SOCKADDR_IN6)));
+          Nb_i = static_cast<int>(sendto(mSocket, Option_S.c_str(), static_cast<int>(Option_S.size()), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV6Address_X), sizeof(BOF_SOCKADDR_IN6)));
         }
         else
         {
-          Nb_i = static_cast<int>(sendto(mSocket, Option_S.c_str(), static_cast<int>(Option_S.size()), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV4Address_X), sizeof(BOF_SOCKADDR_IN)));
+          Nb_i = static_cast<int>(sendto(mSocket, Option_S.c_str(), static_cast<int>(Option_S.size()), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), sizeof(BOF_SOCKADDR_IN)));
         }
         if (Nb_i > 0)
         {
@@ -866,12 +848,12 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
             if (IsIpV6_B)
             {
               Len = sizeof(mDstIpAddress_X.IpV6Address_X);
-              Nb_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV6Address_X), &Len));
+              Nb_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV6Address_X), &Len));
             }
             else
             {
               Len = sizeof(mDstIpAddress_X.IpV4Address_X);
-              Nb_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV4Address_X), &Len));
+              Nb_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), &Len));
             }
             if (Nb_i > 0)
             {
@@ -902,17 +884,17 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
         Rts_E = BOF_ERR_ENOTCONN;
         if (IsIpV6_B)
         {
-          Err_i = connect(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV6Address_X), sizeof(mDstIpAddress_X.IpV6Address_X));
+          Err_i = connect(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV6Address_X), sizeof(mDstIpAddress_X.IpV6Address_X));
         }
         else
         {
-          Err_i = connect(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV4Address_X), sizeof(mDstIpAddress_X.IpV4Address_X));
+          Err_i = connect(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), sizeof(mDstIpAddress_X.IpV4Address_X));
         }
 
         if (Err_i < 0)
         {
           Rts_E = Bof_GetLastError(true);
-          if ((Rts_E == BOF_ERR_EINPROGRESS) || (Rts_E == BOF_ERR_EWOULDBLOCK))
+          if ((Rts_E == BOF_ERR_EINPROGRESS) || (Rts_E == BOF_ERR_EAGAIN))
           {
             Rts_E = SetWriteTimeout(_TimeoutInMs_U32);
             if (Rts_E == BOF_ERR_NO_ERROR)
@@ -942,7 +924,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
       if (IsIpV6_B)
       {
         Len = sizeof(mSrcIpAddress_X.IpV6Address_X);
-        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mSrcIpAddress_X.IpV6Address_X), &Len) == SOCKET_ERROR)
+        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mSrcIpAddress_X.IpV6Address_X), &Len) == SOCKET_ERROR)
         {
           Rts_E = BOF_ERR_ENOTCONN;
         }
@@ -954,7 +936,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
       else
       {
         Len = sizeof(mSrcIpAddress_X.IpV4Address_X);
-        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&mSrcIpAddress_X.IpV4Address_X), &Len) == SOCKET_ERROR)
+        if (getsockname(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&mSrcIpAddress_X.IpV4Address_X), &Len) == SOCKET_ERROR)
         {
           Rts_E = BOF_ERR_ENOTCONN;
         }
@@ -1002,14 +984,14 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
   BOFSOCKET DstSocket_X;
   BOF_SOCKET_ADDRESS DstIpAddress_X;
   BofComChannel *pRts = nullptr;
-  //std::vector<std::string> OptionList_S;
+  // std::vector<std::string> OptionList_S;
   std::string ConnectString_S;
   BofSocket *pClient;
 
   BOF_SOCKET_PARAM BofSocketParam_X;
   char pUdpConnect_c[0x10000];
   BOF_SOCKET_ADDRESS IpAddress_X;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
 
   if (mSocket != BOFSOCKET_INVALID)
   {
@@ -1030,12 +1012,12 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
         if (IsIpV6_B)
         {
           Len = sizeof(DstIpAddress_X.IpV6Address_X);
-          NbUdpRcv_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *> (&DstIpAddress_X.IpV6Address_X), &Len));
+          NbUdpRcv_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *>(&DstIpAddress_X.IpV6Address_X), &Len));
         }
         else
         {
           Len = sizeof(DstIpAddress_X.IpV4Address_X);
-          NbUdpRcv_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *> (&DstIpAddress_X.IpV4Address_X), &Len));
+          NbUdpRcv_i = static_cast<int>(recvfrom(mSocket, pUdpConnect_c, sizeof(pUdpConnect_c), 0, reinterpret_cast<BOF_SOCKADDR *>(&DstIpAddress_X.IpV4Address_X), &Len));
         }
         if (NbUdpRcv_i > 0)
         {
@@ -1067,25 +1049,24 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
         if (IsIpV6_B)
         {
           Len = sizeof(DstIpAddress_X.IpV6Address_X);
-          DstSocket_X = accept(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&DstIpAddress_X.IpV6Address_X), &Len);
+          DstSocket_X = accept(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&DstIpAddress_X.IpV6Address_X), &Len);
         }
         else
         {
           Len = sizeof(DstIpAddress_X.IpV4Address_X);
-          DstSocket_X = accept(mSocket, reinterpret_cast<BOF_SOCKADDR *> (&DstIpAddress_X.IpV4Address_X), &Len);
+          DstSocket_X = accept(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&DstIpAddress_X.IpV4Address_X), &Len);
         }
         if (DstSocket_X != BOFSOCKET_INVALID)
         {
           Sts_E = BOF_ERR_NO_ERROR;
         }
-
       }
     }
 
     if (Sts_E == BOF_ERR_NO_ERROR)
     {
       BOF_ASSERT(DstSocket_X != BOFSOCKET_INVALID);
-      //Sts_E                                                 = BOF_ERR_ENOTCONN;
+      // Sts_E                                                 = BOF_ERR_ENOTCONN;
       IpAddress_X = mSrcIpAddress_X;
       if (IsIpV6_B)
       {
@@ -1108,14 +1089,12 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
       BofSocketParam_X.BaseChannelParam_X.ChannelName_S = Bof_Sprintf("%s_%d", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), ++S_mListenCounter_U32);
       pRts = new BofSocket(DstSocket_X, BofSocketParam_X);
 
-      if ((pRts) &&
-          (!pRts->LastErrorCode())
-          )
+      if ((pRts) && (!pRts->LastErrorCode()))
       {
         pClient = dynamic_cast<BofSocket *>(pRts);
         DstIpAddress_X.SocketType_E = mSrcIpAddress_X.SocketType_E;
         pClient->SetDstIpAddress(DstIpAddress_X);
-        //Sts_E = BOF_ERR_NO_ERROR;
+        // Sts_E = BOF_ERR_NO_ERROR;
 
         pClient->SetConnectedState(true);
         if (IsUdp())
@@ -1125,11 +1104,11 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
           {
             if (IsIpV6_B)
             {
-              Nb_i = static_cast<int>(sendto(DstSocket_X, pUdpConnect_c, NbUdpRcv_i, 0, reinterpret_cast<BOF_SOCKADDR *> (&DstIpAddress_X.IpV6Address_X), sizeof(BOF_SOCKADDR_IN6)));
+              Nb_i = static_cast<int>(sendto(DstSocket_X, pUdpConnect_c, NbUdpRcv_i, 0, reinterpret_cast<BOF_SOCKADDR *>(&DstIpAddress_X.IpV6Address_X), sizeof(BOF_SOCKADDR_IN6)));
             }
             else
             {
-              Nb_i = static_cast<int>(sendto(DstSocket_X, pUdpConnect_c, NbUdpRcv_i, 0, reinterpret_cast<BOF_SOCKADDR *> (&DstIpAddress_X.IpV4Address_X), sizeof(BOF_SOCKADDR_IN)));
+              Nb_i = static_cast<int>(sendto(DstSocket_X, pUdpConnect_c, NbUdpRcv_i, 0, reinterpret_cast<BOF_SOCKADDR *>(&DstIpAddress_X.IpV4Address_X), sizeof(BOF_SOCKADDR_IN)));
             }
             if (Nb_i < 0)
             {
@@ -1171,7 +1150,7 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
   uint32_t Nb_U32;
   socklen_t Len_i;
   size_t Size;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
 
   if (mSocket != BOFSOCKET_INVALID)
   {
@@ -1188,23 +1167,24 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
           _rNb_U32 = 0;
           if (IsUdp())
           {
-            //Under linux if you read a datagram bigger than the buff you got the first byte of the buffer
-            //Under windows the read fails->need to use wsarecfrom to get this behavior MSG_TRUNK is not valid as flag in recvfrom !!!!
+            // Under linux if you read a datagram bigger than the buff you got the first byte of the buffer
+            // Under windows the read fails->need to use wsarecfrom to get this behavior MSG_TRUNK is not valid as flag in recvfrom !!!!
             if (IsIpV6_B)
             {
               Len_i = sizeof(mDstIpAddress_X.IpV6Address_X);
-              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *> (_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV6Address_X), &Len_i));
+              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *>(_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV6Address_X), &Len_i));
             }
             else
             {
               Len_i = sizeof(mDstIpAddress_X.IpV4Address_X);
-              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *> (_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV4Address_X), &Len_i));
+              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *>(_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), &Len_i));
             }
-            //MSG_TRUNC(since Linux 2.2): seems also to exist in windows
-            //For  UNIX datagram(since Linux 3.4) sockets and raw(AF_PACKET), Internet datagram(since Linux 2.4.27 / 2.6.8) and netlink(since Linux 2.6.22): return the real length of the packet or datagram, even when it was longer 
-            //than the passed buffer.Not implemented for UNIX domain(unix(7)) sockets.
+            // MSG_TRUNC(since Linux 2.2): seems also to exist in windows
+            // For  UNIX datagram(since Linux 3.4) sockets and raw(AF_PACKET), Internet datagram(since Linux 2.4.27 / 2.6.8) and netlink(since Linux 2.6.22): return the real length of the packet or datagram, even when it was longer
+            // than the passed buffer.Not implemented for UNIX domain(unix(7)) sockets.
             /*
-                        if (static_cast<int> (Nb_U32) > 0) // https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
+                        if (static_cast<int> (Nb_U32) > 0) // https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket
+               in either case. �
                         {
                           if (Nb_U32 > Size)
                           {
@@ -1218,25 +1198,26 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
             if (IsIpV6_B)
             {
               Len_i = sizeof(mDstIpAddress_X.IpV6Address_X);
-              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *> (_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV6Address_X), &Len_i));
+              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *>(_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV6Address_X), &Len_i));
             }
             else
             {
               //						Nb_U32 = recv(mSocket, reinterpret_cast< char * > (_pBuffer_U8), Size, 0);
               Len_i = sizeof(mDstIpAddress_X.IpV4Address_X);
-              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *> (_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV4Address_X), &Len_i));
+              Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *>(_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), &Len_i));
             }
           }
-          if (static_cast<int> (Nb_U32) > 0) // https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
+          if (static_cast<int>(Nb_U32) >
+              0) // https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
           {
             _rNb_U32 = Nb_U32;
             Rts_E = BOF_ERR_NO_ERROR;
           }
           else
           {
-            //No as SetReadTimeout was ok					mConnected_B = false;
+            // No as SetReadTimeout was ok					mConnected_B = false;
             //					Rts_E = BOF_ERR_ENETRESET;
-            Rts_E = BOF_ERR_TOO_SMALL;	//Partial read->buffer to small
+            Rts_E = BOF_ERR_TOO_SMALL; // Partial read->buffer to small
           }
         }
       }
@@ -1266,7 +1247,7 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
 {
   uint32_t i_U32, Total_U32, NbLoop_U32, LastOne_U32, Nb_U32;
   BOFERR Rts_E = BOF_ERR_INIT;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
 
   Total_U32 = 0;
   if (mSocket != BOFSOCKET_INVALID)
@@ -1313,13 +1294,11 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
               Rts_E = BOF_ERR_WRITE;
               if (IsIpV6_B)
               {
-                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), mMaxUdpLen_U32, 0, (BOF_SOCKADDR *)&mDstIpAddress_X.IpV6Address_X,
-                                               sizeof(mDstIpAddress_X.IpV6Address_X)));
+                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), mMaxUdpLen_U32, 0, (BOF_SOCKADDR *)&mDstIpAddress_X.IpV6Address_X, sizeof(mDstIpAddress_X.IpV6Address_X)));
               }
               else
               {
-                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), mMaxUdpLen_U32, 0, (BOF_SOCKADDR *)&mDstIpAddress_X.IpV4Address_X,
-                                               sizeof(mDstIpAddress_X.IpV4Address_X)));
+                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), mMaxUdpLen_U32, 0, (BOF_SOCKADDR *)&mDstIpAddress_X.IpV4Address_X, sizeof(mDstIpAddress_X.IpV4Address_X)));
               }
               if (Nb_U32 == mMaxUdpLen_U32)
               {
@@ -1333,9 +1312,7 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
             }
           }
 
-          if ((Rts_E == BOF_ERR_NO_ERROR) &&
-              (LastOne_U32)
-              )
+          if ((Rts_E == BOF_ERR_NO_ERROR) && (LastOne_U32))
           {
             Rts_E = SetWriteTimeout(_TimeoutInMs_U32);
             if (Rts_E == BOF_ERR_NO_ERROR)
@@ -1343,11 +1320,11 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
               Rts_E = BOF_ERR_WRITE;
               if (IsIpV6_B)
               {
-                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), LastOne_U32, 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV6Address_X), sizeof(mDstIpAddress_X.IpV6Address_X)));
+                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), LastOne_U32, 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV6Address_X), sizeof(mDstIpAddress_X.IpV6Address_X)));
               }
               else
               {
-                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), LastOne_U32, 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV4Address_X), sizeof(mDstIpAddress_X.IpV4Address_X)));
+                Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), LastOne_U32, 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), sizeof(mDstIpAddress_X.IpV4Address_X)));
               }
               if (Nb_U32 == LastOne_U32)
               {
@@ -1368,7 +1345,8 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
             {
               Rts_E = BOF_ERR_WRITE;
               Nb_U32 = static_cast<uint32_t>(send(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), (_rNb_U32 - Total_U32), 0));
-              if (static_cast<int> (Nb_U32) > 0)  //>= 0)	// https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
+              if (static_cast<int>(Nb_U32) >
+                  0) //>= 0)	// https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
               {
                 Total_U32 += Nb_U32;
                 Rts_E = BOF_ERR_NO_ERROR;
@@ -1392,7 +1370,6 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
   _rNb_U32 = Total_U32;
   return Rts_E;
 }
-
 
 BOFERR BofSocket::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPendingByte_U32)
 {
@@ -1504,13 +1481,13 @@ BOFERR BofSocket::ComputeScatterGatherList(const std::vector<BOF_BUFFER> &_rBuff
                 pData_U8 += LastOne_U32;
                 NbBuffer_U32++;
               }
-            } //if ((Index_U32 + NbLoop_U32 + (LastOne_U32) ? 1 : 0) < BOF_MAX_NUMBER_OF_SCATTER_GATHER_SOCKET_BUFFER)
-          } //if ((Nb_U32) && (_rBufferCollection[i_U32].pData_U8))
+            } // if ((Index_U32 + NbLoop_U32 + (LastOne_U32) ? 1 : 0) < BOF_MAX_NUMBER_OF_SCATTER_GATHER_SOCKET_BUFFER)
+          }   // if ((Nb_U32) && (_rBufferCollection[i_U32].pData_U8))
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             break;
           }
-        } //for (i_U32 = 0; i_U32 < _rBufferCollection.size(); i_U32++)
+        } // for (i_U32 = 0; i_U32 < _rBufferCollection.size(); i_U32++)
         _rNbBuffer_U32 = NbBuffer_U32;
       }
     }
@@ -1520,12 +1497,12 @@ BOFERR BofSocket::ComputeScatterGatherList(const std::vector<BOF_BUFFER> &_rBuff
 BOFERR BofSocket::WriteScatterGatherData(uint32_t _TimeoutInMs_U32, const std::vector<BOF_BUFFER> &_rBufferCollection, uint32_t &_rNbByteWritten_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
   uint32_t NbBuffer_U32;
   uint64_t Total_U64;
 
 #if defined(_WIN32)
-  DWORD		NbByteSent, Flag;
+  DWORD NbByteSent, Flag;
 #else
   ssize_t NbByteSent;
   struct msghdr Msg_X;
@@ -1603,7 +1580,7 @@ BOFERR BofSocket::WriteScatterGatherData(uint32_t _TimeoutInMs_U32, const std::v
           }
         }
         //						else
-        //faire le cas tcp
+        // faire le cas tcp
       }
     }
   }
@@ -1613,12 +1590,12 @@ BOFERR BofSocket::WriteScatterGatherData(uint32_t _TimeoutInMs_U32, const std::v
 BOFERR BofSocket::ReadScatterGatherData(uint32_t _TimeoutInMs_U32, const std::vector<BOF_BUFFER> &_rBufferCollection, uint32_t &_rNbByteRead_U32, bool &_rPartialRead_B)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
   uint32_t NbBuffer_U32;
   uint64_t Total_U64;
 
 #if defined(_WIN32)
-  DWORD		NbByteRead, Flag;
+  DWORD NbByteRead, Flag;
   INT Len;
   int Err_i;
   int32_t NativeErrorCode_S32;
@@ -1702,13 +1679,12 @@ BOFERR BofSocket::ReadScatterGatherData(uint32_t _TimeoutInMs_U32, const std::ve
           }
         }
         //						else
-        //faire le cas tcp
+        // faire le cas tcp
       }
     }
   }
   return Rts_E;
 }
-
 
 BOFERR BofSocket::ReadString(uint32_t _TimeoutInMs_U32, std::string &_rStr_S, char _EolDelimiter_c)
 {
@@ -1717,7 +1693,7 @@ BOFERR BofSocket::ReadString(uint32_t _TimeoutInMs_U32, std::string &_rStr_S, ch
   socklen_t Len_i;
   size_t Size;
   char pBuffer_c[0x10000], *p_c;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
 
   if (mSocket != BOFSOCKET_INVALID)
   {
@@ -1731,19 +1707,19 @@ BOFERR BofSocket::ReadString(uint32_t _TimeoutInMs_U32, std::string &_rStr_S, ch
         if (IsIpV6_B)
         {
           Len_i = sizeof(mDstIpAddress_X.IpV6Address_X);
-          Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, pBuffer_c, static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV6Address_X), &Len_i));
+          Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, pBuffer_c, static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV6Address_X), &Len_i));
         }
         else
         {
           Len_i = sizeof(mDstIpAddress_X.IpV4Address_X);
-          Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, pBuffer_c, static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *> (&mDstIpAddress_X.IpV4Address_X), &Len_i));
+          Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, pBuffer_c, static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), &Len_i));
         }
       }
       else
       {
         Nb_U32 = static_cast<uint32_t>(recv(mSocket, pBuffer_c, static_cast<int>(Size), MSG_PEEK));
       }
-      if (static_cast<int> (Nb_U32) > 0)
+      if (static_cast<int>(Nb_U32) > 0)
       {
         pBuffer_c[Nb_U32] = 0;
         p_c = strchr(pBuffer_c, _EolDelimiter_c);
@@ -1770,7 +1746,7 @@ BOFERR BofSocket::ReadString(uint32_t _TimeoutInMs_U32, std::string &_rStr_S, ch
         }
         else
         {
-          //if (Nb_U32>= Size)  data is not present in this big buffer->Cancel it
+          // if (Nb_U32>= Size)  data is not present in this big buffer->Cancel it
           Rts_E = (Nb_U32 >= Size) ? BOF_ERR_NOT_FOUND : BOF_ERR_ETIMEDOUT;
           if (Rts_E == BOF_ERR_NOT_FOUND)
           {
@@ -1801,7 +1777,7 @@ BOFERR BofSocket::ReadString(uint32_t _TimeoutInMs_U32, std::string &_rStr_S, ch
  */
 BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 {
-  BOFERR Rts_E = BOF_ERR_NO_ERROR;	// , Sts_E;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR; // , Sts_E;
   int PollStatus_i;
   //	bool DataAvailableOnRead_B=false;
   bool SocketIsWritable_B = false;
@@ -1817,15 +1793,15 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       Fds_X.fd = mSocket;
       Fds_X.events = (BOF_POLL_OUT | BOF_POLL_RDHUP);
       //			Fds_X.events = (BOF_POLL_IN | BOF_POLL_RDHUP);
-#if defined (_WIN32)
-      PollStatus_i = WSAPoll(&Fds_X, 1, 0);	// == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+#if defined(_WIN32)
+      PollStatus_i = WSAPoll(&Fds_X, 1, 0); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-      PollStatus_i = poll(&Fds_X, 1, 0);    // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+      PollStatus_i = poll(&Fds_X, 1, 0); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
 
       if (PollStatus_i > 0)
       {
-        //Error which can be set also with BOF_POLL_IN (Data channel write and closed)
+        // Error which can be set also with BOF_POLL_IN (Data channel write and closed)
         if (Fds_X.revents & (BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_HUP | BOF_POLL_NVAL))
         {
           if (!(Fds_X.revents & BOF_POLL_OUT))
@@ -1836,14 +1812,14 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       }
       if (PollStatus_i > 0)
       {
-        //DataAvailableOnRead_B = true;
+        // DataAvailableOnRead_B = true;
         SocketIsWritable_B = true;
         Rts_E = BOF_ERR_NO_ERROR;
       }
       else if (PollStatus_i == 0)
       {
         Rts_E = BOF_ERR_ETIMEDOUT;
-        Rts_E = BOF_ERR_NO_ERROR;		//Normal
+        Rts_E = BOF_ERR_NO_ERROR; // Normal
       }
       else
       {
@@ -1853,9 +1829,9 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
         Rts_E = BOF_ERR_NO_ERROR;
       }
     }
-    BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);	//DataAvailableOnRead_B makes the difference
+    BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR); // DataAvailableOnRead_B makes the difference
 
-#if defined (_WIN32)
+#if defined(_WIN32)
     u_long Nb;
     Rts_E = (ioctlsocket(mSocket, FIONREAD, &Nb) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -1870,8 +1846,6 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       _rStatus_X.NbIn_U32 = (uint32_t)Nb;
     }
 #endif
-
-
 
     /*
     In TCP there is only one way to detect an orderly disconnect, and that is by getting zero as a return value from read()/recv()/recvXXX() when reading.
@@ -1891,10 +1865,10 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
     mDstIpAddress_X.Reset();
     */
 
-    //if ((IsTcp()) && (mConnected_B) && (Rts_E == BOF_ERR_NO_ERROR))
+    // if ((IsTcp()) && (mConnected_B) && (Rts_E == BOF_ERR_NO_ERROR))
     if ((IsTcp()) && (Rts_E == BOF_ERR_NO_ERROR))
     {
-      //if ((DataAvailableOnRead_B) && (_rStatus_X.NbIn_U32 == 0))
+      // if ((DataAvailableOnRead_B) && (_rStatus_X.NbIn_U32 == 0))
       if ((SocketIsWritable_B) && (_rStatus_X.NbIn_U32 == 0))
       {
         mConnected_B = false;
@@ -1902,8 +1876,6 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
         _rStatus_X.Connected_B = false;
       }
     }
-
-
   }
 
   return Rts_E;
@@ -1946,7 +1918,6 @@ BOFERR BofSocket::V_FlushData(uint32_t _TimeoutInMs_U32)
   return Rts_E;
 }
 
-
 BOFERR BofSocket::SetDstIpAddress(BOF_SOCKET_ADDRESS &_rDstIpAddress_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
@@ -1962,7 +1933,6 @@ BOF_SOCKET_ADDRESS BofSocket::GetSrcIpAddress()
 BOF_SOCKET_ADDRESS BofSocket::GetDstIpAddress()
 {
   return mDstIpAddress_X;
-
 }
 
 BOFERR BofSocket::SetReadTimeout(uint32_t _TimeoutInMs_U32)
@@ -1975,14 +1945,14 @@ BOFERR BofSocket::SetReadTimeout(uint32_t _TimeoutInMs_U32)
   {
     Fds_X.fd = mSocket;
     Fds_X.events = (BOF_POLL_IN | BOF_POLL_RDHUP);
-#if defined (_WIN32)
-    PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32);	// == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+#if defined(_WIN32)
+    PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);    // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {
-      //Error which can be set also with BOF_POLL_IN (Data channel write and closed)
+      // Error which can be set also with BOF_POLL_IN (Data channel write and closed)
       if (Fds_X.revents & (BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_HUP | BOF_POLL_NVAL))
       {
         if (!(Fds_X.revents & BOF_POLL_IN))
@@ -2018,14 +1988,14 @@ BOFERR BofSocket::SetWriteTimeout(uint32_t _TimeoutInMs_U32)
   {
     Fds_X.fd = mSocket;
     Fds_X.events = (BOF_POLL_OUT | BOF_POLL_RDHUP);
-#if defined (_WIN32)
+#if defined(_WIN32)
     PollStatus_i = (WSAPoll(&Fds_X, 1, _TimeoutInMs_U32) == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = (poll(&Fds_X, 1, _TimeoutInMs_U32) == 1);    // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = (poll(&Fds_X, 1, _TimeoutInMs_U32) == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {
-      //Error which can be set also with BOF_POLL_IN (Data channel write and closed)
+      // Error which can be set also with BOF_POLL_IN (Data channel write and closed)
       if (Fds_X.revents & (BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_HUP | BOF_POLL_NVAL))
       {
         if (!(Fds_X.revents & BOF_POLL_OUT))
@@ -2063,10 +2033,10 @@ BOFERR BofSocket::SetReadOrWriteTimeout(uint32_t _TimeoutInMs_U32, bool &_ReadDa
   {
     Fds_X.fd = mSocket;
     Fds_X.events = (BOF_POLL_IN | BOF_POLL_RDHUP | POLLWRNORM);
-#if defined (_WIN32)
-    PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32);	// == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+#if defined(_WIN32)
+    PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);    // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {
@@ -2077,7 +2047,8 @@ BOFERR BofSocket::SetReadOrWriteTimeout(uint32_t _TimeoutInMs_U32, bool &_ReadDa
     }
     if (PollStatus_i > 0)
     {
-      _ReadDataPending_B = (Fds_X.revents & BOF_POLL_IN) ? true : false;;
+      _ReadDataPending_B = (Fds_X.revents & BOF_POLL_IN) ? true : false;
+      ;
       _SpaceAvailableForWrite_B = (Fds_X.revents & POLLWRNORM) ? true : false;
       Rts_E = BOF_ERR_NO_ERROR;
     }
@@ -2100,7 +2071,7 @@ BOFERR BofSocket::SetTimeoutOption(int _Option_i, uint32_t _TimeoutInMs_U32)
   int Len_i;
   const char *pData_c;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   pData_c = (const char *)&_TimeoutInMs_U32;
   Len_i = sizeof(uint32_t);
 #else
@@ -2120,7 +2091,6 @@ BOFERR BofSocket::SetTimeoutOption(int _Option_i, uint32_t _TimeoutInMs_U32)
 
   return Rts_E;
 }
-
 
 BOFSOCKET BofSocket::GetSocketHandle() const
 {
@@ -2168,7 +2138,7 @@ BOFERR BofSocket::SetSendInterfaceForMulticast(const BOF_SOCKET_ADDRESS &_rInter
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
   BOF_IN_ADDR IpV4InterfaceAddress_X;
   BOF_IN_ADDR6 IpV6InterfaceAddress_X;
-  bool IsIpV6_B = false;      //TODO
+  bool IsIpV6_B = false; // TODO
 
   if (mBofSocketParam_X.MulticastSender_B)
   {
@@ -2177,7 +2147,7 @@ BOFERR BofSocket::SetSendInterfaceForMulticast(const BOF_SOCKET_ADDRESS &_rInter
     {
       IpV6InterfaceAddress_X = _rInterfaceIpAddress_X.IpV6Address_X.sin6_addr;
 
-      if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *> (&IpV6InterfaceAddress_X), sizeof(IpV6InterfaceAddress_X)) == 0)
+      if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *>(&IpV6InterfaceAddress_X), sizeof(IpV6InterfaceAddress_X)) == 0)
       {
         Rts_E = BOF_ERR_NO_ERROR;
       }
@@ -2186,7 +2156,7 @@ BOFERR BofSocket::SetSendInterfaceForMulticast(const BOF_SOCKET_ADDRESS &_rInter
     {
       IpV4InterfaceAddress_X = _rInterfaceIpAddress_X.IpV4Address_X.sin_addr;
 
-      if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *> (&IpV4InterfaceAddress_X), sizeof(IpV4InterfaceAddress_X)) == 0)
+      if (setsockopt(mSocket, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char *>(&IpV4InterfaceAddress_X), sizeof(IpV4InterfaceAddress_X)) == 0)
       {
         Rts_E = BOF_ERR_NO_ERROR;
       }
@@ -2198,7 +2168,7 @@ BOFERR BofSocket::SetSendInterfaceForMulticast(const BOF_SOCKET_ADDRESS &_rInter
 #else
 BOFERR BofSocket::SetSendInterfaceForMulticast(const std::string &_rInterface_S)
 {
-  BOFERR       Rts_E = BOF_ERR_INVALID_COMMAND;
+  BOFERR Rts_E = BOF_ERR_INVALID_COMMAND;
   unsigned int Index_ui = 0;
 
   if (mBofSocketParam_X.MulticastSender_B)
@@ -2207,8 +2177,8 @@ BOFERR BofSocket::SetSendInterfaceForMulticast(const std::string &_rInterface_S)
 
     if (Index_ui != 0)
     {
-#if defined (_WIN32)
-      DWORD           Index_dw;
+#if defined(_WIN32)
+      DWORD Index_dw;
       Index_dw = Index_ui;
       Rts_E = ((setsockopt(this->mSocket, IPPROTO_IP, IP_MULTICAST_IF, (const char *)&Index_dw, sizeof(Index_dw)) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_OPERATION_FAILED);
 #else
@@ -2227,10 +2197,8 @@ BOFERR BofSocket::SetSendInterfaceForMulticast(const std::string &_rInterface_S)
 }
 #endif
 
-
 #if _WIN32
 #pragma warning(pop)
 #endif
-
 
 END_BOF_NAMESPACE()

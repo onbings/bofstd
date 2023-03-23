@@ -3,11 +3,11 @@
 #include "DelegateOpt.h"
 
 #include "DelegateThread.h"
-#include <bofstd/bofthread.h>
-#include <queue>
-#include <mutex>
 #include <atomic>
+#include <bofstd/bofthread.h>
 #include <condition_variable>
+#include <mutex>
+#include <queue>
 
 class ThreadMsg;
 
@@ -21,7 +21,7 @@ public:
   ~BofMsgThread();
 
   /// Called once to create the worker thread
-  /// @return TRUE if thread is created. FALSE otherise. 
+  /// @return TRUE if thread is created. FALSE otherise.
   bool LaunchThread(const char *threadName, BOF::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF::BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreMaskAffinity_U64);
 
   uint32_t GetNbPendingRequest();
@@ -38,10 +38,9 @@ private:
   /// Entry point for the thread
   BOFERR V_OnProcessing() override;
 
-  //std::thread* m_thread;
+  // std::thread* m_thread;
   std::queue<ThreadMsg *> m_queue;
   std::mutex m_mutex;
   std::condition_variable m_cv;
-  //const char* THREAD_NAME;
+  // const char* THREAD_NAME;
 };
-

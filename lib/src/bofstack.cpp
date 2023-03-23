@@ -19,8 +19,8 @@
  *
  * V 1.00  Dec 23 2002  BHA : Initial release
  */
-#include <bofstd/bofsystem.h>
 #include <bofstd/bofstack.h>
+#include <bofstd/bofsystem.h>
 
 #include <string.h>
 BEGIN_BOF_NAMESPACE()
@@ -40,8 +40,7 @@ BEGIN_BOF_NAMESPACE()
  * None
  */
 
-
-  BofStack::BofStack(const BOF_STACK_PARAM &_rStackParam_X)
+BofStack::BofStack(const BOF_STACK_PARAM &_rStackParam_X)
 {
   mErrorCode_E = _rStackParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", true, true, mMtx_X) : BOF_ERR_NO_ERROR;
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
@@ -52,7 +51,7 @@ BEGIN_BOF_NAMESPACE()
     if (_rStackParam_X.pData)
     {
       mDataPreAllocated_B = true;
-      mpStack_U8 = reinterpret_cast<uint8_t *> (_rStackParam_X.pData);
+      mpStack_U8 = reinterpret_cast<uint8_t *>(_rStackParam_X.pData);
     }
     else
     {
@@ -217,7 +216,6 @@ bool BofStack::Push(uint32_t Val_U32)
   return Rts_B;
 }
 
-
 bool BofStack::Push(uint64_t Val_U64)
 {
   bool Rts_B = false;
@@ -256,7 +254,7 @@ bool BofStack::Push(float Val_f)
   uint32_t Val_U32;
 
   memcpy(&Val_U32, &Val_f, sizeof(Val_U32));
-  //Val_U32 = *(uint32_t *)&Val_f;
+  // Val_U32 = *(uint32_t *)&Val_f;
   return Push(Val_U32);
 }
 
@@ -278,7 +276,7 @@ bool BofStack::Push(double Val_ff)
 {
   uint64_t Val_U64;
 
-  //Val_U64 = *(uint64_t *)&Val_ff;
+  // Val_U64 = *(uint64_t *)&Val_ff;
   memcpy(&Val_U64, &Val_ff, sizeof(Val_U64));
   return Push(Val_U64);
 }
@@ -308,7 +306,7 @@ bool BofStack::Push(char *pTxt_c)
   if ((GetStackPointer() + Len_U32 + 1) <= mMaxStackSize_U32)
   {
     pTxt_c = &pTxt_c[Len_U32 - 1]; // ok if Len_U32=0 as pTxt_c will not be used !
-    *mpStackLocation_U8++ = 0;                    // Null terminate
+    *mpStackLocation_U8++ = 0;     // Null terminate
     for (i_U32 = 0; i_U32 < Len_U32; i_U32++)
     {
       *mpStackLocation_U8++ = *pTxt_c--;
@@ -319,7 +317,6 @@ bool BofStack::Push(char *pTxt_c)
 
   return Rts_B;
 }
-
 
 bool BofStack::Push(uint32_t _Nb_U32, uint8_t *_pVal_U8)
 {
@@ -481,7 +478,6 @@ bool BofStack::Pop(uint32_t *pVal_U32)
   return Rts_B;
 }
 
-
 bool BofStack::Pop(uint64_t *pVal_U64)
 {
   bool Rts_B = false;
@@ -587,7 +583,7 @@ bool BofStack::Pop(char *pTxt_c)
 {
   bool Rts_B = true;
   char c_c;
-  uint32_t NbMaxToPop_U32;  // Nb_U32;
+  uint32_t NbMaxToPop_U32; // Nb_U32;
 
   if (pTxt_c)
   {
@@ -600,16 +596,16 @@ bool BofStack::Pop(char *pTxt_c)
       do
       {
         c_c = *mpStackLocation_U8--;
-        //if (Nb_U32)
+        // if (Nb_U32)
         {
-          *pTxt_c++ = c_c;             // null char is also copied to string
-          //Nb_U32--;
+          *pTxt_c++ = c_c; // null char is also copied to string
+          // Nb_U32--;
         }
         NbMaxToPop_U32--;
       } while ((c_c) && (NbMaxToPop_U32));
       if (c_c)
       {
-        *pTxt_c = 0;    // To be sure to null terminate
+        *pTxt_c = 0; // To be sure to null terminate
       }
       Rts_B = (!c_c);
     }
@@ -617,7 +613,6 @@ bool BofStack::Pop(char *pTxt_c)
   }
   return Rts_B;
 }
-
 
 bool BofStack::Pop(uint32_t _Nb_U32, uint8_t *_pVal_U8)
 {

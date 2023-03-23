@@ -1,13 +1,13 @@
 #include <asyncmulticastdelegate/Allocator.h>
 #include <asyncmulticastdelegate/xallocator.h>
+#include <cassert>
 #include <cstring>
 #include <iostream>
-#include <cassert>
 
 #if _WIN32
 #include <Windows.h>
 static CRITICAL_SECTION _criticalSection;
-#elif __GNUC__ >= 4	//5 bha
+#elif __GNUC__ >= 4 // 5 bha
 #include <mutex>
 static std::mutex _mutex;
 #else
@@ -17,18 +17,18 @@ static std::mutex _mutex;
 using namespace std;
 
 #ifndef CHAR_BIT
-#define CHAR_BIT	8 
+#define CHAR_BIT 8
 #endif
 
 static bool _xallocInitialized = false;
 
 // Define STATIC_POOLS to switch from heap blocks mode to static pools mode
-//#define STATIC_POOLS
+// #define STATIC_POOLS
 #ifdef STATIC_POOLS
-  // Update this section as necessary if you want to use static memory pools.
-  // See also xalloc_init() and xalloc_destroy() for additional updates required.
-#define MAX_ALLOCATORS	12
-#define MAX_BLOCKS		32
+// Update this section as necessary if you want to use static memory pools.
+// See also xalloc_init() and xalloc_destroy() for additional updates required.
+#define MAX_ALLOCATORS 12
+#define MAX_BLOCKS 32
 
 // Create static storage for each static allocator instance
 char *_allocator8[sizeof(AllocatorPool<char[8], MAX_BLOCKS>)];
@@ -48,21 +48,21 @@ char *_allocator4096[sizeof(AllocatorPool<char[4096], MAX_BLOCKS>)];
 static Allocator *_allocators[MAX_ALLOCATORS];
 
 #else
-#define MAX_ALLOCATORS  15
+#define MAX_ALLOCATORS 15
 static Allocator *_allocators[MAX_ALLOCATORS];
-#endif	// STATIC_POOLS
+#endif // STATIC_POOLS
 
-// For C++ applications, must define AUTOMATIC_XALLOCATOR_INIT_DESTROY to 
-// correctly ensure allocators are initialized before any static user C++ 
-// construtor/destructor executes which might call into the xallocator API. 
-// This feature costs 1-byte of RAM per C++ translation unit. This feature 
+// For C++ applications, must define AUTOMATIC_XALLOCATOR_INIT_DESTROY to
+// correctly ensure allocators are initialized before any static user C++
+// construtor/destructor executes which might call into the xallocator API.
+// This feature costs 1-byte of RAM per C++ translation unit. This feature
 // can be disabled only under the following circumstances:
-// 
-// 1) The xallocator is only used within C files. 
-// 2) STATIC_POOLS is undefined and the application never exits main (e.g. 
-// an embedded system). 
 //
-// In either of the two cases above, call xalloc_init() in main at startup, 
+// 1) The xallocator is only used within C files.
+// 2) STATIC_POOLS is undefined and the application never exits main (e.g.
+// an embedded system).
+//
+// In either of the two cases above, call xalloc_init() in main at startup,
 // and xalloc_destroy() before main exits. In all other situations
 // XallocInitDestroy must be used to call xalloc_init() and xalloc_destroy().
 #ifdef AUTOMATIC_XALLOCATOR_INIT_DESTROY
@@ -80,14 +80,13 @@ XallocInitDestroy::~XallocInitDestroy()
   if (--refCount == 0)
     xalloc_destroy();
 }
-#endif	// AUTOMATIC_XALLOCATOR_INIT_DESTROY
+#endif // AUTOMATIC_XALLOCATOR_INIT_DESTROY
 
-/// Returns the next higher powers of two. For instance, pass in 12 and 
-/// the value returned would be 16. 
+/// Returns the next higher powers of two. For instance, pass in 12 and
+/// the value returned would be 16.
 /// @param[in] k - numeric value to compute the next higher power of two.
-/// @return	The next higher power of two based on the input k. 
-template <class T>
-T nexthigher(T k)
+/// @return	The next higher power of two based on the input k.
+template <class T> T nexthigher(T k)
 {
   k--;
   for (size_t i = 1; i < sizeof(T) * CHAR_BIT; i <<= 1)
@@ -95,7 +94,7 @@ T nexthigher(T k)
   return k + 1;
 }
 
-/// Create the xallocator lock. Call only one time at startup. 
+/// Create the xallocator lock. Call only one time at startup.
 static void lock_init()
 {
 #if defined(_WIN32)
@@ -114,7 +113,7 @@ static void lock_destroy()
   _xallocInitialized = false;
 }
 
-/// Lock the shared resource. 
+/// Lock the shared resource.
 static inline void lock_get()
 {
   if (_xallocInitialized == false)
@@ -127,7 +126,7 @@ static inline void lock_get()
 #endif
 }
 
-/// Unlock the shared resource. 
+/// Unlock the shared resource.
 static inline void lock_release()
 {
   if (_xallocInitialized == false)
@@ -140,11 +139,11 @@ static inline void lock_release()
 #endif
 }
 
-/// Stored a pointer to the allocator instance within the block region. 
+/// Stored a pointer to the allocator instance within the block region.
 ///	a pointer to the client's area within the block.
-/// @param[in] block - a pointer to the raw memory block. 
+/// @param[in] block - a pointer to the raw memory block.
 ///	@param[in] size - the client requested size of the memory block.
-/// @return	A pointer to the client's address within the raw memory block. 
+/// @return	A pointer to the client's address within the raw memory block.
 static inline void *set_block_allocator(void *block, Allocator *allocator)
 {
   // Cast the raw block memory to a Allocator pointer
@@ -159,7 +158,7 @@ static inline void *set_block_allocator(void *block, Allocator *allocator)
 }
 
 /// Gets the size of the memory block stored within the block.
-/// @param[in] block - a pointer to the client's memory block. 
+/// @param[in] block - a pointer to the client's memory block.
 /// @return	The original allocator instance stored in the memory block.
 static inline Allocator *get_block_allocator(void *block)
 {
@@ -173,9 +172,9 @@ static inline Allocator *get_block_allocator(void *block)
   return *pAllocatorInBlock;
 }
 
-/// Returns the raw memory block pointer given a client memory pointer. 
-/// @param[in] block - a pointer to the client memory block. 
-/// @return	A pointer to the original raw memory block address. 
+/// Returns the raw memory block pointer given a client memory pointer.
+/// @param[in] block - a pointer to the client memory block.
+/// @return	A pointer to the original raw memory block address.
 static inline void *get_block_ptr(void *block)
 {
   // Cast the client memory to a Allocator* pointer
@@ -188,7 +187,7 @@ static inline void *get_block_ptr(void *block)
 /// Returns an allocator instance matching the size provided
 /// @param[in] size - allocator block size
 /// @return Allocator instance handling requested block size or NULL
-/// if no allocator exists. 
+/// if no allocator exists.
 static inline Allocator *find_allocator(size_t size)
 {
   for (int32_t i = 0; i < MAX_ALLOCATORS; i++)
@@ -220,7 +219,7 @@ static inline void insert_allocator(Allocator *allocator)
 }
 
 /// This function must be called exactly one time *before* any other xallocator
-/// API is called. XallocInitDestroy constructor calls this function automatically. 
+/// API is called. XallocInitDestroy constructor calls this function automatically.
 extern "C" void xalloc_init()
 {
   lock_init();
@@ -242,7 +241,7 @@ extern "C" void xalloc_init()
   new (&_allocator2048) AllocatorPool<char[2048], MAX_BLOCKS>();
   new (&_allocator4096) AllocatorPool<char[4096], MAX_BLOCKS>();
 
-  // Populate allocator array with all instances 
+  // Populate allocator array with all instances
   _allocators[0] = (Allocator *)&_allocator8;
   _allocators[1] = (Allocator *)&_allocator16;
   _allocators[2] = (Allocator *)&_allocator32;
@@ -259,7 +258,7 @@ extern "C" void xalloc_init()
 }
 
 /// Called one time when the application exits to cleanup any allocated memory.
-/// ~XallocInitDestroy destructor calls this function automatically. 
+/// ~XallocInitDestroy destructor calls this function automatically.
 extern "C" void xalloc_destroy()
 {
   lock_get();
@@ -291,7 +290,7 @@ extern "C" void xalloc_destroy()
 ///	@param[in] size - the client's requested block size.
 ///	@return An Allocator instance that handles blocks of the requested
 ///	size.
-extern "C" Allocator * xallocator_get_allocator(size_t size)
+extern "C" Allocator *xallocator_get_allocator(size_t size)
 {
   // Based on the size, find the next higher powers of two value.
   // Add sizeof(Allocator*) to the requested block size to hold the size
@@ -333,7 +332,7 @@ extern "C" void *xmalloc(size_t size)
 {
   lock_get();
 
-  // Allocate a raw memory block 
+  // Allocate a raw memory block
   Allocator *allocator = xallocator_get_allocator(size);
   void *blockMemoryPtr = allocator->Allocate(sizeof(Allocator *) + size);
 
@@ -360,7 +359,7 @@ extern "C" void xfree(void *ptr)
 
   lock_get();
 
-  // Deallocate the block 
+  // Deallocate the block
   allocator->Deallocate(blockPtr);
 
   lock_release();
@@ -422,5 +421,3 @@ extern "C" void xalloc_stats()
 
   lock_release();
 }
-
-

@@ -40,16 +40,16 @@ public:
 
   struct DB_ROW_DATA
   {
-    uint32_t    Key_U32;               // Index
-    char        pKeyText16_c[16];      // Index
-    char        pDataText80_c[80];
-    float       Val_f;
-    int         Val_i;
+    uint32_t Key_U32;      // Index
+    char pKeyText16_c[16]; // Index
+    char pDataText80_c[80];
+    float Val_f;
+    int Val_i;
     DB_ROW_DATA()
     {
       Reset();
     }
-    void        Reset()
+    void Reset()
     {
       Key_U32 = 0;
       pKeyText16_c[0] = 0;
@@ -58,23 +58,24 @@ public:
       Val_i = 0;
     }
   };
+
 private:
   DB_ROW_DATA mDbRowData_X;
-public:
 
+public:
   DbRow();
   ~DbRow();
-  uint32_t    GetKey();
+  uint32_t GetKey();
   char *GetText80();
   char *GetText16();
-  float       GetFloat();
-  int         GetInt();
+  float GetFloat();
+  int GetInt();
 
-  uint32_t    SetKeyU32(uint32_t _Key_U32);
-  uint32_t    SetText80(const char *_pText80_c);
-  uint32_t    SetKeyText16(const char *_pText16_c);
-  uint32_t    SetFloat(float _Val_f);
-  uint32_t    SetInt(int _Val_i);
+  uint32_t SetKeyU32(uint32_t _Key_U32);
+  uint32_t SetText80(const char *_pText80_c);
+  uint32_t SetKeyText16(const char *_pText16_c);
+  uint32_t SetFloat(float _Val_f);
+  uint32_t SetInt(int _Val_i);
 
   /*!
    * Description
@@ -109,10 +110,10 @@ public:
    * Remarks
    * None
    */
-  BOFCMP      Compare(uint32_t _Index_U32, DbRow *_pDbRow_O);
+  BOFCMP Compare(uint32_t _Index_U32, DbRow *_pDbRow_O);
 };
 
-class BofRamDb_Test : public::testing::Test
+class BofRamDb_Test : public ::testing::Test
 {
 private:
 public:
@@ -121,16 +122,20 @@ public:
   }
 
   // Per-test-case set-up. Called before the first test in this test case.
-  static void SetUpTestCase() {}
+  static void SetUpTestCase()
+  {
+  }
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void TearDownTestCase() {}
+  static void TearDownTestCase()
+  {
+  }
+
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
-  virtual void      SetUp();
-  virtual void      TearDown();
+  virtual void SetUp();
+  virtual void TearDown();
 
-  BofRamDb< DbRow > *mpBofRamDb_O;
+  BofRamDb<DbRow> *mpBofRamDb_O;
 };
 END_BOF_NAMESPACE()

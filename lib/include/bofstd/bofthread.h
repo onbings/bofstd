@@ -34,8 +34,8 @@ BEGIN_BOF_NAMESPACE()
 
 struct BOFSTD_EXPORT BOF_THREAD_PARAM
 {
-  //bool SpreadCpuCore_B;
-  //std::string ThreadParamToString_S
+  // bool SpreadCpuCore_B;
+  // std::string ThreadParamToString_S
   uint32_t NbActiveCore_U32;
   uint32_t Node_U32;
   uint64_t AffinityCpuSet_U64;
@@ -50,8 +50,8 @@ struct BOFSTD_EXPORT BOF_THREAD_PARAM
 
   void Reset()
   {
-    //SpreadCpuCore_B=false;
-    //ThreadParamToString_S="";
+    // SpreadCpuCore_B=false;
+    // ThreadParamToString_S="";
     NbActiveCore_U32 = 0;
     Node_U32 = 0;
     AffinityCpuSet_U64 = 0;
@@ -61,7 +61,7 @@ struct BOFSTD_EXPORT BOF_THREAD_PARAM
   }
 };
 
-//Used to specify callback if the caller does not inherit from BofThread->Setup with SetThreadCallback
+// Used to specify callback if the caller does not inherit from BofThread->Setup with SetThreadCallback
 typedef std::function<BOFERR()> BOF_THREAD_CALLBACK;
 
 /*!
@@ -99,14 +99,14 @@ private:
   //		bool mThreadRunning_B = false;
   bool mThreadExitPosted_B = false;
 
-  BOF_THREAD_CALLBACK mOnCreate = nullptr;  //Used to specify callback if the caller does not inherit from BofThread->Setup with SetThreadCallback
+  BOF_THREAD_CALLBACK mOnCreate = nullptr; // Used to specify callback if the caller does not inherit from BofThread->Setup with SetThreadCallback
   BOF_THREAD_CALLBACK mOnProcessing = nullptr;
   BOF_THREAD_CALLBACK mOnStop = nullptr;
-  uint32_t  mLoopTimerWarning_U32 = 0;
-public:
+  uint32_t mLoopTimerWarning_U32 = 0;
 
+public:
 #if 0
-#if defined (_WIN32)
+#if defined(_WIN32)
   void *GetThreadHandle();
 #else
   pthread_t            GetThreadHandle();
@@ -133,9 +133,10 @@ public:
   //!!! class A:public B
   //!!! class B:public C
   //!!! If you do that you will receive "pure virtual method called" abort message as when you are in an intermediate constructor the virtual table is not ready
-  BOFERR LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32);
+  BOFERR LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreAffinityMask_U64,
+                                   uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32);
   BOFERR DestroyBofProcessingThread(const char *_pUser_c);
-  bool   IsThreadRunning();
+  bool IsThreadRunning();
   BOFERR PostThreatExit(const char *_pUser_c);
   void SetThreadCallback(BOF_THREAD_CALLBACK _OnCreate, BOF_THREAD_CALLBACK _OnProcessing, BOF_THREAD_CALLBACK _OnStop);
 
@@ -144,11 +145,12 @@ public:
   virtual BOFERR V_OnStop();
   static std::string S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool _ShowChosenCore_B);
   static BOFERR S_ThreadParameterFromString(const char *_pThreadParameter_c, BOF_THREAD_PARAM &_rThreadParam_X);
+
 private:
   void BofThread_Thread();
 
   BOFERR InitializeThread(const std::string &_rName_S);
-  static  BOFERR S_AffinityMaskFromString(const char *_pAffinityOptionString_c, uint32_t _NbCore_U32, uint64_t &_rAffinityMask_U32);
+  static BOFERR S_AffinityMaskFromString(const char *_pAffinityOptionString_c, uint32_t _NbCore_U32, uint64_t &_rAffinityMask_U32);
 };
 
 END_BOF_NAMESPACE()

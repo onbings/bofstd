@@ -17,9 +17,9 @@
  *
  */
 
+#include <bofstd/boffs.h>
 #include <bofstd/bofshell.h>
 #include <bofstd/bofstring.h>
-#include <bofstd/boffs.h>
 
 #include <regex>
 
@@ -32,9 +32,8 @@ BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X) : mShellParam_X(_rShellParam
 }
 BofShell::~BofShell()
 {
-
 }
-BOFERR  BofShell::SetExecScript(const BofPath &_rScriptPath)
+BOFERR BofShell::SetExecScript(const BofPath &_rScriptPath)
 {
   mScriptPath = _rScriptPath;
   mExecScript_B = (mScriptPath.FileNameWithExtension() != "");
@@ -54,7 +53,7 @@ bool BofShell::DoYouWantToContinue()
     {
       Rts_B = false;
     }
-    mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdOutputColor_E, "%s\n", Rts_B ? "Yes":"No");
+    mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdOutputColor_E, "%s\n", Rts_B ? "Yes" : "No");
   }
   return Rts_B;
 }
@@ -92,9 +91,9 @@ BOFERR BofShell::ShellQuit()
 
 BOFERR BofShell::AddCommand(const std::string &_rCmd_S, const BOF_SHELL_CMD &_rShellCmd)
 {
-BOFERR Rts_E;
+  BOFERR Rts_E;
 
-  auto It = mShellParam_X.ShellCmdCollection.insert(std::pair < std::string, BOF_SHELL_CMD>(_rCmd_S, _rShellCmd));
+  auto It = mShellParam_X.ShellCmdCollection.insert(std::pair<std::string, BOF_SHELL_CMD>(_rCmd_S, _rShellCmd));
   Rts_E = It.second ? BOF_ERR_NO_ERROR : BOF_ERR_EXIST;
   return Rts_E;
 }
@@ -163,7 +162,7 @@ BOFERR BofShell::Parser(const std::string &_rShellCmd_S)
         }
         i_U32++;
       }
-      //if (i_U32 >= It->second.ArgNameCollection.size())
+      // if (i_U32 >= It->second.ArgNameCollection.size())
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         Rts_E = It->second.CmdCallback();
@@ -188,7 +187,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
   bool FirstCommand_B;
   uintptr_t IoScript = BOF_INVALID_HANDLE_VALUE;
   uint32_t i_U32;
-  
+
   mFinish_B = true;
   if (mExecScript_B)
   {
@@ -221,7 +220,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
     }
     FirstCommand_B = false;
 
-    if ((CmdLine_S != "") && (CmdLine_S[0] != '#')) //Comment in script file
+    if ((CmdLine_S != "") && (CmdLine_S[0] != '#')) // Comment in script file
     {
       Rts_E = Parser(CmdLine_S.c_str());
     }
@@ -281,6 +280,5 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
 
   return Rts_E;
 }
-
 
 END_BOF_NAMESPACE()

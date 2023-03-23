@@ -30,31 +30,37 @@ USE_BOF_NAMESPACE()
 struct TestType
 {
   static std::set<const TestType *> constructed;
-  TestType() noexcept {
+  TestType() noexcept
+  {
     assert(constructed.count(this) == 0);
     constructed.insert(this);
   };
-  TestType(const TestType &other) noexcept {
-    assert(constructed.count(this) == 0);
-    assert(constructed.count(&other) == 1);
-    constructed.insert(this);
-  };
-  TestType(TestType &&other) noexcept {
+  TestType(const TestType &other) noexcept
+  {
     assert(constructed.count(this) == 0);
     assert(constructed.count(&other) == 1);
     constructed.insert(this);
   };
-  TestType &operator=(const TestType &other) noexcept {
+  TestType(TestType &&other) noexcept
+  {
+    assert(constructed.count(this) == 0);
+    assert(constructed.count(&other) == 1);
+    constructed.insert(this);
+  };
+  TestType &operator=(const TestType &other) noexcept
+  {
     assert(constructed.count(this) == 1);
     assert(constructed.count(&other) == 1);
     return *this;
   };
-  TestType &operator=(TestType &&other) noexcept {
+  TestType &operator=(TestType &&other) noexcept
+  {
     assert(constructed.count(this) == 1);
     assert(constructed.count(&other) == 1);
     return *this;
   }
-  ~TestType() noexcept {
+  ~TestType() noexcept
+  {
     assert(constructed.count(this) == 1);
     constructed.erase(this);
   };
@@ -109,6 +115,4 @@ TEST(Queue_Test, Queue)
     Sts_B = Queue.IsEmpty();
     EXPECT_EQ(Sts_B, (i_U32 == Queue.Capacity() - 1));
   }
-
 }
-

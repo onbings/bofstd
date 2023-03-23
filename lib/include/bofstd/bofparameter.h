@@ -23,32 +23,40 @@
 
 #include <bofstd/bofflag.h>
 
+#include <cstdint>
 #include <functional>
 #include <vector>
-#include <cstdint>
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_PARAM_DEF_ENUM(varname, minval, maxval, BofEnumConverter, enumtype)                  BOF::BOFPARAMETER_ARG_TYPE::ENUM,    static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																		 	,0,0,0,0, BOF_BIND_1_ARG_TO_METHOD(&BofEnumConverter, BOF::BofEnum<enumtype>::ToStringFromInt), BOF_BIND_1_ARG_TO_METHOD(&BofEnumConverter, BOF::BofEnum<enumtype>::FromStringToInt)
-#define BOF_PARAM_DEF_SHORT_OPT_VARIABLE(varname, val)                                           BOF::BOFPARAMETER_ARG_TYPE::BOOL,    static_cast<double>(val),    static_cast<double>(0),      &varname, sizeof(varname),  0, 0 																																			,0,0,0,0
-#define BOF_PARAM_DEF_VARIABLE(varname, typevar, minval, maxval)                                 BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname),  0, 0 																																			,0,0,0,0
-#define BOF_PARAM_DEF_ARRAY(varname, typevar, minval, maxval)                                    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]),  BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname)						,0,0,0,0
-#define BOF_PARAM_DEF_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval)    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname),0,0,0,0
-#define BOF_PARAM_DEF_VECTOR(varname, typevar, minval, maxval)                                   BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, 0,  0xFFFFFFFF, 0xFFFFFFFF																																	,0,0,0,0
-//p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][0]["AudioIpAddress"][0].asCString();
-#define BOF_PARAM_DEF_MULTI_ARRAY(varname, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)                                    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname,             sizeof(varname[0]), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused
-#define BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval,nbmaxmultiarrayentry,typeelemearray1,typeelemearray2,unused)    BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), nbmaxmultiarrayentry,sizeof(typeelemearray1),sizeof(typeelemearray2),unused 
+#define BOF_PARAM_DEF_ENUM(varname, minval, maxval, BofEnumConverter, enumtype)                                                                                                                                                                                \
+  BOF::BOFPARAMETER_ARG_TYPE::ENUM, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname), 0, 0, 0, 0, 0, 0, BOF_BIND_1_ARG_TO_METHOD(&BofEnumConverter, BOF::BofEnum<enumtype>::ToStringFromInt),                               \
+      BOF_BIND_1_ARG_TO_METHOD(&BofEnumConverter, BOF::BofEnum<enumtype>::FromStringToInt)
+#define BOF_PARAM_DEF_SHORT_OPT_VARIABLE(varname, val) BOF::BOFPARAMETER_ARG_TYPE::BOOL, static_cast<double>(val), static_cast<double>(0), &varname, sizeof(varname), 0, 0, 0, 0, 0, 0
+#define BOF_PARAM_DEF_VARIABLE(varname, typevar, minval, maxval) BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname), 0, 0, 0, 0, 0, 0
+#define BOF_PARAM_DEF_ARRAY(varname, typevar, minval, maxval)                                                                                                                                                                                                  \
+  BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), 0, 0, 0, 0
+#define BOF_PARAM_DEF_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval)                                                                                                                                                                  \
+  BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), 0, 0, 0, 0
+#define BOF_PARAM_DEF_VECTOR(varname, typevar, minval, maxval) BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0, 0, 0, 0
+// p=mRoot_O["MmgwSetting"]["Board"][1]["InHr"][0]["AudioIpAddress"][0].asCString();
+#define BOF_PARAM_DEF_MULTI_ARRAY(varname, typevar, minval, maxval, nbmaxmultiarrayentry, typeelemearray1, typeelemearray2, unused)                                                                                                                            \
+  BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname, sizeof(varname[0]), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), nbmaxmultiarrayentry, sizeof(typeelemearray1),                    \
+      sizeof(typeelemearray2), unused
+#define BOF_PARAM_DEF_MULTI_ARRAY_OF_STRUCT(structname, varname, varfield, typevar, minval, maxval, nbmaxmultiarrayentry, typeelemearray1, typeelemearray2, unused)                                                                                            \
+  BOF::BOFPARAMETER_ARG_TYPE::typevar, static_cast<double>(minval), static_cast<double>(maxval), &varname[0].varfield, sizeof(structname), BOF_NB_ELEM_IN_ARRAY(varname), BOF_NB_ELEM_IN_ARRAY(varname), nbmaxmultiarrayentry, sizeof(typeelemearray1),        \
+      sizeof(typeelemearray2), unused
 
 enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
 {
-  NONE = 0x00000000,  // No special option
-  CMDLINE_LONGOPT_NEED_ARG = 0x00000001,  // for cmdlineparser: if the option requires an argument,
-  XML_ATTRIBUTE = 0x00000002,							// for xml parser if the argument is an attribute
-//Replaced by IP_FORMAT_SCHEME below IP_FORMAT_PROTOCOL = 0x00000004,				// Add protocol specification to IPV4,/IPV46 output of S_ParameterToString
-//Replaced by IP_FORMAT_PORT below   IP_FORMAT_PORT = 0x00000008,						// Add port specification to IPV4,/IPV46 output of S_ParameterToString
-  PATH_IS_DIR = 0x00000010,								// Path must be a directory
-  PATH_IS_FILE = 0x00000020,							// Path must be a file
-  PATH_MUST_EXIST = 0x00000040,						// Path (file or dir) must exist
+  NONE = 0x00000000,                     // No special option
+  CMDLINE_LONGOPT_NEED_ARG = 0x00000001, // for cmdlineparser: if the option requires an argument,
+  XML_ATTRIBUTE = 0x00000002,            // for xml parser if the argument is an attribute
+                                         // Replaced by IP_FORMAT_SCHEME below IP_FORMAT_PROTOCOL = 0x00000004,				// Add protocol specification to IPV4,/IPV46 output of S_ParameterToString
+  // Replaced by IP_FORMAT_PORT below   IP_FORMAT_PORT = 0x00000008,						// Add port specification to IPV4,/IPV46 output of S_ParameterToString
+  PATH_IS_DIR = 0x00000010,     // Path must be a directory
+  PATH_IS_FILE = 0x00000020,    // Path must be a file
+  PATH_MUST_EXIST = 0x00000040, // Path (file or dir) must exist
   COMA_IS_NOT_A_SEPARATOR = 0x00000080,
   URI_NEED_SCHEME = 0x00000100,
   URI_NEED_AUTHORITY = 0x00000200,
@@ -63,11 +71,10 @@ enum class BOFPARAMETER_ARG_FLAG : uint32_t // Bitflag
 
   STR_FORMAT_ISREGEXP = 0x000020000,
 
-  READ_ONLY = 0x80000000,									//This is a read only parameter
-//	WRITE_ONCE=0x00000020,								//Can only be written to once, after the first write op in turns into READ_ONLY
+  READ_ONLY = 0x80000000, // This is a read only parameter
+  //	WRITE_ONCE=0x00000020,								//Can only be written to once, after the first write op in turns into READ_ONLY
 };
-template<>
-struct IsItAnEnumBitFLag<BOFPARAMETER_ARG_FLAG> : std::true_type
+template <> struct IsItAnEnumBitFLag<BOFPARAMETER_ARG_FLAG> : std::true_type
 {
 };
 
@@ -101,7 +108,7 @@ enum class BOFPARAMETER_ARG_TYPE : uint32_t
   SIZE2D,
 };
 using BOF_PARAMETER_ENUM_TO_STRING = std::function<const std::string &(int _EnumValue_i)>;
-//typedef const std::string &(* BOF_PARAMETER_ENUM_TO_STRING)(int _EnumValue_i);
+// typedef const std::string &(* BOF_PARAMETER_ENUM_TO_STRING)(int _EnumValue_i);
 using BOF_PARAMETER_STRING_TO_ENUM = std::function<int(const std::string &_rEnumValue_S)>;
 
 struct BOFSTD_EXPORT BOFPARAMETER
@@ -109,17 +116,17 @@ struct BOFSTD_EXPORT BOFPARAMETER
   void *pUser;
   std::string Name_S;
   std::string Description_S;
-  std::string Format_S;      // For date/time format or specify STR_FORMAT_ISREGEXP for str type
-  std::string Path_S;        // For xml/json parser
+  std::string Format_S; // For date/time format or specify STR_FORMAT_ISREGEXP for str type
+  std::string Path_S;   // For xml/json parser
   BOFPARAMETER_ARG_FLAG ArgFlag_E;
   BOFPARAMETER_ARG_TYPE ArgType_E;
-  double Min_lf;         // for binary min/max val for char min/max len if min=max=0->not used
+  double Min_lf; // for binary min/max val for char min/max len if min=max=0->not used
   double Max_lf;
   void *pValue;
   uint32_t ArrayElementSize_U32;
   uint32_t ArrayCapacity_U32;
   uint32_t ActiveArrayEntry_U32;
-  uint32_t pExtraParam_U32[4];	//Used for example with Json ToByte method and new enhanced json parser with multi array def"MmgwSetting.Board.%.InHr.%" "VideoStandard" or "MmgwSetting.Board%.InHr.%.AudioIpAddress.%" "
+  uint32_t pExtraParam_U32[4]; // Used for example with Json ToByte method and new enhanced json parser with multi array def"MmgwSetting.Board.%.InHr.%" "VideoStandard" or "MmgwSetting.Board%.InHr.%.AudioIpAddress.%" "
   BOF_PARAMETER_ENUM_TO_STRING EnumToString;
   BOF_PARAMETER_STRING_TO_ENUM StringToEnum;
 
@@ -128,9 +135,8 @@ struct BOFSTD_EXPORT BOFPARAMETER
     Reset();
   }
 
-  BOFPARAMETER(void *_pUser, const std::string &_rName_S, const std::string &_rDescription_S, const std::string &_rFormat_S, const std::string &_rPath_S,
-               BOFPARAMETER_ARG_FLAG _ArgFlag_E, BOFPARAMETER_ARG_TYPE _ArgType_E, double _Min_lf, double _Max_lf, void *_pValue, uint32_t _ArrayElementSize_U32,
-               uint32_t _ArrayCapacity_U32, uint32_t _ActiveArrayEntry_U32, uint32_t _ExtraParam1_U32, uint32_t _ExtraParam2_U32, uint32_t _ExtraParam3_U32, uint32_t _ExtraParam4_U32,
+  BOFPARAMETER(void *_pUser, const std::string &_rName_S, const std::string &_rDescription_S, const std::string &_rFormat_S, const std::string &_rPath_S, BOFPARAMETER_ARG_FLAG _ArgFlag_E, BOFPARAMETER_ARG_TYPE _ArgType_E, double _Min_lf, double _Max_lf,
+               void *_pValue, uint32_t _ArrayElementSize_U32, uint32_t _ArrayCapacity_U32, uint32_t _ActiveArrayEntry_U32, uint32_t _ExtraParam1_U32, uint32_t _ExtraParam2_U32, uint32_t _ExtraParam3_U32, uint32_t _ExtraParam4_U32,
                BOF_PARAMETER_ENUM_TO_STRING _EnumToString = nullptr, BOF_PARAMETER_STRING_TO_ENUM _StringToEnum = nullptr)
   {
     pUser = _pUser;
@@ -194,8 +200,7 @@ public:
 
   static const char *S_FlagArgToString(BOFPARAMETER_ARG_FLAG _ReqArg_E);
 
-  template<typename T>
-  static void S_StringToNative(const std::string &_rVal_S, T &_rVal)
+  template <typename T> static void S_StringToNative(const std::string &_rVal_S, T &_rVal)
   {
     if ((_rVal_S[0] == '0') && ((_rVal_S[1] == 'x') || (_rVal_S[1] == 'X')))
     {
@@ -218,6 +223,5 @@ public:
     _rVal = std::stof(_rVal_S);
   }
 };
-
 
 END_BOF_NAMESPACE()

@@ -18,8 +18,8 @@
  *
  * V 1.00  23/06/2014  BHA : Initial release
  */
-#include <bofstd/bofthread.h>
 #include <bofstd/bofsystem.h>
+#include <bofstd/bofthread.h>
 
 #include "gtestrunner.h"
 
@@ -27,30 +27,32 @@
 
 USE_BOF_NAMESPACE()
 
-class BofThread_Test:      public::testing::Test
+class BofThread_Test : public ::testing::Test
 {
 public:
+  // Per-test-case set-up. Called before the first test in this test case.
+  static void SetUpTestCase()
+  {
+  }
 
-	// Per-test-case set-up. Called before the first test in this test case.
-	static void SetUpTestCase() {}
+  // Per-test-case tear-down. Called after the last test in this test case.
+  static void TearDownTestCase()
+  {
+  }
 
-	// Per-test-case tear-down. Called after the last test in this test case.
-	static void TearDownTestCase() {}
-
-	//static void  *ThreadEntryPoint(void *_pContext);
+  // static void  *ThreadEntryPoint(void *_pContext);
 
 protected:
-
-	// You can define per-test set-up and tear-down logic as usual.
-	virtual void SetUp();
-	virtual void TearDown();
+  // You can define per-test set-up and tear-down logic as usual.
+  virtual void SetUp();
+  virtual void TearDown();
 };
 #if defined(_WIN32)
-const uint32_t NBTHREAD = 25;	// 250;	//1500;	//1564 on my pc
+const uint32_t NBTHREAD = 25; // 250;	//1500;	//1564 on my pc
 #else
-const uint32_t NBTHREAD = 12;	// 125;	//380 on MTPC_LINUX
+const uint32_t NBTHREAD = 12; // 125;	//380 on MTPC_LINUX
 #endif
-const uint32_t PRTPERLOOP = 100;	// (NBTHREAD / 12);
+const uint32_t PRTPERLOOP = 100; // (NBTHREAD / 12);
 const uint32_t STARTSTOPTO = 10000;
 static_assert(PRTPERLOOP != 0, "PRTPERLOOP is 0");
 
@@ -60,1099 +62,1094 @@ std::atomic<uint32_t> S_NbThread_U32(0);
 BOF_MUTEX S_Mtx_X;
 uint32_t S_InterlockedVal_U32 = 0;
 
-class TestBofThread:public BofThread
+class TestBofThread : public BofThread
 {
 public:
-	std::atomic<uint32_t> mCpt;
+  std::atomic<uint32_t> mCpt;
 
-	TestBofThread():BofThread()
-	{
-		mCpt = 0;
-		mExit_B = false;
-		S_NbThread_U32++;
-	}
+  TestBofThread() : BofThread()
+  {
+    mCpt = 0;
+    mExit_B = false;
+    S_NbThread_U32++;
+  }
 
-	~TestBofThread()
-	{
-		mExit_B = true;
-		S_NbThread_U32--;
-	}
+  ~TestBofThread()
+  {
+    mExit_B = true;
+    S_NbThread_U32--;
+  }
 
-	BOFERR V_OnProcessing() override
-	{
-		mCpt++;
-		return BOF_ERR_NO_ERROR;
-	}
+  BOFERR V_OnProcessing() override
+  {
+    mCpt++;
+    return BOF_ERR_NO_ERROR;
+  }
 
-	bool mExit_B;
+  bool mExit_B;
 };
 
 void BofThread_Test::SetUp()
-{}
-
+{
+}
 
 void BofThread_Test::TearDown()
 {
-	EXPECT_EQ(S_NbThread_U32, 0);
+  EXPECT_EQ(S_NbThread_U32, 0);
 }
 
 struct THREAD_CONTEXT
 {
-	uint32_t Id_U32;
-	int32_t Inc_S32;
-	uint32_t NbLoop_U32;
-	uint32_t SleepInMs_U32;
-	BOF_EVENT Event_X;
+  uint32_t Id_U32;
+  int32_t Inc_S32;
+  uint32_t NbLoop_U32;
+  uint32_t SleepInMs_U32;
+  BOF_EVENT Event_X;
 
-	THREAD_CONTEXT()
-	{
-		Reset();
-	}
-	void Reset()
-	{
-		Id_U32 = 0;
-		Inc_S32 = 1;
-		NbLoop_U32 = 0;
-		SleepInMs_U32 = 0;
-	}
+  THREAD_CONTEXT()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    Id_U32 = 0;
+    Inc_S32 = 1;
+    NbLoop_U32 = 0;
+    SleepInMs_U32 = 0;
+  }
 };
 
 TEST_F(BofThread_Test, VirtualThreadTrue)
 {
-	TestBofThread TestBofThread_O;
-	uint32_t Start_U32, Delta_U32;
-	BOFERR Sts_E;
+  TestBofThread TestBofThread_O;
+  uint32_t Start_U32, Delta_U32;
+  BOFERR Sts_E;
 
-	Sts_E = TestBofThread_O.InitThreadErrorCode();
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = TestBofThread_O.InitThreadErrorCode();
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	TestBofThread_O.mCpt = 0;
-	Sts_E=TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000,0);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	Start_U32 = Bof_GetMsTickCount();
-	do
-	{
+  TestBofThread_O.mCpt = 0;
+  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000, 0);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Start_U32 = Bof_GetMsTickCount();
+  do
+  {
     Bof_MsSleep(1);
-	} while (TestBofThread_O.mCpt < 10);
-	Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-	EXPECT_GE(Delta_U32, static_cast<uint32_t>(100 * 9));
-	EXPECT_LT(Delta_U32, static_cast<uint32_t>(100 * 9 * 1.2));
-	EXPECT_EQ(S_NbThread_U32, 1);
+  } while (TestBofThread_O.mCpt < 10);
+  Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  EXPECT_GE(Delta_U32, static_cast<uint32_t>(100 * 9));
+  EXPECT_LT(Delta_U32, static_cast<uint32_t>(100 * 9 * 1.2));
+  EXPECT_EQ(S_NbThread_U32, 1);
 }
 
 TEST_F(BofThread_Test, VirtualThreadFalse)
 {
-	TestBofThread TestBofThread_O;
-	uint32_t Start_U32, Delta_U32;
-	BOFERR Sts_E;
+  TestBofThread TestBofThread_O;
+  uint32_t Start_U32, Delta_U32;
+  BOFERR Sts_E;
 
-	Sts_E = TestBofThread_O.InitThreadErrorCode();
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = TestBofThread_O.InitThreadErrorCode();
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	TestBofThread_O.mCpt = 0;
-	Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000, 0);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	Start_U32 = Bof_GetMsTickCount();
-	do
-	{
+  TestBofThread_O.mCpt = 0;
+  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1, 1000, 0);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Start_U32 = Bof_GetMsTickCount();
+  do
+  {
     Bof_MsSleep(1);
-	} while (TestBofThread_O.mCpt < 10);
-	Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-	EXPECT_GE(Delta_U32, static_cast<uint32_t>(100 * 10));
-	EXPECT_LT(Delta_U32, static_cast<uint32_t>(100 * 10 * 1.2));
-	EXPECT_EQ(S_NbThread_U32, 1);
+  } while (TestBofThread_O.mCpt < 10);
+  Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  EXPECT_GE(Delta_U32, static_cast<uint32_t>(100 * 10));
+  EXPECT_LT(Delta_U32, static_cast<uint32_t>(100 * 10 * 1.2));
+  EXPECT_EQ(S_NbThread_U32, 1);
 }
 
-
-
-void * S_TheThread(const std::atomic< bool > & _rIsThreadLoopMustExit_B, void *_pContext)
+void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)
 {
-	THREAD_CONTEXT *pThreadContext_X = (THREAD_CONTEXT *)_pContext;
-	uint32_t i_U32, j_U32,SleepTime_U32;
-	uint8_t pByteVal_U8[sizeof(S_pValueToProtect_U8)];
-//	uint32_t Now_U32;
-	BOF_EVENT Event_X;
-	BOFERR Sts_E;
+  THREAD_CONTEXT *pThreadContext_X = (THREAD_CONTEXT *)_pContext;
+  uint32_t i_U32, j_U32, SleepTime_U32;
+  uint8_t pByteVal_U8[sizeof(S_pValueToProtect_U8)];
+  //	uint32_t Now_U32;
+  BOF_EVENT Event_X;
+  BOFERR Sts_E;
 
-	BOF_ASSERT(pThreadContext_X != nullptr);
-	S_NbThread_U32++;
-	//Last_U32 = Bof_GetMsTickCount();
-	if (pThreadContext_X->NbLoop_U32)
-	{
-		for (i_U32 = 0; i_U32 < pThreadContext_X->NbLoop_U32; i_U32++)
-		{
-			Sts_E=Bof_LockMutex(S_Mtx_X);
-			//There is test without mutex EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-//					Now_U32 = Bof_GetMsTickCount();
-					//printf("[%06d] T %d D %d i %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,i_U32);
-					//Last_U32 = Now_U32;
+  BOF_ASSERT(pThreadContext_X != nullptr);
+  S_NbThread_U32++;
+  // Last_U32 = Bof_GetMsTickCount();
+  if (pThreadContext_X->NbLoop_U32)
+  {
+    for (i_U32 = 0; i_U32 < pThreadContext_X->NbLoop_U32; i_U32++)
+    {
+      Sts_E = Bof_LockMutex(S_Mtx_X);
+      // There is test without mutex EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+      //					Now_U32 = Bof_GetMsTickCount();
+      // printf("[%06d] T %d D %d i %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,i_U32);
+      // Last_U32 = Now_U32;
 
+      for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
+      {
+        pByteVal_U8[j_U32] = S_pValueToProtect_U8[j_U32];
+      }
 
-			for ( j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
-			{
-				pByteVal_U8[j_U32] = S_pValueToProtect_U8[j_U32];
-
-			}
-
-			SleepTime_U32 = Bof_Random(true, 10, 50);
-//			printf("[%06d] Sleep for %d\r\n", pThreadContext_X->Id_U32, SleepTime_U32);
-			//SleepTime_U32 = 0;
+      SleepTime_U32 = Bof_Random(true, 10, 50);
+      //			printf("[%06d] Sleep for %d\r\n", pThreadContext_X->Id_U32, SleepTime_U32);
+      // SleepTime_U32 = 0;
       Bof_MsSleep(SleepTime_U32);
 
-			//printf("[%06d] Wakeup\r\n", pThreadContext_X->Id_U32);
+      // printf("[%06d] Wakeup\r\n", pThreadContext_X->Id_U32);
 
-			for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
-			{
-				S_pValueToProtect_U8[j_U32] = static_cast<uint8_t>(pByteVal_U8[j_U32] + 1);
-			}
-			Sts_E=Bof_UnlockMutex(S_Mtx_X);
-			//There is test without mutex EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+      for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
+      {
+        S_pValueToProtect_U8[j_U32] = static_cast<uint8_t>(pByteVal_U8[j_U32] + 1);
+      }
+      Sts_E = Bof_UnlockMutex(S_Mtx_X);
+      // There is test without mutex EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    }
+  }
+  else
+  {
+    while (!_rIsThreadLoopMustExit_B)
+    {
+      //			Now_U32 = Bof_GetMsTickCount();
+      //			printf("[%06d] T %d D %d Thread lock start\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
+      //			Last_U32 = Now_U32;
+      S_ValueToProtect_U32++;
+      Sts_E = Bof_LockMutex(S_Mtx_X);
+      EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-		}
-	}
-	else
-	{
-		while (!_rIsThreadLoopMustExit_B)
-		{
-//			Now_U32 = Bof_GetMsTickCount();
-			//			printf("[%06d] T %d D %d Thread lock start\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
-			//			Last_U32 = Now_U32;
-			S_ValueToProtect_U32++;
-			Sts_E=Bof_LockMutex(S_Mtx_X);
-			EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+      //			S_ValueToProtect_S64 += pThreadContext_X->Inc_S32;
+      SleepTime_U32 = Bof_Random(true, 10, 100);
 
-//			S_ValueToProtect_S64 += pThreadContext_X->Inc_S32;
-			SleepTime_U32 = Bof_Random(true, 10, 100);
-
-//			Now_U32 = Bof_GetMsTickCount();
-//			printf("[%06d] T %d D %d Sleep for %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, SleepTime_U32);
-//			Last_U32 = Now_U32;
+      //			Now_U32 = Bof_GetMsTickCount();
+      //			printf("[%06d] T %d D %d Sleep for %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, SleepTime_U32);
+      //			Last_U32 = Now_U32;
 
       Bof_MsSleep(SleepTime_U32);
 
-			Sts_E=Bof_UnlockMutex(S_Mtx_X);
-			EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-//			Now_U32 = Bof_GetMsTickCount();
-//			printf("[%06d] T %d D %d Thread lock end exit %d sts %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,  Sts_E);
-//			Last_U32 = Now_U32;
+      Sts_E = Bof_UnlockMutex(S_Mtx_X);
+      EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+      //			Now_U32 = Bof_GetMsTickCount();
+      //			printf("[%06d] T %d D %d Thread lock end exit %d sts %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,  Sts_E);
+      //			Last_U32 = Now_U32;
 
-//			Now_U32 = Bof_GetMsTickCount();
-//			printf("[%06d] T %d D %d Thread wait start\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
-//			Last_U32 = Now_U32;
+      //			Now_U32 = Bof_GetMsTickCount();
+      //			printf("[%06d] T %d D %d Thread wait start\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
+      //			Last_U32 = Now_U32;
 
-			Sts_E = Bof_WaitForEvent(pThreadContext_X->Event_X, pThreadContext_X->SleepInMs_U32, 0);
+      Sts_E = Bof_WaitForEvent(pThreadContext_X->Event_X, pThreadContext_X->SleepInMs_U32, 0);
 
-//			Now_U32 = Bof_GetMsTickCount();
-//			printf("[%06d] T %d D %d Thread wait end exit %d sts %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, _rIsThreadLoopMustExit_B, Sts_E);
-//			Last_U32 = Now_U32;
+      //			Now_U32 = Bof_GetMsTickCount();
+      //			printf("[%06d] T %d D %d Thread wait end exit %d sts %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, _rIsThreadLoopMustExit_B, Sts_E);
+      //			Last_U32 = Now_U32;
+    }
+  }
+  S_NbThread_U32--;
 
-		}
-	}
-	S_NbThread_U32--;
+  //	Now_U32 = Bof_GetMsTickCount();
+  // printf("[%06d] T %d D %d Thread EXIT end nb %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, S_NbThread_U32);
+  //	Last_U32 = Now_U32;
 
-//	Now_U32 = Bof_GetMsTickCount();
-	//printf("[%06d] T %d D %d Thread EXIT end nb %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, S_NbThread_U32);
-//	Last_U32 = Now_U32;
-
-	return nullptr;
+  return nullptr;
 }
-
 
 TEST(Threading_Test, InterlockedCompareExchange)
 {
-	uint32_t Val_U32;
+  uint32_t Val_U32;
 
-	S_InterlockedVal_U32 = 0;
-	EXPECT_EQ(S_InterlockedVal_U32, 0);
-	Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 69, 1);
-	EXPECT_EQ(Val_U32, 0);
-	EXPECT_EQ(S_InterlockedVal_U32, 0);
+  S_InterlockedVal_U32 = 0;
+  EXPECT_EQ(S_InterlockedVal_U32, 0);
+  Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 69, 1);
+  EXPECT_EQ(Val_U32, 0);
+  EXPECT_EQ(S_InterlockedVal_U32, 0);
 
-	Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 69, 0);
-	EXPECT_EQ(Val_U32, 0);
-	EXPECT_EQ(S_InterlockedVal_U32, 69);
+  Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 69, 0);
+  EXPECT_EQ(Val_U32, 0);
+  EXPECT_EQ(S_InterlockedVal_U32, 69);
 
-	Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 22, 68);
-	EXPECT_EQ(Val_U32, 69);
-	EXPECT_EQ(S_InterlockedVal_U32, 69);
+  Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 22, 68);
+  EXPECT_EQ(Val_U32, 69);
+  EXPECT_EQ(S_InterlockedVal_U32, 69);
 
-	Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 22, 69);
-	EXPECT_EQ(Val_U32, 69);
-	EXPECT_EQ(S_InterlockedVal_U32, 22);
+  Val_U32 = Bof_InterlockedCompareExchange(&S_InterlockedVal_U32, 22, 69);
+  EXPECT_EQ(Val_U32, 69);
+  EXPECT_EQ(S_InterlockedVal_U32, 22);
 }
 
 TEST(Threading_Test, Mutex)
 {
-	BOFERR  Sts_E;
-	BOF_MUTEX Mtx_X;
+  BOFERR Sts_E;
+  BOF_MUTEX Mtx_X;
 
-	EXPECT_EQ(Mtx_X.Magic_U32, 0);
-	EXPECT_TRUE(Mtx_X.Recursive_B);
-	EXPECT_STREQ(Mtx_X.Name_S.c_str(), "");
+  EXPECT_EQ(Mtx_X.Magic_U32, 0);
+  EXPECT_TRUE(Mtx_X.Recursive_B);
+  EXPECT_STREQ(Mtx_X.Name_S.c_str(), "");
 
-	Sts_E = Bof_CreateMutex("MyMutex", true, true, Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Mtx_X.Magic_U32, BOF_MUTEX_MAGIC);
-	EXPECT_TRUE(Mtx_X.Recursive_B);
-	EXPECT_STREQ(Mtx_X.Name_S.c_str(), "MyMutex");
+  Sts_E = Bof_CreateMutex("MyMutex", true, true, Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Mtx_X.Magic_U32, BOF_MUTEX_MAGIC);
+  EXPECT_TRUE(Mtx_X.Recursive_B);
+  EXPECT_STREQ(Mtx_X.Name_S.c_str(), "MyMutex");
 
-	Sts_E = Bof_CreateMutex("MyMutex", false, false, Mtx_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CreateMutex("MyMutex", false, false, Mtx_X);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_CreateMutex("System_Test", true, true, Mtx_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	Sts_E = Bof_LockMutex(Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	Sts_E = Bof_LockMutex(Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	Sts_E = Bof_UnlockMutex(Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	Sts_E = Bof_UnlockMutex(Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	Sts_E = Bof_DestroyMutex(Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CreateMutex("System_Test", true, true, Mtx_X);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_LockMutex(Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_LockMutex(Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_UnlockMutex(Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_UnlockMutex(Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_DestroyMutex(Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
 TEST(Threading_Test, Event)
 {
-	BOFERR Sts_E;
-	BOF_EVENT Event_X;
-	uint32_t i_U32,Start_U32, Delta_U32, WaitInMs_U32;
+  BOFERR Sts_E;
+  BOF_EVENT Event_X;
+  uint32_t i_U32, Start_U32, Delta_U32, WaitInMs_U32;
 
-	Sts_E = Bof_SignalEvent(Event_X, 0);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	Sts_E = Bof_DestroyEvent(Event_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_SignalEvent(Event_X, 0);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_DestroyEvent(Event_X);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E=Bof_CreateEvent("MyEvent", false,1, false, Event_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
-	EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
-	EXPECT_EQ(Event_X.SignaledBitmask_U64,0);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, Event_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
+  EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
+  EXPECT_EQ(Event_X.SignaledBitmask_U64, 0);
 
-	Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, Event_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
-	EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
-	EXPECT_EQ(Event_X.SignaledBitmask_U64,0);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, Event_X);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
+  EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
+  EXPECT_EQ(Event_X.SignaledBitmask_U64, 0);
 
+  for (i_U32 = 0; i_U32 < 5; i_U32++)
+  {
+    WaitInMs_U32 = 500;
+    Start_U32 = Bof_GetMsTickCount();
+    Sts_E = Bof_WaitForEvent(Event_X, WaitInMs_U32, 0);
+    Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+    EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
+    EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
+    EXPECT_EQ(Event_X.SignaledBitmask_U64, 0);
 
-	for (i_U32 = 0; i_U32 < 5; i_U32++)
-	{
-		WaitInMs_U32 = 500;
-		Start_U32 = Bof_GetMsTickCount();
-		Sts_E = Bof_WaitForEvent(Event_X, WaitInMs_U32, 0);
-		Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-		EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
-		EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
-		EXPECT_EQ(Event_X.SignaledBitmask_U64,0);
+    EXPECT_GE(Delta_U32, WaitInMs_U32);
+  }
 
+  for (i_U32 = 0; i_U32 < 5; i_U32++)
+  {
+    WaitInMs_U32 = 1000;
+    Start_U32 = Bof_GetMsTickCount();
+    Sts_E = Bof_SignalEvent(Event_X, 0);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-		EXPECT_GE(Delta_U32, WaitInMs_U32);
-	}
+    Sts_E = Bof_WaitForEvent(Event_X, WaitInMs_U32, 0);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	for (i_U32 = 0; i_U32 < 5; i_U32++)
-	{
-		WaitInMs_U32 = 1000;
-		Start_U32 = Bof_GetMsTickCount();
-		Sts_E = Bof_SignalEvent(Event_X, 0);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+    EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
+    EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
+    EXPECT_EQ(Event_X.SignaledBitmask_U64, 0);
 
-		Sts_E = Bof_WaitForEvent(Event_X, WaitInMs_U32, 0);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-		Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-		EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
-		EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
-		EXPECT_EQ(Event_X.SignaledBitmask_U64,0);
-
-
-		EXPECT_TRUE(Delta_U32 < 100);
-	}
-	Sts_E = Bof_DestroyEvent(Event_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_NE(Event_X.Magic_U32, BOF_EVENT_MAGIC);
-	EXPECT_STREQ(Event_X.Name_S.c_str(), "");
-	EXPECT_EQ(Event_X.SignaledBitmask_U64,0);
-;
+    EXPECT_TRUE(Delta_U32 < 100);
+  }
+  Sts_E = Bof_DestroyEvent(Event_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(Event_X.Magic_U32, BOF_EVENT_MAGIC);
+  EXPECT_STREQ(Event_X.Name_S.c_str(), "");
+  EXPECT_EQ(Event_X.SignaledBitmask_U64, 0);
+  ;
 }
-
-
 
 TEST(Threading_Test, SingleThread)
 {
-	BOFERR  Sts_E;
+  BOFERR Sts_E;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY Min_E, Max_E, MidPriority_E, ThreadPriority_E, NewPriority_E;
-	THREAD_CONTEXT ThreadContext_X;
-	BOF_THREAD Thread_X;
+  THREAD_CONTEXT ThreadContext_X;
+  BOF_THREAD Thread_X;
 
-	Sts_E = Bof_CreateMutex("MyMutex", true, true, S_Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CreateMutex("MyMutex", true, true, S_Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-	EXPECT_EQ(Min_E, -15);
-	EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, -15);
+  EXPECT_EQ(Max_E, 15);
 #else
-	EXPECT_EQ(Min_E, 0);
-	EXPECT_EQ(Max_E, 0);
+  EXPECT_EQ(Min_E, 0);
+  EXPECT_EQ(Max_E, 0);
 #endif
 
-	Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-	EXPECT_EQ(Min_E, -15);
-	EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, -15);
+  EXPECT_EQ(Max_E, 15);
 #else
-	EXPECT_EQ(Min_E, 1);
-	EXPECT_EQ(Max_E, 99);
+  EXPECT_EQ(Min_E, 1);
+  EXPECT_EQ(Max_E, 99);
 #endif
-	MidPriority_E = (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2);
+  MidPriority_E = (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2);
 
-	Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN, Min_E, Max_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN, Min_E, Max_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-	EXPECT_EQ(Min_E, -15);
-	EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, -15);
+  EXPECT_EQ(Max_E, 15);
 #else
-	EXPECT_EQ(Min_E, 1);
-	EXPECT_EQ(Max_E, 99);
+  EXPECT_EQ(Min_E, 1);
+  EXPECT_EQ(Max_E, 99);
 #endif
 
-	Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-	EXPECT_EQ(Min_E, -15);
-	EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, -15);
+  EXPECT_EQ(Max_E, 15);
 #else
-	EXPECT_EQ(Min_E, 0);
-	EXPECT_EQ(Max_E, 0);
+  EXPECT_EQ(Min_E, 0);
+  EXPECT_EQ(Max_E, 0);
 #endif
 
-	Sts_E = Bof_LaunchThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1000);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_LaunchThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1000);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_DestroyThread(Thread_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_DestroyThread(Thread_X);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	S_ValueToProtect_U32 = 0;
-	ThreadContext_X.Inc_S32 = 1;
-	ThreadContext_X.SleepInMs_U32 = 0;
-	ThreadContext_X.NbLoop_U32 = 0;
-	Sts_E = Bof_CreateThread("MyThread", S_TheThread, &ThreadContext_X, Thread_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Thread_X.ThreadCpuCoreAffinity_U32, 0);
-	EXPECT_EQ(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
-	EXPECT_STREQ(Thread_X.Name_S.c_str(), "MyThread");
-	EXPECT_EQ(Thread_X.ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
-	EXPECT_EQ(Thread_X.ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
-	EXPECT_EQ(Thread_X.StackSize_U32, 0);
-	EXPECT_EQ(Thread_X.StartStopTimeoutInMs_U32, 1000);
-	//	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
-#if defined (_WIN32)
-	EXPECT_EQ(Thread_X.ThreadId_U32, 0);
-	EXPECT_EQ(Thread_X.pThread, nullptr);
+  S_ValueToProtect_U32 = 0;
+  ThreadContext_X.Inc_S32 = 1;
+  ThreadContext_X.SleepInMs_U32 = 0;
+  ThreadContext_X.NbLoop_U32 = 0;
+  Sts_E = Bof_CreateThread("MyThread", S_TheThread, &ThreadContext_X, Thread_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Thread_X.ThreadCpuCoreAffinity_U32, 0);
+  EXPECT_EQ(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
+  EXPECT_STREQ(Thread_X.Name_S.c_str(), "MyThread");
+  EXPECT_EQ(Thread_X.ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+  EXPECT_EQ(Thread_X.ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
+  EXPECT_EQ(Thread_X.StackSize_U32, 0);
+  EXPECT_EQ(Thread_X.StartStopTimeoutInMs_U32, 1000);
+  //	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
+#if defined(_WIN32)
+  EXPECT_EQ(Thread_X.ThreadId_U32, 0);
+  EXPECT_EQ(Thread_X.pThread, nullptr);
 #else
-	EXPECT_EQ(Thread_X.ThreadId, 0);
+  EXPECT_EQ(Thread_X.ThreadId, 0);
 #endif
-	EXPECT_FALSE(Thread_X.ThreadLoopMustExit_B);
-	EXPECT_FALSE(Thread_X.ThreadRunning_B);
-	EXPECT_EQ(Thread_X.pUserContext, &ThreadContext_X);
-	EXPECT_EQ(S_ValueToProtect_U32, 0);
+  EXPECT_FALSE(Thread_X.ThreadLoopMustExit_B);
+  EXPECT_FALSE(Thread_X.ThreadRunning_B);
+  EXPECT_EQ(Thread_X.pUserContext, &ThreadContext_X);
+  EXPECT_EQ(S_ValueToProtect_U32, 0);
 
-	ThreadContext_X.Reset();
-	ThreadContext_X.Inc_S32 = 1;
-	ThreadContext_X.SleepInMs_U32 = 10000;
-	ThreadContext_X.NbLoop_U32 = 0;
-	Sts_E = Bof_CreateEvent("MyEvent", false, 2, false, ThreadContext_X.Event_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(ThreadContext_X.Event_X.Magic_U32, BOF_EVENT_MAGIC);
-	EXPECT_STREQ(ThreadContext_X.Event_X.Name_S.c_str(), "MyEvent");
-	EXPECT_EQ(ThreadContext_X.Event_X.SignaledBitmask_U64,0);
+  ThreadContext_X.Reset();
+  ThreadContext_X.Inc_S32 = 1;
+  ThreadContext_X.SleepInMs_U32 = 10000;
+  ThreadContext_X.NbLoop_U32 = 0;
+  Sts_E = Bof_CreateEvent("MyEvent", false, 2, false, ThreadContext_X.Event_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ThreadContext_X.Event_X.Magic_U32, BOF_EVENT_MAGIC);
+  EXPECT_STREQ(ThreadContext_X.Event_X.Name_S.c_str(), "MyEvent");
+  EXPECT_EQ(ThreadContext_X.Event_X.SignaledBitmask_U64, 0);
 
-	Sts_E = Bof_CreateThread("MyThread", S_TheThread, &ThreadContext_X, Thread_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CreateThread("MyThread", S_TheThread, &ThreadContext_X, Thread_X);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	S_ValueToProtect_U32 = 0;
-	Sts_E = Bof_LaunchThread(Thread_X, 4096, 1, BOF_THREAD_SCHEDULER_POLICY_FIFO, MidPriority_E, 2000);
+  S_ValueToProtect_U32 = 0;
+  Sts_E = Bof_LaunchThread(Thread_X, 4096, 1, BOF_THREAD_SCHEDULER_POLICY_FIFO, MidPriority_E, 2000);
   Bof_MsSleep(500);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Thread_X.ThreadCpuCoreAffinity_U32, 1);
-	EXPECT_EQ(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
-	EXPECT_STREQ(Thread_X.Name_S.c_str(), "MyThread");
-	EXPECT_EQ(Thread_X.ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
-	EXPECT_EQ(Thread_X.ThreadPriority_E, MidPriority_E);
-	EXPECT_EQ(Thread_X.StackSize_U32, 4096);
-	EXPECT_EQ(Thread_X.StartStopTimeoutInMs_U32, 2000);
-	//	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
-#if defined (_WIN32)
-	EXPECT_TRUE(Thread_X.ThreadId_U32 != 0);
-	EXPECT_FALSE(Thread_X.pThread == nullptr);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Thread_X.ThreadCpuCoreAffinity_U32, 1);
+  EXPECT_EQ(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
+  EXPECT_STREQ(Thread_X.Name_S.c_str(), "MyThread");
+  EXPECT_EQ(Thread_X.ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
+  EXPECT_EQ(Thread_X.ThreadPriority_E, MidPriority_E);
+  EXPECT_EQ(Thread_X.StackSize_U32, 4096);
+  EXPECT_EQ(Thread_X.StartStopTimeoutInMs_U32, 2000);
+  //	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
+#if defined(_WIN32)
+  EXPECT_TRUE(Thread_X.ThreadId_U32 != 0);
+  EXPECT_FALSE(Thread_X.pThread == nullptr);
 #else
-	EXPECT_NE(Thread_X.ThreadId, 0);
+  EXPECT_NE(Thread_X.ThreadId, 0);
 #endif
-	EXPECT_FALSE(Thread_X.ThreadLoopMustExit_B);
-	EXPECT_TRUE(Thread_X.ThreadRunning_B);
-	EXPECT_EQ(Thread_X.pUserContext, &ThreadContext_X);
+  EXPECT_FALSE(Thread_X.ThreadLoopMustExit_B);
+  EXPECT_TRUE(Thread_X.ThreadRunning_B);
+  EXPECT_EQ(Thread_X.pUserContext, &ThreadContext_X);
   Bof_MsSleep(500);
-	EXPECT_EQ(S_NbThread_U32, 1);
-	EXPECT_TRUE(Thread_X.ThreadRunning_B);
+  EXPECT_EQ(S_NbThread_U32, 1);
+  EXPECT_TRUE(Thread_X.ThreadRunning_B);
 
-	Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-#if defined (_WIN32)
-	EXPECT_EQ(ThreadPriority_E, MidPriority_E);
-	NewPriority_E = (BOF_THREAD_PRIORITY)(MidPriority_E + 2);
+  Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+#if defined(_WIN32)
+  EXPECT_EQ(ThreadPriority_E, MidPriority_E);
+  NewPriority_E = (BOF_THREAD_PRIORITY)(MidPriority_E + 2);
 #else
-	EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
-	EXPECT_EQ(ThreadPriority_E, MidPriority_E);
-	NewPriority_E = (BOF_THREAD_PRIORITY)(MidPriority_E + 2);
+  EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
+  EXPECT_EQ(ThreadPriority_E, MidPriority_E);
+  NewPriority_E = (BOF_THREAD_PRIORITY)(MidPriority_E + 2);
 #endif
 
-	Sts_E = Bof_SetThreadPriorityLevel(Thread_X, BOF_THREAD_SCHEDULER_POLICY_FIFO, NewPriority_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_SetThreadPriorityLevel(Thread_X, BOF_THREAD_SCHEDULER_POLICY_FIFO, NewPriority_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-#if defined (_WIN32)
+  Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+#if defined(_WIN32)
 #else
-	EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
+  EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
 #endif
-	EXPECT_EQ(ThreadPriority_E, NewPriority_E);
+  EXPECT_EQ(ThreadPriority_E, NewPriority_E);
   Bof_MsSleep(500);
-	EXPECT_TRUE(Thread_X.ThreadRunning_B);
-	EXPECT_NE(S_ValueToProtect_U32, static_cast<uint32_t>(0));
-//Need to do the following 2 lines to start the thread exit sequence as the event has a timeout of 10 s and the startstopto is only 2 sec
-	Thread_X.ThreadLoopMustExit_B = true;	
-	Sts_E = Bof_SignalEvent(ThreadContext_X.Event_X, 0);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	Sts_E = Bof_DestroyThread(Thread_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_NE(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
-#if defined (_WIN32)
-	//EXPECT_TRUE(Thread_X.ThreadId_U32 == 0);
-	//EXPECT_TRUE(Thread_X.pThread == nullptr);
+  EXPECT_TRUE(Thread_X.ThreadRunning_B);
+  EXPECT_NE(S_ValueToProtect_U32, static_cast<uint32_t>(0));
+  // Need to do the following 2 lines to start the thread exit sequence as the event has a timeout of 10 s and the startstopto is only 2 sec
+  Thread_X.ThreadLoopMustExit_B = true;
+  Sts_E = Bof_SignalEvent(ThreadContext_X.Event_X, 0);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_DestroyThread(Thread_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
+#if defined(_WIN32)
+  // EXPECT_TRUE(Thread_X.ThreadId_U32 == 0);
+  // EXPECT_TRUE(Thread_X.pThread == nullptr);
 #else
-	//EXPECT_EQ(Thread_X.ThreadId, 0);
+  // EXPECT_EQ(Thread_X.ThreadId, 0);
 #endif
-	EXPECT_TRUE(Thread_X.ThreadLoopMustExit_B);
-	EXPECT_FALSE(Thread_X.ThreadRunning_B);
+  EXPECT_TRUE(Thread_X.ThreadLoopMustExit_B);
+  EXPECT_FALSE(Thread_X.ThreadRunning_B);
 
-	Sts_E = Bof_DestroyMutex(S_Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_DestroyMutex(S_Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
 TEST(Threading_Test, MultiThread)
 {
-	BOFERR  Sts_E;
+  BOFERR Sts_E;
   BOF_THREAD_PRIORITY MidPriority_E, Min_E, Max_E;
-//	uint32_t Last_U32;
-	uint32_t i_U32;
-	uint64_t AvailableFreeMemory_U64, TotalMemorySize_U64;
-	THREAD_CONTEXT pThreadContext_X[NBTHREAD];
-	BOF_THREAD pThread_X[NBTHREAD];
-	std::string Name_S;
+  //	uint32_t Last_U32;
+  uint32_t i_U32;
+  uint64_t AvailableFreeMemory_U64, TotalMemorySize_U64;
+  THREAD_CONTEXT pThreadContext_X[NBTHREAD];
+  BOF_THREAD pThread_X[NBTHREAD];
+  std::string Name_S;
 
-	S_NbThread_U32 = 0;
-	memset(S_pValueToProtect_U8, 0, sizeof(S_pValueToProtect_U8));
+  S_NbThread_U32 = 0;
+  memset(S_pValueToProtect_U8, 0, sizeof(S_pValueToProtect_U8));
 
-	Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-	EXPECT_EQ(Min_E, -15);
-	EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, -15);
+  EXPECT_EQ(Max_E, 15);
 #else
-	EXPECT_EQ(Min_E, 0);
-	EXPECT_EQ(Max_E, 0);
+  EXPECT_EQ(Min_E, 0);
+  EXPECT_EQ(Max_E, 0);
 #endif
 
-	MidPriority_E = (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2);
-	Sts_E = Bof_CreateMutex("MyMutex", true, true, S_Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  MidPriority_E = (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2);
+  Sts_E = Bof_CreateMutex("MyMutex", true, true, S_Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
-	{
-		if ((i_U32) && !(i_U32 % PRTPERLOOP))
-		{
-			printf("%d Create thread %d/%d\r\n", Bof_GetMsTickCount(), i_U32, NBTHREAD);
-		}
-		pThreadContext_X[i_U32].Reset();
-		pThreadContext_X[i_U32].Id_U32 = i_U32;
-		pThreadContext_X[i_U32].Inc_S32 = 1;
-		pThreadContext_X[i_U32].SleepInMs_U32 = 1000;
-		pThreadContext_X[i_U32].NbLoop_U32 = 0;
-		Name_S = "MyEvent_" + std::to_string(i_U32);
-		Sts_E = Bof_CreateEvent(Name_S, false, 1, false, pThreadContext_X[i_U32].Event_X);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThreadContext_X[i_U32].Event_X.Magic_U32, BOF_EVENT_MAGIC);
-		EXPECT_STREQ(pThreadContext_X[i_U32].Event_X.Name_S.c_str(), Name_S.c_str());
-		EXPECT_EQ(pThreadContext_X[i_U32].Event_X.SignaledBitmask_U64, 0);
+  for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
+  {
+    if ((i_U32) && !(i_U32 % PRTPERLOOP))
+    {
+      printf("%d Create thread %d/%d\r\n", Bof_GetMsTickCount(), i_U32, NBTHREAD);
+    }
+    pThreadContext_X[i_U32].Reset();
+    pThreadContext_X[i_U32].Id_U32 = i_U32;
+    pThreadContext_X[i_U32].Inc_S32 = 1;
+    pThreadContext_X[i_U32].SleepInMs_U32 = 1000;
+    pThreadContext_X[i_U32].NbLoop_U32 = 0;
+    Name_S = "MyEvent_" + std::to_string(i_U32);
+    Sts_E = Bof_CreateEvent(Name_S, false, 1, false, pThreadContext_X[i_U32].Event_X);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThreadContext_X[i_U32].Event_X.Magic_U32, BOF_EVENT_MAGIC);
+    EXPECT_STREQ(pThreadContext_X[i_U32].Event_X.Name_S.c_str(), Name_S.c_str());
+    EXPECT_EQ(pThreadContext_X[i_U32].Event_X.SignaledBitmask_U64, 0);
 
-		Name_S = "MyThread_" + std::to_string(i_U32);
-		Sts_E = Bof_CreateThread(Name_S, S_TheThread, &pThreadContext_X[i_U32], pThread_X[i_U32]);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
-		EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
-		EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
-		EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
-		EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
-		//	EXPECT_EQ(pThread_X[i_U32].ThreadFunction, S_TheThread);
-#if defined (_WIN32)
-		EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
+    Name_S = "MyThread_" + std::to_string(i_U32);
+    Sts_E = Bof_CreateThread(Name_S, S_TheThread, &pThreadContext_X[i_U32], pThread_X[i_U32]);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
+    EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
+    EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+    EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
+    EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
+    //	EXPECT_EQ(pThread_X[i_U32].ThreadFunction, S_TheThread);
+#if defined(_WIN32)
+    EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
 #else
-		EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
+    EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-		EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
-		EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
-		EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
+    EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
-		Sts_E = Bof_GetMemoryState(AvailableFreeMemory_U64, TotalMemorySize_U64);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_TRUE(AvailableFreeMemory_U64 < TotalMemorySize_U64);
-		//	printf("Start thread %llx/%llx\r\n", AvailableFreeMemory_U64, TotalMemorySize_U64);
-		Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, MidPriority_E, STARTSTOPTO);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
-		EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
-		EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
-		EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, MidPriority_E);
-		EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
-		EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
-		//	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
-#if defined (_WIN32)
-		EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
-		EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
+    Sts_E = Bof_GetMemoryState(AvailableFreeMemory_U64, TotalMemorySize_U64);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_TRUE(AvailableFreeMemory_U64 < TotalMemorySize_U64);
+    //	printf("Start thread %llx/%llx\r\n", AvailableFreeMemory_U64, TotalMemorySize_U64);
+    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, MidPriority_E, STARTSTOPTO);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
+    EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
+    EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+    EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, MidPriority_E);
+    EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
+    EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
+    //	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
+#if defined(_WIN32)
+    EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
+    EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
 #else
-		EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
+    EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
 #endif
-		EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
-		EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
-		EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
-	}
+    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
+    EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
+  }
 
   Bof_MsSleep(500);
-	EXPECT_EQ(S_NbThread_U32, NBTHREAD);
+  EXPECT_EQ(S_NbThread_U32, NBTHREAD);
 
-	//Last_U32 = Bof_GetMsTickCount();
-	for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
-	{
-		//		Now_U32 = Bof_GetMsTickCount();
-		//		printf("[%06d] T %d D %d ->Signal thread\r\n", i_U32, Now_U32, Now_U32-Last_U32);
-		//		Last_U32 = Now_U32;
-	  if ((i_U32) && !(i_U32 % PRTPERLOOP))
-		{
-//			Now_U32 = Bof_GetMsTickCount();
-//			printf("T %d D %d Delete thread %d/%d\r\n", Now_U32, Now_U32 - Last_U32, i_U32, NBTHREAD);
-//			Last_U32 = Now_U32;
-		}
-		Name_S = "MyEvent_" + std::to_string(i_U32);
-		Sts_E = Bof_SignalEvent(pThreadContext_X[i_U32].Event_X, 0);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThreadContext_X[i_U32].Event_X.Magic_U32, BOF_EVENT_MAGIC);
-		EXPECT_STREQ(pThreadContext_X[i_U32].Event_X.Name_S.c_str(), Name_S.c_str());
-//		EXPECT_FALSE(pThreadContext_X[i_U32].Event_X.Signaled_B);
+  // Last_U32 = Bof_GetMsTickCount();
+  for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
+  {
+    //		Now_U32 = Bof_GetMsTickCount();
+    //		printf("[%06d] T %d D %d ->Signal thread\r\n", i_U32, Now_U32, Now_U32-Last_U32);
+    //		Last_U32 = Now_U32;
+    if ((i_U32) && !(i_U32 % PRTPERLOOP))
+    {
+      //			Now_U32 = Bof_GetMsTickCount();
+      //			printf("T %d D %d Delete thread %d/%d\r\n", Now_U32, Now_U32 - Last_U32, i_U32, NBTHREAD);
+      //			Last_U32 = Now_U32;
+    }
+    Name_S = "MyEvent_" + std::to_string(i_U32);
+    Sts_E = Bof_SignalEvent(pThreadContext_X[i_U32].Event_X, 0);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThreadContext_X[i_U32].Event_X.Magic_U32, BOF_EVENT_MAGIC);
+    EXPECT_STREQ(pThreadContext_X[i_U32].Event_X.Name_S.c_str(), Name_S.c_str());
+    //		EXPECT_FALSE(pThreadContext_X[i_U32].Event_X.Signaled_B);
 
-		//		Now_U32 = Bof_GetMsTickCount();
-		//		printf("[%06d] T %d D %d ->Destroy thread start\r\n", i_U32, Now_U32, Now_U32 - Last_U32);
-		//		Last_U32 = Now_U32;
+    //		Now_U32 = Bof_GetMsTickCount();
+    //		printf("[%06d] T %d D %d ->Destroy thread start\r\n", i_U32, Now_U32, Now_U32 - Last_U32);
+    //		Last_U32 = Now_U32;
 
-		Sts_E = Bof_DestroyThread(pThread_X[i_U32]);
+    Sts_E = Bof_DestroyThread(pThread_X[i_U32]);
 
-		//		Now_U32 = Bof_GetMsTickCount();
-		//		if ((Now_U32 - Last_U32) > 200)
-		{
-			//			printf("[%06d] T %d D %d ->Destroy thread end\r\n", i_U32, Now_U32, Now_U32 - Last_U32);
-			//			Last_U32 = Now_U32;
-		}
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_NE(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
-#if defined (_WIN32)
+    //		Now_U32 = Bof_GetMsTickCount();
+    //		if ((Now_U32 - Last_U32) > 200)
+    {
+      //			printf("[%06d] T %d D %d ->Destroy thread end\r\n", i_U32, Now_U32, Now_U32 - Last_U32);
+      //			Last_U32 = Now_U32;
+    }
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_NE(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
+#if defined(_WIN32)
 //		EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 == 0);
 //		EXPECT_TRUE(pThread_X[i_U32].pThread == nullptr);
 #else
 //		EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-		EXPECT_TRUE(pThread_X[i_U32].ThreadLoopMustExit_B);
-		EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
-	}
+    EXPECT_TRUE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
+  }
   Bof_MsSleep(500);
-	EXPECT_EQ(S_NbThread_U32, 0);
-	Sts_E = Bof_DestroyMutex(S_Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(S_NbThread_U32, 0);
+  Sts_E = Bof_DestroyMutex(S_Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
-
-
 
 TEST(Threading_Test, MultiThreadWithoutMutex)
 {
-	BOFERR  Sts_E;
-	int32_t Start_U32,Delta_U32;
-	uint32_t i_U32;
-	//uint32_t Now_U32, Last_U32;
-	//uint64_t AvailableFreeMemory_U64, TotalMemorySize_U64;
-	THREAD_CONTEXT pThreadContext_X[NBTHREAD];
-	BOF_THREAD pThread_X[NBTHREAD];
-	std::string Name_S;
-//	bool Sts_B;
+  BOFERR Sts_E;
+  int32_t Start_U32, Delta_U32;
+  uint32_t i_U32;
+  // uint32_t Now_U32, Last_U32;
+  // uint64_t AvailableFreeMemory_U64, TotalMemorySize_U64;
+  THREAD_CONTEXT pThreadContext_X[NBTHREAD];
+  BOF_THREAD pThread_X[NBTHREAD];
+  std::string Name_S;
+  //	bool Sts_B;
 
-	//Sts_E = Bof_CreateMutex("MyMutex", true, S_Mtx_X);
-	//EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  // Sts_E = Bof_CreateMutex("MyMutex", true, S_Mtx_X);
+  // EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	S_NbThread_U32 = 0;
-	memset(S_pValueToProtect_U8, 1, sizeof(S_pValueToProtect_U8));
+  S_NbThread_U32 = 0;
+  memset(S_pValueToProtect_U8, 1, sizeof(S_pValueToProtect_U8));
 
-	for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
-	{
-		pThreadContext_X[i_U32].Reset();
-		pThreadContext_X[i_U32].Id_U32 = i_U32;
-		pThreadContext_X[i_U32].Inc_S32 = Bof_Random(true, 10, 100);
-		pThreadContext_X[i_U32].SleepInMs_U32 = 0;
-		pThreadContext_X[i_U32].NbLoop_U32 = 10;
-		Name_S = "MyThread_" + std::to_string(i_U32);
-		Sts_E = Bof_CreateThread(Name_S, S_TheThread, &pThreadContext_X[i_U32], pThread_X[i_U32]);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
-		EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
-		EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
-		EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
-		EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
-#if defined (_WIN32)
-		EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
+  for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
+  {
+    pThreadContext_X[i_U32].Reset();
+    pThreadContext_X[i_U32].Id_U32 = i_U32;
+    pThreadContext_X[i_U32].Inc_S32 = Bof_Random(true, 10, 100);
+    pThreadContext_X[i_U32].SleepInMs_U32 = 0;
+    pThreadContext_X[i_U32].NbLoop_U32 = 10;
+    Name_S = "MyThread_" + std::to_string(i_U32);
+    Sts_E = Bof_CreateThread(Name_S, S_TheThread, &pThreadContext_X[i_U32], pThread_X[i_U32]);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
+    EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
+    EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+    EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
+    EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
+#if defined(_WIN32)
+    EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
 #else
-		EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
+    EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-		EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
-		EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
-		EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
-		
-		Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, STARTSTOPTO);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
-		EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
-		EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
-		EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
-		EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
-#if defined (_WIN32)
-		EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
-		EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
+    EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
+
+    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, STARTSTOPTO);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
+    EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
+    EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+    EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
+    EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
+#if defined(_WIN32)
+    EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
+    EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
 #else
-		EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
+    EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
 #endif
-		EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
-		EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
-		EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
-	}
-	Start_U32 = Bof_GetMsTickCount();
-	do 
-	{
+    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
+    EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
+  }
+  Start_U32 = Bof_GetMsTickCount();
+  do
+  {
     Bof_MsSleep(100);
-		Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-	} while ((S_NbThread_U32) && (Delta_U32 < 5000));
+    Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  } while ((S_NbThread_U32) && (Delta_U32 < 5000));
 
-	EXPECT_EQ(S_NbThread_U32, 0);
-//	Sts_B = true;
-	for (i_U32 = 1; i_U32 < sizeof(S_pValueToProtect_U8); i_U32++)
-	{
-		if (S_pValueToProtect_U8[i_U32 - 1] != S_pValueToProtect_U8[i_U32])
-		{
-	//		Sts_B = false;
-			break;
-		}
-	}
-//	EXPECT_FALSE(Sts_B);		//TODO !!
-	//Sts_E = Bof_DestroyMutex(S_Mtx_X);
-	//EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
+  EXPECT_EQ(S_NbThread_U32, 0);
+  //	Sts_B = true;
+  for (i_U32 = 1; i_U32 < sizeof(S_pValueToProtect_U8); i_U32++)
+  {
+    if (S_pValueToProtect_U8[i_U32 - 1] != S_pValueToProtect_U8[i_U32])
+    {
+      //		Sts_B = false;
+      break;
+    }
+  }
+  //	EXPECT_FALSE(Sts_B);		//TODO !!
+  // Sts_E = Bof_DestroyMutex(S_Mtx_X);
+  // EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
 TEST(Threading_Test, MultiThreadWithMutex)
 {
-	BOFERR  Sts_E;
-	uint32_t Start_U32, Delta_U32;
-	uint32_t i_U32;
-//	uint32_t Now_U32, Last_U32;
-//	uint64_t AvailableFreeMemory_U64, TotalMemorySize_U64;
-	THREAD_CONTEXT pThreadContext_X[NBTHREAD];
-	BOF_THREAD pThread_X[NBTHREAD];
-	std::string Name_S;
-	bool Sts_B;
+  BOFERR Sts_E;
+  uint32_t Start_U32, Delta_U32;
+  uint32_t i_U32;
+  //	uint32_t Now_U32, Last_U32;
+  //	uint64_t AvailableFreeMemory_U64, TotalMemorySize_U64;
+  THREAD_CONTEXT pThreadContext_X[NBTHREAD];
+  BOF_THREAD pThread_X[NBTHREAD];
+  std::string Name_S;
+  bool Sts_B;
 
-	S_NbThread_U32 = 0;
-	memset(S_pValueToProtect_U8, 1, sizeof(S_pValueToProtect_U8));
+  S_NbThread_U32 = 0;
+  memset(S_pValueToProtect_U8, 1, sizeof(S_pValueToProtect_U8));
 
-	Sts_E = Bof_CreateMutex("MyMutex",false, false, S_Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CreateMutex("MyMutex", false, false, S_Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
-	{
-		pThreadContext_X[i_U32].Reset();
-		pThreadContext_X[i_U32].Id_U32 = i_U32;
-		pThreadContext_X[i_U32].Inc_S32 = Bof_Random(true, 10, 100);
-		pThreadContext_X[i_U32].SleepInMs_U32 = 0;
-		pThreadContext_X[i_U32].NbLoop_U32 = 1;
-		Name_S = "MyThread_" + std::to_string(i_U32);
-		Sts_E = Bof_CreateThread(Name_S, S_TheThread, &pThreadContext_X[i_U32], pThread_X[i_U32]);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
-		EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
-		EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
-		EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
-		EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
-#if defined (_WIN32)
-		EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
+  for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
+  {
+    pThreadContext_X[i_U32].Reset();
+    pThreadContext_X[i_U32].Id_U32 = i_U32;
+    pThreadContext_X[i_U32].Inc_S32 = Bof_Random(true, 10, 100);
+    pThreadContext_X[i_U32].SleepInMs_U32 = 0;
+    pThreadContext_X[i_U32].NbLoop_U32 = 1;
+    Name_S = "MyThread_" + std::to_string(i_U32);
+    Sts_E = Bof_CreateThread(Name_S, S_TheThread, &pThreadContext_X[i_U32], pThread_X[i_U32]);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
+    EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
+    EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+    EXPECT_EQ(pThread_X[i_U32].ThreadPriority_E, BOF_THREAD_DEFAULT_PRIORITY);
+    EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
+#if defined(_WIN32)
+    EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
 #else
-		EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
+    EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-		EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
-		EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
-		EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
+    EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
-		Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, STARTSTOPTO);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
-		EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
-		EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
-		EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
-		EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
-		EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
-#if defined (_WIN32)
-		EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
-		EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
+    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, STARTSTOPTO);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
+    EXPECT_STREQ(pThread_X[i_U32].Name_S.c_str(), Name_S.c_str());
+    EXPECT_EQ(pThread_X[i_U32].ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+    EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
+    EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
+#if defined(_WIN32)
+    EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
+    EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
 #else
-		EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
+    EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
 #endif
-		EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
-		EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
-		EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
-	}
-	Start_U32 = Bof_GetMsTickCount();
-	do
-	{
+    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
+    EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
+  }
+  Start_U32 = Bof_GetMsTickCount();
+  do
+  {
     Bof_MsSleep(100);
-		Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-		if (S_NbThread_U32 == 0) break;
-	} while ((S_NbThread_U32) && (Delta_U32 < (NBTHREAD*100)));
+    Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+    if (S_NbThread_U32 == 0)
+      break;
+  } while ((S_NbThread_U32) && (Delta_U32 < (NBTHREAD * 100)));
 
-	EXPECT_EQ(S_NbThread_U32, 0);
-	Sts_B = true;
-	for (i_U32 = 1; i_U32 < sizeof(S_pValueToProtect_U8); i_U32++)
-	{
-		if (S_pValueToProtect_U8[i_U32 - 1] != S_pValueToProtect_U8[i_U32])
-		{
-			Sts_B = false;
-			break;
-		}
-	}
-	EXPECT_TRUE(Sts_B);
-	Sts_E = Bof_DestroyMutex(S_Mtx_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(S_NbThread_U32, 0);
+  Sts_B = true;
+  for (i_U32 = 1; i_U32 < sizeof(S_pValueToProtect_U8); i_U32++)
+  {
+    if (S_pValueToProtect_U8[i_U32 - 1] != S_pValueToProtect_U8[i_U32])
+    {
+      Sts_B = false;
+      break;
+    }
+  }
+  EXPECT_TRUE(Sts_B);
+  Sts_E = Bof_DestroyMutex(S_Mtx_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
 const uint32_t SEMMAXVAL = 10;
 
 TEST(Threading_Test, Semaphore)
 {
-	BOFERR  Sts_E;
-	BOF_SEMAPHORE Sem_X;
-	uint32_t i_U32, Start_U32, Delta_U32;
+  BOFERR Sts_E;
+  BOF_SEMAPHORE Sem_X;
+  uint32_t i_U32, Start_U32, Delta_U32;
 
-	EXPECT_EQ(Sem_X.Magic_U32, 0);
-	EXPECT_EQ(Sem_X.Name_S, "");
-	EXPECT_EQ(Sem_X.Cpt_S32, 0);
-	EXPECT_EQ(Sem_X.Max_S32, 0);
+  EXPECT_EQ(Sem_X.Magic_U32, 0);
+  EXPECT_EQ(Sem_X.Name_S, "");
+  EXPECT_EQ(Sem_X.Cpt_S32, 0);
+  EXPECT_EQ(Sem_X.Max_S32, 0);
 
-	Sts_E = Bof_CreateSemaphore("MySem", SEMMAXVAL, Sem_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
-	EXPECT_EQ(Sem_X.Name_S, "MySem");
-	EXPECT_EQ(Sem_X.Cpt_S32, SEMMAXVAL - 1);
-	EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL-1);
-	for (i_U32 = 0; i_U32 < SEMMAXVAL; i_U32++)
-	{
-		Start_U32 = Bof_GetMsTickCount();
-		Sts_E = Bof_WaitForSemaphore(Sem_X, 1000);
-		Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_LE(Delta_U32, static_cast<uint32_t>(500));
-		EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
-		EXPECT_EQ(Sem_X.Name_S, "MySem");
-		EXPECT_EQ(Sem_X.Cpt_S32, SEMMAXVAL - 1 - i_U32 - 1);
-		EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL-1);
-	}
+  Sts_E = Bof_CreateSemaphore("MySem", SEMMAXVAL, Sem_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
+  EXPECT_EQ(Sem_X.Name_S, "MySem");
+  EXPECT_EQ(Sem_X.Cpt_S32, SEMMAXVAL - 1);
+  EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
+  for (i_U32 = 0; i_U32 < SEMMAXVAL; i_U32++)
+  {
+    Start_U32 = Bof_GetMsTickCount();
+    Sts_E = Bof_WaitForSemaphore(Sem_X, 1000);
+    Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_LE(Delta_U32, static_cast<uint32_t>(500));
+    EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
+    EXPECT_EQ(Sem_X.Name_S, "MySem");
+    EXPECT_EQ(Sem_X.Cpt_S32, SEMMAXVAL - 1 - i_U32 - 1);
+    EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
+  }
 
-	Start_U32 = Bof_GetMsTickCount();
-	Sts_E = Bof_WaitForSemaphore(Sem_X, 1000);
-	Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_GE(Delta_U32, static_cast<uint32_t>(1000));
-	EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
-	EXPECT_EQ(Sem_X.Name_S, "MySem");
-	EXPECT_EQ(Sem_X.Cpt_S32, -1);
-	EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL-1);
+  Start_U32 = Bof_GetMsTickCount();
+  Sts_E = Bof_WaitForSemaphore(Sem_X, 1000);
+  Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_GE(Delta_U32, static_cast<uint32_t>(1000));
+  EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
+  EXPECT_EQ(Sem_X.Name_S, "MySem");
+  EXPECT_EQ(Sem_X.Cpt_S32, -1);
+  EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
 
-	Start_U32 = Bof_GetMsTickCount();
-	Sts_E = Bof_WaitForSemaphore(Sem_X, 1000);
-	Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_GE(Delta_U32, static_cast<uint32_t>(1000));
-	EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
-	EXPECT_EQ(Sem_X.Name_S, "MySem");
-	EXPECT_EQ(Sem_X.Cpt_S32, -1);
-	EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
+  Start_U32 = Bof_GetMsTickCount();
+  Sts_E = Bof_WaitForSemaphore(Sem_X, 1000);
+  Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_GE(Delta_U32, static_cast<uint32_t>(1000));
+  EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
+  EXPECT_EQ(Sem_X.Name_S, "MySem");
+  EXPECT_EQ(Sem_X.Cpt_S32, -1);
+  EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
 
-	for (i_U32 = 0; i_U32 < SEMMAXVAL; i_U32++)
-	{
-		Sts_E = Bof_SignalSemaphore(Sem_X);
-		EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-		EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
-		EXPECT_EQ(Sem_X.Name_S, "MySem");
-		EXPECT_EQ(Sem_X.Cpt_S32, i_U32 );
-		EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
-	}
-	Sts_E = Bof_SignalSemaphore(Sem_X);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
-	EXPECT_EQ(Sem_X.Name_S, "MySem");
-	EXPECT_EQ(Sem_X.Cpt_S32, SEMMAXVAL - 1);
-	EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
+  for (i_U32 = 0; i_U32 < SEMMAXVAL; i_U32++)
+  {
+    Sts_E = Bof_SignalSemaphore(Sem_X);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
+    EXPECT_EQ(Sem_X.Name_S, "MySem");
+    EXPECT_EQ(Sem_X.Cpt_S32, i_U32);
+    EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
+  }
+  Sts_E = Bof_SignalSemaphore(Sem_X);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
+  EXPECT_EQ(Sem_X.Name_S, "MySem");
+  EXPECT_EQ(Sem_X.Cpt_S32, SEMMAXVAL - 1);
+  EXPECT_EQ(Sem_X.Max_S32, SEMMAXVAL - 1);
 
-	Sts_E = Bof_DestroySemaphore(Sem_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Sem_X.Magic_U32, 0);
-	EXPECT_EQ(Sem_X.Name_S, "");
-	EXPECT_EQ(Sem_X.Cpt_S32, 0);
-	EXPECT_EQ(Sem_X.Max_S32, 0);
+  Sts_E = Bof_DestroySemaphore(Sem_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Sem_X.Magic_U32, 0);
+  EXPECT_EQ(Sem_X.Name_S, "");
+  EXPECT_EQ(Sem_X.Cpt_S32, 0);
+  EXPECT_EQ(Sem_X.Max_S32, 0);
 }
 
 const uint32_t SHRSIZE = 0x10000;
 TEST(Threading_Test, SharedMemory)
 {
-	BOFERR  Sts_E;
-	BOF_SHARED_MEMORY  ShrMem_X,AnotherShrMem_X;
-	uint32_t i_U32, *pVal_U32, pCpyVal_U32[128];
+  BOFERR Sts_E;
+  BOF_SHARED_MEMORY ShrMem_X, AnotherShrMem_X;
+  uint32_t i_U32, *pVal_U32, pCpyVal_U32[128];
 
-	EXPECT_EQ(ShrMem_X.Magic_U32, 0);
-	EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "");
+  EXPECT_EQ(ShrMem_X.Magic_U32, 0);
+  EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "");
 #if defined(_WIN32)
-	EXPECT_EQ(ShrMem_X.pHandle, nullptr);
+  EXPECT_EQ(ShrMem_X.pHandle, nullptr);
 #else
 #endif
-	EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
-	EXPECT_NE(Bof_CloseSharedMemory(ShrMem_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
+  EXPECT_NE(Bof_CloseSharedMemory(ShrMem_X), BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
-	EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
+  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
+  EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
 #if defined(_WIN32)
-	EXPECT_NE(ShrMem_X.pHandle, nullptr);
+  EXPECT_NE(ShrMem_X.pHandle, nullptr);
 #else
 #endif
-	EXPECT_NE(ShrMem_X.pBaseAddress, nullptr);
-	pVal_U32 = static_cast<uint32_t *>(ShrMem_X.pBaseAddress);
-	for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
-	{
-		pVal_U32[i_U32] = i_U32;
-	}
-	for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
-	{
-		pCpyVal_U32[i_U32] = pVal_U32[i_U32];
-		EXPECT_EQ(pCpyVal_U32[i_U32], i_U32);
-	}
+  EXPECT_NE(ShrMem_X.pBaseAddress, nullptr);
+  pVal_U32 = static_cast<uint32_t *>(ShrMem_X.pBaseAddress);
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
+  {
+    pVal_U32[i_U32] = i_U32;
+  }
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
+  {
+    pCpyVal_U32[i_U32] = pVal_U32[i_U32];
+    EXPECT_EQ(pCpyVal_U32[i_U32], i_U32);
+  }
 
-	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, AnotherShrMem_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
-	EXPECT_EQ(AnotherShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
-	EXPECT_STREQ(AnotherShrMem_X.Name_S.c_str(), "MyShr");
+  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, AnotherShrMem_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
+  EXPECT_EQ(AnotherShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
+  EXPECT_STREQ(AnotherShrMem_X.Name_S.c_str(), "MyShr");
 #if defined(_WIN32)
-	EXPECT_NE(ShrMem_X.pHandle, nullptr);
+  EXPECT_NE(ShrMem_X.pHandle, nullptr);
 #else
 #endif
-	EXPECT_NE(AnotherShrMem_X.pBaseAddress, nullptr);
-	pVal_U32 = static_cast<uint32_t *>(AnotherShrMem_X.pBaseAddress);
+  EXPECT_NE(AnotherShrMem_X.pBaseAddress, nullptr);
+  pVal_U32 = static_cast<uint32_t *>(AnotherShrMem_X.pBaseAddress);
 
-	for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
-	{
-		EXPECT_EQ(pVal_U32[i_U32],i_U32);
-	}
-	for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
-	{
-		pVal_U32[i_U32] = i_U32*2;
-	}
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
+  {
+    EXPECT_EQ(pVal_U32[i_U32], i_U32);
+  }
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
+  {
+    pVal_U32[i_U32] = i_U32 * 2;
+  }
 
-	Sts_E = Bof_CloseSharedMemory(ShrMem_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_NE(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
-	EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "");
+  Sts_E = Bof_CloseSharedMemory(ShrMem_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
+  EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "");
 #if defined(_WIN32)
-	EXPECT_EQ(ShrMem_X.pHandle, nullptr);
+  EXPECT_EQ(ShrMem_X.pHandle, nullptr);
 #else
 #endif
-	EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
+  EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
 
-	Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
-	EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
-	EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
+  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
+  EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
+  EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
 #if defined(_WIN32)
-	EXPECT_NE(ShrMem_X.pHandle, nullptr);
+  EXPECT_NE(ShrMem_X.pHandle, nullptr);
 #else
 #endif
-	EXPECT_NE(ShrMem_X.pBaseAddress, nullptr);
-	pVal_U32 = static_cast<uint32_t *>(ShrMem_X.pBaseAddress);
-	for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
-	{
-		EXPECT_EQ(pVal_U32[i_U32], i_U32*2);
-	}
-	for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
-	{
-		pVal_U32[i_U32] = i_U32 * 3;
-	}
-	Sts_E=Bof_CloseSharedMemory(ShrMem_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
+  EXPECT_NE(ShrMem_X.pBaseAddress, nullptr);
+  pVal_U32 = static_cast<uint32_t *>(ShrMem_X.pBaseAddress);
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
+  {
+    EXPECT_EQ(pVal_U32[i_U32], i_U32 * 2);
+  }
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
+  {
+    pVal_U32[i_U32] = i_U32 * 3;
+  }
+  Sts_E = Bof_CloseSharedMemory(ShrMem_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
-		
+
 TEST(Threading_Test, CriticalSection)
 {
-	BOFERR Sts_E;
-	BOF_CONDITIONAL_VARIABLE Cv_X;
+  BOFERR Sts_E;
+  BOF_CONDITIONAL_VARIABLE Cv_X;
 
-	Sts_E = Bof_CreateConditionalVariable("", false, Cv_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CreateConditionalVariable("", false, Cv_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	bool Signaled_B = false;
-	int Val_i = 0;
-	BofCvSetter<bool, int> CvSetter = [&](bool _On_B,int _Val_i) {Signaled_B = _On_B; Val_i= _Val_i; };
-	BofCvPredicateAndReset<> CvPredicateAndReset = [&]()->bool {if (Signaled_B) { Val_i = 7; Signaled_B = false; return true; } return(false); };
+  bool Signaled_B = false;
+  int Val_i = 0;
+  BofCvSetter<bool, int> CvSetter = [&](bool _On_B, int _Val_i) {
+    Signaled_B = _On_B;
+    Val_i = _Val_i;
+  };
+  BofCvPredicateAndReset<> CvPredicateAndReset = [&]() -> bool {
+    if (Signaled_B)
+    {
+      Val_i = 7;
+      Signaled_B = false;
+      return true;
+    }
+    return (false);
+  };
 
-	Sts_E = Bof_WaitForConditionalVariable(Cv_X, 200, CvPredicateAndReset);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_WaitForConditionalVariable(Cv_X, 200, CvPredicateAndReset);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_SignalConditionalVariable(Cv_X, CvSetter, true,3);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Signaled_B, true);
-	EXPECT_EQ(Val_i, 3);
+  Sts_E = Bof_SignalConditionalVariable(Cv_X, CvSetter, true, 3);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Signaled_B, true);
+  EXPECT_EQ(Val_i, 3);
 
-	Sts_E = Bof_WaitForConditionalVariable(Cv_X, 200, CvPredicateAndReset);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Signaled_B, false);
-	EXPECT_EQ(Val_i, 7);
+  Sts_E = Bof_WaitForConditionalVariable(Cv_X, 200, CvPredicateAndReset);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Signaled_B, false);
+  EXPECT_EQ(Val_i, 7);
 
-	Sts_E = Bof_WaitForConditionalVariable(Cv_X, 200, CvPredicateAndReset);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Signaled_B, false);
-	EXPECT_EQ(Val_i, 7);
+  Sts_E = Bof_WaitForConditionalVariable(Cv_X, 200, CvPredicateAndReset);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Signaled_B, false);
+  EXPECT_EQ(Val_i, 7);
 
-	Sts_E = Bof_DestroyConditionalVariable(Cv_X);
-	EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  Sts_E = Bof_DestroyConditionalVariable(Cv_X);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-	Sts_E = Bof_SignalConditionalVariable(Cv_X, CvSetter, true,7);
-	EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-	EXPECT_EQ(Signaled_B, false);
-	EXPECT_EQ(Val_i, 7);
+  Sts_E = Bof_SignalConditionalVariable(Cv_X, CvSetter, true, 7);
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Signaled_B, false);
+  EXPECT_EQ(Val_i, 7);
 }
 
 class Channel
 {
 private:
-	BOF::BofCvSetter<bool> mChannelOpenedCvSetter = [&](bool _ChannelOpened_B) {mChannelOpened_B= _ChannelOpened_B; };
-	BOF::BofCvPredicateAndReset<> mChannelOpenedCvPredicateAndReset = [&]()->bool {return mChannelOpened_B; };
-	bool     mChannelOpened_B=false;
-	BOF::BOF_CONDITIONAL_VARIABLE mChannelOpenedCv_X;
+  BOF::BofCvSetter<bool> mChannelOpenedCvSetter = [&](bool _ChannelOpened_B) { mChannelOpened_B = _ChannelOpened_B; };
+  BOF::BofCvPredicateAndReset<> mChannelOpenedCvPredicateAndReset = [&]() -> bool { return mChannelOpened_B; };
+  bool mChannelOpened_B = false;
+  BOF::BOF_CONDITIONAL_VARIABLE mChannelOpenedCv_X;
 
 public:
-	Channel()
-	{
-		BOF_ASSERT(BOF::Bof_CreateConditionalVariable("ChannelName",true, mChannelOpenedCv_X)==BOF_ERR_NO_ERROR);
-	}
+  Channel()
+  {
+    BOF_ASSERT(BOF::Bof_CreateConditionalVariable("ChannelName", true, mChannelOpenedCv_X) == BOF_ERR_NO_ERROR);
+  }
 
-	~Channel()
-	{
-		BOF_ASSERT(BOF::Bof_DestroyConditionalVariable(mChannelOpenedCv_X)==BOF_ERR_NO_ERROR);
-	}
+  ~Channel()
+  {
+    BOF_ASSERT(BOF::Bof_DestroyConditionalVariable(mChannelOpenedCv_X) == BOF_ERR_NO_ERROR);
+  }
 
-	BOFERR OpenChannel()
-	{
-		BOFERR Rts_E=BOF_ERR_ALREADY_OPENED;
+  BOFERR OpenChannel()
+  {
+    BOFERR Rts_E = BOF_ERR_ALREADY_OPENED;
 
-		if (!mChannelOpened_B)
-		{
-			BOF::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, true);
-			Rts_E=BOF_ERR_NO_ERROR;
-		}
-		return Rts_E;
-	}
+    if (!mChannelOpened_B)
+    {
+      BOF::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, true);
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    return Rts_E;
+  }
 
-	BOFERR CloseChannel()
-	{
-	BOFERR Rts_E=BOF_ERR_NOT_OPENED;
+  BOFERR CloseChannel()
+  {
+    BOFERR Rts_E = BOF_ERR_NOT_OPENED;
 
-		if (mChannelOpened_B)
-		{
-			BOF::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, false);
-			Rts_E=BOF_ERR_NO_ERROR;
-		}
-		return Rts_E;
-	}
+    if (mChannelOpened_B)
+    {
+      BOF::Bof_SignalConditionalVariable(mChannelOpenedCv_X, mChannelOpenedCvSetter, false);
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    return Rts_E;
+  }
 
-	bool IsChannelOpened() const
-	{
-		return mChannelOpened_B;
-	}
+  bool IsChannelOpened() const
+  {
+    return mChannelOpened_B;
+  }
 
-	bool WaitForChannelOpened(uint32_t _TimeoutInMs_U32)
-	{
-		bool Rts_B=mChannelOpened_B;
+  bool WaitForChannelOpened(uint32_t _TimeoutInMs_U32)
+  {
+    bool Rts_B = mChannelOpened_B;
 
-		if (!Rts_B)
-		{
-			Rts_B = (BOF::Bof_WaitForConditionalVariable(mChannelOpenedCv_X, _TimeoutInMs_U32, mChannelOpenedCvPredicateAndReset)==BOF_ERR_NO_ERROR);
-		}
-		return Rts_B;
-	}
+    if (!Rts_B)
+    {
+      Rts_B = (BOF::Bof_WaitForConditionalVariable(mChannelOpenedCv_X, _TimeoutInMs_U32, mChannelOpenedCvPredicateAndReset) == BOF_ERR_NO_ERROR);
+    }
+    return Rts_B;
+  }
 };
 
 TEST(Threading_Test, Cv)
 {
-	Channel Chnl;
-	uint32_t Start_U32, Delta_U32;
-	constexpr uint32_t CVTO=500;
+  Channel Chnl;
+  uint32_t Start_U32, Delta_U32;
+  constexpr uint32_t CVTO = 500;
 
-	EXPECT_FALSE(Chnl.IsChannelOpened());
-	Start_U32=Bof_GetMsTickCount();
-	EXPECT_FALSE(Chnl.WaitForChannelOpened(CVTO));
-	Delta_U32=Bof_ElapsedMsTime(Start_U32);
-	EXPECT_GE(Delta_U32,CVTO-20);
+  EXPECT_FALSE(Chnl.IsChannelOpened());
+  Start_U32 = Bof_GetMsTickCount();
+  EXPECT_FALSE(Chnl.WaitForChannelOpened(CVTO));
+  Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  EXPECT_GE(Delta_U32, CVTO - 20);
 
-	EXPECT_EQ(Chnl.OpenChannel(), BOF_ERR_NO_ERROR);
-	EXPECT_TRUE(Chnl.IsChannelOpened());
-	Start_U32=Bof_GetMsTickCount();
-	EXPECT_TRUE(Chnl.WaitForChannelOpened(CVTO));
-	Delta_U32=Bof_ElapsedMsTime(Start_U32);
-	EXPECT_LE((int)Delta_U32, 20);
+  EXPECT_EQ(Chnl.OpenChannel(), BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(Chnl.IsChannelOpened());
+  Start_U32 = Bof_GetMsTickCount();
+  EXPECT_TRUE(Chnl.WaitForChannelOpened(CVTO));
+  Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  EXPECT_LE((int)Delta_U32, 20);
 
-	EXPECT_EQ(Chnl.CloseChannel(), BOF_ERR_NO_ERROR);
-	EXPECT_FALSE(Chnl.IsChannelOpened());
-	Start_U32=Bof_GetMsTickCount();
-	EXPECT_FALSE(Chnl.WaitForChannelOpened(CVTO));
-	Delta_U32=Bof_ElapsedMsTime(Start_U32);
-	EXPECT_GE(Delta_U32,CVTO-20);
-
+  EXPECT_EQ(Chnl.CloseChannel(), BOF_ERR_NO_ERROR);
+  EXPECT_FALSE(Chnl.IsChannelOpened());
+  Start_U32 = Bof_GetMsTickCount();
+  EXPECT_FALSE(Chnl.WaitForChannelOpened(CVTO));
+  Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+  EXPECT_GE(Delta_U32, CVTO - 20);
 }
 
 TEST(Threading_Test, ThreadParameterFromString)
@@ -1172,21 +1169,21 @@ TEST(Threading_Test, ThreadParameterFromString)
   EXPECT_NE(BofThread::S_ThreadParameterFromString("n0:g50:c0-0", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_NE(BofThread::S_ThreadParameterFromString("n0:o:c0-0", ThreadParam_X), BOF_ERR_NO_ERROR);
 
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f30:c13,11,12,10,2-4,29,1-2,15,30-64", ThreadParam_X),  BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f30:c13,11,12,10,2-4,29,1-2,15,30-64", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_TRUE(ThreadParam_X.NbActiveCore_U32 != 0);
-  EXPECT_EQ(ThreadParam_X.Node_U32,1);
-  EXPECT_EQ(ThreadParam_X.AffinityCpuSet_U64,0xFFFFFFFFE000BC1E);
-  EXPECT_EQ(ThreadParam_X.CoreChosen_U32,1);
-  EXPECT_EQ(ThreadParam_X.SchedulerPolicy_E,BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO);
+  EXPECT_EQ(ThreadParam_X.Node_U32, 1);
+  EXPECT_EQ(ThreadParam_X.AffinityCpuSet_U64, 0xFFFFFFFFE000BC1E);
+  EXPECT_EQ(ThreadParam_X.CoreChosen_U32, 1);
+  EXPECT_EQ(ThreadParam_X.SchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO);
 
-  Str_S=BofThread::S_ToString(ThreadParam_X, true);
-	Str_S=Str_S.substr(0, Str_S.find('/', 0));
+  Str_S = BofThread::S_ToString(ThreadParam_X, true);
+  Str_S = Str_S.substr(0, Str_S.find('/', 0));
 #if defined(_WIN32)
-	EXPECT_EQ(ThreadParam_X.Priority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_016);
-	EXPECT_STREQ(Str_S.c_str(), "n1:f16:c1-4,10-13,15,29-63 A1");
+  EXPECT_EQ(ThreadParam_X.Priority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_016);
+  EXPECT_STREQ(Str_S.c_str(), "n1:f16:c1-4,10-13,15,29-63 A1");
 #else
-	EXPECT_EQ(ThreadParam_X.Priority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_030);
-	EXPECT_STREQ(Str_S.c_str(), "n1:f30:c1-4,10-13,15,29-63 A1");
+  EXPECT_EQ(ThreadParam_X.Priority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_030);
+  EXPECT_STREQ(Str_S.c_str(), "n1:f30:c1-4,10-13,15,29-63 A1");
 #endif
 
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f60:c0:f55:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
@@ -1205,16 +1202,16 @@ TEST(Threading_Test, ThreadParameterFromString)
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f69:c6", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f90:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f70:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c6",  ThreadParam_X),  BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c6", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f10:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f70:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f69:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f60:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f80:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f5:c2",  ThreadParam_X),  BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f5:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f65:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c6",  ThreadParam_X),  BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c8",  ThreadParam_X),  BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c6", ThreadParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c8", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f73:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f72:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
@@ -1222,6 +1219,6 @@ TEST(Threading_Test, ThreadParameterFromString)
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f0:c14-15", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f30:c10,11,12,13", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f30:c10,11,12,13", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f92:c14", ThreadParam_X),  BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f91:c15", ThreadParam_X),  BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f92:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f91:c15", ThreadParam_X), BOF_ERR_NO_ERROR);
 }

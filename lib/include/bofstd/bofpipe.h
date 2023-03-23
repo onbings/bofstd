@@ -27,7 +27,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-enum class BOF_PIPE_TYPE :uint32_t
+enum class BOF_PIPE_TYPE : uint32_t
 {
   BOF_PIPE_OVER_LOCAL_UNKNOWN = 0,
   BOF_PIPE_OVER_LOCAL_UDP,
@@ -37,9 +37,9 @@ enum class BOF_PIPE_TYPE :uint32_t
 
 struct BOFSTD_EXPORT BOF_PIPE_PARAM
 {
-  BOF_PIPE_TYPE						 PipeType_E;
-  BOF_COM_CHANNEL_PARAM    BaseChannelParam_X;                                    // Base properties of each channel
-  uint16_t PortInBase_U16;  //local Port for udp in pipe->if 0 let os decide, otherwise use this value for port in and this value+1 for port out
+  BOF_PIPE_TYPE PipeType_E;
+  BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
+  uint16_t PortInBase_U16;                  // local Port for udp in pipe->if 0 let os decide, otherwise use this value for port in and this value+1 for port out
 
   BOF_PIPE_PARAM()
   {
@@ -53,7 +53,7 @@ struct BOFSTD_EXPORT BOF_PIPE_PARAM
   }
 };
 
-class BOFSTD_EXPORT BofPipe :public BofComChannel
+class BOFSTD_EXPORT BofPipe : public BofComChannel
 {
 private:
   BOF_PIPE_PARAM mPipeParam_X;
@@ -68,16 +68,16 @@ public:
   BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X);
   ~BofPipe();
 
-  BOFERR               V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarget_S, const std::string &_rOption_S) override;
+  BOFERR V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarget_S, const std::string &_rOption_S) override;
   BofComChannel *V_Listen(uint32_t _TimeoutInMs_U32, const std::string &_rOption_S) override;
-  BOFERR               V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_t *pBuffer_U8) override;
-  BOFERR               V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, const uint8_t *pBuffer_U8) override;
-  BOFERR							 V_WriteData(uint32_t _TimeoutInMs_U32, const std::string &_rBuffer_S, uint32_t &_rNb_U32) override;
-  BOFERR               V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X) override;
-  BOFERR               V_FlushData(uint32_t _TimeoutInMs_U32) override;
-  BOFERR							 V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPendingByte_U32) override;
+  BOFERR V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_t *pBuffer_U8) override;
+  BOFERR V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, const uint8_t *pBuffer_U8) override;
+  BOFERR V_WriteData(uint32_t _TimeoutInMs_U32, const std::string &_rBuffer_S, uint32_t &_rNb_U32) override;
+  BOFERR V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X) override;
+  BOFERR V_FlushData(uint32_t _TimeoutInMs_U32) override;
+  BOFERR V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPendingByte_U32) override;
 
-  BofPipe &operator    = (const BofPipe &) = delete; // Disallow copying
+  BofPipe &operator=(const BofPipe &) = delete; // Disallow copying
   BofPipe(const BofPipe &) = delete;
 };
 END_BOF_NAMESPACE()

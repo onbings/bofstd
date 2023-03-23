@@ -33,16 +33,15 @@ constexpr typename std::underlying_type<T>::type Bof_EnumToNativeValue(T t)
   return static_cast<typename std::underlying_type<T>::type>(t);
 }
 */
-//https://stackoverflow.com/questions/14727313/c-how-to-reference-templated-functions-using-stdbind-stdfunction
-//https://stackoverflow.com/questions/24874478/use-stdbind-with-overloaded-functions
+// https://stackoverflow.com/questions/14727313/c-how-to-reference-templated-functions-using-stdbind-stdfunction
+// https://stackoverflow.com/questions/24874478/use-stdbind-with-overloaded-functions
 ///@brief This class represent a double mapping between unique instances of @c T and strings.
-template<typename T>
-class BofEnum
+template <typename T> class BofEnum
 {
 public:
   ///@brief Constructor.
   ///@param list A list of pairs of @c T - @c std::string associations.
-  BofEnum(std::initializer_list<std::pair<const T, const std::string> > list) : mTypeToStringCollection(list)
+  BofEnum(std::initializer_list<std::pair<const T, const std::string>> list) : mTypeToStringCollection(list)
   {
     for (const auto &kv : mTypeToStringCollection)
     {
@@ -55,7 +54,7 @@ public:
   ///@brief Constructor.
   ///@param list A list of pairs of @c T - @c std::string associations.
   ///@param fbValue Fall-back value of @c T in cases where no decision can be made. This value shall be an item of @p list.
-  BofEnum(std::initializer_list<std::pair<const T, const std::string> > list, const T &fbValue) : mTypeToStringCollection(list)
+  BofEnum(std::initializer_list<std::pair<const T, const std::string>> list, const T &fbValue) : mTypeToStringCollection(list)
   {
     for (const auto &kv : mTypeToStringCollection)
     {
@@ -123,10 +122,10 @@ public:
 
 private:
   using ItemToStringMap = std::map<const T, const std::string>;
-  using StringToItemMap = std::map<const std::string *, const T, std::function<bool(const std::string *, const std::string *)> >;
+  using StringToItemMap = std::map<const std::string *, const T, std::function<bool(const std::string *, const std::string *)>>;
 
   ItemToStringMap mTypeToStringCollection;
-  StringToItemMap mStringToTypeCollection{ [](const std::string *a, const std::string *b) { return a->compare(*b) < 0; } };
+  StringToItemMap mStringToTypeCollection{[](const std::string *a, const std::string *b) { return a->compare(*b) < 0; }};
   T mFallbackValue;
   bool mFallbackValue_B;
 };

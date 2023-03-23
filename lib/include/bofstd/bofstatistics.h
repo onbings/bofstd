@@ -26,18 +26,29 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_SET_NEW_STAT_MIN(newval, themin)			{ if ( (newval) < (themin) )  { (themin) = (newval);  } }
-#define BOF_SET_NEW_STAT_MAX(newval, themax)      { if ( (newval) > (themax) )  { (themax) = (newval);  } }
+#define BOF_SET_NEW_STAT_MIN(newval, themin)                                                                                                                                                                                                                   \
+  {                                                                                                                                                                                                                                                            \
+    if ((newval) < (themin))                                                                                                                                                                                                                                   \
+    {                                                                                                                                                                                                                                                          \
+      (themin) = (newval);                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
+  }
+#define BOF_SET_NEW_STAT_MAX(newval, themax)                                                                                                                                                                                                                   \
+  {                                                                                                                                                                                                                                                            \
+    if ((newval) > (themax))                                                                                                                                                                                                                                   \
+    {                                                                                                                                                                                                                                                          \
+      (themax) = (newval);                                                                                                                                                                                                                                     \
+    }                                                                                                                                                                                                                                                          \
+  }
 
-template<typename T>
-struct BOF_STAT_VARIABLE
+template <typename T> struct BOF_STAT_VARIABLE
 {
-  T Crt;             /*! Crt value */
-  T Min;                 /*! Minimum value */
-  T Max;                 /*! Maximum value */
-  T Mean;                /*! Mean value */
-  T MeanAcc;     /*! Accumulator needed for computing the mean */
-  uint64_t LockCount_U64;           /*! +1 for each call to V_EnterBench -1 for each V_LeaveBench */
+  T Crt;                  /*! Crt value */
+  T Min;                  /*! Minimum value */
+  T Max;                  /*! Maximum value */
+  T Mean;                 /*! Mean value */
+  T MeanAcc;              /*! Accumulator needed for computing the mean */
+  uint64_t LockCount_U64; /*! +1 for each call to V_EnterBench -1 for each V_LeaveBench */
   uint64_t NbSample_U64;  /*! Number of items accumulated */
   BOF_STAT_VARIABLE()
   {
@@ -56,7 +67,6 @@ struct BOF_STAT_VARIABLE
   }
 };
 
-
 /*!
 Description
 Function that initializes the statistical element
@@ -70,15 +80,14 @@ Nothing
 Remarks
 Aucune
 */
-template<typename T>
-BOFERR Bof_ResetStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X)
+template <typename T> BOFERR Bof_ResetStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X)
 {
   BOFERR Rts_E;
 
   Rts_E = BOF_ERR_NO_ERROR;
   _rStatVar_X.Reset();
-  //Done in Bof_UpdateStatVar function below	_rStatVar_X.Min = (T(-1) < T(0)) ? -1 : 0;	// static_cast<T>(-1);
-  //not so easy as we have sihned or unsigned, float or int,... _rStatVar_X.Min = static_cast<T>(-1);
+  // Done in Bof_UpdateStatVar function below	_rStatVar_X.Min = (T(-1) < T(0)) ? -1 : 0;	// static_cast<T>(-1);
+  // not so easy as we have sihned or unsigned, float or int,... _rStatVar_X.Min = static_cast<T>(-1);
   //_rStatVar_X.Max = (T(-1) < T(0)) ? -1 : 0;	// static_cast<T>(-1);
 
   return Rts_E;
@@ -98,8 +107,7 @@ Nothing
 Remarks
 Aucune
 */
-template<typename T>
-BOFERR Bof_UpdateStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X, T _Val)
+template <typename T> BOFERR Bof_UpdateStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X, T _Val)
 {
   BOFERR Rts_E;
 
@@ -133,8 +141,7 @@ Nothing
 Remarks
 Aucune
 */
-template<typename T>
-BOFERR Bof_UpdateStatMean(BOF_STAT_VARIABLE<T> &_rStatVar_X)
+template <typename T> BOFERR Bof_UpdateStatMean(BOF_STAT_VARIABLE<T> &_rStatVar_X)
 {
   BOFERR Rts_E;
   T TempAccumulator;

@@ -45,12 +45,11 @@ struct SERVER_CONTEXT
   }
 };
 
-
-static void *ServerThread(const std::atomic< bool > &_rIsThreadLoopMustExit_B, void *_pContext)
+static void *ServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)
 {
-  SERVER_CONTEXT *pContext_X = reinterpret_cast<SERVER_CONTEXT *> (_pContext);
+  SERVER_CONTEXT *pContext_X = reinterpret_cast<SERVER_CONTEXT *>(_pContext);
   uint8_t pBuffer_U8[0x100];
-  //char pId_c[64];
+  // char pId_c[64];
   uint32_t Nb_U32, Cpt_U32;
   BOFERR Sts_E;
 
@@ -91,7 +90,6 @@ TEST(Pipe_Test, UdpPipe)
   SERVER_CONTEXT ServerContext_X;
   BOF_THREAD ServerThread_X;
   //	char pId_c[64];
-
 
   PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_OVER_LOCAL_UDP;
   PipeParam_X.BaseChannelParam_X.ListenBackLog_U32 = 1;

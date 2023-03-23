@@ -30,32 +30,25 @@
  *
  **************************************************************************/
 
-
 #ifndef IXML_MEMBUF_H
 #define IXML_MEMBUF_H
 
-
- /*!
-  * \file
-  */
-
+/*!
+ * \file
+ */
 
 #include "ixml.h"
 
-
 #include <stdlib.h> /* for size_t */
 
-
-#define MINVAL(a, b) ( (a) < (b) ? (a) : (b) )
-#define MAXVAL(a, b) ( (a) > (b) ? (a) : (b) )
-
+#define MINVAL(a, b) ((a) < (b) ? (a) : (b))
+#define MAXVAL(a, b) ((a) > (b) ? (a) : (b))
 
 #define MEMBUF_DEF_SIZE_INC 20u
 
-
-  /*!
-   * \brief The ixml_membuf type.
-   */
+/*!
+ * \brief The ixml_membuf type.
+ */
 typedef struct
 {
   char *buf;
@@ -64,14 +57,12 @@ typedef struct
   size_t size_inc;
 } ixml_membuf;
 
-
 /*!
  * \brief ixml_membuf initialization routine.
  */
 void ixml_membuf_init(
-  /*! [in,out] The memory buffer to initializa. */
-  ixml_membuf *m);
-
+    /*! [in,out] The memory buffer to initializa. */
+    ixml_membuf *m);
 
 /*!
  * \brief ixml_membuf clearing routine.
@@ -80,9 +71,8 @@ void ixml_membuf_init(
  * to reinitialize the buffer.
  */
 void ixml_membuf_destroy(
-  /*! [in,out] The memory buffer to clear. */
-  ixml_membuf *m);
-
+    /*! [in,out] The memory buffer to clear. */
+    ixml_membuf *m);
 
 /*!
  * \brief Copies the contents o a buffer to the designated ixml_membuf.
@@ -95,12 +85,12 @@ void ixml_membuf_destroy(
  * \sa ixml_membuf_assign_str().
  */
 int ixml_membuf_assign(
-  /*! [in,out] The memory buffer on which to operate. */
-  ixml_membuf *m,
-  /*! [in] The input buffer to copy from. */
-  const void *buf,
-  /*! [in] The number of bytes to copy from the input buffer. */
-  size_t buf_len);
+    /*! [in,out] The memory buffer on which to operate. */
+    ixml_membuf *m,
+    /*! [in] The input buffer to copy from. */
+    const void *buf,
+    /*! [in] The number of bytes to copy from the input buffer. */
+    size_t buf_len);
 
 /*!
  * \brief Copies a \b NULL terminated string to the ixml_buffer.
@@ -112,10 +102,10 @@ int ixml_membuf_assign(
  * \sa ixml_membuf_assign().
  */
 int ixml_membuf_assign_str(
-  /*! [in,out] The memory buffer on which to operate. */
-  ixml_membuf *m,
-  /*! [in] The input string to copy from. */
-  const char *c_str);
+    /*! [in,out] The memory buffer on which to operate. */
+    ixml_membuf *m,
+    /*! [in] The input string to copy from. */
+    const char *c_str);
 
 /*!
  * \brief Appends one byte to the designated ixml_membuffer.
@@ -127,10 +117,10 @@ int ixml_membuf_assign_str(
  * \sa ixml_membuf_insert()
  */
 int ixml_membuf_append(
-  /*! [in,out] The memory buffer on which to operate. */
-  ixml_membuf *m,
-  /*! [in] The pointer to the byte to append. */
-  const void *buf);
+    /*! [in,out] The memory buffer on which to operate. */
+    ixml_membuf *m,
+    /*! [in] The pointer to the byte to append. */
+    const void *buf);
 
 /*!
  * \brief Appends the contents of a \b NULL terminated string to the designated
@@ -143,10 +133,10 @@ int ixml_membuf_append(
  * \sa ixml_membuf_insert().
  */
 int ixml_membuf_append_str(
-  /*! [in,out] The memory buffer on which to operate. */
-  ixml_membuf *m,
-  /*! [in] The input string to copy from. */
-  const char *c_str);
+    /*! [in,out] The memory buffer on which to operate. */
+    ixml_membuf *m,
+    /*! [in] The input string to copy from. */
+    const char *c_str);
 
 /*!
  * \brief
@@ -159,16 +149,14 @@ int ixml_membuf_append_str(
  * \sa ixml_membuf_set_size()
  */
 int ixml_membuf_insert(
-  /*! [in,out] The memory buffer on which to operate. */
-  ixml_membuf *m,
-  /*! [in] The pointer to the input buffer. */
-  const void *buf,
-  /*! [in] The buffer length. */
-  size_t buf_len,
-  /*! [in] The point of insertion relative to the beggining of the
-   * ixml_membuf internal buffer. */
-  size_t index);
-
+    /*! [in,out] The memory buffer on which to operate. */
+    ixml_membuf *m,
+    /*! [in] The pointer to the input buffer. */
+    const void *buf,
+    /*! [in] The buffer length. */
+    size_t buf_len,
+    /*! [in] The point of insertion relative to the beggining of the
+     * ixml_membuf internal buffer. */
+    size_t index);
 
 #endif /* IXML_MEMBUF_H */
-

@@ -19,26 +19,25 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofdatetime.h>
-#include "bofstd/bofsocket.h"
-#include <bofstd/boflogger.h>
-#include <bofstd/boflogchannel_spdlog.h>
 #include "bofstd/boffs.h"
+#include "bofstd/bofsocket.h"
+#include <bofstd/bofdatetime.h>
+#include <bofstd/boflogchannel_spdlog.h>
+#include <bofstd/boflogger.h>
 
 #include "gtestrunner.h"
 
- // To use a test fixture, derive from testing::Test class
-class Logger_Test :public testing::Test
+// To use a test fixture, derive from testing::Test class
+class Logger_Test : public testing::Test
 {
 public:
   // Per-test-case set-up. Called before the first test in this test case.
-  static void  SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void  TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
   virtual void SetUp();
   virtual void TearDown();
@@ -47,36 +46,39 @@ protected:
 /*** Factory functions called at the beginning/end of each test case **********/
 
 void Logger_Test::SetUpTestCase()
-{}
-
+{
+}
 
 void Logger_Test::TearDownTestCase()
-{}
+{
+}
 
 /*** Factory functions called at the beginning/end of each test *****************/
 
 void Logger_Test::SetUp()
-{}
+{
+}
 
 void Logger_Test::TearDown()
-{}
+{
+}
 
 USE_BOF_NAMESPACE()
 
-const std::string                            LOGGER_NAME = "rBofLog";
+const std::string LOGGER_NAME = "rBofLog";
 
 #if defined(_WIN32)
-const std::string                            FILELOGDIR = "C:/tmp/log/";
+const std::string FILELOGDIR = "C:/tmp/log/";
 #else
-const std::string                            FILELOGDIR = "/tmp/log/";
+const std::string FILELOGDIR = "/tmp/log/";
 #endif
-//const std::string                            LOGHEADER = "%N %d/%m/%C %H:%M:%S:%e %L %n: %v";
-const std::string                            LOGHEADER = "%i %d/%m/%C %H:%M:%S:%e %L %n: %^%v%$";
-const uint32_t                               MAXLOGSIZEINBYTE = 0x1000;
-const uint32_t                               MAXNUMBEROFLOGFILE = 3;
-const uint32_t                               MAXNUMBEROFLOGGERQUEUEENTRIES = 0x100;
+// const std::string                            LOGHEADER = "%N %d/%m/%C %H:%M:%S:%e %L %n: %v";
+const std::string LOGHEADER = "%i %d/%m/%C %H:%M:%S:%e %L %n: %^%v%$";
+const uint32_t MAXLOGSIZEINBYTE = 0x1000;
+const uint32_t MAXNUMBEROFLOGFILE = 3;
+const uint32_t MAXNUMBEROFLOGGERQUEUEENTRIES = 0x100;
 
-const uint32_t                               LOGLOOPMAX = MAXLOGSIZEINBYTE;
+const uint32_t LOGLOOPMAX = MAXLOGSIZEINBYTE;
 
 /*
    // Rotate files:
@@ -95,25 +97,23 @@ const char *OnErrorCodeToString(uint32_t _ErrorCode_U32)
   return Bof_ErrorCode(static_cast<BOFERR>(_ErrorCode_U32));
 }
 
-
-static std::vector < BOF_LOG_CHANNEL_PARAM > S_LogChannelList =
-{
-  { "LogChannel1", FILELOGDIR + "unlimited.log",LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG,	    BOF_LOG_CHANNEL_SINK::TO_FILE,								BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD,	0,								0,                  0 },
-  { "LogChannel2", FILELOGDIR + "limited.log",  LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::WARNING,	BOF_LOG_CHANNEL_SINK::TO_FILE,								BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD,	MAXLOGSIZEINBYTE, 0,                  0 },
-  { "LogChannel3", FILELOGDIR + "rotating.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::CRITICAL,BOF_LOG_CHANNEL_SINK::TO_FILE,								BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE,   BOF_LOGGER_OVERFLOW_POLICY::DISCARD,	MAXLOGSIZEINBYTE, MAXNUMBEROFLOGFILE, 0 },
-  { "LogChannel4", FILELOGDIR + "daily.log",    LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::CRITICAL,BOF_LOG_CHANNEL_SINK::TO_DAILYFILE,						BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD,	0xFFFFFFFF,       0,                  60 },
-  { "LogChannel5", "",	                        LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG,			BOF_LOG_CHANNEL_SINK::TO_RAM_CIRCULAR_BUFFER, BOF_LOG_CHANNEL_FLAG::NONE,										 BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE,	MAXLOGSIZEINBYTE, 0,									0 },
-  { "LogChannel6", "",	                        LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG,			BOF_LOG_CHANNEL_SINK::TO_STDERR,							BOF_LOG_CHANNEL_FLAG::NONE,										 BOF_LOGGER_OVERFLOW_POLICY::DISCARD,	0,                0,									0 },
-  { "LogChannel7", "" ,	                        LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG,			BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR,				BOF_LOG_CHANNEL_FLAG::NONE,										 BOF_LOGGER_OVERFLOW_POLICY::DISCARD,	0,                0,									0 },
+static std::vector<BOF_LOG_CHANNEL_PARAM> S_LogChannelList = {
+    {"LogChannel1", FILELOGDIR + "unlimited.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
+    {"LogChannel2", FILELOGDIR + "limited.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::WARNING, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, MAXLOGSIZEINBYTE, 0, 0},
+    {"LogChannel3", FILELOGDIR + "rotating.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::CRITICAL, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, MAXLOGSIZEINBYTE, MAXNUMBEROFLOGFILE, 0},
+    {"LogChannel4", FILELOGDIR + "daily.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::CRITICAL, BOF_LOG_CHANNEL_SINK::TO_DAILYFILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0xFFFFFFFF, 0, 60},
+    {"LogChannel5", "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_RAM_CIRCULAR_BUFFER, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, MAXLOGSIZEINBYTE, 0, 0},
+    {"LogChannel6", "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_STDERR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
+    {"LogChannel7", "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
 };
 
-
-uint32_t FillLog(uint32_t _Offset_U32, uint32_t _MaxLoop_U32, std::vector < BOF_LOG_CHANNEL_PARAM > _LogChannelList)
+uint32_t FillLog(uint32_t _Offset_U32, uint32_t _MaxLoop_U32, std::vector<BOF_LOG_CHANNEL_PARAM> _LogChannelList)
 {
-  BOFERR                Sts_E;
-  BofLogger &rBofLog = BofLogger::S_Instance();;
+  BOFERR Sts_E;
+  BofLogger &rBofLog = BofLogger::S_Instance();
+  ;
   BOF_LOG_CHANNEL_PARAM BofLogParam_X;
-  uint32_t              Rts_U32, i_U32, j_U32, Nb_U32, Index_U32, Start_U32, Delta_U32, TotalLine_U32;
+  uint32_t Rts_U32, i_U32, j_U32, Nb_U32, Index_U32, Start_U32, Delta_U32, TotalLine_U32;
   std::vector<std::string> ListOfLogLine_S;
   std::shared_ptr<IBofLogChannel> psLogChannel;
   std::shared_ptr<IBofLogChannel> psExtractLogChannel;
@@ -221,27 +221,26 @@ uint32_t FillLog(uint32_t _Offset_U32, uint32_t _MaxLoop_U32, std::vector < BOF_
 
 const char *TEST_MAINLOGCHANNEL = "TestLog";
 const char *TEST_LINUXSYSLOG = "TestSyslog";
-enum DBG_FLAG_MASK :uint32_t
+enum DBG_FLAG_MASK : uint32_t
 {
-  DBG_INIT = 0x00000001,  /*! Init */
-  DBG_INFO = 0x00000002,  /*! Info */
-  BOF_DBG_ALWAYS = 0x80000000,  /*! Always display */
-  BOF_DBG_ERROR = 0x40000000  /*! Display error */
+  DBG_INIT = 0x00000001,       /*! Init */
+  DBG_INFO = 0x00000002,       /*! Info */
+  BOF_DBG_ALWAYS = 0x80000000, /*! Always display */
+  BOF_DBG_ERROR = 0x40000000   /*! Display error */
 };
-
 
 TEST_F(Logger_Test, LoggerInit)
 {
   uint32_t i_U32, Mask_U32;
-  std::vector<std::string> LogMaskNames_S{ /*0*/ "INIT", "INFO", "", "", "", "", "", "", /*8*/	"", "", "", "", "", "", "", "",/*16*/"", "", "", "", "", "", "", "",/*24*/"", "", "", "", "", "", "ALWAYS", "ERROR" };
+  std::vector<std::string> LogMaskNames_S{/*0*/ "INIT", "INFO", "", "", "", "", "", "", /*8*/ "", "", "", "", "", "", "", "", /*16*/ "", "", "", "", "", "", "", "", /*24*/ "", "", "", "", "", "", "ALWAYS", "ERROR"};
   BOFERR Sts_E;
   BOF_LOG_LEVEL_COLOR LogLevelColor_E;
 
   BofLogger &rBofLog = BofLogger::S_Instance();
-  rBofLog.InitializeLogger({ "SyncLogger", 0, 0, false, BOF_LOGGER_OVERFLOW_POLICY::WAIT, OnError, OnErrorCodeToString });
-  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), { TEST_MAINLOGCHANNEL, "", LOGHEADER, false,BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0 });
+  rBofLog.InitializeLogger({"SyncLogger", 0, 0, false, BOF_LOGGER_OVERFLOW_POLICY::WAIT, OnError, OnErrorCodeToString});
+  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), {TEST_MAINLOGCHANNEL, "", LOGHEADER, false, BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0});
 
-  //rBofLog.LogMask(IPSWITCHER_MAINLOGCHANNEL, 0xFFFFFFFF ^ (DBG_FCT_ENTRY | DBG_FCT_EXIT | DBG_INFO));
+  // rBofLog.LogMask(IPSWITCHER_MAINLOGCHANNEL, 0xFFFFFFFF ^ (DBG_FCT_ENTRY | DBG_FCT_EXIT | DBG_INFO));
   for (Mask_U32 = 1, i_U32 = 0; i_U32 < LogMaskNames_S.size(); i_U32++, Mask_U32 <<= 1)
   {
     rBofLog.LogMaskName(TEST_MAINLOGCHANNEL, Mask_U32, LogMaskNames_S[i_U32]);
@@ -263,7 +262,6 @@ TEST_F(Logger_Test, LoggerInit)
   Sts_E = rBofLog.LogLevelColor(TEST_MAINLOGCHANNEL, BOF_LOG_CHANNEL_LEVEL::DBG, LogLevelColor_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-
   BOF_LOGGER_INFORMATION(TEST_MAINLOGCHANNEL, "Information from Hello World", 0);
   BOF_LOGGER_TRACE(TEST_MAINLOGCHANNEL, "Hello World", 0);
   BOF_LOGGER_EXTENDED_DBG(TEST_MAINLOGCHANNEL, 1, 3, "Mask=0x%08X", Mask_U32);
@@ -271,7 +269,7 @@ TEST_F(Logger_Test, LoggerInit)
   rBofLog.ShutdownLogger();
 
 #if defined(__linux__)
-  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), { TEST_LINUXSYSLOG, "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_LINUX_SYSLOG, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD,  0, 0, 0 });
+  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), {TEST_LINUXSYSLOG, "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_LINUX_SYSLOG, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0});
   BOF_LOGGER_TRACE(TEST_LINUXSYSLOG, "Hello sysLog World", 0);
   rBofLog.Flush(TEST_LINUXSYSLOG);
 #endif
@@ -355,7 +353,6 @@ TEST_F(Logger_Test, LoggerRam)
 }
 #endif
 
-
 #if 0
 TEST_F(Logger_Test, LoggerMultiSink)
 {
@@ -400,10 +397,10 @@ TEST_F(Logger_Test, LogAlways)
   std::string CritLogHeader_S;
   BOF_LOGGER_PARAM LoggerParam_X;
   BofLogger &rBofLog = BOF::BofLogger::S_Instance();
-  std::vector<std::string> LogMaskNamesCollection{ /*0*/ "INIT", "INFO", "CONNECT", "", "", "", "", "", /*8*/  "", "", "", "", "", "", "", "",/*16*/"", "", "", "", "",
-                                               "", "", "",/*24*/"", "", "", "", "", "", "ALWAYS", "ERROR" };  //see enum LOG_CHANNEL_FLAG_MASK
+  std::vector<std::string> LogMaskNamesCollection{/*0*/ "INIT", "INFO", "CONNECT", "", "", "", "", "", /*8*/ "",  "", "", "", "", "", "",       "",
+                                                  /*16*/ "",    "",     "",        "", "", "", "", "", /*24*/ "", "", "", "", "", "", "ALWAYS", "ERROR"}; // see enum LOG_CHANNEL_FLAG_MASK
   LoggerParam_X.Name_S = MFS_LOGGER_MAINCHANNEL;
-  //LoggerParam_X.LogPattern_S = "%i %L %^%v%$";
+  // LoggerParam_X.LogPattern_S = "%i %L %^%v%$";
   LoggerParam_X.MaxNumberOfAsyncLogQueueEntry_U32 = 0x800;
   LoggerParam_X.AsyncAutoFushIntervalInMs_U32 = 0;
   LoggerParam_X.FastFormat_B = true;
@@ -411,22 +408,19 @@ TEST_F(Logger_Test, LogAlways)
   LoggerParam_X.OnError = nullptr;
   LoggerParam_X.OnErrorCodeToString = nullptr;
   rBofLog.InitializeLogger(LoggerParam_X);
-  rBofLog.AddLogChannel(std::make_shared<BOF::BofLogChannelSpdLog>(), { MFS_LOGGER_MAINCHANNEL, "", "%i %L %^%v%$", false,
-                                                                                 BOF::BOF_LOG_CHANNEL_LEVEL::TRACE,
-                                                                                 BOF::BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR,
-                                                                                 BOF::BOF_LOG_CHANNEL_FLAG::NONE,
-                                                                                 BOF::BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, 0, 0, 0 });
+  rBofLog.AddLogChannel(std::make_shared<BOF::BofLogChannelSpdLog>(),
+                        {MFS_LOGGER_MAINCHANNEL, "", "%i %L %^%v%$", false, BOF::BOF_LOG_CHANNEL_LEVEL::TRACE, BOF::BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF::BOF_LOG_CHANNEL_FLAG::NONE, BOF::BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, 0, 0, 0});
 
   rBofLog.LogMask(MFS_LOGGER_MAINCHANNEL, 0xFFFFFFFF ^ (0));
   for (Mask_U32 = 1, i_U32 = 0; i_U32 < LogMaskNamesCollection.size(); i_U32++, Mask_U32 <<= 1)
   {
     rBofLog.LogMaskName(MFS_LOGGER_MAINCHANNEL, Mask_U32, LogMaskNamesCollection[i_U32]);
   }
-  //ALWAYS is mapped to OFF spdlog internal level
+  // ALWAYS is mapped to OFF spdlog internal level
   CritLogHeader_S = rBofLog.LogHeader(MFS_LOGGER_MAINCHANNEL);
   CritLogLevelColor_E = rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS);
   LogLevelColor_E = static_cast<BOF::BOF_LOG_LEVEL_COLOR>(BOF::BOF_LOG_LEVEL_COLOR::LOG_COLOR_BACK_BLACK | BOF::BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_WHITE);
-  //rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS, LogLevelColor_E);
+  // rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS, LogLevelColor_E);
   rBofLog.LogHeader(MFS_LOGGER_MAINCHANNEL, "");
 
   BOF_LOGGER_RAW_OUTPUT(MFS_LOGGER_MAINCHANNEL, "Storage Info:\n  Version '%s'", "1.2.3.4");
@@ -434,24 +428,25 @@ TEST_F(Logger_Test, LogAlways)
   rBofLog.Flush(MFS_LOGGER_MAINCHANNEL);
   Bof_MsSleep(100);
 
-  //rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS, CritLogLevelColor_E);
+  // rBofLog.LogLevelColor(MFS_LOGGER_MAINCHANNEL, BOF::BOF_LOG_CHANNEL_LEVEL::ALWAYS, CritLogLevelColor_E);
   rBofLog.LogHeader(MFS_LOGGER_MAINCHANNEL, CritLogHeader_S);
 
   BOF_LOGGER_CRITICAL(MFS_LOGGER_MAINCHANNEL, "Storage Info:\n  Version '%s'", "1.2.3.4");
   BOF_LOGGER_CRITICAL(MFS_LOGGER_MAINCHANNEL, "  Api '%s'", "5.6.7.8");
-  
+
   Bof_MsSleep(100);
 }
 TEST_F(Logger_Test, LoggerMultiChannel)
 {
-  BOFERR                Sts_E;
-  BofLogger &rBofLog = BofLogger::S_Instance();;
-  uint32_t              i_U32, j_U32, Start_U32, Delta_U32, LogLevelColor_U32;
+  BOFERR Sts_E;
+  BofLogger &rBofLog = BofLogger::S_Instance();
+  ;
+  uint32_t i_U32, j_U32, Start_U32, Delta_U32, LogLevelColor_U32;
   std::shared_ptr<IBofLogChannel> psLogChannel;
   BofPath LogPath;
   BOF_LOG_LEVEL_COLOR LogLevelColor_E;
 
-  rBofLog.InitializeLogger({ "AsyncLogger", MAXNUMBEROFLOGGERQUEUEENTRIES, 0, false, BOF_LOGGER_OVERFLOW_POLICY::WAIT, OnError, OnErrorCodeToString });
+  rBofLog.InitializeLogger({"AsyncLogger", MAXNUMBEROFLOGGERQUEUEENTRIES, 0, false, BOF_LOGGER_OVERFLOW_POLICY::WAIT, OnError, OnErrorCodeToString});
   for (i_U32 = 0; i_U32 < S_LogChannelList.size(); i_U32++)
   {
     std::shared_ptr<BofLogChannelSpdLog> psSpdLogChannel = std::make_shared<BofLogChannelSpdLog>();
@@ -461,11 +456,11 @@ TEST_F(Logger_Test, LoggerMultiChannel)
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     Sts_E = psSpdLogChannel->LogLevel(S_LogChannelList[i_U32].LogLevel_E);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    //No as daily file is different and stdcolor/circularbuffer have non name    EXPECT_STREQ(LogPath.FullPathName(false).c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str());
+    // No as daily file is different and stdcolor/circularbuffer have non name    EXPECT_STREQ(LogPath.FullPathName(false).c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str());
   }
 
   BofPath DailyPath;
-  Sts_E = rBofLog.LogChannelPathName(S_LogChannelList[3].ChannelName_S, DailyPath);	//This one is dynamic: daily log file name daily_2017-07-23_06-28.log
+  Sts_E = rBofLog.LogChannelPathName(S_LogChannelList[3].ChannelName_S, DailyPath); // This one is dynamic: daily log file name daily_2017-07-23_06-28.log
 
   j_U32 = 0;
   LogLevelColor_E = BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLACK;
@@ -497,28 +492,28 @@ TEST_F(Logger_Test, LoggerMultiChannel)
     printf("Flush on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
   }
   Bof_MsSleep(500);
-  //11 17/10/22 18:22:03:530 C LogChannel1: Log 00000008
+  // 11 17/10/22 18:22:03:530 C LogChannel1: Log 00000008
   uint32_t OneLineSize_U32 = ((2 + 1 + 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 2) + 3 + 1 + 8 + static_cast<uint32_t>(strlen(Bof_Eol()) * 2));
-//  uint32_t OneLineSize_U32 = ((6 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 2 + 8 + 1) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol())));
+  //  uint32_t OneLineSize_U32 = ((6 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 2 + 8 + 1) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol())));
   uint32_t FileSize_U32 = (j_U32 * OneLineSize_U32) + strlen(Bof_Eol());
   EXPECT_EQ(Bof_GetFileSize(S_LogChannelList[0].FileLogPath), FileSize_U32);
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[1].FileLogPath), MAXLOGSIZEINBYTE);
 
-  //OneLineSize_U32 = ((8 + 1 + 12 + 1 + 1 + 1 + strlen(S_LogChannelList[2].ChannelName_S.c_str()) + 2 + 8 + 1) + 4 + 8 + strlen(Bof_Eol()));
+  // OneLineSize_U32 = ((8 + 1 + 12 + 1 + 1 + 1 + strlen(S_LogChannelList[2].ChannelName_S.c_str()) + 2 + 8 + 1) + 4 + 8 + strlen(Bof_Eol()));
   uint32_t LinePerFile_U32 = MAXLOGSIZEINBYTE / OneLineSize_U32;
   uint32_t NbLineInCurrentFile_U32 = j_U32 % LinePerFile_U32;
-//  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * ((6 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 2 + 8 + 1) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol())));
+  //  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * ((6 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 2 + 8 + 1) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol())));
   uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * ((2 + 1 + 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 2) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol()) * 2));
   /*
 11 23/10/22 16:03:49:505 C LogChannel3: Log 000002FF
 11 23/10/22 16:03:49:505 C LogChannel3: Log 00000300
 709 23/10/22 16:03:49:506 C LogChannel3: Log 00000301
 */
-  //printf("%d %d %d\n", Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32, RotatingSize_U32 + 1);
+  // printf("%d %d %d\n", Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32, RotatingSize_U32 + 1);
   EXPECT_LE(RotatingSize_U32, Bof_GetFileSize(S_LogChannelList[2].FileLogPath));
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32 + 2);
-  //BHATODO FIX  EXPECT_EQ(Bof_GetFileSize(DailyPath), j_U32 * ((6 + 1 + 12 + 1 + 1 + 1 + strlen(S_LogChannelList[3].ChannelName_S.c_str()) + 2 + 8 + 1) + 4 + 8 + strlen(Bof_Eol())));
-  
+  // BHATODO FIX  EXPECT_EQ(Bof_GetFileSize(DailyPath), j_U32 * ((6 + 1 + 12 + 1 + 1 + 1 + strlen(S_LogChannelList[3].ChannelName_S.c_str()) + 2 + 8 + 1) + 4 + 8 + strlen(Bof_Eol())));
+
   for (i_U32 = 0; i_U32 < S_LogChannelList.size(); i_U32++)
   {
     Start_U32 = Bof_GetMsTickCount();
@@ -540,5 +535,3 @@ TEST_F(Logger_Test, LoggerMultiChannel)
   }
   rBofLog.ShutdownLogger();
 }
-
-

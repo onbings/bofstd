@@ -19,16 +19,16 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-#include <bofstd/bofasync.h>
 #include <asyncmulticastdelegate/DelegateLib.h>
 #include <asyncmulticastdelegate/bofmsgthread.h>
+#include <bofstd/bofasync.h>
 
 BEGIN_BOF_NAMESPACE()
 
 BofCommandQueue::BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueueParam_X)
 {
   BOFERR Sts_E;
-  BOF_CIRCULAR_BUFFER_PARAM          CircularBufferParam_X;
+  BOF_CIRCULAR_BUFFER_PARAM CircularBufferParam_X;
 
   mCommandQueueParam_X = _rCommandQueueParam_X;
   if (mCommandQueueParam_X.PollTimeoutInMs_U32 == 0)
@@ -65,7 +65,6 @@ BofCommandQueue::BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueuePa
 }
 BofCommandQueue::~BofCommandQueue()
 {
-
 }
 
 BOFERR BofCommandQueue::OnProcessing()
@@ -105,7 +104,7 @@ BOFERR BofCommandQueue::PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENT
   BOF_COMMAND_QUEUE_ENTRY Command_X;
   uint32_t i_U32;
 
-  if (mpuCommandQueueThread)	//If yes then mpuCommandEntryCollection is not null
+  if (mpuCommandQueueThread) // If yes then mpuCommandEntryCollection is not null
   {
     Rts_E = BOF_ERR_EINVAL;
     if (_rCommand_X.Name_S != "")
@@ -156,18 +155,18 @@ bool BofCommandQueue::IsProcessingCommand() const
   return (mCommandPending_X.Name_S != "") || (mpuCommandEntryCollection ? (mpuCommandEntryCollection->GetNbElement() != 0) : false);
 }
 
-//If we call this one in the context of the last cmd present in the queue it will return 0
+// If we call this one in the context of the last cmd present in the queue it will return 0
 uint32_t BofCommandQueue::NumberOfCommandWaitingInQueue() const
 {
   uint32_t Rts_U32 = 0;
 
-  if (mpuCommandQueueThread)	//If yes then mpuCommandEntryCollection is not null
+  if (mpuCommandQueueThread) // If yes then mpuCommandEntryCollection is not null
   {
     Rts_U32 = mpuCommandEntryCollection->GetNbElement();
   }
   return Rts_U32;
 }
-//If we call this one in the context of the last cmd present in the queue it will return true (itself) but NumberOfChannelCommandWaitingInQueue return 0
+// If we call this one in the context of the last cmd present in the queue it will return true (itself) but NumberOfChannelCommandWaitingInQueue return 0
 bool BofCommandQueue::IsCommandPending() const
 {
   return (mCommandPending_X.Name_S != "");
@@ -176,7 +175,7 @@ BOFERR BofCommandQueue::ClearCommandQueue()
 {
   BOFERR Rts_E = BOF_ERR_INIT;
 
-  if (mpuCommandQueueThread)	//If yes then mpuCommandEntryCollection is not null
+  if (mpuCommandQueueThread) // If yes then mpuCommandEntryCollection is not null
   {
     mCommandPending_X.Name_S = "";
     mpuCommandEntryCollection->Reset();

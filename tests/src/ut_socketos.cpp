@@ -19,27 +19,27 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofsocketos.h>
-#include "bofstd/bofstring.h"
 #include "bofstd/bofbinserializer.h"
+#include "bofstd/bofstring.h"
+#include <bofstd/bofsocketos.h>
 
 #include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
 
-//#define BOF_UT_INTERNET_AVAILABLE
+// #define BOF_UT_INTERNET_AVAILABLE
 
 void TestSocketAddress(bool _IsIpV6_B)
 {
-  BOFERR                            Sts_E;
-  BOF_SOCKET_ADDRESS                pIpAddress_X[2], HostIpAddress_X, InterfaceIpAddress_X, IpAddress_X;
-  bool                              Sts_B, IsIpV6_B;
-  std::string                       Ip_S, HostName_S;
-  uint32_t                          pIp_U32[4];
-  BOF_SOCK_TYPE                     SocketType_E;
-  std::vector< BOF_SOCKET_ADDRESS > ListOfIp_X;
-  uint16_t                          Port_U16;
-  BOF_SOCKET_ADDRESS_COMPONENT			InterfaceIpAddressComponent_X, IpAddressComponent_X;
+  BOFERR Sts_E;
+  BOF_SOCKET_ADDRESS pIpAddress_X[2], HostIpAddress_X, InterfaceIpAddress_X, IpAddress_X;
+  bool Sts_B, IsIpV6_B;
+  std::string Ip_S, HostName_S;
+  uint32_t pIp_U32[4];
+  BOF_SOCK_TYPE SocketType_E;
+  std::vector<BOF_SOCKET_ADDRESS> ListOfIp_X;
+  uint16_t Port_U16;
+  BOF_SOCKET_ADDRESS_COMPONENT InterfaceIpAddressComponent_X, IpAddressComponent_X;
   std::vector<uint16_t> IpDigitCollection;
   //	Sts_E=Bof_IpAddressToSocketAddressCollection("tcp://[102:3c0:405:6a8:708:901:a0b:c01]:1234", HostIpAddress_X);
 
@@ -60,8 +60,8 @@ void TestSocketAddress(bool _IsIpV6_B)
   Sts_B = Bof_IsIpAddressNull(HostIpAddress_X);
   EXPECT_FALSE(Sts_B);
 
-  //Sts_E                                          = HostIpAddress_X.Reset();
-  //EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  // Sts_E                                          = HostIpAddress_X.Reset();
+  // EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   Sts_B = Bof_IsIpAddressNull(HostIpAddress_X);
   EXPECT_FALSE(Sts_B);
@@ -109,7 +109,6 @@ void TestSocketAddress(bool _IsIpV6_B)
     EXPECT_TRUE(Sts_B);
     Sts_B = Bof_IsMulticastIpAddress("udp://[0:1:0:2:0:3:0:4]:1234>[FF00:1:0:2:0:3:0:4]:1234", InterfaceIpAddressComponent_X, IpAddressComponent_X);
     EXPECT_TRUE(Sts_B);
-
   }
   else
   {
@@ -125,11 +124,10 @@ void TestSocketAddress(bool _IsIpV6_B)
     EXPECT_FALSE(Sts_B);
     Sts_B = Bof_IsMulticastIpAddress("pgm://238.2.3.4:1234", InterfaceIpAddressComponent_X, IpAddressComponent_X);
     EXPECT_TRUE(Sts_B);
-    //BOF_INTERFACE_ADDRESS_SEPARATOR is >
+    // BOF_INTERFACE_ADDRESS_SEPARATOR is >
     Sts_B = Bof_IsMulticastIpAddress("pgm://192.168.1.1:1234>239.192.1.1:5555", InterfaceIpAddressComponent_X, IpAddressComponent_X);
     EXPECT_TRUE(Sts_B);
   }
-
 
   Ip_S = Bof_SocketAddressToString(pIpAddress_X[1], true, false);
   if (_IsIpV6_B)
@@ -229,7 +227,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0); //Bof_IsCpuLittleEndian() ? 5 * 256 : 5);
+    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0); // Bof_IsCpuLittleEndian() ? 5 * 256 : 5);
   }
   else
   {
@@ -237,7 +235,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   }
   Ip_S = Bof_SocketAddressToString(IpAddress_X, false, true);
   EXPECT_EQ(Ip_S, "1.2.3.4:5");
-#if defined (BOF_UT_INTERNET_AVAILABLE)
+#if defined(BOF_UT_INTERNET_AVAILABLE)
   Sts_E = Bof_UrlAddressToSocketAddressCollection("www.google.com:1", ListOfIp_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_TRUE(ListOfIp_X.size() >= 1);
@@ -245,7 +243,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(ListOfIp_X[0].SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(ListOfIp_X[0].IpV6Address_X.sin6_port, 0);	// Bof_IsCpuLittleEndian() ? 1 * 256 : 1);
+    EXPECT_EQ(ListOfIp_X[0].IpV6Address_X.sin6_port, 0); // Bof_IsCpuLittleEndian() ? 1 * 256 : 1);
   }
   else
   {
@@ -275,7 +273,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(ListOfIp_X[0].SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(ListOfIp_X[0].IpV6Address_X.sin6_port, 0);	//Bof_IsCpuLittleEndian() ? 0x4C08 : 2124);
+    EXPECT_EQ(ListOfIp_X[0].IpV6Address_X.sin6_port, 0); // Bof_IsCpuLittleEndian() ? 0x4C08 : 2124);
   }
   else
   {
@@ -340,7 +338,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   }
   Ip_S = Bof_SocketAddressToString(IpAddress_X, false, true);
   EXPECT_EQ(Ip_S, "1.2.3.4:5");
-#if defined (BOF_UT_INTERNET_AVAILABLE)       // need internet
+#if defined(BOF_UT_INTERNET_AVAILABLE) // need internet
   std::vector<BOF_SOCKET_ADDRESS> ListOfIpAddress_X;
 
   Sts_E = Bof_UrlAddressToSocketAddressCollection("www.google.com:1", ListOfIpAddress_X);
@@ -349,7 +347,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(IpAddress_X.SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0);	// Bof_IsCpuLittleEndian() ? 1 * 256 : 1);
+    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0); // Bof_IsCpuLittleEndian() ? 1 * 256 : 1);
   }
   else
   {
@@ -381,7 +379,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(IpAddress_X.SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0);	// Bof_IsCpuLittleEndian() ? 0x4C08 : 2124);
+    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0); // Bof_IsCpuLittleEndian() ? 0x4C08 : 2124);
   }
   else
   {
@@ -406,13 +404,12 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(Ip_S, "???://204.79.197.203");
 
 #endif
-  //Bof_IpAddressToSocketAddress
-
+  // Bof_IpAddressToSocketAddress
 
   BOF_SOCKET_ADDRESS_COMPONENT Uri_X;
   std::string Path_S, Query_S, Fragment_S;
-myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
-///myprotocol: / forum / questions / file.txt ? justkey & order = newest; tag = networking#top
+myprotocol: // john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
+  /// myprotocol: / forum / questions / file.txt ? justkey & order = newest; tag = networking#top
   Sts_E = Bof_SplitUri("myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top", Uri_X, Path_S, Query_S, Fragment_S);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_STREQ(Uri_X.Protocol_S.c_str(), "myprotocol");
@@ -548,8 +545,7 @@ myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justk
   Ip_S = Bof_SocketAddressToString(InterfaceIpAddressComponent_X.Ip_X, false, true);
   EXPECT_EQ(Ip_S, "193.169.2.3:0");
   Ip_S = Bof_SocketAddressToString(IpAddressComponent_X.Ip_X, false, true);
-  //EXPECT_EQ(Ip_S, "142.251.36.4:123"); can change www.google.com
-
+  // EXPECT_EQ(Ip_S, "142.251.36.4:123"); can change www.google.com
 
   Sts_E = Bof_ResolveIpAddress("tcp://192.168.1.1:1234", InterfaceIpAddress_X, IpAddress_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -688,7 +684,7 @@ myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justk
   Sts_E = Bof_ResolveIpAddress("pgm://192.168.a.1:1235>239.192.1.1:5555", InterfaceIpAddress_X, IpAddress_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-#if defined (BOF_UT_INTERNET_AVAILABLE)       // need internet
+#if defined(BOF_UT_INTERNET_AVAILABLE) // need internet
   Sts_E = Bof_UrlAddressToSocketAddressCollection("http://www.google.com:1", ListOfIpAddress_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   IpAddress_X = ListOfIpAddress_X[0];
@@ -696,7 +692,7 @@ myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justk
   EXPECT_EQ(IpAddress_X.SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_TCP);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0);	// Bof_IsCpuLittleEndian() ? 1 * 256 : 1);
+    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0); // Bof_IsCpuLittleEndian() ? 1 * 256 : 1);
   }
   else
   {
@@ -726,7 +722,7 @@ myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justk
   EXPECT_EQ(IpAddress_X.SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_TCP);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0);	// Bof_IsCpuLittleEndian() ? 0x4C08 : 2124);
+    EXPECT_EQ(IpAddress_X.IpV6Address_X.sin6_port, 0); // Bof_IsCpuLittleEndian() ? 0x4C08 : 2124);
   }
   else
   {
@@ -749,7 +745,6 @@ myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justk
   }
   EXPECT_FALSE(Bof_IsIpAddressNull(IpAddress_X));
 #endif
-
 }
 
 TEST(SocketOs_Test, SocketAddress)
@@ -760,13 +755,13 @@ TEST(SocketOs_Test, SocketAddress)
 
 void TestListAndSetupInterface(bool _IsIpV6_B)
 {
-  BOFERR                                     Sts_E;
-  std::vector< BOF_NETWORK_INTERFACE_PARAM > ListOfNetworkInterface_X;
-  BOF_INTERFACE_INFO                         InterfaceInfo_X;
-  BOF_NETWORK_INTERFACE_PARAM                InitialInterfaceParam_X, NewInterfaceParam_X;
-  uint32_t                                   i_U32, FoundIndex_U32;
-  int32_t                                    CidrMask_S32;
-  BOF_SOCKET_ADDRESS												 IpAddress_X, CompatibleIpAddress_X;
+  BOFERR Sts_E;
+  std::vector<BOF_NETWORK_INTERFACE_PARAM> ListOfNetworkInterface_X;
+  BOF_INTERFACE_INFO InterfaceInfo_X;
+  BOF_NETWORK_INTERFACE_PARAM InitialInterfaceParam_X, NewInterfaceParam_X;
+  uint32_t i_U32, FoundIndex_U32;
+  int32_t CidrMask_S32;
+  BOF_SOCKET_ADDRESS IpAddress_X, CompatibleIpAddress_X;
 
   CidrMask_S32 = Bof_Compute_CidrMask("");
   EXPECT_EQ(CidrMask_S32, -1);
@@ -789,11 +784,9 @@ void TestListAndSetupInterface(bool _IsIpV6_B)
   CidrMask_S32 = Bof_Compute_CidrMask("255.255.255.0");
   EXPECT_EQ(CidrMask_S32, 24);
 
-
   Sts_E = Bof_GetListOfNetworkInterface(ListOfNetworkInterface_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_FALSE(ListOfNetworkInterface_X.size() == 0);
-
 
   IpAddress_X.Set(_IsIpV6_B, BOF_SOCK_TYPE::BOF_SOCK_TCP, 127, 0, 0, 1, 5555);
   Sts_E = Bof_GetCompatibleIpAddress(ListOfNetworkInterface_X, IpAddress_X, CompatibleIpAddress_X);
@@ -808,8 +801,7 @@ void TestListAndSetupInterface(bool _IsIpV6_B)
     Bof_IpAddressToSocketAddress(ListOfNetworkInterface_X[i_U32].IpAddress_S, IpAddress_X);
     Sts_E = Bof_GetCompatibleIpAddress(ListOfNetworkInterface_X, IpAddress_X, CompatibleIpAddress_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    //si le dhcp nous donne 168.1.2.3/16 et 168.1.20.30/16 	CompatibleIpAddress_X sera egal a 168.1.2.3/16 pour 168.1.20.30/16 	EXPECT_TRUE(Bof_IsIpAddressEqual(false, false, false, CompatibleIpAddress_X, IpAddress_X));
-
+    // si le dhcp nous donne 168.1.2.3/16 et 168.1.20.30/16 	CompatibleIpAddress_X sera egal a 168.1.2.3/16 pour 168.1.20.30/16 	EXPECT_TRUE(Bof_IsIpAddressEqual(false, false, false, CompatibleIpAddress_X, IpAddress_X));
   }
 
   FoundIndex_U32 = 0xFFFFFFFF;
@@ -869,7 +861,7 @@ TEST(SocketOs_Test, ListAndSetupInterface)
 
 void TestIpAddressBinSer(bool _IsIpV6_B)
 {
-  BOFERR  Sts_E;
+  BOFERR Sts_E;
   BOF_SOCKET_ADDRESS IpAddress_X;
   std::vector<uint16_t> BinFormat;
 

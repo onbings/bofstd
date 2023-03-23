@@ -20,16 +20,16 @@
  */
 #include <bofstd/bofstring.h>
 
-#include <iterator>
 #include <algorithm>
-#include <string.h>
 #include <codecvt>
-#include <locale>
 #include <inttypes.h>
+#include <iterator>
+#include <locale>
+#include <string.h>
 
-#if defined (_WIN32)
+#if defined(_WIN32)
+#include <cctype>
 #include <clocale>
-#include  <cctype>
 #else
 #endif
 
@@ -38,13 +38,13 @@ BEGIN_BOF_NAMESPACE()
 std::string Bof_StringToLower(const std::string &_rStrToConvert_S)
 {
   std::string Rts_S = _rStrToConvert_S;
-  std::transform(Rts_S.begin(), Rts_S.end(), Rts_S.begin(),[](unsigned char c) { return std::tolower(c); });
+  std::transform(Rts_S.begin(), Rts_S.end(), Rts_S.begin(), [](unsigned char c) { return std::tolower(c); });
   return Rts_S;
 }
 std::string Bof_StringToUpper(const std::string &_rStrToConvert_S)
 {
   std::string Rts_S = _rStrToConvert_S;
-  std::transform(Rts_S.begin(), Rts_S.end(), Rts_S.begin(),[](unsigned char c) { return std::toupper(c); });
+  std::transform(Rts_S.begin(), Rts_S.end(), Rts_S.begin(), [](unsigned char c) { return std::toupper(c); });
   return Rts_S;
 }
 std::string Bof_BuildFixedLengthLine(const char *_pLine_c, uint32_t _MinLength_U32, char _LeftChar_c, char _FillChar_c, char _RightChar_c)
@@ -56,7 +56,6 @@ std::string Bof_BuildFixedLengthLine(const char *_pLine_c, uint32_t _MinLength_U
     Rts_S += _LeftChar_c;
     Rts_S = Rts_S.insert(Rts_S.size(), (_MinLength_U32 - Rts_S.size() - 1), _FillChar_c);
     Rts_S += _RightChar_c;
-
   }
   return Rts_S;
 }
@@ -112,15 +111,16 @@ std::string Bof_StringRemove(const std::string &_rStr_S, const std::string &_rCh
 std::string Bof_StringReplace(const std::string &_rStr_S, const std::string &_rCharToReplace_S, char _ReplaceChar_c)
 {
   std::string Rts_S = _rStr_S;
-  std::replace_if(Rts_S.begin(), Rts_S.end(), [_rCharToReplace_S](char c) { return (strchr(_rCharToReplace_S.c_str(), c) != nullptr); }, _ReplaceChar_c);
+  std::replace_if(
+      Rts_S.begin(), Rts_S.end(), [_rCharToReplace_S](char c) { return (strchr(_rCharToReplace_S.c_str(), c) != nullptr); }, _ReplaceChar_c);
   return Rts_S;
 }
 
 std::string Bof_StringReplace(const std::string &_rStr_S, const std::string &_rStringToReplace_S, const std::string &_rReplaceString_S)
 {
-  std::string  Rts_S = _rStr_S;
+  std::string Rts_S = _rStr_S;
   const size_t OldSize = _rStringToReplace_S.length(), NewSize = _rReplaceString_S.length();
-  size_t       Pos;
+  size_t Pos;
 
   // do nothing if line is shorter than the string to find
   if (OldSize <= Rts_S.length())
@@ -150,7 +150,6 @@ std::string Bof_StringReplace(const std::string &_rStr_S, const std::string &_rS
     }
   }
   return Rts_S;
-
 }
 
 bool Bof_StringIsPresent(const std::string &_rStr_S, const std::string &_rCharToLookFor_S)
@@ -172,8 +171,8 @@ bool Bof_StringIsAllTheSameChar(const std::string &_rStr_S, char _CharToLookFor_
 std::vector<std::string> Bof_StringSplit(const std::string &_rStr_S, const std::string &_rSplitDelimiter_S)
 {
   std::vector<std::string> Rts;
-  std::string::size_type   StartPos = 0;
-  std::string::size_type   EndPos = _rStr_S.find_first_of(_rSplitDelimiter_S);
+  std::string::size_type StartPos = 0;
+  std::string::size_type EndPos = _rStr_S.find_first_of(_rSplitDelimiter_S);
 
   if (EndPos == std::string::npos)
   {
@@ -211,11 +210,10 @@ std::string Bof_StringJoin(const std::vector<std::string> &_rStr_S, const std::s
   return Rts_S;
 }
 
-
 size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint32_t _NbWideChar_U32, wchar_t *_pWideCharStr_wc, const char *_pLocale_c)
 {
-  size_t      Rts = static_cast<size_t> (-1);
-  bool        Ok_B;
+  size_t Rts = static_cast<size_t>(-1);
+  bool Ok_B;
   std::locale GlobalLocale;
 
   if (_pMultiByteStr_c)
@@ -254,8 +252,8 @@ size_t Bof_MultiByteToWideChar(const char *_pMultiByteStr_c, uint32_t _NbWideCha
 
 size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, uint32_t _NbMultibyteChar_U32, char *_pMultiByteStr_c, const char *_pLocale_c)
 {
-  size_t      Rts = static_cast<size_t> (-1);
-  bool        Ok_B;
+  size_t Rts = static_cast<size_t>(-1);
+  bool Ok_B;
   std::locale GlobalLocale;
 
   if (_pWideCharStr_wc)
@@ -288,12 +286,11 @@ size_t Bof_WideCharToMultiByte(const wchar_t *_pWideCharStr_wc, uint32_t _NbMult
     {
       std::locale::global(GlobalLocale);
     }
-
   }
 
   return Rts;
 }
-//https://codereview.stackexchange.com/questions/419/converting-between-stdwstring-and-stdstring
+// https://codereview.stackexchange.com/questions/419/converting-between-stdwstring-and-stdstring
 /*
 It really depends what codecs are being used with std::wstring and std::string.
 This answer assumes that the std::wstring is using a UTF - 16 encoding, andthat the conversion to std::string will use a UTF - 8 encoding.
@@ -319,16 +316,13 @@ void Bof_RemoveDuplicateSuccessiveCharacter(std::string &_rInputString_S, char _
   }
   else
   {
-    _rInputString_S.erase(std::unique(_rInputString_S.begin(), _rInputString_S.end(), [_Char_c](const char _Char1_c, const char _Char2_c) { return ((_Char1_c == _Char_c) && (_Char2_c == _Char_c)); }),
-                          _rInputString_S.end());
+    _rInputString_S.erase(std::unique(_rInputString_S.begin(), _rInputString_S.end(), [_Char_c](const char _Char1_c, const char _Char2_c) { return ((_Char1_c == _Char_c) && (_Char2_c == _Char_c)); }), _rInputString_S.end());
   }
 }
 
-
-BOFERR Bof_GetUnsignedIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S,
-                                                        const char _KeyValueSeparator_c, uint32_t &_rValue_U32)
+BOFERR Bof_GetUnsignedIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c, uint32_t &_rValue_U32)
 {
-  BOFERR      Rts_E;
+  BOFERR Rts_E;
   std::string Str_S;
 
   Rts_E = Bof_GetStringFromMultipleKeyValueString(_rMultiKeyValueString_S, _rMultiKeyValueDelimiter_S, _rKeyName_S, _KeyValueSeparator_c, Str_S);
@@ -340,10 +334,9 @@ BOFERR Bof_GetUnsignedIntegerFromMultipleKeyValueString(const std::string &_rMul
 }
 
 BOFERR
-Bof_GetIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c,
-                                         int32_t &_rValue_S32)
+Bof_GetIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c, int32_t &_rValue_S32)
 {
-  BOFERR   Rts_E;
+  BOFERR Rts_E;
   uint32_t Val_U32;
 
   Rts_E = Bof_GetUnsignedIntegerFromMultipleKeyValueString(_rMultiKeyValueString_S, _rMultiKeyValueDelimiter_S, _rKeyName_S, _KeyValueSeparator_c, Val_U32);
@@ -355,14 +348,13 @@ Bof_GetIntegerFromMultipleKeyValueString(const std::string &_rMultiKeyValueStrin
 }
 
 BOFERR
-Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c,
-                                        std::string &_rValue_S)
+Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString_S, const std::string _rMultiKeyValueDelimiter_S, const std::string &_rKeyName_S, const char _KeyValueSeparator_c, std::string &_rValue_S)
 {
-  BOFERR                   Rts_E = BOF_ERR_EINVAL;
-  std::string              Separator_S;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  std::string Separator_S;
   std::vector<std::string> KeyValueList_S;
-  uint32_t                 i_U32;
-  std::string              MultiKeyValueString_S;
+  uint32_t i_U32;
+  std::string MultiKeyValueString_S;
 
   if (_rMultiKeyValueDelimiter_S.size() >= 1)
   {
@@ -391,13 +383,12 @@ Bof_GetStringFromMultipleKeyValueString(const std::string &_rMultiKeyValueString
   return Rts_E;
 }
 
-
 bool Bof_StringBeginWith(bool _CaseInsensitive_B, const std::string &_rString_S, const std::string &_rBeginWithThis_S)
 {
-  bool   Rts_B = true;
+  bool Rts_B = true;
   size_t i;
 
-  if (&_rBeginWithThis_S != &_rString_S)  // _rString_S and _rStartWiththis_S are not the same string
+  if (&_rBeginWithThis_S != &_rString_S) // _rString_S and _rStartWiththis_S are not the same string
   {
     if (_rBeginWithThis_S.length() > _rString_S.length())
     {
@@ -434,7 +425,8 @@ bool Bof_StringContain(bool _CaseInsensitive_B, const std::string &_rString_S, c
 
   if (_rContaingThis_S.length() <= _rString_S.length())
   {
-    auto It = std::search(_rString_S.begin(), _rString_S.end(), _rContaingThis_S.begin(), _rContaingThis_S.end(), [_CaseInsensitive_B](char _Ch1_c, char _Ch2_c) { return _CaseInsensitive_B ? (std::toupper(_Ch1_c) == std::toupper(_Ch2_c)) : (_Ch1_c == _Ch2_c); });
+    auto It = std::search(_rString_S.begin(), _rString_S.end(), _rContaingThis_S.begin(), _rContaingThis_S.end(),
+                          [_CaseInsensitive_B](char _Ch1_c, char _Ch2_c) { return _CaseInsensitive_B ? (std::toupper(_Ch1_c) == std::toupper(_Ch2_c)) : (_Ch1_c == _Ch2_c); });
     Rts_B = (It != _rString_S.end());
   }
   return Rts_B;
@@ -454,7 +446,7 @@ char *Bof_StringToUpper(char *_pStr_c)
       Ch_c = *_pStr_c;
     }
   }
-  return(pRts_c);
+  return (pRts_c);
 }
 
 std::vector<std::string> Bof_FindAllStringIncluding(bool _CaseInsensitive_B, bool _MustBeginWith_B, const std::string &_rStringToLookFor_S, const std::vector<std::string> &_rStringCollection)
@@ -486,10 +478,10 @@ std::vector<std::string> Bof_FindAllStringIncluding(bool _CaseInsensitive_B, boo
 
 bool Bof_IsDecimal(const std::string &_rInput_S, int32_t &_rVal_S32)
 {
-  //scanf returns 0 if the %d digit extraction fails, and 2 if there is anything after the digits captured by %c. And since * prevents the value from being stored, you can't even get an overflow.
+  // scanf returns 0 if the %d digit extraction fails, and 2 if there is anything after the digits captured by %c. And since * prevents the value from being stored, you can't even get an overflow.
   int Sts_i;
-  //Sts_i= sscanf(_rInput_S.c_str(), "%*u%*c");
-  //int64_t Val_S64;
+  // Sts_i= sscanf(_rInput_S.c_str(), "%*u%*c");
+  // int64_t Val_S64;
   char Ch_c;
   Sts_i = sscanf(_rInput_S.c_str(), "%d%c", &_rVal_S32, &Ch_c);
   return (Sts_i == 1);
@@ -612,7 +604,7 @@ A null character is ALWAYS inserted in the pDest_c[_MaxChar_U32-1] array entry
 */
 char *Bof_StrNCpy(char *_pDest_c, const char *_pSrc_c, uint32_t _MaxChar_U32)
 {
-  char  c_c, *pRts_c;
+  char c_c, *pRts_c;
 
   pRts_c = _pDest_c;
   if ((_pDest_c) && (_pSrc_c) && (_MaxChar_U32))
@@ -632,7 +624,7 @@ char *Bof_StrNCpy(char *_pDest_c, const char *_pSrc_c, uint32_t _MaxChar_U32)
     }
   }
 
-  return(pRts_c);
+  return (pRts_c);
 }
 
 /*!
@@ -647,16 +639,16 @@ int64_t: The integer value of the converted string is returned
 */
 int64_t Bof_CharToBinary(const char *_pStr_c)
 {
-  int64_t   Rts_S64;
+  int64_t Rts_S64;
   char *p_c;
 
-//  If the value of base is zero, the syntax expected is similar to that of integer constants, which is formed by a succession of :
-//  An optional sign character(+or -)
-//    An optional prefix indicating octal or hexadecimal base("0" or "0x" / "0X" respectively)
-//    A sequence of decimal digits(if no base prefix was specified) or either octal or hexadecimal digits if a specific prefix is present
+  //  If the value of base is zero, the syntax expected is similar to that of integer constants, which is formed by a succession of :
+  //  An optional sign character(+or -)
+  //    An optional prefix indicating octal or hexadecimal base("0" or "0x" / "0X" respectively)
+  //    A sequence of decimal digits(if no base prefix was specified) or either octal or hexadecimal digits if a specific prefix is present
   Rts_S64 = strtol(_pStr_c, &p_c, 0);
 
-  return(Rts_S64);
+  return (Rts_S64);
 }
 
 BOFSTD_EXPORT char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...);

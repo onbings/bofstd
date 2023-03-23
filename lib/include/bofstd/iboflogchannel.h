@@ -26,35 +26,34 @@
 #include <bofstd/bofsystem.h>
 
 #include <cstdint>
-#include <vector>
 #include <functional>
+#include <vector>
 
 BEGIN_BOF_NAMESPACE()
 
-//Bit flag but not used (we could be able to send the same log on different sink but not used for now
+// Bit flag but not used (we could be able to send the same log on different sink but not used for now
 enum class BOF_LOG_CHANNEL_SINK : uint32_t
 {
-  TO_NONE = 0,  //0x00000000,
-  TO_FILE,// = 0x00000001,	//Single or rotating
-  TO_DAILYFILE,// = 0x00000002,
+  TO_NONE = 0,            // 0x00000000,
+  TO_FILE,                // = 0x00000001,	//Single or rotating
+  TO_DAILYFILE,           // = 0x00000002,
   TO_RAM_CIRCULAR_BUFFER, // = 0x00000008,
-  TO_STDERR,  // =        0x00000010,
-  TO_STDERR_COLOR,  // =  0x00000020,
-  TO_STDOUT,  // =        0x00000040,
-  TO_STDOUT_COLOR,  // =  0x00000080,
-  TO_LINUX_SYSLOG,  // =  0x00000100,
-  TO_MSVC_DEBUGGER, // = 0x00000200,
+  TO_STDERR,              // =        0x00000010,
+  TO_STDERR_COLOR,        // =  0x00000020,
+  TO_STDOUT,              // =        0x00000040,
+  TO_STDOUT_COLOR,        // =  0x00000080,
+  TO_LINUX_SYSLOG,        // =  0x00000100,
+  TO_MSVC_DEBUGGER,       // = 0x00000200,
 };
-//template< >
-//struct IsItAnEnumBitFLag< BOF_LOG_CHANNEL_SINK > : std::true_type {};
+// template< >
+// struct IsItAnEnumBitFLag< BOF_LOG_CHANNEL_SINK > : std::true_type {};
 
 enum class BOF_LOG_CHANNEL_FLAG : uint32_t
 {
   NONE = 0x00000000,
   DELETE_PREVIOUS_LOGFILE = 0x00000001,
 };
-template<>
-struct IsItAnEnumBitFLag<BOF_LOG_CHANNEL_FLAG> : std::true_type
+template <> struct IsItAnEnumBitFLag<BOF_LOG_CHANNEL_FLAG> : std::true_type
 {
 };
 
@@ -94,10 +93,10 @@ enum BOF_LOG_LEVEL_COLOR : uint32_t // Same as typedef enum{}level_enum;
   LOG_COLOR_BACK_MASK = 0xF0,
   /// Formatting codes
   LOG_COLOR_BOLD = 0x80000000,
-  //const std::string dark = "\033[2m";
-  //const std::string underline = "\033[4m";
-  //const std::string blink = "\033[5m";
-  //const std::string reverse = "\033[7m";
+  // const std::string dark = "\033[2m";
+  // const std::string underline = "\033[4m";
+  // const std::string blink = "\033[5m";
+  // const std::string reverse = "\033[7m";
   LOG_COLOR_FORE_BLACK = 1,
   LOG_COLOR_FORE_RED,
   LOG_COLOR_FORE_GREEN,
@@ -115,15 +114,14 @@ enum BOF_LOG_LEVEL_COLOR : uint32_t // Same as typedef enum{}level_enum;
   LOG_COLOR_BACK_MAGENTA = (LOG_COLOR_FORE_MAGENTA << 4),
   LOG_COLOR_BACK_CYAN = (LOG_COLOR_FORE_CYAN << 4),
   LOG_COLOR_BACK_WHITE = (LOG_COLOR_FORE_WHITE << 4),
-
 };
-//template< >
-//struct IsItAnEnumBitFLag< BOF_LOG_CHANNEL_LEVEL > : std::true_type {};
+// template< >
+// struct IsItAnEnumBitFLag< BOF_LOG_CHANNEL_LEVEL > : std::true_type {};
 
 enum class BOF_LOGGER_OVERFLOW_POLICY : uint32_t
 {
-  WAIT = 0, // Block / yield / sleep until message can be enqueued
-  DISCARD, // Discard the message if enqueue fails
+  WAIT = 0,  // Block / yield / sleep until message can be enqueued
+  DISCARD,   // Discard the message if enqueue fails
   OVERWRITE, // For circular structure, the oldest data will be erased to enqueue the new one
 };
 
@@ -137,18 +135,18 @@ struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
   BOF_LOG_CHANNEL_SINK LogSink_E;
   BOF_LOG_CHANNEL_FLAG LogFlag_E;
   BOF_LOGGER_OVERFLOW_POLICY BufferOverflowPolicy_E;
-  uint32_t MaxLogSizeInByte_U32;    //TO_FILE/TO_RAM_CIRCULAR_BUFFER If TO_FILE and MaxNumberOfLogFile_U32==0 and MaxLogSizeInByte_U32 != 0 ->log is sent to a fixed size log file if MaxLogSizeInByte_U32==0 the single log file size is unlimitted
-  uint32_t MaxNumberOfLogFile_U32;  //TO_FILE 0: Single file n>0: n rotating files
-  uint32_t DailyRotationTimeInMinuteAfterMidnight_U32;    //TO_DAILYFILE: Should contains the number of minutes after midnight to allapsed before rotationg and create a new daily file
-  //Can't be a unique_ptr as it can come from a std::vector<BOF_LOG_CHANNEL_PARAM> global static var which is read only or return a const iterator->move semantic does not work
-//	std::shared_ptr<std::ostringstream> psOutputStream;	//TO_STREAM 
+  uint32_t MaxLogSizeInByte_U32;   // TO_FILE/TO_RAM_CIRCULAR_BUFFER If TO_FILE and MaxNumberOfLogFile_U32==0 and MaxLogSizeInByte_U32 != 0 ->log is sent to a fixed size log file if MaxLogSizeInByte_U32==0 the single log file size is unlimitted
+  uint32_t MaxNumberOfLogFile_U32; // TO_FILE 0: Single file n>0: n rotating files
+  uint32_t DailyRotationTimeInMinuteAfterMidnight_U32; // TO_DAILYFILE: Should contains the number of minutes after midnight to allapsed before rotationg and create a new daily file
+  // Can't be a unique_ptr as it can come from a std::vector<BOF_LOG_CHANNEL_PARAM> global static var which is read only or return a const iterator->move semantic does not work
+  //	std::shared_ptr<std::ostringstream> psOutputStream;	//TO_STREAM
   BOF_LOG_CHANNEL_PARAM()
   {
     Reset();
   }
 
-  BOF_LOG_CHANNEL_PARAM(std::string _ChannelName_S, BofPath _FileLogPath, std::string _LogHeader_S, bool _AutoAddEol_B, BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_CHANNEL_SINK _LogSink_E, BOF_LOG_CHANNEL_FLAG _LogFlag_E, BOF_LOGGER_OVERFLOW_POLICY _BufferOverflowPolicy_E,
-                        uint32_t _MaxLogSizeInByte_U32, uint32_t _MaxNumberOfLogFile_U32, uint32_t _DailyRotationTimeInMinuteAfterMidnight_U32)
+  BOF_LOG_CHANNEL_PARAM(std::string _ChannelName_S, BofPath _FileLogPath, std::string _LogHeader_S, bool _AutoAddEol_B, BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_CHANNEL_SINK _LogSink_E, BOF_LOG_CHANNEL_FLAG _LogFlag_E,
+                        BOF_LOGGER_OVERFLOW_POLICY _BufferOverflowPolicy_E, uint32_t _MaxLogSizeInByte_U32, uint32_t _MaxNumberOfLogFile_U32, uint32_t _DailyRotationTimeInMinuteAfterMidnight_U32)
   {
     ChannelName_S = _ChannelName_S;
     FileLogPath = _FileLogPath;
@@ -183,12 +181,12 @@ struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
     DailyRotationTimeInMinuteAfterMidnight_U32 = 0;
   }
 };
-#if 0 //spdlog 1.3.1
+#if 0 // spdlog 1.3.1
 typedef std::function<void(const std::string &_rErr_S)> BOF_LOG_ASYNC_ERROR_CALLBACK;
 #else
 typedef void (*BOF_LOG_ASYNC_ERROR_CALLBACK)(const std::string &_rErr_S);
 #endif
-//typedef std::function<void(void)> BOF_LOG_ASYNC_START_STOP_CALLBACK;
+// typedef std::function<void(void)> BOF_LOG_ASYNC_START_STOP_CALLBACK;
 typedef std::function<const char *(uint32_t _ErrorCode_U32)> BOF_LOG_ERROR_CODE_TOSTRING_CALLBACK;
 
 /*
@@ -213,8 +211,7 @@ struct BOFSTD_EXPORT BOF_LOGGER_PARAM
 
   BOF_LOGGER_PARAM(std::string _Name_S, uint32_t _MaxNumberOfAsyncLogQueueEntry_U32, uint32_t _AsyncAutoFushIntervalInMs_U32, bool _FastFormat_B,
                    BOF_LOGGER_OVERFLOW_POLICY _OverflowPolicy_E, /*BOF_LOG_ASYNC_START_STOP_CALLBACK _OnAsyncAdd, BOF_LOG_ASYNC_START_STOP_CALLBACK _OnAsyncRemove,*/
-                   BOF_LOG_ASYNC_ERROR_CALLBACK _OnError,
-                   BOF_LOG_ERROR_CODE_TOSTRING_CALLBACK _OnErrorCodeToString)
+                   BOF_LOG_ASYNC_ERROR_CALLBACK _OnError, BOF_LOG_ERROR_CODE_TOSTRING_CALLBACK _OnErrorCodeToString)
   {
     Name_S = _Name_S;
     MaxNumberOfAsyncLogQueueEntry_U32 = _MaxNumberOfAsyncLogQueueEntry_U32;
@@ -229,7 +226,7 @@ struct BOFSTD_EXPORT BOF_LOGGER_PARAM
   {
     Name_S = "";
 
-    MaxNumberOfAsyncLogQueueEntry_U32 = 0;                                   // queue size must be power of 2: O sync mode
+    MaxNumberOfAsyncLogQueueEntry_U32 = 0; // queue size must be power of 2: O sync mode
     AsyncAutoFushIntervalInMs_U32 = 0;
     FastFormat_B = false;
     OverflowPolicy_E = BOF_LOGGER_OVERFLOW_POLICY::DISCARD;
@@ -252,7 +249,8 @@ public:
 
   // Empty virtual destructor for proper cleanup
   virtual ~IBofLogChannel()
-  {}
+  {
+  }
 
   virtual BOFERR V_Add(const BOF_LOG_CHANNEL_PARAM &_rLogParam_X) = 0;
 

@@ -21,22 +21,22 @@
 #include <bofstd/boffs.h>
 #include <bofstd/bofstring.h>
 
-#include <sys/stat.h>
-#include <ios>
 #include <fstream>
-
-#if defined (_WIN32)
-#include <io.h>
-#include <fcntl.h>
-#include <windows.h>
-#include <direct.h>
-#else
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/types.h>
+#include <ios>
 #include <sys/stat.h>
+
+#if defined(_WIN32)
+#include <direct.h>
 #include <fcntl.h>
-#define O_BINARY 0  //It's a *nix thing. *nix operating systems don't do automatic linefeed conversion for I/O on "text" files so O_TEXT and O_BINARY flags wouldn't make sense.
+#include <io.h>
+#include <windows.h>
+#else
+#include <dirent.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#define O_BINARY 0 // It's a *nix thing. *nix operating systems don't do automatic linefeed conversion for I/O on "text" files so O_TEXT and O_BINARY flags wouldn't make sense.
 #define O_TEXT 0
 #endif
 
@@ -49,7 +49,7 @@ BOFERR Bof_SetFsPermission(const BOF_FILE_PERMISSION _Permission_E, const BofPat
   if ((_rPath.IsValid()) && (_rPath.IsExist()))
   {
     Rts_E = BOF_ERR_NO_ERROR;
-#if defined (_WIN32)
+#if defined(_WIN32)
     // under windows only _S_IREAD and _S_IREAD are supported
     int Permission_i = 0;
     if (Bof_IsAnyBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IRUSR | BOF_FILE_PERMISSION::BOF_PERM_S_IRGRP | BOF_FILE_PERMISSION::BOF_PERM_S_IROTH))
@@ -68,7 +68,7 @@ BOFERR Bof_SetFsPermission(const BOF_FILE_PERMISSION _Permission_E, const BofPat
       }
     }
 #else
-    if (chmod(_rPath.FullPathName(false).c_str(), static_cast<int> (_Permission_E)))
+    if (chmod(_rPath.FullPathName(false).c_str(), static_cast<int>(_Permission_E)))
     {
       Rts_E = BOF_ERR_EACCES;
     }
@@ -76,7 +76,6 @@ BOFERR Bof_SetFsPermission(const BOF_FILE_PERMISSION _Permission_E, const BofPat
   }
   return Rts_E;
 }
-
 
 BOFERR Bof_GetFsPermission(const BofPath &_rPath, BOF_FILE_PERMISSION &_rPermission_E)
 {
@@ -109,30 +108,30 @@ BOFERR Bof_GetFsPermission(const BofPath &_rPath, BOF_FILE_PERMISSION &_rPermiss
     struct stat Stat_X;
     if (stat(_rPath.FullPathName(false).c_str(), &Stat_X) == 0)
       Mode_i = Stat_X.st_mode;
-    //#endif
+    // #endif
 
     //		Mode_i = zsys_file_mode(_rPath.FullPathName(false).c_str());
     if (Mode_i != -1)
     {
-#if defined (_WIN32)
+#if defined(_WIN32)
       TheMode_i = 0;
       if (Mode_i & _S_IREAD)
       {
-        TheMode_i |= static_cast<int> (BOF_FILE_PERMISSION_READ_FOR_ALL);
+        TheMode_i |= static_cast<int>(BOF_FILE_PERMISSION_READ_FOR_ALL);
       }
       if (Mode_i & _S_IWRITE)
       {
-        TheMode_i |= static_cast<int> (BOF_FILE_PERMISSION_WRITE_FOR_ALL);
+        TheMode_i |= static_cast<int>(BOF_FILE_PERMISSION_WRITE_FOR_ALL);
       }
       if (Mode_i & _S_IEXEC)
       {
-        TheMode_i |= static_cast<int> (BOF_FILE_PERMISSION_EXEC_FOR_ALL);
+        TheMode_i |= static_cast<int>(BOF_FILE_PERMISSION_EXEC_FOR_ALL);
       }
 #else
       TheMode_i = Mode_i;
 #endif
 
-      _rPermission_E = static_cast<BOF_FILE_PERMISSION> (TheMode_i);
+      _rPermission_E = static_cast<BOF_FILE_PERMISSION>(TheMode_i);
       Rts_E = BOF_ERR_NO_ERROR;
     }
   }
@@ -208,7 +207,7 @@ BOFERR Bof_GetCurrentDirectory(std::string &_rPath_S)
   BOFERR Rts_E = BOF_ERR_INTERNAL;
   char pDir_c[0x1000];
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   if (GetCurrentDirectoryA(sizeof(pDir_c), pDir_c))
   {
     _rPath_S = pDir_c;
@@ -248,9 +247,9 @@ BOFERR Bof_GetCurrentDirectory(BofPath &_rPath)
 BOFERR Bof_ChangeCurrentDirectory(const BofPath &_rPath)
 {
   BOFERR Rts_E = BOF_ERR_ENOTDIR;
-  //int Sts_i;
+  // int Sts_i;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   if (SetCurrentDirectoryA(_rPath.FullPathName(true).c_str()))
   {
     Rts_E = BOF_ERR_NO_ERROR;
@@ -263,7 +262,7 @@ BOFERR Bof_ChangeCurrentDirectory(const BofPath &_rPath)
 #endif
   //	Sts_i = zsys_dir_change(_rPath.FullPathName(false).c_str());
   //	Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_DONT_EXIST;
-  //printf("dir %s errno %d\n",_rPath.FullPathName(false).c_str(),errno);
+  // printf("dir %s errno %d\n",_rPath.FullPathName(false).c_str(),errno);
   return Rts_E;
 }
 
@@ -287,19 +286,19 @@ BOFERR Bof_CreateDirectory(const BOF_FILE_PERMISSION _Permission_E, const BofPat
         Pos = _rPath.FullPathName(false).find_first_of('/', Pos + 1);
         if (Pos != std::string::npos)
         {
-#if defined (_WIN32)
+#if defined(_WIN32)
           if (CreateDirectoryA(_rPath.FullPathName(true).substr(0, Pos).c_str(), nullptr))
           {
             Rts_E = BOF_ERR_NO_ERROR;
           }
 #else
           mkdir(_rPath.FullPathName(false).substr(0, Pos).c_str(), static_cast<mode_t>(BOF_FILE_PERMISSION_ALL_FOR_OWNER));
-          //If intermediate dir exist mkdir return is -1				printf("mkdir at %d for %s->%d\n",Pos,_rPath.FullPathName(false).substr(0, Pos).c_str(), Sts_i);
+          // If intermediate dir exist mkdir return is -1				printf("mkdir at %d for %s->%d\n",Pos,_rPath.FullPathName(false).substr(0, Pos).c_str(), Sts_i);
           Rts_E = BOF_ERR_NO_ERROR;
 #endif
         }
       } while (Pos != std::string::npos);
-      //Rts_E = (zsys_dir_create(_rPath.FullPathName(false).c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
+      // Rts_E = (zsys_dir_create(_rPath.FullPathName(false).c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
 
       // zsys_file_mode_default();
       if (Rts_E == BOF_ERR_NO_ERROR)
@@ -311,15 +310,14 @@ BOFERR Bof_CreateDirectory(const BOF_FILE_PERMISSION _Permission_E, const BofPat
   return (Rts_E);
 }
 
-
 BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, BOF_DIRECTORY_PARSER_CALLBACK &_rDirectoryParserCallback)
 {
   BOFERR Rts_E = BOF_ERR_ENOENT;
-  bool EntryOk_B, Finish_B, ItIsADirectory_B, DotDotDir_B, DotDir_B;  // , EmptyDir_B;
-  BOF_FILE_FOUND FileFound_X; // , DotFileFound_X;
+  bool EntryOk_B, Finish_B, ItIsADirectory_B, DotDotDir_B, DotDir_B; // , EmptyDir_B;
+  BOF_FILE_FOUND FileFound_X;                                        // , DotFileFound_X;
   uint64_t Time_U64;
 
-#if defined( _WIN32 )
+#if defined(_WIN32)
   HANDLE FindFirstFile_h;
   WIN32_FIND_DATAA FindData_X;
 #else
@@ -329,11 +327,11 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
   struct stat FileStat_X;
 #endif
 
-  //printf("==>Enter %s\n", _rPath.FullPathName(true).c_str());
+  // printf("==>Enter %s\n", _rPath.FullPathName(true).c_str());
 
   if (_rPath.IsDirectory())
   {
-#if defined( _WIN32 )
+#if defined(_WIN32)
     std::string PatternFilename_S;
     PatternFilename_S = _rPath.FullPathName(true) + "*";
     FindFirstFile_h = FindFirstFileA(PatternFilename_S.c_str(), &FindData_X);
@@ -363,10 +361,10 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
       {
         Finish_B = true;
         ItIsADirectory_B = false;
-#if defined( _WIN32 )
-        DotDir_B = ((FindData_X.cFileName[0] == '.') && (FindData_X.cFileName[1] == 0)); //.
+#if defined(_WIN32)
+        DotDir_B = ((FindData_X.cFileName[0] == '.') && (FindData_X.cFileName[1] == 0));                                        //.
         DotDotDir_B = ((FindData_X.cFileName[0] == '.') && (FindData_X.cFileName[1] == '.') && (FindData_X.cFileName[2] == 0)); //..
-        //if ((DotDir_B) || (DotDotDir_B))
+        // if ((DotDir_B) || (DotDotDir_B))
         if (DotDotDir_B)
         {
           EntryOk_B = false;
@@ -383,8 +381,8 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
           FileFound_X.Path.Combine(FindData_X.cFileName);
         }
 #else
-        //printf("dir entry %s\n",pDirEntry_X->d_name);
-        DotDir_B = ((pDirEntry_X->d_name[0] == '.') && (pDirEntry_X->d_name[1] == 0)); //.
+        // printf("dir entry %s\n",pDirEntry_X->d_name);
+        DotDir_B = ((pDirEntry_X->d_name[0] == '.') && (pDirEntry_X->d_name[1] == 0));                                       //.
         DotDotDir_B = ((pDirEntry_X->d_name[0] == '.') && (pDirEntry_X->d_name[1] == '.') && (pDirEntry_X->d_name[2] == 0)); //..
         if (DotDotDir_B)
         {
@@ -393,12 +391,11 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
         else
         {
           snprintf(pPath_c, sizeof(pPath_c), "%s/%s", _rPath.FullPathName(false).c_str(), pDirEntry_X->d_name);
-          //printf("0:EntryOk_B %d ItIsADirectory_B %d pPath_c %s\n",EntryOk_B,ItIsADirectory_B,pPath_c);
+          // printf("0:EntryOk_B %d ItIsADirectory_B %d pPath_c %s\n",EntryOk_B,ItIsADirectory_B,pPath_c);
           if (lstat(pPath_c, &FileStat_X))
           {
             EntryOk_B = false;
-            //printf("1:EntryOk_B %d ItIsADirectory_B %d errno %d\n",EntryOk_B,ItIsADirectory_B,errno);
-
+            // printf("1:EntryOk_B %d ItIsADirectory_B %d errno %d\n",EntryOk_B,ItIsADirectory_B,errno);
           }
           else
           {
@@ -406,13 +403,12 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
             ItIsADirectory_B = (S_ISDIR(FileStat_X.st_mode)) ? true : false;
             FileFound_X.Path = _rPath;
             FileFound_X.Path.Combine(pDirEntry_X->d_name);
-            //printf("2:EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
-
+            // printf("2:EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
           }
-          //printf("3:EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
+          // printf("3:EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
         }
 #endif
-        //printf("EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
+        // printf("EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
         if (EntryOk_B)
         {
           if (ItIsADirectory_B)
@@ -422,9 +418,9 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
             {
               if (_Recursive_B)
               {
-                //printf("==>RECCU %s\n", FileFound_X.Path.FullPathName(true).c_str());
+                // printf("==>RECCU %s\n", FileFound_X.Path.FullPathName(true).c_str());
                 Rts_E = Bof_DirectoryParser(FileFound_X.Path, _rPattern_S, _FileTypeToFind_E, _Recursive_B, _rDirectoryParserCallback);
-                //printf("==>ENDR reset %s to \n", FileFound_X.Path.FullPathName(true).c_str());  // , _rPath.FullPathName(true).c_str());
+                // printf("==>ENDR reset %s to \n", FileFound_X.Path.FullPathName(true).c_str());  // , _rPath.FullPathName(true).c_str());
                 if (Rts_E == BOF_ERR_NO_ERROR)
                 {
                   //    FileFound_X.Path = _rPath;
@@ -447,7 +443,7 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
             }
             if (EntryOk_B)
             {
-#if defined( _WIN32 )
+#if defined(_WIN32)
               FileFound_X.Size_U64 = (static_cast<uint64_t>(FindData_X.nFileSizeHigh) << 32) | static_cast<uint64_t>(FindData_X.nFileSizeLow);
               // Set file times and dates
               Time_U64 = (static_cast<uint64_t>(FindData_X.ftCreationTime.dwHighDateTime) << 32) | static_cast<uint64_t>(FindData_X.ftCreationTime.dwHighDateTime);
@@ -474,7 +470,7 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
                 }
                 else
                 {
-                  //printf("--> %s\n", FileFound_X.Path.FullPathName(true).c_str());
+                  // printf("--> %s\n", FileFound_X.Path.FullPathName(true).c_str());
 
                   if (!_rDirectoryParserCallback(FileFound_X))
                   {
@@ -488,7 +484,7 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
         }
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-#if defined( _WIN32 )
+#if defined(_WIN32)
           if (FindNextFileA(FindFirstFile_h, &FindData_X))
           {
             Finish_B = false;
@@ -523,21 +519,39 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
       } while (!Finish_B);
     }
   }
-  //printf("Leave %s\n", _rPath.FullPathName(true).c_str());
+  // printf("Leave %s\n", _rPath.FullPathName(true).c_str());
   return Rts_E;
 }
 BOFERR Bof_FindFile(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, uint32_t _MaxNumberOfResult_U32, std::vector<BOF_FILE_FOUND> &_rFileCollection)
 {
   _rFileCollection.clear();
-  BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool { _rFileCollection.push_back(_rFileFound_X); return (_rFileCollection.size() < _MaxNumberOfResult_U32) ? true:false; };
+  BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {
+    _rFileCollection.push_back(_rFileFound_X);
+    return (_rFileCollection.size() < _MaxNumberOfResult_U32) ? true : false;
+  };
   BOFERR Rts_E = Bof_DirectoryParser(_rPath, _rPattern_S, _FileTypeToFind_E, _Recursive_B, Cb);
   return Rts_E;
 }
 BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPath, bool _RemoveRootDir_B)
 {
-  BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {bool Rts_B = false; if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR) { if (Bof_RemoveDirectory(_rFileFound_X.Path) == BOF_ERR_NO_ERROR) Rts_B = true; } else { if (Bof_DeleteFile(_rFileFound_X.Path) == BOF_ERR_NO_ERROR) Rts_B = true; } return Rts_B; };
-  //BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {bool Rts_B = true; if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR) { Bof_RemoveDirectory(_rFileFound_X.Path); } else { if (Bof_DeleteFile(_rFileFound_X.Path) != BOF_ERR_NO_ERROR) Rts_B = false; } return Rts_B; };
-  //  BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {bool Rts_B = true; if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_REG) { if (Bof_DeleteFile(_rFileFound_X.Path) != BOF_ERR_NO_ERROR) Rts_B = false; } return Rts_B; };
+  BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {
+    bool Rts_B = false;
+    if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR)
+    {
+      if (Bof_RemoveDirectory(_rFileFound_X.Path) == BOF_ERR_NO_ERROR)
+        Rts_B = true;
+    }
+    else
+    {
+      if (Bof_DeleteFile(_rFileFound_X.Path) == BOF_ERR_NO_ERROR)
+        Rts_B = true;
+    }
+    return Rts_B;
+  };
+  // BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {bool Rts_B = true; if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR) { Bof_RemoveDirectory(_rFileFound_X.Path); } else { if
+  // (Bof_DeleteFile(_rFileFound_X.Path) != BOF_ERR_NO_ERROR) Rts_B = false; } return Rts_B; };
+  //   BOF_DIRECTORY_PARSER_CALLBACK Cb = [&](const BOF_FILE_FOUND &_rFileFound_X) -> bool {bool Rts_B = true; if (_rFileFound_X.FileType_E == BOF_FILE_TYPE::BOF_FILE_REG) { if (Bof_DeleteFile(_rFileFound_X.Path) != BOF_ERR_NO_ERROR) Rts_B = false; }
+  //   return Rts_B; };
   BOFERR Rts_E = Bof_DirectoryParser(_rPath, "*", BOF_FILE_TYPE::BOF_FILE_ALL, _Recursive_B, Cb);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
@@ -556,7 +570,7 @@ BOFERR Bof_RemoveDirectory(const BofPath &_rPath)
   if ((_rPath.IsExist()) && (_rPath.IsDirectory()))
   {
     Rts_E = BOF_ERR_EACCES;
-#if defined( _WIN32 )
+#if defined(_WIN32)
     if (_rmdir(_rPath.FullPathName(true).c_str()) == 0)
     {
       Rts_E = BOF_ERR_NO_ERROR;
@@ -582,9 +596,9 @@ BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_r
 {
   BOFERR Rts_E = BOF_ERR_CREATE;
   int Io_i, Flag_i;
-#if defined (_WIN32)
+#if defined(_WIN32)
   Flag_i = (_Append_B) ? (_O_RDWR | _O_CREAT | _O_APPEND | _O_BINARY) : (_O_RDWR | _O_CREAT | _O_BINARY | _O_TRUNC);
-//Io_i = _open(_rPath.FullPathName(false).c_str(), Flag_i, _S_IREAD | _S_IWRITE | _S_IEXEC);
+  // Io_i = _open(_rPath.FullPathName(false).c_str(), Flag_i, _S_IREAD | _S_IWRITE | _S_IEXEC);
   Io_i = _open(_rPath.FullPathName(false).c_str(), Flag_i, _S_IREAD);
 #else
   Flag_i = (_Append_B) ? (O_RDWR | O_CREAT | O_APPEND) : (O_RDWR | O_CREAT | O_TRUNC);
@@ -592,8 +606,8 @@ BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_r
 #endif
   if (Io_i != BOF_INVALID_HANDLE_VALUE)
   {
-    _rIo = static_cast<uintptr_t> (Io_i);
-    //Rts_E = BOF_ERR_NO_ERROR;
+    _rIo = static_cast<uintptr_t>(Io_i);
+    // Rts_E = BOF_ERR_NO_ERROR;
     Rts_E = Bof_SetFsPermission(_Permission_E, _rPath);
   }
   return (Rts_E);
@@ -639,7 +653,7 @@ BOFERR Bof_OpenFile(const BOF::BofPath &_rPath, bool _ReadOnly_B, bool _Append_B
   }
 #else
   */
-  //Flag_i = _ReadOnly_B ? (O_RDONLY) : (O_RDWR);
+  // Flag_i = _ReadOnly_B ? (O_RDONLY) : (O_RDWR);
   if (_ReadOnly_B)
   {
     Flag_i = (O_RDONLY | O_BINARY);
@@ -655,12 +669,12 @@ BOFERR Bof_OpenFile(const BOF::BofPath &_rPath, bool _ReadOnly_B, bool _Append_B
       Flag_i = (O_RDWR | O_BINARY | O_CREAT | O_TRUNC);
     }
   }
-  //#endif
-  _rIo = static_cast<uintptr_t> (-1);
+  // #endif
+  _rIo = static_cast<uintptr_t>(-1);
   Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i);
   if (Io_i != BOF_INVALID_HANDLE_VALUE)
   {
-    _rIo = static_cast<uintptr_t> (Io_i);
+    _rIo = static_cast<uintptr_t>(Io_i);
     Rts_E = BOF_ERR_NO_ERROR;
   }
   return (Rts_E);
@@ -674,14 +688,14 @@ int64_t Bof_GetFileIoPosition(uintptr_t _Io)
 int64_t Bof_SetFileIoPosition(uintptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHOD _SeekMethod_E)
 {
   int64_t Rts_S64 = -1;
-  int Io_i = static_cast<int> (_Io);
+  int Io_i = static_cast<int>(_Io);
 
   if (Io_i != BOF_INVALID_HANDLE_VALUE)
   {
-#if defined (_WIN32)
-    Rts_S64 = _lseeki64(Io_i, _Offset_S64, static_cast<int> (_SeekMethod_E));
+#if defined(_WIN32)
+    Rts_S64 = _lseeki64(Io_i, _Offset_S64, static_cast<int>(_SeekMethod_E));
 #else
-    Rts_S64 = lseek64(Io_i, _Offset_S64, static_cast<int> (_SeekMethod_E));
+    Rts_S64 = lseek64(Io_i, _Offset_S64, static_cast<int>(_SeekMethod_E));
 #endif
   }
   return Rts_S64;
@@ -773,7 +787,7 @@ BOFERR Bof_ReadLine(const BofPath &_rPath, std::string &_rBuffer_S)
   {
     Rts_E = BOF_ERR_NO_ERROR;
     std::fstream In(_rPath.FullPathName(false), std::fstream::in);
-    std::getline(In, _rBuffer_S, '\0');  //There should be no \0 in text files.
+    std::getline(In, _rBuffer_S, '\0'); // There should be no \0 in text files.
   }
 #if 0
   BOFERR Rts_E = BOF_ERR_EOF;
@@ -827,11 +841,10 @@ BOFERR Bof_WriteLine(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rP
   return (Rts_E);
 }
 
-
 BOFERR Bof_ReadFile(uintptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  int Io_i = static_cast<int> (_Io);
+  int Io_i = static_cast<int>(_Io);
   int NbRead_i;
 
   if ((Io_i != BOF_INVALID_HANDLE_VALUE) && (_pBuffer_U8))
@@ -847,7 +860,7 @@ BOFERR Bof_ReadFile(uintptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8)
     {
       Rts_E = (NbRead_i == 0) ? BOF_ERR_EOF : BOF_ERR_NO_ERROR;
     }
-    //Rts_E = (NbToRead_U32 == _rNb_U32) ? BOF_ERR_NO_ERROR : BOF_ERR_READ;
+    // Rts_E = (NbToRead_U32 == _rNb_U32) ? BOF_ERR_NO_ERROR : BOF_ERR_READ;
   }
   return (Rts_E);
 }
@@ -855,7 +868,7 @@ BOFERR Bof_ReadFile(uintptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8)
 BOFERR Bof_WriteFile(uintptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  int Io_i = static_cast<int> (_Io);
+  int Io_i = static_cast<int>(_Io);
   uint32_t NbToWrite_U32;
 
   if ((Io_i != BOF_INVALID_HANDLE_VALUE) && (_pBuffer_U8))
@@ -923,7 +936,7 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)
     Rts_E = BOF_ERR_NO_ERROR;
   }
 #else
-//200 ms
+  // 200 ms
   BOF_BUFFER BufferToDeleteAfterUsage_X;
   Rts_E = Bof_ReadFile(_rPath, BufferToDeleteAfterUsage_X);
   if (Rts_E == BOF_ERR_NO_ERROR)
@@ -954,21 +967,20 @@ BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rP
   BOFERR Rts_E;
   BOF_BUFFER Buffer_X;
 
-  Buffer_X.SetStorage(_rRawData_S.size(), _rRawData_S.size(), (uint8_t*)(_rRawData_S.c_str()));
+  Buffer_X.SetStorage(_rRawData_S.size(), _rRawData_S.size(), (uint8_t *)(_rRawData_S.c_str()));
   Rts_E = Bof_WriteFile(_Permission_E, _rPath, Buffer_X);
   return Rts_E;
 }
 
-
 BOFERR Bof_FlushFile(uintptr_t _Io)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  int Io_i = static_cast<int> (_Io);
+  int Io_i = static_cast<int>(_Io);
 
   if (Io_i != BOF_INVALID_HANDLE_VALUE)
   {
     //		Rts_E = BOF_ERR_FLUSH;
-        // if (flush(Io_i)==0)
+    // if (flush(Io_i)==0)
     {
       Rts_E = BOF_ERR_NO_ERROR;
     }
@@ -979,7 +991,7 @@ BOFERR Bof_FlushFile(uintptr_t _Io)
 BOFERR Bof_CloseFile(uintptr_t &_rIo)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  int Io_i = static_cast<int> (_rIo);
+  int Io_i = static_cast<int>(_rIo);
 
   if (Io_i != BOF_INVALID_HANDLE_VALUE)
   {
@@ -995,7 +1007,7 @@ BOFERR Bof_CloseFile(uintptr_t &_rIo)
 
 uint64_t Bof_GetFileSize(const BofPath &_rPath)
 {
-  uint64_t Rts_U64 = static_cast<uint64_t> (-1);
+  uint64_t Rts_U64 = static_cast<uint64_t>(-1);
 
   std::ifstream Ifs(_rPath.FullPathName(false).c_str(), std::ifstream::ate | std::ifstream::binary);
   if (Ifs)
@@ -1009,7 +1021,7 @@ BOFERR Bof_DeleteFile(const BofPath &_rPath)
 {
   BOFERR Rts_E;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   if (_unlink(_rPath.FullPathName(false).c_str()) == 0)
   {
     Rts_E = BOF_ERR_NO_ERROR;
@@ -1025,23 +1037,22 @@ BOFERR Bof_DeleteFile(const BofPath &_rPath)
   }
   else
   {
-    Rts_E = (errno == EPERM) ? BOF_ERR_EACCES : BOF_ERR_NOT_FOUND;  // 1: EPERM
+    Rts_E = (errno == EPERM) ? BOF_ERR_EACCES : BOF_ERR_NOT_FOUND; // 1: EPERM
   }
 #endif
 
   return Rts_E;
 }
 
-
 BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath)
 {
   BOFERR Rts_E;
 
-#if defined (_WIN32)
-  //char  pOldName_c[512], pNewName_c[512];
-  //Bof_MultiByteToWideChar(_rOldPath.FullPathName(false).c_str(), sizeof(pOldName_wc) / sizeof(pOldName_wc[0]), pOldName_wc);
-  //Bof_MultiByteToWideChar(_rNewPath.FullPathName(false).c_str(), sizeof(pNewName_wc) / sizeof(pNewName_wc[0]), pNewName_wc);
-  //Rts_E = MoveFile(pOldName_c, pNewName_c) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
+#if defined(_WIN32)
+  // char  pOldName_c[512], pNewName_c[512];
+  // Bof_MultiByteToWideChar(_rOldPath.FullPathName(false).c_str(), sizeof(pOldName_wc) / sizeof(pOldName_wc[0]), pOldName_wc);
+  // Bof_MultiByteToWideChar(_rNewPath.FullPathName(false).c_str(), sizeof(pNewName_wc) / sizeof(pNewName_wc[0]), pNewName_wc);
+  // Rts_E = MoveFile(pOldName_c, pNewName_c) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
   Rts_E = MoveFileA(_rOldPath.FullPathName(false).c_str(), _rNewPath.FullPathName(false).c_str()) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
 #else
   Rts_E = (rename(_rOldPath.FullPathName(false).c_str(), _rNewPath.FullPathName(false).c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EACCES;
@@ -1053,8 +1064,8 @@ BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath)
 bool Bof_IsFileExist(const BofPath &_rPath)
 {
   return _rPath.IsExist();
-  //ifstream infile(fileName);
-  //return infile.good();
+  // ifstream infile(fileName);
+  // return infile.good();
 }
 
 BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const BofPath &_rDstPath)
@@ -1103,7 +1114,7 @@ BOFERR Bof_ResetFileContent(const BofPath &_rPath, bool _ReOpenMode_B, int64_t _
   }
   else
   {
-#if defined (_WIN32)
+#if defined(_WIN32)
     Rts_E = BOF_ERR_NOT_SUPPORTED;
 #else
     if (!truncate64(_rPath.FullPathName(false).c_str(), _Offset_S64))

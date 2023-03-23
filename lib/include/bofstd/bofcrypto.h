@@ -31,11 +31,11 @@ BEGIN_BOF_NAMESPACE()
  *
  * These parameters are used to keep track of BofCryptoMd5 object state
  */
-  struct BOFSTD_EXPORT BOF_MD5_CONTEXT
+struct BOFSTD_EXPORT BOF_MD5_CONTEXT
 {
-  uint32_t pState_U32[4];                                                    /*! State (ABCD) */
-  uint32_t pCount_U32[2];                                                    /*! Number of bits, modulo 2^64 (lsb first) */
-  uint8_t pBuffer_U8[64];                                                   /*! Input buffer */
+  uint32_t pState_U32[4]; /*! State (ABCD) */
+  uint32_t pCount_U32[2]; /*! Number of bits, modulo 2^64 (lsb first) */
+  uint8_t pBuffer_U8[64]; /*! Input buffer */
   BOF_MD5_CONTEXT()
   {
     Reset();
@@ -59,6 +59,7 @@ class BOFSTD_EXPORT BofCryptoMd5
 {
 private:
   BOF_MD5_CONTEXT mMd5_X;
+
 private:
   void Transform(uint32_t *pState_U32, uint8_t *pBlock_U8);
 
@@ -89,12 +90,13 @@ public:
   static std::string S_FromFile(const std::string &_rFilename_S);
   static std::string S_FromBuffer(uint32_t _Nb_U32, const void *_pBuffer);
   static std::string S_FromString(const std::string &_Input_S);
+
 private:
   uint32_t mpDigest_U32[5];
   std::string mBuffer_S;
   uint64_t mTransform_U64;
 };
-//BOFSTD_EXPORT std::string Bof_ComputeSha1(uint32_t _Nb_U32, const void *_pBuffer);
-//BOFSTD_EXPORT std::string Bof_ComputeSha1(const std::string &_Input_S);
+// BOFSTD_EXPORT std::string Bof_ComputeSha1(uint32_t _Nb_U32, const void *_pBuffer);
+// BOFSTD_EXPORT std::string Bof_ComputeSha1(const std::string &_Input_S);
 
 END_BOF_NAMESPACE()

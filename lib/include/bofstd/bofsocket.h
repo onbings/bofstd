@@ -20,38 +20,38 @@
  * V 1.00  Aug 21 2001  BHA : Initial release
  */
 #pragma once
-#include <bofstd/bofsystem.h>
-#include <bofstd/bofsocketos.h>
 #include <bofstd/bofcomchannel.h>
+#include <bofstd/bofsocketos.h>
+#include <bofstd/bofsystem.h>
 #include <bofstd/bofthread.h>
 
 BEGIN_BOF_NAMESPACE()
 
 // The Connect string contains after the ':' an optional user argument
-#define BOFSOCKET_UDP_CONNECT        "BOF_UDP_CONNECT_BHA_01" // At lease 22 bytes (Ethernet min size 64)
+#define BOFSOCKET_UDP_CONNECT "BOF_UDP_CONNECT_BHA_01" // At lease 22 bytes (Ethernet min size 64)
 
 struct BOFSTD_EXPORT BOF_SOCKET_PARAM
 {
-  BOF_COM_CHANNEL_PARAM BaseChannelParam_X;       // Base properties of each channel
-  std::string BindIpAddress_S;                    /*! A string identifying the ip address to which this socket is bound. For multicast client this one should be 0.0.0.0:multicast group port*/
-  bool ReUseAddress_B;														/*! Set SO_REUSEADDR  option on or off*/
+  BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
+  std::string BindIpAddress_S;              /*! A string identifying the ip address to which this socket is bound. For multicast client this one should be 0.0.0.0:multicast group port*/
+  bool ReUseAddress_B;                      /*! Set SO_REUSEADDR  option on or off*/
   bool NoDelay_B;
-  uint32_t Ttl_U32;																/*! This value is used to setup the socket time to live*/
+  uint32_t Ttl_U32; /*! This value is used to setup the socket time to live*/
 
-  uint16_t BroadcastPort_U16;											/*! Port to used for broadcast transmission (0 if not broadcast) */
-  std::string MulticastInterfaceIpAddress_S;      /*! A string identifying the ip address to which this socket is bound suich as udp://10.129.170.30;239.193.0.1. Multicast port is specified in BindIpAddress_S */
-  bool MulticastSender_B;													/*! if MulticastIpAddress_X!=0 this boolean is used to setup the socket as a multicast receiver or transmitter */
-  bool FilterMulticastOnIpAddress_B;							/* Filter multicast receiver source Valid only for linux: https://www.reddit.com/r/networking/comments/7nketv/proper_use_of_bind_for_multicast_receive_on_linux/ */
-  bool KeepAlive_B;																/*! Set SO_KEEPALIVE option on or off*/
+  uint16_t BroadcastPort_U16;                /*! Port to used for broadcast transmission (0 if not broadcast) */
+  std::string MulticastInterfaceIpAddress_S; /*! A string identifying the ip address to which this socket is bound suich as udp://10.129.170.30;239.193.0.1. Multicast port is specified in BindIpAddress_S */
+  bool MulticastSender_B;                    /*! if MulticastIpAddress_X!=0 this boolean is used to setup the socket as a multicast receiver or transmitter */
+  bool FilterMulticastOnIpAddress_B;         /* Filter multicast receiver source Valid only for linux: https://www.reddit.com/r/networking/comments/7nketv/proper_use_of_bind_for_multicast_receive_on_linux/ */
+  bool KeepAlive_B;                          /*! Set SO_KEEPALIVE option on or off*/
 
-    /*
-     * To do multicast on a single host, you only have to do two things :
-     * - make sure that your receiving multicast sockets (MulticastReceiver_B) have SO_REUSEADDR set (ReUseAddress_B) so that multiple processes can bind the same multicast address
-     * - make sure your sending multicast sockets (MulticastReceiver_B) have IP_MULTICAST_LOOP set (EnableLocalMulticast_B) so that packets will be "looped back" to receivers on the same system->If needed
-     * If your application uses a single socket for both sending and receiving multicasts, you would set both socket options on it.
-     */
-  bool EnableLocalMulticast_B;               /*! set IP_MULTICAST_LOOP for enabling local multicast reception */
-  uint32_t MaxNumberOfScatterGatherEntry_U32;			/*! Provide allocation of Scatter Gather array if needed. 0 if not used. (WriteScatterGatherData)*/
+  /*
+   * To do multicast on a single host, you only have to do two things :
+   * - make sure that your receiving multicast sockets (MulticastReceiver_B) have SO_REUSEADDR set (ReUseAddress_B) so that multiple processes can bind the same multicast address
+   * - make sure your sending multicast sockets (MulticastReceiver_B) have IP_MULTICAST_LOOP set (EnableLocalMulticast_B) so that packets will be "looped back" to receivers on the same system->If needed
+   * If your application uses a single socket for both sending and receiving multicasts, you would set both socket options on it.
+   */
+  bool EnableLocalMulticast_B;                /*! set IP_MULTICAST_LOOP for enabling local multicast reception */
+  uint32_t MaxNumberOfScatterGatherEntry_U32; /*! Provide allocation of Scatter Gather array if needed. 0 if not used. (WriteScatterGatherData)*/
   BOF_SOCKET_PARAM()
   {
     Reset();
@@ -81,8 +81,8 @@ private:
   // static BofPot< BOF_SOCKET_PARAM > *S_mpPotOfSocketState_X;     // Use for socket usage/statistic monitoring
   BOF_SOCKET_PARAM mBofSocketParam_X;
   BOFSOCKET mSocket;
-  BOF_SOCKET_ADDRESS mMulticastIpInterfaceAddress_X;  //Set if we want to create a multicast client or server
-  BOF_SOCKET_ADDRESS mMulticastIpAddress_X;  //Set if we want to create a multicast client or server
+  BOF_SOCKET_ADDRESS mMulticastIpInterfaceAddress_X; // Set if we want to create a multicast client or server
+  BOF_SOCKET_ADDRESS mMulticastIpAddress_X;          // Set if we want to create a multicast client or server
 
   BOF_SOCKET_ADDRESS mSrcIpAddress_X;
   BOF_SOCKET_ADDRESS mDstIpAddress_X;
@@ -122,7 +122,6 @@ public:
   {
     return mErrorCode_E;
   }
-
 
   /// @brief Used to initialize a BofSocket object. Should only be called after creating s BofSocket using the default constructor
   /// @param _rBofSocketParam_X : Specifies the socket initialization parameters
@@ -206,9 +205,6 @@ private:
   void SetConnectedState(bool _ConnectedState_B);
 
   BOFERR SetSendInterfaceForMulticast(const BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X);
-
-
 };
-
 
 END_BOF_NAMESPACE()

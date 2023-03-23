@@ -99,17 +99,17 @@ END_BOF_NAMESPACE()
 #pragma once
 
 #ifdef GUID_ANDROID
-#include <thread>
 #include <jni.h>
+#include <thread>
 #endif
 
-#include <functional>
-#include <iostream>
 #include <array>
-#include <vector>
+#include <functional>
+#include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <utility>
-#include <iomanip>
+#include <vector>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -120,40 +120,40 @@ BEGIN_BOF_NAMESPACE()
 class BOFSTD_EXPORT BofGuid
 {
 public:
-	BofGuid();
-	explicit BofGuid(const std::array<uint8_t, 16> &_rByteCollection);
-	explicit BofGuid(std::array<uint8_t, 16> &&_rrByteCollection);
-	explicit BofGuid(const std::vector<uint8_t> &_rByteCollection);
-	explicit BofGuid(const uint8_t *_pData_U8);
-	explicit BofGuid(const std::string &_rString_S);
+  BofGuid();
+  explicit BofGuid(const std::array<uint8_t, 16> &_rByteCollection);
+  explicit BofGuid(std::array<uint8_t, 16> &&_rrByteCollection);
+  explicit BofGuid(const std::vector<uint8_t> &_rByteCollection);
+  explicit BofGuid(const uint8_t *_pData_U8);
+  explicit BofGuid(const std::string &_rString_S);
 
-	BofGuid(const BofGuid &_rOther) = default;
-	BofGuid &operator=(const BofGuid &_rOther) = default;
-	BofGuid(BofGuid &&_rOther) = default;
-	BofGuid &operator=(BofGuid &&_rrOther);
+  BofGuid(const BofGuid &_rOther) = default;
+  BofGuid &operator=(const BofGuid &_rOther) = default;
+  BofGuid(BofGuid &&_rOther) = default;
+  BofGuid &operator=(BofGuid &&_rrOther);
 
-	bool operator==(const BofGuid &_rOther) const;
-	bool operator!=(const BofGuid &_rOther) const;
-	bool operator<(const BofGuid &_rOther) const; //, const BofGuid &rhs);
-	bool operator>(const BofGuid &_rOther) const;
+  bool operator==(const BofGuid &_rOther) const;
+  bool operator!=(const BofGuid &_rOther) const;
+  bool operator<(const BofGuid &_rOther) const; //, const BofGuid &rhs);
+  bool operator>(const BofGuid &_rOther) const;
 
-	std::string ToString(bool _Cannonical_B) const;
-	bool FromString(const std::string &_rString_S);
-	operator std::string() const;
-	const std::array<uint8_t, 16> &Data() const;
-	void swap(BofGuid &other);
-	bool IsValid() const;
-	void Clear();
-	bool IsNull() const;
+  std::string ToString(bool _Cannonical_B) const;
+  bool FromString(const std::string &_rString_S);
+  operator std::string() const;
+  const std::array<uint8_t, 16> &Data() const;
+  void swap(BofGuid &other);
+  bool IsValid() const;
+  void Clear();
+  bool IsNull() const;
 
 private:
-	// actual data
-	std::array<uint8_t, 16> mGuidByteCollection;
-	uint8_t HexDigitToChar(char _Ch);
-	bool IsValidHexChar(char _Ch_c);
-	uint8_t HexPairToChar(char _High_c, char _Low_c);
-	// make the << operator a friend so it can access _bytes
-	friend std::ostream &operator<<(std::ostream &s, const BofGuid &guid);
+  // actual data
+  std::array<uint8_t, 16> mGuidByteCollection;
+  uint8_t HexDigitToChar(char _Ch);
+  bool IsValidHexChar(char _Ch_c);
+  uint8_t HexPairToChar(char _High_c, char _Low_c);
+  // make the << operator a friend so it can access _bytes
+  friend std::ostream &operator<<(std::ostream &s, const BofGuid &guid);
 };
 
 BofGuid newGuid();
@@ -161,14 +161,14 @@ BofGuid newGuid();
 #ifdef GUID_ANDROID
 struct AndroidGuidInfo
 {
-	static AndroidGuidInfo fromJniEnv(JNIEnv *env);
+  static AndroidGuidInfo fromJniEnv(JNIEnv *env);
 
-	JNIEnv *env;
-	jclass uuidClass;
-	jmethodID newGuidMethod;
-	jmethodID mostSignificantBitsMethod;
-	jmethodID leastSignificantBitsMethod;
-	std::thread::id initThreadId;
+  JNIEnv *env;
+  jclass uuidClass;
+  jmethodID newGuidMethod;
+  jmethodID mostSignificantBitsMethod;
+  jmethodID leastSignificantBitsMethod;
+  std::thread::id initThreadId;
 };
 
 extern AndroidGuidInfo androidInfo;
@@ -181,49 +181,42 @@ Guid newGuid(JNIEnv *env);
 
 namespace details
 {
-	template <typename...> struct hash;
+template <typename...> struct hash;
 
-	template<typename T>
-	struct hash<T> : public std::hash<T>
-	{
-		using std::hash<T>::hash;
-	};
+template <typename T> struct hash<T> : public std::hash<T>
+{
+  using std::hash<T>::hash;
+};
 
-
-	template <typename T, typename... Rest>
-	struct hash<T, Rest...>
-	{
-		inline std::size_t operator()(const T &v, const Rest&... rest) {
-			std::size_t seed = hash<Rest...>{}(rest...);
-			seed ^= hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
-			return seed;
-		}
-	};
-}
+template <typename T, typename... Rest> struct hash<T, Rest...>
+{
+  inline std::size_t operator()(const T &v, const Rest &...rest)
+  {
+    std::size_t seed = hash<Rest...>{}(rest...);
+    seed ^= hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
+  }
+};
+} // namespace details
 
 END_BOF_NAMESPACE()
 
 namespace std
 {
-	// Template specialization for std::swap<Guid>() --
-	// See guid.cpp for the function definition
-	template <>
-	void swap(BOF::BofGuid &_rGuid1, BOF::BofGuid &_rGuid2);
+// Template specialization for std::swap<Guid>() --
+// See guid.cpp for the function definition
+template <> void swap(BOF::BofGuid &_rGuid1, BOF::BofGuid &_rGuid2);
 
-	// Specialization for std::hash<Guid> -- this implementation
-	// uses std::hash<std::string> on the stringification of the guid
-	// to calculate the hash
-	template <>
-	struct hash<BOF::BofGuid>
-	{
-		std::size_t operator()(BOF::BofGuid const &_rGuid) const
-		{
-			const uint64_t *p_U64 = reinterpret_cast<const uint64_t *>(_rGuid.Data().data());
-			return BOF::details::hash<uint64_t, uint64_t>{}(p_U64[0], p_U64[1]);
-		}
-	};
-}
+// Specialization for std::hash<Guid> -- this implementation
+// uses std::hash<std::string> on the stringification of the guid
+// to calculate the hash
+template <> struct hash<BOF::BofGuid>
+{
+  std::size_t operator()(BOF::BofGuid const &_rGuid) const
+  {
+    const uint64_t *p_U64 = reinterpret_cast<const uint64_t *>(_rGuid.Data().data());
+    return BOF::details::hash<uint64_t, uint64_t>{}(p_U64[0], p_U64[1]);
+  }
+};
+} // namespace std
 #endif
-
-
-

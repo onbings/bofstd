@@ -19,15 +19,15 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofpath.h>
 #include <bofstd/boffs.h>
+#include <bofstd/bofpath.h>
 #include <bofstd/bofstring.h>
 
 #include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
-#define FILENAME     "file"
-#define EXTENSION    "bha"
+#define FILENAME "file"
+#define EXTENSION "bha"
 
 TEST(Path_Test, PathConstructorDestructorWindows)
 {
@@ -43,7 +43,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
   {
     if (Pwd_S.find(":/") == 1)
     {
-//Remove disk
+      // Remove disk
       PwdWithoutDisk_S = Pwd_S.substr(2);
     }
     else
@@ -56,7 +56,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
       PrevPwd_S = Pwd_S.substr(0, SlashPrevDelimiterPos + 1);
       if (PrevPwd_S.find(":/") == 1)
       {
-        //Remove disk
+        // Remove disk
         PrevPwdWithoutDisk_S = PrevPwd_S.substr(2);
       }
     }
@@ -108,7 +108,6 @@ TEST(Path_Test, PathConstructorDestructorWindows)
   EXPECT_STREQ(bb.FileNameWithExtension().c_str(), "file");
   EXPECT_STREQ(bb.FileNameWithoutExtension().c_str(), "file");
 
-
   BofPath d(".\\data\\dir\\");
   EXPECT_EQ(d.IsDirectory(), true);
   EXPECT_EQ(d.IsFile(), false);
@@ -146,7 +145,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
     BofPath g("../../data/dir/");
     EXPECT_EQ(g.IsDirectory(), true);
     EXPECT_EQ(g.IsFile(), false);
-    //EXPECT_STREQ(g.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+    // EXPECT_STREQ(g.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
     EXPECT_STREQ(g.DirectoryName(false, false).c_str(), (PrevPwdWithoutDisk_S + "data/dir/").c_str());
     EXPECT_STREQ(g.Extension().c_str(), "");
     EXPECT_STREQ(g.FileNameWithExtension().c_str(), "");
@@ -161,7 +160,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
       BofPath h("../../../data/dir/");
       EXPECT_EQ(h.IsDirectory(), true);
       EXPECT_EQ(h.IsFile(), false);
-      //EXPECT_STREQ(h.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
+      // EXPECT_STREQ(h.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
       EXPECT_STREQ(h.DirectoryName(false, false).c_str(), (PrevPwdWithoutDisk_S + "data/dir/").c_str());
       EXPECT_STREQ(h.Extension().c_str(), "");
       EXPECT_STREQ(h.FileNameWithExtension().c_str(), "");
@@ -185,7 +184,6 @@ TEST(Path_Test, PathConstructorDestructorWindows)
   i = BofPath(R"(Z:\a\b\c\d\e\f\..\F\..\G\h\file.abc)");
   EXPECT_STREQ(i.FullPathName(true).c_str(), R"(Z:\a\b\c\d\e\G\h\file.abc)");
 
-
   BofPath j(R"(Z:\a\b\c\d\e\f\g\dir\)");
   EXPECT_EQ(j.IsDirectory(), true);
   EXPECT_EQ(j.IsFile(), false);
@@ -208,7 +206,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
 
   BofPath Path0("C:\\");
   EXPECT_EQ(Path0.IsValid(), true);
-#if defined (_WIN32)
+#if defined(_WIN32)
   EXPECT_EQ(Path0.IsExist(), true);
 #else
   EXPECT_EQ(Path0.IsExist(), false);
@@ -225,7 +223,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
 
   BofPath Path1("C:\\", ".");
   EXPECT_EQ(Path1.IsValid(), true);
-#if defined (_WIN32)
+#if defined(_WIN32)
   EXPECT_EQ(Path0.IsExist(), true);
 #else
   EXPECT_EQ(Path0.IsExist(), false);
@@ -242,7 +240,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
 
   BofPath Path2(Path1);
   EXPECT_EQ(Path2.IsValid(), true);
-#if defined (_WIN32)
+#if defined(_WIN32)
   EXPECT_EQ(Path0.IsExist(), true);
 #else
   EXPECT_EQ(Path0.IsExist(), false);
@@ -259,7 +257,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
 
   BofPath Path3 = Path1;
   EXPECT_EQ(Path3.IsValid(), true);
-#if defined (_WIN32)
+#if defined(_WIN32)
   EXPECT_EQ(Path0.IsExist(), true);
 #else
   EXPECT_EQ(Path0.IsExist(), false);
@@ -276,7 +274,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
 
   BofPath Path4(std::move(Path3));
   EXPECT_EQ(Path4.IsValid(), true);
-#if defined (_WIN32)
+#if defined(_WIN32)
   EXPECT_EQ(Path0.IsExist(), true);
 #else
   EXPECT_EQ(Path0.IsExist(), false);
@@ -293,7 +291,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
 
   BofPath Path5("");
   EXPECT_EQ(Path5.IsValid(), true);
-#if defined (_WIN32)
+#if defined(_WIN32)
   EXPECT_EQ(Path0.IsExist(), true);
 #else
   EXPECT_EQ(Path0.IsExist(), false);
@@ -375,7 +373,6 @@ TEST(Path_Test, PathConstructorDestructorLinux)
   EXPECT_STREQ(Path4.Extension().c_str(), "");
   EXPECT_STREQ(Path4.FileNameWithExtension().c_str(), "");
   EXPECT_STREQ(Path4.FileNameWithoutExtension().c_str(), "");
-
 }
 
 TEST(Path_Test, PathParsing)
@@ -394,7 +391,6 @@ TEST(Path_Test, PathParsing)
   EXPECT_STREQ(Path.Extension().c_str(), "ext");
   EXPECT_STREQ(Path.FileNameWithExtension().c_str(), "file.ext");
   EXPECT_STREQ(Path.FileNameWithoutExtension().c_str(), "file");
-
 
   Path = "C:\\file";
   EXPECT_EQ(Path.IsValid(), true);
@@ -462,7 +458,7 @@ TEST(Path_Test, PathParsing)
   EXPECT_STREQ(Path.FileNameWithoutExtension().c_str(), "hello.world.");
 
   Path = "C:/tmp.azer/./A/././B.bha";
-  EXPECT_EQ(Path.IsValid(), true);    // Cf windows
+  EXPECT_EQ(Path.IsValid(), true); // Cf windows
 
   Path = "C:/tmp/./A/././B/C/";
   EXPECT_EQ(Path.IsValid(), true);

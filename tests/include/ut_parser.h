@@ -26,9 +26,9 @@
 
 struct OTHER
 {
-  uint32_t    a_U32;
-  uint32_t    b_U32;
-  uint32_t    c_U32;
+  uint32_t a_U32;
+  uint32_t b_U32;
+  uint32_t c_U32;
 
   OTHER()
   {
@@ -44,15 +44,15 @@ struct OTHER
 
 struct BOOKPARAM
 {
-  char       pId_c[16];
-  char       pAuthor_c[64];
-  char       pTitle_c[64];
-  char       pGenre_c[32];
-  float      Price_f;
-  char       pBha1_c[16];
-  char       pBha2_c[16];
-  BofDateTime    PublishDate;
-  char       pDescription_c[256];
+  char pId_c[16];
+  char pAuthor_c[64];
+  char pTitle_c[64];
+  char pGenre_c[32];
+  float Price_f;
+  char pBha1_c[16];
+  char pBha2_c[16];
+  BofDateTime PublishDate;
+  char pDescription_c[256];
 
   BOOKPARAM()
   {
@@ -74,19 +74,19 @@ struct BOOKPARAM
 
 struct PARSER_APPPARAM
 {
-  BOF_SOCKET_ADDRESS_COMPONENT    DeployIpAddress_X;
-  uint16_t           DeployIpPort_U16;
-  char               pDeployProtocol_c[16];
-  char               pDeployDirectory_c[256];
-  char               pLoginUser_c[32];
-  char               pLoginPassword_c[32];
-  char               pEmail_c[64];
-  char               pUserName_c[16];
-  char               pUserCompany_c[16];
-  char               pToolChainBaseDirectory_c[256];
-  char               pTemplateProjectBaseDirectory_c[256];
-  BOOKPARAM          pBook_X[100];
-  OTHER              pOther_X[4];
+  BOF_SOCKET_ADDRESS_COMPONENT DeployIpAddress_X;
+  uint16_t DeployIpPort_U16;
+  char pDeployProtocol_c[16];
+  char pDeployDirectory_c[256];
+  char pLoginUser_c[32];
+  char pLoginPassword_c[32];
+  char pEmail_c[64];
+  char pUserName_c[16];
+  char pUserCompany_c[16];
+  char pToolChainBaseDirectory_c[256];
+  char pTemplateProjectBaseDirectory_c[256];
+  BOOKPARAM pBook_X[100];
+  OTHER pOther_X[4];
 
   PARSER_APPPARAM()
   {
@@ -96,7 +96,7 @@ struct PARSER_APPPARAM
   {
     // Setup application default value
     DeployIpAddress_X.Reset();
-//    DeployIpAddress_X.Protocol_S = "bha";
+    //    DeployIpAddress_X.Protocol_S = "bha";
     DeployIpPort_U16 = 0;
     pDeployProtocol_c[0] = 0;
     pDeployDirectory_c[0] = 0;
@@ -112,7 +112,6 @@ struct PARSER_APPPARAM
     memset(pOther_X, 0, sizeof(pOther_X));
   }
 };
-
 
 struct APPPARAMVECTOR
 {
@@ -136,7 +135,6 @@ struct APPPARAMVECTOR
     IdCollection.clear();
   }
 };
-
 
 const uint32_t MAXIPSENDERTAG = 8;
 struct IPSENDER
@@ -196,7 +194,6 @@ struct IPMANIFEST
     }
   }
 };
-
 
 /*
 {"connect":{"receiver_id":"1c513fc7-faa8-4a89-bd1c-56d8b00a1355","sdp":["v=0","o=- 0 0 IN IP4 18.52.86.0","s=OUT1","i=Player A","c=IN IP4 33.67.101.0/32","t=0 0","m=video 16384 RTP/AVP 96","a=rtpmap:96 raw/90000","a=fmtp:96 packetization-mode=1"]}}
@@ -309,11 +306,13 @@ struct ADD_FLOW
   }
 };
 
-
 /*
-{"add_sender":{"description":"OUT1","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","flow_id":"40b94c9d-9bf1-4721-95ae-4316b4e080ea","id":"edbe7239-8659-46c9-a4f7-85b46a2efc73","label":"Player A","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
-{"add_sender":{"description":"OUT2","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","flow_id":"c24e8007-0de7-4935-ac73-d24ef6653192","id":"8b2dfdef-45ab-44e1-ae0e-c3378134e4cf","label":"Player B","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
-{"add_sender":{"description":"OUT3","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","flow_id":"0de84872-e6fb-41cf-9f0f-bff71be6dac2","id":"5556fa11-2824-4784-8305-65e4f3e1c1a3","label":"Player C","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
+{"add_sender":{"description":"OUT1","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","flow_id":"40b94c9d-9bf1-4721-95ae-4316b4e080ea","id":"edbe7239-8659-46c9-a4f7-85b46a2efc73","label":"Player
+A","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
+{"add_sender":{"description":"OUT2","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","flow_id":"c24e8007-0de7-4935-ac73-d24ef6653192","id":"8b2dfdef-45ab-44e1-ae0e-c3378134e4cf","label":"Player
+B","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
+{"add_sender":{"description":"OUT3","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","flow_id":"0de84872-e6fb-41cf-9f0f-bff71be6dac2","id":"5556fa11-2824-4784-8305-65e4f3e1c1a3","label":"Player
+C","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
 */
 struct ADD_SENDER
 {
@@ -345,9 +344,12 @@ struct ADD_SENDER
 };
 
 /*
-{"add_receiver":{"caps":{},"description":"IN1","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","format":"","id":"998a20b2-2a8a-42c3-a527-46d1de96a9df","label":"Recorder A","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
-{"add_receiver":{"caps":{},"description":"IN2","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","format":"","id":"6942c8f1-fa56-4db7-a741-ea2876b13744","label":"Recorder B","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
-{"add_receiver":{"caps":{},"description":"IN3","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","format":"","id":"281f1cf0-6d65-4c09-ac27-d6a4a0f425fa","label":"Recorder C","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
+{"add_receiver":{"caps":{},"description":"IN1","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","format":"","id":"998a20b2-2a8a-42c3-a527-46d1de96a9df","label":"Recorder
+A","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
+{"add_receiver":{"caps":{},"description":"IN2","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","format":"","id":"6942c8f1-fa56-4db7-a741-ea2876b13744","label":"Recorder
+B","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
+{"add_receiver":{"caps":{},"description":"IN3","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","format":"","id":"281f1cf0-6d65-4c09-ac27-d6a4a0f425fa","label":"Recorder
+C","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
 */
 struct ADD_RECEIVER
 {
@@ -399,13 +401,12 @@ struct ADD_MANIFEST
   }
 };
 
-
 /*
 {"connect":{"receiver_id":"1c513fc7-faa8-4a89-bd1c-56d8b00a1355","sdp":["v=0","o=- 0 0 IN IP4 18.52.86.0","s=OUT1","i=Player A","c=IN IP4 33.67.101.0/32","t=0 0","m=video 16384 RTP/AVP 96","a=rtpmap:96 raw/90000","a=fmtp:96 packetization-mode=1"]}}
 */
 struct CMD_CONNECT
 {
-  BOF::BofGuid  ReceiverId;
+  BOF::BofGuid ReceiverId;
   std::vector<std::string> SdpLineCollection;
 
   CMD_CONNECT()
@@ -522,7 +523,7 @@ struct JSON_TYPE
 {
   bool Bool_B;
   int64_t Decimal_S64;
-  double  Double_lf;
+  double Double_lf;
   std::string String_S;
   JSON_OBJECT Employee_X;
   JSON_OBJECT pEmployee_X[16];

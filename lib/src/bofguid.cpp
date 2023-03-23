@@ -20,8 +20,8 @@
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
 #include <bofstd/bofguid.h>
-#include <bofstd/bofsystem.h>
 #include <bofstd/bofstring.h>
+#include <bofstd/bofsystem.h>
 #include <cstring>
 
 #ifdef GUID_LIBUUID
@@ -37,8 +37,8 @@
 #endif
 
 #ifdef GUID_ANDROID
-#include <jni.h>
 #include <cassert>
+#include <jni.h>
 #endif
 
 BEGIN_BOF_NAMESPACE()
@@ -53,12 +53,9 @@ AndroidGuidInfo AndroidGuidInfo::fromJniEnv(JNIEnv *env)
   auto localUuidClass = env->FindClass("java/util/UUID");
   info.uuidClass = (jclass)env->NewGlobalRef(localUuidClass);
   env->DeleteLocalRef(localUuidClass);
-  info.newGuidMethod = env->GetStaticMethodID(
-    info.uuidClass, "randomUUID", "()Ljava/util/UUID;");
-  info.mostSignificantBitsMethod = env->GetMethodID(
-    info.uuidClass, "getMostSignificantBits", "()J");
-  info.leastSignificantBitsMethod = env->GetMethodID(
-    info.uuidClass, "getLeastSignificantBits", "()J");
+  info.newGuidMethod = env->GetStaticMethodID(info.uuidClass, "randomUUID", "()Ljava/util/UUID;");
+  info.mostSignificantBitsMethod = env->GetMethodID(info.uuidClass, "getMostSignificantBits", "()J");
+  info.leastSignificantBitsMethod = env->GetMethodID(info.uuidClass, "getLeastSignificantBits", "()J");
   info.initThreadId = std::this_thread::get_id();
   return info;
 }
@@ -119,7 +116,7 @@ BofGuid::BofGuid(const std::string &_rString_S)
   }
   for (const char &rIt : String_S)
   {
-    if (rIt == '-') 
+    if (rIt == '-')
     {
       continue;
     }
@@ -155,32 +152,15 @@ BofGuid::BofGuid(const std::string &_rString_S)
 std::ostream &operator<<(std::ostream &_rOs, const BofGuid &_rGuid)
 {
   std::ios_base::fmtflags Flag(_rOs.flags()); // politely don't leave the ostream in hex mode
-  _rOs << std::hex << std::setfill('0')
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[0]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[1]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[2]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[3]
-    << "-"
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[4]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[5]
-    << "-"
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[6]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[7]
-    << "-"
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[8]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[9]
-    << "-"
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[10]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[11]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[12]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[13]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[14]
-    << std::setw(2) << (int)_rGuid.mGuidByteCollection[15];
+  _rOs << std::hex << std::setfill('0') << std::setw(2) << (int)_rGuid.mGuidByteCollection[0] << std::setw(2) << (int)_rGuid.mGuidByteCollection[1] << std::setw(2) << (int)_rGuid.mGuidByteCollection[2] << std::setw(2) << (int)_rGuid.mGuidByteCollection[3]
+       << "-" << std::setw(2) << (int)_rGuid.mGuidByteCollection[4] << std::setw(2) << (int)_rGuid.mGuidByteCollection[5] << "-" << std::setw(2) << (int)_rGuid.mGuidByteCollection[6] << std::setw(2) << (int)_rGuid.mGuidByteCollection[7] << "-"
+       << std::setw(2) << (int)_rGuid.mGuidByteCollection[8] << std::setw(2) << (int)_rGuid.mGuidByteCollection[9] << "-" << std::setw(2) << (int)_rGuid.mGuidByteCollection[10] << std::setw(2) << (int)_rGuid.mGuidByteCollection[11] << std::setw(2)
+       << (int)_rGuid.mGuidByteCollection[12] << std::setw(2) << (int)_rGuid.mGuidByteCollection[13] << std::setw(2) << (int)_rGuid.mGuidByteCollection[14] << std::setw(2) << (int)_rGuid.mGuidByteCollection[15];
   _rOs.flags(Flag);
   return _rOs;
 }
 
-bool BofGuid::operator<(const BofGuid &_rOther)	const //, const BofGuid &rhs)
+bool BofGuid::operator<(const BofGuid &_rOther) const //, const BofGuid &rhs)
 {
   return this->Data() < _rOther.Data();
 }
@@ -206,14 +186,14 @@ std::string BofGuid::ToString(bool _Cannonical_B) const
   snprintf(pFive_c, 14, "%02x%02x%02x%02x%02x%02x", mGuidByteCollection[10], mGuidByteCollection[11], mGuidByteCollection[12], mGuidByteCollection[13], mGuidByteCollection[14], mGuidByteCollection[15]);
   Rts_S = pOne_c;
 
-  if (_Cannonical_B)	 //6ba39f88-ed13-8c48-a765-a8738dba383e
+  if (_Cannonical_B) // 6ba39f88-ed13-8c48-a765-a8738dba383e
   {
     Rts_S += "-" + std::string(pTwo_c);
     Rts_S += "-" + std::string(pThree_c);
     Rts_S += "-" + std::string(pFour_c);
     Rts_S += "-" + std::string(pFive_c);
   }
-  else //6BA39F88ED138C48A765A8738DBA383E
+  else // 6BA39F88ED138C48A765A8738DBA383E
   {
     Rts_S += pTwo_c;
     Rts_S += pThree_c;
@@ -402,7 +382,7 @@ Guid newGuid()
   std::array<uint8_t, 16> data;
   static_assert(std::is_same<uint8_t[16], uuid_t>::value, "Wrong type!");
   uuid_generate(data.data());
-  return Guid{ std::move(data) };
+  return Guid{std::move(data)};
 }
 #endif
 
@@ -414,26 +394,8 @@ Guid newGuid()
   auto bytes = CFUUIDGetUUIDBytes(newId);
   CFRelease(newId);
 
-  std::array<uint8_t, 16> byteArray =
-  { {
-    bytes.byte0,
-    bytes.byte1,
-    bytes.byte2,
-    bytes.byte3,
-    bytes.byte4,
-    bytes.byte5,
-    bytes.byte6,
-    bytes.byte7,
-    bytes.byte8,
-    bytes.byte9,
-    bytes.byte10,
-    bytes.byte11,
-    bytes.byte12,
-    bytes.byte13,
-    bytes.byte14,
-    bytes.byte15
-  } };
-  return Guid{ std::move(byteArray) };
+  std::array<uint8_t, 16> byteArray = {{bytes.byte0, bytes.byte1, bytes.byte2, bytes.byte3, bytes.byte4, bytes.byte5, bytes.byte6, bytes.byte7, bytes.byte8, bytes.byte9, bytes.byte10, bytes.byte11, bytes.byte12, bytes.byte13, bytes.byte14, bytes.byte15}};
+  return Guid{std::move(byteArray)};
 }
 #endif
 
@@ -444,30 +406,27 @@ Guid newGuid()
   GUID newId;
   CoCreateGuid(&newId);
 
-  std::array<uint8_t, 16> bytes =
-  {
-    (uint8_t)((newId.Data1 >> 24) & 0xFF),
-    (uint8_t)((newId.Data1 >> 16) & 0xFF),
-    (uint8_t)((newId.Data1 >> 8) & 0xFF),
-    (uint8_t)((newId.Data1) & 0xff),
+  std::array<uint8_t, 16> bytes = {(uint8_t)((newId.Data1 >> 24) & 0xFF),
+                                   (uint8_t)((newId.Data1 >> 16) & 0xFF),
+                                   (uint8_t)((newId.Data1 >> 8) & 0xFF),
+                                   (uint8_t)((newId.Data1) & 0xff),
 
-    (uint8_t)((newId.Data2 >> 8) & 0xFF),
-    (uint8_t)((newId.Data2) & 0xff),
+                                   (uint8_t)((newId.Data2 >> 8) & 0xFF),
+                                   (uint8_t)((newId.Data2) & 0xff),
 
-    (uint8_t)((newId.Data3 >> 8) & 0xFF),
-    (uint8_t)((newId.Data3) & 0xFF),
+                                   (uint8_t)((newId.Data3 >> 8) & 0xFF),
+                                   (uint8_t)((newId.Data3) & 0xFF),
 
-    (uint8_t)newId.Data4[0],
-    (uint8_t)newId.Data4[1],
-    (uint8_t)newId.Data4[2],
-    (uint8_t)newId.Data4[3],
-    (uint8_t)newId.Data4[4],
-    (uint8_t)newId.Data4[5],
-    (uint8_t)newId.Data4[6],
-    (uint8_t)newId.Data4[7]
-  };
+                                   (uint8_t)newId.Data4[0],
+                                   (uint8_t)newId.Data4[1],
+                                   (uint8_t)newId.Data4[2],
+                                   (uint8_t)newId.Data4[3],
+                                   (uint8_t)newId.Data4[4],
+                                   (uint8_t)newId.Data4[5],
+                                   (uint8_t)newId.Data4[6],
+                                   (uint8_t)newId.Data4[7]};
 
-  return Guid{ std::move(bytes) };
+  return Guid{std::move(bytes)};
 }
 #endif
 
@@ -477,36 +436,18 @@ Guid newGuid(JNIEnv *env)
 {
   assert(env != androidInfo.env || std::this_thread::get_id() == androidInfo.initThreadId);
 
-  jobject javaUuid = env->CallStaticObjectMethod(
-    androidInfo.uuidClass, androidInfo.newGuidMethod);
-  jlong mostSignificant = env->CallLongMethod(javaUuid,
-    androidInfo.mostSignificantBitsMethod);
-  jlong leastSignificant = env->CallLongMethod(javaUuid,
-    androidInfo.leastSignificantBitsMethod);
+  jobject javaUuid = env->CallStaticObjectMethod(androidInfo.uuidClass, androidInfo.newGuidMethod);
+  jlong mostSignificant = env->CallLongMethod(javaUuid, androidInfo.mostSignificantBitsMethod);
+  jlong leastSignificant = env->CallLongMethod(javaUuid, androidInfo.leastSignificantBitsMethod);
 
-  std::array<uint8_t, 16> bytes =
-  {
-    (uint8_t)((mostSignificant >> 56) & 0xFF),
-    (uint8_t)((mostSignificant >> 48) & 0xFF),
-    (uint8_t)((mostSignificant >> 40) & 0xFF),
-    (uint8_t)((mostSignificant >> 32) & 0xFF),
-    (uint8_t)((mostSignificant >> 24) & 0xFF),
-    (uint8_t)((mostSignificant >> 16) & 0xFF),
-    (uint8_t)((mostSignificant >> 8) & 0xFF),
-    (uint8_t)((mostSignificant) & 0xFF),
-    (uint8_t)((leastSignificant >> 56) & 0xFF),
-    (uint8_t)((leastSignificant >> 48) & 0xFF),
-    (uint8_t)((leastSignificant >> 40) & 0xFF),
-    (uint8_t)((leastSignificant >> 32) & 0xFF),
-    (uint8_t)((leastSignificant >> 24) & 0xFF),
-    (uint8_t)((leastSignificant >> 16) & 0xFF),
-    (uint8_t)((leastSignificant >> 8) & 0xFF),
-    (uint8_t)((leastSignificant) & 0xFF)
-  };
+  std::array<uint8_t, 16> bytes = {(uint8_t)((mostSignificant >> 56) & 0xFF),  (uint8_t)((mostSignificant >> 48) & 0xFF),  (uint8_t)((mostSignificant >> 40) & 0xFF),  (uint8_t)((mostSignificant >> 32) & 0xFF),
+                                   (uint8_t)((mostSignificant >> 24) & 0xFF),  (uint8_t)((mostSignificant >> 16) & 0xFF),  (uint8_t)((mostSignificant >> 8) & 0xFF),   (uint8_t)((mostSignificant)&0xFF),
+                                   (uint8_t)((leastSignificant >> 56) & 0xFF), (uint8_t)((leastSignificant >> 48) & 0xFF), (uint8_t)((leastSignificant >> 40) & 0xFF), (uint8_t)((leastSignificant >> 32) & 0xFF),
+                                   (uint8_t)((leastSignificant >> 24) & 0xFF), (uint8_t)((leastSignificant >> 16) & 0xFF), (uint8_t)((leastSignificant >> 8) & 0xFF),  (uint8_t)((leastSignificant)&0xFF)};
 
   env->DeleteLocalRef(javaUuid);
 
-  return Guid{ std::move(bytes) };
+  return Guid{std::move(bytes)};
 }
 
 Guid newGuid()
@@ -521,9 +462,8 @@ END_BOF_NAMESPACE()
 // call member swap function of lhs, passing rhs
 namespace std
 {
-  template <>
-  void swap(BOF::BofGuid &lhs, BOF::BofGuid &rhs)
-  {
-    lhs.swap(rhs);
-  }
+template <> void swap(BOF::BofGuid &lhs, BOF::BofGuid &rhs)
+{
+  lhs.swap(rhs);
 }
+} // namespace std

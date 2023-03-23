@@ -30,45 +30,43 @@
  *
  **************************************************************************/
 
-
- /*!
-  * \file
-  */
-
+/*!
+ * \file
+ */
 
 #include "ixmlmembuf.h"
 #include "ixml.h"
-
 
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-  /*!
-   * \brief Increases or decreases buffer capacity so that at least 'new_length'
-   * bytes can be stored.
-   *
-   * On error, m's fields do not change.
-   *
-   * \return
-   * 	\li UPNP_E_SUCCESS
-   * 	\li UPNP_E_OUTOF_MEMORY
-   */
+/*!
+ * \brief Increases or decreases buffer capacity so that at least 'new_length'
+ * bytes can be stored.
+ *
+ * On error, m's fields do not change.
+ *
+ * \return
+ * 	\li UPNP_E_SUCCESS
+ * 	\li UPNP_E_OUTOF_MEMORY
+ */
 static int ixml_membuf_set_size(
-  /*! [in,out] The memory buffer. */
-  INOUT ixml_membuf *m,
-  /*! [in] The new lenght. */
-  IN size_t new_length)
+    /*! [in,out] The memory buffer. */
+    INOUT ixml_membuf *m,
+    /*! [in] The new lenght. */
+    IN size_t new_length)
 {
   size_t diff;
   size_t alloc_len;
   char *temp_buf;
 
-  if (new_length >= m->length) {
+  if (new_length >= m->length)
+  {
     /* increase length */
     /* need more mem? */
-    if (new_length <= m->capacity) {
+    if (new_length <= m->capacity)
+    {
       /* have enough mem; done */
       return 0;
     }
@@ -76,12 +74,14 @@ static int ixml_membuf_set_size(
     diff = new_length - m->length;
     alloc_len = MAXVAL(m->size_inc, diff) + m->capacity;
   }
-  else {
+  else
+  {
     /* decrease length */
     assert(new_length <= m->length);
 
     /* if diff is 0..m->size_inc, don't free */
-    if ((m->capacity - new_length) <= m->size_inc) {
+    if ((m->capacity - new_length) <= m->size_inc)
+    {
       return 0;
     }
     alloc_len = new_length + m->size_inc;
@@ -90,11 +90,13 @@ static int ixml_membuf_set_size(
   assert(alloc_len >= new_length);
 
   temp_buf = realloc(m->buf, alloc_len + (size_t)1);
-  if (temp_buf == NULL) {
+  if (temp_buf == NULL)
+  {
     /* try smaller size */
     alloc_len = new_length;
     temp_buf = realloc(m->buf, alloc_len + (size_t)1);
-    if (temp_buf == NULL) {
+    if (temp_buf == NULL)
+    {
       return IXML_INSUFFICIENT_MEMORY;
     }
   }
@@ -104,7 +106,6 @@ static int ixml_membuf_set_size(
 
   return 0;
 }
-
 
 void ixml_membuf_init(ixml_membuf *m)
 {
@@ -116,10 +117,10 @@ void ixml_membuf_init(ixml_membuf *m)
   m->capacity = (size_t)0;
 }
 
-
 void ixml_membuf_destroy(ixml_membuf *m)
 {
-  if (m == NULL) {
+  if (m == NULL)
+  {
     return;
   }
 
@@ -127,24 +128,22 @@ void ixml_membuf_destroy(ixml_membuf *m)
   ixml_membuf_init(m);
 }
 
-
-int ixml_membuf_assign(
-  ixml_membuf *m,
-  const void *buf,
-  size_t buf_len)
+int ixml_membuf_assign(ixml_membuf *m, const void *buf, size_t buf_len)
 {
   int return_code;
 
   assert(m != NULL);
 
   /* set value to null */
-  if (buf == NULL) {
+  if (buf == NULL)
+  {
     ixml_membuf_destroy(m);
     return IXML_SUCCESS;
   }
   /* alloc mem */
   return_code = ixml_membuf_set_size(m, buf_len);
-  if (return_code != 0) {
+  if (return_code != 0)
+  {
     return return_code;
   }
 
@@ -158,53 +157,42 @@ int ixml_membuf_assign(
   return IXML_SUCCESS;
 }
 
-
-int ixml_membuf_assign_str(
-  ixml_membuf *m,
-  const char *c_str)
+int ixml_membuf_assign_str(ixml_membuf *m, const char *c_str)
 {
   return ixml_membuf_assign(m, c_str, strlen(c_str));
 }
 
-
-int ixml_membuf_append(
-  INOUT ixml_membuf *m,
-  IN const void *buf)
+int ixml_membuf_append(INOUT ixml_membuf *m, IN const void *buf)
 {
   assert(m != NULL);
 
   return ixml_membuf_insert(m, buf, (size_t)1, m->length);
 }
 
-
-int ixml_membuf_append_str(
-  INOUT ixml_membuf *m,
-  IN const char *c_str)
+int ixml_membuf_append_str(INOUT ixml_membuf *m, IN const char *c_str)
 {
   return ixml_membuf_insert(m, c_str, strlen(c_str), m->length);
 }
 
-
-int ixml_membuf_insert(
-  INOUT ixml_membuf *m,
-  IN const void *buf,
-  IN size_t buf_len,
-  size_t index)
+int ixml_membuf_insert(INOUT ixml_membuf *m, IN const void *buf, IN size_t buf_len, size_t index)
 {
   int return_code = 0;
 
   assert(m != NULL);
 
-  if (index > m->length) {
+  if (index > m->length)
+  {
     return IXML_INDEX_SIZE_ERR;
   }
 
-  if (buf == NULL || buf_len == (size_t)0) {
+  if (buf == NULL || buf_len == (size_t)0)
+  {
     return 0;
   }
   /* alloc mem */
   return_code = ixml_membuf_set_size(m, m->length + buf_len);
-  if (return_code != 0) {
+  if (return_code != 0)
+  {
     return return_code;
   }
   /* insert data */
@@ -217,4 +205,3 @@ int ixml_membuf_insert(
 
   return 0;
 }
-

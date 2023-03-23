@@ -1,23 +1,14 @@
+#include <assert.h>
 #include <asyncmulticastdelegate/Allocator.h>
 #include <new>
-#include <assert.h>
 
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-Allocator::Allocator(size_t size, uint32_t objects, char *memory, const char *name) :
-  m_blockSize(size < sizeof(long *) ? sizeof(long *) : size),
-  m_objectSize(size),
-  m_maxObjects(objects),
-  m_pHead(NULL),
-  m_poolIndex(0),
-  m_blockCnt(0),
-  m_blocksInUse(0),
-  m_allocations(0),
-  m_deallocations(0),
-  m_name(name)
+Allocator::Allocator(size_t size, uint32_t objects, char *memory, const char *name)
+    : m_blockSize(size < sizeof(long *) ? sizeof(long *) : size), m_objectSize(size), m_maxObjects(objects), m_pHead(NULL), m_poolIndex(0), m_blockCnt(0), m_blocksInUse(0), m_allocations(0), m_deallocations(0), m_name(name)
 {
-  // If using a fixed memory pool 
+  // If using a fixed memory pool
   if (m_maxObjects)
   {
     // If caller provided an external memory pool
@@ -41,14 +32,14 @@ Allocator::Allocator(size_t size, uint32_t objects, char *memory, const char *na
 //------------------------------------------------------------------------------
 Allocator::~Allocator()
 {
-  // If using pool then destroy it, otherwise traverse free-list and 
+  // If using pool then destroy it, otherwise traverse free-list and
   // destroy each individual block
   if (m_allocatorMode == HEAP_POOL)
     delete[] m_pPool;
   else if (m_allocatorMode == HEAP_BLOCKS)
   {
     while (m_pHead)
-      delete[](char *)Pop();
+      delete[] (char *)Pop();
   }
 }
 
@@ -133,8 +124,3 @@ void *Allocator::Pop()
 
   return (void *)pBlock;
 }
-
-
-
-
-

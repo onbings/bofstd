@@ -22,18 +22,14 @@
 #include <bofstd/bofbit.h>
 
 BEGIN_BOF_NAMESPACE()
-//https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
-static const unsigned char S_pLogTable256_U8[256] =
-{
+// https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
+static const unsigned char S_pLogTable256_U8[256] = {
 #define LT(n) n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n
-                                 0xFF, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
-                                 LT(4), LT(5), LT(5), LT(6), LT(6), LT(6), LT(6),
-                                 LT(7), LT(7), LT(7), LT(7), LT(7), LT(7), LT(7), LT(7)
-};
+    0xFF, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, LT(4), LT(5), LT(5), LT(6), LT(6), LT(6), LT(6), LT(7), LT(7), LT(7), LT(7), LT(7), LT(7), LT(7), LT(7)};
 
 uint8_t Bof_MostSignificantBitSetPosition(uint64_t _Val_U64) // 32-bit word to find the log of
 {
-  uint8_t  Rts_U8;     // Rts_U8 will be log(_Val_U32)
+  uint8_t Rts_U8;                         // Rts_U8 will be log(_Val_U32)
   uint32_t Val_U32, Temp1_U32, Temp2_U32; // temporaries
 
   if (_Val_U64 == 0)
@@ -48,7 +44,7 @@ uint8_t Bof_MostSignificantBitSetPosition(uint64_t _Val_U64) // 32-bit word to f
   {
     Rts_U8 = 0;
     Val_U32 = static_cast<uint32_t>(_Val_U64 >> 32);
-    if (Val_U32)  //In upper part ?
+    if (Val_U32) // In upper part ?
     {
       Temp2_U32 = Val_U32 >> 16;
       if (Temp2_U32)
@@ -125,12 +121,11 @@ uint64_t Bof_NextHighestPowerOf2(uint64_t _Val_U64)
   // do till only one bit is left
   while (_Val_U64 & (_Val_U64 - 1))
   {
-    _Val_U64 = _Val_U64 & (_Val_U64 - 1);  // unset rightmost bit
+    _Val_U64 = _Val_U64 & (_Val_U64 - 1); // unset rightmost bit
   }
   // _Val_U64 is now a power of two (less than _Val_U64)
   // return next power of 2
   return _Val_U64 << 1;
-
 }
 uint64_t Bof_RoundUpOnMultipleOf(uint64_t _Val_U64, uint64_t _Multiple_U64)
 {
@@ -180,7 +175,7 @@ bool Bof_IsAligned(uint64_t _Align_U64, void *_pData)
 
 std::string Bof_BitToString(uint32_t _Value_U32, uint32_t _InsertASpaceEvery_U32)
 {
-  char     pToString_c[128];
+  char pToString_c[128];
   uint32_t i_U32, Index_U32, Cpt_U32;
 
   Cpt_U32 = 0;

@@ -34,8 +34,8 @@ Unit test:
   puConio->SetTextCursorState(CONIO_TEXT_CURSOR_STATE::CONIO_TEXT_CURSOR_STATE_BLINK_OFF);
   puConio->SetTextWindowTitle("M F S");
 */
- //https://solarianprogrammer.com/2019/04/08/c-programming-ansi-escape-codes-windows-macos-linux-terminals/
- //https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+// https://solarianprogrammer.com/2019/04/08/c-programming-ansi-escape-codes-windows-macos-linux-terminals/
+// https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 #include <bofstd/bofconio.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/bofsystem.h>
@@ -43,53 +43,30 @@ Unit test:
 #include <linenoise.hpp>
 
 #if defined(_WIN32)
-#include <conio.h>
 #include <Windows.h>
+#include <conio.h>
 #else
-#include <sys/ioctl.h>
+#include <linenoise.hpp>
+#include <linux/kd.h>
+#include <poll.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
-#include <linenoise.hpp>
-#include <poll.h>
-#include <linux/kd.h>
 #endif
 
-#include <stdlib.h>
 #include <map>
+#include <stdlib.h>
 
 BEGIN_BOF_NAMESPACE()
 
 static std::map<uint32_t, std::string> S_KeyLookupCollection{
-  {CONIO_FUNCTION_KEY_F1,         "F01"},
-  {CONIO_FUNCTION_KEY_F2,         "F02"},
-  {CONIO_FUNCTION_KEY_F3,         "F03"},
-  {CONIO_FUNCTION_KEY_F4,         "F04"},
-  {CONIO_FUNCTION_KEY_F5,         "F05"},
-  {CONIO_FUNCTION_KEY_F6,         "F06"},
-  {CONIO_FUNCTION_KEY_F7,         "F07"},
-  {CONIO_FUNCTION_KEY_F8,         "F08"},
-  {CONIO_FUNCTION_KEY_F9,         "F09"},
-  {CONIO_FUNCTION_KEY_F10,        "F10"},
-  {CONIO_FUNCTION_KEY_F11,        "F11"},
-  {CONIO_FUNCTION_KEY_F12,        "F12"},
-  {CONIO_SPECIAL_KEY_ESC,         "Esc"},
-  {CONIO_SPECIAL_KEY_BACKSPACE,   "Bs"},
-  {CONIO_SPECIAL_KEY_TAB,         "Tab"},
-  {CONIO_SPECIAL_KEY_ENTER,       "Enter"},
-  {CONIO_SPECIAL_KEY_INSERT,      "Ins"},
-  {CONIO_SPECIAL_KEY_HOME,        "Home"},
-  {CONIO_SPECIAL_KEY_PAGE_UP,     "PgUp"},
-  {CONIO_SPECIAL_KEY_DELETE,      "Del"},
-  {CONIO_SPECIAL_KEY_END,         "End"},
-  {CONIO_SPECIAL_KEY_PAGE_DOWN,   "PgDw"},
-  {CONIO_SPECIAL_KEY_ARROW_UP,    "Up"},
-  {CONIO_SPECIAL_KEY_ARROW_LEFT,  "Left"},
-  {CONIO_SPECIAL_KEY_ARROW_DOWN,  "Down"},
-  {CONIO_SPECIAL_KEY_ARROW_RIGHT, "Right"},
-  {CONIO_SPECIAL_KEY_NONE,        "None"},
+    {CONIO_FUNCTION_KEY_F1, "F01"},         {CONIO_FUNCTION_KEY_F2, "F02"},           {CONIO_FUNCTION_KEY_F3, "F03"},   {CONIO_FUNCTION_KEY_F4, "F04"},        {CONIO_FUNCTION_KEY_F5, "F05"},     {CONIO_FUNCTION_KEY_F6, "F06"},
+    {CONIO_FUNCTION_KEY_F7, "F07"},         {CONIO_FUNCTION_KEY_F8, "F08"},           {CONIO_FUNCTION_KEY_F9, "F09"},   {CONIO_FUNCTION_KEY_F10, "F10"},       {CONIO_FUNCTION_KEY_F11, "F11"},    {CONIO_FUNCTION_KEY_F12, "F12"},
+    {CONIO_SPECIAL_KEY_ESC, "Esc"},         {CONIO_SPECIAL_KEY_BACKSPACE, "Bs"},      {CONIO_SPECIAL_KEY_TAB, "Tab"},   {CONIO_SPECIAL_KEY_ENTER, "Enter"},    {CONIO_SPECIAL_KEY_INSERT, "Ins"},  {CONIO_SPECIAL_KEY_HOME, "Home"},
+    {CONIO_SPECIAL_KEY_PAGE_UP, "PgUp"},    {CONIO_SPECIAL_KEY_DELETE, "Del"},        {CONIO_SPECIAL_KEY_END, "End"},   {CONIO_SPECIAL_KEY_PAGE_DOWN, "PgDw"}, {CONIO_SPECIAL_KEY_ARROW_UP, "Up"}, {CONIO_SPECIAL_KEY_ARROW_LEFT, "Left"},
+    {CONIO_SPECIAL_KEY_ARROW_DOWN, "Down"}, {CONIO_SPECIAL_KEY_ARROW_RIGHT, "Right"}, {CONIO_SPECIAL_KEY_NONE, "None"},
 };
-
 
 BofConio::BofConio(const BOF_CONIO_PARAM &_rBofConioParam_X)
 {
@@ -105,12 +82,12 @@ BofConio::BofConio(const BOF_CONIO_PARAM &_rBofConioParam_X)
     mConsoleHeight_U32 = ScreenBufferInfo_X.srWindow.Bottom - ScreenBufferInfo_X.srWindow.Top + 1;
   }
 #else
-  //struct winsize ScreenBufferInfo_X;
-  //ioctl(STDOUT_FILENO, TIOCGWINSZ, &ScreenBufferInfo_X);
-  //mConsoleWidth_U32 = ScreenBufferInfo_X.ws_row;
-  //mConsoleHeight_U32 = ScreenBufferInfo_X.ws_col;
-//	mConsoleHeight_U32 = atoi(getenv("LINES"));
-//	mConsoleWidth_U32 = atoi(getenv("COLUMNS"));
+  // struct winsize ScreenBufferInfo_X;
+  // ioctl(STDOUT_FILENO, TIOCGWINSZ, &ScreenBufferInfo_X);
+  // mConsoleWidth_U32 = ScreenBufferInfo_X.ws_row;
+  // mConsoleHeight_U32 = ScreenBufferInfo_X.ws_col;
+  //	mConsoleHeight_U32 = atoi(getenv("LINES"));
+  //	mConsoleWidth_U32 = atoi(getenv("COLUMNS"));
   mConsoleHeight_U32 = 80;
   mConsoleWidth_U32 = 24;
 #endif
@@ -129,14 +106,13 @@ BofConio::BofConio(const BOF_CONIO_PARAM &_rBofConioParam_X)
       completions.push_back("hello there");
     }
     */
-                                   });
+  });
 }
 
 BofConio::~BofConio()
 {
   linenoise::SaveHistory(mBofConioParam_X.HistoryPathname.FullPathName(false).c_str());
 }
-
 
 std::string BofConio::KeyToString(uint32_t _Key_U32)
 {
@@ -248,7 +224,6 @@ uint32_t BofConio::KbHit(uint32_t _TimeOutInMs_U32)
           Rts_U32 = GetChAfterOneChar(false, Ch_c);
         }
         linenoise::disableRawMode(STDIN_FILENO);
-
       }
       else
       {
@@ -278,11 +253,11 @@ uint32_t BofConio::GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c)
     if (!Rts_U32)
     {
       ExtraKey_U32 = _getch();
-      if ((ExtraKey_U32 >= 0x0000003B) && (ExtraKey_U32 <= (0x0000003B + 10)))	//F1->F10
+      if ((ExtraKey_U32 >= 0x0000003B) && (ExtraKey_U32 <= (0x0000003B + 10))) // F1->F10
       {
         Rts_U32 = CONIO_FUNCTION_KEY_F1 + ExtraKey_U32 - 0x0000003B;
       }
-      else	//Numeric keypad
+      else // Numeric keypad
       {
         Rts_U32 = 0x0000E000 | ExtraKey_U32;
       }
@@ -293,7 +268,7 @@ uint32_t BofConio::GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c)
       Rts_U32 = 0x0000E000 | ExtraKey_U32;
     }
   }
-  //http://www.kbdedit.com/manual/low_level_vk_list.html
+  // http://www.kbdedit.com/manual/low_level_vk_list.html
   State_U16 = GetAsyncKeyState(VK_LCONTROL);
   if (State_U16 & 0x8000)
   {
@@ -351,7 +326,7 @@ uint32_t BofConio::GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c)
   }
 
 #else
-  char          pEscSeq_c[4];
+  char pEscSeq_c[4];
   struct pollfd Poll_X;
 
   pEscSeq_c[0] = 0;
@@ -408,160 +383,160 @@ uint32_t BofConio::GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c)
       {
         switch (pEscSeq_c[0])
         {
-          case 'O':
-            switch (pEscSeq_c[1])
+        case 'O':
+          switch (pEscSeq_c[1])
+          {
+          case 'P':
+            Rts_U32 = CONIO_FUNCTION_KEY_F1;
+            break;
+
+          case 'Q':
+            Rts_U32 = CONIO_FUNCTION_KEY_F2;
+            break;
+
+          case 'R':
+            Rts_U32 = CONIO_FUNCTION_KEY_F3;
+            break;
+
+          case 'S':
+            Rts_U32 = CONIO_FUNCTION_KEY_F4;
+            break;
+
+          default:
+            break;
+          }
+          break;
+
+        case '[':
+          if (pEscSeq_c[1] >= '0' && pEscSeq_c[1] <= '9')
+          {
+            /* Extended escape, read additional byte. */
+            if (read(STDIN_FILENO, &pEscSeq_c[2], 1) != 1)
             {
-              case 'P':
-                Rts_U32 = CONIO_FUNCTION_KEY_F1;
-                break;
+              break;
+            }
+          }
+          switch (pEscSeq_c[1])
+          {
+          case '1':
+            switch (pEscSeq_c[2])
+            {
+            case '5':
+              Rts_U32 = CONIO_FUNCTION_KEY_F5;
+              break;
 
-              case 'Q':
-                Rts_U32 = CONIO_FUNCTION_KEY_F2;
-                break;
+            case '7': // Not a mistake (no 6)
+              Rts_U32 = CONIO_FUNCTION_KEY_F6;
+              break;
 
-              case 'R':
-                Rts_U32 = CONIO_FUNCTION_KEY_F3;
-                break;
+            case '8':
+              Rts_U32 = CONIO_FUNCTION_KEY_F7;
+              break;
 
-              case 'S':
-                Rts_U32 = CONIO_FUNCTION_KEY_F4;
-                break;
+            case '9':
+              Rts_U32 = CONIO_FUNCTION_KEY_F8;
+              break;
 
-              default:
-                break;
+            default:
+              break;
             }
             break;
 
-          case '[':
-            if (pEscSeq_c[1] >= '0' && pEscSeq_c[1] <= '9')
+          case '2':
+            switch (pEscSeq_c[2])
             {
-              /* Extended escape, read additional byte. */
-              if (read(STDIN_FILENO, &pEscSeq_c[2], 1) != 1)
-              {
-                break;
-              }
+            case '0':
+              Rts_U32 = CONIO_FUNCTION_KEY_F9;
+              break;
+
+            case '1':
+              Rts_U32 = CONIO_FUNCTION_KEY_F10;
+              break;
+
+            case '3': // Or 4 can't test F11 fullscreen
+              Rts_U32 = CONIO_FUNCTION_KEY_F11;
+              break;
+
+            case '4':
+              Rts_U32 = CONIO_FUNCTION_KEY_F12;
+              break;
+
+            case '~':
+              Rts_U32 = CONIO_SPECIAL_KEY_INSERT;
+              break;
+
+            default:
+              break;
             }
-            switch (pEscSeq_c[1])
+            break;
+
+          case '3':
+            switch (pEscSeq_c[2])
             {
-              case '1':
-                switch (pEscSeq_c[2])
-                {
-                  case '5':
-                    Rts_U32 = CONIO_FUNCTION_KEY_F5;
-                    break;
+            case '~':
+              Rts_U32 = CONIO_SPECIAL_KEY_DELETE;
+              break;
 
-                  case '7':  //Not a mistake (no 6)
-                    Rts_U32 = CONIO_FUNCTION_KEY_F6;
-                    break;
-
-                  case '8':
-                    Rts_U32 = CONIO_FUNCTION_KEY_F7;
-                    break;
-
-                  case '9':
-                    Rts_U32 = CONIO_FUNCTION_KEY_F8;
-                    break;
-
-                  default:
-                    break;
-                }
-                break;
-
-              case '2':
-                switch (pEscSeq_c[2])
-                {
-                  case '0':
-                    Rts_U32 = CONIO_FUNCTION_KEY_F9;
-                    break;
-
-                  case '1':
-                    Rts_U32 = CONIO_FUNCTION_KEY_F10;
-                    break;
-
-                  case '3': //Or 4 can't test F11 fullscreen
-                    Rts_U32 = CONIO_FUNCTION_KEY_F11;
-                    break;
-
-                  case '4':
-                    Rts_U32 = CONIO_FUNCTION_KEY_F12;
-                    break;
-
-                  case '~':
-                    Rts_U32 = CONIO_SPECIAL_KEY_INSERT;
-                    break;
-
-                  default:
-                    break;
-                }
-                break;
-
-              case '3':
-                switch (pEscSeq_c[2])
-                {
-                  case '~':
-                    Rts_U32 = CONIO_SPECIAL_KEY_DELETE;
-                    break;
-
-                  default:
-                    break;
-                }
-                break;
-
-              case '5':
-                switch (pEscSeq_c[2])
-                {
-                  case '~':
-                    Rts_U32 = CONIO_SPECIAL_KEY_PAGE_UP;
-                    break;
-
-                  default:
-                    break;
-                }
-                break;
-
-              case '6':
-                switch (pEscSeq_c[2])
-                {
-                  case '~':
-                    Rts_U32 = CONIO_SPECIAL_KEY_PAGE_DOWN;
-                    break;
-
-                  default:
-                    break;
-                }
-                break;
-
-              case 'A':
-                Rts_U32 = CONIO_SPECIAL_KEY_ARROW_UP;
-                break;
-
-              case 'B':
-                Rts_U32 = CONIO_SPECIAL_KEY_ARROW_DOWN;
-                break;
-
-              case 'C':
-                Rts_U32 = CONIO_SPECIAL_KEY_ARROW_RIGHT;
-                break;
-
-              case 'D':
-                Rts_U32 = CONIO_SPECIAL_KEY_ARROW_LEFT;
-                break;
-
-              case 'F':
-                Rts_U32 = CONIO_SPECIAL_KEY_END;
-                break;
-
-              case 'H':
-                Rts_U32 = CONIO_SPECIAL_KEY_HOME;
-                break;
-
-              default:
-                break;
+            default:
+              break;
             }
-        } //switch
-      } //if ((read(STDIN_FILENO, &pEscSeq_c[0], 1) == 1) && (read(STDIN_FILENO, &pEscSeq_c[1], 1) == 1))
-    } //if (poll(&Poll_X, 1, 1) == 1)
-  } //else if (Rts_U32==CONIO_SPECIAL_KEY_ESC)
+            break;
+
+          case '5':
+            switch (pEscSeq_c[2])
+            {
+            case '~':
+              Rts_U32 = CONIO_SPECIAL_KEY_PAGE_UP;
+              break;
+
+            default:
+              break;
+            }
+            break;
+
+          case '6':
+            switch (pEscSeq_c[2])
+            {
+            case '~':
+              Rts_U32 = CONIO_SPECIAL_KEY_PAGE_DOWN;
+              break;
+
+            default:
+              break;
+            }
+            break;
+
+          case 'A':
+            Rts_U32 = CONIO_SPECIAL_KEY_ARROW_UP;
+            break;
+
+          case 'B':
+            Rts_U32 = CONIO_SPECIAL_KEY_ARROW_DOWN;
+            break;
+
+          case 'C':
+            Rts_U32 = CONIO_SPECIAL_KEY_ARROW_RIGHT;
+            break;
+
+          case 'D':
+            Rts_U32 = CONIO_SPECIAL_KEY_ARROW_LEFT;
+            break;
+
+          case 'F':
+            Rts_U32 = CONIO_SPECIAL_KEY_END;
+            break;
+
+          case 'H':
+            Rts_U32 = CONIO_SPECIAL_KEY_HOME;
+            break;
+
+          default:
+            break;
+          }
+        } // switch
+      }   // if ((read(STDIN_FILENO, &pEscSeq_c[0], 1) == 1) && (read(STDIN_FILENO, &pEscSeq_c[1], 1) == 1))
+    }     // if (poll(&Poll_X, 1, 1) == 1)
+  }       // else if (Rts_U32==CONIO_SPECIAL_KEY_ESC)
   if (_OnlyModifier_B)
   {
     Rts_U32 = 0;
@@ -570,7 +545,6 @@ uint32_t BofConio::GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c)
   Rts_U32 = Modifier_U32 | Rts_U32;
   return Rts_U32;
 }
-
 
 uint32_t BofConio::GetCh(bool _OnlyModifier_B)
 {
@@ -603,7 +577,7 @@ uint32_t BofConio::GetCh(bool _OnlyModifier_B)
   return Rts_U32;
 }
 
-//use ctrl-c to exit
+// use ctrl-c to exit
 BOFERR BofConio::Readline(const std::string &_rPrompt_S, std::string &_rInputLine_S)
 {
   BOFERR Rts_E;
@@ -619,7 +593,7 @@ BOFERR BofConio::Readline(const std::string &_rPrompt_S, std::string &_rInputLin
   return Rts_E;
 }
 
-BOFERR BofConio::SetTextAttribute(uint32_t _TextAttributeFlag_U32)  //Use CONIO_TEXT_ATTRIBUTE_FLAG enum ored value
+BOFERR BofConio::SetTextAttribute(uint32_t _TextAttributeFlag_U32) // Use CONIO_TEXT_ATTRIBUTE_FLAG enum ored value
 {
   BOFERR Rts_E = BOF_ERR_NOT_SUPPORTED;
 
@@ -668,92 +642,92 @@ BOFERR BofConio::SetTextAttribute(uint32_t _TextAttributeFlag_U32)  //Use CONIO_
 BOFERR BofConio::SetForegroundTextColor(CONIO_TEXT_COLOR _ForegroundColor_E)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  char   pAttribute_c[64], *p_c;
+  char pAttribute_c[64], *p_c;
   p_c = pAttribute_c;
   *p_c++ = 0x1B;
   *p_c++ = '[';
   switch (_ForegroundColor_E)
   {
-    case CONIO_TEXT_COLOR_BLACK:
-      *p_c++ = '3';
-      *p_c++ = '0';
-      break;
+  case CONIO_TEXT_COLOR_BLACK:
+    *p_c++ = '3';
+    *p_c++ = '0';
+    break;
 
-    case CONIO_TEXT_COLOR_RED:
-      *p_c++ = '3';
-      *p_c++ = '1';
-      break;
+  case CONIO_TEXT_COLOR_RED:
+    *p_c++ = '3';
+    *p_c++ = '1';
+    break;
 
-    case CONIO_TEXT_COLOR_GREEN:
-      *p_c++ = '3';
-      *p_c++ = '2';
-      break;
+  case CONIO_TEXT_COLOR_GREEN:
+    *p_c++ = '3';
+    *p_c++ = '2';
+    break;
 
-    case CONIO_TEXT_COLOR_YELLOW:
-      *p_c++ = '3';
-      *p_c++ = '3';
-      break;
+  case CONIO_TEXT_COLOR_YELLOW:
+    *p_c++ = '3';
+    *p_c++ = '3';
+    break;
 
-    case CONIO_TEXT_COLOR_BLUE:
-      *p_c++ = '3';
-      *p_c++ = '4';
-      break;
+  case CONIO_TEXT_COLOR_BLUE:
+    *p_c++ = '3';
+    *p_c++ = '4';
+    break;
 
-    case CONIO_TEXT_COLOR_MAGENTA:
-      *p_c++ = '3';
-      *p_c++ = '5';
-      break;
+  case CONIO_TEXT_COLOR_MAGENTA:
+    *p_c++ = '3';
+    *p_c++ = '5';
+    break;
 
-    case CONIO_TEXT_COLOR_CYAN:
-      *p_c++ = '3';
-      *p_c++ = '6';
-      break;
+  case CONIO_TEXT_COLOR_CYAN:
+    *p_c++ = '3';
+    *p_c++ = '6';
+    break;
 
-    case CONIO_TEXT_COLOR_WHITE:
-      *p_c++ = '3';
-      *p_c++ = '7';
-      break;
+  case CONIO_TEXT_COLOR_WHITE:
+    *p_c++ = '3';
+    *p_c++ = '7';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_BLACK:
-      *p_c++ = '9';
-      *p_c++ = '0';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_BLACK:
+    *p_c++ = '9';
+    *p_c++ = '0';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_RED:
-      *p_c++ = '9';
-      *p_c++ = '1';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_RED:
+    *p_c++ = '9';
+    *p_c++ = '1';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_GREEN:
-      *p_c++ = '9';
-      *p_c++ = '2';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_GREEN:
+    *p_c++ = '9';
+    *p_c++ = '2';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_YELLOW:
-      *p_c++ = '9';
-      *p_c++ = '3';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_YELLOW:
+    *p_c++ = '9';
+    *p_c++ = '3';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_BLUE:
-      *p_c++ = '9';
-      *p_c++ = '4';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_BLUE:
+    *p_c++ = '9';
+    *p_c++ = '4';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_MAGENTA:
-      *p_c++ = '9';
-      *p_c++ = '5';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_MAGENTA:
+    *p_c++ = '9';
+    *p_c++ = '5';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_CYAN:
-      *p_c++ = '9';
-      *p_c++ = '6';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_CYAN:
+    *p_c++ = '9';
+    *p_c++ = '6';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_WHITE:
-    default:
-      *p_c++ = '9';
-      *p_c++ = '7';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_WHITE:
+  default:
+    *p_c++ = '9';
+    *p_c++ = '7';
+    break;
   }
   *p_c++ = 'm';
   *p_c = 0;
@@ -764,101 +738,100 @@ BOFERR BofConio::SetForegroundTextColor(CONIO_TEXT_COLOR _ForegroundColor_E)
 BOFERR BofConio::SetBackgroundTextColor(CONIO_TEXT_COLOR _BackgroundColor_E)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  char   pAttribute_c[64], *p_c;
+  char pAttribute_c[64], *p_c;
   p_c = pAttribute_c;
   *p_c++ = 0x1B;
   *p_c++ = '[';
   switch (_BackgroundColor_E)
   {
-    case CONIO_TEXT_COLOR_BLACK:
-      *p_c++ = '4';
-      *p_c++ = '0';
-      break;
+  case CONIO_TEXT_COLOR_BLACK:
+    *p_c++ = '4';
+    *p_c++ = '0';
+    break;
 
-    case CONIO_TEXT_COLOR_RED:
-      *p_c++ = '4';
-      *p_c++ = '1';
-      break;
+  case CONIO_TEXT_COLOR_RED:
+    *p_c++ = '4';
+    *p_c++ = '1';
+    break;
 
-    case CONIO_TEXT_COLOR_GREEN:
-      *p_c++ = '4';
-      *p_c++ = '2';
-      break;
+  case CONIO_TEXT_COLOR_GREEN:
+    *p_c++ = '4';
+    *p_c++ = '2';
+    break;
 
-    case CONIO_TEXT_COLOR_YELLOW:
-      *p_c++ = '4';
-      *p_c++ = '3';
-      break;
+  case CONIO_TEXT_COLOR_YELLOW:
+    *p_c++ = '4';
+    *p_c++ = '3';
+    break;
 
-    case CONIO_TEXT_COLOR_BLUE:
-      *p_c++ = '4';
-      *p_c++ = '4';
-      break;
+  case CONIO_TEXT_COLOR_BLUE:
+    *p_c++ = '4';
+    *p_c++ = '4';
+    break;
 
-    case CONIO_TEXT_COLOR_MAGENTA:
-      *p_c++ = '4';
-      *p_c++ = '5';
-      break;
+  case CONIO_TEXT_COLOR_MAGENTA:
+    *p_c++ = '4';
+    *p_c++ = '5';
+    break;
 
-    case CONIO_TEXT_COLOR_CYAN:
-      *p_c++ = '4';
-      *p_c++ = '6';
-      break;
+  case CONIO_TEXT_COLOR_CYAN:
+    *p_c++ = '4';
+    *p_c++ = '6';
+    break;
 
-    case CONIO_TEXT_COLOR_WHITE:
-      *p_c++ = '4';
-      *p_c++ = '7';
-      break;
+  case CONIO_TEXT_COLOR_WHITE:
+    *p_c++ = '4';
+    *p_c++ = '7';
+    break;
 
+  case CONIO_TEXT_COLOR_BRIGHT_BLACK:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '0';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_BLACK:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '0';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_RED:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '1';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_RED:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '1';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_GREEN:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '2';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_GREEN:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '2';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_YELLOW:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '3';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_YELLOW:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '3';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_BLUE:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '4';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_BLUE:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '4';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_MAGENTA:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '5';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_MAGENTA:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '5';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_CYAN:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '6';
+    break;
 
-    case CONIO_TEXT_COLOR_BRIGHT_CYAN:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '6';
-      break;
-
-    case CONIO_TEXT_COLOR_BRIGHT_WHITE:
-    default:
-      *p_c++ = '1';
-      *p_c++ = '0';
-      *p_c++ = '7';
-      break;
+  case CONIO_TEXT_COLOR_BRIGHT_WHITE:
+  default:
+    *p_c++ = '1';
+    *p_c++ = '0';
+    *p_c++ = '7';
+    break;
   }
   *p_c++ = 'm';
   *p_c = 0;
@@ -870,7 +843,7 @@ BOFERR BofConio::SetBackgroundTextColor(CONIO_TEXT_COLOR _BackgroundColor_E)
 BOFERR BofConio::SetForegroundTextColor(BOF_RGBA _ForegroundColor_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  char   pAttribute_c[64];
+  char pAttribute_c[64];
 
   sprintf(pAttribute_c, "\x1b[38;2;%d;%d;%dm", _ForegroundColor_X.r_U8, _ForegroundColor_X.g_U8, _ForegroundColor_X.b_U8);
   printf("%s", pAttribute_c);
@@ -879,7 +852,7 @@ BOFERR BofConio::SetForegroundTextColor(BOF_RGBA _ForegroundColor_X)
 BOFERR BofConio::SetBackgroundTextColor(BOF_RGBA _BackgroundColor_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  char   pAttribute_c[64];
+  char pAttribute_c[64];
 
   sprintf(pAttribute_c, "\x1b[48;2;%d;%d;%dm", _BackgroundColor_X.r_U8, _BackgroundColor_X.g_U8, _BackgroundColor_X.b_U8);
   printf("%s", pAttribute_c);
@@ -889,37 +862,37 @@ BOFERR BofConio::SetBackgroundTextColor(BOF_RGBA _BackgroundColor_X)
 BOFERR BofConio::SetTextCursorState(CONIO_TEXT_CURSOR_STATE _CursorState_E)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  char   pAttribute_c[64], *p_c;
+  char pAttribute_c[64], *p_c;
   p_c = pAttribute_c;
   *p_c++ = 0x1B;
   *p_c++ = '[';
   *p_c++ = '?';
   switch (_CursorState_E)
   {
-    case CONIO_TEXT_CURSOR_STATE_BLINK_ON:
-      *p_c++ = '1';
-      *p_c++ = '2';
-      *p_c++ = 'h';
-      break;
+  case CONIO_TEXT_CURSOR_STATE_BLINK_ON:
+    *p_c++ = '1';
+    *p_c++ = '2';
+    *p_c++ = 'h';
+    break;
 
-    case CONIO_TEXT_CURSOR_STATE_BLINK_OFF:
-      *p_c++ = '1';
-      *p_c++ = '2';
-      *p_c++ = 'l';
-      break;
+  case CONIO_TEXT_CURSOR_STATE_BLINK_OFF:
+    *p_c++ = '1';
+    *p_c++ = '2';
+    *p_c++ = 'l';
+    break;
 
-    case CONIO_TEXT_CURSOR_STATE_OFF:
-      *p_c++ = '2';
-      *p_c++ = '5';
-      *p_c++ = 'l';
-      break;
+  case CONIO_TEXT_CURSOR_STATE_OFF:
+    *p_c++ = '2';
+    *p_c++ = '5';
+    *p_c++ = 'l';
+    break;
 
-    default:
-    case CONIO_TEXT_CURSOR_STATE_ON:
-      *p_c++ = '2';
-      *p_c++ = '5';
-      *p_c++ = 'h';
-      break;
+  default:
+  case CONIO_TEXT_CURSOR_STATE_ON:
+    *p_c++ = '2';
+    *p_c++ = '5';
+    *p_c++ = 'h';
+    break;
   }
   *p_c = 0;
   printf("%s", pAttribute_c);
@@ -938,7 +911,7 @@ BOFERR BofConio::SetTextCursorPosition(uint32_t _x_U32, uint32_t _y_U32)
   return Rts_E;
 }
 
-//https://github.com/sol-prog/ansi-escape-codes-windows-posix-terminals-c-programming-examples/blob/master/ansi_escapes.c
+// https://github.com/sol-prog/ansi-escape-codes-windows-posix-terminals-c-programming-examples/blob/master/ansi_escapes.c
 
 BOFERR BofConio::GetTextCursorPosition(uint32_t &_rX_U32, uint32_t &_rY_U32)
 {
@@ -972,7 +945,7 @@ BOFERR BofConio::GetTextCursorPosition(uint32_t &_rX_U32, uint32_t &_rY_U32)
 }
 BOFERR BofConio::SetTextWindowTitle(const std::string &_rTitle_S)
 {
-  BOFERR      Rts_E = BOF_ERR_NO_ERROR;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
   std::string Attribute_S;
   Attribute_S = Bof_Sprintf("\x1b]2;%s\x07", _rTitle_S.c_str());
   printf("%s", Attribute_S.c_str());
@@ -987,47 +960,46 @@ BOFERR BofConio::SetTextWindowTitle(const std::string &_rTitle_S)
 BOFERR BofConio::Clear(CONIO_CLEAR _ClearType_E)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  char   pAttribute_c[64], *p_c;
+  char pAttribute_c[64], *p_c;
 
   p_c = pAttribute_c;
   *p_c++ = 0x1B;
   *p_c++ = '[';
   switch (_ClearType_E)
   {
-    case CONIO_CLEAR_LINE_FROM_CURSOR_TO_END:
-      *p_c++ = '0';
-      *p_c++ = 'd';
-      *p_c++ = 'K';
-      break;
+  case CONIO_CLEAR_LINE_FROM_CURSOR_TO_END:
+    *p_c++ = '0';
+    *p_c++ = 'd';
+    *p_c++ = 'K';
+    break;
 
-    case CONIO_CLEAR_LINE_FROM_CURSOR_TO_BEGIN:
-      *p_c++ = '1';
-      *p_c++ = 'd';
-      *p_c++ = 'K';
-      break;
+  case CONIO_CLEAR_LINE_FROM_CURSOR_TO_BEGIN:
+    *p_c++ = '1';
+    *p_c++ = 'd';
+    *p_c++ = 'K';
+    break;
 
-    case CONIO_CLEAR_LINE:
-      *p_c++ = 'K';
-      break;
+  case CONIO_CLEAR_LINE:
+    *p_c++ = 'K';
+    break;
 
-    case CONIO_CLEAR_ALL_FROM_CURSOR_TO_END:
-      *p_c++ = '0';
-      *p_c++ = 'J';
-      break;
+  case CONIO_CLEAR_ALL_FROM_CURSOR_TO_END:
+    *p_c++ = '0';
+    *p_c++ = 'J';
+    break;
 
-    case CONIO_CLEAR_ALL_FROM_CURSOR_TO_BEGIN:
-      *p_c++ = '1';
-      *p_c++ = 'J';
-      break;
+  case CONIO_CLEAR_ALL_FROM_CURSOR_TO_BEGIN:
+    *p_c++ = '1';
+    *p_c++ = 'J';
+    break;
 
-    default:
-    case CONIO_CLEAR_ALL:
-      SetTextAttribute(CONIO_TEXT_ATTRIBUTE_FLAG_NORMAL);
-      SetTextCursorPosition(1, 1);
-      *p_c++ = '2';
-      *p_c++ = 'J';
-      break;
-
+  default:
+  case CONIO_CLEAR_ALL:
+    SetTextAttribute(CONIO_TEXT_ATTRIBUTE_FLAG_NORMAL);
+    SetTextCursorPosition(1, 1);
+    *p_c++ = '2';
+    *p_c++ = 'J';
+    break;
   }
   *p_c = 0;
   printf("%s", pAttribute_c);
@@ -1043,8 +1015,8 @@ BOFERR BofConio::Reset()
 
 BOFERR BofConio::Printf(const char *_pFormat_c, ...)
 {
-  BOFERR  Rts_E = BOF_ERR_NO_ERROR;
-  char    pText_c[0x1000];
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+  char pText_c[0x1000];
   va_list Arg;
 
   va_start(Arg, _pFormat_c);
@@ -1052,9 +1024,6 @@ BOFERR BofConio::Printf(const char *_pFormat_c, ...)
   va_end(Arg);
 
   printf("%s", pText_c);
-
-
-
 
   /*
     std::cout << (bold, underline) << "Testing common SGR codes:\n";
@@ -1118,7 +1087,7 @@ BOFERR BofConio::Printf(const char *_pFormat_c, ...)
 void BofConio::PrintfAtColor(CONIO_TEXT_COLOR _ForeColor_E, uint32_t _x_U32, uint32_t _y_U32, const char *_pFormat_c, ...)
 {
   uint32_t x_U32, y_U32;
-  char    pText_c[0x10000];
+  char pText_c[0x10000];
 
   if (_ForeColor_E != mForeColor_E)
   {

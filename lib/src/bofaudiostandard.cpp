@@ -26,11 +26,13 @@
 
 BEGIN_BOF_NAMESPACE()
 
-static BofEnum<BOF_AUDIO_SAMPLE_FORMAT> S_BofAudioStandardEnumConverter({
-      {BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN, "UNKNOW"},
-      {BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32, "S24L32"},
-      {BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_MAX, "MAX"},
-                                                                        }, BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN);
+static BofEnum<BOF_AUDIO_SAMPLE_FORMAT> S_BofAudioStandardEnumConverter(
+    {
+        {BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN, "UNKNOW"},
+        {BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32, "S24L32"},
+        {BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_MAX, "MAX"},
+    },
+    BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN);
 
 BofAudioStandard::BofAudioStandard()
 {
@@ -45,13 +47,13 @@ BofAudioStandard::BofAudioStandard(uint32_t _NbMonoChannel_U32, uint32_t _Sampli
 {
   switch (_SampleFormat_E)
   {
-    case BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32:
-      mNbBitPerSample_U32 = 32;
-      break;
+  case BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32:
+    mNbBitPerSample_U32 = 32;
+    break;
 
-    default:
-      mNbBitPerSample_U32 = 0;
-      break;
+  default:
+    mNbBitPerSample_U32 = 0;
+    break;
   }
   mNbMonoChannel_U32 = _NbMonoChannel_U32;
   mSamplingRateInHz_U32 = _SamplingRateInHz_U32;
@@ -84,7 +86,7 @@ AudioStandardId BofAudioStandard::Id() const
 
 bool BofAudioStandard::IsValid() const
 {
-  return (true);  //it is valid even it is BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN if  mSampleFormat_E != BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN) ? true : false;
+  return (true); // it is valid even it is BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN if  mSampleFormat_E != BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_UNKNOWN) ? true : false;
 }
 
 uint32_t BofAudioStandard::NbBitPerSample() const

@@ -30,18 +30,14 @@
  *
  ******************************************************************************/
 
-
- /*!
-  * \file
-  */
-
+/*!
+ * \file
+ */
 
 #include "ixmlparser.h"
 
-
 #include <assert.h>
 #include <string.h>
-
 
 void ixmlNodeList_init(IXML_NodeList *nList)
 {
@@ -50,38 +46,37 @@ void ixmlNodeList_init(IXML_NodeList *nList)
   memset(nList, 0, sizeof(IXML_NodeList));
 }
 
-
-IXML_Node *ixmlNodeList_item(
-  IXML_NodeList *nList,
-  unsigned long index)
+IXML_Node *ixmlNodeList_item(IXML_NodeList *nList, unsigned long index)
 {
   IXML_NodeList *next;
   unsigned int i;
 
   /* if the list ptr is NULL */
-  if (nList == NULL) {
+  if (nList == NULL)
+  {
     return NULL;
   }
   /* if index is more than list length */
-  if (index > ixmlNodeList_length(nList) - 1lu) {
+  if (index > ixmlNodeList_length(nList) - 1lu)
+  {
     return NULL;
   }
 
   next = nList;
-  for (i = 0u; i < index && next != NULL; ++i) {
+  for (i = 0u; i < index && next != NULL; ++i)
+  {
     next = next->next;
   }
 
-  if (next == NULL) {
+  if (next == NULL)
+  {
     return NULL;
   }
 
   return next->nodeItem;
 }
 
-int ixmlNodeList_addToNodeList(
-  IXML_NodeList **nList,
-  IXML_Node *add)
+int ixmlNodeList_addToNodeList(IXML_NodeList **nList, IXML_Node *add)
 {
   IXML_NodeList *traverse = NULL;
   IXML_NodeList *p = NULL;
@@ -89,32 +84,39 @@ int ixmlNodeList_addToNodeList(
 
   assert(add != NULL);
 
-  if (add == NULL) {
+  if (add == NULL)
+  {
     return IXML_FAILED;
   }
 
-  if (*nList == NULL) {
+  if (*nList == NULL)
+  {
     /* nodelist is empty */
     *nList = (IXML_NodeList *)malloc(sizeof(IXML_NodeList));
-    if (*nList == NULL) {
+    if (*nList == NULL)
+    {
       return IXML_INSUFFICIENT_MEMORY;
     }
 
     ixmlNodeList_init(*nList);
   }
 
-  if ((*nList)->nodeItem == NULL) {
+  if ((*nList)->nodeItem == NULL)
+  {
     (*nList)->nodeItem = add;
   }
-  else {
+  else
+  {
     traverse = *nList;
-    while (traverse != NULL) {
+    while (traverse != NULL)
+    {
       p = traverse;
       traverse = traverse->next;
     }
 
     newListItem = (IXML_NodeList *)malloc(sizeof(IXML_NodeList));
-    if (newListItem == NULL) {
+    if (newListItem == NULL)
+    {
       return IXML_INSUFFICIENT_MEMORY;
     }
     p->next = newListItem;
@@ -125,14 +127,14 @@ int ixmlNodeList_addToNodeList(
   return IXML_SUCCESS;
 }
 
-
 unsigned long ixmlNodeList_length(IXML_NodeList *nList)
 {
   IXML_NodeList *list;
   unsigned long length = 0lu;
 
   list = nList;
-  while (list != NULL) {
+  while (list != NULL)
+  {
     ++length;
     list = list->next;
   }
@@ -140,15 +142,14 @@ unsigned long ixmlNodeList_length(IXML_NodeList *nList)
   return length;
 }
 
-
 void ixmlNodeList_free(IXML_NodeList *nList)
 {
   IXML_NodeList *next;
 
-  while (nList != NULL) {
+  while (nList != NULL)
+  {
     next = nList->next;
     free(nList);
     nList = next;
   }
 }
-

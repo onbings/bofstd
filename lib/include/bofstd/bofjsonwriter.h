@@ -21,13 +21,13 @@
  */
 #pragma once
 
+#include <bofstd/bofjsonparser.h>
 #include <bofstd/bofparameter.h>
 #include <bofstd/bofpath.h>
-#include <bofstd/bofjsonparser.h>
 
+#include <functional>
 #include <memory>
 #include <vector>
-#include <functional>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -37,7 +37,7 @@ class BOFSTD_EXPORT BofJsonWriter
 public:
   BofJsonWriter();
 
-  BofJsonWriter &operator=(const BofJsonWriter &) = delete;     // Disallow copying
+  BofJsonWriter &operator=(const BofJsonWriter &) = delete; // Disallow copying
   BofJsonWriter(const BofJsonWriter &) = delete;
 
   BOFERR FromByte(bool _ShortFormat_B, bool _AllTypeInString_B, const std::vector<BOFPARAMETER> &_rJsonSchema_X, std::string &_rJsonOutput_S);

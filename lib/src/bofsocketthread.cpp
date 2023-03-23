@@ -1,4 +1,4 @@
-/*! 
+/*!
   Copyright (c) 2008-2020, Evs. All rights reserved.
 
   THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
@@ -14,7 +14,7 @@
 
   History:
 
-	V 1.00  February 18 2014  NMA : Initial release
+  V 1.00  February 18 2014  NMA : Initial release
 */
 #include <bofstd/bofsocketthread.h>
 
@@ -57,18 +57,15 @@ BOFERR BofSocketThread::ProgramSocketOperation(BOF_SOCKET_OPERATION_PARAM &_rPar
   return Ret_E;
 }
 
-
 bool BofSocketThread::IsOperationDone()
 {
   return mDone_B;
 }
 
-
 bool BofSocketThread::IsOperationPending()
 {
   return mInUse_B;
 }
-
 
 BOFERR BofSocketThread::CancelOperation()
 {
@@ -81,7 +78,6 @@ BOFERR BofSocketThread::CancelOperation()
   }
   return Rts_E;
 }
-
 
 BOFERR BofSocketThread::GetParams(BOF_SOCKET_OPERATION_PARAM &_rParam_X)
 {
@@ -187,5 +183,3 @@ BOFERR BofSocketThread::V_OnProcessing()
   return Rts_E;
 }
 END_BOF_NAMESPACE()
-
-

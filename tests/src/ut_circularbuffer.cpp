@@ -23,24 +23,21 @@
 
 #include "gtestrunner.h"
 
-#include <thread>
 #include <list>
+#include <thread>
 
 USE_BOF_NAMESPACE()
 
-template< class T >
-class BofCircularBufferTemplate_Test :public testing::Test
+template <class T> class BofCircularBufferTemplate_Test : public testing::Test
 {
 public:
-
   // Per-test-case set-up. Called before the first test in this test case.
-  static void                   SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void                   TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
   virtual void SetUp()
   {
@@ -52,25 +49,22 @@ protected:
     BOF_SAFE_DELETE(mpBofCircularBuffer_O);
   }
 
-  BofCircularBuffer< T > *mpBofCircularBuffer_O;
+  BofCircularBuffer<T> *mpBofCircularBuffer_O;
 
   // Some expensive resource shared by all tests.
-  static BofCircularBuffer< T > *S_mpSharedBofCircularBuffer_O;
+  static BofCircularBuffer<T> *S_mpSharedBofCircularBuffer_O;
 };
 
-
-class BofCircularBuffer_Test :public         testing::Test
+class BofCircularBuffer_Test : public testing::Test
 {
 public:
-
   // Per-test-case set-up. Called before the first test in this test case.
-  static void  SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void  TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
   virtual void SetUp();
   virtual void TearDown();
@@ -78,17 +72,15 @@ protected:
 private:
 };
 
-template< class T >
-BofCircularBuffer< T > *BofCircularBufferTemplate_Test< T >::S_mpSharedBofCircularBuffer_O;
+template <class T> BofCircularBuffer<T> *BofCircularBufferTemplate_Test<T>::S_mpSharedBofCircularBuffer_O;
 
 using testing::Types;
 
 // The list of types we want to test.
-typedef Types< char, uint8_t, uint16_t >    Implementation;
+typedef Types<char, uint8_t, uint16_t> Implementation;
 TYPED_TEST_CASE(BofCircularBufferTemplate_Test, Implementation);
 
-template< class T >
-void BofCircularBufferTemplate_Test< T >::SetUpTestCase()
+template <class T> void BofCircularBufferTemplate_Test<T>::SetUpTestCase()
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
 
@@ -98,19 +90,16 @@ void BofCircularBufferTemplate_Test< T >::SetUpTestCase()
   BofCircularBufferParam_X.NbMaxElement_U32 = 8;
   BofCircularBufferParam_X.Overwrite_B = true;
   BofCircularBufferParam_X.pData = nullptr;
-  S_mpSharedBofCircularBuffer_O = new BofCircularBuffer< T >(BofCircularBufferParam_X);
+  S_mpSharedBofCircularBuffer_O = new BofCircularBuffer<T>(BofCircularBufferParam_X);
   EXPECT_TRUE(S_mpSharedBofCircularBuffer_O != nullptr);
   EXPECT_TRUE(S_mpSharedBofCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
 }
 
-
-template< class T >
-void BofCircularBufferTemplate_Test< T >::TearDownTestCase()
+template <class T> void BofCircularBufferTemplate_Test<T>::TearDownTestCase()
 {
   BOF_SAFE_DELETE(S_mpSharedBofCircularBuffer_O);
   EXPECT_TRUE(S_mpSharedBofCircularBuffer_O == nullptr);
 }
-
 
 // Then use TYPED_TEST(TestCaseName, TestName) to define a typed test, similar to TEST_F.
 TYPED_TEST(BofCircularBufferTemplate_Test, TheTest)
@@ -130,29 +119,27 @@ TYPED_TEST(BofCircularBufferTemplate_Test, TheTest)
   // EXPECT_FALSE(this->mpBofCircularBuffer_O->GetCapacity( ) );
 }
 
-
-
-
 /*** Factory functions called at the beginning/end of each test case **********/
 
 void BofCircularBuffer_Test::SetUpTestCase()
-{}
-
+{
+}
 
 void BofCircularBuffer_Test::TearDownTestCase()
-{}
-
+{
+}
 
 /*** Factory functions called at the beginning/end of each test *****************/
 
 void BofCircularBuffer_Test::SetUp()
-{}
-
+{
+}
 
 void BofCircularBuffer_Test::TearDown()
-{}
+{
+}
 
-//char GL_pDbgPush_c[512], GL_pDbgPop_c[512];
+// char GL_pDbgPush_c[512], GL_pDbgPop_c[512];
 BOFERR PushValue(uint32_t _Id_U32, uint32_t _NbLoop_U32, BofCircularBuffer<uint64_t> *_pBofCollection)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
@@ -163,7 +150,7 @@ BOFERR PushValue(uint32_t _Id_U32, uint32_t _NbLoop_U32, BofCircularBuffer<uint6
   {
     Val_U64++;
     //    NbElem_U32 = _pBofCollection->GetNbElement();
-      //  sprintf(GL_pDbgPush_c, "%03d:Push[%d] %d\n", _Id_U32, i_U32, BOF::Bof_GetMsTickCount());
+    //  sprintf(GL_pDbgPush_c, "%03d:Push[%d] %d\n", _Id_U32, i_U32, BOF::Bof_GetMsTickCount());
     Rts_E = _pBofCollection->Push(&Val_U64, 2000, nullptr);
     //  printf("%03d:Push[%d]=%lld n=%d Rts %X\n", _Id_U32, i_U32, Val_U64, NbElem_U32, Rts_E);
     if (Rts_E)
@@ -224,7 +211,6 @@ TEST(BofCircularBuffer_Test, PopExternalStorage)
   }
 }
 
-
 const uint32_t NB_MAX_CLIENT = 16; // 32;
 const uint32_t NB_PUSH_PER_CLIENT = 16000;
 
@@ -264,8 +250,7 @@ TEST(BofCircularBuffer_Test, IsEntryFree)
     for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
     {
       Sts_B = pBofCollection->IsEntryFree(j_U32, &IsLocked_B, nullptr);
-      printf("1: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3],
-             pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
+      printf("1: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
 
       if (pPosBusy_B[j_U32])
       {
@@ -286,8 +271,7 @@ TEST(BofCircularBuffer_Test, IsEntryFree)
     for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
     {
       Sts_B = pBofCollection->IsEntryFree(j_U32, &IsLocked_B, nullptr);
-      printf("2: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3],
-             pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
+      printf("2: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
 
       if (pPosBusy_B[j_U32])
       {
@@ -328,8 +312,7 @@ TEST(BofCircularBuffer_Test, IsEntryFree)
       {
         Dbg_U32++;
         Sts_B = pBofCollection->IsEntryFree(j_U32, &IsLocked_B, nullptr);
-        printf("4: k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3],
-               pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
+        printf("4: k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
 
         if (pPosBusy_B[j_U32])
         {
@@ -502,8 +485,8 @@ TEST(BofCircularBuffer_Test, LockUnlock)
       for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
       {
         Sts_B = pBofCollection->IsLocked(j_U32);
-        printf("k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosLocked_B[0], pPosLocked_B[1], pPosLocked_B[2], pPosLocked_B[3],
-               pPosLocked_B[4], pPosLocked_B[5], pPosLocked_B[6], pPosLocked_B[7], pBofCollection->GetNbElement());
+        printf("k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosLocked_B[0], pPosLocked_B[1], pPosLocked_B[2], pPosLocked_B[3], pPosLocked_B[4], pPosLocked_B[5], pPosLocked_B[6], pPosLocked_B[7],
+               pBofCollection->GetNbElement());
 
         if (pPosLocked_B[j_U32])
         {
@@ -524,7 +507,6 @@ TEST(BofCircularBuffer_Test, LockUnlock)
       }
       //			Sts_E = pBofCollection->Pop(&Val_U32, 0, &IndexOf_U32,true);
       //			EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
     }
   }
 }
@@ -572,7 +554,6 @@ TEST(BofCircularBuffer_Test, BlockingMode)
     }
     PopThread.join();
     printf("PopThread out\n");
-
   }
 }
 
@@ -604,7 +585,6 @@ TEST(BofCircularBuffer_Test, StdString)
       ASSERT_STREQ(Read_S.c_str(), Read_S.c_str());
       StrCollection.pop_front();
       ASSERT_EQ(StrCollection.size(), pReplyCollection->GetCapacity() - 1);
-
     }
   }
 

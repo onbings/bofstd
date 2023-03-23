@@ -1,27 +1,27 @@
 /*
-* Copyright (c) 2013-2023, OnBings All rights reserved.
-*
-* THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-* KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-* PURPOSE.
-*
-* This module implements the unit testing of the udp socket comchannel class
-*
-* Name:        ut_socketudp.cpp
-* Author:      Bernard HARMEL: onbings@dscloud.me
-* Web:					onbings.dscloud.me
-* Revision:    1.0
-*
-* Rem:         Nothing
-*
-* History:
-*
-* V 1.00  Dec 26 2013  BHA : Initial release
-*/
+ * Copyright (c) 2013-2023, OnBings All rights reserved.
+ *
+ * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ *
+ * This module implements the unit testing of the udp socket comchannel class
+ *
+ * Name:        ut_socketudp.cpp
+ * Author:      Bernard HARMEL: onbings@dscloud.me
+ * Web:					onbings.dscloud.me
+ * Revision:    1.0
+ *
+ * Rem:         Nothing
+ *
+ * History:
+ *
+ * V 1.00  Dec 26 2013  BHA : Initial release
+ */
+#include "bofstd/bofstring.h"
 #include <bofstd/bofsocket.h>
 #include <bofstd/bofthread.h>
-#include "bofstd/bofstring.h"
 
 #include "gtestrunner.h"
 
@@ -57,17 +57,16 @@ struct SERVER_SESSION_THREAD_CONTEXT
   }
 };
 // To use a test fixture, derive from testing::Test class
-class SocketUdp_Test :public testing::Test
+class SocketUdp_Test : public testing::Test
 {
 public:
   // Per-test-case set-up. Called before the first test in this test case.
-  static void  SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void  TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
   virtual void SetUp();
   virtual void TearDown();
@@ -75,12 +74,11 @@ protected:
 private:
   SERVER_THREAD_CONTEXT mServerThreadContext_X;
   BOF_THREAD mSeverThread_X;
-
 };
 
 static uint64_t S_TotalSrvUdp_U64 = 0, S_TotalCltUdp_U64 = 0;
 
-static void *S_UdpServerThread(const std::atomic< bool > &_rIsThreadLoopMustExit_B, void *_pContext)
+static void *S_UdpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)
 {
   BOFERR Sts_E;
   SERVER_THREAD_CONTEXT *pThreadContext_X = (SERVER_THREAD_CONTEXT *)_pContext;
@@ -133,18 +131,19 @@ static void *S_UdpServerThread(const std::atomic< bool > &_rIsThreadLoopMustExit
 }
 
 void SocketUdp_Test::SetUpTestCase()
-{}
-
+{
+}
 
 void SocketUdp_Test::TearDownTestCase()
-{}
+{
+}
 void SocketUdp_Test::SetUp()
 {
   BOFERR Sts_E;
 
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "UdpServer";
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 64;                               // 0->Client
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 64; // 0->Client
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x1000000;
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000000;
   mServerThreadContext_X.BofSocketParam_X.BindIpAddress_S = "udp://127.0.0.1:5555";
@@ -163,7 +162,6 @@ void SocketUdp_Test::SetUp()
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
-
 void SocketUdp_Test::TearDown()
 {
   BOFERR Sts_E;
@@ -178,7 +176,7 @@ TEST_F(SocketUdp_Test, FilterMulticastOnIpAddress)
 
   BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "FilterMulticastOnIpAddress";
   BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-  BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;                               // 0->Client
+  BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0; // 0->Client
   BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x1000;
   BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000;
 
@@ -214,7 +212,7 @@ TEST_F(SocketUdp_Test, ScatterGatherIo)
 
   BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "ScatterGatherIo";
   BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-  BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;                               // 0->Client
+  BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0; // 0->Client
   BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x1000000;
   BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000000;
 
@@ -237,7 +235,6 @@ TEST_F(SocketUdp_Test, ScatterGatherIo)
   //	EXPECT_EQ(pUdp->SetDstIpAddress(DstIpAddress_X), BOF_ERR_NO_ERROR);
 
   EXPECT_EQ(pUdp->V_Connect(SCATTER_GATHER_IO_TIMEOUT_IN_MS, "udp://127.0.0.1:5555", ""), BOF_ERR_NO_ERROR);
-
 
   BufferCollection.clear();
   memset(pHeader_U8, 0x01, sizeof(pHeader_U8));
@@ -306,14 +303,13 @@ TEST_F(SocketUdp_Test, UdpClientTest)
   uint8_t pBuffer_U8[0xF000];
   BOF_COM_CHANNEL_STATUS Status_X;
 
-
   for (i_U32 = 0; i_U32 < SERVER_NB_CLIENT; i_U32++)
   {
     std::unique_ptr<BofSocket> puClientSocket = std::make_unique<BofSocket>();
 
     BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "UdpClient_" + std::to_string(i_U32);
     BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-    BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;                               // 0->Client
+    BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0; // 0->Client
     BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x1000000;
     BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000000;
 
@@ -374,7 +370,6 @@ TEST_F(SocketUdp_Test, UdpClientTest)
   Total_U64 = (2L * (static_cast<uint64_t>(SERVER_NB_CLIENT) * static_cast<uint64_t>(CLIENT_NB_LOOP) * sizeof(pBuffer_U8))) * 2L;
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
 
-
   StartWaitEof_U32 = Bof_GetMsTickCount();
   DeltaWaitEof_U32 = 0;
   while ((S_TotalSrvUdp_U64 + S_TotalCltUdp_U64) != Total_U64)
@@ -390,8 +385,8 @@ TEST_F(SocketUdp_Test, UdpClientTest)
       }
       Sts_E = ListOfClient[i_U32]->V_GetStatus(Status_X);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-      //EXPECT_TRUE(Status_X.Connected_B);
-      //EXPECT_EQ(Status_X.Sts_E, BOF_ERR_NO_ERROR);
+      // EXPECT_TRUE(Status_X.Connected_B);
+      // EXPECT_EQ(Status_X.Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(Status_X.NbOut_U32, 0);
       EXPECT_EQ(Status_X.Flag_U32, 0);
       if (Status_X.NbIn_U32)
@@ -401,18 +396,20 @@ TEST_F(SocketUdp_Test, UdpClientTest)
     }
     DeltaWaitEof_U32 = Bof_ElapsedMsTime(StartWaitEof_U32);
     TotalSrvClt_U64 = (S_TotalSrvUdp_U64 + S_TotalCltUdp_U64);
-    printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvUdp_U64, S_TotalCltUdp_U64);
+    printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvUdp_U64,
+           S_TotalCltUdp_U64);
     if (DeltaWaitEof_U32 > 1000)
     {
       break;
     }
   }
   TotalSrvClt_U64 = (S_TotalSrvUdp_U64 + S_TotalCltUdp_U64);
-  //printf("SizeDelta %" PRId64 " NbTrf %f\n", Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64)/(float)sizeof(pBuffer_U8));
+  // printf("SizeDelta %" PRId64 " NbTrf %f\n", Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64)/(float)sizeof(pBuffer_U8));
   EXPECT_EQ(TotalSrvClt_U64, Total_U64);
   KBPerSec_U32 = (Delta_U32) ? static_cast<uint32_t>((TotalSrvClt_U64 * 1000) / 1024L) / Delta_U32 : 0;
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\r\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32, KBPerSec_U32, KBPerSec_U32 / 1024);
+  printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\r\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32,
+         KBPerSec_U32, KBPerSec_U32 / 1024);
   for (i_U32 = 0; i_U32 < ListOfClient.size(); i_U32++)
   {
     Sts_E = ListOfClient[i_U32]->V_FlushData(10);

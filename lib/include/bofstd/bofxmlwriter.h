@@ -23,9 +23,9 @@
 
 #include <bofstd/bofparameter.h>
 
+#include <functional>
 #include <memory>
 #include <vector>
-#include <functional>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -35,7 +35,7 @@ class BOFSTD_EXPORT BofXmlWriter
 public:
   BofXmlWriter();
 
-  BofXmlWriter &operator=(const BofXmlWriter &) = delete;     // Disallow copying
+  BofXmlWriter &operator=(const BofXmlWriter &) = delete; // Disallow copying
   BofXmlWriter(const BofXmlWriter &) = delete;
 
   BOFERR FromByte(const std::string &_rXmlDeclare_S, const std::vector<BOFPARAMETER> &_rXmlSchema_X, std::string &_rXmlOutput_S);

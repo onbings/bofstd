@@ -1,47 +1,54 @@
 /*
-* Copyright (c) 2000-2006, Sci. All rights reserved.
-*
-* THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-* KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-* PURPOSE.
-*
-* This module defines routines for creating and managing a circular
-* buffer.
-*
-* Name:        BofCircularBuffer.h
-* Author:      Bernard HARMEL: onbings@dscloud.me
-* Revision:    1.0
-*
-* Rem:         Nothing
-*
-* History:
-*
-* V 1.00  Jul 26 2005  BHA : Initial release
-*/
+ * Copyright (c) 2000-2006, Sci. All rights reserved.
+ *
+ * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ *
+ * This module defines routines for creating and managing a circular
+ * buffer.
+ *
+ * Name:        BofCircularBuffer.h
+ * Author:      Bernard HARMEL: onbings@dscloud.me
+ * Revision:    1.0
+ *
+ * Rem:         Nothing
+ *
+ * History:
+ *
+ * V 1.00  Jul 26 2005  BHA : Initial release
+ */
 #pragma once
 
-#include <bofstd/bofsystem.h>
 #include <bofstd/bofstring.h>
+#include <bofstd/bofsystem.h>
 
 #include <cstring>
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_CIRCULAR_BUFFER_LOCK(Sts)   {Sts=mCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mCbMtx_X):BOF_ERR_NO_ERROR;}
-#define BOF_CIRCULAR_BUFFER_UNLOCK()    {if (mCircularBufferParam_X.MultiThreadAware_B) Bof_UnlockMutex(mCbMtx_X);}
+#define BOF_CIRCULAR_BUFFER_LOCK(Sts)                                                                                                                                                                                                                          \
+  {                                                                                                                                                                                                                                                            \
+    Sts = mCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mCbMtx_X) : BOF_ERR_NO_ERROR;                                                                                                                                                              \
+  }
+#define BOF_CIRCULAR_BUFFER_UNLOCK()                                                                                                                                                                                                                           \
+  {                                                                                                                                                                                                                                                            \
+    if (mCircularBufferParam_X.MultiThreadAware_B)                                                                                                                                                                                                             \
+      Bof_UnlockMutex(mCbMtx_X);                                                                                                                                                                                                                               \
+  }
 
 constexpr uint32_t BOF_CIRCULAR_BUFFER_DBG_MAX_ITEM = 32;
 
 struct BOFSTD_EXPORT BOF_CIRCULAR_BUFFER_PARAM
 {
-  bool     MultiThreadAware_B;                                      /*! true if the object is used in a multi threaded application (use mCbMtx_X)*/
-  uint32_t NbMaxElement_U32;                                        /*! Specifies the maximum number of element inside the queue*/
-  void *pData;                                                  /*! Specifies a pointer to the circular buffer zone (pre-allocated buffer). Set to nullptr if the memory
-                                                                * must be allocated by the function*/
-  bool     Overwrite_B;                                             /*! true if new data overwritte the oldest one when the queue is full. */
-  bool     Blocking_B;
-  bool     PopLockMode_B;                    /*! In this mode all pop operation lock the poped element. All theses locked elem will return to use state when the unlockPop methow will becalled*/
+  bool MultiThreadAware_B;   /*! true if the object is used in a multi threaded application (use mCbMtx_X)*/
+  uint32_t NbMaxElement_U32; /*! Specifies the maximum number of element inside the queue*/
+  void *pData;               /*! Specifies a pointer to the circular buffer zone (pre-allocated buffer). Set to nullptr if the memory
+                              * must be allocated by the function*/
+  bool Overwrite_B;          /*! true if new data overwritte the oldest one when the queue is full. */
+  bool Blocking_B;
+  bool PopLockMode_B; /*! In this mode all pop operation lock the poped element. All theses locked elem will return to use state when the unlockPop methow will becalled*/
 
   BOF_CIRCULAR_BUFFER_PARAM()
   {
@@ -59,33 +66,32 @@ struct BOFSTD_EXPORT BOF_CIRCULAR_BUFFER_PARAM
 };
 
 /*!
-* Summary
-* Circular buffer class
-*
-* Description
-* This class manages a circular byte buffer instance
-*
-* See Also
-* None
-*/
+ * Summary
+ * Circular buffer class
+ *
+ * Description
+ * This class manages a circular byte buffer instance
+ *
+ * See Also
+ * None
+ */
 
-template<typename DataType>
-class BofCircularBuffer
+template <typename DataType> class BofCircularBuffer
 {
 private:
   BOF_CIRCULAR_BUFFER_PARAM mCircularBufferParam_X;
-  bool                      mDataPreAllocated_B;                    /*! true if mpData_U8 is provided by the caller*/
-  DataType *mpData_T;                          /*! Pointer to queue storage buffer used to record queue element*/
-  bool                      mOverflow_B;                            /*! true if data overflow has occured. Reset to false by IsBufferOverflow*/
-  uint32_t                  mPushIndex_U32;                     /*! Current position of the write index inside the queue*/
-  uint32_t                  mPopIndex_U32;                      /*! Current position of the read index inside the queue*/
-  uint32_t                  mNbElementInBuffer_U32;             /*! Current number of element inside the queue including the locked one (mNbElementLockedInBuffer_U32)*/
-  uint32_t                  mNbElementLockedInBuffer_U32;       /*! Current number of element locked inside the queue*/
-  uint32_t                  mLevelMax_U32;                      /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
-  BOF_MUTEX                 mCbMtx_X;                            /*! Provide a serialized access to shared resources in a multi threaded environment*/
-  BOFERR                    mErrorCode_E;
-  BOF_EVENT                 mCanReadEvent_X;
-  BOF_EVENT                 mCanWriteEvent_X;
+  bool mDataPreAllocated_B;              /*! true if mpData_U8 is provided by the caller*/
+  DataType *mpData_T;                    /*! Pointer to queue storage buffer used to record queue element*/
+  bool mOverflow_B;                      /*! true if data overflow has occured. Reset to false by IsBufferOverflow*/
+  uint32_t mPushIndex_U32;               /*! Current position of the write index inside the queue*/
+  uint32_t mPopIndex_U32;                /*! Current position of the read index inside the queue*/
+  uint32_t mNbElementInBuffer_U32;       /*! Current number of element inside the queue including the locked one (mNbElementLockedInBuffer_U32)*/
+  uint32_t mNbElementLockedInBuffer_U32; /*! Current number of element locked inside the queue*/
+  uint32_t mLevelMax_U32;                /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
+  BOF_MUTEX mCbMtx_X;                    /*! Provide a serialized access to shared resources in a multi threaded environment*/
+  BOFERR mErrorCode_E;
+  BOF_EVENT mCanReadEvent_X;
+  BOF_EVENT mCanWriteEvent_X;
   uint8_t *mpLock_U8;
 
 private:
@@ -112,21 +118,20 @@ public:
   void Reset();
   DataType *GetInternalDataBuffer() const;
   BOFERR Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32);
-  BOFERR PushForNextPop(const DataType *_pData, bool _ForceIfFull_B, uint32_t _BlockingTimeouItInMs_U32); //Old InsertAsFirst
-  BOFERR Pop(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage);  //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
+  BOFERR PushForNextPop(const DataType *_pData, bool _ForceIfFull_B, uint32_t _BlockingTimeouItInMs_U32);           // Old InsertAsFirst
+  BOFERR Pop(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
   BOFERR PopLastPush(DataType *_pData, uint32_t *_pIndexOf_U32, DataType **_ppStorage);
-  BOFERR Peek(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage);  //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
-  BOFERR PeekFromPop(uint32_t _RelativeIndexFromPop_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage);  //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
-  BOFERR PeekByIndex(uint32_t _AbsoluteIndex_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage);  //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell);
+  BOFERR Peek(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
+  BOFERR PeekFromPop(uint32_t _RelativeIndexFromPop_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
+  BOFERR PeekByIndex(uint32_t _AbsoluteIndex_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage);        //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell);
   BOFERR Skip(bool *_pLocked_B);
   BOFERR UnlockPop(uint32_t _AbsoluteIndex_U32);
   bool IsLocked(uint32_t _AbsoluteIndex_U32);
-  bool IsEntryFree(uint32_t _AbsoluteIndex_U32, bool *_pIsLocked_B, DataType **_ppStorage);  //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
+  bool IsEntryFree(uint32_t _AbsoluteIndex_U32, bool *_pIsLocked_B, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
   std::string StateInfo();
 };
 
-template<typename DataType>
-BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &_rCircularBufferParam_X)
+template <typename DataType> BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &_rCircularBufferParam_X)
 {
   mCircularBufferParam_X = _rCircularBufferParam_X;
 
@@ -185,7 +190,7 @@ BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &
     }
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
-      //We instance this buffer event if mCircularBufferParam_X.PopLockMode_B is false to avoid a lot of if (mCircularBufferParam_X.PopLockMode_B)
+      // We instance this buffer event if mCircularBufferParam_X.PopLockMode_B is false to avoid a lot of if (mCircularBufferParam_X.PopLockMode_B)
       mpLock_U8 = new uint8_t[mCircularBufferParam_X.NbMaxElement_U32];
       if (mpLock_U8)
       {
@@ -203,8 +208,7 @@ BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &
   }
 }
 
-template<typename DataType>
-BofCircularBuffer<DataType>::~BofCircularBuffer()
+template <typename DataType> BofCircularBuffer<DataType>::~BofCircularBuffer()
 {
   Bof_DestroyMutex(mCbMtx_X);
   if (!mDataPreAllocated_B)
@@ -214,47 +218,39 @@ BofCircularBuffer<DataType>::~BofCircularBuffer()
   Bof_DestroyEvent(mCanReadEvent_X);
   Bof_DestroyEvent(mCanWriteEvent_X);
   BOF_SAFE_DELETE_ARRAY(mpLock_U8);
-
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::LastErrorCode() const
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::LastErrorCode() const
 {
   return mErrorCode_E;
 }
 
-template<typename DataType>
-bool BofCircularBuffer<DataType>::IsEmpty() const
+template <typename DataType> bool BofCircularBuffer<DataType>::IsEmpty() const
 {
   return mNbElementInBuffer_U32 == 0;
 }
 
-template<typename DataType>
-bool BofCircularBuffer<DataType>::IsFull() const
+template <typename DataType> bool BofCircularBuffer<DataType>::IsFull() const
 {
   return mNbElementInBuffer_U32 == mCircularBufferParam_X.NbMaxElement_U32;
 }
 
-template<typename DataType>
-uint32_t BofCircularBuffer<DataType>::GetNbElement() const
+template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbElement() const
 {
   return mNbElementInBuffer_U32;
 }
 
-template<typename DataType>
-uint32_t BofCircularBuffer<DataType>::GetNbElementLocked() const
+template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbElementLocked() const
 {
   return mNbElementLockedInBuffer_U32;
 }
 
-template<typename DataType>
-uint32_t BofCircularBuffer<DataType>::GetCapacity() const
+template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetCapacity() const
 {
   return mCircularBufferParam_X.NbMaxElement_U32;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::LockQueue()
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::LockQueue()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
@@ -265,8 +261,7 @@ BOFERR BofCircularBuffer<DataType>::LockQueue()
   return Rts_E;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::UnlockQueue()
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockQueue()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
@@ -277,8 +272,7 @@ BOFERR BofCircularBuffer<DataType>::UnlockQueue()
   return Rts_E;
 }
 
-template<typename DataType>
-uint32_t BofCircularBuffer<DataType>::GetNbFreeElement()
+template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbFreeElement()
 {
   uint32_t Rts_U32 = 0;
 
@@ -292,23 +286,20 @@ uint32_t BofCircularBuffer<DataType>::GetNbFreeElement()
   return Rts_U32;
 }
 
-template<typename DataType>
-uint32_t BofCircularBuffer<DataType>::GetMaxLevel() const
+template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetMaxLevel() const
 {
   uint32_t Rts_U32 = mLevelMax_U32;
   return Rts_U32;
 }
 
-template<typename DataType>
-bool BofCircularBuffer<DataType>::IsBufferOverflow()
+template <typename DataType> bool BofCircularBuffer<DataType>::IsBufferOverflow()
 {
   bool Rts_B = mOverflow_B;
   mOverflow_B = false;
   return Rts_B;
 }
 
-template<typename DataType>
-void BofCircularBuffer<DataType>::Reset()
+template <typename DataType> void BofCircularBuffer<DataType>::Reset()
 {
   BOFERR Sts_E;
   BOF_CIRCULAR_BUFFER_LOCK(Sts_E);
@@ -328,22 +319,21 @@ void BofCircularBuffer<DataType>::Reset()
   }
 }
 
-template<typename DataType>
-DataType *BofCircularBuffer<DataType>::GetInternalDataBuffer() const
+template <typename DataType> DataType *BofCircularBuffer<DataType>::GetInternalDataBuffer() const
 {
   return mpData_T;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
   if (_pData)
   {
-RetryPush:
+  RetryPush:
     Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanWriteEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
-    //		printf("@@%d@--->PushIn %s nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n", BOF::Bof_GetMsTickCount(),mCanReadEvent_X.Name_S.c_str(),	mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPushIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
+    //		printf("@@%d@--->PushIn %s nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n", BOF::Bof_GetMsTickCount(),mCanReadEvent_X.Name_S.c_str(),	mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32,
+    //mpLock_U8[mPushIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
 
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
@@ -399,7 +389,7 @@ RetryPush:
           mOverflow_B = true;
         }
 
-        if (mCircularBufferParam_X.Blocking_B)  //&& (_BlockingTimeouItInMs_U32))
+        if (mCircularBufferParam_X.Blocking_B) //&& (_BlockingTimeouItInMs_U32))
         {
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
@@ -412,7 +402,7 @@ RetryPush:
               if (Rts_E == BOF_ERR_FULL)
               {
                 BOF_CIRCULAR_BUFFER_UNLOCK();
-                goto RetryPush; //We have been preempt between Bof_WaitForEvent and Bof_LockMutex
+                goto RetryPush; // We have been preempt between Bof_WaitForEvent and Bof_LockMutex
               }
             }
           }
@@ -425,14 +415,13 @@ RetryPush:
   return Rts_E;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::PushForNextPop(const DataType *_pData, bool _ForceIfFull_B, uint32_t _BlockingTimeouItInMs_U32)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::PushForNextPop(const DataType *_pData, bool _ForceIfFull_B, uint32_t _BlockingTimeouItInMs_U32)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
   if (_pData)
   {
-RetryInsert:
+  RetryInsert:
     Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32) && (!_ForceIfFull_B)) ? Bof_WaitForEvent(mCanWriteEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
@@ -463,7 +452,7 @@ RetryInsert:
             mPopIndex_U32--;
           }
           BOF_ASSERT(mPopIndex_U32 < mCircularBufferParam_X.NbMaxElement_U32);
-          //NO BOF_ASSERT(mpLock_U8[mPopIndex_U32] == 0);
+          // NO BOF_ASSERT(mpLock_U8[mPopIndex_U32] == 0);
           if (mCircularBufferParam_X.PopLockMode_B)
           {
             mpLock_U8[mPopIndex_U32] = 1;
@@ -513,7 +502,7 @@ RetryInsert:
               if (Rts_E == BOF_ERR_FULL)
               {
                 BOF_CIRCULAR_BUFFER_UNLOCK();
-                goto RetryInsert; //We have been preempt between Bof_WaitForEvent and Bof_LockMutex
+                goto RetryInsert; // We have been preempt between Bof_WaitForEvent and Bof_LockMutex
               }
             }
           }
@@ -526,16 +515,16 @@ RetryInsert:
 }
 
 //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::Pop(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::Pop(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
-  //if (_pData)
+  // if (_pData)
   {
-RetryPop:
+  RetryPop:
     Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
-    //			printf("@@%d@--->PopIn %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
+    //			printf("@@%d@--->PopIn %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32,
+    //mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       BOF_CIRCULAR_BUFFER_LOCK(Rts_E);
@@ -582,7 +571,8 @@ RetryPop:
           }
           else
           {
-            Rts_E = BOF_ERR_LOCK;;
+            Rts_E = BOF_ERR_LOCK;
+            ;
           }
         }
         else
@@ -603,7 +593,7 @@ RetryPop:
               if (Rts_E == BOF_ERR_EMPTY)
               {
                 BOF_CIRCULAR_BUFFER_UNLOCK();
-                goto RetryPop;  //We have been preempt between Bof_WaitForEvent and Bof_LockMutex
+                goto RetryPop; // We have been preempt between Bof_WaitForEvent and Bof_LockMutex
               }
             }
           }
@@ -612,13 +602,13 @@ RetryPop:
       }
     }
   }
-  //	printf("@@%d@--->PopOut %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
+  //	printf("@@%d@--->PopOut %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32,
+  //mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
 
   return Rts_E;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::PopLastPush(DataType *_pData, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::PopLastPush(DataType *_pData, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
 {
   BOFERR Rts_E;
 
@@ -630,7 +620,7 @@ BOFERR BofCircularBuffer<DataType>::PopLastPush(DataType *_pData, uint32_t *_pIn
     {
       BOF_ASSERT(mPushIndex_U32 < mCircularBufferParam_X.NbMaxElement_U32);
       mPushIndex_U32--;
-      if (mPushIndex_U32 >= mCircularBufferParam_X.NbMaxElement_U32)	//From 0 to -1 OxFFFFFFFF which is bigger
+      if (mPushIndex_U32 >= mCircularBufferParam_X.NbMaxElement_U32) // From 0 to -1 OxFFFFFFFF which is bigger
       {
         mPushIndex_U32 = mCircularBufferParam_X.NbMaxElement_U32 - 1;
       }
@@ -677,14 +667,14 @@ BOFERR BofCircularBuffer<DataType>::PopLastPush(DataType *_pData, uint32_t *_pIn
 }
 
 //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
-//Use peek and then pop when treatment is finished..
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::Peek(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
+// Use peek and then pop when treatment is finished..
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::Peek(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
   Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
-  //  			printf("@@%d@--->PopIn %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
+  //  			printf("@@%d@--->PopIn %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32,
+  //  mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     BOF_CIRCULAR_BUFFER_LOCK(Rts_E);
@@ -712,7 +702,8 @@ BOFERR BofCircularBuffer<DataType>::Peek(DataType *_pData, uint32_t _BlockingTim
         }
         else
         {
-          Rts_E = BOF_ERR_LOCK;;
+          Rts_E = BOF_ERR_LOCK;
+          ;
         }
       }
       else
@@ -725,13 +716,12 @@ BOFERR BofCircularBuffer<DataType>::Peek(DataType *_pData, uint32_t _BlockingTim
   return Rts_E;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::PeekFromPop(uint32_t _RelativeIndexFromPop_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::PeekFromPop(uint32_t _RelativeIndexFromPop_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
 {
-  BOFERR   Rts_E = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t Index_U32;
 
-  //if (_pData)
+  // if (_pData)
   {
     BOF_CIRCULAR_BUFFER_LOCK(Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -775,12 +765,11 @@ BOFERR BofCircularBuffer<DataType>::PeekFromPop(uint32_t _RelativeIndexFromPop_U
   return Rts_E;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::PeekByIndex(uint32_t _AbsoluteIndex_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::PeekByIndex(uint32_t _AbsoluteIndex_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
-  //if (_pData)
+  // if (_pData)
   {
     if (_AbsoluteIndex_U32 < mCircularBufferParam_X.NbMaxElement_U32)
     {
@@ -810,8 +799,7 @@ BOFERR BofCircularBuffer<DataType>::PeekByIndex(uint32_t _AbsoluteIndex_U32, Dat
   return Rts_E;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
 {
   BOFERR Rts_E;
 
@@ -858,13 +846,13 @@ BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
   return Rts_E;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::UnlockPop(uint32_t _AbsoluteIndex_U32)
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockPop(uint32_t _AbsoluteIndex_U32)
 {
   BOFERR Rts_E = BOF_ERR_WRONG_MODE;
   //	uint32_t i_U32;
 
-  //	printf("@@%d@UnlockIn %d/%d lock %d nb %d/%d pop %d push %d\n", BOF::Bof_GetMsTickCount(),_AbsoluteIndex_U32, mCircularBufferParam_X.NbMaxElement_U32, mpLock_U8[_AbsoluteIndex_U32],	mNbElementInBuffer_U32,mNbElementLockedInBuffer_U32,mPopIndex_U32,mPushIndex_U32);
+  //	printf("@@%d@UnlockIn %d/%d lock %d nb %d/%d pop %d push %d\n", BOF::Bof_GetMsTickCount(),_AbsoluteIndex_U32, mCircularBufferParam_X.NbMaxElement_U32, mpLock_U8[_AbsoluteIndex_U32],
+  //mNbElementInBuffer_U32,mNbElementLockedInBuffer_U32,mPopIndex_U32,mPushIndex_U32);
 
   if (mCircularBufferParam_X.PopLockMode_B)
   {
@@ -894,13 +882,13 @@ BOFERR BofCircularBuffer<DataType>::UnlockPop(uint32_t _AbsoluteIndex_U32)
       }
     }
   }
-  //	printf("@@%d@UnlockOut %d/%d lock %d nb %d/%d pop %d push %d Rts %x\n", BOF::Bof_GetMsTickCount(),_AbsoluteIndex_U32, mCircularBufferParam_X.NbMaxElement_U32, mpLock_U8[_AbsoluteIndex_U32],mNbElementInBuffer_U32,mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, Rts_E);
+  //	printf("@@%d@UnlockOut %d/%d lock %d nb %d/%d pop %d push %d Rts %x\n", BOF::Bof_GetMsTickCount(),_AbsoluteIndex_U32, mCircularBufferParam_X.NbMaxElement_U32, mpLock_U8[_AbsoluteIndex_U32],mNbElementInBuffer_U32,mNbElementLockedInBuffer_U32,
+  //mPopIndex_U32, mPushIndex_U32, Rts_E);
 
   return Rts_E;
 }
 
-template<typename DataType>
-bool BofCircularBuffer<DataType>::IsLocked(uint32_t _AbsoluteIndex_U32)
+template <typename DataType> bool BofCircularBuffer<DataType>::IsLocked(uint32_t _AbsoluteIndex_U32)
 {
   bool Rts_B = false;
   BOFERR Sts_E;
@@ -916,11 +904,10 @@ bool BofCircularBuffer<DataType>::IsLocked(uint32_t _AbsoluteIndex_U32)
   return Rts_B;
 }
 
-template<typename DataType>
-bool BofCircularBuffer<DataType>::IsEntryFree(uint32_t _AbsoluteIndex_U32, bool *_pIsLocked_B, DataType **_ppStorage)
+template <typename DataType> bool BofCircularBuffer<DataType>::IsEntryFree(uint32_t _AbsoluteIndex_U32, bool *_pIsLocked_B, DataType **_ppStorage)
 {
   bool Rts_B = false;
-  //uint32_t Index_U32, EndPush_U32;
+  // uint32_t Index_U32, EndPush_U32;
   BOFERR Sts_E;
 
   BOF_CIRCULAR_BUFFER_LOCK(Sts_E);
@@ -930,9 +917,9 @@ bool BofCircularBuffer<DataType>::IsEntryFree(uint32_t _AbsoluteIndex_U32, bool 
 
     if (_AbsoluteIndex_U32 < mCircularBufferParam_X.NbMaxElement_U32)
     {
-      if (mNbElementInBuffer_U32) //At least one element
+      if (mNbElementInBuffer_U32) // At least one element
       {
-        if (mNbElementInBuffer_U32 < mCircularBufferParam_X.NbMaxElement_U32)  //If == full->not free
+        if (mNbElementInBuffer_U32 < mCircularBufferParam_X.NbMaxElement_U32) // If == full->not free
         {
           if (mPopIndex_U32 <= mPushIndex_U32)
           {
@@ -952,7 +939,7 @@ bool BofCircularBuffer<DataType>::IsEntryFree(uint32_t _AbsoluteIndex_U32, bool 
       }
       else
       {
-        Rts_B = true; //Empty
+        Rts_B = true; // Empty
       }
     }
     if (_pIsLocked_B)
@@ -969,8 +956,7 @@ bool BofCircularBuffer<DataType>::IsEntryFree(uint32_t _AbsoluteIndex_U32, bool 
   return Rts_B;
 }
 
-template<typename DataType>
-BOFERR BofCircularBuffer<DataType>::SignalReadWrite()
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::SignalReadWrite()
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
@@ -996,22 +982,19 @@ BOFERR BofCircularBuffer<DataType>::SignalReadWrite()
   return Rts_E;
 }
 
-template<typename DataType>
-std::string BofCircularBuffer<DataType>::StateInfo()
+template <typename DataType> std::string BofCircularBuffer<DataType>::StateInfo()
 {
   std::string Rts_S;
-  uint32_t    i_U32, Nb_U32;
-  char        pDbg_c[((BOF_CIRCULAR_BUFFER_DBG_MAX_ITEM + 1) * 2) + 1];  //+1 \n +1 nullterm
+  uint32_t i_U32, Nb_U32;
+  char pDbg_c[((BOF_CIRCULAR_BUFFER_DBG_MAX_ITEM + 1) * 2) + 1]; //+1 \n +1 nullterm
   BOFERR Sts_E;
 
   BOF_CIRCULAR_BUFFER_LOCK(Sts_E);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
-    Rts_S = Bof_Sprintf("LckMod %d Pop %d Push %d Nb %d/%d Lck %d (%p) OverWrt %d PreAlloc %d pData %p LvlMx %d (%d) R %d W %d B %d E %X\n", mCircularBufferParam_X.PopLockMode_B, mPopIndex_U32, mPushIndex_U32,
-                        mNbElementInBuffer_U32, mCircularBufferParam_X.NbMaxElement_U32,
-                        mNbElementLockedInBuffer_U32, mpLock_U8, mCircularBufferParam_X.Overwrite_B, mDataPreAllocated_B, mpData_T, mLevelMax_U32, mOverflow_B, Bof_IsEventSignaled(mCanReadEvent_X, 0),
-                        Bof_IsEventSignaled(mCanWriteEvent_X, 0),
-                        mCircularBufferParam_X.Blocking_B, mErrorCode_E);
+    Rts_S = Bof_Sprintf("LckMod %d Pop %d Push %d Nb %d/%d Lck %d (%p) OverWrt %d PreAlloc %d pData %p LvlMx %d (%d) R %d W %d B %d E %X\n", mCircularBufferParam_X.PopLockMode_B, mPopIndex_U32, mPushIndex_U32, mNbElementInBuffer_U32,
+                        mCircularBufferParam_X.NbMaxElement_U32, mNbElementLockedInBuffer_U32, mpLock_U8, mCircularBufferParam_X.Overwrite_B, mDataPreAllocated_B, mpData_T, mLevelMax_U32, mOverflow_B, Bof_IsEventSignaled(mCanReadEvent_X, 0),
+                        Bof_IsEventSignaled(mCanWriteEvent_X, 0), mCircularBufferParam_X.Blocking_B, mErrorCode_E);
 
     Nb_U32 = std::min(mCircularBufferParam_X.NbMaxElement_U32, BOF_CIRCULAR_BUFFER_DBG_MAX_ITEM);
     for (i_U32 = 0; i_U32 < Nb_U32; i_U32++)

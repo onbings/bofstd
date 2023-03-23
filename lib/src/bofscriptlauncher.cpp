@@ -20,35 +20,32 @@
     V 1.00  September 25 2013  BHA : Original version
  */
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #else
 #include <bofstd/bofscriptlauncher.h>
 #include <bofstd/bofsystem.h>
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <spawn.h>
-#include <stdlib.h>
+#include <fcntl.h>
 #include <poll.h>
+#include <spawn.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <fcntl.h>
 extern char **environ;
-
-
 
 BEGIN_BOF_NAMESPACE()
 
-#define SCRIPT_LAUNCHER_INTERNAL_ERROR                        (-1)
-#define SCRIPT_LAUNCHER_PROCESS_CREATION_ERROR                (-2)
-#define SCRIPT_LAUNCHER_INVALID_ARGUMENTS_ERROR               (-3)
-#define SCRIPT_LAUNCHER_TIMEOUT_ERROR                         (-4)
-#define SCRIPT_LAUNCHER_PROCESS_ABNORMAL_TERMINATION_ERROR    (-5)
-#define SCRIPT_LAUNCHER_NOT_SUPPORTED                         (-6)
+#define SCRIPT_LAUNCHER_INTERNAL_ERROR (-1)
+#define SCRIPT_LAUNCHER_PROCESS_CREATION_ERROR (-2)
+#define SCRIPT_LAUNCHER_INVALID_ARGUMENTS_ERROR (-3)
+#define SCRIPT_LAUNCHER_TIMEOUT_ERROR (-4)
+#define SCRIPT_LAUNCHER_PROCESS_ABNORMAL_TERMINATION_ERROR (-5)
+#define SCRIPT_LAUNCHER_NOT_SUPPORTED (-6)
 
-uint32_t                       BofScriptLauncher::S_mDefaultTimeout_U32 = 120000;
+uint32_t BofScriptLauncher::S_mDefaultTimeout_U32 = 120000;
 BofScriptLauncher::ExecuteMode BofScriptLauncher::S_mDefaultMode_E = BofScriptLauncher::EXECUTE_POPEN;
 
 /*!
@@ -141,7 +138,6 @@ int KillSubProcess(pid_t _Pid_X, int _Options_i)
 
   return Status_i;
 }
-
 
 /*!
    Description
@@ -478,27 +474,23 @@ int BofScriptLauncher::Execute(char *_pOutput_c, uint32_t _Size_U32, const char 
 
   switch (_Mode_E)
   {
-    case BofScriptLauncher::EXECUTE_VFORK:
-    {
-      Ret_i = BofScriptLauncher::Execute_vfork(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
-      break;
-    }
-    case BofScriptLauncher::EXECUTE_POSIX_SPAWN:
-    {
-      Ret_i = BofScriptLauncher::Execute_posix_spawn(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
-      break;
-    }
-    case BofScriptLauncher::EXECUTE_POPEN:
-    {
-      Ret_i = BofScriptLauncher::Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
-      break;
-    }
+  case BofScriptLauncher::EXECUTE_VFORK: {
+    Ret_i = BofScriptLauncher::Execute_vfork(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
+    break;
+  }
+  case BofScriptLauncher::EXECUTE_POSIX_SPAWN: {
+    Ret_i = BofScriptLauncher::Execute_posix_spawn(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
+    break;
+  }
+  case BofScriptLauncher::EXECUTE_POPEN: {
+    Ret_i = BofScriptLauncher::Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
+    break;
+  }
 
-    default:
-    {
-      Ret_i = SCRIPT_LAUNCHER_INVALID_ARGUMENTS_ERROR;
-      break;
-    }
+  default: {
+    Ret_i = SCRIPT_LAUNCHER_INVALID_ARGUMENTS_ERROR;
+    break;
+  }
   }
 
   return Ret_i;
@@ -607,7 +599,7 @@ int BofScriptLauncher::Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32,
   int I_S32 = 0;
   bool Read_B = false;
   //	bool                       Kill_B    = false;
-  char *Args_c[] = { (char *)"sh", (char *)"-c", (char *)_pCommand_c, nullptr };
+  char *Args_c[] = {(char *)"sh", (char *)"-c", (char *)_pCommand_c, nullptr};
   char pBuf_c[128];
   pid_t Pid_X;
   //	pid_t                      RetPid_X;
@@ -670,8 +662,7 @@ int BofScriptLauncher::Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32,
           _pOutput_c[0] = '\0';
 
           // Read from the pipes
-          pollfd pList_X[] = { {stdout_pipe[0], POLLIN, 0},
-                              {stderr_pipe[0], POLLIN, 0} };
+          pollfd pList_X[] = {{stdout_pipe[0], POLLIN, 0}, {stderr_pipe[0], POLLIN, 0}};
 
           while ((poll(pList_X, 2, (int)_Timeout_U32) > 0) && (_Size_U32 > 0))
           {
@@ -752,7 +743,7 @@ int BofScriptLauncher::Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const
   int Ret_i = 0;
   //	int     Status_i        = 0;
   int File_i = 0;
-  char *Args_c[] = { (char *)"/bin/sh", (char *)"-c", (char *)_pCommand_c, nullptr };
+  char *Args_c[] = {(char *)"/bin/sh", (char *)"-c", (char *)_pCommand_c, nullptr};
   pid_t Pid_X = 0;
   ssize_t Read_i = 0;
   char pTempFileName_c[256];

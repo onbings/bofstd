@@ -1,32 +1,31 @@
 /*
-* Copyright (c) 2015-2025, Onbings. All rights reserved.
-*
-* THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-* KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-* PURPOSE.
-*
-* This module implements the BofSocketIo class.
-*
-* Author:      Bernard HARMEL: onbings@dscloud.me
-* Web:			    onbings.dscloud.me
-* Revision:    1.0
-*
-* Rem:         None
-*
-* History:
-*
-* V 1.00  Jan 05 2019  BHA : Initial release
-*/
+ * Copyright (c) 2015-2025, Onbings. All rights reserved.
+ *
+ * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ *
+ * This module implements the BofSocketIo class.
+ *
+ * Author:      Bernard HARMEL: onbings@dscloud.me
+ * Web:			    onbings.dscloud.me
+ * Revision:    1.0
+ *
+ * Rem:         None
+ *
+ * History:
+ *
+ * V 1.00  Jan 05 2019  BHA : Initial release
+ */
 #include <bofstd/bofsocketio.h>
-#include <bofstd/bofstring.h>
-#include <bofstd/bofsocketsessionmanager.h>
 #include <bofstd/bofsocketserver.h>
+#include <bofstd/bofsocketsessionmanager.h>
+#include <bofstd/bofstring.h>
 
 #include <regex>
 
 BEGIN_BOF_NAMESPACE()
-
 
 BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<BofSocket> _puSocket, const BOF_SOCKET_IO_PARAM &_rBofSocketIoParam_X)
 {
@@ -40,7 +39,7 @@ BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<Bof
   mpuSocket = std::move(_puSocket);
 
   BOF_ASSERT(mpuSocket != nullptr);
-  //Done in caller BOF_ASSERT(mpuSocket->LastErrorCode() == BOF_ERR_NO_ERROR);
+  // Done in caller BOF_ASSERT(mpuSocket->LastErrorCode() == BOF_ERR_NO_ERROR);
   BOF_ASSERT(mSocketIoParam_X.NotifyRcvBufferSize_U32 >= BOF_SOCKETIO_MIN_NOTIFY_RCV_BUFFER_SIZE);
 
   if ((mpuSocket) && (mSocketIoParam_X.NotifyRcvBufferSize_U32 >= BOF_SOCKETIO_MIN_NOTIFY_RCV_BUFFER_SIZE))
@@ -69,7 +68,6 @@ BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<Bof
               {
                 mErrorCode_E = mpAsyncWriteRequestCollection->LastErrorCode();
               }
-
             }
           }
         }
@@ -94,7 +92,7 @@ BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<Bof
       if (mSocketIoParam_X.pData)
       {
         mDataPreAllocated_B = true;
-        mpDataBuffer_U8 = reinterpret_cast<uint8_t *>(mSocketIoParam_X.pData);  //Should be at least mSocketIoParam_X.NotifyRcvBufferSize_U32  long
+        mpDataBuffer_U8 = reinterpret_cast<uint8_t *>(mSocketIoParam_X.pData); // Should be at least mSocketIoParam_X.NotifyRcvBufferSize_U32  long
       }
       else
       {
@@ -111,8 +109,8 @@ BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<Bof
 
 BofSocketIo::~BofSocketIo()
 {
-  //No as derived object is already deleted	DestroySocket(); =>DestroySocket must be called from derived class destructor
-  DestroySocket("~BofSocketIo");	//#Con#
+  // No as derived object is already deleted	DestroySocket(); =>DestroySocket must be called from derived class destructor
+  DestroySocket("~BofSocketIo"); // #Con#
   if (!mDataPreAllocated_B)
   {
     BOF_SAFE_DELETE_ARRAY(mpDataBuffer_U8);
@@ -143,7 +141,8 @@ void BofSocketIo::ClearDataBuffer()
 {
   mDataBuffer_X.Clear();
 }
-BOFERR BofSocketIo::TransferDataBufferOwnershipTo(std::shared_ptr<BofSocketIo> _psSocketSession)	//After passing mDataBuffer_X from closing data session to cmd session to avoid 2 delete op->!! leak if called without releasing buffer except if you transfert ownership
+BOFERR BofSocketIo::TransferDataBufferOwnershipTo(
+    std::shared_ptr<BofSocketIo> _psSocketSession) // After passing mDataBuffer_X from closing data session to cmd session to avoid 2 delete op->!! leak if called without releasing buffer except if you transfert ownership
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -181,8 +180,7 @@ void BofSocketIo::Connected(bool _IsConnected_B)
     mConnectedToIp_S = "";
   }
   Bof_SignalConditionalVariable(mChannelConnectedCv_X, mChannelConnectedCvSetter, _IsConnected_B);
-  //BOF_DBG_PRINTF("===@@ %p Bof_SignalConditionalVariable %d\n", &mChannelConnectedCv_X, _IsConnected_B);
-
+  // BOF_DBG_PRINTF("===@@ %p Bof_SignalConditionalVariable %d\n", &mChannelConnectedCv_X, _IsConnected_B);
 }
 
 bool BofSocketIo::Connected() const
@@ -225,7 +223,6 @@ BOF_SOCKET_IO_NOTIFY_TYPE BofSocketIo::NotifyType() const
 {
   return mSocketIoParam_X.NotifyType_E;
 }
-
 
 BOF_SOCKET_SESSION_STATISTIC BofSocketIo::SocketSessionStatistic() const
 {
@@ -292,10 +289,10 @@ BOFERR BofSocketIo::DestroySocket(const std::string &_rName_S)
 
   if (SessionType() != BOF_SOCKET_SESSION_TYPE::DATA_LISTENER)
   {
-    //try
+    // try
     {
-      //psParentSocketSession = std::shared_ptr<BofSocketIo>(mpwParentCmdChannel);
-      //if (psParentSocketSession->ChildDataChannel())
+      // psParentSocketSession = std::shared_ptr<BofSocketIo>(mpwParentCmdChannel);
+      // if (psParentSocketSession->ChildDataChannel())
       psParentSocketSession = (ParentCmdChannel().expired()) ? nullptr : ParentCmdChannel().lock();
       if (psParentSocketSession)
       {
@@ -304,13 +301,13 @@ BOFERR BofSocketIo::DestroySocket(const std::string &_rName_S)
         psParentSocketSession->ChildDataChannel(nullptr);
       }
     }
-    //catch (std::exception)
+    // catch (std::exception)
     {
-      //printf("jj");
+      // printf("jj");
     }
     if (mpsChildDataChannel)
     {
-      mpsChildDataChannel->DestroySocket(_rName_S + "_mpsChildDataChannel");	//#Con#
+      mpsChildDataChannel->DestroySocket(_rName_S + "_mpsChildDataChannel"); // #Con#
     }
   }
   if (mpuSocket)
@@ -327,13 +324,13 @@ BOFERR BofSocketIo::LastErrorCode() const
   return mErrorCode_E;
 }
 
-BOFERR BofSocketIo::Write(uint32_t _TimeoutInMs_U32, bool  _AsyncMode_B, const std::string &_rBuffer_S, void *_pWriteContext)
+BOFERR BofSocketIo::Write(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, const std::string &_rBuffer_S, void *_pWriteContext)
 {
   uint32_t Nb_U32 = static_cast<uint32_t>(_rBuffer_S.size());
   return Write(_TimeoutInMs_U32, _AsyncMode_B, Nb_U32, reinterpret_cast<const uint8_t *>(_rBuffer_S.c_str()), _pWriteContext);
 }
 
-BOFERR BofSocketIo::Write(uint32_t _TimeoutInMs_U32, bool  _AsyncMode_B, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8, void *_pWriteContext)
+BOFERR BofSocketIo::Write(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8, void *_pWriteContext)
 {
   BOFERR Rts_E = BOF_ERR_ECONNREFUSED;
   BOF_SOCKET_WRITE_PARAM SocketWriteParam_X;
@@ -377,14 +374,14 @@ BOFERR BofSocketIo::NotifyPendingData()
 }
 BOFERR BofSocketIo::ParseAndDispatchIncomingData(uint32_t _IoTimeoutInMs_U32)
 {
-  BOFERR Rts_E = BOF_ERR_ENOTCONN;	// , Sts_E;
+  BOFERR Rts_E = BOF_ERR_ENOTCONN; // , Sts_E;
   BOF_COM_CHANNEL_STATUS Status_X;
   uint32_t Nb_U32, NbRemainingByte_U32, StartIndex_U32, LastIndex_U32, i_U32, NbByteInDelimitedPacket_U32, NbByteToMove_U32;
   std::string Reply_S;
 
   if (Connected())
   {
-    //NO Only one V_GetStatus per call to this function. If it is not the case the second V_GetStatus will returns BOF_ERR_ENETRESET
+    // NO Only one V_GetStatus per call to this function. If it is not the case the second V_GetStatus will returns BOF_ERR_ENETRESET
     //		for ((Rts_E = mpuSocket->V_GetStatus(Status_X)); (Rts_E == BOF_ERR_NO_ERROR); (Rts_E = mpuSocket->V_GetStatus(Status_X)))
     Rts_E = mpuSocket->V_GetStatus(Status_X);
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -413,12 +410,12 @@ BOFERR BofSocketIo::ParseAndDispatchIncomingData(uint32_t _IoTimeoutInMs_U32)
             {
               if (mWriteIndex_U32 == mSocketIoParam_X.NotifyRcvBufferSize_U32)
               {
-                /*Sts_E =*/ NotifyPendingData();
+                /*Sts_E =*/NotifyPendingData();
               }
             }
             else if (mSocketIoParam_X.NotifyType_E == BOF_SOCKET_IO_NOTIFY_TYPE::WHEN_FULL_OR_DELIMITER_FOUND)
             {
-              //We look for Delimiter_U8 in mpDataBuffer_U8 data chunk per data chunk
+              // We look for Delimiter_U8 in mpDataBuffer_U8 data chunk per data chunk
               BOF_ASSERT(mWriteIndex_U32 <= mSocketIoParam_X.NotifyRcvBufferSize_U32);
               BOF_ASSERT(mDelimiterStartIndex_U32 < mSocketIoParam_X.NotifyRcvBufferSize_U32);
               BOF_ASSERT(LastIndex_U32 <= mSocketIoParam_X.NotifyRcvBufferSize_U32);
@@ -434,7 +431,7 @@ BOFERR BofSocketIo::ParseAndDispatchIncomingData(uint32_t _IoTimeoutInMs_U32)
                     Reply_S = std::string(reinterpret_cast<char *>(&mpDataBuffer_U8[mDelimiterStartIndex_U32]), NbByteInDelimitedPacket_U32);
                     mpReplyCollection->Push(&Reply_S, 0, nullptr);
 
-                    /*Sts_E =*/ V_SignalDataRead(NbByteInDelimitedPacket_U32, &mpDataBuffer_U8[mDelimiterStartIndex_U32]);
+                    /*Sts_E =*/V_SignalDataRead(NbByteInDelimitedPacket_U32, &mpDataBuffer_U8[mDelimiterStartIndex_U32]);
                     StartIndex_U32 = i_U32 + 1;
                     BOF_ASSERT(StartIndex_U32 <= mSocketIoParam_X.NotifyRcvBufferSize_U32);
 
@@ -445,14 +442,14 @@ BOFERR BofSocketIo::ParseAndDispatchIncomingData(uint32_t _IoTimeoutInMs_U32)
                 }
               } while (i_U32 < LastIndex_U32);
 
-              if (mWriteIndex_U32 >= mSocketIoParam_X.NotifyRcvBufferSize_U32)	//can happens if last byte of buffer is equal to Delimiter_U8 or no Delimiter_U8 byte found before the end
+              if (mWriteIndex_U32 >= mSocketIoParam_X.NotifyRcvBufferSize_U32) // can happens if last byte of buffer is equal to Delimiter_U8 or no Delimiter_U8 byte found before the end
               {
                 mWriteIndex_U32 = mSocketIoParam_X.NotifyRcvBufferSize_U32;
                 if (mDelimiterStartIndex_U32 == 0)
                 {
                   Reply_S = std::string(reinterpret_cast<char *>(mpDataBuffer_U8), mSocketIoParam_X.NotifyRcvBufferSize_U32);
                   mpReplyCollection->Push(&Reply_S, 0, nullptr);
-                  /*Sts_E =*/ NotifyPendingData();
+                  /*Sts_E =*/NotifyPendingData();
                 }
                 else
                 {
@@ -471,33 +468,33 @@ BOFERR BofSocketIo::ParseAndDispatchIncomingData(uint32_t _IoTimeoutInMs_U32)
               BOF_ASSERT(mDelimiterStartIndex_U32 <= mSocketIoParam_X.NotifyRcvBufferSize_U32);
             }
           }
-          else   // if ( mpuSocket->V_ReadData == BOF_ERR_NO_ERROR)
+          else // if ( mpuSocket->V_ReadData == BOF_ERR_NO_ERROR)
           {
-            //NO break;
+            // NO break;
           }
         }
-        else   //if (Status_X.NbIn_U32)
+        else // if (Status_X.NbIn_U32)
         {
-          BOF_ASSERT(0);	//Can happens and should be cathed by previous test: Status_X.Sts_E != BOF_ERR_NO_ERROR
-/*
-          if (!Status_X.Connected_B)
-          {
-            Rts_E = BOF_ERR_ENETRESET;
-            BOF_ASSERT(Rts_E == Status_X.Sts_E);
-          }
-*/
-//NO					break;
+          BOF_ASSERT(0); // Can happens and should be cathed by previous test: Status_X.Sts_E != BOF_ERR_NO_ERROR
+          /*
+                    if (!Status_X.Connected_B)
+                    {
+                      Rts_E = BOF_ERR_ENETRESET;
+                      BOF_ASSERT(Rts_E == Status_X.Sts_E);
+                    }
+          */
+          // NO					break;
         }
       }
-      else  //Status_X.Sts_E != BOF_ERR_NO_ERROR
+      else // Status_X.Sts_E != BOF_ERR_NO_ERROR
       {
         BOF_ASSERT(Status_X.Connected_B == false);
         BOF_ASSERT(Rts_E == BOF_ERR_ENETRESET);
-        //NO				break;
+        // NO				break;
       }
-    } //NO !!! for ((Rts_E = mpuSocket->V_GetStatus(Status_X)); (Rts_E == BOF_ERR_NO_ERROR); (Rts_E = mpuSocket->V_GetStatus(Status_X)))
+    } // NO !!! for ((Rts_E = mpuSocket->V_GetStatus(Status_X)); (Rts_E == BOF_ERR_NO_ERROR); (Rts_E = mpuSocket->V_GetStatus(Status_X)))
   }
-  else  // if (Connected())
+  else // if (Connected())
   {
   }
   return Rts_E;
@@ -527,7 +524,7 @@ BOFERR BofSocketIo::Login(uint32_t _TimeoutInMs_U32, const std::string &_rUser_S
             Rts_E = Bof_ReEvaluateTimeout(Start_U32, _TimeoutInMs_U32);
             if (Rts_E == BOF_ERR_NO_ERROR)
             {
-              Rts_E = SendCommandAndWaitForReply(_TimeoutInMs_U32, "TYPE I\r\n", 200, ReplyCode_U32, Reply_S); //Binary data
+              Rts_E = SendCommandAndWaitForReply(_TimeoutInMs_U32, "TYPE I\r\n", 200, ReplyCode_U32, Reply_S); // Binary data
               if (Rts_E == BOF_ERR_NO_ERROR)
               {
                 mIsLoggedIn_B = true;
@@ -581,7 +578,7 @@ const std::string &BofSocketIo::CurrentIoDataCommand() const
 {
   return mCurrentIoDataCommand_S;
 }
-void BofSocketIo::SetLastIoDataCommand(const std::string &_rLastIoDataCommand_S)	//To avoid reccursive call in LastIoDataCommand
+void BofSocketIo::SetLastIoDataCommand(const std::string &_rLastIoDataCommand_S) // To avoid reccursive call in LastIoDataCommand
 {
   mCurrentIoDataCommand_S = _rLastIoDataCommand_S;
 }
@@ -592,7 +589,7 @@ void BofSocketIo::CurrentIoDataCommand(const std::string &_rLastIoDataCommand_S)
   {
     if (ChildDataChannel())
     {
-      ChildDataChannel()->SetLastIoDataCommand(_rLastIoDataCommand_S);		//To avoid reccursive call in LastIoDataCommand
+      ChildDataChannel()->SetLastIoDataCommand(_rLastIoDataCommand_S); // To avoid reccursive call in LastIoDataCommand
     }
   }
   else if (SessionType() == BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL)
@@ -600,7 +597,7 @@ void BofSocketIo::CurrentIoDataCommand(const std::string &_rLastIoDataCommand_S)
     std::shared_ptr<BofSocketIo> psParentSocketSession = (ParentCmdChannel().expired()) ? nullptr : ParentCmdChannel().lock();
     if (psParentSocketSession)
     {
-      psParentSocketSession->SetLastIoDataCommand(_rLastIoDataCommand_S);	//To avoid reccursive call in LastIoDataCommand
+      psParentSocketSession->SetLastIoDataCommand(_rLastIoDataCommand_S); // To avoid reccursive call in LastIoDataCommand
     }
   }
 }
@@ -632,18 +629,18 @@ BOFERR BofSocketIo::Logout(uint32_t _TimeoutInMs_U32)
 BOFERR BofSocketIo::S_ParseListLineBuffer(const std::string &_rBaseDirectory_S, const char *_pListLineBuffer_c, std::vector<BOF_FTP_FILE> &_rFtpFileCollection)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  //https://regex101.com/
-  static const std::regex   S_RegExList("(.+?)\\s+(\\d+)\\s+(.+?)\\s+(.+?)\\s+(\\d+)\\s+(.+\\d+ +\\d+:\\d+)\\s+(.*)");  //-rwx------ 1 user group 1082130432000 May 26 00:00 000000A_^mmz]e^S_Train000011             .TRN
-  std::cmatch         ListMatch;
+  // https://regex101.com/
+  static const std::regex S_RegExList("(.+?)\\s+(\\d+)\\s+(.+?)\\s+(.+?)\\s+(\\d+)\\s+(.+\\d+ +\\d+:\\d+)\\s+(.*)"); //-rwx------ 1 user group 1082130432000 May 26 00:00 000000A_^mmz]e^S_Train000011             .TRN
+  std::cmatch ListMatch;
   std::string Fn_S, Val_S;
-  //bool IsDirectory_B, IsLink_B;
+  // bool IsDirectory_B, IsLink_B;
   BofDateTime DateTime, Now;
   BOF_FTP_FILE FtpFile_X;
   const char *pEol_c;
   char pListLine_c[0x1000];
   uint32_t SizeOfLine_U32;
 
-  //No clear as we can append file to collection if list is made of several buffer	_rFtpFileCollection.clear();
+  // No clear as we can append file to collection if list is made of several buffer	_rFtpFileCollection.clear();
   if (_pListLineBuffer_c)
   {
     do
@@ -722,23 +719,20 @@ BOFERR BofSocketIo::S_ParseListLineBuffer(const std::string &_rBaseDirectory_S, 
             FtpFile_X.Size_U64 = std::stoull(ListMatch[5].str());
             FtpFile_X.DateTime.FromString(ListMatch[6].str(), "%b %d %H:%M");
             Bof_Now(Now);
-            //Will change dayofweek or isvalid FtpFile_X.DateTime_X.Year_U16 = Now_X.Year_U16;
-            //Bof_ComputeDayOfWeek(FtpFile_X.DateTime_X, FtpFile_X.DateTime_X.DayOfWeek_U8);
-
+            // Will change dayofweek or isvalid FtpFile_X.DateTime_X.Year_U16 = Now_X.Year_U16;
+            // Bof_ComputeDayOfWeek(FtpFile_X.DateTime_X, FtpFile_X.DateTime_X.DayOfWeek_U8);
 
             Fn_S = _rBaseDirectory_S + ListMatch[7].str();
             FtpFile_X.Path = Fn_S.c_str();
             _rFtpFileCollection.push_back(FtpFile_X);
             Rts_E = BOF_ERR_NO_ERROR;
           } // if ((std::regex_search(pListLine_c, ListMatch, S_RegExList)) && (ListMatch.size() == 1 + 7))
-        } //if ((pEol_c[-1] == '\r') && (SizeOfLine_U32 < sizeof(pListLine_c - 16))) /
-      } //else if (!pEol_c)
+        }   // if ((pEol_c[-1] == '\r') && (SizeOfLine_U32 < sizeof(pListLine_c - 16))) /
+      }     // else if (!pEol_c)
     } while (Rts_E == BOF_ERR_NO_ERROR);
   }
   return Rts_E;
 }
-
-
 
 BOFERR BofSocketIo::SendCommandAndWaitForReply(uint32_t _TimeoutInMs_U32, const std::string &_rCommand_S, uint32_t _ExpectedReplyCode_U32, uint32_t &_rReplyCode_U32, std::string &_rReply_S)
 {
@@ -774,18 +768,18 @@ BOFERR BofSocketIo::WaitForCommandReply(uint32_t _TimeoutInMs_U32, uint32_t _Exp
   std::string FtpReply_S, FullFtpReply_S, IncomingLine_S;
   //	uint32_t Test_U32 = 0;
 
-  bool Finish_B, FullReply_B;	// , MultiLine_B, LookForEos_B;;
+  bool Finish_B, FullReply_B; // , MultiLine_B, LookForEos_B;;
 
   _rReplyCode_U32 = 0;
   _rReply_S = "";
   if (Connected())
   {
-    //No lock is in SendCommandAndWaitForReply		Rts_E = Bof_LockMutex(mpsMtx_X);
+    // No lock is in SendCommandAndWaitForReply		Rts_E = Bof_LockMutex(mpsMtx_X);
     do
     {
       Finish_B = true;
       Start_U32 = Bof_GetMsTickCount();
-      //Rts_E = DispatchIncomingLine(TimeoutInMs_S32, IncomingLine_S);
+      // Rts_E = DispatchIncomingLine(TimeoutInMs_S32, IncomingLine_S);
       /*
       switch (Test_U32)
       {
@@ -808,7 +802,7 @@ BOFERR BofSocketIo::WaitForCommandReply(uint32_t _TimeoutInMs_U32, uint32_t _Exp
       Test_U32++;
       */
 
-      //Rts_E=Bof_WaitForConditionalVariable(mReplyReceivedCv_X, TimeoutInMs_S32, mReplyReceivedCvPredicateAndReset);
+      // Rts_E=Bof_WaitForConditionalVariable(mReplyReceivedCv_X, TimeoutInMs_S32, mReplyReceivedCvPredicateAndReset);
       Rts_E = mpReplyCollection->Pop(&IncomingLine_S, _TimeoutInMs_U32, nullptr, nullptr);
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
@@ -823,7 +817,7 @@ BOFERR BofSocketIo::WaitForCommandReply(uint32_t _TimeoutInMs_U32, uint32_t _Exp
             _rReply_S += "\r\n";
           }
         }
-      } //Read if (Rts_E == BOF_ERR_NO_ERROR)
+      } // Read if (Rts_E == BOF_ERR_NO_ERROR)
       else
       {
         if (Bof_ReEvaluateTimeout(Start_U32, _TimeoutInMs_U32) == BOF_ERR_NO_ERROR)
@@ -842,8 +836,8 @@ BOFERR BofSocketIo::WaitForCommandReply(uint32_t _TimeoutInMs_U32, uint32_t _Exp
         }
       }
     }
-    //No lock is in SendCommandAndWaitForReply			Bof_UnlockMutex(mpsMtx_X);
-//		WaitingForReply(false);	//Should be there AND in SendCommandAndWaitForReply to catch 220 welcome message on connect
+    // No lock is in SendCommandAndWaitForReply			Bof_UnlockMutex(mpsMtx_X);
+    //		WaitingForReply(false);	//Should be there AND in SendCommandAndWaitForReply to catch 220 welcome message on connect
   }
   return Rts_E;
 }
@@ -869,10 +863,10 @@ BOFERR BofSocketIo::ParseReply(const std::string &_rLine_S, bool &_rFullReply_B,
   BOFERR Rts_E;
   uint32_t ReplyCode_U32;
   // char pReply_c[] = "220-FileZilla Server 0.9.60 beta\r\n220-written by Tim Kosse(tim.kosse@filezilla-project.org)\r\n220 Please visit https ://filezilla-project.org/\r\n";
-  //123-First line
+  // 123-First line
   //	  Second line
   //	  234 A line beginning with numbers
-  //123 The last line
+  // 123 The last line
   static const std::regex S_RegExFtpReply("^(\\d\\d\\d|   )([ -])(.*)([\\r\\n]*)");
   std::cmatch FtpReplyMatch;
   const char *pBuffer_c = reinterpret_cast<const char *>(_rLine_S.c_str());
@@ -893,7 +887,7 @@ BOFERR BofSocketIo::ParseReply(const std::string &_rLine_S, bool &_rFullReply_B,
           ReplyCode_U32 = static_cast<uint32_t>(std::stoi(FtpReplyMatch[1].str()));
           _rFullReply_B = FtpReplyMatch[2].str() == " ";
         }
-        catch (const std::exception &)  	//Just for multiline (FtpReplyMatch[1].str()=="   ")
+        catch (const std::exception &) // Just for multiline (FtpReplyMatch[1].str()=="   ")
         {
           ReplyCode_U32 = mLastPartialReplyCode_U32;
           _rFullReply_B = false;
@@ -924,29 +918,31 @@ BOFERR BofSocketIo::ParseReply(const std::string &_rLine_S, bool &_rFullReply_B,
   return Rts_E;
 }
 
-
 std::string BofSocketIo::SocketIoDebugInfo()
 {
   std::string Rts_S, ActiveSession_S;
 
-  Rts_S = Bof_Sprintf("Name:              %s\nType:              %d\nIndex:             %03d\nTime Start/Last:   %08X/%08X\nBufferSize R/S:    %08X/%08X\nNotify type/size:  %d/%08X\npData:             %p %s:%p\nWrite Index:       %04d\nDelim Index:       %04d\nDelim:             %02X (%c)\nNbMaxAsyncWrite:   %06d %06d:%p (max %06d)\nNoIo Close To:     %d\n",
-                      mSocketIoParam_X.Name_S.c_str(), mSessionType_E, mSessionIndex_U32, mStartSessionTime_U32, mLastIoTime_U32,
-                      mSocketIoParam_X.SocketRcvBufferSize_U32, mSocketIoParam_X.SocketSndBufferSize_U32,
-                      mSocketIoParam_X.NotifyType_E, mSocketIoParam_X.NotifyRcvBufferSize_U32, mSocketIoParam_X.pData, mDataPreAllocated_B ? "True" : "False", mpDataBuffer_U8, mWriteIndex_U32, mDelimiterStartIndex_U32, mSocketIoParam_X.Delimiter_U8, (mSocketIoParam_X.Delimiter_U8 < 32) ? '?' : mSocketIoParam_X.Delimiter_U8,
-                      mSocketIoParam_X.NbMaxAsyncWritePendingRequest_U32, mpAsyncWriteRequestCollection ? mpAsyncWriteRequestCollection->GetNbElement() : 0, mpAsyncWriteRequestCollection, mpAsyncWriteRequestCollection ? mpAsyncWriteRequestCollection->GetMaxLevel() : 0, mSocketIoParam_X.NoIoCloseTimeoutInMs_U32);
+  Rts_S = Bof_Sprintf("Name:              %s\nType:              %d\nIndex:             %03d\nTime Start/Last:   %08X/%08X\nBufferSize R/S:    %08X/%08X\nNotify type/size:  %d/%08X\npData:             %p %s:%p\nWrite Index:       %04d\nDelim Index:       "
+                      "%04d\nDelim:             %02X (%c)\nNbMaxAsyncWrite:   %06d %06d:%p (max %06d)\nNoIo Close To:     %d\n",
+                      mSocketIoParam_X.Name_S.c_str(), mSessionType_E, mSessionIndex_U32, mStartSessionTime_U32, mLastIoTime_U32, mSocketIoParam_X.SocketRcvBufferSize_U32, mSocketIoParam_X.SocketSndBufferSize_U32, mSocketIoParam_X.NotifyType_E,
+                      mSocketIoParam_X.NotifyRcvBufferSize_U32, mSocketIoParam_X.pData, mDataPreAllocated_B ? "True" : "False", mpDataBuffer_U8, mWriteIndex_U32, mDelimiterStartIndex_U32, mSocketIoParam_X.Delimiter_U8,
+                      (mSocketIoParam_X.Delimiter_U8 < 32) ? '?' : mSocketIoParam_X.Delimiter_U8, mSocketIoParam_X.NbMaxAsyncWritePendingRequest_U32, mpAsyncWriteRequestCollection ? mpAsyncWriteRequestCollection->GetNbElement() : 0,
+                      mpAsyncWriteRequestCollection, mpAsyncWriteRequestCollection ? mpAsyncWriteRequestCollection->GetMaxLevel() : 0, mSocketIoParam_X.NoIoCloseTimeoutInMs_U32);
 
-  Rts_S += Bof_Sprintf("Reply:             %06d:%p (max %06d) Last: %03d\npSocket:           %p\nConnected:         %s '%s'->'%s' (Logged: %s)\n", mpReplyCollection ? mpReplyCollection->GetNbElement() : 0,
-                       mpReplyCollection, mpReplyCollection ? mpReplyCollection->GetMaxLevel() : 0, mLastPartialReplyCode_U32,
-                       mpuSocket.get(), mConnected_B ? "True" : "False", mConnectedFromIp_S.c_str(), mConnectedToIp_S.c_str(), mIsLoggedIn_B ? "True" : "False");
+  Rts_S += Bof_Sprintf("Reply:             %06d:%p (max %06d) Last: %03d\npSocket:           %p\nConnected:         %s '%s'->'%s' (Logged: %s)\n", mpReplyCollection ? mpReplyCollection->GetNbElement() : 0, mpReplyCollection,
+                       mpReplyCollection ? mpReplyCollection->GetMaxLevel() : 0, mLastPartialReplyCode_U32, mpuSocket.get(), mConnected_B ? "True" : "False", mConnectedFromIp_S.c_str(), mConnectedToIp_S.c_str(), mIsLoggedIn_B ? "True" : "False");
 
-  //	Rts_S += Bof_Sprintf("Child:             %d:%p\nParent:            %d:%s\nLock:              %08X %s\n", mpsChildDataChannel.use_count(), mpsChildDataChannel.get(), mpwParentCmdChannel.use_count(), mpwParentCmdChannel.expired() ? "True" : "False", mMtx_X.Mtx.native_handle(), mpLastLocker_c);
+  //	Rts_S += Bof_Sprintf("Child:             %d:%p\nParent:            %d:%s\nLock:              %08X %s\n", mpsChildDataChannel.use_count(), mpsChildDataChannel.get(), mpwParentCmdChannel.use_count(), mpwParentCmdChannel.expired() ? "True" : "False",
+  //mMtx_X.Mtx.native_handle(), mpLastLocker_c);
   Rts_S += Bof_Sprintf("Child:             %d:%p\nParent:            %d:%s\n", mpsChildDataChannel.use_count(), mpsChildDataChannel.get(), mpwParentCmdChannel.use_count(), mpwParentCmdChannel.expired() ? "True" : "False");
 
-  Rts_S += Bof_Sprintf("NbOpConnect:       %06d\nNbOpConnectError:  %06d\nNbOpDisconnect:    %06d\nNbOpDisconnectErr: %06d\nNbOpListenError:   %06d\nNbOpRead:          %06d\nNbOpReadError:     %06d\nNbDataByteRead:    %06lld\nNbOpWrite:         %06d\nNbOpWriteError:    %06d\nNbDataByteWritten: %06lld\nNbError:           %06d\nNbCloseEvent:      %06d\nNbConnectEvent:    %06d\nNbTcpShutdownEvnt: %06d\nNbTcpListenEvent:  %06d\nNbTimerEvent:      %06d\nNbTimerEventError: %06d\n",
-                       mSocketSessionStatistic_X.NbOpConnect_U32, mSocketSessionStatistic_X.NbOpConnectError_U32, mSocketSessionStatistic_X.NbOpDisconnect_U32, mSocketSessionStatistic_X.NbOpDisconnectError_U32, mSocketSessionStatistic_X.NbOpListenError_U32,
-                       mSocketSessionStatistic_X.NbOpRead_U32, mSocketSessionStatistic_X.NbOpReadError_U32, mSocketSessionStatistic_X.NbDataByteRead_U64, mSocketSessionStatistic_X.NbOpWrite_U32, mSocketSessionStatistic_X.NbOpWriteError_U32,
-                       mSocketSessionStatistic_X.NbDataByteWritten_U64, mSocketSessionStatistic_X.NbError_U32, mSocketSessionStatistic_X.NbCloseEvent_U32, mSocketSessionStatistic_X.NbConnectEvent_U32, mSocketSessionStatistic_X.NbTcpShutdownEvent_U32,
-                       mSocketSessionStatistic_X.NbTcpListenEvent_U32, mSocketSessionStatistic_X.NbTimerEvent_U32, mSocketSessionStatistic_X.NbTimerEventError_U32);
+  Rts_S +=
+      Bof_Sprintf("NbOpConnect:       %06d\nNbOpConnectError:  %06d\nNbOpDisconnect:    %06d\nNbOpDisconnectErr: %06d\nNbOpListenError:   %06d\nNbOpRead:          %06d\nNbOpReadError:     %06d\nNbDataByteRead:    %06lld\nNbOpWrite:         "
+                  "%06d\nNbOpWriteError:    %06d\nNbDataByteWritten: %06lld\nNbError:           %06d\nNbCloseEvent:      %06d\nNbConnectEvent:    %06d\nNbTcpShutdownEvnt: %06d\nNbTcpListenEvent:  %06d\nNbTimerEvent:      %06d\nNbTimerEventError: %06d\n",
+                  mSocketSessionStatistic_X.NbOpConnect_U32, mSocketSessionStatistic_X.NbOpConnectError_U32, mSocketSessionStatistic_X.NbOpDisconnect_U32, mSocketSessionStatistic_X.NbOpDisconnectError_U32, mSocketSessionStatistic_X.NbOpListenError_U32,
+                  mSocketSessionStatistic_X.NbOpRead_U32, mSocketSessionStatistic_X.NbOpReadError_U32, mSocketSessionStatistic_X.NbDataByteRead_U64, mSocketSessionStatistic_X.NbOpWrite_U32, mSocketSessionStatistic_X.NbOpWriteError_U32,
+                  mSocketSessionStatistic_X.NbDataByteWritten_U64, mSocketSessionStatistic_X.NbError_U32, mSocketSessionStatistic_X.NbCloseEvent_U32, mSocketSessionStatistic_X.NbConnectEvent_U32, mSocketSessionStatistic_X.NbTcpShutdownEvent_U32,
+                  mSocketSessionStatistic_X.NbTcpListenEvent_U32, mSocketSessionStatistic_X.NbTimerEvent_U32, mSocketSessionStatistic_X.NbTimerEventError_U32);
 
   return Rts_S;
 }
@@ -955,7 +951,7 @@ BOFERR BofSocketIo::WaitForChannelConnected(uint32_t _TimeoutInMs_U32)
   BOFERR Rts_E;
 
   Rts_E = Bof_WaitForConditionalVariable(mChannelConnectedCv_X, _TimeoutInMs_U32, mChannelConnectedCvPredicateAndReset);
-  //BOF_DBG_PRINTF("===@@ %p WaitForChannelConnected %d\n", &mChannelConnectedCv_X,Rts_E);
+  // BOF_DBG_PRINTF("===@@ %p WaitForChannelConnected %d\n", &mChannelConnectedCv_X,Rts_E);
 
   return Rts_E;
 }
@@ -964,7 +960,7 @@ BOFERR BofSocketIo::WaitForChannelDisconnected(uint32_t _TimeoutInMs_U32)
   BOFERR Rts_E;
 
   Rts_E = Bof_WaitForConditionalVariable(mChannelConnectedCv_X, _TimeoutInMs_U32, mChannelDisconnectedCvPredicateAndReset);
-  //BOF_DBG_PRINTF("===@@ %p WaitForChannelDisconnected %d\n", &mChannelConnectedCv_X, Rts_E);
+  // BOF_DBG_PRINTF("===@@ %p WaitForChannelDisconnected %d\n", &mChannelConnectedCv_X, Rts_E);
 
   return Rts_E;
 }

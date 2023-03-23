@@ -31,10 +31,10 @@ struct MY_CALLBACK_ARG
   float b;
   std::string c;
 };
-using MY_CALLBACK = std::function< BOFERR(const MY_CALLBACK_ARG &) >;
-using MY_VOID_CALLBACK = std::function< void(const MY_CALLBACK_ARG &) >;
-using MY_VOID2_CALLBACK = std::function< void(int) >;
-using MY_INT_CALLBACK = std::function< int(int) >;
+using MY_CALLBACK = std::function<BOFERR(const MY_CALLBACK_ARG &)>;
+using MY_VOID_CALLBACK = std::function<void(const MY_CALLBACK_ARG &)>;
+using MY_VOID2_CALLBACK = std::function<void(int)>;
+using MY_INT_CALLBACK = std::function<int(int)>;
 
 static int CallbackCounter_i = 0;
 BOFERR MyCallback1(const MY_CALLBACK_ARG &_rArg_X)
@@ -62,24 +62,23 @@ void MyCallback5(int _a_i)
   printf("MyCallback5 %d: other a=%d\n", ++CallbackCounter_i, _a_i);
 }
 
-
 TEST(CallbackCollection_Test, Void)
 {
   uint32_t Id_U32;
   MY_CALLBACK_ARG Arg_X;
 
-  //EXPECT_EQ(BofCallbackCollection<int>::S_Instance().Register(MyCallback5, Id_U32), BOF_ERR_NO_ERROR);
+  // EXPECT_EQ(BofCallbackCollection<int>::S_Instance().Register(MyCallback5, Id_U32), BOF_ERR_NO_ERROR);
 
-//	BofCallbackCollection<MY_INT_CALLBACK>::S_Instance().CallIt(MyCallback4,3);
+  //	BofCallbackCollection<MY_INT_CALLBACK>::S_Instance().CallIt(MyCallback4,3);
 
   EXPECT_EQ(BofCallbackCollection<MY_VOID2_CALLBACK>::S_Instance().Register(MyCallback5, Id_U32), BOF_ERR_NO_ERROR);
-  //BofCallbackCollection<MY_VOID2_CALLBACK>::S_Instance().UnregisterIfFail(false);
+  // BofCallbackCollection<MY_VOID2_CALLBACK>::S_Instance().UnregisterIfFail(false);
   EXPECT_EQ(BofCallbackCollection<MY_VOID2_CALLBACK>::S_Instance().Call(Id_U32, 11), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofCallbackCollection<MY_VOID2_CALLBACK>::S_Instance().Unregister(Id_U32), BOF_ERR_NO_ERROR);
 
   EXPECT_EQ(BofCallbackCollection<MY_INT_CALLBACK>::S_Instance().Register(MyCallback4, Id_U32), BOF_ERR_NO_ERROR);
   BofCallbackCollection<MY_INT_CALLBACK>::S_Instance().UnregisterIfFail(true);
-  EXPECT_NE(BofCallbackCollection<MY_INT_CALLBACK>::S_Instance().Call(Id_U32, 22), BOF_ERR_NO_ERROR);  //->return 44-> unregistered
+  EXPECT_NE(BofCallbackCollection<MY_INT_CALLBACK>::S_Instance().Call(Id_U32, 22), BOF_ERR_NO_ERROR); //->return 44-> unregistered
   EXPECT_NE(BofCallbackCollection<MY_INT_CALLBACK>::S_Instance().Unregister(Id_U32), BOF_ERR_NO_ERROR);
 
   EXPECT_EQ(BofCallbackCollection<MY_VOID_CALLBACK>::S_Instance().Register(MyCallback3, Id_U32), BOF_ERR_NO_ERROR);

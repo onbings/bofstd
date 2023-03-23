@@ -1,32 +1,31 @@
 /*
-* Copyright (c) 2015-2025, Onbings. All rights reserved.
-*
-* THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-* KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-* PURPOSE.
-*
-* This module implements the BofSocketServer class.
-*
-* Author:      Bernard HARMEL: onbings@dscloud.me
-* Web:			    onbings.dscloud.me
-* Revision:    1.0
-*
-* Rem:         None
-*
-* History:
-*
-* V 1.00  Jan 05 2019  BHA : Initial release
-*/
+ * Copyright (c) 2015-2025, Onbings. All rights reserved.
+ *
+ * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ *
+ * This module implements the BofSocketServer class.
+ *
+ * Author:      Bernard HARMEL: onbings@dscloud.me
+ * Web:			    onbings.dscloud.me
+ * Revision:    1.0
+ *
+ * Rem:         None
+ *
+ * History:
+ *
+ * V 1.00  Jan 05 2019  BHA : Initial release
+ */
 #include <bofstd/bofsocketserver.h>
 
-#include <regex>
 #include <algorithm>
+#include <regex>
 
 BEGIN_BOF_NAMESPACE()
 
-BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFactory, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X)
-  : BofSocketSessionManager(_pIBofSocketSessionFactory, this, _rBofSocketServerParam_X)
+BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFactory, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X) : BofSocketSessionManager(_pIBofSocketSessionFactory, this, _rBofSocketServerParam_X)
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
   BOF_SOCKET_IO_PARAM BofSocketIoParam_X;
@@ -34,12 +33,12 @@ BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFa
   BOF_SOCK_TYPE SocketType_E;
   uint32_t Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32;
   uint16_t Port_U16;
-  BOFSOCKET				ListenSessionId;
+  BOFSOCKET ListenSessionId;
   std::unique_ptr<BofSocket> puListenSocket;
   std::shared_ptr<BofSocketIo> psListenSocketSession;
 
   mErrorCode_E = BofSocketSessionManager::LastErrorCode();
-  //unit test BOF_ASSERT(mErrorCode_E == BOF_ERR_NO_ERROR);
+  // unit test BOF_ASSERT(mErrorCode_E == BOF_ERR_NO_ERROR);
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
     if (mBofSocketServerParam_X.MinPortValue_U16 > mBofSocketServerParam_X.MaxPortValue_U16)
@@ -74,10 +73,10 @@ BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFa
               mErrorCode_E = BOF_ERR_ENOMEM;
 
               BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketServerParam_X.Name_S;
-              BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;  // mBofSocketServerParam_X.Blocking_B;
+              BofSocketParam_X.BaseChannelParam_X.Blocking_B = true; // mBofSocketServerParam_X.Blocking_B;
               BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = mBofSocketServerParam_X.NbMaxSession_U32;
               BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x1000; // mBofSocketServerParam_X.ServerRcvBufferSize_U32;
-              BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000;// mBofSocketServerParam_X.ServerSndBufferSize_U32;
+              BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000; // mBofSocketServerParam_X.ServerSndBufferSize_U32;
               BofSocketParam_X.ReUseAddress_B = true;
               BofSocketParam_X.BindIpAddress_S = mBofSocketServerParam_X.Address_S;
               puListenSocket = std::make_unique<BofSocket>(BofSocketParam_X);
@@ -87,8 +86,8 @@ BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFa
                 mErrorCode_E = puListenSocket->LastErrorCode();
                 if (mErrorCode_E == BOF_ERR_NO_ERROR)
                 {
-                  //DP https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor 
-                  //const auto TrickDontRemove = std::shared_ptr<BofSocketServer>(this, [](BofSocketServer*) {});
+                  // DP https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor
+                  // const auto TrickDontRemove = std::shared_ptr<BofSocketServer>(this, [](BofSocketServer*) {});
                   BofSocketIoParam_X.Name_S = "SERVER_LISTENER";
                   psListenSocketSession = std::make_shared<BofSocketIo>(this, std::move(puListenSocket), BofSocketIoParam_X);
                   mErrorCode_E = AddToPollList(BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER, nullptr, 0, psListenSocketSession, ListenSessionId);
@@ -98,8 +97,8 @@ BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFa
             }
             else
             {
-              //DP https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor 
-              //const auto TrickDontRemove = std::shared_ptr<BofSocketServer>(this, [](BofSocketServer*) {});
+              // DP https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor
+              // const auto TrickDontRemove = std::shared_ptr<BofSocketServer>(this, [](BofSocketServer*) {});
               mErrorCode_E = BOF_ERR_NO_ERROR;
             }
           }
@@ -108,7 +107,6 @@ BofSocketServer::BofSocketServer(IBofSocketSessionFactory *_pIBofSocketSessionFa
     }
   }
 }
-
 
 BofSocketServer::~BofSocketServer()
 {
@@ -166,16 +164,16 @@ bool BofSocketServer::LockFreeSessionIndex(uint32_t _SessionIndex_U32)
   return Rts_B;
 }
 
-//Called internally by BOFERR BofSocketSessionManager::V_OnProcessing() which managed the unique_ptr ness of this socket
-//Called by thread
+// Called internally by BOFERR BofSocketSessionManager::V_OnProcessing() which managed the unique_ptr ness of this socket
+// Called by thread
 BOFERR BofSocketServer::SignalConnectionRequest(BofSocket *_pListenSocket)
 {
-  BOFERR												Rts_E = BOF_ERR_INIT;
+  BOFERR Rts_E = BOF_ERR_INIT;
   BofComChannel *pSession;
-  std::unique_ptr<BofSocket>	 puSocket;
-  uint32_t											SessionIndex_U32;
-  bool													ReleaseReservation_B;
-  std::shared_ptr<BofSocketIo>	psSocketSession;
+  std::unique_ptr<BofSocket> puSocket;
+  uint32_t SessionIndex_U32;
+  bool ReleaseReservation_B;
+  std::shared_ptr<BofSocketIo> psSocketSession;
 
   BOF_ASSERT(_pListenSocket != nullptr);
   BOF_ASSERT(mpIBofSocketSessionFactory != nullptr);
@@ -209,18 +207,18 @@ BOFERR BofSocketServer::SignalConnectionRequest(BofSocket *_pListenSocket)
   }
   return Rts_E;
 }
-//Called by client
+// Called by client
 BOFERR BofSocketServer::Connect(uint32_t _TimeoutInMs_U32, const std::string &_rConnectFromIpAddress_S, const std::string &_rConnectToIpAddress_S, std::shared_ptr<BofSocketIo> &_rpsCmdSocketSession)
 {
-  BOFERR								Rts_E = BOF_ERR_INIT;
-  BOF_SOCKET_PARAM			BofSocketParam_X;
-  BOF_SOCKET_IO_PARAM		BofSocketIoParam_X;
-  std::unique_ptr<BofSocket>	 puSocket;
-  uint32_t							SessionIndex_U32, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32;
-  uint16_t							Port_U16;
-  BOF_SOCK_TYPE					SocketType_E;
-  BOF_SOCKET_ADDRESS		SocketAddress_X;
-  bool									ReleaseReservation_B;
+  BOFERR Rts_E = BOF_ERR_INIT;
+  BOF_SOCKET_PARAM BofSocketParam_X;
+  BOF_SOCKET_IO_PARAM BofSocketIoParam_X;
+  std::unique_ptr<BofSocket> puSocket;
+  uint32_t SessionIndex_U32, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32;
+  uint16_t Port_U16;
+  BOF_SOCK_TYPE SocketType_E;
+  BOF_SOCKET_ADDRESS SocketAddress_X;
+  bool ReleaseReservation_B;
 
   _rpsCmdSocketSession = nullptr;
   BOF_ASSERT(mpIBofSocketSessionFactory != nullptr);
@@ -233,7 +231,7 @@ BOFERR BofSocketServer::Connect(uint32_t _TimeoutInMs_U32, const std::string &_r
       BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketServerParam_X.Name_S + "_Connect";
       BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
       //  BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = no as it is set by BofSocketIoParam_X.SocketRcvBufferSize_U32 below;
-      //BofSocketParam_X.BindIpAddress_S = "tcp://0.0.0.0:0;0.0.0.0:0";
+      // BofSocketParam_X.BindIpAddress_S = "tcp://0.0.0.0:0;0.0.0.0:0";
       Rts_E = Bof_SplitIpAddress(_rConnectFromIpAddress_S, SocketAddress_X);
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
@@ -279,13 +277,14 @@ BOFERR BofSocketServer::Connect(uint32_t _TimeoutInMs_U32, const std::string &_r
   return Rts_E;
 }
 
-//Called by thread or client
-//BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION
-BOFERR BofSocketServer::ConnectSession(BOF_SOCKET_SESSION_TYPE _SessionType_E, std::shared_ptr<BofSocketIo> _psParentCmdChannel, uint32_t _TimeoutInMs_U32, std::unique_ptr<BofSocket> _puSocket, uint32_t _SessionIndex_U32, std::shared_ptr<BofSocketIo> &_rpsSocketSession)
+// Called by thread or client
+// BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION
+BOFERR BofSocketServer::ConnectSession(BOF_SOCKET_SESSION_TYPE _SessionType_E, std::shared_ptr<BofSocketIo> _psParentCmdChannel, uint32_t _TimeoutInMs_U32, std::unique_ptr<BofSocket> _puSocket, uint32_t _SessionIndex_U32,
+                                       std::shared_ptr<BofSocketIo> &_rpsSocketSession)
 {
-  BOFERR												Rts_E = BOF_ERR_BAD_TYPE;
-  std::shared_ptr<BofSocketIo>	psSocketSession;
-  BOFSOCKET						SessionId;
+  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+  std::shared_ptr<BofSocketIo> psSocketSession;
+  BOFSOCKET SessionId;
 
   _rpsSocketSession = nullptr;
   if (mBofSocketServerParam_X.ServerMode_E == BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION)
@@ -298,7 +297,7 @@ BOFERR BofSocketServer::ConnectSession(BOF_SOCKET_SESSION_TYPE _SessionType_E, s
       if (psSocketSession)
       {
         psSocketSession->SessionIndex(_SessionIndex_U32);
-        psSocketSession->Connected(true);	//First before V_SignalConnected
+        psSocketSession->Connected(true); // First before V_SignalConnected
         Rts_E = psSocketSession->V_SignalConnected(_SessionType_E);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
@@ -315,11 +314,11 @@ BOFERR BofSocketServer::ConnectSession(BOF_SOCKET_SESSION_TYPE _SessionType_E, s
   return Rts_E;
 }
 
-//Called by thread or client
-//BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_POLLER
+// Called by thread or client
+// BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_POLLER
 BOFERR BofSocketServer::ConnectSession(uint32_t _SessionIndex_U32, std::unique_ptr<BofSocket> _puSocket, std::shared_ptr<BofSocketIo> &_rpsSocketSession)
 {
-  BOFERR												Rts_E = BOF_ERR_BAD_TYPE;
+  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mBofSocketServerParam_X.ServerMode_E == BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_POLLER)
   {
@@ -332,7 +331,7 @@ BOFERR BofSocketServer::ConnectSession(uint32_t _SessionIndex_U32, std::unique_p
       {
         _rpsSocketSession->SessionType(BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL);
         _rpsSocketSession->SessionIndex(_SessionIndex_U32);
-        _rpsSocketSession->Connected(true);	//First before V_SignalConnected
+        _rpsSocketSession->Connected(true); // First before V_SignalConnected
         Rts_E = _rpsSocketSession->V_SignalConnected(BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
@@ -343,12 +342,10 @@ BOFERR BofSocketServer::ConnectSession(uint32_t _SessionIndex_U32, std::unique_p
   return Rts_E;
 }
 
-
-
-BOFERR	BofSocketServer::Disconnect(bool _CloseDataChannelIfPresent_B, std::shared_ptr<BofSocketIo> _psSocketSession)
+BOFERR BofSocketServer::Disconnect(bool _CloseDataChannelIfPresent_B, std::shared_ptr<BofSocketIo> _psSocketSession)
 {
-  BOFERR							Rts_E = BOF_ERR_EINVAL;
-  uint32_t						SessionIndex_U32;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  uint32_t SessionIndex_U32;
 
   if (_psSocketSession)
   {
@@ -385,7 +382,7 @@ BOFERR BofSocketServer::WriteToAllSession(uint32_t _TimeoutInMs_U32, bool _Async
       Sts_E = _rItem.second->Write(_TimeoutInMs_U32, _AsyncMode_B, Size_U32, _pBuffer_U8, _pWriteContext);
       if (Sts_E != BOF_ERR_NO_ERROR)
       {
-        Rts_E = Sts_E;	//latch error
+        Rts_E = Sts_E; // latch error
       }
     }
   }
@@ -404,7 +401,7 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
   std::unique_ptr<BofSocket> puListen = nullptr;
   BOF_SOCKET_ADDRESS SocketAddress_X;
   std::string Cmd_S, Reply_S, TargetIp_S;
-  std::unique_ptr<BofSocket>		puDataSocket;
+  std::unique_ptr<BofSocket> puDataSocket;
   std::shared_ptr<BofSocketIo> psListenDataSocket;
 
   if (_psCmdSocketSession)
@@ -421,8 +418,8 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
         Rts_E = _psCmdSocketSession->SendCommandAndWaitForReply(_ConnectionTimeoutInMs_U32, Cmd_S, 227, ReplyCode_U32, Reply_S);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          static const std::regex   S_RegExPasv("^.*?(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+).*$");
-          std::cmatch         PasvMatch;
+          static const std::regex S_RegExPasv("^.*?(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+).*$");
+          std::cmatch PasvMatch;
           Rts_E = BOF_ERR_INVALID_ANSWER;
           /*
           *Online regex builder/test: https://regex101.com/
@@ -435,9 +432,8 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
           by default, regexes are greedy, meaning it will match as much as possible. Therefore /^.*abc/ would match "whatever whatever something abc something ".
           Adding the non-greedy quantifier ? makes the regex only match "whatever whatever something ".
           */
-          //Match means all the string-> use ^ for begin and $ for end
-          if ((std::regex_match(Reply_S.c_str(), PasvMatch, S_RegExPasv))
-              && (PasvMatch.size() == 1 + 6))
+          // Match means all the string-> use ^ for begin and $ for end
+          if ((std::regex_match(Reply_S.c_str(), PasvMatch, S_RegExPasv)) && (PasvMatch.size() == 1 + 6))
           {
             Ip1_U32 = 0;
             Ip2_U32 = 0;
@@ -466,8 +462,8 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
               Rts_E = BOF_ERR_OUT_OF_RANGE;
               if ((Port_U16 >= mBofSocketServerParam_X.MinPortValue_U16) && (Port_U16 <= mBofSocketServerParam_X.MaxPortValue_U16))
               {
-                //Debug no connect
-                //Port_U16++;
+                // Debug no connect
+                // Port_U16++;
 
                 Rts_E = BOF_ERR_ENOMEM;
                 TargetIp_S = Bof_Sprintf("tcp://0.0.0.0:0;%d.%d.%d.%d:%d", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
@@ -504,19 +500,19 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
   return Rts_E;
 }
 
-//Answer to pasv
+// Answer to pasv
 BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::shared_ptr<BofSocketIo> _psCmdSocketSession, uint32_t _ConnectionTimeoutInMs_U32, const std::string &_rIpAddress_S)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   uint16_t Port_U16;
-  uint32_t Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, PortHigh_U32, PortLow_U32;	// , SessionIndex_U32;
+  uint32_t Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, PortHigh_U32, PortLow_U32; // , SessionIndex_U32;
   BOF_SOCKET_PARAM BofSocketParam_X;
   BOF_SOCKET_IO_PARAM BofSocketIoParam_X;
   std::unique_ptr<BofSocket> puListen = nullptr;
   BOF_SOCK_TYPE SocketType_E;
   BOF_SOCKET_ADDRESS SocketAddress_X;
   std::string Cmd_S, Reply_S, TargetIp_S;
-  std::unique_ptr<BofSocket>		puDataSocket;
+  std::unique_ptr<BofSocket> puDataSocket;
   std::shared_ptr<BofSocketIo> psDataSocketSession;
   std::shared_ptr<BofSocketIo> psListenDataSocket;
   BOFSOCKET SessionId;
@@ -530,8 +526,8 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
 
       if (_Passive_B)
       {
-        //SessionIndex_U32 = psSocketSession->SessionIndex();
-        //Non initiator need ip target address
+        // SessionIndex_U32 = psSocketSession->SessionIndex();
+        // Non initiator need ip target address
 
         Rts_E = Bof_SplitIpAddress(_rIpAddress_S, SocketAddress_X);
         if (Rts_E == BOF_ERR_NO_ERROR)
@@ -545,7 +541,7 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
           BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketServerParam_X.Name_S + "_DataListener";
           BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 1;
           BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-          //BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://%d.%d.%d.%d:%d;0.0.0.0:0", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
+          // BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://%d.%d.%d.%d:%d;0.0.0.0:0", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
           BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0;%d.%d.%d.%d:%d", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
           BofSocketParam_X.ReUseAddress_B = true;
           BofSocketParam_X.NoDelay_B = true;
@@ -561,7 +557,7 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
           {
             BofSocketIoParam_X.Name_S = "DATA_LISTENER";
             psListenDataSocket = std::make_shared<BofSocketIo>(this, std::move(puListen), BofSocketIoParam_X);
-            //Done in AddToPollList								psListenDataSocket->NoIoCloseTimeoutInMs(_ConnectionTimeoutInMs_U32);
+            // Done in AddToPollList								psListenDataSocket->NoIoCloseTimeoutInMs(_ConnectionTimeoutInMs_U32);
             Rts_E = BOF_ERR_ENOMEM;
 
             if (psListenDataSocket)
@@ -569,12 +565,12 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
               Rts_E = psListenDataSocket->LastErrorCode();
               if (Rts_E == BOF_ERR_NO_ERROR)
               {
-                //Put it below		
+                // Put it below
                 Rts_E = AddToPollList(BOF_SOCKET_SESSION_TYPE::DATA_LISTENER, _psCmdSocketSession, _ConnectionTimeoutInMs_U32, psListenDataSocket, SessionId);
                 if (Rts_E == BOF_ERR_NO_ERROR)
                 {
-                  //Debug no connect
-                  //PortLow_U32++;
+                  // Debug no connect
+                  // PortLow_U32++;
                   Rts_E = _psCmdSocketSession->Write(_ConnectionTimeoutInMs_U32, false, Bof_Sprintf("227 Entering Passive Mode (%d,%d,%d,%d,%d,%d).\r\n", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, PortHigh_U32, PortLow_U32), nullptr);
                 }
               }
@@ -586,7 +582,6 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
   }
   return Rts_E;
 }
-
 
 BOFERR BofSocketServer::CloseDataChannel(std::shared_ptr<BofSocketIo> _psDataSocketSession)
 {
@@ -612,7 +607,7 @@ uint16_t BofSocketServer::GenerateDynamicPort()
 
   std::lock_guard<std::mutex> Lock(mDynamicPortMtx);
   Rts_U16 = mDynamicPort_U16;
-  NextPort_U16 = static_cast<uint16_t>(Rts_U16 + 1);	//Rollover on 0
+  NextPort_U16 = static_cast<uint16_t>(Rts_U16 + 1); // Rollover on 0
   mDynamicPort_U16 = ((NextPort_U16 < mBofSocketServerParam_X.MinPortValue_U16) || (NextPort_U16 > mBofSocketServerParam_X.MaxPortValue_U16)) ? mBofSocketServerParam_X.MinPortValue_U16 : NextPort_U16;
   return Rts_U16;
 }
@@ -665,9 +660,11 @@ std::string BofSocketServer::SocketServerDebugInfo()
 {
   std::string Rts_S;
 
-  Rts_S = Bof_Sprintf("BofSocketServer\nName:              %s\nInitError:         %s\nCpuCoreAffinity:   %016lX\nSchedulerPolicy:   %d\nPriority:          %03d\nAddress:           %s\nSession:           %04d/%04d\nPort:              %05d <= %05d <= %05d\nFactory:           %p\nPortMtx:           %p\n", mBofSocketServerParam_X.Name_S.c_str(),
-                      Bof_ErrorCode(mErrorCode_E), mBofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64, mBofSocketServerParam_X.ThreadSchedulerPolicy_E, mBofSocketServerParam_X.ThreadPriority_E, mBofSocketServerParam_X.Address_S.c_str(),
-                      NbConnectedSession(), mBofSocketServerParam_X.NbMaxSession_U32, mBofSocketServerParam_X.MinPortValue_U16, mDynamicPort_U16, mBofSocketServerParam_X.MaxPortValue_U16, mpIBofSocketSessionFactory, mDynamicPortMtx.native_handle());
+  Rts_S = Bof_Sprintf("BofSocketServer\nName:              %s\nInitError:         %s\nCpuCoreAffinity:   %016lX\nSchedulerPolicy:   %d\nPriority:          %03d\nAddress:           %s\nSession:           %04d/%04d\nPort:              %05d <= %05d <= "
+                      "%05d\nFactory:           %p\nPortMtx:           %p\n",
+                      mBofSocketServerParam_X.Name_S.c_str(), Bof_ErrorCode(mErrorCode_E), mBofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64, mBofSocketServerParam_X.ThreadSchedulerPolicy_E, mBofSocketServerParam_X.ThreadPriority_E,
+                      mBofSocketServerParam_X.Address_S.c_str(), NbConnectedSession(), mBofSocketServerParam_X.NbMaxSession_U32, mBofSocketServerParam_X.MinPortValue_U16, mDynamicPort_U16, mBofSocketServerParam_X.MaxPortValue_U16,
+                      mpIBofSocketSessionFactory, mDynamicPortMtx.native_handle());
 
   Rts_S += SocketSessionManagerDebugInfo();
 

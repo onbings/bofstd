@@ -25,12 +25,11 @@
 
 BEGIN_BOF_NAMESPACE()
 
-
 using BOF_SHELL_CMD_CALLBACK = std::function<BOFERR()>; // const std::vector<std::string> &_rCmdArgCollection) > ;
 
 struct BOF_SHELL_CMD
 {
-  std::string            Help_S;
+  std::string Help_S;
   std::vector<std::string> ArgNameCollection;
   BOF_SHELL_CMD_CALLBACK CmdCallback;
 
@@ -61,14 +60,14 @@ struct BOFSTD_EXPORT BOF_SHELL_PARAM
   std::string WindowTitle_S;
   std::string Prompt_S;
   std::map<std::string, BOF_SHELL_CMD> ShellCmdCollection;
-  std::map<std::string, BOFPARAMETER>  ShellArgCollection;
+  std::map<std::string, BOFPARAMETER> ShellArgCollection;
   CONIO_TEXT_COLOR ShellBackColor_E;
   CONIO_TEXT_COLOR ShellCmdInputColor_E;
   CONIO_TEXT_COLOR ShellCmdOutputColor_E;
   CONIO_TEXT_COLOR ShellErrorColor_E;
   CONIO_TEXT_COLOR ShellScriptColor_E;
   bool ForceMode_B;
-  //Returned param (output from constructor)
+  // Returned param (output from constructor)
   std::shared_ptr<BOF::BofConio> psConio = nullptr;
 
   BOF_SHELL_PARAM()
@@ -90,7 +89,7 @@ struct BOFSTD_EXPORT BOF_SHELL_PARAM
     ShellErrorColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_RED;
     ShellScriptColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BRIGHT_CYAN;
     ForceMode_B = false;
-    //Returned param (output from constructor)
+    // Returned param (output from constructor)
     psConio = nullptr;
   }
 };
@@ -113,7 +112,7 @@ public:
   BOFERR AddCommand(const std::string &_rCmd_S, const BOF_SHELL_CMD &_rShellCmd);
 
 private:
-  bool  mFinish_B = false;
+  bool mFinish_B = false;
   bool mExecScript_B = false;
   BofPath mScriptPath;
 };

@@ -24,7 +24,7 @@
 
 USE_BOF_NAMESPACE()
 
-class BofStringCircularBuffer_Test :public testing::Test
+class BofStringCircularBuffer_Test : public testing::Test
 {
 public:
   BofStringCircularBuffer_Test() : mpBofStringCircularBuffer_O(nullptr)
@@ -32,16 +32,15 @@ public:
   }
 
   // Per-test-case set-up. Called before the first test in this test case.
-  static void                      SetUpTestCase();
+  static void SetUpTestCase();
 
   // Per-test-case tear-down. Called after the last test in this test case.
-  static void                      TearDownTestCase();
+  static void TearDownTestCase();
 
 protected:
-
   // You can define per-test set-up and tear-down logic as usual.
-  virtual void                     SetUp();
-  virtual void                     TearDown();
+  virtual void SetUp();
+  virtual void TearDown();
 
   BofStringCircularBuffer *mpBofStringCircularBuffer_O;
   BOF_STRING_CIRCULAR_BUFFER_PARAM mBofStringCircularBufferParam_X;
@@ -49,16 +48,15 @@ protected:
 private:
 };
 
-
 /*** Factory functions called at the beginning/end of each test case **********/
 
 void BofStringCircularBuffer_Test::SetUpTestCase()
-{}
-
+{
+}
 
 void BofStringCircularBuffer_Test::TearDownTestCase()
-{}
-
+{
+}
 
 void BofStringCircularBuffer_Test::SetUp()
 {
@@ -82,10 +80,10 @@ void BofStringCircularBuffer_Test::TearDown()
 
 TEST_F(BofStringCircularBuffer_Test, ByteBuffer)
 {
-  BOFERR   Sts_E;
+  BOFERR Sts_E;
   uint32_t Nb_U32, i_U32, Size_U32, Index_U32;
-  bool     Sts_B;
-  char     pData_c[0x100], pBuffer_c[0x1000];
+  bool Sts_B;
+  char pData_c[0x100], pBuffer_c[0x1000];
 
   Sts_B = mpBofStringCircularBuffer_O->IsEmpty();
   EXPECT_TRUE(Sts_B);
@@ -101,9 +99,7 @@ TEST_F(BofStringCircularBuffer_Test, ByteBuffer)
   Nb_U32 = mpBofStringCircularBuffer_O->GetNbElement();
   EXPECT_EQ(0, Nb_U32);
 
-
-
-  strcpy(pData_c, "123456789ABCDEF");  // 15 car +1 ending 0
+  strcpy(pData_c, "123456789ABCDEF"); // 15 car +1 ending 0
 
   Sts_E = mpBofStringCircularBuffer_O->PopString(nullptr, pData_c, 0);
   EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
@@ -155,8 +151,6 @@ TEST_F(BofStringCircularBuffer_Test, ByteBuffer)
   Nb_U32 = mpBofStringCircularBuffer_O->GetMaxLevel();
   EXPECT_EQ(Nb_U32, Size_U32);
 
-
-
   Size_U32 = static_cast<uint32_t>(strlen(pData_c) + 1);
   Sts_E = mpBofStringCircularBuffer_O->PushString(pData_c, 0);
   EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
@@ -196,7 +190,6 @@ TEST_F(BofStringCircularBuffer_Test, ByteBuffer)
   Nb_U32 = mpBofStringCircularBuffer_O->GetMaxLevel();
   EXPECT_EQ(strlen(pData_c) + 1, Nb_U32);
 
-
   Index_U32 = 0;
   for (i_U32 = 0; i_U32 < mBofStringCircularBufferParam_X.BufferSizeInByte_U32 / 16; i_U32++)
   {
@@ -207,9 +200,7 @@ TEST_F(BofStringCircularBuffer_Test, ByteBuffer)
     Index_U32 += 16;
     Nb_U32 = mpBofStringCircularBuffer_O->GetNbElement();
     EXPECT_EQ(i_U32 + 1, Nb_U32);
-
   }
-
 
   Sts_B = mpBofStringCircularBuffer_O->IsEmpty();
   EXPECT_FALSE(Sts_B);
@@ -250,7 +241,6 @@ TEST_F(BofStringCircularBuffer_Test, ByteBuffer)
   EXPECT_EQ(Nb_U32, mBofStringCircularBufferParam_X.BufferSizeInByte_U32);
   Nb_U32 = mpBofStringCircularBuffer_O->GetMaxLevel();
   EXPECT_EQ(Nb_U32, mBofStringCircularBufferParam_X.BufferSizeInByte_U32);
-
 
   for (i_U32 = 0; i_U32 < mBofStringCircularBufferParam_X.BufferSizeInByte_U32 / 16; i_U32++)
   {

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #else
 
 #include <bofstd/bofstd.h>
@@ -33,7 +33,6 @@ BEGIN_BOF_NAMESPACE()
 class BOFSTD_EXPORT BofScriptLauncher
 {
 public:
-
   enum ExecuteMode
   {
     EXECUTE_VFORK,
@@ -76,9 +75,7 @@ public:
   static bool WriteU32ToFile(const char *_pFile_c, uint32_t _Value_U32);
 
 protected:
-
 private:
-
   static uint32_t S_mDefaultTimeout_U32;
   static ExecuteMode S_mDefaultMode_E;
 };

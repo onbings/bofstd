@@ -25,13 +25,13 @@
 #include <fcntl.h>
 #include <string.h>
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #include <windows.h>
 #else
 
+#include <linux/serial.h>
 #include <termio.h>
 #include <unistd.h>
-#include <linux/serial.h>
 
 #endif
 
@@ -57,9 +57,7 @@ uint32_t GetBaudRateConstantValue(uint32_t _BaudRate_U32);
  * See Also
  * ~BofCircularBuffer
  */
-BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
-  : BofComChannel(BOF_COM_CHANNEL_TYPE::TUART, mUartParam_X.BaseChannelParam_X),
-  BofThread()                 // , 0, _rUartParam_X.SynchronousWritePriority_U32, 1000, (uint32_t)-1)
+BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TUART, mUartParam_X.BaseChannelParam_X), BofThread() // , 0, _rUartParam_X.SynchronousWritePriority_U32, 1000, (uint32_t)-1)
 // Set startStopTimeout to 0 to prevent time loss when closing port
 // BofThread("BofUart", _rUartParam_X.SynchronousWritePriority_U32 ? SCHED_FIFO:SCHED_OTHER, _rUartParam_X.SynchronousWritePriority_U32, 0, -1)
 {
@@ -71,7 +69,7 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
   mOpen_B = false;
   BofComChannel::mErrorCode_E = BOF_ERR_INIT;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   mId_h = INVALID_HANDLE_VALUE;
 #else
   UART_HANDLE TTYDeviceFileHandle_h = -1;
@@ -86,9 +84,9 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
   {
     if (!mOpen_B)
     {
-#if defined (_WIN32)
+#if defined(_WIN32)
       char pWork_c[32];
-      DCB   Dcb_X;
+      DCB Dcb_X;
       sprintf(pWork_c, "COM%d:", i_U32 + 1);
       mId_h = CreateFileA(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
@@ -199,7 +197,8 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
 
                 if (mpTxData_O)
                 {
-                  //LaunchThread(false, 0, 0x40000, _rUartParam_X.ThreadCpuCoreAffinity_U32, _rUartParam_X.SynchronousWritePriority_U32 ? BOF_THREAD_SCHEDULER_POLICY_FIFO : BOF_THREAD_SCHEDULER_POLICY_OTHER, _rUartParam_X.SynchronousWritePriority_U32, 1000);
+                  // LaunchThread(false, 0, 0x40000, _rUartParam_X.ThreadCpuCoreAffinity_U32, _rUartParam_X.SynchronousWritePriority_U32 ? BOF_THREAD_SCHEDULER_POLICY_FIFO : BOF_THREAD_SCHEDULER_POLICY_OTHER, _rUartParam_X.SynchronousWritePriority_U32,
+                  // 1000);
                   LaunchBofProcessingThread("BofUart", false, 0, _rUartParam_X.ThreadSchedulerPolicy_E, _rUartParam_X.ThreadPriority_E, _rUartParam_X.ThreadCpuCoreAffinity_U64, 1000, 0x1000);
                   mOpen_B = true;
                 }
@@ -288,96 +287,84 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
             /* Parity settings */
             switch (mUartParam_X.Parity_U8)
             {
-              case (BOF_UART_NOPARITY):
-              {
-                /* Disable parity checking */
-                tty_X.c_cflag &= ~(PARENB);
-                break;
-              }
+            case (BOF_UART_NOPARITY): {
+              /* Disable parity checking */
+              tty_X.c_cflag &= ~(PARENB);
+              break;
+            }
 
-              case (BOF_UART_ODDPARITY):
-              {
-                /* Enable odd parity checking */
-                tty_X.c_iflag |= (INPCK | ISTRIP);
-                tty_X.c_cflag |= (PARENB | PARODD);
-                break;
-              }
+            case (BOF_UART_ODDPARITY): {
+              /* Enable odd parity checking */
+              tty_X.c_iflag |= (INPCK | ISTRIP);
+              tty_X.c_cflag |= (PARENB | PARODD);
+              break;
+            }
 
-              case (BOF_UART_EVENPARITY):
-              {
-                /* Enable even parity checking */
-                tty_X.c_iflag |= (INPCK | ISTRIP);
-                tty_X.c_cflag |= (PARENB);
-                tty_X.c_cflag &= ~(PARODD);
-                break;
-              }
+            case (BOF_UART_EVENPARITY): {
+              /* Enable even parity checking */
+              tty_X.c_iflag |= (INPCK | ISTRIP);
+              tty_X.c_cflag |= (PARENB);
+              tty_X.c_cflag &= ~(PARODD);
+              break;
+            }
 
-              default:
-              {
-                ConfigOK_B = false;
-                // printf("Failed to set device %s parity %d settings\n", mpTTYDeviceName_c, mUartParam_X.Parity_U8);
-                break;
-              }
+            default: {
+              ConfigOK_B = false;
+              // printf("Failed to set device %s parity %d settings\n", mpTTYDeviceName_c, mUartParam_X.Parity_U8);
+              break;
+            }
             }
 
             /* Data bits settings */
-            tty_X.c_cflag &= ~CSIZE;   /* Mask the character size bits */
+            tty_X.c_cflag &= ~CSIZE; /* Mask the character size bits */
 
             switch (mUartParam_X.Data_U8)
             {
-              case 5:
-              {
-                tty_X.c_cflag |= CS5;
-                break;
-              }                        /* Select 5 data bits */
+            case 5: {
+              tty_X.c_cflag |= CS5;
+              break;
+            } /* Select 5 data bits */
 
-              case 6:
-              {
-                tty_X.c_cflag |= CS6;
-                break;
-              }                        /* Select 6 data bits */
+            case 6: {
+              tty_X.c_cflag |= CS6;
+              break;
+            } /* Select 6 data bits */
 
-              case 7:
-              {
-                tty_X.c_cflag |= CS7;
-                break;
-              }                        /* Select 7 data bits */
+            case 7: {
+              tty_X.c_cflag |= CS7;
+              break;
+            } /* Select 7 data bits */
 
-              case 8:
-              {
-                tty_X.c_cflag |= CS8;
-                break;
-              }                        /* Select 8 data bits */
+            case 8: {
+              tty_X.c_cflag |= CS8;
+              break;
+            } /* Select 8 data bits */
 
-              default:
-              {
-                ConfigOK_B = false;
-                // printf("Failed to set device %s data bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Data_U8);
-                break;
-              }
+            default: {
+              ConfigOK_B = false;
+              // printf("Failed to set device %s data bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Data_U8);
+              break;
+            }
             }
 
             /* Stop settings */
             switch (mUartParam_X.Stop_U8)
             {
-              case BOF_UART_ONESTOPBIT:
-              {
-                tty_X.c_cflag &= ~CSTOPB;
-                break;
-              }                        /* One Stop bit  */
+            case BOF_UART_ONESTOPBIT: {
+              tty_X.c_cflag &= ~CSTOPB;
+              break;
+            } /* One Stop bit  */
 
-              case BOF_UART_TWOSTOPBITS:
-              {
-                tty_X.c_cflag |= CSTOPB;
-                break;
-              }                        /* Two Stop bits */
+            case BOF_UART_TWOSTOPBITS: {
+              tty_X.c_cflag |= CSTOPB;
+              break;
+            } /* Two Stop bits */
 
-              default:
-              {
-                ConfigOK_B = false;
-                // printf("Failed to set device %s stop bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Stop_U8);
-                break;
-              }
+            default: {
+              ConfigOK_B = false;
+              // printf("Failed to set device %s stop bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Stop_U8);
+              break;
+            }
             }
 
             /* XonXoff settings */
@@ -397,7 +384,7 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
             /* DtrDsr settings */
             if (mUartParam_X.DtrDsr_B)
             {
-              ConfigOK_B = false;      /* unsupported on linux */
+              ConfigOK_B = false; /* unsupported on linux */
             }
 
             if (ConfigOK_B)
@@ -485,10 +472,10 @@ BofUart::~BofUart()
      *         );
      */
 
-     // Stop the thread if needed
- //done in destructorof bofthread		StopThread();
+    // Stop the thread if needed
+    // done in destructorof bofthread		StopThread();
 
-#if defined (_WIN32)
+#if defined(_WIN32)
     CloseHandle(mId_h);
 #else
     close(mId_h);
@@ -511,7 +498,7 @@ BOFERR BofUart::V_FlushData(uint32_t _TimeoutInMs_U32)
 {
   BOFERR Rts_E = BOF_ERR_PURGE;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   if (PurgeComm(mId_h, PURGE_RXCLEAR))
   {
     Rts_E = BOF_ERR_NO_ERROR;
@@ -537,7 +524,7 @@ BOFERR BofUart::V_FlushData(uint32_t _TimeoutInMs_U32)
   return Rts_E;
 }
 
-BOFERR BofUart::V_WaitForDataToRead(uint32_t /*_TimeoutInMs_U32*/, uint32_t &/*_rNbPendingByte_U32*/)
+BOFERR BofUart::V_WaitForDataToRead(uint32_t /*_TimeoutInMs_U32*/, uint32_t & /*_rNbPendingByte_U32*/)
 {
   return BOF_ERR_NOT_SUPPORTED;
 }
@@ -569,7 +556,7 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
 
   if (mOpen_B)
   {
-#if defined (_WIN32)
+#if defined(_WIN32)
     if (DtrState_U8 == 1)
     {
       if (EscapeCommFunction(mId_h, SETDTR))
@@ -683,7 +670,6 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
 #endif
   }
 
-
   /* check
    * iFlags = 0;
    * if (ioctl(mId_h, TIOCMGET, &iFlags) == 0)
@@ -713,9 +699,9 @@ BOFERR BofUart::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 
   if (mOpen_B)
   {
-#if defined (_WIN32)
-    DWORD    Error_DW;
-    COMSTAT  Status_X;
+#if defined(_WIN32)
+    DWORD Error_DW;
+    COMSTAT Status_X;
 
     if (ClearCommError(mId_h, &Error_DW, &Status_X))
     {
@@ -727,8 +713,7 @@ BOFERR BofUart::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 #else
     uint32_t NbIn_U32 = 0;
     uint32_t NbOut_U32 = 0;
-    if ((ioctl(mId_h, FIONREAD, &NbIn_U32) < 0) ||
-        (ioctl(mId_h, TIOCOUTQ, &NbOut_U32) < 0))
+    if ((ioctl(mId_h, FIONREAD, &NbIn_U32) < 0) || (ioctl(mId_h, TIOCOUTQ, &NbOut_U32) < 0))
     {
       NbIn_U32 = 0;
       NbOut_U32 = 0;
@@ -741,7 +726,6 @@ BOFERR BofUart::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       _rStatus_X.NbOut_U32 = (Nb_U32 > NbOut_U32) ? Nb_U32 : NbOut_U32;
       Rts_E = BOF_ERR_NO_ERROR;
     }
-
 
 #endif
   }
@@ -781,10 +765,10 @@ BOFERR BofUart::V_ReadData(uint32_t TimeOut_U32, uint32_t &_rNb_U32, uint8_t *pB
 
     while ((Remain_U32) && (!To_B) && (CntError_U32 < 32))
     {
-#if defined (_WIN32)
+#if defined(_WIN32)
       COMSTAT Status_X;
-      DWORD   Error_DW;
-      DWORD   NbByteRead_DW;
+      DWORD Error_DW;
+      DWORD NbByteRead_DW;
 
       Error_DW = 0;
 
@@ -803,9 +787,7 @@ BOFERR BofUart::V_ReadData(uint32_t TimeOut_U32, uint32_t &_rNb_U32, uint8_t *pB
             NbInQueue_U32 = Remain_U32;
           }
 
-          if (!ReadFile(mId_h, pBuffer_U8, NbInQueue_U32, &NbByteRead_DW, nullptr) ||
-              (NbInQueue_U32 != (uint32_t)NbByteRead_DW)
-              )
+          if (!ReadFile(mId_h, pBuffer_U8, NbInQueue_U32, &NbByteRead_DW, nullptr) || (NbInQueue_U32 != (uint32_t)NbByteRead_DW))
           {
             Remain_U32 -= (uint64_t)NbByteRead_DW;
             break;
@@ -889,7 +871,6 @@ BOFERR BofUart::V_ReadData(uint32_t TimeOut_U32, uint32_t &_rNb_U32, uint8_t *pB
   return Rts_E;
 }
 
-
 /*!\internal
  * This function reads data sent from a device at the other end of a serial connection until a
  * specified string of byte is detected on the serial port.
@@ -911,7 +892,7 @@ BOFERR BofUart::V_ReadData(uint32_t TimeOut_U32, uint32_t &_rNb_U32, uint8_t *pB
 BOFERR BofUart::ReadUntilString(uint32_t _TimeOut_U32, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8, uint8_t *_pSearch_U8)
 {
   BOFERR Rts_E = BOF_ERR_READ;
-  uint32_t Remain_U32, CntError_U32;  //NbInQueue_U32;
+  uint32_t Remain_U32, CntError_U32; // NbInQueue_U32;
   bool To_B;
 
   (void)_pBuffer_U8;
@@ -927,9 +908,9 @@ BOFERR BofUart::ReadUntilString(uint32_t _TimeOut_U32, uint32_t &_rNb_U32, uint8
 
     while ((Remain_U32) && (!To_B) && (CntError_U32 < 32) && (Rts_E != BOF_ERR_NO_ERROR))
     {
-#if defined (_WIN32)
-      DWORD   NbByteRead_DW;
-      DWORD   Error_DW = 0;
+#if defined(_WIN32)
+      DWORD NbByteRead_DW;
+      DWORD Error_DW = 0;
       COMSTAT Status_X;
       uint32_t NbInQueue_U32, j_U32, Start_U32, Delta_U32;
       uint8_t *p_U8, *pStart_U8;
@@ -950,9 +931,7 @@ BOFERR BofUart::ReadUntilString(uint32_t _TimeOut_U32, uint32_t &_rNb_U32, uint8
             NbInQueue_U32 = Remain_U32;
           }
 
-          if (!ReadFile(mId_h, _pBuffer_U8, NbInQueue_U32, &NbByteRead_DW, nullptr) ||
-              (NbInQueue_U32 != (uint32_t)NbByteRead_DW)
-              )
+          if (!ReadFile(mId_h, _pBuffer_U8, NbInQueue_U32, &NbByteRead_DW, nullptr) || (NbInQueue_U32 != (uint32_t)NbByteRead_DW))
           {
             Remain_U32 -= (uint32_t)NbByteRead_DW;
             break;
@@ -1029,9 +1008,7 @@ BOFERR BofUart::V_WriteData(uint32_t /*_TimeOut_U32*/, uint32_t &_rNb_U32, const
   BOFERR Rts_E = BOF_ERR_WRITE;
   uint32_t Nb_U32;
 
-  if ((mOpen_B) &&
-      (pBuffer_U8)
-      )
+  if ((mOpen_B) && (pBuffer_U8))
   {
     Nb_U32 = _rNb_U32;
 
@@ -1048,7 +1025,7 @@ BOFERR BofUart::V_WriteData(uint32_t /*_TimeOut_U32*/, uint32_t &_rNb_U32, const
       {
         if (mpTxData_O->PushBuffer(Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR)
         {
-#if defined (_WIN32)
+#if defined(_WIN32)
           if (SignalThreadWakeUpEvent())
           {
             Rts_E = BOF_ERR_NO_ERROR;
@@ -1072,33 +1049,28 @@ BOFERR BofUart::V_WriteData(uint32_t _TimeoutInMs_U32, const std::string &_rBuff
   return V_WriteData(_TimeoutInMs_U32, _rNb_U32, reinterpret_cast<const uint8_t *>(_rBuffer_S.c_str()));
 }
 
-BofComChannel *BofUart::V_Listen(uint32_t /*_TimeoutInMs_U32*/, const std::string &/*_rOption_S*/)
+BofComChannel *BofUart::V_Listen(uint32_t /*_TimeoutInMs_U32*/, const std::string & /*_rOption_S*/)
 {
   return nullptr;
 }
 
-
-BOFERR BofUart::V_Connect(uint32_t /*_TimeoutInMs_U32*/, const std::string &/*_rTarget_S*/, const std::string &_rOption_S)
+BOFERR BofUart::V_Connect(uint32_t /*_TimeoutInMs_U32*/, const std::string & /*_rTarget_S*/, const std::string &_rOption_S)
 {
   uint8_t pBuffer_U8[8];
   BOFERR Rts_E = BOF_ERR_ENOTCONN;
   uint32_t Nb_U32, TimeoutInMs_U32, Val_U32, *pSign_U32;
-  //TO=100;CON=HELLO WORLD
+  // TO=100;CON=HELLO WORLD
   TimeoutInMs_U32 = (Bof_GetUnsignedIntegerFromMultipleKeyValueString(_rOption_S, ";", "TO", '=', Val_U32) == BOF_ERR_NO_ERROR) ? Val_U32 : 100;
 
   Nb_U32 = sizeof(UART_LISTENCONNECT_SIGN);
   pSign_U32 = reinterpret_cast<uint32_t *>(pBuffer_U8);
   *pSign_U32 = UART_LISTENCONNECT_SIGN;
 
-  if ((V_WriteData(TimeoutInMs_U32, Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR) &&
-      (Nb_U32 == sizeof(UART_LISTENCONNECT_SIGN))
-      )
+  if ((V_WriteData(TimeoutInMs_U32, Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR) && (Nb_U32 == sizeof(UART_LISTENCONNECT_SIGN)))
   {
     Nb_U32 = sizeof(UART_LISTENCONNECT_SIGN);
 
-    if ((V_ReadData(TimeoutInMs_U32, Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR) &&
-        (Nb_U32 == sizeof(UART_LISTENCONNECT_SIGN))
-        )
+    if ((V_ReadData(TimeoutInMs_U32, Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR) && (Nb_U32 == sizeof(UART_LISTENCONNECT_SIGN)))
     {
       if ((*pSign_U32 == UART_LISTENCONNECT_SIGN) || (*pSign_U32 == UART_LISTENCONNECT_SIGN_REV))
       {
@@ -1138,7 +1110,6 @@ BOFERR BofUart::V_OnProcessing()
   uint8_t pData_U8[0x10000];
   bool Finish_B;
 
-
   if (mOpen_B)
   {
     do
@@ -1164,7 +1135,6 @@ BOFERR BofUart::V_OnProcessing()
 
   return Rts_E;
 }
-
 
 /*!
  * Description
@@ -1192,12 +1162,12 @@ bool BofUart::WriteSynchronous(const uint8_t *_pBuf_U8, uint32_t _Size_U32)
   {
     if (_Size_U32 > 0)
     {
-#if defined (_WIN32)
-      DWORD    NbBytesWritten_DW = 0;
-      DWORD    Error_DW = 0;
+#if defined(_WIN32)
+      DWORD NbBytesWritten_DW = 0;
+      DWORD Error_DW = 0;
       uint32_t Idx_U32 = 0;
-      bool     Ok_B;
-      COMSTAT  Status_X;
+      bool Ok_B;
+      COMSTAT Status_X;
 
       ClearCommError(mId_h, (DWORD *)&Error_DW, &Status_X);
 
@@ -1253,8 +1223,7 @@ bool BofUart::WriteSynchronous(const uint8_t *_pBuf_U8, uint32_t _Size_U32)
   return Ret_B;
 }
 
-
-#if defined (_WIN32)
+#if defined(_WIN32)
 #else
 
 /*!
@@ -1282,14 +1251,11 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
   uint32_t ClosestBaudRate_U32 = 0;
   struct serial_struct serial_infos_X;
 
-  if ((_BaudRate_U32 != 0) &&
-      (_ptty_X != nullptr) &&
-      (mId_h != (UART_HANDLE)(-1)))
+  if ((_BaudRate_U32 != 0) && (_ptty_X != nullptr) && (mId_h != (UART_HANDLE)(-1)))
   {
-    if ((BaudRate_U32 != 0))         /* This is a constant baud rate known by the OS */
+    if ((BaudRate_U32 != 0)) /* This is a constant baud rate known by the OS */
     {
-      if ((cfsetispeed(_ptty_X, BaudRate_U32) < 0) ||
-          (cfsetospeed(_ptty_X, BaudRate_U32) < 0))
+      if ((cfsetispeed(_ptty_X, BaudRate_U32) < 0) || (cfsetospeed(_ptty_X, BaudRate_U32) < 0))
       {
         // printf("Failed to apply serial port %s constant baud rate %d: %s\n", mpTTYDeviceName_c, BaudRate_U32, strerror(errno) );
       }
@@ -1298,7 +1264,7 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
         Rc_B = true;
       }
     }
-    else                               /* Try to set custom baud rates */
+    else /* Try to set custom baud rates */
     {
       serial_infos_X.reserved_char[0] = 0;
 
@@ -1315,23 +1281,21 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
 
         ClosestBaudRate_U32 = serial_infos_X.baud_base / serial_infos_X.custom_divisor;
 
-        if ((ClosestBaudRate_U32 < _BaudRate_U32 * 98 / 100) ||
-            (ClosestBaudRate_U32 > _BaudRate_U32 * 102 / 100))
+        if ((ClosestBaudRate_U32 < _BaudRate_U32 * 98 / 100) || (ClosestBaudRate_U32 > _BaudRate_U32 * 102 / 100))
         {
-          // printf("Cannot set serial port speed to %d with 2%% error. Closest possible is %d with %d%% error\n", _BaudRate_U32,ClosestBaudRate_U32,ClosestBaudRate_U32 > _BaudRate_U32 ? (100 * (ClosestBaudRate_U32 - _BaudRate_U32) / ClosestBaudRate_U32): (100 * (_BaudRate_U32 - ClosestBaudRate_U32) / _BaudRate_U32) );
+          // printf("Cannot set serial port speed to %d with 2%% error. Closest possible is %d with %d%% error\n", _BaudRate_U32,ClosestBaudRate_U32,ClosestBaudRate_U32 > _BaudRate_U32 ? (100 * (ClosestBaudRate_U32 - _BaudRate_U32) / ClosestBaudRate_U32):
+          // (100 * (_BaudRate_U32 - ClosestBaudRate_U32) / _BaudRate_U32) );
         }
         else
         {
-          if ((ioctl(mId_h, TIOCSSERIAL, &serial_infos_X) < 0) ||
-              (ioctl(mId_h, TIOCGSERIAL, &serial_infos_X) < 0))
+          if ((ioctl(mId_h, TIOCSSERIAL, &serial_infos_X) < 0) || (ioctl(mId_h, TIOCGSERIAL, &serial_infos_X) < 0))
           {
             // printf("Failed to configure serial port %s custom baud rate %d: %s\n", mpTTYDeviceName_c, ClosestBaudRate_U32, strerror(errno) );
           }
           else
           {
             /* Yes set it with B38400 value ;-) */
-            if ((cfsetispeed(_ptty_X, B38400) < 0) ||
-                (cfsetospeed(_ptty_X, B38400) < 0))
+            if ((cfsetispeed(_ptty_X, B38400) < 0) || (cfsetospeed(_ptty_X, B38400) < 0))
             {
               // printf("Failed to apply serial port %s custom baud rate %d: %s\n", mpTTYDeviceName_c, ClosestBaudRate_U32, strerror(errno) );
             }
@@ -1367,14 +1331,13 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
  */
 uint32_t BofUart::GetDeviceNumber()
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
   return mUartParam_X.Port_U32 - BOF_UART_PORT1 + 1;
 
 #else
   return mUartParam_X.Port_U32 - BOF_UART_PORT1;
 #endif
 }
-
 
 /*!
  * Description
@@ -1398,120 +1361,108 @@ uint32_t GetBaudRateConstantValue(uint32_t _BaudRate_U32)
 
   switch (_BaudRate_U32)
   {
-    case (110):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_110;
+  case (110): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_110;
 #else
-      BaudValue_U32 = B110;
+    BaudValue_U32 = B110;
 #endif
-      break;
-    }
-
-    case (300):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_300;
-#else
-      BaudValue_U32 = B300;
-#endif
-      break;
-    }
-
-    case (600):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_600;
-#else
-      BaudValue_U32 = B600;
-#endif
-      break;
-    }
-
-    case (1200):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_1200;
-#else
-      BaudValue_U32 = B1200;
-#endif
-      break;
-    }
-
-    case (2400):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_2400;
-#else
-      BaudValue_U32 = B2400;
-#endif
-      break;
-    }
-
-    case (4800):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_4800;
-#else
-      BaudValue_U32 = B4800;
-#endif
-      break;
-    }
-
-    case (9600):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_9600;
-#else
-      BaudValue_U32 = B9600;
-#endif
-      break;
-    }
-
-    case (19200):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_19200;
-#else
-      BaudValue_U32 = B19200;
-#endif
-      break;
-    }
-
-    case (38400):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_38400;
-#else
-      BaudValue_U32 = B38400;
-#endif
-      break;
-    }
-
-    case (57600):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_57600;
-#else
-      BaudValue_U32 = B57600;
-#endif
-      break;
-    }
-
-    case (115200):
-    {
-#if defined (_WIN32)
-      BaudValue_U32 = CBR_115200;
-#else
-      BaudValue_U32 = B115200;
-#endif
-      break;
-    }
-
-    default:
-    {
-    }
     break;
+  }
+
+  case (300): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_300;
+#else
+    BaudValue_U32 = B300;
+#endif
+    break;
+  }
+
+  case (600): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_600;
+#else
+    BaudValue_U32 = B600;
+#endif
+    break;
+  }
+
+  case (1200): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_1200;
+#else
+    BaudValue_U32 = B1200;
+#endif
+    break;
+  }
+
+  case (2400): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_2400;
+#else
+    BaudValue_U32 = B2400;
+#endif
+    break;
+  }
+
+  case (4800): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_4800;
+#else
+    BaudValue_U32 = B4800;
+#endif
+    break;
+  }
+
+  case (9600): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_9600;
+#else
+    BaudValue_U32 = B9600;
+#endif
+    break;
+  }
+
+  case (19200): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_19200;
+#else
+    BaudValue_U32 = B19200;
+#endif
+    break;
+  }
+
+  case (38400): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_38400;
+#else
+    BaudValue_U32 = B38400;
+#endif
+    break;
+  }
+
+  case (57600): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_57600;
+#else
+    BaudValue_U32 = B57600;
+#endif
+    break;
+  }
+
+  case (115200): {
+#if defined(_WIN32)
+    BaudValue_U32 = CBR_115200;
+#else
+    BaudValue_U32 = B115200;
+#endif
+    break;
+  }
+
+  default: {
+  }
+  break;
   }
 
   return BaudValue_U32;

@@ -33,10 +33,9 @@ BofComChannel::BofComChannel(BOF_COM_CHANNEL_TYPE _Type_E, const BOF_COM_CHANNEL
   mConnectionTimer_U32 = Bof_GetMsTickCount();
 }
 
-
 BofComChannel::~BofComChannel()
 {
-  //BOF_DBG_PRINTF("~BofComChannel()\n");
+  // BOF_DBG_PRINTF("~BofComChannel()\n");
 }
 
 BOFERR BofComChannel::LastErrorCode() const

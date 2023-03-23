@@ -11,26 +11,25 @@
  *
  * V 1.00  November 15 2016  BHA : Initial release
  */
-#include <bofstd/bofsystem.h>
-#include <bofstd/bofstring.h>
-#include <bofstd/boffs.h>
-#include <bofstd/bofvideostandard.h>
 #include <bofstd/bofaudiostandard.h>
+#include <bofstd/boffs.h>
 #include <bofstd/bofrational.h>
+#include <bofstd/bofstring.h>
+#include <bofstd/bofsystem.h>
+#include <bofstd/bofvideostandard.h>
 
 #include "gtestrunner.h"
 
 #include <cstdint>
 
-#if defined (_WIN32)
+#if defined(_WIN32)
 #include <windows.h>
 #else
-#include <errno.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #endif
 
 USE_BOF_NAMESPACE()
-
 
 TEST(System_Test, Buffer)
 {
@@ -89,7 +88,6 @@ TEST(System_Test, Buffer)
   EXPECT_EQ(OtherBuffer_X.RemainToRead(), 32);
   EXPECT_EQ(OtherBuffer_X.RemainToWrite(), (BUFFER_SIZE * 2) - (BUFFER_SIZE + 32));
 
-
   Buffer_X.ReleaseStorage();
   EXPECT_FALSE(Buffer_X.IsValid());
   EXPECT_TRUE(Buffer_X.IsNull());
@@ -140,7 +138,7 @@ TEST(System_Test, VideoStandard)
   EXPECT_EQ(Vs.Fps(), 59);
   EXPECT_EQ(Vs.ImageAspectRatio().Num(), 16);
   EXPECT_EQ(Vs.ImageAspectRatio().Den(), 9);
-  Vs = BofVideoStandard("256x128@0p");    //picture, still
+  Vs = BofVideoStandard("256x128@0p"); // picture, still
   EXPECT_TRUE(Vs.IsValid());
   EXPECT_EQ(Vs.NbRow(), 128);
   EXPECT_EQ(Vs.NbCol(), 256);
@@ -168,11 +166,11 @@ TEST(System_Test, Rational)
   Rational = BofRational(3.14286, 10);
   EXPECT_EQ(Rational.Num(), 22);
   EXPECT_EQ(Rational.Den(), 7);
-  Rational = BofRational(0.1, 10);      
+  Rational = BofRational(0.1, 10);
   EXPECT_EQ(Rational.Num(), 1);
   EXPECT_EQ(Rational.Den(), 10);
 
-  Rational = BofRational(0.333333, 10); 
+  Rational = BofRational(0.333333, 10);
   EXPECT_EQ(Rational.Num(), 1);
   EXPECT_EQ(Rational.Den(), 3);
   Rational = BofRational(13.8919, 10, 0.03);
@@ -181,7 +179,7 @@ TEST(System_Test, Rational)
   Rational = BofRational(1.17172, 10, 0.03);
   EXPECT_EQ(Rational.Num(), 116);
   EXPECT_EQ(Rational.Den(), 99);
-  Rational = BofRational(-1.17, 10);    
+  Rational = BofRational(-1.17, 10);
   EXPECT_EQ(Rational.Num(), -117);
   EXPECT_EQ(Rational.Den(), 100);
 
@@ -240,8 +238,8 @@ TEST(System_Test, TickDelta)
 TEST(System_Test, EnvVar)
 {
   const char *pEnv_c;
-  char       pVal_c[128];
-  int        Sts_i;
+  char pVal_c[128];
+  int Sts_i;
 
   pEnv_c = Bof_GetEnvVar(nullptr);
   EXPECT_TRUE(pEnv_c == 0);
@@ -267,20 +265,19 @@ TEST(System_Test, EnvVar)
   EXPECT_TRUE(pEnv_c != 0);
 
   EXPECT_STREQ(pEnv_c, "3:BHA");
-
 }
 
 TEST(System_Test, DumpMemoryZone)
 {
   std::string Dmp_S;
-  uint8_t     pMemoryZone_U8[0x1000];
+  uint8_t pMemoryZone_U8[0x1000];
   std::string Out_S;
-  uint32_t    i_U32;
+  uint32_t i_U32;
   BOF_DUMP_MEMORY_ZONE_PARAM DumpMemoryZoneParam_X;
 
   for (i_U32 = 0; i_U32 < sizeof(pMemoryZone_U8); i_U32++)
   {
-    pMemoryZone_U8[i_U32] = static_cast<uint8_t> (i_U32);
+    pMemoryZone_U8[i_U32] = static_cast<uint8_t>(i_U32);
   }
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 0;
@@ -320,7 +317,9 @@ TEST(System_Test, DumpMemoryZone)
   DumpMemoryZoneParam_X.pMemoryZone = &pMemoryZone_U8[23];
   DumpMemoryZoneParam_X.VirtualOffset_S64 = 0xABCDEF01;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
-  Out_S = Bof_Sprintf("ABCDEF01   17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 ????????? !\"#$%%&%sABCDEF11   27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 '()*+,-./0123456%sABCDEF21   37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 789:;<=>?@ABCDEF%sABCDEF31   47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 GHIJKLMNOPQRSTUV%s", Bof_Eol(), Bof_Eol(), Bof_Eol(), Bof_Eol());
+  Out_S = Bof_Sprintf("ABCDEF01   17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 ????????? !\"#$%%&%sABCDEF11   27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 '()*+,-./0123456%sABCDEF21   37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 "
+                      "789:;<=>?@ABCDEF%sABCDEF31   47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 GHIJKLMNOPQRSTUV%s",
+                      Bof_Eol(), Bof_Eol(), Bof_Eol(), Bof_Eol());
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 18;
@@ -379,14 +378,16 @@ TEST(System_Test, DumpMemoryZone)
   DumpMemoryZoneParam_X.ReverseEndianness_B = true;
   DumpMemoryZoneParam_X.AccessSize_E = BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
-  Out_S = Bof_Sprintf("0x%016llX   0x0001 0x0203 0x0405 0x0607 0x0809 0x0A0B 0x0C0D 0x0E0F ????????????????%s0x%016llX   0x1011 0x1213                                           ????            %s", reinterpret_cast<uint64_t>(pMemoryZone_U8), Bof_Eol(), reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16), Bof_Eol());
+  Out_S = Bof_Sprintf("0x%016llX   0x0001 0x0203 0x0405 0x0607 0x0809 0x0A0B 0x0C0D 0x0E0F ????????????????%s0x%016llX   0x1011 0x1213                                           ????            %s", reinterpret_cast<uint64_t>(pMemoryZone_U8), Bof_Eol(),
+                      reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16), Bof_Eol());
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 5;
   DumpMemoryZoneParam_X.NbItemPerLine_U32 = 4;
   DumpMemoryZoneParam_X.AccessSize_E = BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
-  Out_S = Bof_Sprintf("0x%016llX   0x00010203 0x04050607 0x08090A0B 0x0C0D0E0F ????????????????%s0x%016llX   0x10111213                                  ????            %s", reinterpret_cast<uint64_t>(pMemoryZone_U8), Bof_Eol(), reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16), Bof_Eol());
+  Out_S = Bof_Sprintf("0x%016llX   0x00010203 0x04050607 0x08090A0B 0x0C0D0E0F ????????????????%s0x%016llX   0x10111213                                  ????            %s", reinterpret_cast<uint64_t>(pMemoryZone_U8), Bof_Eol(),
+                      reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16), Bof_Eol());
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 2;
@@ -400,9 +401,9 @@ TEST(System_Test, DumpMemoryZone)
 TEST(System_Test, Util_Sprintf)
 {
   std::string Text_S;
-  char        pFormat_c[512], pText_c[1024], pStr_c[32];
-  int         i = 1;
-  float       j = 3.14f;
+  char pFormat_c[512], pText_c[1024], pStr_c[32];
+  int i = 1;
+  float j = 3.14f;
 
   strcpy(pStr_c, "String");
 
@@ -415,7 +416,6 @@ TEST(System_Test, Util_Sprintf)
   sprintf(pText_c, pFormat_c, i, i, i, j, j, pStr_c, pStr_c);
   Text_S = Bof_Sprintf(pFormat_c, i, i, i, j, j, pStr_c, pStr_c);
   EXPECT_STREQ(pText_c, Text_S.c_str());
-
 }
 
 TEST(System_Test, Util_AlignedAlloc)
@@ -426,7 +426,7 @@ TEST(System_Test, Util_AlignedAlloc)
   EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 32, 128, false, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData != nullptr);
-  EXPECT_EQ((reinterpret_cast<std::uintptr_t> (pData) & 0x1F), 0);
+  EXPECT_EQ((reinterpret_cast<std::uintptr_t>(pData) & 0x1F), 0);
   EXPECT_EQ(Bof_AlignedMemFree(Buffer_X), BOF_ERR_NO_ERROR);
   EXPECT_NE(Bof_AlignedMemFree(Buffer_X), BOF_ERR_NO_ERROR);
 
@@ -438,18 +438,18 @@ TEST(System_Test, Util_AlignedAlloc)
   EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 256, 128, false, 0, true, Buffer_X), BOF_ERR_NO_ERROR);
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData != nullptr);
-  EXPECT_EQ((reinterpret_cast<std::uintptr_t> (pData) & 0xFF), 0);
+  EXPECT_EQ((reinterpret_cast<std::uintptr_t>(pData) & 0xFF), 0);
   EXPECT_EQ(Bof_AlignedMemFree(Buffer_X), BOF_ERR_NO_ERROR);
 
 #if defined(_WIN32)
-  //lock not supported
+  // lock not supported
   EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, false, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
 #else
   EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, true, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
 #endif
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData != nullptr);
-  EXPECT_EQ((reinterpret_cast<std::uintptr_t> (pData) & 0xFF), 0);
+  EXPECT_EQ((reinterpret_cast<std::uintptr_t>(pData) & 0xFF), 0);
   EXPECT_EQ(Bof_AlignedMemFree(Buffer_X), BOF_ERR_NO_ERROR);
 }
 
@@ -479,7 +479,7 @@ TEST(System_Test, Eol)
 {
   const char *pEol_c = Bof_Eol();
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   EXPECT_STREQ(pEol_c, "\r\n");
 #else
   EXPECT_STREQ(pEol_c, "\n");
@@ -489,8 +489,8 @@ TEST(System_Test, Eol)
 const uint32_t NBRAMDOMLOOP = 14000;
 TEST(System_Test, Random)
 {
-  uint32_t    i_U32, pTime_U32[100], MeanLow_U32, MeanHigh_U32;
-  int32_t     Val_S32, MinValue_S32, MaxValue_S32;
+  uint32_t i_U32, pTime_U32[100], MeanLow_U32, MeanHigh_U32;
+  int32_t Val_S32, MinValue_S32, MaxValue_S32;
 
   std::string Str_S, Prv_S;
 
@@ -511,16 +511,16 @@ TEST(System_Test, Random)
     pTime_U32[Val_S32]++;
     // printf("%d: %d\r\n", i_U32, Val_U32);
   }
-  MeanLow_U32 = static_cast<uint32_t> (static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.80f);
-  MeanHigh_U32 = static_cast<uint32_t> (static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.20f);
-  for (i_U32 = 0; i_U32 < static_cast<uint32_t> (MinValue_S32); i_U32++)
+  MeanLow_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.80f);
+  MeanHigh_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.20f);
+  for (i_U32 = 0; i_U32 < static_cast<uint32_t>(MinValue_S32); i_U32++)
   {
-    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t>(0));
   }
 
-  for (i_U32 = MinValue_S32; i_U32 <= static_cast<uint32_t> (MaxValue_S32); i_U32++)
+  for (i_U32 = MinValue_S32; i_U32 <= static_cast<uint32_t>(MaxValue_S32); i_U32++)
   {
-    EXPECT_NE(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_NE(pTime_U32[i_U32], static_cast<uint32_t>(0));
     EXPECT_GE(pTime_U32[i_U32], MeanLow_U32);
     EXPECT_LE(pTime_U32[i_U32], MeanHigh_U32);
 
@@ -528,7 +528,7 @@ TEST(System_Test, Random)
   }
   for (i_U32 = MaxValue_S32 + 1; i_U32 < BOF_NB_ELEM_IN_ARRAY(pTime_U32); i_U32++)
   {
-    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t>(0));
   }
 
   memset(pTime_U32, 0, sizeof(pTime_U32));
@@ -543,16 +543,16 @@ TEST(System_Test, Random)
     pTime_U32[-Val_S32]++;
     // printf("%d: %d\r\n", i_U32, Val_U32);
   }
-  MeanLow_U32 = static_cast<uint32_t> (static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.75f);
-  MeanHigh_U32 = static_cast<uint32_t> (static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.25f);
-  for (i_U32 = 0; i_U32 < static_cast<uint32_t> (-MaxValue_S32); i_U32++)
+  MeanLow_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.75f);
+  MeanHigh_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.25f);
+  for (i_U32 = 0; i_U32 < static_cast<uint32_t>(-MaxValue_S32); i_U32++)
   {
-    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t>(0));
   }
 
-  for (i_U32 = -MaxValue_S32; i_U32 <= static_cast<uint32_t> (-MinValue_S32); i_U32++)
+  for (i_U32 = -MaxValue_S32; i_U32 <= static_cast<uint32_t>(-MinValue_S32); i_U32++)
   {
-    EXPECT_NE(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_NE(pTime_U32[i_U32], static_cast<uint32_t>(0));
     EXPECT_GE(pTime_U32[i_U32], MeanLow_U32);
     EXPECT_LE(pTime_U32[i_U32], MeanHigh_U32);
 
@@ -560,10 +560,8 @@ TEST(System_Test, Random)
   }
   for (i_U32 = -MinValue_S32 + 1; i_U32 < BOF_NB_ELEM_IN_ARRAY(pTime_U32); i_U32++)
   {
-    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t>(0));
   }
-
-
 
   memset(pTime_U32, 0, sizeof(pTime_U32));
   MinValue_S32 = -19;
@@ -577,16 +575,16 @@ TEST(System_Test, Random)
     pTime_U32[50 + Val_S32]++;
     // printf("%d: %d\r\n", i_U32, Val_U32);
   }
-  MeanLow_U32 = static_cast<uint32_t> (static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.80f);
-  MeanHigh_U32 = static_cast<uint32_t> (static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.20f);
-  for (i_U32 = 0; i_U32 < static_cast<uint32_t> (50 + MinValue_S32); i_U32++)
+  MeanLow_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.80f);
+  MeanHigh_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.20f);
+  for (i_U32 = 0; i_U32 < static_cast<uint32_t>(50 + MinValue_S32); i_U32++)
   {
-    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t>(0));
   }
 
-  for (i_U32 = 50 + MinValue_S32; i_U32 <= static_cast<uint32_t> (50 + MaxValue_S32); i_U32++)
+  for (i_U32 = 50 + MinValue_S32; i_U32 <= static_cast<uint32_t>(50 + MaxValue_S32); i_U32++)
   {
-    EXPECT_NE(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_NE(pTime_U32[i_U32], static_cast<uint32_t>(0));
     EXPECT_GE(pTime_U32[i_U32], MeanLow_U32);
     EXPECT_LE(pTime_U32[i_U32], MeanHigh_U32);
 
@@ -594,7 +592,7 @@ TEST(System_Test, Random)
   }
   for (i_U32 = 50 + MaxValue_S32 + 1; i_U32 < BOF_NB_ELEM_IN_ARRAY(pTime_U32); i_U32++)
   {
-    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t> (0));
+    EXPECT_EQ(pTime_U32[i_U32], static_cast<uint32_t>(0));
   }
 
   Prv_S = "";
@@ -609,8 +607,8 @@ TEST(System_Test, Random)
 
 TEST(System_Test, RandomString)
 {
-  uint32_t    i_U32, j_U32, Size_U32;
-  char        MinValue_c, MaxValue_c;
+  uint32_t i_U32, j_U32, Size_U32;
+  char MinValue_c, MaxValue_c;
   std::string Val_S;
 
   MinValue_c = 'A';
@@ -631,11 +629,11 @@ TEST(System_Test, RandomString)
 
 TEST(System_Test, Exec)
 {
-  BOFERR      Sts_E;
+  BOFERR Sts_E;
   std::string Cmd_S, Output_S;
-  int32_t     ExitCode_S32;
+  int32_t ExitCode_S32;
 
-#if defined (_WIN32)
+#if defined(_WIN32)
   Cmd_S = Bof_Sprintf("dir");
 #else
   Cmd_S = "ls";
@@ -653,4 +651,3 @@ TEST(System_Test, Exec)
   EXPECT_EQ(ExitCode_S32, 0);
   EXPECT_TRUE(Output_S == "");
 }
-

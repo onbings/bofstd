@@ -28,47 +28,41 @@
 
 USE_BOF_NAMESPACE()
 
-#define BOFRAMDBNBMAXELEM    100
+#define BOFRAMDBNBMAXELEM 100
 
 DbRow::DbRow()
 {
   memset(&mDbRowData_X, 0, sizeof(mDbRowData_X));
 }
 
-
 DbRow::~DbRow()
-{}
-
+{
+}
 
 uint32_t DbRow::GetKey()
 {
   return mDbRowData_X.Key_U32;
 }
 
-
 char *DbRow::GetText80()
 {
   return mDbRowData_X.pDataText80_c;
 }
-
 
 char *DbRow::GetText16()
 {
   return mDbRowData_X.pKeyText16_c;
 }
 
-
 float DbRow::GetFloat()
 {
   return mDbRowData_X.Val_f;
 }
 
-
 int DbRow::GetInt()
 {
   return mDbRowData_X.Val_i;
 }
-
 
 uint32_t DbRow::SetKeyU32(uint32_t _Key_U32)
 {
@@ -77,7 +71,6 @@ uint32_t DbRow::SetKeyU32(uint32_t _Key_U32)
   mDbRowData_X.Key_U32 = _Key_U32;
   return Rts_U32;
 }
-
 
 uint32_t DbRow::SetText80(const char *_pText80_c)
 {
@@ -91,7 +84,6 @@ uint32_t DbRow::SetText80(const char *_pText80_c)
   return Rts_U32;
 }
 
-
 uint32_t DbRow::SetKeyText16(const char *_pText16_c)
 {
   uint32_t Rts_U32 = (uint32_t)-1;
@@ -104,7 +96,6 @@ uint32_t DbRow::SetKeyText16(const char *_pText16_c)
   return Rts_U32;
 }
 
-
 uint32_t DbRow::SetFloat(float _Val_f)
 {
   uint32_t Rts_U32 = 0;
@@ -113,7 +104,6 @@ uint32_t DbRow::SetFloat(float _Val_f)
   return Rts_U32;
 }
 
-
 uint32_t DbRow::SetInt(int _Val_i)
 {
   uint32_t Rts_U32 = 0;
@@ -121,7 +111,6 @@ uint32_t DbRow::SetInt(int _Val_i)
   mDbRowData_X.Val_i = _Val_i;
   return Rts_U32;
 }
-
 
 /*!
  * Description
@@ -151,35 +140,32 @@ void *DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U3
 
     switch (_Index_U32)
     {
-      case DB_INDEX_KEY_U32:
-      {
-        pRts = &mDbRowData_X.Key_U32;
-        snprintf(_pVal_c, _MaxChar_U32, "0x%08X", mDbRowData_X.Key_U32);
-        *_pType_E = BOF_TYPE_U32;
-      }
-      break;
+    case DB_INDEX_KEY_U32: {
+      pRts = &mDbRowData_X.Key_U32;
+      snprintf(_pVal_c, _MaxChar_U32, "0x%08X", mDbRowData_X.Key_U32);
+      *_pType_E = BOF_TYPE_U32;
+    }
+    break;
 
-      case DB_INDEX_KEY_TEXT16:
-      {
-        pRts = &mDbRowData_X.pKeyText16_c;
-        NbChar_U32 = (_MaxChar_U32 < sizeof(mDbRowData_X.pKeyText16_c)) ? _MaxChar_U32 : sizeof(mDbRowData_X.pKeyText16_c);
-        memcpy(_pVal_c, mDbRowData_X.pKeyText16_c, NbChar_U32);
+    case DB_INDEX_KEY_TEXT16: {
+      pRts = &mDbRowData_X.pKeyText16_c;
+      NbChar_U32 = (_MaxChar_U32 < sizeof(mDbRowData_X.pKeyText16_c)) ? _MaxChar_U32 : sizeof(mDbRowData_X.pKeyText16_c);
+      memcpy(_pVal_c, mDbRowData_X.pKeyText16_c, NbChar_U32);
 
-        if (NbChar_U32 < _MaxChar_U32)
-        {
-          _pVal_c[NbChar_U32] = 0;
-        }
-        *_pType_E = BOF_TYPE_CHAR;
-      }
-      break;
-
-      default:
+      if (NbChar_U32 < _MaxChar_U32)
       {
-        pRts = nullptr;
-        _pVal_c[0] = 0;
-        *_pType_E = BOF_TYPE_NOTHING;
+        _pVal_c[NbChar_U32] = 0;
       }
-      break;
+      *_pType_E = BOF_TYPE_CHAR;
+    }
+    break;
+
+    default: {
+      pRts = nullptr;
+      _pVal_c[0] = 0;
+      *_pType_E = BOF_TYPE_NOTHING;
+    }
+    break;
     }
   }
 
@@ -205,62 +191,55 @@ void *DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U3
 BOFCMP DbRow::Compare(uint32_t _Index_U32, DbRow *_pDbRow_O)
 {
   BOFCMP Rts_E;
-  int    Sts_i;
+  int Sts_i;
 
   // DBGPRINTF(DBG_FCT_ENTRY,"Compare(0x%X,0x%X)\r\n",_Index_U32,_pDbRow_O);
   switch (_Index_U32)
   {
-    case DB_INDEX_KEY_U32:
-    {
-      if (GetKey() == _pDbRow_O->GetKey())
-      {
-        Rts_E = BOF_CMP_EQUAL;
-      }
-      else
-      {
-        Rts_E = (_pDbRow_O->GetKey() < GetKey()) ? BOF_CMP_LESS : BOF_CMP_GREATER;
-      }
-    }
-    break;
-
-
-    case DB_INDEX_KEY_TEXT16:
-    {
-      Sts_i = memcmp(GetText16(), _pDbRow_O->GetText16(), sizeof(mDbRowData_X.pKeyText16_c));
-
-      if (!Sts_i)
-      {
-        Rts_E = BOF_CMP_EQUAL;
-      }
-      else
-      {
-        Rts_E = (Sts_i > 0) ? BOF_CMP_LESS : BOF_CMP_GREATER;
-      }
-    }
-    break;
-
-
-    default:
+  case DB_INDEX_KEY_U32: {
+    if (GetKey() == _pDbRow_O->GetKey())
     {
       Rts_E = BOF_CMP_EQUAL;
     }
-    break;
+    else
+    {
+      Rts_E = (_pDbRow_O->GetKey() < GetKey()) ? BOF_CMP_LESS : BOF_CMP_GREATER;
+    }
+  }
+  break;
+
+  case DB_INDEX_KEY_TEXT16: {
+    Sts_i = memcmp(GetText16(), _pDbRow_O->GetText16(), sizeof(mDbRowData_X.pKeyText16_c));
+
+    if (!Sts_i)
+    {
+      Rts_E = BOF_CMP_EQUAL;
+    }
+    else
+    {
+      Rts_E = (Sts_i > 0) ? BOF_CMP_LESS : BOF_CMP_GREATER;
+    }
+  }
+  break;
+
+  default: {
+    Rts_E = BOF_CMP_EQUAL;
+  }
+  break;
   }
 
   // DBGPRINTF(DBG_FCT_EXIT,"Compare returns 0x%X\r\n",Rts_E);
   return Rts_E;
 }
 
-
 void BofRamDb_Test::SetUp()
 {
   uint32_t ErrorCode_U32;
 
-  mpBofRamDb_O = new BofRamDb< DbRow >(BOFRAMDBNBMAXELEM, DbRow::DB_INDEX_MAX, &ErrorCode_U32);
+  mpBofRamDb_O = new BofRamDb<DbRow>(BOFRAMDBNBMAXELEM, DbRow::DB_INDEX_MAX, &ErrorCode_U32);
   EXPECT_TRUE(mpBofRamDb_O != 0);
   EXPECT_EQ(ErrorCode_U32, 0);
 }
-
 
 void BofRamDb_Test::TearDown()
 {
@@ -268,13 +247,12 @@ void BofRamDb_Test::TearDown()
   EXPECT_TRUE(mpBofRamDb_O == 0);
 }
 
-
 TEST_F(BofRamDb_Test, Init)
 {
-  uint32_t        NbRecord_U32, NbCursor_U32, Nb_U32, Err_U32;
-  bool            Sts_B;
-  int32_t         Val_S32;
-  char            pBuffer_c[0x10000];
+  uint32_t NbRecord_U32, NbCursor_U32, Nb_U32, Err_U32;
+  bool Sts_B;
+  int32_t Val_S32;
+  char pBuffer_c[0x10000];
   BOF_RAM_DB_STAT *pStat_X;
 
   Sts_B = mpBofRamDb_O->IsDbEmpty();
@@ -289,7 +267,6 @@ TEST_F(BofRamDb_Test, Init)
 
   NbRecord_U32 = mpBofRamDb_O->GetNbRecord();
   EXPECT_EQ(NbRecord_U32, 0);
-
 
   /*
    * uint32_t           GetFirstElement(void * _Cursor_h, KeyType *_pElement);
@@ -340,8 +317,8 @@ TEST_F(BofRamDb_Test, Init)
 TEST_F(BofRamDb_Test, Cursor)
 {
   uint32_t Err_U32;
-  int      i, j;
-  void *pCursor_h[BOFRAMDB_CURSOR_MAX], *Cursor_h;
+  int i, j;
+  BOF_HANDLE pCursor_h[BOFRAMDB_CURSOR_MAX], Cursor_h;
 
   // void          ClearDbAndReleaseCursor();
 
@@ -382,11 +359,11 @@ TEST_F(BofRamDb_Test, Cursor)
 
 TEST_F(BofRamDb_Test, Insert)
 {
-  uint32_t        Err_U32, Val_U32;
-  int             i, j;
-  void *pCursor_h[DbRow::DB_INDEX_MAX];
-  DbRow           DbRow_O;
-  char            pKeyText_c[16];
+  uint32_t Err_U32, Val_U32;
+  int i, j;
+  BOF_HANDLE pCursor_h[DbRow::DB_INDEX_MAX];
+  DbRow DbRow_O;
+  char pKeyText_c[16];
   BOF_RAM_DB_STAT *pStat_X;
 
   for (i = 0; i < DbRow::DB_INDEX_MAX; i++)
@@ -404,9 +381,9 @@ TEST_F(BofRamDb_Test, Insert)
     Err_U32 = mpBofRamDb_O->GetCursor(i, &pCursor_h[i]);
     EXPECT_EQ(Err_U32, 0);
 
-    Err_U32 = mpBofRamDb_O->InsertElement(nullptr, &DbRow_O);
+    Err_U32 = mpBofRamDb_O->InsertElement(0, &DbRow_O);
     EXPECT_EQ(Err_U32, BOF_ERR_CURSOR);
-    Err_U32 = mpBofRamDb_O->InsertElement(nullptr, nullptr);
+    Err_U32 = mpBofRamDb_O->InsertElement(0, nullptr);
     EXPECT_EQ(Err_U32, BOF_ERR_CURSOR);
     Err_U32 = mpBofRamDb_O->InsertElement(pCursor_h[i], nullptr);
     EXPECT_EQ(Err_U32, BOF_ERR_EINVAL);

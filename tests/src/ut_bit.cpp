@@ -46,4 +46,3 @@ TEST(Bit_Test, BitSetPosition)
     EXPECT_EQ(Bof_LessSignificantBitSetPosition(Mask_U64), i_U32);
   }
 }
-
