@@ -82,7 +82,7 @@ PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurity
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <fcntl.h>
 #endif
 
 BEGIN_BOF_NAMESPACE()
@@ -183,7 +183,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
       }
       else if (Bof_IsAnyBitFlagSet(_AccessType_E, BOF_ACCESS_TYPE::BOF_ACCESS_READ))
       {
-        Access_i |= O_READ;
+        Access_i |= O_RDONLY;
         Mode |= S_IRUSR;
       }
       else if (Bof_IsAnyBitFlagSet(_AccessType_E, BOF::BOF_ACCESS_TYPE::BOF_ACCESS_WRITE))
