@@ -70,7 +70,7 @@ static void *S_TcpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B
   SERVER_THREAD_CONTEXT *pThreadContext_X = (SERVER_THREAD_CONTEXT *)_pContext;
   BofSocket ListeningSocket;
   BofComChannel *pClient;
-  std::vector<BofComChannel *> ListOfClient;
+  std::vector<std::unique_ptr<BofComChannel>> ClientCollection;
   BOF_COM_CHANNEL_STATUS Status_X;
   uint8_t pBuffer_U8[0x10000];
   uint32_t i_U32, Nb_U32, NbToRead_U32;
@@ -91,27 +91,27 @@ static void *S_TcpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(Nb_U32, 14);
 
-      ListOfClient.push_back(pClient);
+      ClientCollection.push_back(std::unique_ptr<BofComChannel>(pClient));
     }
-    for (i_U32 = 0; i_U32 < ListOfClient.size(); i_U32++)
+    for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
     {
-      BOF_ASSERT(ListOfClient[i_U32] != nullptr);
-      Sts_E = ListOfClient[i_U32]->V_GetStatus(Status_X);
+      BOF_ASSERT(ClientCollection[i_U32] != nullptr);
+      Sts_E = ClientCollection[i_U32]->V_GetStatus(Status_X);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       if (Status_X.NbIn_U32)
       {
         Nb_U32 = Status_X.NbIn_U32 > sizeof(pBuffer_U8) ? sizeof(pBuffer_U8) : Status_X.NbIn_U32;
         BOF_ASSERT(Nb_U32 <= sizeof(pBuffer_U8));
         NbToRead_U32 = Nb_U32;
-        Sts_E = ListOfClient[i_U32]->V_ReadData(1000, NbToRead_U32, pBuffer_U8);
-        //				printf("Client %d/%lld srv Rd n %d s %d Total %lld -> %lld\r\n", i_U32, ListOfClient.size(), NbToRead_U32, Sts_E, S_TotalSrvTcp_U64, S_TotalSrvTcp_U64 + Nb_U32 + Nb_U32);
+        Sts_E = ClientCollection[i_U32]->V_ReadData(1000, NbToRead_U32, pBuffer_U8);
+        //				printf("Client %d/%lld srv Rd n %d s %d Total %lld -> %lld\r\n", i_U32, ClientCollection.size(), NbToRead_U32, Sts_E, S_TotalSrvTcp_U64, S_TotalSrvTcp_U64 + Nb_U32 + Nb_U32);
 
         S_TotalSrvTcp_U64 += NbToRead_U32;
 
         EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
         EXPECT_EQ(Nb_U32, NbToRead_U32);
 
-        Sts_E = ListOfClient[i_U32]->V_WriteData(1000, Nb_U32, pBuffer_U8);
+        Sts_E = ClientCollection[i_U32]->V_WriteData(1000, Nb_U32, pBuffer_U8);
         //				printf("srv Wrt n %d s %d\r\n", Nb_U32, Sts_E);
         S_TotalSrvTcp_U64 += Nb_U32;
 
@@ -120,7 +120,8 @@ static void *S_TcpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B
       }
     }
   }
-  ListOfClient.clear();
+  //ClientCollection is a vector of unique pointer->deallocated on return of this function
+ // ClientCollection.clear();
   return nullptr;
 }
 
@@ -168,7 +169,7 @@ const uint32_t CLIENT_NB_LOOP = 500;
 
 TEST_F(SocketTcp_Test, TcpClientTest)
 {
-  std::vector<std::unique_ptr<BofSocket>> ListOfClient;
+  std::vector<std::unique_ptr<BofSocket>> ClientCollection;
 
   BOFERR Sts_E;
   BOF_SOCKET_PARAM BofSocketParam_X;
@@ -177,6 +178,8 @@ TEST_F(SocketTcp_Test, TcpClientTest)
   uint8_t pBuffer_U8[0x10000];
   BOF_COM_CHANNEL_STATUS Status_X;
   std::string Str_S;
+
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 
   for (i_U32 = 0; i_U32 < SERVER_NB_CLIENT; i_U32++)
   {
@@ -199,29 +202,32 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     BofSocketParam_X.EnableLocalMulticast_B = false;
     Sts_E = puClientSocket->InitializeSocket(BofSocketParam_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    //		printf("create sck %d\r\n", puClientSocket->GetSocketHandle());
-    ListOfClient.push_back(std::move(puClientSocket));
+    
+    //printf("create sck %d bal %d\r\n", puClientSocket->GetSocketHandle(), BOF::BofSocket::S_BofSocketBalance());
+    ClientCollection.push_back(std::move(puClientSocket));
   }
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1);   //+1 because S_TcpServerThread creatre a listening socket
 
-  for (i_U32 = 0; i_U32 < ListOfClient.size(); i_U32++)
+  for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
   {
-    BOF_ASSERT(ListOfClient[i_U32] != nullptr);
-    Sts_E = ListOfClient[i_U32]->V_Connect(100, "tcp://127.0.0.1:5555", "");
+    BOF_ASSERT(ClientCollection[i_U32] != nullptr);
+    Sts_E = ClientCollection[i_U32]->V_Connect(100, "tcp://127.0.0.1:5555", "");
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-    Sts_E = ListOfClient[i_U32]->ReadString(10000, Str_S, '\n');
+    Sts_E = ClientCollection[i_U32]->ReadString(10000, Str_S, '\n');
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_STREQ("Hello World\n", Str_S.c_str());
-    Sts_E = ListOfClient[i_U32]->ReadString(10000, Str_S, '@');
+    Sts_E = ClientCollection[i_U32]->ReadString(10000, Str_S, '@');
     EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_STREQ("Hello World\n", Str_S.c_str());
-    Sts_E = ListOfClient[i_U32]->ReadString(10000, Str_S, ' ');
+    Sts_E = ClientCollection[i_U32]->ReadString(10000, Str_S, ' ');
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_STREQ("azerty ", Str_S.c_str());
-    Sts_E = ListOfClient[i_U32]->ReadString(10000, Str_S, '\n');
+    Sts_E = ClientCollection[i_U32]->ReadString(10000, Str_S, '\n');
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_STREQ("QWERTY\n", Str_S.c_str());
   }
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size());//+1 because S_TcpServerThread creatre a listening socket
 
   Nb_U32 = sizeof(pBuffer_U8);
   for (j_U32 = 0; j_U32 < Nb_U32; j_U32++)
@@ -231,12 +237,12 @@ TEST_F(SocketTcp_Test, TcpClientTest)
   S_TotalSrvTcp_U64 = 0;
   S_TotalCltTcp_U64 = 0;
   Start_U32 = Bof_GetMsTickCount();
-  for (i_U32 = 0; i_U32 < ListOfClient.size(); i_U32++)
+  for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
   {
     for (j_U32 = 0; j_U32 < CLIENT_NB_LOOP; j_U32++)
     {
       Nb_U32 = sizeof(pBuffer_U8);
-      Sts_E = ListOfClient[i_U32]->V_WriteData(100, Nb_U32, pBuffer_U8);
+      Sts_E = ClientCollection[i_U32]->V_WriteData(100, Nb_U32, pBuffer_U8);
       S_TotalCltTcp_U64 += Nb_U32;
       //	printf("clt Wrt %d: n %d s %d\r\n", j_U32, Nb_U32, Sts_E);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -244,7 +250,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
       //			printf("client %d W %d->%lld\r\n", i_U32, Nb_U32, S_TotalCltTcp_U64);
 
       Nb_U32 = sizeof(pBuffer_U8);
-      Sts_E = ListOfClient[i_U32]->V_ReadData(100, Nb_U32, pBuffer_U8);
+      Sts_E = ClientCollection[i_U32]->V_ReadData(100, Nb_U32, pBuffer_U8);
       S_TotalCltTcp_U64 += Nb_U32;
       //	printf("clt Rd n %d s %d\r\n", Nb_U32, Sts_E);
 
@@ -253,7 +259,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
 
       // printf("Con %d NbOut %d Flg %x Sts %d\n", Status_X.Connected_B, Status_X.NbOut_U32, Status_X.Flag_U32, Status_X.Sts_E);
 
-      Sts_E = ListOfClient[i_U32]->V_GetStatus(Status_X);
+      Sts_E = ClientCollection[i_U32]->V_GetStatus(Status_X);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       if (Status_X.NbIn_U32)
       {
@@ -271,16 +277,16 @@ TEST_F(SocketTcp_Test, TcpClientTest)
   DeltaWaitEof_U32 = 0;
   while ((S_TotalSrvTcp_U64 + S_TotalCltTcp_U64) != Total_U64)
   {
-    for (i_U32 = 0; i_U32 < ListOfClient.size(); i_U32++)
+    for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
     {
       Nb_U32 = sizeof(pBuffer_U8);
-      Sts_E = ListOfClient[i_U32]->V_ReadData(10, Nb_U32, pBuffer_U8);
+      Sts_E = ClientCollection[i_U32]->V_ReadData(10, Nb_U32, pBuffer_U8);
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
-        printf("extra rd clt %d nb %d Srv %" PRId64 "Clt %" PRId64 "\n", i_U32, Nb_U32, S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
+        //printf("extra rd clt %d nb %d Srv %" PRId64 "Clt %" PRId64 "\n", i_U32, Nb_U32, S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
         S_TotalCltTcp_U64 += Nb_U32;
       }
-      Sts_E = ListOfClient[i_U32]->V_GetStatus(Status_X);
+      Sts_E = ClientCollection[i_U32]->V_GetStatus(Status_X);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       // EXPECT_TRUE(Status_X.Connected_B);
       // EXPECT_EQ(Status_X.Sts_E, BOF_ERR_NO_ERROR);
@@ -293,8 +299,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     }
     DeltaWaitEof_U32 = Bof_ElapsedMsTime(StartWaitEof_U32);
     TotalSrvClt_U64 = (S_TotalSrvTcp_U64 + S_TotalCltTcp_U64);
-    printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvTcp_U64,
-           S_TotalCltTcp_U64);
+    //printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
     if (DeltaWaitEof_U32 > 1000)
     {
       break;
@@ -305,17 +310,26 @@ TEST_F(SocketTcp_Test, TcpClientTest)
   EXPECT_EQ(TotalSrvClt_U64, Total_U64);
   KBPerSec_U32 = (Delta_U32) ? static_cast<uint32_t>((TotalSrvClt_U64 * 1000) / 1024L) / Delta_U32 : 0;
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\r\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32,
-         KBPerSec_U32, KBPerSec_U32 / 1024);
+  //printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\r\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32,KBPerSec_U32, KBPerSec_U32 / 1024);
 
-  for (i_U32 = 0; i_U32 < ListOfClient.size(); i_U32++)
+  for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
   {
-    Sts_E = ListOfClient[i_U32]->V_FlushData(10);
+    Sts_E = ClientCollection[i_U32]->V_FlushData(10);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_GE(Bof_ElapsedMsTime(Start_U32), static_cast<uint32_t>(500));
+    Sts_E = ClientCollection[i_U32]->V_FlushData(10);
+    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   }
+
+//All client and server session vector of unique pointer->deallocated on return of this function and the exit of server listening thread
+//Socket level is finally checked in the next test function ChkSocketBalance
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size());//+1 because S_TcpServerThread creatre a listening socket
 }
 
+TEST_F(SocketTcp_Test, ChkSocketBalance)
+{
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+}
 #if 0
 TEST(SocketTcp_Test, BasicUdpNonBlockingSocket)
 {

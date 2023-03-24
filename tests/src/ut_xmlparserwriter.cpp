@@ -277,7 +277,7 @@ TEST(XmlWriter_Test, XmlVector)
   /*
   const char *p = XmlOut_S.c_str();
   const char *q = Res_S.c_str();
-  while (*p == *q) { printf("%c", *p); p++; q++; }
+  //while (*p == *q) { printf("%c", *p); p++; q++; }
   while (*p == *q) { p++; q++; }
   */
   EXPECT_STREQ(XmlOut_S.c_str(), Res_S.c_str());
@@ -2284,7 +2284,7 @@ TEST(XmlWriter_Test, Xml)
 	const char *p = XmlOut_S.c_str();
 	const char *q = Res_S.c_str();
 	while (*p == *q) { p++; q++; }
-	printf("%d ok on %d\r\n", static_cast<uint32_t>(p - XmlOut_S.c_str()), static_cast<uint32_t>(XmlOut_S.size()));
+	//printf("%d ok on %d\r\n", static_cast<uint32_t>(p - XmlOut_S.c_str()), static_cast<uint32_t>(XmlOut_S.size()));
 	uint32_t Start_U32, Nb_U32, OffsetFirstDiff_U32 = static_cast<uint32_t>(p - XmlOut_S.c_str());
 	if (OffsetFirstDiff_U32 > 128)
 	{
@@ -2298,13 +2298,13 @@ TEST(XmlWriter_Test, Xml)
 	}
 	std::string Out_S = XmlOut_S.substr(Start_U32, Nb_U32);
 	std::string Expect_S = Res_S.substr(Start_U32, Nb_U32);
-	printf("OUT:    '%s'\r\n", Out_S.c_str());
-	printf("EXPECT: '%s'\r\n", Expect_S.c_str());
+	//printf("OUT:    '%s'\r\n", Out_S.c_str());
+	//printf("EXPECT: '%s'\r\n", Expect_S.c_str());
 
 	Out_S = XmlOut_S.substr(OffsetFirstDiff_U32, 32);
 	Expect_S = Res_S.substr(OffsetFirstDiff_U32, 32);
-	printf("DiffOUT:      '%s'\r\n", Out_S.c_str());
-	printf("DiffEXPECTED: '%s'\r\n", Expect_S.c_str());
+	//printf("DiffOUT:      '%s'\r\n", Out_S.c_str());
+	//printf("DiffEXPECTED: '%s'\r\n", Expect_S.c_str());
 	const char *pOut_c = Out_S.c_str();
 	const char *pExpected_c = Expect_S.c_str();
 #endif

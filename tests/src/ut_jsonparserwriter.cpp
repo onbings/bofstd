@@ -127,7 +127,7 @@ TEST(JsonParser_Test, JsonTypeNative)
 
     Val = Root["JsonType"];
     Val = Root["MmgwSetting"];
-    PrintRoot(Root);
+    //PrintRoot(Root);
   }
 }
 
@@ -136,9 +136,9 @@ BOFERR JsonParseResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER 
 {
   BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
 
-  printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
-  printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), static_cast<uint32_t>(_rBofCommandlineOption_X.ArgType_E), _rBofCommandlineOption_X.pValue,
-         _pOptNewVal_c ? _pOptNewVal_c : "nullptr");
+  // printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
+  // printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), static_cast<uint32_t>(_rBofCommandlineOption_X.ArgType_E), _rBofCommandlineOption_X.pValue, _pOptNewVal_c ?
+  // _pOptNewVal_c : "nullptr");
 
   return Rts_E;
 }
@@ -148,7 +148,7 @@ bool JsonParseError(int _Sts_i, const BOFPARAMETER &_rJsonEntry_X, const char *_
 {
   bool Rts_B = true;
 
-  printf("JSON error %d on entry pUser %p value %s\r\n", _Sts_i, _rJsonEntry_X.pUser, _pValue ? _pValue : "nullptr");
+  // printf("JSON error %d on entry pUser %p value %s\r\n", _Sts_i, _rJsonEntry_X.pUser, _pValue ? _pValue : "nullptr");
   return Rts_B;
 }
 
@@ -347,7 +347,7 @@ std::vector<BOFPARAMETER> S_AddFlowSchemaCollection = {
 };
 
 //{"add_sender":{"description":"OUT1","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","flow_id":"40b94c9d-9bf1-4721-95ae-4316b4e080ea","id":"edbe7239-8659-46c9-a4f7-85b46a2efc73","label":"Player
-//A","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
+// A","manifest_href":"","tags":{"":[]},"transport":"","version":""}}
 ADD_SENDER S_AddSender_X;
 std::vector<BOFPARAMETER> S_AddSenderSchemaCollection = {
     {nullptr, "description", "", "", "add_sender", BOFPARAMETER_ARG_FLAG::NONE, BOF_PARAM_DEF_VARIABLE(S_AddSender_X.Description_S, STDSTRING, 0, 0)},
@@ -362,7 +362,7 @@ std::vector<BOFPARAMETER> S_AddSenderSchemaCollection = {
 };
 
 //{"add_receiver":{"caps":{},"description":"IN1","device_id":"a8500668-9218-4063-ba36-9b4900b82e67","format":"","id":"998a20b2-2a8a-42c3-a527-46d1de96a9df","label":"Recorder
-//A","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
+// A","subscription":{"sender_id":"00000000-0000-0000-0000-000000000000"},"tags":{"":[]},"transport":"","version":""}}
 ADD_RECEIVER S_AddReceiver_X;
 std::vector<BOFPARAMETER> S_AddReceiverSchemaCollection = {
     {nullptr, "caps", "", "", "add_receiver", BOFPARAMETER_ARG_FLAG::NONE, BOF_PARAM_DEF_VARIABLE(S_AddReceiver_X.Caps_S, STDSTRING, 0, 0)},
@@ -660,8 +660,8 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
   Sts_E = JsonParser.ToByte(S_AddDeviceSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
-  printf("Id   %s%s", S_AddDevice_X.Id.ToString(true).c_str(), Bof_Eol());
-  printf("Node %s%s", S_AddDevice_X.NodeId.ToString(true).c_str(), Bof_Eol());
+  // printf("Id   %s%s", S_AddDevice_X.Id.ToString(true).c_str(), Bof_Eol());
+  // printf("Node %s%s", S_AddDevice_X.NodeId.ToString(true).c_str(), Bof_Eol());
 
   //\"receivers\":[],\"senders\":[], are null
   JsonIn_S = "{\"add_device\":{\"id\":\"a8500668-9218-4063-ba36-9b4900b82e67\",\"label\":\"\",\"node_id\":\"00000000-0000-0000-0000-000000000000\",\"type\":\"\",\"version\":\"\"}}\n";
@@ -687,8 +687,8 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
   Sts_E = JsonParser.ToByte(S_AddSourceSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
-  printf("Id     %s%s", S_AddSource_X.Id.ToString(true).c_str(), Bof_Eol());
-  printf("Device %s%s", S_AddSource_X.DeviceId.ToString(true).c_str(), Bof_Eol());
+  // printf("Id     %s%s", S_AddSource_X.Id.ToString(true).c_str(), Bof_Eol());
+  // printf("Device %s%s", S_AddSource_X.DeviceId.ToString(true).c_str(), Bof_Eol());
 
   // caps:{} -> caps:""
   //\"parents\":[],\"tags\":{\"\":[]} are null
@@ -714,8 +714,8 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
   Sts_E = JsonParser.ToByte(S_AddFlowSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
-  printf("Id       %s%s", S_AddFlow_X.Id.ToString(true).c_str(), Bof_Eol());
-  printf("SourceId %s%s", S_AddFlow_X.SourceId.ToString(true).c_str(), Bof_Eol());
+  // printf("Id       %s%s", S_AddFlow_X.Id.ToString(true).c_str(), Bof_Eol());
+  // printf("SourceId %s%s", S_AddFlow_X.SourceId.ToString(true).c_str(), Bof_Eol());
 
   //\"parents\":[],\"tags\":{\"\":[]} are null
   JsonIn_S = "{\"add_flow\":{\"description\":\"OUT1\",\"format\":\"\",\"id\":\"40b94c9d-9bf1-4721-95ae-4316b4e080ea\",\"label\":\"Player A\",\"source_id\":\"895085f3-76a1-4f09-b3dd-2aabeb230cd8\",\"version\":\"\"}}\n";
@@ -742,8 +742,8 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
   Sts_E = JsonParser.ToByte(S_AddSenderSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
-  printf("Id       %s%s", S_AddFlow_X.Id.ToString(true).c_str(), Bof_Eol());
-  printf("SourceId %s%s", S_AddFlow_X.SourceId.ToString(true).c_str(), Bof_Eol());
+  // printf("Id       %s%s", S_AddFlow_X.Id.ToString(true).c_str(), Bof_Eol());
+  // printf("SourceId %s%s", S_AddFlow_X.SourceId.ToString(true).c_str(), Bof_Eol());
 
   //"tags" is null
   JsonIn_S = "{\"add_sender\":{\"description\":\"OUT1\",\"device_id\":\"a8500668-9218-4063-ba36-9b4900b82e67\",\"flow_id\":\"40b94c9d-9bf1-4721-95ae-4316b4e080ea\",\"id\":\"edbe7239-8659-46c9-a4f7-85b46a2efc73\",\"label\":\"Player "
@@ -771,8 +771,8 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
   Sts_E = JsonParser.ToByte(S_AddReceiverSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
-  printf("Id       %s%s", S_AddFlow_X.Id.ToString(true).c_str(), Bof_Eol());
-  printf("SourceId %s%s", S_AddFlow_X.SourceId.ToString(true).c_str(), Bof_Eol());
+  // printf("Id       %s%s", S_AddFlow_X.Id.ToString(true).c_str(), Bof_Eol());
+  // printf("SourceId %s%s", S_AddFlow_X.SourceId.ToString(true).c_str(), Bof_Eol());
 
   // caps:{} -> caps:""
   //\"tags\":{\"\":[]} is null
@@ -802,7 +802,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
   Sts_E = JsonParser.ToByte(S_AddManifestSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
-  printf("SenderId %s%s", S_AddManifest_X.SenderId.ToString(true).c_str(), Bof_Eol());
+  // printf("SenderId %s%s", S_AddManifest_X.SenderId.ToString(true).c_str(), Bof_Eol());
 
   JsonOut_S = "";
   Sts_E = JsonWriter.FromByte(true, true, S_AddManifestSchemaCollection, JsonOut_S);
@@ -826,7 +826,7 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
 
   Sts_E = JsonParser.ToByte(S_CmdConnectSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
-  printf("ReceiverId %s%s", S_CmdConnect_X.ReceiverId.ToString(true).c_str(), Bof_Eol());
+  // printf("ReceiverId %s%s", S_CmdConnect_X.ReceiverId.ToString(true).c_str(), Bof_Eol());
 
   // caps:{} -> caps:""
   //\"tags\":{\"\":[]} is null
@@ -878,16 +878,25 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   Sts_E = JsonParser.ToByte(S_ReplyStatusReceiverSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
   for (auto Item : S_ReplyStatusReceiver_X.IdCollection)
-    printf("Sts Rcv Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
+  {
+    //printf("Sts Rcv Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusReceiver_X.IpCollection)
-    printf("Sts Rcv Ip %s%s", Item.ToString(true, false, false, true).c_str(), Bof_Eol());
+  {
+    //printf("Sts Rcv Ip %s%s", Item.ToString(true, false, false, true).c_str(), Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusReceiver_X.PresentCollection)
-    printf("Sts Rcv Present %s%s", Item.c_str(), Bof_Eol());
+  {
+    //printf("Sts Rcv Present %s%s", Item.c_str(), Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusReceiver_X.ImpairedCollection)
-    printf("Sts Rcv Impaired %s%s", Item ? "True" : "False", Bof_Eol());
+  {
+    //printf("Sts Rcv Impaired %s%s", Item ? "True" : "False", Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusReceiver_X.StateCollection)
-    printf("Sts Rcv State %s%s", Item.c_str(), Bof_Eol());
-
+  {
+    //printf("Sts Rcv State %s%s", Item.c_str(), Bof_Eol());
+  }
   JsonOut_S = "";
   Sts_E = JsonWriter.FromByte(true, true, S_ReplyStatusReceiverSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
@@ -936,16 +945,25 @@ TEST(JsonWriter_Test, IpSwitcherSerDeser)
   Sts_E = JsonParser.ToByte(S_ReplyStatusSenderSchemaCollection, JsonWriteResultUltimateCheck, JsonWriteError);
   EXPECT_EQ(Sts_E, 0);
   for (auto Item : S_ReplyStatusSender_X.IdCollection)
-    printf("Sts Snd Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
+  {
+    //printf("Sts Snd Id %s%s", Item.ToString(true).c_str(), Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusSender_X.IpCollection)
-    printf("Sts Snd Ip %s%s", Item.ToString(true, false, false, true).c_str(), Bof_Eol());
+  {
+    //  printf("Sts Snd Ip %s%s", Item.ToString(true, false, false, true).c_str(), Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusSender_X.PresentCollection)
-    printf("Sts Snd Present %s%s", Item.c_str(), Bof_Eol());
+  {
+    // printf("Sts Snd Present %s%s", Item.c_str(), Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusSender_X.ImpairedCollection)
-    printf("Sts Snd Impaired %s%s", Item ? "True" : "False", Bof_Eol());
+  {
+    //printf("Sts Snd Impaired %s%s", Item ? "True" : "False", Bof_Eol());
+  }
   for (auto Item : S_ReplyStatusSender_X.StateCollection)
-    printf("Sts Snd State %s%s", Item.c_str(), Bof_Eol());
-
+  {
+   // printf("Sts Snd State %s%s", Item.c_str(), Bof_Eol());
+  }
   JsonOut_S = "";
   Sts_E = JsonWriter.FromByte(true, true, S_ReplyStatusSenderSchemaCollection, JsonOut_S);
   EXPECT_EQ(Sts_E, 0);
@@ -962,12 +980,9 @@ TEST(JsonParser_Test, JsonCfg)
   BofJsonWriter BofJsonWriter_O;
   std::string Cfg_S;
   /*
-    printf("sz MMGW_API_STATE %d MMGW_BOARD_STATE %d MMGW_BOARD_CHANNEL %d BOF_SOCKET_ADDRESS %d\n",sizeof(MMGW_API_STATE), sizeof(MMGW_BOARD_STATE),sizeof(MMGW_BOARD_CHANNEL),sizeof(BOF_SOCKET_ADDRESS));
-    printf("ONE O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[1].IoActive_B,
-          &S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[3].IoActive_B);
-    printf("TWO O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[1].IoActive_B,
-           &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[3].IoActive_B);
-
+    //printf("sz MMGW_API_STATE %d MMGW_BOARD_STATE %d MMGW_BOARD_CHANNEL %d BOF_SOCKET_ADDRESS %d\n",sizeof(MMGW_API_STATE), sizeof(MMGW_BOARD_STATE),sizeof(MMGW_BOARD_CHANNEL),sizeof(BOF_SOCKET_ADDRESS));
+    //printf("ONE O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[1].IoActive_B, &S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[0].pHrInput_X[3].IoActive_B);
+    //printf("TWO O %p 1 %p 2 %p\n",  &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[0].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[1].IoActive_B, &S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[2].IoActive_B,&S_MmgwApiState_X.pBoardState_X[1].pHrInput_X[3].IoActive_B);
   */
   S_MmgwApiState_X.Reset();
   Bof_GetCurrentDirectory(CrtDir);

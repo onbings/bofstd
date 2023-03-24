@@ -178,7 +178,7 @@ public:
   BOFERR SetNonBlockingMode(bool _NonBlocking_B);
 
   bool IsBlocking();
-
+  static bool S_IsPortFree(uint16_t _Port_U18);
   BOFERR SetTtl(uint32_t _Ttl_U32);
 
   BOFERR DisableNagle();

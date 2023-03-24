@@ -26,13 +26,31 @@
 #include <regex>
 
 USE_BOF_NAMESPACE()
-
-constexpr uint16_t DEFAULT_PORT = 5000;
+/*
+* See FindFreePort in this file
+---Range: 50000-50059: 60 entries------------------------
+---Range: 50360-50466: 107 entries------------------------
+---Range: 50967-52828: 1862 entries------------------------
+---Range: 52830-54034: 1205 entries------------------------
+---Range: 54036-54036: 1 entries------------------------
+---Range: 54038-56952: 2915 entries------------------------
+---Range: 56954-56958: 5 entries------------------------
+---Range: 56961-56961: 1 entries------------------------
+---Range: 56966-57007: 42 entries------------------------
+---Range: 57009-57863: 855 entries------------------------
+---Range: 57865-58333: 469 entries------------------------
+---Range: 58335-59803: 1469 entries------------------------
+---Range: 59805-59999: 195 entries------------------------
+10000 tested between 50000 and 60000:
+  9186 free
+  814 busy
+*/
 constexpr uint32_t WAIT_FOR_POLL_PERIOD = 500;
-constexpr uint16_t MIN_PORT_VALUE = 50100;
-constexpr uint16_t MAX_PORT_VALUE = 50199;
-constexpr uint16_t CONTROL_LISTER_MIN_PORT_VALUE = 50300;
-constexpr uint16_t CONTROL_LISTER_MAX_PORT_VALUE = 50399;
+constexpr uint16_t DEFAULT_PORT = 51000;
+constexpr uint16_t MIN_PORT_VALUE = 51000;
+constexpr uint16_t MAX_PORT_VALUE = 51099;
+constexpr uint16_t CONTROL_LISTER_MIN_PORT_VALUE = 51100;
+constexpr uint16_t CONTROL_LISTER_MAX_PORT_VALUE = 51199;
 static uint16_t S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
 
 constexpr uint32_t NB_MAX_H4X_CLIENT = 10;
@@ -441,6 +459,47 @@ BOFERR MyTcpClientServer::V_CloseSession(std::shared_ptr<BofSocketIo> _psSession
   //	MyTcpClient *pMyTcpClient = dynamic_cast<MyTcpClient *>(_psSession.get());
   return BOF_ERR_NO_ERROR;
 }
+// 49152-65535
+void FindFreePort(uint32_t _PortMin_U32, uint32_t _PortMax_U32)
+{
+  uint32_t Port_U32, NbFree_U32, NbBusy_U32, NbTested_U32, BlockStart_U32;
+  bool EndOfBlock_B;
+
+  NbFree_U32 = 0;
+  NbBusy_U32 = 0;
+  NbTested_U32 = 0;
+  BlockStart_U32 = _PortMin_U32;
+  EndOfBlock_B = true;
+  for (Port_U32 = _PortMin_U32; Port_U32 < _PortMax_U32; Port_U32++)
+  {
+    NbTested_U32++;
+    if (BofSocket::S_IsPortFree(Port_U32))
+    {
+      NbFree_U32++;
+      if (EndOfBlock_B)
+      {
+        BlockStart_U32 = Port_U32;
+      }
+      EndOfBlock_B = false;
+      //printf("Port %d is free\n", Port_U32);
+    }
+    else
+    {
+      NbBusy_U32++;
+      if (!EndOfBlock_B)
+      {
+        printf("---Range: %d-%d: %d entries------------------------\n", BlockStart_U32, Port_U32 - 1, Port_U32 - BlockStart_U32);
+      }
+      EndOfBlock_B = true;
+      // printf("Port %d is NOT free\n", Port_U32);
+    }
+  }
+  if (!EndOfBlock_B)
+  {
+    printf("---Range: %d-%d: %d entries------------------------\n", BlockStart_U32, Port_U32 - 1, Port_U32 - BlockStart_U32);
+  }
+  printf("%d tested between %d and %d:\n  %d free\n  %d busy\n", NbTested_U32, _PortMin_U32, _PortMax_U32, NbFree_U32, NbBusy_U32);
+}
 
 TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
 {
@@ -453,7 +512,7 @@ TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
   BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
-  ;
+  
   BofSocketServerParam_X.Address_S = Bof_Sprintf("tcp://0.0.0.0:%d", DEFAULT_PORT);
   BofSocketServerParam_X.NbMaxSession_U32 = 0;
   BofSocketServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
@@ -482,6 +541,7 @@ TEST(BofIo_Test, CreateAndDestroyBofSocketServer)
     BofSocketServerParam_X.Name_S = BOF::Bof_Sprintf("Srv_%03d", i_U32);
     //		puBofSocketServer.reset(nullptr);
     puBofSocketServer = std::make_unique<MyTcpServer>(BofSocketServerParam_X);
+    //FindFreePort(50000, 60000);
     ASSERT_TRUE(puBofSocketServer != nullptr);
     EXPECT_EQ(puBofSocketServer->LastErrorCode(), BOF_ERR_NO_ERROR);
 
@@ -617,7 +677,7 @@ TEST(BofIo_Test, OpenCloseCmdSession)
   EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NB_MAX_CLIENT * 1)));
   EXPECT_EQ(puBofSocketServer->NbConnectedSession(), NB_MAX_CLIENT);
   //	ASSERT_GE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1) - 1);	//Minus 1 as a temporary poll socket is created as DATA_LISTERNER and is replaced with the data poll sock when the whole process is okk so WaitForNbConnectedSession can
-  //see 4 and here we have 3 	ASSERT_LE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
+  // see 4 and here we have 3 	ASSERT_LE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
   EXPECT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
 
   EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NB_MAX_CLIENT * 1)));

@@ -263,6 +263,7 @@ BOFSTD_EXPORT char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, 
 ///@@param _rFormat_S Specifies the Format-control string.
 ///@@param _Args Specifies the Optional arguments.
 ///@return A string containing the formatted data
+#if 0
 template <typename... Args> std::string Bof_Sprintf(const std::string &_rFormat_S, Args... _Args)
 {
   size_t Size = snprintf(nullptr, 0, _rFormat_S.c_str(), _Args...) + 1; // Extra space for '\0'
@@ -270,4 +271,7 @@ template <typename... Args> std::string Bof_Sprintf(const std::string &_rFormat_
   snprintf(puInternalBuffer.get(), Size, _rFormat_S.c_str(), _Args...);
   return std::string(puInternalBuffer.get(), puInternalBuffer.get() + Size - 1); // We don't want the '\0' inside
 }
+#else
+BOFSTD_EXPORT std::string Bof_Sprintf(const char *_pFormat_c, ...);
+#endif
 END_BOF_NAMESPACE()

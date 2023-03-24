@@ -428,7 +428,7 @@ TEST(DateTime_Test, TickSleep)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 1);
   EXPECT_LT(Delta_U32, i_U32 * 1 * 3); // Win 1562 Lin 106 New Win with timeBeginPeriod:124
-  printf("1: %d\r\n", Delta_U32);
+  //printf("1: %d\r\n", Delta_U32);
 
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
@@ -447,7 +447,7 @@ TEST(DateTime_Test, TickSleep)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 5);
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32) * 5.0f * 1.5f)); // Win 1562 Lin 506 New Win with timeBeginPeriod:517
-  printf("5: %d\r\n", Delta_U32);
+  //printf("5: %d\r\n", Delta_U32);
 
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
@@ -457,7 +457,7 @@ TEST(DateTime_Test, TickSleep)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 10);
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 10) * 1.5f)); // Win 1562 Lin 1005 New Win with timeBeginPeriod:1021
-  printf("10: %d\r\n", Delta_U32);
+  //printf("10: %d\r\n", Delta_U32);
 
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
@@ -467,7 +467,7 @@ TEST(DateTime_Test, TickSleep)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 20);
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 20) * 1.5f)); // Win 3125 Lin 2005 New Win with timeBeginPeriod:2041
-  printf("20: %d\r\n", Delta_U32);
+  //printf("20: %d\r\n", Delta_U32);
 
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
@@ -477,7 +477,7 @@ TEST(DateTime_Test, TickSleep)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 40);
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 40) * 1.1f)); // Win 4688 Lin 4006 New Win with timeBeginPeriod:4074
-  printf("40: %d\r\n", Delta_U32);
+  //printf("40: %d\r\n", Delta_U32);
 
   Start_U32 = Bof_GetMsTickCount();
   Sts_E = Bof_Now(FirstDateTime);

@@ -240,7 +240,7 @@ BOFERR BofSocketServer::Connect(uint32_t _TimeoutInMs_U32, const std::string &_r
         if (SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_TCP)
         {
           Rts_E = BOF_ERR_ENOMEM;
-          BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0;%d.%d.%d.%d:%d", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
+          BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0%c%d.%d.%d.%d:%d", BOF_INTERFACE_ADDRESS_SEPARATOR, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
           BofSocketParam_X.ReUseAddress_B = true;
           BofSocketParam_X.NoDelay_B = true;
           BofSocketParam_X.Ttl_U32 = 0;
@@ -466,7 +466,7 @@ BOFERR BofSocketServer::ConnectToDataChannel(bool _Passive_B, std::shared_ptr<Bo
                 // Port_U16++;
 
                 Rts_E = BOF_ERR_ENOMEM;
-                TargetIp_S = Bof_Sprintf("tcp://0.0.0.0:0;%d.%d.%d.%d:%d", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
+                TargetIp_S = Bof_Sprintf("tcp://0.0.0.0:0%c%d.%d.%d.%d:%d", BOF_INTERFACE_ADDRESS_SEPARATOR, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
                 BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketServerParam_X.Name_S + "_ConnectToData";
                 BofSocketParam_X.BindIpAddress_S = "tcp://0.0.0.0:0;0.0.0.0:0";
                 BofSocketParam_X.ReUseAddress_B = true;
@@ -541,8 +541,7 @@ BOFERR BofSocketServer::ListenForDataChannelConnection(bool _Passive_B, std::sha
           BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketServerParam_X.Name_S + "_DataListener";
           BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 1;
           BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-          // BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://%d.%d.%d.%d:%d;0.0.0.0:0", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
-          BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0;%d.%d.%d.%d:%d", Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
+          BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://0.0.0.0:0%c%d.%d.%d.%d:%d", BOF_INTERFACE_ADDRESS_SEPARATOR, Ip1_U32, Ip2_U32, Ip3_U32, Ip4_U32, Port_U16);
           BofSocketParam_X.ReUseAddress_B = true;
           BofSocketParam_X.NoDelay_B = true;
           BofSocketParam_X.Ttl_U32 = 0;

@@ -2514,11 +2514,8 @@ BOFERR Bof_AlignedMemFree(BOF_BUFFER &_rBuffer_X)
     }
     //	printf("=======> DELETE Zone %d Must %d handle %x:%p data %lx:%p\n",pAllocateBuffer_X->AllocateZone_E, _rBuffer_X.MustBeDeleted_B, sizeof(BOF_BUFFER_ALLOCATE_HEADER), _rBuffer_X.pUser, _rBuffer_X.SizeInByte_U64, _rBuffer_X.pData_U8);
 
-    if (_rBuffer_X.MustBeDeleted_B)
-    {
-      BOF_SAFE_DELETE(pAllocateBuffer_X);
-    }
-
+    _rBuffer_X.MustBeDeleted_B = false;//Done by free or _aligned_free
+    BOF_SAFE_DELETE(pAllocateBuffer_X);
     _rBuffer_X.Reset();
   }
   return Rts_E;

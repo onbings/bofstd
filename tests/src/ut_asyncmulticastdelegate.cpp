@@ -3032,7 +3032,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
   }
 
   //  testThread.ExitThread();
-  xalloc_stats();
+  //xalloc_stats();
 }
 
 TEST(Async_Test, MulticastDelegatePerf)
@@ -3054,7 +3054,7 @@ TEST(Async_Test, MulticastDelegatePerf)
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
   }
-  printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
+  //printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
   MemberFuncStructConstPtr1MulticastDelegate.Clear();
 
   std::shared_ptr<TestClass1> psTestClass1(new TestClass1());
@@ -3067,7 +3067,7 @@ TEST(Async_Test, MulticastDelegatePerf)
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
   }
-  printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
+  //printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
 }
 
 struct NOTIFY_ARG
@@ -3126,9 +3126,9 @@ TEST(Async_Test, AsyncNotifier)
 
   ASSERT_EQ(MulticastAsyncNotifier.Unregister(&MulticastNotifyCallback), BOF_ERR_NO_ERROR);
 
-  printf("%d notif in %d ms %d still pending, wait for the end\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
+  //printf("%d notif in %d ms %d still pending, wait for the end\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
   ASSERT_EQ(MulticastAsyncNotifier.WaitForNoMoreNotificationPending(10, 5000), BOF_ERR_NO_ERROR);
-  printf("Terminated in %d ms %d still pending\n", BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
+  //printf("Terminated in %d ms %d still pending\n", BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
 }
 
 TEST(Async_Test, SyncNotifier)

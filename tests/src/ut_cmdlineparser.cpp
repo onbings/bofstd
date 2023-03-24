@@ -206,7 +206,7 @@ BOFERR CmdLineParseError(const char *_pError_c)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
-  printf("Error '%s'\r\n", _pError_c);
+  //printf("Error '%s'\r\n", _pError_c);
   return Rts_E;
 }
 
@@ -489,11 +489,11 @@ TEST_F(CmdLineParser_Test, CmdLine)
   if (S_AppParam_X.AskHelp_B)
   {
     pBofCommandLineParser_O->BuildHelpString(S_pCommandLineOption_X, std::string(ppArgument_c[0]) + "\n", HelpString_S);
-    printf("%s", HelpString_S.c_str());
+    //printf("%s", HelpString_S.c_str());
   }
   else
   {
-    printf("No help required.\n");
+    //printf("No help required.\n");
   }
 
   // goto m;
@@ -604,7 +604,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   char                pVal_c[7][256];
   */
   pBofCommandLineParser_O->BuildHelpString(S_pCommandLineOption_X, ppArgument_c[0], HelpString_S);
-  printf("%s", HelpString_S.c_str());
+  //printf("%s", HelpString_S.c_str());
 
   BOF_SAFE_DELETE(pBofCommandLineParser_O);
 }

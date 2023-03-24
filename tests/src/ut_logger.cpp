@@ -72,8 +72,7 @@ const std::string FILELOGDIR = "C:/tmp/log/";
 #else
 const std::string FILELOGDIR = "/tmp/log/";
 #endif
-// const std::string                            LOGHEADER = "%N %d/%m/%C %H:%M:%S:%e %L %n: %v";
-const std::string LOGHEADER = "%i %d/%m/%C %H:%M:%S:%e %L %n: %^%v%$";
+const std::string LOGHEADER = "%N%d/%m/%C %H:%M:%S:%e %L %n %^%v%$";
 const uint32_t MAXLOGSIZEINBYTE = 0x1000;
 const uint32_t MAXNUMBEROFLOGFILE = 3;
 const uint32_t MAXNUMBEROFLOGGERQUEUEENTRIES = 0x100;
@@ -90,7 +89,7 @@ const uint32_t LOGLOOPMAX = MAXLOGSIZEINBYTE;
 
 void OnError(const std::string &_rErr_S)
 {
-  printf("OnError %s%s", _rErr_S.c_str(), Bof_Eol());
+  //printf("OnError %s%s", _rErr_S.c_str(), Bof_Eol());
 }
 const char *OnErrorCodeToString(uint32_t _ErrorCode_U32)
 {
@@ -98,13 +97,13 @@ const char *OnErrorCodeToString(uint32_t _ErrorCode_U32)
 }
 
 static std::vector<BOF_LOG_CHANNEL_PARAM> S_LogChannelList = {
-    {"LogChannel1", FILELOGDIR + "unlimited.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
-    {"LogChannel2", FILELOGDIR + "limited.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::WARNING, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, MAXLOGSIZEINBYTE, 0, 0},
-    {"LogChannel3", FILELOGDIR + "rotating.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::CRITICAL, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, MAXLOGSIZEINBYTE, MAXNUMBEROFLOGFILE, 0},
-    {"LogChannel4", FILELOGDIR + "daily.log", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::CRITICAL, BOF_LOG_CHANNEL_SINK::TO_DAILYFILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0xFFFFFFFF, 0, 60},
-    {"LogChannel5", "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_RAM_CIRCULAR_BUFFER, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, MAXLOGSIZEINBYTE, 0, 0},
-    {"LogChannel6", "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_STDERR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
-    {"LogChannel7", "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
+    {"LogChannel1", FILELOGDIR + "unlimited.log", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
+    {"LogChannel2", FILELOGDIR + "limited.log", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::WARNING, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, MAXLOGSIZEINBYTE, 0, 0},
+    {"LogChannel3", FILELOGDIR + "rotating.log", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::CRITICAL, BOF_LOG_CHANNEL_SINK::TO_FILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, MAXLOGSIZEINBYTE, MAXNUMBEROFLOGFILE, 0},
+    {"LogChannel4", FILELOGDIR + "daily.log", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::CRITICAL, BOF_LOG_CHANNEL_SINK::TO_DAILYFILE, BOF_LOG_CHANNEL_FLAG::DELETE_PREVIOUS_LOGFILE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0xFFFFFFFF, 0, 60},
+    {"LogChannel5", "", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_RAM_CIRCULAR_BUFFER, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, MAXLOGSIZEINBYTE, 0, 0},
+    {"LogChannel6", "", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_STDERR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
+    {"LogChannel7", "", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::DBG, BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0},
 };
 
 uint32_t FillLog(uint32_t _Offset_U32, uint32_t _MaxLoop_U32, std::vector<BOF_LOG_CHANNEL_PARAM> _LogChannelList)
@@ -149,7 +148,7 @@ uint32_t FillLog(uint32_t _Offset_U32, uint32_t _MaxLoop_U32, std::vector<BOF_LO
       Sts_E = psLogChannel->V_Log(BOF_LOG_CHANNEL_LEVEL::CRITICAL, Bof_Sprintf("Fast Line %d", j_U32));
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       Rts_U32++;
-      Sts_E = rBofLog.Log("Log_Channel_0", BOF_LOG_CHANNEL_LEVEL::CRITICAL, "Slow Line {0}", j_U32);
+      Sts_E = rBofLog.Log("Log_Channel_0", BOF_LOG_CHANNEL_LEVEL::CRITICAL, "Slow Line %d", j_U32);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     }
     Sts_E = psLogChannel->V_Flush();
@@ -204,17 +203,17 @@ uint32_t FillLog(uint32_t _Offset_U32, uint32_t _MaxLoop_U32, std::vector<BOF_LO
       Val_U16 = static_cast<uint16_t>(Bof_Random(false, 0x0000, 0xFFFF));
       Val_U32 = Bof_Random(false, 0x00000000, 0xFFFFFFFF);
       Val_U64 = Bof_Random(false, 0x00000000, 0xFFFFFFFF);
-      Sts_E = BofLogger::S_Instance().Log(ChannelName_S, BOF_LOG_CHANNEL_LEVEL::TRACE, "BofLogger1 {0} {1} {2} {3} {4} {5} {6} {7}", pVal_c, Val_S.c_str(), Val_f, Val_lf, Val_U8, Val_U16, Val_U32, Val_U64);
+      Sts_E = BofLogger::S_Instance().Log(ChannelName_S, BOF_LOG_CHANNEL_LEVEL::TRACE, "BofLogger1 %s %s %f %lf %d %d %d %zd", pVal_c, Val_S.c_str(), Val_f, Val_lf, Val_U8, Val_U16, Val_U32, Val_U64);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       TotalLine_U32++;
     }
     Rts_U32 += TotalLine_U32;
     Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-    printf("IO %d line in %d ms->%d line/sec%s", j_U32, Delta_U32, Delta_U32 ? TotalLine_U32 * 1000 / Delta_U32 : 0, Bof_Eol());
+    //printf("IO %d line in %d ms->%d line/sec%s", j_U32, Delta_U32, Delta_U32 ? TotalLine_U32 * 1000 / Delta_U32 : 0, Bof_Eol());
     Delta_U32 = Bof_ElapsedMsTime(Start_U32);
     Sts_E = psLogChannel->V_Flush();
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    printf("FLUSH %d line in %d ms->%d line/sec%s", j_U32, Delta_U32, Delta_U32 ? TotalLine_U32 * 1000 / Delta_U32 : 0, Bof_Eol());
+    //printf("FLUSH %d line in %d ms->%d line/sec%s", j_U32, Delta_U32, Delta_U32 ? TotalLine_U32 * 1000 / Delta_U32 : 0, Bof_Eol());
   }
   return Rts_U32;
 }
@@ -238,7 +237,7 @@ TEST_F(Logger_Test, LoggerInit)
 
   BofLogger &rBofLog = BofLogger::S_Instance();
   rBofLog.InitializeLogger({"SyncLogger", 0, 0, false, BOF_LOGGER_OVERFLOW_POLICY::WAIT, OnError, OnErrorCodeToString});
-  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), {TEST_MAINLOGCHANNEL, "", LOGHEADER, false, BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0});
+  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), {TEST_MAINLOGCHANNEL, "", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0});
 
   // rBofLog.LogMask(IPSWITCHER_MAINLOGCHANNEL, 0xFFFFFFFF ^ (DBG_FCT_ENTRY | DBG_FCT_EXIT | DBG_INFO));
   for (Mask_U32 = 1, i_U32 = 0; i_U32 < LogMaskNames_S.size(); i_U32++, Mask_U32 <<= 1)
@@ -400,7 +399,6 @@ TEST_F(Logger_Test, LogAlways)
   std::vector<std::string> LogMaskNamesCollection{/*0*/ "INIT", "INFO", "CONNECT", "", "", "", "", "", /*8*/ "",  "", "", "", "", "", "",       "",
                                                   /*16*/ "",    "",     "",        "", "", "", "", "", /*24*/ "", "", "", "", "", "", "ALWAYS", "ERROR"}; // see enum LOG_CHANNEL_FLAG_MASK
   LoggerParam_X.Name_S = MFS_LOGGER_MAINCHANNEL;
-  // LoggerParam_X.LogPattern_S = "%i %L %^%v%$";
   LoggerParam_X.MaxNumberOfAsyncLogQueueEntry_U32 = 0x800;
   LoggerParam_X.AsyncAutoFushIntervalInMs_U32 = 0;
   LoggerParam_X.FastFormat_B = true;
@@ -409,7 +407,7 @@ TEST_F(Logger_Test, LogAlways)
   LoggerParam_X.OnErrorCodeToString = nullptr;
   rBofLog.InitializeLogger(LoggerParam_X);
   rBofLog.AddLogChannel(std::make_shared<BOF::BofLogChannelSpdLog>(),
-                        {MFS_LOGGER_MAINCHANNEL, "", "%i %L %^%v%$", false, BOF::BOF_LOG_CHANNEL_LEVEL::TRACE, BOF::BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF::BOF_LOG_CHANNEL_FLAG::NONE, BOF::BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, 0, 0, 0});
+                        {MFS_LOGGER_MAINCHANNEL, "", "%N%L %^%v%$", BOF::BOF_LOG_CHANNEL_LEVEL::TRACE, BOF::BOF_LOG_CHANNEL_SINK::TO_STDOUT_COLOR, BOF::BOF_LOG_CHANNEL_FLAG::NONE, BOF::BOF_LOGGER_OVERFLOW_POLICY::OVERWRITE, 0, 0, 0});
 
   rBofLog.LogMask(MFS_LOGGER_MAINCHANNEL, 0xFFFFFFFF ^ (0));
   for (Mask_U32 = 1, i_U32 = 0; i_U32 < LogMaskNamesCollection.size(); i_U32++, Mask_U32 <<= 1)
@@ -481,34 +479,27 @@ TEST_F(Logger_Test, LoggerMultiChannel)
           LogLevelColor_E = BOF_LOG_LEVEL_COLOR::LOG_COLOR_FORE_BLACK;
         }
       }
-      Sts_E = rBofLog.Log(S_LogChannelList[i_U32].ChannelName_S, BOF_LOG_CHANNEL_LEVEL::CRITICAL, "Log {0:08X}", j_U32);
+      Sts_E = rBofLog.Log(S_LogChannelList[i_U32].ChannelName_S, BOF_LOG_CHANNEL_LEVEL::CRITICAL, "Log %08X", j_U32);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     }
     Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-    printf("Io on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
+    //printf("Io on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
     Sts_E = rBofLog.Flush(S_LogChannelList[i_U32].ChannelName_S);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-    printf("Flush on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
+    //printf("Flush on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
   }
   Bof_MsSleep(500);
-  // 11 17/10/22 18:22:03:530 C LogChannel1: Log 00000008
-  uint32_t OneLineSize_U32 = ((2 + 1 + 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 2) + 3 + 1 + 8 + static_cast<uint32_t>(strlen(Bof_Eol()) * 2));
-  //  uint32_t OneLineSize_U32 = ((6 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 2 + 8 + 1) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol())));
-  uint32_t FileSize_U32 = (j_U32 * OneLineSize_U32) + strlen(Bof_Eol());
+  //24/03/23 10:59:15:664 C LogChannel7 00000774 Log 00000305
+  uint32_t OneLineSize_U32 = 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + static_cast<uint32_t>(strlen(Bof_Eol()));
+  uint32_t FileSize_U32 = (j_U32 * OneLineSize_U32);
   EXPECT_EQ(Bof_GetFileSize(S_LogChannelList[0].FileLogPath), FileSize_U32);
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[1].FileLogPath), MAXLOGSIZEINBYTE);
 
-  // OneLineSize_U32 = ((8 + 1 + 12 + 1 + 1 + 1 + strlen(S_LogChannelList[2].ChannelName_S.c_str()) + 2 + 8 + 1) + 4 + 8 + strlen(Bof_Eol()));
   uint32_t LinePerFile_U32 = MAXLOGSIZEINBYTE / OneLineSize_U32;
   uint32_t NbLineInCurrentFile_U32 = j_U32 % LinePerFile_U32;
-  //  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * ((6 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 2 + 8 + 1) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol())));
-  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * ((2 + 1 + 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 2) + 4 + 8 + static_cast<uint32_t>(strlen(Bof_Eol()) * 2));
-  /*
-11 23/10/22 16:03:49:505 C LogChannel3: Log 000002FF
-11 23/10/22 16:03:49:505 C LogChannel3: Log 00000300
-709 23/10/22 16:03:49:506 C LogChannel3: Log 00000301
-*/
+  //24/03/23 11:02:33:065 C LogChannel3 00000628 Log 00000273
+  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * (8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + static_cast<uint32_t>(strlen(Bof_Eol())));
   // printf("%d %d %d\n", Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32, RotatingSize_U32 + 1);
   EXPECT_LE(RotatingSize_U32, Bof_GetFileSize(S_LogChannelList[2].FileLogPath));
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32 + 2);
@@ -519,7 +510,7 @@ TEST_F(Logger_Test, LoggerMultiChannel)
     Start_U32 = Bof_GetMsTickCount();
     for (j_U32 = 0; j_U32 < (MAXNUMBEROFLOGGERQUEUEENTRIES * 3) + 7; j_U32++)
     {
-      Sts_E = rBofLog.Log(S_LogChannelList[i_U32].ChannelName_S, BOF_LOG_CHANNEL_LEVEL::CRITICAL, "Log {0:08X}", i_U32);
+      Sts_E = rBofLog.Log(S_LogChannelList[i_U32].ChannelName_S, BOF_LOG_CHANNEL_LEVEL::CRITICAL, "Log %08X", i_U32);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       if (j_U32 == MAXNUMBEROFLOGGERQUEUEENTRIES)
       {
@@ -527,11 +518,11 @@ TEST_F(Logger_Test, LoggerMultiChannel)
       }
     }
     Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-    printf("Io on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
+    //printf("Io on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
     Sts_E = rBofLog.Flush(S_LogChannelList[i_U32].ChannelName_S);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-    printf("Flush on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
+    //printf("Flush on channel %s in %s: %d log in %d ms->%d log/sec%s", S_LogChannelList[i_U32].ChannelName_S.c_str(), S_LogChannelList[i_U32].FileLogPath.FullPathName(false).c_str(), j_U32, Delta_U32, Delta_U32 ? (j_U32 * 1000) / Delta_U32 : 0, Bof_Eol());
   }
   rBofLog.ShutdownLogger();
 }

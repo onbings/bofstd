@@ -90,50 +90,9 @@ int main(int argc, char *argv[])
 #endif
   testing::InitGoogleTest(&argc, argv);
   int Rts_i;
-  //	::testing::GTEST_FLAG(filter) = "XmlParser_Test.Xml";
-  //	::testing::GTEST_FLAG(filter) = "JsonParser_Test.JsonCfg";
-  //	::testing::GTEST_FLAG(filter) = "JsonParser_Test.IpSenderDeser";
-  //	::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:JsonWriter_Test.*"; //JsonCfg";
-  //	::testing::GTEST_FLAG(filter) ="JsonParser_Test.JsonCfg";
-  //	::testing::GTEST_FLAG(filter) = "JsonWriter_Test.IpSwitcherSerDeser";
-  //	::testing::GTEST_FLAG(filter) ="Timecode_Test.*:CmdLineParser_Test.CmdLine";
-  //	::testing::GTEST_FLAG(filter) = "Bit_Test.ErrorCode";	//test dailed on tc (file/tempo/...
-  ::testing::GTEST_FLAG(filter) = "Enum_Test.*";
-  //	::testing::GTEST_FLAG(filter) = "String_Test.*:XmlParser_Test.*:JsonParser_Test.*:Bof2d_Test.*:Fs_Test.*";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";	// :Uri_Test.*";
-  //	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*";
-  //  	::testing::GTEST_FLAG(filter) = "XmlWriter_Test.Xml";
-  //	::testing::GTEST_FLAG(filter) = "SocketOs_Test.*:BofNaryTreeKv_Test.*:Path_Test.*:Uri_Test.*:Fs_Test.*";
-  //	::testing::GTEST_FLAG(filter) = "BofNaryTreeKv_Test.*:SocketOs_Test.*:Uri_Test.*";
-  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*"; //Option";  // CmdLine";	// XmlWriter_Test.Xml";
-  //	::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorToJson:Bof2d_Test.MediaDetectorFromJson";	// XmlWriter_Test.Xml";
-  //	::testing::GTEST_FLAG(filter) = "Timecode_Test.*:CmdLineParser_Test.*:System_Test.*";
-  //::testing::GTEST_FLAG(filter) = "Bof2d_Test.MediaDetectorParseBuffer";  // MediaDetectorParam";
-  //::testing::GTEST_FLAG(filter) = "Guid_Test.*:JsonParser_Test.*:XmlParser_Test.*";
-  // ::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
-  //  	::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.CmdLine";
-  //    ::testing::GTEST_FLAG(filter) = "Fs_Test.FileLayout:Fs_Test.DirEnum";
-  //  ::testing::GTEST_FLAG(filter) = "Fs_Test.ResetFileContentReOpenMode";
-  ::testing::GTEST_FLAG(filter) = "SerializerTest.*";
-  // ::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
-  /*
-* under linux:
-[  PASSED  ] 144 tests.
-[  FAILED  ] 9 tests, listed below:
-[  FAILED  ] SocketOs_Test.SocketAddress
-[  FAILED  ] SocketTcp_Test.TcpClientTest
-[  FAILED  ] SocketUdp_Test.FilterMulticastOnIpAddress
-[  FAILED  ] SocketUdp_Test.ScatterGatherIo
-[  FAILED  ] SocketUdp_Test.UdpClientTest
-[  FAILED  ] Logger_Test.LoggerMultiChannel
-[  FAILED  ] XmlWriter_Test.Xml
-[  FAILED  ] System_Test.Util_AlignedAlloc
-[  FAILED  ] Threading_Test.SingleThread
+  //::testing::GTEST_FLAG(filter) = "Enum_Test.*";
+  //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 
- 9 FAILED TESTS
-  YOU HAVE 5 DISABLED TESTS
-
-*/
   Rts_i = RUN_ALL_TESTS();
 
   Sts_E = Bof_Shutdown();
@@ -148,25 +107,10 @@ int main(int argc, char *argv[])
 }
 
 /*
+* WINDOWS
+[----------] Global test environment tear-down
+[==========] 162 tests from 43 test suites ran. (54946 ms total)
+[  PASSED  ] 162 tests.
 
-[==========] 153 tests from 41 test suites ran. (86966 ms total)
-[  PASSED  ] 144 tests.
-[  FAILED  ] 9 tests, listed below:
-[  FAILED  ] SocketOs_Test.SocketAddress
-[  FAILED  ] SocketTcp_Test.TcpClientTest
-[  FAILED  ] SocketUdp_Test.FilterMulticastOnIpAddress
-[  FAILED  ] SocketUdp_Test.ScatterGatherIo
-[  FAILED  ] SocketUdp_Test.UdpClientTest
-[  FAILED  ] Logger_Test.LoggerMultiChannel
-[  FAILED  ] XmlWriter_Test.Xml
-[  FAILED  ] System_Test.Util_AlignedAlloc
-[  FAILED  ] Threading_Test.SingleThread
-
- 9 FAILED TESTS
-  YOU HAVE 5 DISABLED TESTS
-
-
-Press any key followed by enter to to quit ...
-bha@d8d8bb40e3bd:~/bld/bofstd/tests$
-
+  YOU HAVE 2 DISABLED TESTS
 */

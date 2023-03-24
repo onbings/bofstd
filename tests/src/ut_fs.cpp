@@ -572,7 +572,7 @@ TEST(Fs_Test, ResetFileContentReOpenMode)
       Start_U32 = BOF::Bof_GetMsTickCount();
       Sts_E = Bof_ReadFile("C:/Users/User/Downloads/32-MB-docx-file-download.docx", RawData_S);
       Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
-      printf("[%d] Delta %d ms Sz %zd B %zd KB %zd MB Err %s\n", i_U32, Delta_U32, RawData_S.size(), RawData_S.size() / 1024, RawData_S.size() / 1024 / 1024,BOF::Bof_ErrorCode(Sts_E));
+      //printf("[%d] Delta %d ms Sz %zd B %zd KB %zd MB Err %s\n", i_U32, Delta_U32, RawData_S.size(), RawData_S.size() / 1024, RawData_S.size() / 1024 / 1024,BOF::Bof_ErrorCode(Sts_E));
     }
   */
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;

@@ -66,8 +66,7 @@ BofSocket::BofSocket(BOFSOCKET _Socket_h, const BOF_SOCKET_PARAM &_rBofSocketPar
 BofSocket::~BofSocket()
 {
   S_mBofSocketBalance--;
-  // BOF_DBG_PRINTF("@@@%s ~BofSocket %08X Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mSocket,S_mBofSocketBalance.load());
-
+  //BOF_DBG_PRINTF("@@@%s ~BofSocket %zX Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket,S_mBofSocketBalance.load());
   ShutdownSocket();
 }
 
@@ -267,10 +266,52 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
     Rts_E = SetupSocket(false, Bind_B);
   }
   mErrorCode_E = Rts_E;
-  S_mBofSocketBalance++;
-  // BOF_DBG_PRINTF("@@@%s InitializeSocket %08X Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
-
+  S_mBofSocketBalance++; 
+  //BOF_DBG_PRINTF("@@@%s InitializeSocket %zX Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
   return Rts_E;
+}
+
+//See void FindFreePort(uint32_t _PortMin_U32, uint32_t _PortMax_U32) in ut_bofio
+
+bool BofSocket::S_IsPortFree(uint16_t _Port_U18)
+{
+  bool Rts_B = false;
+  BOF_SOCKET_PARAM BofSocketParam_X;
+  uint32_t Port_U32;
+  std::unique_ptr<BofSocket> puSocket;
+  BOFERR Sts_E;
+
+  BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "TestPort_" + std::to_string(_Port_U18);
+  BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 1;
+  BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
+  BofSocketParam_X.BindIpAddress_S = Bof_Sprintf("tcp://127.0.0.1:%d", _Port_U18);
+  BofSocketParam_X.ReUseAddress_B = true;
+  BofSocketParam_X.NoDelay_B = true;
+  BofSocketParam_X.Ttl_U32 = 0;
+  BofSocketParam_X.BroadcastPort_U16 = 0;
+  BofSocketParam_X.MulticastInterfaceIpAddress_S = "";
+  BofSocketParam_X.MulticastSender_B = false;
+  BofSocketParam_X.KeepAlive_B = false;
+  BofSocketParam_X.EnableLocalMulticast_B = false;
+  puSocket = std::make_unique<BofSocket>(BofSocketParam_X);
+  if (puSocket != nullptr)
+  {
+    Sts_E = puSocket->LastErrorCode();
+    if (Sts_E == BOF_ERR_NO_ERROR)
+    {
+      Rts_B = true;
+      //printf("Port %d is free\n", _Port_U18);
+    }
+    else
+    {
+      //printf("Port %d is NOT free\n", _Port_U18);
+    }
+  }
+  else
+  {
+    //printf("Unable to create socket on port %d\n", _Port_U18);
+  }
+  return Rts_B;
 }
 
 /*!

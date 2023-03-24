@@ -194,14 +194,14 @@ TEST(Path_Test, PathConstructorDestructorWindows)
   EXPECT_STREQ(j.FileNameWithoutExtension().c_str(), "");
   /*
   BofPath i("data/dir/./../hello.");
-  printf("i %s %s\n", Pwd_S.c_str(), i.FullPathName(false).c_str());
+  //printf("i %s %s\n", Pwd_S.c_str(), i.FullPathName(false).c_str());
   BofPath j("data/dir/../../abc");
-  printf("j %s %s\n", Pwd_S.c_str(), j.FullPathName(false).c_str());
+  //printf("j %s %s\n", Pwd_S.c_str(), j.FullPathName(false).c_str());
 
   BofPath k("data/../dir/");
-  printf("k %s %s\n", Pwd_S.c_str(), k.FullPathName(false).c_str());
+  //printf("k %s %s\n", Pwd_S.c_str(), k.FullPathName(false).c_str());
   BofPath l("data/../../dir/");
-  printf("l %s %s\n", Pwd_S.c_str(), l.FullPathName(false).c_str());
+  //printf("l %s %s\n", Pwd_S.c_str(), l.FullPathName(false).c_str());
   */
 
   BofPath Path0("C:\\");

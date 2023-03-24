@@ -56,11 +56,11 @@ static void *ServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, voi
   Cpt_U32 = 0;
   while (!_rIsThreadLoopMustExit_B)
   {
-    printf("Server waits for data[%d]%s", Cpt_U32, Bof_Eol());
+    //printf("Server waits for data[%d]%s", Cpt_U32, Bof_Eol());
     Nb_U32 = sizeof(pBuffer_U8);
     memset(pBuffer_U8, 0, Nb_U32);
     Sts_E = pContext_X->pBofPipeServer->V_ReadData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
-    printf("Server got '%d:%s' data sts %d%s", Nb_U32, pBuffer_U8, Sts_E, Bof_Eol());
+    //printf("Server got '%d:%s' data sts %d%s", Nb_U32, pBuffer_U8, Sts_E, Bof_Eol());
     if (Sts_E == BOF_ERR_NO_ERROR)
     {
       EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
@@ -69,13 +69,13 @@ static void *ServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, voi
       strcat(reinterpret_cast<char *>(pBuffer_U8), pId_c);
       Nb_U32 = strlen(reinterpret_cast<char *>(pBuffer_U8));
       Sts_E = pContext_X->pBofPipeServer->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
-      printf("Server send '%d:%s' data sts %d%s", Nb_U32, pBuffer_U8, Sts_E, Bof_Eol());
+      //printf("Server send '%d:%s' data sts %d%s", Nb_U32, pBuffer_U8, Sts_E, Bof_Eol());
       */
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
     }
   }
-  printf("Leave server thread\r\n");
+  //printf("Leave server thread\r\n");
   return nullptr;
 }
 
@@ -146,7 +146,7 @@ TEST(Pipe_Test, UdpPipe)
         */
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  printf("%d loop in %d ms%s", i_U32, Delta_U32, Bof_Eol());
+  //printf("%d loop in %d ms%s", i_U32, Delta_U32, Bof_Eol());
 
   Sts_E = Bof_DestroyThread(ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);

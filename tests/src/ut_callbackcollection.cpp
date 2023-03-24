@@ -36,30 +36,32 @@ using MY_VOID_CALLBACK = std::function<void(const MY_CALLBACK_ARG &)>;
 using MY_VOID2_CALLBACK = std::function<void(int)>;
 using MY_INT_CALLBACK = std::function<int(int)>;
 
-static int CallbackCounter_i = 0;
+static int S_CallbackCounter_i = 0;
 BOFERR MyCallback1(const MY_CALLBACK_ARG &_rArg_X)
 {
-  printf("MyCallback1 %d: a %d b %f c %s\n", ++CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
-  return (CallbackCounter_i > 10) ? BOF_ERR_CANCEL : BOF_ERR_NO_ERROR;
+  S_CallbackCounter_i++;
+  //printf("MyCallback1 %d: a %d b %f c %s\n", S_CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
+  return (S_CallbackCounter_i > 10) ? BOF_ERR_CANCEL : BOF_ERR_NO_ERROR;
 }
 BOFERR MyCallback2(const MY_CALLBACK_ARG &_rArg_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  printf("MyCallback2 %d: a %d b %f c %s\n", ++CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
+  S_CallbackCounter_i++;
+  //printf("MyCallback2 %d: a %d b %f c %s\n", S_CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
   return Rts_E;
 }
 void MyCallback3(const MY_CALLBACK_ARG &_rArg_X)
 {
-  printf("MyCallback3 %d: a %d b %f c %s\n", ++CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
+  //printf("MyCallback3 %d: a %d b %f c %s\n", ++CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
 }
 int MyCallback4(int _a_i)
 {
-  printf("MyCallback4 %d: other a=%d\n", ++CallbackCounter_i, _a_i);
+  //printf("MyCallback4 %d: other a=%d\n", ++CallbackCounter_i, _a_i);
   return _a_i * 2;
 }
 void MyCallback5(int _a_i)
 {
-  printf("MyCallback5 %d: other a=%d\n", ++CallbackCounter_i, _a_i);
+  //printf("MyCallback5 %d: other a=%d\n", ++CallbackCounter_i, _a_i);
 }
 
 TEST(CallbackCollection_Test, Void)
@@ -112,10 +114,10 @@ TEST(CallbackCollection_Test, Constructor)
   for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pId_U32); i_U32++)
   {
     Sts_E = BofCallbackCollection<MY_CALLBACK>::S_Instance().Call(pId_U32[i_U32], Arg_X);
-    printf("i=%d mod3=%d sts %d\n", i_U32, (i_U32 % 3), Sts_E);
+    //printf("i=%d mod3=%d sts %d\n", i_U32, (i_U32 % 3), Sts_E);
     if (i_U32 % 3)
     {
-      if (i_U32 >= 7)
+      if (i_U32 >= 10)
       {
         EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
       }

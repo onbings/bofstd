@@ -889,26 +889,34 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsag
   FileSize_U64 = BOF::Bof_GetFileSize(_rPath);
   if (FileSize_U64 != static_cast<uint64_t>(-1))
   {
-    Rts_E = BOF_ERR_ENOMEM;
     _rBufferToDeleteAfterUsage_X.Reset();
     _rBufferToDeleteAfterUsage_X.MustBeDeleted_B = true;
     _rBufferToDeleteAfterUsage_X.Size_U64 = FileSize_U64;
     _rBufferToDeleteAfterUsage_X.Capacity_U64 = FileSize_U64;
-    _rBufferToDeleteAfterUsage_X.pData_U8 = new uint8_t[FileSize_U64];
-    if (_rBufferToDeleteAfterUsage_X.pData_U8)
+    if (FileSize_U64 == 0)
     {
-      Rts_E = Bof_OpenFile(_rPath, true, false, Io);
-      if (Rts_E == BOF_ERR_NO_ERROR)
+      Rts_E = BOF_ERR_NO_ERROR;
+      _rBufferToDeleteAfterUsage_X.pData_U8 = nullptr;
+    }
+    else
+    {
+      _rBufferToDeleteAfterUsage_X.pData_U8 = new uint8_t[FileSize_U64];
+      Rts_E = BOF_ERR_ENOMEM;
+      if (_rBufferToDeleteAfterUsage_X.pData_U8)
       {
-        Nb_U32 = static_cast<uint32_t>(_rBufferToDeleteAfterUsage_X.Capacity_U64);
-        Rts_E = Bof_ReadFile(Io, Nb_U32, _rBufferToDeleteAfterUsage_X.pData_U8);
-        _rBufferToDeleteAfterUsage_X.Size_U64 = Nb_U32;
-        Bof_CloseFile(Io);
-      }
-      if (Rts_E != BOF_ERR_NO_ERROR)
-      {
-        BOF_SAFE_DELETE(_rBufferToDeleteAfterUsage_X.pData_U8);
-        _rBufferToDeleteAfterUsage_X.Reset();
+        Rts_E = Bof_OpenFile(_rPath, true, false, Io);
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          Nb_U32 = static_cast<uint32_t>(_rBufferToDeleteAfterUsage_X.Capacity_U64);
+          Rts_E = Bof_ReadFile(Io, Nb_U32, _rBufferToDeleteAfterUsage_X.pData_U8);
+          _rBufferToDeleteAfterUsage_X.Size_U64 = Nb_U32;
+          Bof_CloseFile(Io);
+        }
+        if (Rts_E != BOF_ERR_NO_ERROR)
+        {
+          BOF_SAFE_DELETE(_rBufferToDeleteAfterUsage_X.pData_U8);
+          _rBufferToDeleteAfterUsage_X.Reset();
+        }
       }
     }
   }

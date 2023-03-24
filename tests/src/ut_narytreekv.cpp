@@ -162,12 +162,12 @@ MountPoint [NULL]
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
   std::cout << ToString_S;
 
-  printf("%s\n", ToString_S.c_str());
+  //printf("%s\n", ToString_S.c_str());
   puBofNaryTreeKv->ClearTree(RootHandle);
 #endif
 
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  std::cout << ToString_S;
+  //std::cout << ToString_S;
 
   KeyCollection.clear();
   KeyCollection.push_back("MountPoint");
@@ -224,23 +224,23 @@ MountPoint [NULL]
   EXPECT_NE(puBofNaryTreeKv->GetNodeHandle(NodeHandle, "FileZ", &NodeHandle), BOF_ERR_NO_ERROR);
 
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  std::cout << ToString_S;
+  //std::cout << ToString_S;
 
   ParentHandle = pNodeHandle[HandleIndex_U32 - 3]; // Remove FileE
   ToString_S = puBofNaryTreeKv->ToString(true, ParentHandle);
-  std::cout << ToString_S;
+  //std::cout << ToString_S;
   puBofNaryTreeKv->ClearTree(ParentHandle);
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  std::cout << ToString_S;
+  //std::cout << ToString_S;
 
   ParentHandle = pNodeHandle[HandleIndex_U32 - 5]; // Remove Dir4
   ToString_S = puBofNaryTreeKv->ToString(true, ParentHandle);
-  std::cout << ToString_S;
+  //std::cout << ToString_S;
   puBofNaryTreeKv->ClearTree(ParentHandle);
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  std::cout << ToString_S;
+  //std::cout << ToString_S;
 
   puBofNaryTreeKv->ClearTree(RootHandle);
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  std::cout << ToString_S;
+  //std::cout << ToString_S;
 }

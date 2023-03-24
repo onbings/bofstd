@@ -1150,7 +1150,7 @@ bool Bof_IsMulticastIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRE
     NbElem_U32 = IsIpV6_B ? 8 : 4;
     if (IpDigitCollection.size() == NbElem_U32)
     {
-      Rts_B = IsIpV6_B ? ((IpDigitCollection[0] & 0xFF00) == 0xE000) : ((IpDigitCollection[0] & 0xF0) == 0xE0);
+      Rts_B = IsIpV6_B ? ((IpDigitCollection[0] & 0xFF00) == 0xFF00) : ((IpDigitCollection[0] & 0xF0) == 0xE0);
     }
   }
   return Rts_B;

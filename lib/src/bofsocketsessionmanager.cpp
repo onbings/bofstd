@@ -208,8 +208,7 @@ BofSocketSessionManager::BofSocketSessionManager(IBofSocketSessionFactory *_pIBo
           }
         }
       }
-
-      BOF_ASSERT(mErrorCode_E == BOF_ERR_NO_ERROR);
+//      BOF_ASSERT(mErrorCode_E == BOF_ERR_NO_ERROR);
     }
   }
 }

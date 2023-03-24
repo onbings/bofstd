@@ -641,16 +641,12 @@ public:
 
       if (mAddLineNumber_B)
       {
-        sprintf(pLineNumber_c, "%08X ", ++mLineNumber);
+        sprintf(pLineNumber_c, "%08d ", ++mLineNumber);
         Line_S = std::string(pLineNumber_c) + _rLogMsg_S.c_str();
       }
       else
       {
         Line_S = _rLogMsg_S.c_str();
-      }
-      if (mLogChannelParam_X.AutoAddEol_B)
-      {
-        Line_S += Bof_Eol();
       }
       psLogger->log(SpdLogLevel_E, Line_S.c_str());
     }
@@ -1062,62 +1058,58 @@ public:
       }
       /*
       Pattern flags
-
-      Pattern flags are in the form of %flag and resembles the strftime function:
-
-      flag	meaning	example
-      %v	The actual text to log	"some user text"
-      %t	Thread id	"1232"
-      %P	Process id	"3456"
-      %n	Logger's name	"some logger name"
-      %l	The log level of the message	"debug", "info", etc
-      %L	Short log level of the message	"D", "I", etc
-      %a	Abbreviated weekday name	"Thu"
-      %A	Full weekday name	"Thursday"
-      %b	Abbreviated month name	"Aug"
-      %B	Full month name	"August"
-      %c	Date and time representation	"Thu Aug 23 15:35:46 2014"
-      %C	Year in 2 digits	"14"
-      %Y	Year in 4 digits	"2014"
-      %D or %x	Short MM/DD/YY date	"08/23/14"
-      %m	Month 1-12	"11"
-      %d	Day of month 1-31	"29"
-      %H	Hours in 24 format 0-23	"23"
-      %I	Hours in 12 format 1-12	"11"
-      %M	Minutes 0-59	"59"
-      %S	Seconds 0-59	"58"
-      %e	Millisecond part of the current second 0-999	"678"
-      %f	Microsecond part of the current second 0-999999	"056789"
-      %F	Nanosecond part of the current second 0-999999999	"256789123"
-      %p	AM/PM	"AM"
-      %r	12 hour clock	"02:55:02 pm"
-      %R	24-hour HH:MM time, equivalent to %H:%M	"23:55"
-      %T or %X	ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S	"23:55:59"
-      %z	ISO 8601 offset from UTC in timezone ([+/-]HH:MM)	"+02:00"
-      %E	Seconds since the epoch	"1528834770"
-      %i	Message sequence number (disabled by default - edit 'tweakme.h' to enable)	"1154"
-      %%	The % sign	"%"
-      %+	spdlog's default format	"[2014-10-31 23:46:59.678] [mylogger] [info] Some message"
-      %^	start color range	"[mylogger] [info(green)] Some message"
-      %$	end color range (for example %^[+++]%$ %v)	[+++] Some message
-      %@	Source file and line (use SPDLOG_TRACE(..),SPDLOG_INFO(...) etc.)	my_file.cpp:123
-      %s	Source file (use SPDLOG_TRACE(..),SPDLOG_INFO(...) etc.)	my_file.cpp
-      %#	Source line (use SPDLOG_TRACE(..),SPDLOG_INFO(...) etc.)	123
-      %!	Source function (use SPDLOG_TRACE(..),SPDLOG_INFO(...) etc. see tweakme for pretty-print)	my_func
-
-      // -----> Replaced by %i and SPDLOG_ENABLE_MESSAGE_COUNTER
+%v	The actual text to log	"some user text"
+%t	Thread id	"1232"
+%P	Process id	"3456"
+%n	Logger's name	"some logger name"
+%l	The log level of the message	"debug", "info", etc
+%L	Short log level of the message	"D", "I", etc
+%a	Abbreviated weekday name	"Thu"
+%A	Full weekday name	"Thursday"
+%b	Abbreviated month name	"Aug"
+%B	Full month name	"August"
+%c	Date and time representation	"Thu Aug 23 15:35:46 2014"
+%C	Year in 2 digits	"14"
+%Y	Year in 4 digits	"2014"
+%D or %x	Short MM/DD/YY date	"08/23/14"
+%m	Month 01-12	"11"
+%d	Day of month 01-31	"29"
+%H	Hours in 24 format 00-23	"23"
+%I	Hours in 12 format 01-12	"11"
+%M	Minutes 00-59	"59"
+%S	Seconds 00-59	"58"
+%e	Millisecond part of the current second 000-999	"678"
+%f	Microsecond part of the current second 000000-999999	"056789"
+%F	Nanosecond part of the current second 000000000-999999999	"256789123"
+%p	AM/PM	"AM"
+%r	12 hour clock	"02:55:02 PM"
+%R	24-hour HH:MM time, equivalent to %H:%M	"23:55"
+%T or %X	ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S	"23:55:59"
+%z	ISO 8601 offset from UTC in timezone ([+/-]HH:MM)	"+02:00"
+%E	Seconds since the epoch	"1528834770"
+%%	The % sign	"%"
+%+	spdlog's default format	"[2014-10-31 23:46:59.678] [mylogger] [info] Some message"
+%^	start color range (can be used only once)	"[mylogger] [info(green)] Some message"
+%$	end color range (for example %^[+++]%$ %v) (can be used only once)	[+++] Some message
+%@	Source file and line (use SPDLOG_TRACE(..), SPDLOG_INFO(...) etc. instead of spdlog::trace(...)) Same as %g:%#	/some/dir/my_file.cpp:123
+%s	Basename of the source file (use SPDLOG_TRACE(..), SPDLOG_INFO(...) etc.)	my_file.cpp
+%g	Full or relative path of the source file as appears in the __FILE__ macro (use SPDLOG_TRACE(..), SPDLOG_INFO(...) etc.)	/some/dir/my_file.cpp
+%#	Source line (use SPDLOG_TRACE(..), SPDLOG_INFO(...) etc.)	123
+%!	Source function (use SPDLOG_TRACE(..), SPDLOG_INFO(...) etc. see tweakme for pretty-print)	my_func
+%o	Elapsed time in milliseconds since previous message	456
+%i	Elapsed time in microseconds since previous message	456
+%u	Elapsed time in nanoseconds since previous message	11456
+%O	Elapsed time in seconds since previous message	4
       // We add a special %N marker which can only appear as the first pattern character if you want to use it.
-      // it is used to add unique log line number ( as a %08X number) after the other pattern character and before the beginning of the log line.
+      // it is used to add unique log line number ( as a %08d number) after the other pattern character and before the beginning of the log line.
       // With this 'ticket' value, you can detect log line buffer overflow as you will have "holes" in the line number sequence if it happens
       -> "%N "); // Can only appears as the first arg
       */
-      /*
-              mAddLineNumber_B = (LogHeader_S.substr(0, 3) == "%N "); // Can only appears as the first arg
-              if (mAddLineNumber_B)
-              {
-                LogHeader_S = LogHeader_S.substr(3, LogHeader_S.size() - 3);
-              }
-      */
+      mAddLineNumber_B = (LogHeader_S.substr(0, 2) == "%N"); // Can only appears as the first arg
+      if (mAddLineNumber_B)
+      {
+        LogHeader_S = LogHeader_S.substr(2, LogHeader_S.size() - 2);
+      }
       psLogger->set_pattern(LogHeader_S.c_str(), spdlog::pattern_time_type::local);
       Rts_E = BOF_ERR_NO_ERROR;
     }

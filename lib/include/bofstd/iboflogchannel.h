@@ -130,7 +130,6 @@ struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
   std::string ChannelName_S;
   BofPath FileLogPath;
   std::string LogHeader_S;
-  bool AutoAddEol_B;
   BOF_LOG_CHANNEL_LEVEL LogLevel_E;
   BOF_LOG_CHANNEL_SINK LogSink_E;
   BOF_LOG_CHANNEL_FLAG LogFlag_E;
@@ -145,7 +144,7 @@ struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
     Reset();
   }
 
-  BOF_LOG_CHANNEL_PARAM(std::string _ChannelName_S, BofPath _FileLogPath, std::string _LogHeader_S, bool _AutoAddEol_B, BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_CHANNEL_SINK _LogSink_E, BOF_LOG_CHANNEL_FLAG _LogFlag_E,
+  BOF_LOG_CHANNEL_PARAM(std::string _ChannelName_S, BofPath _FileLogPath, std::string _LogHeader_S, BOF_LOG_CHANNEL_LEVEL _LogLevel_E, BOF_LOG_CHANNEL_SINK _LogSink_E, BOF_LOG_CHANNEL_FLAG _LogFlag_E,
                         BOF_LOGGER_OVERFLOW_POLICY _BufferOverflowPolicy_E, uint32_t _MaxLogSizeInByte_U32, uint32_t _MaxNumberOfLogFile_U32, uint32_t _DailyRotationTimeInMinuteAfterMidnight_U32)
   {
     ChannelName_S = _ChannelName_S;
@@ -153,10 +152,9 @@ struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
     // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
     // -----> Replaced by %i and SPDLOG_ENABLE_MESSAGE_COUNTER
     // We add a special %N marker which can only appear as the first pattern character if you want to use it.
-    // it is used to add unique log line number ( as a %08X number) after the other pattern character and before the beginning of the log line.
+    // it is used to add unique log line number ( as a %08d number) after the other pattern character and before the beginning of the log line.
     // With this 'ticket' value, you can detect log line buffer overflow as you will have "holes" in the line number sequence if it happens
     LogHeader_S = _LogHeader_S;
-    AutoAddEol_B = _AutoAddEol_B;
     LogLevel_E = _LogLevel_E;
     LogSink_E = _LogSink_E;
     LogFlag_E = _LogFlag_E;
@@ -170,8 +168,7 @@ struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
   {
     ChannelName_S = "";
     FileLogPath = "";
-    LogHeader_S = "%i %d/%m/%C %H:%M:%S.%e %L %n: %^%v%$";
-    AutoAddEol_B = true;
+    LogHeader_S = "%N %d/%m/%C %H:%M:%S.%e %L %n: %^%v%$";
     LogLevel_E = BOF_LOG_CHANNEL_LEVEL::OFF;
     LogSink_E = BOF_LOG_CHANNEL_SINK::TO_NONE;
     LogFlag_E = BOF_LOG_CHANNEL_FLAG::NONE;

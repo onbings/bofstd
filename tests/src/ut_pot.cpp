@@ -345,7 +345,7 @@ BOFERR GetValue(uint32_t _Id_U32, uint32_t _NbLoop_U32, BofPot<uint64_t> *_pBofC
     Delta_U32 = Bof_ElapsedMsTime(Start_U32);
     if ((_Id_U32 == 0) && (Delta_U32 > Max_U32))
     {
-      printf("%03d:Get[%d] in %d n=%d\n", _Id_U32, i_U32, Delta_U32, _pBofCollection->GetNbElementOutOfThePot());
+      //printf("%03d:Get[%d] in %d n=%d\n", _Id_U32, i_U32, Delta_U32, _pBofCollection->GetNbElementOutOfThePot());
       Max_U32 = Delta_U32;
     }
     EXPECT_TRUE(pVal_U64 != nullptr);
@@ -424,7 +424,7 @@ TEST_F(BofPot_Test, BlockingMode)
     BOF::Bof_Now(Now);
     Now_S = Now.ToString();
 
-    printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
+    //printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
 
     for (j_U32 = 0; j_U32 < NB_MAX_CLIENT; j_U32++)
     {

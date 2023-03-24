@@ -859,6 +859,7 @@ TEST(SocketOs_Test, ListAndSetupInterface)
   TestListAndSetupInterface(true);
 }
 
+
 void TestIpAddressBinSer(bool _IsIpV6_B)
 {
   BOFERR Sts_E;

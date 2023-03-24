@@ -651,8 +651,6 @@ int64_t Bof_CharToBinary(const char *_pStr_c)
   return (Rts_S64);
 }
 
-BOFSTD_EXPORT char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...);
-
 char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_pFormat_c, ...)
 {
   char *pRts_c = nullptr;
@@ -672,5 +670,30 @@ char *Bof_Snprintf(char *_pBuffer_c, uint32_t _MaxBufferSize_U32, const char *_p
   }
   return pRts_c;
 }
+std::string Bof_Sprintf(const char *_pFormat_c, ...)
+{
+  std::string Rts_S;
+  std::va_list Arg;
+  int SizeBuffer_i, Size_i;
+  char *pBuffer_c;
 
+  if (_pFormat_c)
+  {
+    va_start(Arg, _pFormat_c);
+    SizeBuffer_i = vsnprintf(nullptr, 0, _pFormat_c, Arg);
+    if (SizeBuffer_i >= 0)
+    {
+      pBuffer_c = new char[SizeBuffer_i + 1];
+      if (pBuffer_c)
+      {
+        Size_i = vsnprintf(pBuffer_c, SizeBuffer_i + 1, _pFormat_c, Arg);
+        BOF_ASSERT(Size_i == SizeBuffer_i);
+        Rts_S = pBuffer_c;
+        BOF_SAFE_DELETE_ARRAY(pBuffer_c);
+      }
+    }
+    va_end(Arg);
+  }
+  return Rts_S;
+}
 END_BOF_NAMESPACE()

@@ -567,7 +567,7 @@ TEST(Threading_Test, MultiThread)
   {
     if ((i_U32) && !(i_U32 % PRTPERLOOP))
     {
-      printf("%d Create thread %d/%d\r\n", Bof_GetMsTickCount(), i_U32, NBTHREAD);
+      //printf("%d Create thread %d/%d\r\n", Bof_GetMsTickCount(), i_U32, NBTHREAD);
     }
     pThreadContext_X[i_U32].Reset();
     pThreadContext_X[i_U32].Id_U32 = i_U32;
