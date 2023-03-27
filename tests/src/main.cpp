@@ -90,11 +90,10 @@ int main(int argc, char *argv[])
 #endif
   testing::InitGoogleTest(&argc, argv);
   int Rts_i;
-<<<<<<< HEAD
+  ::testing::GTEST_FLAG(filter) = "SocketOs_Test.SocketAddress";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.*";
 =======
-  ::testing::GTEST_FLAG(filter) = "System_Test.Util_AlignedAlloc";
 >>>>>>> 47b695c391301f24c5f4525b3e20b184fd08daa5
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 

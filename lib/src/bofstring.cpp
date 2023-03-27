@@ -691,6 +691,7 @@ std::string Bof_Sprintf(const char *_pFormat_c, ...)
         va_start(Arg, _pFormat_c);
         Size_i = vsnprintf(pBuffer_c, SizeBuffer_i + 1, _pFormat_c, Arg);
         va_end(Arg);
+        //printf("%d/%d fmt %s len %d buf %s lenb %d\n", Size_i, SizeBuffer_i, _pFormat_c, (int)strlen(_pFormat_c), pBuffer_c, (int)strlen(pBuffer_c));
         BOF_ASSERT(Size_i == SizeBuffer_i);
         Rts_S = pBuffer_c;
         BOF_SAFE_DELETE_ARRAY(pBuffer_c);
