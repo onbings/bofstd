@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 #endif
   testing::InitGoogleTest(&argc, argv);
   int Rts_i;
-  ::testing::GTEST_FLAG(filter) = "XmlWriter_Test.Xml";
+  ::testing::GTEST_FLAG(filter) = "System_Test.Util_AlignedAlloc";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 
   Rts_i = RUN_ALL_TESTS();

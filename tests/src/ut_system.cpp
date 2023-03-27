@@ -445,7 +445,7 @@ TEST(System_Test, Util_AlignedAlloc)
   // lock not supported
   EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, false, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
 #else
-  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x100000, true, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 0x1000, 0x10000, true, 0, false, Buffer_X), BOF_ERR_NO_ERROR);
 #endif
   pData = Buffer_X.pData_U8;
   EXPECT_TRUE(pData != nullptr);
