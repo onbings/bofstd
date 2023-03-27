@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
 #endif
   testing::InitGoogleTest(&argc, argv);
   int Rts_i;
-  //::testing::GTEST_FLAG(filter) = "Enum_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 
   Rts_i = RUN_ALL_TESTS();

@@ -250,7 +250,7 @@ void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pCon
   // printf("[%06d] T %d D %d Thread EXIT end nb %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, S_NbThread_U32);
   //	Last_U32 = Now_U32;
 
-  return nullptr;
+  return (void *)0x12345678;
 }
 
 TEST(Threading_Test, InterlockedCompareExchange)
@@ -375,17 +375,22 @@ TEST(Threading_Test, SingleThread)
   BOFERR Sts_E;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY Min_E, Max_E, MidPriority_E, ThreadPriority_E, NewPriority_E;
+  uint32_t ThreadId_U32;
   THREAD_CONTEXT ThreadContext_X;
   BOF_THREAD Thread_X;
+  void *pThreadRtsCode;
 
   Sts_E = Bof_CreateMutex("MyMutex", true, true, S_Mtx_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
+  ThreadId_U32 = Bof_CurrentThreadId();
+  EXPECT_NE(ThreadId_U32, 0);
+
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-  EXPECT_EQ(Min_E, -15);
-  EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_001);
+  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_084);
 #else
   EXPECT_EQ(Min_E, 0);
   EXPECT_EQ(Max_E, 0);
@@ -394,8 +399,8 @@ TEST(Threading_Test, SingleThread)
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-  EXPECT_EQ(Min_E, -15);
-  EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_085);
+  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_099);
 #else
   EXPECT_EQ(Min_E, 1);
   EXPECT_EQ(Max_E, 99);
@@ -405,21 +410,11 @@ TEST(Threading_Test, SingleThread)
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-  EXPECT_EQ(Min_E, -15);
-  EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_001);
+  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_084);
 #else
   EXPECT_EQ(Min_E, 1);
   EXPECT_EQ(Max_E, 99);
-#endif
-
-  Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-#if defined(_WIN32)
-  EXPECT_EQ(Min_E, -15);
-  EXPECT_EQ(Max_E, 15);
-#else
-  EXPECT_EQ(Min_E, 0);
-  EXPECT_EQ(Max_E, 0);
 #endif
 
   Sts_E = Bof_LaunchThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1000);
@@ -494,8 +489,9 @@ TEST(Threading_Test, SingleThread)
   Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-  EXPECT_EQ(ThreadPriority_E, MidPriority_E);
-  NewPriority_E = (BOF_THREAD_PRIORITY)(MidPriority_E + 2);
+  EXPECT_GE(ThreadPriority_E, BOF_THREAD_PRIORITY_085);
+  EXPECT_LE(ThreadPriority_E, BOF_THREAD_PRIORITY_099);
+  NewPriority_E = (BOF_THREAD_PRIORITY)(MidPriority_E / 2);
 #else
   EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
   EXPECT_EQ(ThreadPriority_E, MidPriority_E);
@@ -508,10 +504,12 @@ TEST(Threading_Test, SingleThread)
   Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
+  EXPECT_GE(ThreadPriority_E, BOF_THREAD_PRIORITY_033);
+  EXPECT_LE(ThreadPriority_E, BOF_THREAD_PRIORITY_048);
 #else
+  EXPECT_GE(ThreadPriority_E, NewPriority_E);
   EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
 #endif
-  EXPECT_EQ(ThreadPriority_E, NewPriority_E);
   Bof_MsSleep(500);
   EXPECT_TRUE(Thread_X.ThreadRunning_B);
   EXPECT_NE(S_ValueToProtect_U32, static_cast<uint32_t>(0));
@@ -519,6 +517,9 @@ TEST(Threading_Test, SingleThread)
   Thread_X.ThreadLoopMustExit_B = true;
   Sts_E = Bof_SignalEvent(ThreadContext_X.Event_X, 0);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  BOF::Bof_MsSleep(500);
+  EXPECT_EQ(Bof_GetThreadExitCode(Thread_X, &pThreadRtsCode), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(pThreadRtsCode, (void *)0x12345678);
   Sts_E = Bof_DestroyThread(Thread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_NE(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
@@ -552,8 +553,8 @@ TEST(Threading_Test, MultiThread)
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-  EXPECT_EQ(Min_E, -15);
-  EXPECT_EQ(Max_E, 15);
+  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_001);
+  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_084);
 #else
   EXPECT_EQ(Min_E, 0);
   EXPECT_EQ(Max_E, 0);
@@ -652,7 +653,6 @@ TEST(Threading_Test, MultiThread)
     //		Now_U32 = Bof_GetMsTickCount();
     //		printf("[%06d] T %d D %d ->Destroy thread start\r\n", i_U32, Now_U32, Now_U32 - Last_U32);
     //		Last_U32 = Now_U32;
-
     Sts_E = Bof_DestroyThread(pThread_X[i_U32]);
 
     //		Now_U32 = Bof_GetMsTickCount();
@@ -940,7 +940,7 @@ TEST(Threading_Test, SharedMemory)
 #else
 #endif
   EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
-  EXPECT_NE(Bof_CloseSharedMemory(ShrMem_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(Bof_CloseSharedMemory(ShrMem_X, false), BOF_ERR_NO_ERROR);
 
   Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -982,7 +982,7 @@ TEST(Threading_Test, SharedMemory)
     pVal_U32[i_U32] = i_U32 * 2;
   }
 
-  Sts_E = Bof_CloseSharedMemory(ShrMem_X);
+  Sts_E = Bof_CloseSharedMemory(ShrMem_X, false);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_NE(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
   EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "");
@@ -1010,8 +1010,9 @@ TEST(Threading_Test, SharedMemory)
   {
     pVal_U32[i_U32] = i_U32 * 3;
   }
-  Sts_E = Bof_CloseSharedMemory(ShrMem_X);
+  Sts_E = Bof_CloseSharedMemory(ShrMem_X, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+
 }
 
 TEST(Threading_Test, CriticalSection)
@@ -1178,13 +1179,8 @@ TEST(Threading_Test, ThreadParameterFromString)
 
   Str_S = BofThread::S_ToString(ThreadParam_X, true);
   Str_S = Str_S.substr(0, Str_S.find('/', 0));
-#if defined(_WIN32)
-  EXPECT_EQ(ThreadParam_X.Priority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_016);
-  EXPECT_STREQ(Str_S.c_str(), "n1:f16:c1-4,10-13,15,29-63 A1");
-#else
   EXPECT_EQ(ThreadParam_X.Priority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_030);
   EXPECT_STREQ(Str_S.c_str(), "n1:f30:c1-4,10-13,15,29-63 A1");
-#endif
 
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f60:c0:f55:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:o-1:c2", ThreadParam_X), BOF_ERR_NO_ERROR);

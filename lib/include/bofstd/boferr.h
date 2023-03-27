@@ -246,6 +246,9 @@ enum BOFERR : int
   BOF_ERR_ACCESS,           ///< Access
   BOF_ERR_RESET,            ///< Reset
   BOF_ERR_MAP,              ///< Map
+  BOF_ERR_UNMAP,            ///< Unmap
+  BOF_ERR_SCHEDULER,        ///< Scheduler
+  BOF_ERR_PRIORITY,         ///< Priority
 };
 //#define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
 //#define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK

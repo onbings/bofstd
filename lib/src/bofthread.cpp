@@ -28,7 +28,7 @@
 #include <bofstd/bofthread.h>
 
 #if defined(_WIN32)
-// https://stackoverflow.com/questions/10121560/stdthread-naming-your-thread
+ // https://stackoverflow.com/questions/10121560/stdthread-naming-your-thread
 #include <windows.h>
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
@@ -45,8 +45,8 @@ typedef struct tagTHREADNAME_INFO
 #else
 
 #endif
-// #include <bofstd/boflogger.h>
-// BofLogger::S_Instance().Log("IpSwitcherLog", BOF::BOF::CRITICAL, "BofSocketIo[%d] DoINeedToConnect_B", BOF::Bof_GetMsTickCount());
+ // #include <bofstd/boflogger.h>
+ // BofLogger::S_Instance().Log("IpSwitcherLog", BOF::BOF::CRITICAL, "BofSocketIo[%d] DoINeedToConnect_B", BOF::Bof_GetMsTickCount());
 
 BEGIN_BOF_NAMESPACE()
 #if defined(_WIN32)
@@ -138,10 +138,10 @@ BOFERR BofThread::InitThreadErrorCode()
  * Remarks
  * None
  */
-//!!! Do not call this method in an intermediate caller object constructor such as in class B or C constructor. You can put it in A
-//!!! class A:public B
-//!!! class B:public C
-//!!! If you do that you will receive "pure virtual method called" abort message as when you are in an intermediate constructor the virtual table is not ready
+ //!!! Do not call this method in an intermediate caller object constructor such as in class B or C constructor. You can put it in A
+ //!!! class A:public B
+ //!!! class B:public C
+ //!!! If you do that you will receive "pure virtual method called" abort message as when you are in an intermediate constructor the virtual table is not ready
 BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E,
                                             uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t /*_StackSize_U32*/)
 {
@@ -203,7 +203,7 @@ BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _S
           // This stop google test from running in command console as it detect the exception... but it works inside the vs ide
           //	__try
           {
-              //	RaiseException(MS_VC_EXCEPTION, 0, sizeof(ThreadNameInfo_X) / sizeof(ULONG_PTR), (ULONG_PTR*)&ThreadNameInfo_X);
+            //	RaiseException(MS_VC_EXCEPTION, 0, sizeof(ThreadNameInfo_X) / sizeof(ULONG_PTR), (ULONG_PTR*)&ThreadNameInfo_X);
           } //__except (EXCEPTION_EXECUTE_HANDLER)
           {
           }
@@ -383,11 +383,11 @@ std::string BofThread::S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool 
   p_c = pBuffer_c;
   if (!_rThreadParam_X.AffinityCpuSet_U64)
   {
-    p_c += sprintf(p_c, "n%d:%c%d", _rThreadParam_X.Node_U32, (_rThreadParam_X.SchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParam_X.SchedulerPolicy_E] : '?', Bof_ValueFromThreadPriority(_rThreadParam_X.Priority_E));
+    p_c += sprintf(p_c, "n%d:%c%d", _rThreadParam_X.Node_U32, (_rThreadParam_X.SchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParam_X.SchedulerPolicy_E] : '?', _rThreadParam_X.Priority_E);
   }
   else
   {
-    p_c += sprintf(p_c, "n%d:%c%d:c", _rThreadParam_X.Node_U32, (_rThreadParam_X.SchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParam_X.SchedulerPolicy_E] : '?', Bof_ValueFromThreadPriority(_rThreadParam_X.Priority_E));
+    p_c += sprintf(p_c, "n%d:%c%d:c", _rThreadParam_X.Node_U32, (_rThreadParam_X.SchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParam_X.SchedulerPolicy_E] : '?', _rThreadParam_X.Priority_E);
     pRange_U32[0] = 0xFFFFFFFF;
     pRange_U32[1] = 0xFFFFFFFF;
     AlreadyOne_B = false;
@@ -414,7 +414,7 @@ std::string BofThread::S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool 
       }
       else
       {
-      FlushIt:
+FlushIt:
         if ((pRange_U32[0] != 0xFFFFFFFF) && (pRange_U32[1] != 0xFFFFFFFF))
         {
           if (AlreadyOne_B)
@@ -543,7 +543,8 @@ BOFERR BofThread::S_AffinityMaskFromString(const char *_pAffinityOptionString_c,
           _pAffinityOptionString_c++;
         }
       }
-    } while ((pComa_c) && (*_pAffinityOptionString_c) && (Rts_E == BOF_ERR_NO_ERROR));
+    }
+    while ((pComa_c) && (*_pAffinityOptionString_c) && (Rts_E == BOF_ERR_NO_ERROR));
   }
   return Rts_E;
 }
@@ -577,65 +578,65 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
         Rts_E = BOF_ERR_NO_ERROR;
         switch (pOption_c[0])
         {
-        case 'n':
-          if (!Bof_IsDecimal(pOption_c + 1, _rThreadParam_X.Node_U32))
-          {
-            Rts_E = BOF_ERR_FORMAT;
-          }
-          break;
-
-        case 'c':
-          ConsiderVirtualCore_B = true;
-          // Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParam_X.NbActiveCore_U32, CoreAffinity_U64);
-          Rts_E = S_AffinityMaskFromString(pOption_c, 0xFFFFFFFF, CoreAffinity_U64);
-          break;
-
-        case 'C':
-          //            Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParam_X.NbActiveCore_U32 / 2, CoreAffinity_U64);
-          Rts_E = S_AffinityMaskFromString(pOption_c, 0xFFFFFFFF, CoreAffinity_U64);
-          break;
-
-        case 'o':
-        case 'f':
-        case 'r':
-          if (Bof_IsDecimal(pOption_c + 1, Val_U32))
-          {
-            _rThreadParam_X.Priority_E = Bof_ThreadPriorityFromValue(static_cast<BOF_THREAD_PRIORITY>(Val_U32));
-            if (pOption_c[0] == 'o')
+          case 'n':
+            if (!Bof_IsDecimal(pOption_c + 1, _rThreadParam_X.Node_U32))
             {
-              _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+              Rts_E = BOF_ERR_FORMAT;
             }
-            else if (pOption_c[0] == 'f')
+            break;
+
+          case 'c':
+            ConsiderVirtualCore_B = true;
+            // Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParam_X.NbActiveCore_U32, CoreAffinity_U64);
+            Rts_E = S_AffinityMaskFromString(pOption_c, 0xFFFFFFFF, CoreAffinity_U64);
+            break;
+
+          case 'C':
+            //            Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParam_X.NbActiveCore_U32 / 2, CoreAffinity_U64);
+            Rts_E = S_AffinityMaskFromString(pOption_c, 0xFFFFFFFF, CoreAffinity_U64);
+            break;
+
+          case 'o':
+          case 'f':
+          case 'r':
+            if (Bof_IsDecimal(pOption_c + 1, Val_U32))
             {
-              _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO;
+              _rThreadParam_X.Priority_E = static_cast<BOF_THREAD_PRIORITY>(Val_U32);
+              if (pOption_c[0] == 'o')
+              {
+                _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+              }
+              else if (pOption_c[0] == 'f')
+              {
+                _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO;
+              }
+              else
+              {
+                _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN;
+              }
             }
             else
             {
-              _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN;
+              Rts_E = BOF_ERR_FORMAT;
             }
-          }
-          else
-          {
-            Rts_E = BOF_ERR_FORMAT;
-          }
-          break;
+            break;
 
-        case 'a':
-          // this is used if we want to adjust only the affinity (directly)
-          if (Bof_IsDecimal(pOption_c + 1, _rThreadParam_X.CoreChosen_U32))
-          {
-            _rThreadParam_X.AffinityCpuSet_U64 = ((uint64_t)1 << _rThreadParam_X.CoreChosen_U32);
-          }
-          else
-          {
-            Rts_E = BOF_ERR_FORMAT;
-          }
-          // CoreAffinity_U64 is 0 for below
-          break;
+          case 'a':
+            // this is used if we want to adjust only the affinity (directly)
+            if (Bof_IsDecimal(pOption_c + 1, _rThreadParam_X.CoreChosen_U32))
+            {
+              _rThreadParam_X.AffinityCpuSet_U64 = ((uint64_t)1 << _rThreadParam_X.CoreChosen_U32);
+            }
+            else
+            {
+              Rts_E = BOF_ERR_FORMAT;
+            }
+            // CoreAffinity_U64 is 0 for below
+            break;
 
-        default:
-          Rts_E = BOF_ERR_NOT_SUPPORTED;
-          break;
+          default:
+            Rts_E = BOF_ERR_NOT_SUPPORTED;
+            break;
         }
 
         if ((Rts_E == BOF_ERR_NO_ERROR) && (CoreAffinity_U64))
@@ -683,7 +684,8 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
         }
       }
       //      } while ((pColon_c) && (*_pThreadParameter_c) && (OptionLen_U32) && (OptionLen_U32 < sizeof(pOption_c)) && (Rts_E==BOF_ERR_NO_ERROR));
-    } while ((*_pThreadParameter_c) && (Rts_E == BOF_ERR_NO_ERROR));
+    }
+    while ((*_pThreadParameter_c) && (Rts_E == BOF_ERR_NO_ERROR));
   }
   return Rts_E;
 }
@@ -771,62 +773,70 @@ BOFERR BofThread::V_OnStop()
  */
 void BofThread::BofThread_Thread()
 {
-  BOFERR Sts_E = BOF_ERR_NO_ERROR;
+  BOFERR Sts_E;
   uint32_t Delta_U32;
-
-  // printf("====> Thread start\n");
-  //  printf("%d %s %X====>Thread running...\n", Bof_GetMsTickCount(), mName_S.c_str(), mThreadHandle);
 
   Sts_E = Bof_SignalEvent(mThreadEnterEvent_X, 0);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-  // mThreadRunning_B = true;
-
-#if defined(_WIN32)
-  if (mCpuCoreAffinityMask_U64)
+  if (Sts_E == BOF_ERR_NO_ERROR)
   {
-    // A DWORD_PTR is not a pointer.It is an unsigned integer that is the same size as a pointer.Thus, in Win32 a DWORD_PTR is the same as a DWORD(32 bits), and in Win64 it is the same as a ULONGLONG(64 bits).
-    //    DWORD_PTR Val = (DWORD_PTR)(1 << mCpuCoreAffinity_U32);
-    DWORD_PTR Val = (DWORD_PTR)(mCpuCoreAffinityMask_U64);
-    SetThreadAffinityMask(GetCurrentThread(), Val);
-  }
-  Sts_E = (SetThreadPriority(GetCurrentThread(), mPriority_E) == TRUE) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
-  // int32_t Win32Err_S32 = 0;
-  // Bof_GetLastError(false, &Win32Err_S32);
-  // printf("SetThreadPriority(%d)=%d\n", mPriority_E, Sts_E);
-#else
-  if (mCpuCoreAffinityMask_U64)
-  {
-    cpu_set_t CpuSet_X;
-    uint32_t i_U32;
-    uint64_t Mask_U64 = 1;
-    CPU_ZERO(&CpuSet_X);
-    //    CPU_SET(mCpuCoreAffinity_U32 - 1, &CpuSet_X);
-    for (Mask_U64 = 1, i_U32 = 0; i_U32 < 64; i_U32++, Mask_U64 = Mask_U64 << 1)
+    if (mCpuCoreAffinityMask_U64)
     {
-      if (Mask_U64 & mCpuCoreAffinityMask_U64)
+#if defined(_WIN32)
+      // A DWORD_PTR is not a pointer.It is an unsigned integer that is the same size as a pointer.Thus, in Win32 a DWORD_PTR is the same as a DWORD(32 bits), and in Win64 it is the same as a ULONGLONG(64 bits).
+      //    DWORD_PTR Val = (DWORD_PTR)(1 << mCpuCoreAffinity_U32);
+      DWORD_PTR Val = (DWORD_PTR)(mCpuCoreAffinityMask_U64);
+      Sts_E = SetThreadAffinityMask(GetCurrentThread(), Val) ? BOF_ERR_NO_ERROR : BOF_ERR_ERANGE;
+#else
+      cpu_set_t CpuSet_X;
+      uint32_t i_U32;
+      uint64_t Mask_U64 = 1;
+      CPU_ZERO(&CpuSet_X);
+      //    CPU_SET(mCpuCoreAffinity_U32 - 1, &CpuSet_X);
+      for (Mask_U64 = 1, i_U32 = 0; i_U32 < 64; i_U32++, Mask_U64 = Mask_U64 << 1)
       {
-        CPU_SET(i_U32, &CpuSet_X);
+        if (Mask_U64 & mCpuCoreAffinityMask_U64)
+        {
+          CPU_SET(i_U32, &CpuSet_X);
+        }
+      }
+      Sts_E = (sched_setaffinity(static_cast<__pid_t>(syscall(SYS_gettid)), sizeof(CpuSet_X), &CpuSet_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+
+#endif
+    }
+  }
+  BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+  if (Sts_E == BOF_ERR_NO_ERROR)
+  {
+#if defined(_WIN32)
+    int32_t WndPrio_S32 = Bof_PriorityValueFromThreadPriority(mPriority_E);
+    Sts_E = (SetThreadPriority(GetCurrentThread(), WndPrio_S32) == TRUE) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+    BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+    if (Sts_E == BOF_ERR_NO_ERROR)
+    {
+      Sts_E = (WndPrio_S32 = GetThreadPriority(GetCurrentThread())) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
+    }
+
+#else
+    int Status_i = 0;
+    int Policy_i = mPolicy_E;
+    struct sched_param Params_X;
+    Sts_E = BOF_ERR_SCHEDULER;
+    Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(mPriority_E);
+    // Set the priority
+    Status_i = pthread_setschedparam(pthread_self(), mPolicy_E, &Params_X);
+    // Verify
+    if (Status_i == 0)
+    {
+      Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
+      if (Status_i == 0)
+      {
+        Sts_E = ((Policy_i == mPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
       }
     }
-    Sts_E = (sched_setaffinity(static_cast<__pid_t>(syscall(SYS_gettid)), sizeof(CpuSet_X), &CpuSet_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
-  }
-
-  int Status_i = 0;
-  int Policy_i = mPolicy_E;
-  struct sched_param Params_X;
-
-  Sts_E = BOF_ERR_INTERNAL;
-  Params_X.sched_priority = mPriority_E;
-  // Set the priority
-  Status_i = pthread_setschedparam(pthread_self(), mPolicy_E, &Params_X);
-  // Verify
-  if (Status_i == 0)
-  {
-    Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
-    Sts_E = ((Policy_i == mPolicy_E) && (Params_X.sched_priority == mPriority_E)) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
-  }
 #endif
-  // printf("====> Thread starting %d\n", Sts_E);
+  }
+  BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
     V_OnCreate();

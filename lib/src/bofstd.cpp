@@ -317,11 +317,10 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_ACCESS, "Access"},
     {BOF_ERR_RESET, "Reset"},
     {BOF_ERR_MAP, "Map"},
+    {BOF_ERR_UNMAP, "Unmap"},
+    {BOF_ERR_SCHEDULER, "Scheduler"},
+    {BOF_ERR_PRIORITY, "Priority"},
 };
-
-/*** Defines *****************************************************************/
-
-/*** Global variables ********************************************************/
 
 /*
  This does not always work as this static var will be initialized when a function of the translation unit will be called (Bof_KbHit ok but Bof_sleep no
