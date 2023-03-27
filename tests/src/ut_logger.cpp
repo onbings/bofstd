@@ -268,7 +268,7 @@ TEST_F(Logger_Test, LoggerInit)
   rBofLog.ShutdownLogger();
 
 #if defined(__linux__)
-  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), {TEST_LINUXSYSLOG, "", LOGHEADER, true, BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_LINUX_SYSLOG, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0});
+  rBofLog.AddLogChannel(std::make_shared<BofLogChannelSpdLog>(), {TEST_LINUXSYSLOG, "", LOGHEADER, BOF_LOG_CHANNEL_LEVEL::TRACE, BOF_LOG_CHANNEL_SINK::TO_LINUX_SYSLOG, BOF_LOG_CHANNEL_FLAG::NONE, BOF_LOGGER_OVERFLOW_POLICY::DISCARD, 0, 0, 0});
   BOF_LOGGER_TRACE(TEST_LINUXSYSLOG, "Hello sysLog World", 0);
   rBofLog.Flush(TEST_LINUXSYSLOG);
 #endif

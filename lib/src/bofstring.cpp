@@ -691,16 +691,6 @@ std::string Bof_Sprintf(const char *_pFormat_c, ...)
         va_start(Arg, _pFormat_c);
         Size_i = vsnprintf(pBuffer_c, SizeBuffer_i + 1, _pFormat_c, Arg);
         va_end(Arg);
-
-        printf("%d/%d fmt %s len %d buf %s lenb %d\n", Size_i, SizeBuffer_i, _pFormat_c, (int)strlen(_pFormat_c), pBuffer_c, (int)strlen(pBuffer_c));
-        /*
-        15/15 fmt %dx%s@%d len 8 buf 16xS24L32@48000 lenb 15
-[ RUN      ] CmdLineParser_Test.CmdLine
-25/15 fmt %dx%s@%d len 8
-Assert in /home/bha/pro/evs-gbio/bofstd/lib/src/bofstring.cpp line 691 Msg Size_i == SizeBuffer_i
-*/
-
-
         BOF_ASSERT(Size_i == SizeBuffer_i);
         Rts_S = pBuffer_c;
         BOF_SAFE_DELETE_ARRAY(pBuffer_c);
