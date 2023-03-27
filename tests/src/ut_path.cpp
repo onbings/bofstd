@@ -59,9 +59,12 @@ TEST(Path_Test, PathConstructorDestructorWindows)
         // Remove disk
         PrevPwdWithoutDisk_S = PrevPwd_S.substr(2);
       }
+	  else
+	  {
+		PrevPwdWithoutDisk_S = PrevPwd_S;	//linux
+	  }
     }
   }
-
   BofPath Empty("");
   EXPECT_EQ(Empty.IsDirectory(), false);
   EXPECT_EQ(Empty.IsFile(), true);

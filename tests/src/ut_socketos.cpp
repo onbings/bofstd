@@ -433,7 +433,11 @@ myprotocol: // john.doe:password@www.google.com:123/forum/questions/file.txt?jus
   EXPECT_STREQ(Fragment_S.c_str(), "top");
 
   Sts_E = Bof_SplitIpAddress("10.131.125", HostIpAddress_X);
+  #if defined(_WIN32)
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  #else
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);	//10.131.0.125 under linux
+  #endif
   Sts_E = Bof_SplitIpAddress("10.131.125,250", HostIpAddress_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
   Sts_E = Bof_SplitIpAddress("10.131.125.ab", HostIpAddress_X);

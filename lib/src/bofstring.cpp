@@ -681,18 +681,21 @@ std::string Bof_Sprintf(const char *_pFormat_c, ...)
   {
     va_start(Arg, _pFormat_c);
     SizeBuffer_i = vsnprintf(nullptr, 0, _pFormat_c, Arg);
+    va_end(Arg);
+
     if (SizeBuffer_i >= 0)
     {
       pBuffer_c = new char[SizeBuffer_i + 1];
       if (pBuffer_c)
       {
+        va_start(Arg, _pFormat_c);
         Size_i = vsnprintf(pBuffer_c, SizeBuffer_i + 1, _pFormat_c, Arg);
+        va_end(Arg);
         BOF_ASSERT(Size_i == SizeBuffer_i);
         Rts_S = pBuffer_c;
         BOF_SAFE_DELETE_ARRAY(pBuffer_c);
       }
     }
-    va_end(Arg);
   }
   return Rts_S;
 }

@@ -2437,12 +2437,15 @@ BOFERR Bof_LockMem(int _OsAdvice_i, uint64_t _SizeInByte_U64, void *_pData)
   //	Rts_E = VirtualLock(_pData, _SizeInByte_U64) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
   Rts_E = BOF_ERR_LOCK;
 #else
+  int Sts_i;
   if (_OsAdvice_i)
   {
-    Rts_E = (madvise(_pData, _SizeInByte_U64, _OsAdvice_i) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
+	Sts_i = madvise(_pData, _SizeInByte_U64, _OsAdvice_i);
+    Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
-      Rts_E = (mlock(_pData, _SizeInByte_U64) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+ 	  Sts_i = mlock(_pData, _SizeInByte_U64);	
+      Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
     }
   }
   else
@@ -2451,7 +2454,8 @@ BOFERR Bof_LockMem(int _OsAdvice_i, uint64_t _SizeInByte_U64, void *_pData)
   }
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    Rts_E = (mlock(_pData, _SizeInByte_U64) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+	Sts_i = mlock(_pData, _SizeInByte_U64); 
+    Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
   }
 #endif
   return Rts_E;
