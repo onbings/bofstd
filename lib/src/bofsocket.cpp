@@ -66,7 +66,7 @@ BofSocket::BofSocket(BOFSOCKET _Socket_h, const BOF_SOCKET_PARAM &_rBofSocketPar
 BofSocket::~BofSocket()
 {
   S_mBofSocketBalance--;
-  //BOF_DBG_PRINTF("@@@%s ~BofSocket %zX Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket,S_mBofSocketBalance.load());
+//  BOF_DBG_PRINTF("@@@%s ~BofSocket %zX Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket,S_mBofSocketBalance.load());
   ShutdownSocket();
 }
 
@@ -267,7 +267,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
   }
   mErrorCode_E = Rts_E;
   S_mBofSocketBalance++; 
-  //BOF_DBG_PRINTF("@@@%s InitializeSocket %zX Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
+//  BOF_DBG_PRINTF("@@@%s InitializeSocket %zX Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
   return Rts_E;
 }
 
@@ -695,8 +695,7 @@ BOFERR BofSocket::SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _Snd
     else
     {
       Sts_i = getsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, &Len_i);
-
-      if (Val_U32 < _RcvBufferSize_U32)
+      if ((Sts_i) || (Val_U32 < _RcvBufferSize_U32))
       {
         Rts_E = BOF_ERR_INIT;
       }
@@ -721,8 +720,7 @@ BOFERR BofSocket::SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _Snd
     else
     {
       Sts_i = getsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, &Len_i);
-
-      if (Val_U32 < _SndBufferSize_U32)
+      if ((Sts_i) || (Val_U32 < _SndBufferSize_U32))
       {
         Rts_E = BOF_ERR_INIT;
       }

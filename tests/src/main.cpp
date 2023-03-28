@@ -90,11 +90,7 @@ int main(int argc, char *argv[])
 #endif
   testing::InitGoogleTest(&argc, argv);
   int Rts_i;
-  ::testing::GTEST_FLAG(filter) = "SocketOs_Test.SocketAddress";
-  //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
-  //::testing::GTEST_FLAG(filter) = "Threading_Test.*";
-=======
->>>>>>> 47b695c391301f24c5f4525b3e20b184fd08daa5
+  //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 
   Rts_i = RUN_ALL_TESTS();
@@ -117,4 +113,20 @@ int main(int argc, char *argv[])
 [  PASSED  ] 162 tests.
 
   YOU HAVE 2 DISABLED TESTS
+  
+  LINUX:
+
+[----------] Global test environment tear-down
+[==========] 164 tests from 43 test suites ran. (72546 ms total)
+[  PASSED  ] 164 tests.
+
+  YOU HAVE 2 DISABLED TESTS
+
+need to launch test with
+su
+root@ad6c87cec684:/home/bha/bld/bofstd/tests# setcap CAP_SYS_NICE+ep ./bofstd-tests
+exit
+./bofstd-tests
+  
+to be able to use the FIFO scheduler in my docker container  
 */

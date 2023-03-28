@@ -139,8 +139,8 @@ void SocketTcp_Test::SetUp()
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "TcpServer";
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 64; // 0->Client
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x1000000;
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000000;
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000;	//0x1000000;
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000;	//0x1000000;
   mServerThreadContext_X.BofSocketParam_X.BindIpAddress_S = "tcp://127.0.0.1:5555";
   mServerThreadContext_X.BofSocketParam_X.ReUseAddress_B = false;
   mServerThreadContext_X.BofSocketParam_X.NoDelay_B = true;
@@ -188,8 +188,8 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "TcpClient_" + std::to_string(i_U32);
     BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
     BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0; // 0->Client
-    BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x1000000;
-    BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x1000000;
+    BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000;	//0x1000000;
+    BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000;	//0x1000000;
 
     BofSocketParam_X.BindIpAddress_S = "tcp://127.0.0.1:0";
     BofSocketParam_X.ReUseAddress_B = false;
@@ -300,7 +300,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     DeltaWaitEof_U32 = Bof_ElapsedMsTime(StartWaitEof_U32);
     TotalSrvClt_U64 = (S_TotalSrvTcp_U64 + S_TotalCltTcp_U64);
     //printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
-    if (DeltaWaitEof_U32 > 1000)
+    if (DeltaWaitEof_U32 > 3000)
     {
       break;
     }

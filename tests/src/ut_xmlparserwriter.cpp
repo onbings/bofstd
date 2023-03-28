@@ -2233,10 +2233,6 @@ std::string Res_S = "<?xml version='1.0' encoding=\"utf-8\"?>\r\n"
 "<other></other>\r\n"
 "</arrayofother>\r\n"
 "</MulFtpUserSetting>\r\n";
-<<<<<<< HEAD
-=======
-
->>>>>>> 47b695c391301f24c5f4525b3e20b184fd08daa5
 #endif
 
 #if 0 // To track issue but crash when there is no problem

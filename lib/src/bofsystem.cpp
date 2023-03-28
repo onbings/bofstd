@@ -1445,6 +1445,12 @@ static void *S_ThreadLauncher(void *_pContext)
       Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E);
       // Set the priority
       Status_i = pthread_setschedparam(pThread_X->ThreadId, Policy_i, &Params_X);
+/*	  
+printf("pthread_setschedparam sts %d err %d\n", Status_i, errno);
+BOF_THREAD_PRIORITY Min_E, Max_E;
+	  BOFERR a=Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
+printf("BOF_THREAD_SCHEDULER_POLICY_FIFO sts %d min %d max %d\n", a, Min_E, Max_E);
+*/
       // Verify
       if (Status_i == 0)
       {
