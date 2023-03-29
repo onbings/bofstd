@@ -456,6 +456,15 @@ struct BOF_IPV4_ADDR_U32
   {
     return (IpAddress_U32 == 0);
   }
+  bool operator==(const BOF_IPV4_ADDR_U32 &_rOther_X) const
+  {
+    return (IpAddress_U32 == _rOther_X.IpAddress_U32);
+  }
+
+  bool operator!=(const BOF_IPV4_ADDR_U32 &_rOther_X) const
+  {
+    return !(*this == _rOther_X);
+  }
   void Parse(uint8_t &_rIp1_U8, uint8_t &_rIp2_U8, uint8_t &_rIp3_U8, uint8_t &_rIp4_U8)
   {
     uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);

@@ -134,17 +134,16 @@ public:
     mpData = _pData;
   }
 
-  void *GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32, char *_pVal_c) const
+  void GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32, char *_pVal_c) const
   {
     if (mpData)
     {
-      return mpData->GetKey(_Index_U32, _pType_E, _MaxChar_U32, _pVal_c);
+      mpData->GetKey(_Index_U32, _pType_E, _MaxChar_U32, _pVal_c);
     }
     else
     {
       *_pType_E = BOF_TYPE_NOTHING;
       _pVal_c[0] = 0;
-      return nullptr;
     }
   }
 

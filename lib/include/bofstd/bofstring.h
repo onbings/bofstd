@@ -27,6 +27,10 @@
 #include <vector>
 
 BEGIN_BOF_NAMESPACE()
+#define BOF_PARSER_IS_HEXA(c, s)                                                                     \
+  {                                                                                             \
+    s=(((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || ((c >= '0') && (c <= '9'))); \
+  }
 #define BOF_PARSER_SKIP_UNTIL_CHAR(p)                                                                                                                                                                                                                          \
   {                                                                                                                                                                                                                                                            \
     while ((*p) && (*p <= ' '))                                                                                                                                                                                                                                \

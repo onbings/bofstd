@@ -123,12 +123,11 @@ uint32_t DbRow::SetInt(int _Val_i)
  * _pVal_c:	\Returns the index variable value as a string
  *
  * Returns
- * void *:  Return a pointer to the index variable storage space
  *
  * Remarks
  * None
  */
-void *DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32, char *_pVal_c)
+void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32, char *_pVal_c)
 {
   void *pRts = nullptr;
   uint32_t NbChar_U32;

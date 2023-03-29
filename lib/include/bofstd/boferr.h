@@ -243,12 +243,13 @@ enum BOFERR : int
   BOF_ERR_DMA_OUT,          ///< Dma out
   BOF_ERR_STORAGE,          ///< Storage
   BOF_ERR_BUFFER,           ///< Buffer
-  BOF_ERR_ACCESS,           ///< Access
   BOF_ERR_RESET,            ///< Reset
   BOF_ERR_MAP,              ///< Map
   BOF_ERR_UNMAP,            ///< Unmap
   BOF_ERR_SCHEDULER,        ///< Scheduler
   BOF_ERR_PRIORITY,         ///< Priority
+  BOF_ERR_HARD_INIT,         ///< Hw Init
+  BOF_ERR_SOFT_INIT,         ///< Stf Init
 };
 //#define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
 //#define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK

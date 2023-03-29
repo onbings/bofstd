@@ -93,7 +93,7 @@ public:
    * Remarks
    * None
    */
-  void *GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32, char *_pVal_c);
+  void GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32, char *_pVal_c);
 
   /*!
    * Description
