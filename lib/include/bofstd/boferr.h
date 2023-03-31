@@ -250,6 +250,8 @@ enum BOFERR : int
   BOF_ERR_PRIORITY,         ///< Priority
   BOF_ERR_HARD_INIT,         ///< Hw Init
   BOF_ERR_SOFT_INIT,         ///< Stf Init
+  BOF_ERR_LOAD,         ///< Load
+  BOF_ERR_SAVE,         ///< Save
 };
 //#define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
 //#define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK

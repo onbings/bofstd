@@ -322,6 +322,8 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_PRIORITY, "BOF_ERR_PRIORITY"},
     {BOF_ERR_HARD_INIT, "BOF_ERR_HARD_INIT"},
     {BOF_ERR_SOFT_INIT, "BOF_ERR_SOFT_INIT"},
+    {BOF_ERR_LOAD, "BOF_ERR_LOAD"},
+    {BOF_ERR_SAVE, "BOF_ERR_SAVE"},
 };
 
 /*

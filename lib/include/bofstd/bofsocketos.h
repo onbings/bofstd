@@ -448,6 +448,17 @@ struct BOF_IPV4_ADDR_U32
     *pIp_U8++ = *_pIp_U8++;
     *pIp_U8++ = *_pIp_U8++;
   }
+  BOF_IPV4_ADDR_U32(BOF_SOCKET_ADDRESS &_rBofSocketAddress_X)
+  {
+    if (_rBofSocketAddress_X.IpV6_B)
+    {
+      Reset();
+    }
+    else
+    {
+      IpAddress_U32 = ntohl(_rBofSocketAddress_X.IpV4Address());
+    }
+  }
   void Reset()
   {
     IpAddress_U32 = 0;
