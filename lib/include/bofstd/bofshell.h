@@ -53,7 +53,7 @@ struct BOF_SHELL_CMD
   }
 };
 
-struct BOFSTD_EXPORT BOF_SHELL_PARAM
+struct BOF_SHELL_PARAM
 {
   BOF_CONIO_PARAM ConioParam_X;
   bool InteractiveMode_B;

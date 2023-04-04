@@ -68,7 +68,7 @@ const uint32_t MAXPORT = 4;
 const uint32_t UART_LISTENCONNECT_SIGN = 0x6996AA55;
 const uint32_t UART_LISTENCONNECT_SIGN_REV = 0x55AA9669;
 
-struct BOFSTD_EXPORT BOF_UART_PARAM
+struct BOF_UART_PARAM
 {
   BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
 

@@ -28,7 +28,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-struct BOFSTD_EXPORT BOF_STRING_CIRCULAR_BUFFER_PARAM
+struct BOF_STRING_CIRCULAR_BUFFER_PARAM
 {
   bool MultiThreadAware_B;       /*! true if the object is used in a multi threaded application (use mCs)*/
   bool SnapshotMode_B;           /*! true if the buffer works in 'SnapShot' Mode. In this case the read (Pop) behavior of the buffer is modified. The Pop method does not remove the element read*/

@@ -46,7 +46,7 @@ BEGIN_BOF_NAMESPACE()
   }
 constexpr uint32_t BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER = 0xBA1CD158;
 
-struct BOFSTD_EXPORT BOF_NARY_TREE_KV_PARAM
+struct BOF_NARY_TREE_KV_PARAM
 {
   bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mTreeMtx_X)*/
 

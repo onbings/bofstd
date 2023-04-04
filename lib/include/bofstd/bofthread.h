@@ -32,7 +32,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-struct BOFSTD_EXPORT BOF_THREAD_PARAM
+struct BOF_THREAD_PARAM
 {
   // bool SpreadCpuCore_B;
   // std::string ThreadParamToString_S

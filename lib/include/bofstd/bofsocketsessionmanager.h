@@ -33,7 +33,7 @@ enum class BOF_SOCKET_SERVER_MODE : uint32_t
   BOF_SOCKET_SERVER_POLLER,
 };
 class BofSocketServer;
-struct BOFSTD_EXPORT BOF_SOCKET_SERVER_PARAM
+struct BOF_SOCKET_SERVER_PARAM
 {
   BOF_SOCKET_SERVER_MODE ServerMode_E;
   std::string Name_S;

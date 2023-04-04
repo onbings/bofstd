@@ -40,7 +40,7 @@ BEGIN_BOF_NAMESPACE()
 
 constexpr uint32_t BOF_CIRCULAR_BUFFER_DBG_MAX_ITEM = 32;
 
-struct BOFSTD_EXPORT BOF_CIRCULAR_BUFFER_PARAM
+struct BOF_CIRCULAR_BUFFER_PARAM
 {
   bool MultiThreadAware_B;   /*! true if the object is used in a multi threaded application (use mCbMtx_X)*/
   uint32_t NbMaxElement_U32; /*! Specifies the maximum number of element inside the queue*/

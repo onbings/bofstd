@@ -32,7 +32,7 @@ BEGIN_BOF_NAMESPACE()
  * Summary
  * Information collected for statistics purpose (Debug screen)
  */
-struct BOFSTD_EXPORT BOF_RAM_DB_STAT
+struct BOF_RAM_DB_STAT
 {
   uint32_t NbInsertRequest_U32;   /*! Number of 'Insert' operation requested*/
   uint32_t NbInsertExecuted_U32;  /*! Number of 'Insert' operation accepted*/
@@ -81,7 +81,7 @@ struct BOFSTD_EXPORT BOF_RAM_DB_STAT
  * Summary
  * Cursor state
  */
-struct BOFSTD_EXPORT BOF_RAM_DB_CURSOR
+struct BOF_RAM_DB_CURSOR
 {
   void *pElement;
   uint32_t Index_U32;

@@ -30,7 +30,7 @@ BEGIN_BOF_NAMESPACE()
 // The Connect string contains after the ':' an optional user argument
 #define BOFSOCKET_UDP_CONNECT "BOF_UDP_CONNECT_BHA_01" // At lease 22 bytes (Ethernet min size 64)
 
-struct BOFSTD_EXPORT BOF_SOCKET_PARAM
+struct BOF_SOCKET_PARAM
 {
   BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
   std::string BindIpAddress_S;              /*! A string identifying the ip address to which this socket is bound. For multicast client this one should be 0.0.0.0:multicast group port*/

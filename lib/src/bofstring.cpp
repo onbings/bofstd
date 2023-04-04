@@ -528,55 +528,42 @@ bool Bof_IsDouble(const std::string &_rInput_S, double &_rVal_lf)
   Sts_i = sscanf(_rInput_S.c_str(), "%lf%c", &_rVal_lf, &Ch_c);
   return (Sts_i == 1);
 }
+/*** StrUpr ******************************************************/
 /*!
 Description
-Copy a specified number of characters
+The function strupr converts a string to uppercase.
+
 
 
 Parameters
-_pDest_c :	Specifies the destination string
-_pSrc_c :	Specifies the source string
-_MaxChar_U32 :	Specifies the maximum number of char to copy incuding the string terminating char
+_pStr_c :					A pointer to the string being converted
 
 Returns
-char *: 			\Returns a pointer to the destination string
+char *: A pointer to the converted string is returned
 
 Remarks
 Prototype based on CLib function
-BUT WITH SOME DIFFERENCES:
-The StrNCpy() function copies a maximum of _MaxChar_U32-1 characters from the character array pointed
-to by _pSrc_c to the character array pointed to by _pDest_c. Neither dest nor source need necessarily
-point to null terminated character arrays. Also,_pSrc_c and _pDest_c must not overlap.
-
-If a null character ('\0') is reached in source before _MaxChar_U32-1 characters have been copied,
-StrNCpy() STOPS padding _pDest_c with null characters until _MaxChar_U32-1 characters have been added
-to dest.
-A null character is ALWAYS inserted in the pDest_c[_MaxChar_U32-1] array entry
 */
-char *Bof_StringToUpperInPlace(char *_pDest_c, const char *_pSrc_c, size_t _NbMaxToCopy)
+char *Bof_StringToUpperInPlace(char *_pStr_c)
 {
-  char c_c, *pRts_c;
+  char *pRts_c = NULL;
 
-  pRts_c = _pDest_c;
-  if ((_pDest_c) && (_pSrc_c) && (_NbMaxToCopy))
+  char  Ch_c;
+
+  if (_pStr_c)
   {
-    _NbMaxToCopy--;
-    c_c = 0x01;
-    while ((c_c) && (_NbMaxToCopy))
+    pRts_c = _pStr_c;
+    Ch_c = *_pStr_c;
+    while (Ch_c)
     {
-      _NbMaxToCopy--;
-      c_c = *_pSrc_c++;
-      *_pDest_c++ = c_c;
-    }
-
-    if (c_c)
-    {
-      *_pDest_c = 0;
+      *_pStr_c++ = (char)toupper(Ch_c);
+      Ch_c = *_pStr_c;
     }
   }
 
-  return (pRts_c);
+  return(pRts_c);
 }
+
 /*!
 Description
 Copy a specified number of characters

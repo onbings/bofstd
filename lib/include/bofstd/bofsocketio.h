@@ -57,7 +57,7 @@ enum class BOF_SOCKET_IO_NOTIFY_TYPE : uint32_t
 typedef std::function<BOFERR(BOF_SOCKET_IO_DATA_REQ _IoDataReq_E, BOFERR Sts_E, BOF::BOF_BUFFER &_rDataBuffer_X, void *_pUserArg)> ON_SOCKET_DATA_IO_CALLBACK;
 const uint32_t BOF_SOCKETIO_MIN_NOTIFY_RCV_BUFFER_SIZE = 0x200;
 
-struct BOFSTD_EXPORT BOF_SOCKET_IO_PARAM
+struct BOF_SOCKET_IO_PARAM
 {
   std::string Name_S;
   uint32_t SocketRcvBufferSize_U32;
@@ -87,7 +87,7 @@ struct BOFSTD_EXPORT BOF_SOCKET_IO_PARAM
   }
 };
 
-struct BOFSTD_EXPORT BOF_SOCKET_SESSION_STATISTIC
+struct BOF_SOCKET_SESSION_STATISTIC
 {
   uint32_t NbOpConnect_U32;
   uint32_t NbOpConnectError_U32;
@@ -140,7 +140,7 @@ struct BOFSTD_EXPORT BOF_SOCKET_SESSION_STATISTIC
     NbTimerEventError_U32 = 0;
   }
 };
-struct BOFSTD_EXPORT BOF_SOCKET_WRITE_PARAM
+struct BOF_SOCKET_WRITE_PARAM
 {
   uint32_t TimeoutInMs_U32;
   uint32_t Nb_U32;
@@ -160,7 +160,7 @@ struct BOFSTD_EXPORT BOF_SOCKET_WRITE_PARAM
   }
 };
 
-struct BOFSTD_EXPORT BOF_FTP_FILE
+struct BOF_FTP_FILE
 {
   BOF_FILE_PERMISSION Right_E; //-rwx------
   std::string User_S;

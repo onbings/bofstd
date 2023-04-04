@@ -111,7 +111,7 @@ using BOF_PARAMETER_ENUM_TO_STRING = std::function<const std::string &(int _Enum
 // typedef const std::string &(* BOF_PARAMETER_ENUM_TO_STRING)(int _EnumValue_i);
 using BOF_PARAMETER_STRING_TO_ENUM = std::function<int(const std::string &_rEnumValue_S)>;
 
-struct BOFSTD_EXPORT BOFPARAMETER
+struct BOFPARAMETER
 {
   void *pUser;
   std::string Name_S;

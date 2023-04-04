@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 #endif
   testing::InitGoogleTest(&argc, argv);
   int Rts_i;
-  //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*";
+ // ::testing::GTEST_FLAG(filter) = "String_Test.StringToUpperInPlace";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 
   Rts_i = RUN_ALL_TESTS();

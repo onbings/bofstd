@@ -125,7 +125,7 @@ enum class BOF_LOGGER_OVERFLOW_POLICY : uint32_t
   OVERWRITE, // For circular structure, the oldest data will be erased to enqueue the new one
 };
 
-struct BOFSTD_EXPORT BOF_LOG_CHANNEL_PARAM
+struct BOF_LOG_CHANNEL_PARAM
 {
   std::string ChannelName_S;
   BofPath FileLogPath;
@@ -190,7 +190,7 @@ typedef std::function<const char *(uint32_t _ErrorCode_U32)> BOF_LOG_ERROR_CODE_
 For spdlog impl: Each logger pre allocates on the heap a buffer whose size is MaxNumberOfAsyncLogQueueEntry_U32 x sizeof(slot).
 Each slot (in 64 bits) is 104 bytes, so for example set_async_mode(8192) would allocate on the heap 8192*104=832KB for each async logger.
 */
-struct BOFSTD_EXPORT BOF_LOGGER_PARAM
+struct BOF_LOGGER_PARAM
 {
   std::string Name_S;
   uint32_t MaxNumberOfAsyncLogQueueEntry_U32;

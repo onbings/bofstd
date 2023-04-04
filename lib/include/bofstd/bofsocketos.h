@@ -60,7 +60,7 @@ typedef int BOFSOCKET;
 typedef struct iovec SCATTER_GATHER_BUFFER;
 #endif
 
-struct BOFSTD_EXPORT BOF_POLL_SOCKET
+struct BOF_POLL_SOCKET
 {
   BOFSOCKET Fd;
   uint16_t Event_U16;
@@ -91,7 +91,7 @@ enum class BOF_POLL_SOCKET_OP : uint8_t
 
 #pragma pack(1)
 
-struct BOFSTD_EXPORT BOF_POLL_SOCKET_CMD
+struct BOF_POLL_SOCKET_CMD
 {
   BOF_POLL_SOCKET_OP SocketOp_E;
   uint8_t pSpare_U8[3];
@@ -147,11 +147,11 @@ typedef struct sockaddr_in6 BOF_SOCKADDR_IN6;
 typedef struct in_addr BOF_IN_ADDR;
 typedef struct in6_addr BOF_IN_ADDR6;
 
-struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS;
+struct BOF_SOCKET_ADDRESS;
 BOFSTD_EXPORT BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
 BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowProtocol_B, bool _ShowPortNumber_B);
 
-struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS
+struct BOF_SOCKET_ADDRESS
 {
   bool Valid_B;
   bool IpV6_B;
@@ -500,10 +500,10 @@ struct BOF_IPV4_ADDR_U32
   }
 };
 
-struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT;
+struct BOF_SOCKET_ADDRESS_COMPONENT;
 BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
 
-struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
+struct BOF_SOCKET_ADDRESS_COMPONENT
 {
   std::string Protocol_S;  // Scheme  (cf BofUri)
   std::string IpAddress_S; // Authority (cf BofUri)
@@ -622,7 +622,7 @@ struct BOFSTD_EXPORT BOF_SOCKET_ADDRESS_COMPONENT
   }
 };
 
-struct BOFSTD_EXPORT BOF_INTERFACE_INFO
+struct BOF_INTERFACE_INFO
 {
   std::string IpGateway_S;
   BOF_NETWORK_INTERFACE_FLAG InterfaceFlag_E;
@@ -643,7 +643,7 @@ struct BOFSTD_EXPORT BOF_INTERFACE_INFO
   }
 };
 
-struct BOFSTD_EXPORT BOF_NETWORK_INTERFACE_PARAM
+struct BOF_NETWORK_INTERFACE_PARAM
 {
   bool IpV6_B;
   std::string Name_S; // 16:IF_NAMESIZE linux 260: MAX_ADAPTER_NAME_LENGTH+4 win3�

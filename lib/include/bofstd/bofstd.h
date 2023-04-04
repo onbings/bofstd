@@ -48,7 +48,7 @@ using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint
 
 BEGIN_BOF_NAMESPACE()
 
-struct BOFSTD_EXPORT BOFSTDPARAM
+struct BOFSTDPARAM
 {
   bool AssertInRelease_B;
   BofAssertCallback AssertCallback;
@@ -69,7 +69,7 @@ struct BOFSTD_EXPORT BOFSTDPARAM
  * Summary
  * Definition of a color in the RGBA color space
  */
-struct BOFSTD_EXPORT BOF_RGBA
+struct BOF_RGBA
 {
   uint8_t r_U8; /*! Color R component(Red)*/
   uint8_t g_U8; /*! Color G component(Greeen)*/
@@ -100,7 +100,7 @@ struct BOFSTD_EXPORT BOF_RGBA
  * Summary
  * Definition of a size entity
  */
-struct BOFSTD_EXPORT BOF_SIZE
+struct BOF_SIZE
 {
   uint32_t Width_U32;  /*! Width value*/
   uint32_t Height_U32; /*! Height value*/

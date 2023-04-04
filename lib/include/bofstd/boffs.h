@@ -129,7 +129,7 @@ BOFSTD_EXPORT BOFERR Bof_CleanupDirectory(bool _Recursive_B, const BofPath &_rPa
 
 BOFSTD_EXPORT BOFERR Bof_RemoveDirectory(const BofPath &_rPath);
 
-struct BOFSTD_EXPORT BOF_FILE_FOUND
+struct BOF_FILE_FOUND
 {
   BofPath Path;
   uint64_t Size_U64;

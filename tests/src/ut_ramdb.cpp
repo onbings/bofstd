@@ -129,7 +129,6 @@ uint32_t DbRow::SetInt(int _Val_i)
  */
 void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32, char *_pVal_c)
 {
-  void *pRts = nullptr;
   uint32_t NbChar_U32;
 
   // DBGPRINTF(DBG_FCT_ENTRY,"GetKey(0x%X,0x%X,0x%X,0x%X)\r\n",_Index_U32,_pType_E,_MaxChar_U32,_pVal_c);
@@ -140,14 +139,12 @@ void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32
     switch (_Index_U32)
     {
     case DB_INDEX_KEY_U32: {
-      pRts = &mDbRowData_X.Key_U32;
       snprintf(_pVal_c, _MaxChar_U32, "0x%08X", mDbRowData_X.Key_U32);
       *_pType_E = BOF_TYPE_U32;
     }
     break;
 
     case DB_INDEX_KEY_TEXT16: {
-      pRts = &mDbRowData_X.pKeyText16_c;
       NbChar_U32 = (_MaxChar_U32 < sizeof(mDbRowData_X.pKeyText16_c)) ? _MaxChar_U32 : sizeof(mDbRowData_X.pKeyText16_c);
       memcpy(_pVal_c, mDbRowData_X.pKeyText16_c, NbChar_U32);
 
@@ -160,7 +157,6 @@ void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32
     break;
 
     default: {
-      pRts = nullptr;
       _pVal_c[0] = 0;
       *_pType_E = BOF_TYPE_NOTHING;
     }
@@ -169,7 +165,6 @@ void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32
   }
 
   // DBGPRINTF(DBG_FCT_EXIT,"GetKey returns 0x%X\r\n",pRts);
-  return pRts;
 }
 
 /*!

@@ -31,7 +31,7 @@
 #endif
 BEGIN_BOF_NAMESPACE()
 
-struct BOFSTD_EXPORT BOF_DAEMON_SERVICE_PARAM
+struct BOF_DAEMON_SERVICE_PARAM
 {
   std::string Name_S;
   BofPath PidFilePath;               // The path to where to store the PID of the daemon

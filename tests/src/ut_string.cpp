@@ -25,6 +25,14 @@
 
 USE_BOF_NAMESPACE()
 
+TEST(String_Test, StringToUpperInPlace)
+{
+  char pWork_c[128];
+  strcpy(pWork_c, "AbCd");
+  BOF::Bof_StringToUpperInPlace(pWork_c);
+  EXPECT_STREQ(pWork_c, "ABCD");
+}
+
 TEST(String_Test, MultiByteToWideChar)
 {
   size_t Len;

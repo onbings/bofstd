@@ -24,7 +24,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-struct BOFSTD_EXPORT BOF_SOCKET_OPERATION_PARAM
+struct BOF_SOCKET_OPERATION_PARAM
 {
   BofSocket *pSocket_O; /*! The pointer to the socket object */
   bool Read_B;          /*! Read data from the socket (write otherwise) */
@@ -44,7 +44,7 @@ struct BOFSTD_EXPORT BOF_SOCKET_OPERATION_PARAM
   }
 };
 
-struct BOFSTD_EXPORT BOF_SOCKET_OPERATION_RESULT
+struct BOF_SOCKET_OPERATION_RESULT
 {
   BOFERR Sts_E;       /*! The operation status */
   uint32_t Size_U32;  /*! The total size transferred in bytes */

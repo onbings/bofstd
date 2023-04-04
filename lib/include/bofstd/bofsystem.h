@@ -52,7 +52,7 @@ enum class BOF_BUFFER_ALLOCATE_ZONE : uint32_t
   BOF_BUFFER_ALLOCATE_ZONE_HUGE_PAGE,
   //	CMA,      ///< Contiguous Memory Allocator
 };
-struct BOFSTD_EXPORT BOF_BUFFER_ALLOCATE_HEADER
+struct BOF_BUFFER_ALLOCATE_HEADER
 {
   BOF_BUFFER_ALLOCATE_ZONE AllocateZone_E;
   //	uint32_t SizeInByte_U32;
@@ -74,7 +74,7 @@ struct BOFSTD_EXPORT BOF_BUFFER_ALLOCATE_HEADER
     pHugePath_c[0] = 0;
   }
 };
-struct BOFSTD_EXPORT BOF_BUFFER
+struct BOF_BUFFER
 {
   bool MustBeDeleted_B;
   bool MustBeFreeed_B;
@@ -337,7 +337,7 @@ enum class BOF_ACCESS_SIZE : uint32_t
 ///@remarks 12345688 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F ????????????????
 ///@remarks 12345698 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F  !"#$%&'()*+,-./
 ///@remarks 123456A8 30 31 32 33 34 35 36 37 38 39 3A 3B             0123456789:;
-struct BOFSTD_EXPORT BOF_DUMP_MEMORY_ZONE_PARAM
+struct BOF_DUMP_MEMORY_ZONE_PARAM
 {
   uint32_t NbItemToDump_U32;        ///< Specifies the number of item (uint8_t, uint16_t, uint32_t, uint64_t to dump.
   const volatile void *pMemoryZone; ///< Specifies the address of the first byte of the memory zone to dump
@@ -371,7 +371,7 @@ struct BOFSTD_EXPORT BOF_DUMP_MEMORY_ZONE_PARAM
 };
 const uint32_t BOF_MUTEX_MAGIC = 0x01D654AC;
 
-struct BOFSTD_EXPORT BOF_MUTEX
+struct BOF_MUTEX
 {
   uint32_t Magic_U32;
   std::string Name_S;
@@ -394,7 +394,7 @@ struct BOFSTD_EXPORT BOF_MUTEX
 
 const uint32_t BOF_EVENT_MAGIC = 0x1F564864;
 
-struct BOFSTD_EXPORT BOF_EVENT
+struct BOF_EVENT
 {
   uint32_t Magic_U32;
   std::string Name_S;
@@ -425,7 +425,7 @@ struct BOFSTD_EXPORT BOF_EVENT
 
 const uint32_t BOF_SEMAPHORE_MAGIC = 0xABFF8974;
 
-struct BOFSTD_EXPORT BOF_SEMAPHORE
+struct BOF_SEMAPHORE
 {
   uint32_t Magic_U32;
   std::string Name_S;
@@ -450,7 +450,7 @@ struct BOFSTD_EXPORT BOF_SEMAPHORE
 
 const uint32_t BOF__CONDITIONAL_VARIABLE_MAGIC = 0xCBFDE456;
 
-struct BOFSTD_EXPORT BOF_CONDITIONAL_VARIABLE
+struct BOF_CONDITIONAL_VARIABLE
 {
   uint32_t Magic_U32;
   std::string Name_S;
@@ -483,7 +483,7 @@ template <> struct IsItAnEnumBitFLag<BOF_ACCESS_TYPE> : std::true_type
 {
 };
 
-struct BOFSTD_EXPORT BOF_SHARED_MEMORY
+struct BOF_SHARED_MEMORY
 {
   uint32_t Magic_U32;
   std::string Name_S;
@@ -632,7 +632,7 @@ enum BOF_THREAD_PRIORITY
 using BofThreadFunction = std::function<void *(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)>;
 const uint32_t BOF_THREAD_MAGIC = 0xCBE89448;
 
-struct BOFSTD_EXPORT BOF_THREAD
+struct BOF_THREAD
 {
   uint32_t Magic_U32;
   std::string Name_S;
@@ -683,7 +683,7 @@ struct BOFSTD_EXPORT BOF_THREAD
   }
 };
 
-struct BOFSTD_EXPORT BOF_SYSTEM_USAGE_INFO
+struct BOF_SYSTEM_USAGE_INFO
 {
   struct
   {

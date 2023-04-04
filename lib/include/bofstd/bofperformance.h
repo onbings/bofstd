@@ -414,14 +414,14 @@ private:
     BofPerfPointAdd(perfpointmgr, "%s at %d\n", __func__, __LINE__);                                                                                                                                                                                           \
   }
 
-struct BOFSTD_EXPORT BOF_PERF_POINT_ENTRY
+struct BOF_PERF_POINT_ENTRY
 {
   uint64_t TimeStampInNs_U64;
   uint64_t Delta_U64;
   char pPointName_c[BOF_PERF_POINT_NAME_MAX_CHAR];
 };
 
-struct BOFSTD_EXPORT BOF_PERF_POINT_MGR
+struct BOF_PERF_POINT_MGR
 {
   uint32_t MgrMagicNumber_U32;
   char pMgrName_c[BOF_PERF_POINT_MGR_NAME_MAX_CHAR];
