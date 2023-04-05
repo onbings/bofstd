@@ -184,7 +184,7 @@ void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pCon
       Sts_E = Bof_LockMutex(S_Mtx_X);
       // There is test without mutex EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       //					Now_U32 = Bof_GetMsTickCount();
-      // printf("[%06d] T %d D %d i %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,i_U32);
+      // printf("[%06d] T %d D %d i %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,i_U32);
       // Last_U32 = Now_U32;
 
       for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
@@ -193,11 +193,11 @@ void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pCon
       }
 
       SleepTime_U32 = Bof_Random(true, 10, 50);
-      //			printf("[%06d] Sleep for %d\r\n", pThreadContext_X->Id_U32, SleepTime_U32);
+      //			printf("[%06d] Sleep for %d\n", pThreadContext_X->Id_U32, SleepTime_U32);
       // SleepTime_U32 = 0;
       Bof_MsSleep(SleepTime_U32);
 
-      // printf("[%06d] Wakeup\r\n", pThreadContext_X->Id_U32);
+      // printf("[%06d] Wakeup\n", pThreadContext_X->Id_U32);
 
       for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
       {
@@ -212,7 +212,7 @@ void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pCon
     while (!_rIsThreadLoopMustExit_B)
     {
       //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread lock start\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
+      //			printf("[%06d] T %d D %d Thread lock start\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
       //			Last_U32 = Now_U32;
       S_ValueToProtect_U32++;
       Sts_E = Bof_LockMutex(S_Mtx_X);
@@ -222,7 +222,7 @@ void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pCon
       SleepTime_U32 = Bof_Random(true, 10, 100);
 
       //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Sleep for %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, SleepTime_U32);
+      //			printf("[%06d] T %d D %d Sleep for %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, SleepTime_U32);
       //			Last_U32 = Now_U32;
 
       Bof_MsSleep(SleepTime_U32);
@@ -230,24 +230,24 @@ void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pCon
       Sts_E = Bof_UnlockMutex(S_Mtx_X);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread lock end exit %d sts %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,  Sts_E);
+      //			printf("[%06d] T %d D %d Thread lock end exit %d sts %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,  Sts_E);
       //			Last_U32 = Now_U32;
 
       //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread wait start\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
+      //			printf("[%06d] T %d D %d Thread wait start\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
       //			Last_U32 = Now_U32;
 
       Sts_E = Bof_WaitForEvent(pThreadContext_X->Event_X, pThreadContext_X->SleepInMs_U32, 0);
 
       //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread wait end exit %d sts %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, _rIsThreadLoopMustExit_B, Sts_E);
+      //			printf("[%06d] T %d D %d Thread wait end exit %d sts %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, _rIsThreadLoopMustExit_B, Sts_E);
       //			Last_U32 = Now_U32;
     }
   }
   S_NbThread_U32--;
 
   //	Now_U32 = Bof_GetMsTickCount();
-  // printf("[%06d] T %d D %d Thread EXIT end nb %d\r\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, S_NbThread_U32);
+  // printf("[%06d] T %d D %d Thread EXIT end nb %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, S_NbThread_U32);
   //	Last_U32 = Now_U32;
 
   return (void *)0x12345678;
@@ -568,7 +568,7 @@ TEST(Threading_Test, MultiThread)
   {
     if ((i_U32) && !(i_U32 % PRTPERLOOP))
     {
-      //printf("%d Create thread %d/%d\r\n", Bof_GetMsTickCount(), i_U32, NBTHREAD);
+      // printf("%d Create thread %d/%d\n", Bof_GetMsTickCount(), i_U32, NBTHREAD);
     }
     pThreadContext_X[i_U32].Reset();
     pThreadContext_X[i_U32].Id_U32 = i_U32;
@@ -606,7 +606,7 @@ TEST(Threading_Test, MultiThread)
     Sts_E = Bof_GetMemoryState(AvailableFreeMemory_U64, TotalMemorySize_U64);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_TRUE(AvailableFreeMemory_U64 < TotalMemorySize_U64);
-    //	printf("Start thread %llx/%llx\r\n", AvailableFreeMemory_U64, TotalMemorySize_U64);
+    //	printf("Start thread %llx/%llx\n", AvailableFreeMemory_U64, TotalMemorySize_U64);
     Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, MidPriority_E, STARTSTOPTO);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
@@ -635,12 +635,12 @@ TEST(Threading_Test, MultiThread)
   for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)
   {
     //		Now_U32 = Bof_GetMsTickCount();
-    //		printf("[%06d] T %d D %d ->Signal thread\r\n", i_U32, Now_U32, Now_U32-Last_U32);
+    //		printf("[%06d] T %d D %d ->Signal thread\n", i_U32, Now_U32, Now_U32-Last_U32);
     //		Last_U32 = Now_U32;
     if ((i_U32) && !(i_U32 % PRTPERLOOP))
     {
       //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("T %d D %d Delete thread %d/%d\r\n", Now_U32, Now_U32 - Last_U32, i_U32, NBTHREAD);
+      //			printf("T %d D %d Delete thread %d/%d\n", Now_U32, Now_U32 - Last_U32, i_U32, NBTHREAD);
       //			Last_U32 = Now_U32;
     }
     Name_S = "MyEvent_" + std::to_string(i_U32);
@@ -651,14 +651,14 @@ TEST(Threading_Test, MultiThread)
     //		EXPECT_FALSE(pThreadContext_X[i_U32].Event_X.Signaled_B);
 
     //		Now_U32 = Bof_GetMsTickCount();
-    //		printf("[%06d] T %d D %d ->Destroy thread start\r\n", i_U32, Now_U32, Now_U32 - Last_U32);
+    //		printf("[%06d] T %d D %d ->Destroy thread start\n", i_U32, Now_U32, Now_U32 - Last_U32);
     //		Last_U32 = Now_U32;
     Sts_E = Bof_DestroyThread(pThread_X[i_U32]);
 
     //		Now_U32 = Bof_GetMsTickCount();
     //		if ((Now_U32 - Last_U32) > 200)
     {
-      //			printf("[%06d] T %d D %d ->Destroy thread end\r\n", i_U32, Now_U32, Now_U32 - Last_U32);
+      //			printf("[%06d] T %d D %d ->Destroy thread end\n", i_U32, Now_U32, Now_U32 - Last_U32);
       //			Last_U32 = Now_U32;
     }
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -758,7 +758,7 @@ TEST(Threading_Test, MultiThreadWithoutMutex)
       break;
     }
   }
-  //	EXPECT_FALSE(Sts_B);		//TODO !!
+  //	EXPECT_FALSE(Sts_B);		// TODO !!
   // Sts_E = Bof_DestroyMutex(S_Mtx_X);
   // EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
@@ -1012,7 +1012,6 @@ TEST(Threading_Test, SharedMemory)
   }
   Sts_E = Bof_CloseSharedMemory(ShrMem_X, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
 }
 
 TEST(Threading_Test, CriticalSection)

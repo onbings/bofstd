@@ -509,7 +509,7 @@ TEST(System_Test, Random)
     EXPECT_GE(Val_S32, MinValue_S32);
     EXPECT_LE(Val_S32, MaxValue_S32);
     pTime_U32[Val_S32]++;
-    // printf("%d: %d\r\n", i_U32, Val_U32);
+    // printf("%d: %d\n", i_U32, Val_U32);
   }
   MeanLow_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.80f);
   MeanHigh_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.20f);
@@ -524,7 +524,7 @@ TEST(System_Test, Random)
     EXPECT_GE(pTime_U32[i_U32], MeanLow_U32);
     EXPECT_LE(pTime_U32[i_U32], MeanHigh_U32);
 
-    // printf("%d is present %d times\r\n", i_U32, pTime_U32[i_U32]);
+    // printf("%d is present %d times\n", i_U32, pTime_U32[i_U32]);
   }
   for (i_U32 = MaxValue_S32 + 1; i_U32 < BOF_NB_ELEM_IN_ARRAY(pTime_U32); i_U32++)
   {
@@ -541,7 +541,7 @@ TEST(System_Test, Random)
     EXPECT_GE(Val_S32, MinValue_S32);
     EXPECT_LE(Val_S32, MaxValue_S32);
     pTime_U32[-Val_S32]++;
-    // printf("%d: %d\r\n", i_U32, Val_U32);
+    // printf("%d: %d\n", i_U32, Val_U32);
   }
   MeanLow_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.75f);
   MeanHigh_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.25f);
@@ -556,7 +556,7 @@ TEST(System_Test, Random)
     EXPECT_GE(pTime_U32[i_U32], MeanLow_U32);
     EXPECT_LE(pTime_U32[i_U32], MeanHigh_U32);
 
-    // printf("%d is present %d times\r\n", i_U32, pTime_U32[i_U32]);
+    // printf("%d is present %d times\n", i_U32, pTime_U32[i_U32]);
   }
   for (i_U32 = -MinValue_S32 + 1; i_U32 < BOF_NB_ELEM_IN_ARRAY(pTime_U32); i_U32++)
   {
@@ -573,7 +573,7 @@ TEST(System_Test, Random)
     EXPECT_GE(Val_S32, MinValue_S32);
     EXPECT_LE(Val_S32, MaxValue_S32);
     pTime_U32[50 + Val_S32]++;
-    // printf("%d: %d\r\n", i_U32, Val_U32);
+    // printf("%d: %d\n", i_U32, Val_U32);
   }
   MeanLow_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 0.80f);
   MeanHigh_U32 = static_cast<uint32_t>(static_cast<float>(NBRAMDOMLOOP / (MaxValue_S32 - MinValue_S32 + 1)) * 1.20f);
@@ -588,7 +588,7 @@ TEST(System_Test, Random)
     EXPECT_GE(pTime_U32[i_U32], MeanLow_U32);
     EXPECT_LE(pTime_U32[i_U32], MeanHigh_U32);
 
-    // printf("%d is present %d times\r\n", i_U32, pTime_U32[i_U32]);
+    // printf("%d is present %d times\n", i_U32, pTime_U32[i_U32]);
   }
   for (i_U32 = 50 + MaxValue_S32 + 1; i_U32 < BOF_NB_ELEM_IN_ARRAY(pTime_U32); i_U32++)
   {
@@ -601,7 +601,7 @@ TEST(System_Test, Random)
     Str_S = Bof_Random(true, 40, 'A', 'Z');
     EXPECT_STRNE(Prv_S.c_str(), Str_S.c_str());
     Prv_S = Str_S;
-    // printf("%d: %s\r\n", i_U32, Str_S.c_str());
+    // printf("%d: %s\n", i_U32, Str_S.c_str());
   }
 }
 

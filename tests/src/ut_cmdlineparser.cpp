@@ -196,17 +196,12 @@ BOFERR CmdLineParseResultUltimateCheck(int /*_Index_U32*/, const BOFPARAMETER & 
 {
   BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
 
-  //	printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
-  //	printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), _rBofCommandlineOption_X.ArgType_E, _rBofCommandlineOption_X.pValue, _pOptNewVal_c ? _pOptNewVal_c : "nullptr");
-
   return Rts_E;
 }
 
 BOFERR CmdLineParseError(const char *_pError_c)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-
-  //printf("Error '%s'\r\n", _pError_c);
   return Rts_E;
 }
 

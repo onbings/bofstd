@@ -95,7 +95,7 @@ BEGIN_BOF_NAMESPACE()
  *
  * printf("MD5 (\"%s\")=", pString_c);
  * for (i_U32=0;i_U32<16;i_U32++) printf ("%02x",pDigest_U8[i_U32]);
- * printf ("\r\n");
+ * printf ("\n");
  * getch();
  * }
  */

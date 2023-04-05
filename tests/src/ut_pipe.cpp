@@ -75,7 +75,6 @@ static void *ServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, voi
       EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
     }
   }
-  //printf("Leave server thread\r\n");
   return nullptr;
 }
 

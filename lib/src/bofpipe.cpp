@@ -114,7 +114,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
     }
     else
     {
-      //      LOGC("[Main] >> Unable to create fifo (Status %d Error 0x%08X)\r\n", Status_i, Bof_GetLastError(false));
+      //      LOGC("[Main] >> Unable to create fifo (Status %d Error 0x%08X)\n", Status_i, Bof_GetLastError(false));
     }
 
     BOF_ASSERT(mPipe_i >= 0);

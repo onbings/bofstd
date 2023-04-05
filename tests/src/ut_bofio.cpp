@@ -824,7 +824,6 @@ TEST(BofIo_Test, DISABLED_OpenCloseCmdDataSession)
   }
 
   NbMaxClient_U32 = NB_MAX_CLIENT - NotConnected_U32;
-  // printf("--------------------> Not connected data %d\r\n", NotConnected_U32);
 
   EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NbMaxClient_U32 * 2)));
   EXPECT_EQ(puBofSocketServer->NbConnectedSession(), NbMaxClient_U32);
@@ -1020,7 +1019,6 @@ TEST(BofIo_Test, ClientOpenCloseCmdDataSession)
   }
 
   NbMaxClient_U32 = NB_MAX_CLIENT - NotConnected_U32;
-  //printf("--------------------> Not connected data %d\r\n", NotConnected_U32);
 
   EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NbMaxClient_U32 * 2)));
   EXPECT_EQ(puBofSocketClientServer->NbConnectedSession(), NbMaxClient_U32);

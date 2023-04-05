@@ -403,10 +403,6 @@ TEST_F(SocketUdp_Test, UdpClientTest)
       // EXPECT_EQ(Status_X.Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(Status_X.NbOut_U32, 0);
       EXPECT_EQ(Status_X.Flag_U32, 0);
-      if (Status_X.NbIn_U32)
-      {
-        //				printf("jj");
-      }
     }
     DeltaWaitEof_U32 = Bof_ElapsedMsTime(StartWaitEof_U32);
     TotalSrvClt_U64 = (S_TotalSrvUdp_U64 + S_TotalCltUdp_U64);

@@ -68,7 +68,6 @@ public:
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         // create root
-        //				printf("DBG: create0 %s\r\n", SubTagList[0].c_str());
         Rts_E = (ixmlDocument_createElementEx(pXmlDoc_X, SubTagList[0].c_str(), &pXmlRoot_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
@@ -103,7 +102,6 @@ public:
           Rts_E = BOF_ERR_NO_ERROR;
           for (j_U32 = 1; j_U32 < SubTagList.size(); j_U32++)
           {
-            //						printf("DBG: create[%d] %s\r\n", j_U32, SubTagList[j_U32].c_str());
             Rts_E = (ixmlDocument_createElementEx(pXmlDoc_X, SubTagList[j_U32].c_str(), &ppXmlElementPerTag_X[j_U32]) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
             if (Rts_E == BOF_ERR_NO_ERROR)
             {
@@ -171,7 +169,6 @@ public:
                   }
                   else
                   {
-                    //										printf("DBG: createFirstLast[%d] %s\r\n", j_U32, _rXmlSchema_X[j_U32].Name_S.c_str());
                     Rts_E = (ixmlDocument_createElementEx(pXmlDoc_X, _rXmlSchema_X[j_U32].Name_S.c_str(), &pXmlElement_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
                     if (Rts_E == BOF_ERR_NO_ERROR)
                     {
@@ -195,8 +192,6 @@ public:
                   int ClildIndex_i;
                   for (ClildIndex_i = static_cast<int>(SubTagList.size() - 1); ClildIndex_i > 0; ClildIndex_i--)
                   {
-                    //										printf("DBG: remove %s\r\n", ppXmlElementPerTag_X[ClildIndex_i]->tagName);
-
                     ixmlNode_removeChild(reinterpret_cast<IXML_Node *>(ppXmlElementPerTag_X[ClildIndex_i - 1]), reinterpret_cast<IXML_Node *>(ppXmlElementPerTag_X[ClildIndex_i]), nullptr);
                     //										ixmlElement_free(ppXmlElementPerTag_X[j_U32]);
                   }
@@ -215,7 +210,6 @@ public:
                 {
                   if (Index_U32 < NbActiveArrayElement_U32)
                   {
-                    //										printf("DBG: createArrayEntry[%d] %s\r\n", Index_U32, SubTagList[SubTagList.size() - 1].c_str());
                     Index_U32++;
                     // Create new array entry->new parent
                     Rts_E = (ixmlDocument_createElementEx(pXmlDoc_X, SubTagList[SubTagList.size() - 1].c_str(), &ppXmlElementPerTag_X[SubTagList.size() - 1]) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;

@@ -131,7 +131,6 @@ void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32
 {
   uint32_t NbChar_U32;
 
-  // DBGPRINTF(DBG_FCT_ENTRY,"GetKey(0x%X,0x%X,0x%X,0x%X)\r\n",_Index_U32,_pType_E,_MaxChar_U32,_pVal_c);
   if (_pVal_c)
   {
     *_pVal_c = 0;
@@ -163,8 +162,6 @@ void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32
     break;
     }
   }
-
-  // DBGPRINTF(DBG_FCT_EXIT,"GetKey returns 0x%X\r\n",pRts);
 }
 
 /*!
@@ -187,7 +184,6 @@ BOFCMP DbRow::Compare(uint32_t _Index_U32, DbRow *_pDbRow_O)
   BOFCMP Rts_E;
   int Sts_i;
 
-  // DBGPRINTF(DBG_FCT_ENTRY,"Compare(0x%X,0x%X)\r\n",_Index_U32,_pDbRow_O);
   switch (_Index_U32)
   {
   case DB_INDEX_KEY_U32: {
@@ -222,7 +218,6 @@ BOFCMP DbRow::Compare(uint32_t _Index_U32, DbRow *_pDbRow_O)
   break;
   }
 
-  // DBGPRINTF(DBG_FCT_EXIT,"Compare returns 0x%X\r\n",Rts_E);
   return Rts_E;
 }
 

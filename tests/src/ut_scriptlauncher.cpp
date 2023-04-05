@@ -61,8 +61,6 @@ TEST_F(BofScriptLauncher_Test, Execute_popen)
 
   Status_i = BofScriptLauncher::Execute(pResult_c, sizeof(pResult_c), "echo $PATH");
 
-  //printf("PATH is %s\r\n", pResult_c);
-
   Status_i = BofScriptLauncher::Execute(pResult_c, sizeof(pResult_c), "echo Babar");
 
   EXPECT_TRUE(Status_i == 0);
@@ -85,8 +83,6 @@ TEST_F(BofScriptLauncher_Test, Execute_vfork)
 
   Status_i = BofScriptLauncher::Execute(pResult_c, sizeof(pResult_c), "echo $PATH");
 
-  //printf("PATH is %s\r\n", pResult_c);
-
   Status_i = BofScriptLauncher::Execute(pResult_c, sizeof(pResult_c), "echo Babar");
 
   EXPECT_TRUE(Status_i == 0);
@@ -108,8 +104,6 @@ TEST_F(BofScriptLauncher_Test, Execute_posix_spawn)
   BofScriptLauncher::SetDefaultExecuteMode(BofScriptLauncher::EXECUTE_POSIX_SPAWN);
 
   Status_i = BofScriptLauncher::Execute(pResult_c, sizeof(pResult_c), "echo $PATH");
-
-  //printf("PATH is %s\r\n", pResult_c);
 
   Status_i = BofScriptLauncher::Execute(pResult_c, sizeof(pResult_c), "echo Babar");
 

@@ -301,10 +301,6 @@ BOFERR BofSocketIo::DestroySocket(const std::string &_rName_S)
         psParentSocketSession->ChildDataChannel(nullptr);
       }
     }
-    // catch (std::exception)
-    {
-      // printf("jj");
-    }
     if (mpsChildDataChannel)
     {
       mpsChildDataChannel->DestroySocket(_rName_S + "_mpsChildDataChannel"); // #Con#

@@ -598,18 +598,6 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::InsertElement(BOF_HANDLE
         {
           pNode_O = mppRamDbTree[Tree_U32]->Insert(&mpElementList[mNextRamDbFreeElement_U32]); // mNextRamDbFreeElement_U32))
 
-          /*
-           * if (pNode_O)
-           * {
-           * pData_O=pNode_O->GetData();
-           * }
-           * else
-           * {
-           * pData_O=_pElement;
-           * }
-           * char p[128];
-           * printf("[]Insert %d k %8.8s s %X Node %X\r\n",Tree_U32,pData_O->GetGuid(nullptr,p),pData_O->GetSeq(),pNode_O);
-           */
           if (pNode_O)
           {
             Rts_U32 = (uint32_t)BOF_ERR_DUPLICATE;
@@ -705,11 +693,6 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::DeleteElement(KeyType *_
     {
       pElement = mppRamDbTree[i_U32]->Search(_pElement, BOF_CMP_EQUAL);
 
-      /*
-       * char p[128];
-       * pData=pElement ? pElement->GetData():nullptr;
-       * printf("[]Delete %d %X/%X g %8.8s s %X\r\n",i_U32,_pElement,pElement,pData ? pData->GetGuid(nullptr,p):"nullptr",pData->GetSeq());
-       */
       if (!pElement)
       {
         break;
@@ -744,14 +727,6 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::DeleteElement(KeyType *_
         for (i_U32 = 0; i_U32 < mNbIndex_U32; i_U32++)
         {
           pData = mppRamDbTree[i_U32]->Delete(_pElement, BOF_CMP_EQUAL);
-
-          /*
-           * char p[128];
-           * printf("[]DoDelete %d g %8.8s s %X\r\n",i_U32,pData ? pData->GetGuid(nullptr,p):"nullptr",pData->GetSeq());
-           */
-
-          // All pData in all index points to the same static element
-          // No error can occurs !!!!			if (Rts_U32!=BOF_ERR_NO_ERROR) break;
         }
 
         if (pData)
@@ -829,7 +804,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
         Bof_LockMutex(mMtx_X);
 
         // Check if the element is present in all index
-        // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Check if the element is present in all index\r\n");
+        // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Check if the element is present in all index");
         for (i_U32 = 0; i_U32 < mNbIndex_U32; i_U32++)
         {
           pElement = mppRamDbTree[i_U32]->Search(_pSearchElement, BOF_CMP_EQUAL);
@@ -840,7 +815,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
           }
         }
 
-        // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Present %d/%d\r\n",i_U32,mNbIndex_U32);
+        // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Present %d/%d",i_U32,mNbIndex_U32);
         if (i_U32 == mNbIndex_U32)
         {
           /*
@@ -871,14 +846,14 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
               }
             }
 
-            // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Data/index %d/%d\r\n",i_U32,mNbIndex_U32);
+            // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Data/index %d/%d",i_U32,mNbIndex_U32);
             if ((i_U32 == mNbIndex_U32) && (pElement))
             {
               // Les index sont identique seuls les donnÈes sont diffÈrente
               // !!!64bits!!!
               Position_U32 = (uint32_t)(pElement->GetData() - mpElementList);
 
-              // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Pos %d/%d\r\n",Position_U32,mNbMaxElement_U32);
+              // BOFDBG_OUTPUT_0(DBG_FS,0,"UpdateElement Pos %d/%d",Position_U32,mNbMaxElement_U32);
               if (Position_U32 < mNbMaxElement_U32)
               {
                 mDbRamStat_X.NbUpdateDataExecuted_U32++;
@@ -976,7 +951,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
     }
   }
 
-  // BOFDBG_OUTPUT_0(DBG_FS,Rts_U32,"UpdateElement Rts %X\r\n",Rts_U32);
+  // BOFDBG_OUTPUT_0(DBG_FS,Rts_U32,"UpdateElement Rts %X",Rts_U32);
   return Rts_U32;
 }
 
@@ -1008,13 +983,13 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
   for (i_U32 = 0; i_U32 < mNbIndex_U32; i_U32++)
   {
-    // BOFDBG_OUTPUT_0(DBG_DB,0,"Index %d\r\n",i_U32);
+    // BOFDBG_OUTPUT_0(DBG_DB,0,"Index %d",i_U32);
     if (mppRamDbTree[i_U32])
     {
       Rts_S32 *= mppRamDbTree[i_U32]->Check(&NbNode_U32);
     }
 
-    // BOFDBG_OUTPUT_0(DBG_DB,0,"-------------------------------------------------------------\r\n");
+    // BOFDBG_OUTPUT_0(DBG_DB,0,"-------------------------------------------------------------");
   }
 
   // Check number of record
@@ -1027,13 +1002,13 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
   if (NbNode_U32 != (mNbIndex_U32 * Total_U32))
   {
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "%d index * %d node != %d total node\r\n", mNbIndex_U32, Total_U32, NbNode_U32);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "%d index * %d node != %d total node", mNbIndex_U32, Total_U32, NbNode_U32);
     Rts_S32 = 0;
   }
 
   if (Total_U32 != mNbRecord_U32)
   {
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "%d node per tree != %d total record\r\n", Total_U32, mNbRecord_U32);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "%d node per tree != %d total record", Total_U32, mNbRecord_U32);
     Rts_S32 = 0;
   }
 
@@ -1043,7 +1018,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
     {
       if (mppRamDbTree[i_U32]->GetNbNode() != Total_U32)
       {
-        // BOFDBG_OUTPUT_0(DBG_DB,0,"Index %d has %d records instead of %d\r\n",i_U32,mppRamDbTree[i_U32]->GetNbNode(),Total_U32);
+        // BOFDBG_OUTPUT_0(DBG_DB,0,"Index %d has %d records instead of %d",i_U32,mppRamDbTree[i_U32]->GetNbNode(),Total_U32);
         Rts_S32 = 0;
       }
     }
@@ -1065,7 +1040,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
   if (Total_U32 != mNbFreeCursor_U32)
   {
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "%d free cursor detected instead of %d\r\n", Total_U32, mNbFreeCursor_U32);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "%d free cursor detected instead of %d", Total_U32, mNbFreeCursor_U32);
     Rts_S32 = 0;
   }
 
@@ -1102,7 +1077,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
           if (NxtFree_U32 == Nxt_U32)
           {
-            // BOFDBG_OUTPUT_0(DBG_DB, 0, "Free entry %d is identical to entry %d (%d)\r\n", i_U32, j_U32, NxtFree_U32);
+            // BOFDBG_OUTPUT_0(DBG_DB, 0, "Free entry %d is identical to entry %d (%d)", i_U32, j_U32, NxtFree_U32);
             Rts_S32 = 0;
             break;
           }
@@ -1114,7 +1089,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
         }
         else
         {
-          // BOFDBG_OUTPUT_0(DBG_DB,0,"Free entry %d contains index %d which is greater than %d\r\n",i_U32,NxtFree_U32,mNbMaxElement_U32);
+          // BOFDBG_OUTPUT_0(DBG_DB,0,"Free entry %d contains index %d which is greater than %d",i_U32,NxtFree_U32,mNbMaxElement_U32);
           Rts_S32 = 0;
           break;
         }
@@ -1129,7 +1104,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
     if (Total_U32 != mppRamDbTree[0]->GetNbNode()) // All index have the same number of record normally
     {
-      // BOFDBG_OUTPUT_0(DBG_DB,0,"Free list contains %d used entry which is different of the current number of record %d\r\n", Total_U32, mppRamDbTree[0]->GetNbNode());
+      // BOFDBG_OUTPUT_0(DBG_DB,0,"Free list contains %d used entry which is different of the current number of record %d", Total_U32, mppRamDbTree[0]->GetNbNode());
       Rts_S32 = 0;
     }
   }
@@ -1143,7 +1118,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
     if (Sts_U32 != BOF_ERR_NO_ERROR)
     {
-      // BOFDBG_OUTPUT_0(DBG_DB, 0, "'GetCursor' failed %d\r\n", Sts_U32);
+      // BOFDBG_OUTPUT_0(DBG_DB, 0, "'GetCursor' failed %d", Sts_U32);
       Rts_S32 = 0;
     }
     else
@@ -1154,7 +1129,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
       {
         if (Sts_U32 != BOF_ERR_EMPTY)
         {
-          // BOFDBG_OUTPUT_0(DBG_DB, 0, "'GetFirstElement' failed %d\r\n", Sts_U32);
+          // BOFDBG_OUTPUT_0(DBG_DB, 0, "'GetFirstElement' failed %d", Sts_U32);
           Rts_S32 = 0;
         }
       }
@@ -1177,7 +1152,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
               {
                 if (NxtFree_U32 == Position_U32)
                 {
-                  // BOFDBG_OUTPUT_0(DBG_DB,0,"Record (%d) is stored in a free entry %d (max is %d)\r\n",i_U32,j_U32, mNbMaxElement_U32);
+                  // BOFDBG_OUTPUT_0(DBG_DB,0,"Record (%d) is stored in a free entry %d (max is %d)",i_U32,j_U32, mNbMaxElement_U32);
                   Rts_S32 = 0;
                   break;
                 }
@@ -1197,7 +1172,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
           }
           else
           {
-            // BOFDBG_OUTPUT_0(DBG_DB,0,"Record (%d) is located outside of the free list %d (max is %d)\r\n", i_U32, Position_U32,mNbMaxElement_U32);
+            // BOFDBG_OUTPUT_0(DBG_DB,0,"Record (%d) is located outside of the free list %d (max is %d)", i_U32, Position_U32,mNbMaxElement_U32);
             Rts_S32 = 0;
             break;
           }
@@ -1213,7 +1188,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
           if (Sts_U32 != BOF_ERR_NO_ERROR)
           {
-            // BOFDBG_OUTPUT_0(DBG_DB, 0, "'GetNextElement' failed %d\r\n", Sts_U32);
+            // BOFDBG_OUTPUT_0(DBG_DB, 0, "'GetNextElement' failed %d", Sts_U32);
             Rts_S32 = 0;
             break;
           }
@@ -1221,7 +1196,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
         if (Total_U32 != mppRamDbTree[0]->GetNbNode()) // All index have the same number of record normally
         {
-          // BOFDBG_OUTPUT_0(DBG_DB,0,"Tree contains %d record which is different of the current number of record %d\r\n",Total_U32,mppRamDbTree[0]->GetNbNode());
+          // BOFDBG_OUTPUT_0(DBG_DB,0,"Tree contains %d record which is different of the current number of record %d",Total_U32,mppRamDbTree[0]->GetNbNode());
           Rts_S32 = 0;
         }
       }
@@ -1230,7 +1205,7 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
 
       if (Sts_U32 != BOF_ERR_NO_ERROR)
       {
-        // BOFDBG_OUTPUT_0(DBG_DB, 0, "'FreeCursor' failed %d\r\n", Sts_U32);
+        // BOFDBG_OUTPUT_0(DBG_DB, 0, "'FreeCursor' failed %d", Sts_U32);
         Rts_S32 = 0;
       }
     }
@@ -1263,13 +1238,13 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::DumpDatabase(const char 
       {
         if ((Remain_U32) && (AtLeastOne_B))
         {
-          DBG_INSERTSTRING(Rts_U32, snprintf(&_pBuffer_c[Rts_U32], Remain_U32, "-------------------------------------------------------------\r\n"), Remain_U32, Sts_U32);
+          DBG_INSERTSTRING(Rts_U32, snprintf(&_pBuffer_c[Rts_U32], Remain_U32, "-------------------------------------------------------------\n"), Remain_U32, Sts_U32);
         }
 
         if (Remain_U32)
         {
           AtLeastOne_B = true;
-          DBG_INSERTSTRING(Rts_U32, snprintf(&_pBuffer_c[Rts_U32], Remain_U32, "Db 0x%p NbElem %d Index %d\r\n", static_cast<void *>(this), GetNbRecord(), i_U32), Remain_U32, Sts_U32);
+          DBG_INSERTSTRING(Rts_U32, snprintf(&_pBuffer_c[Rts_U32], Remain_U32, "Db 0x%p NbElem %d Index %d\n", static_cast<void *>(this), GetNbRecord(), i_U32), Remain_U32, Sts_U32);
           if (Remain_U32)
           {
             if (mppRamDbTree[i_U32])

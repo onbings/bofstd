@@ -73,6 +73,7 @@ PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurity
 }
 
 #else
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
@@ -82,7 +83,6 @@ PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurity
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fcntl.h>
 #endif
 
 BEGIN_BOF_NAMESPACE()
@@ -94,9 +94,9 @@ static std::uniform_real_distribution<float> S_RandomFloatDistribution(0.0, 1.0f
 // TODO: When validated, remove functionS just after in the#if 0 with the old file mapppint api...
 
 // TODO: NMA ?
-// BHA->Should use Bof_OpenFileMapping and co in bofportability
-// and Bof_CreateFileMapping does not correcly generate SemKey = ftok(pFile_c, (char) Id_i); ->use GenerateSystemVKey
-//  if app crash shared memory stay active=>this is mainly use by nma to store event name->this should also work with Bof_OpenFileMapping=> a confimer avec nma
+//  BHA->Should use Bof_OpenFileMapping and co in bofportability
+//  and Bof_CreateFileMapping does not correcly generate SemKey = ftok(pFile_c, (char) Id_i); ->use GenerateSystemVKey
+//   if app crash shared memory stay active=>this is mainly use by nma to store event name->this should also work with Bof_OpenFileMapping=> a confimer avec nma
 
 BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, BOF_SHARED_MEMORY &_rSharedMemory_X)
 {
@@ -122,7 +122,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
 
     if ((pSecurityDescriptor_X)
         //			&& (Bof_MultiByteToWideChar(_rSharedMemory_X.Name_S.c_str(), sizeof(pName_wc) / sizeof(WCHAR), pName_wc)>=0)
-        )
+    )
     {
       Rts_E = BOF_ERR_EINVAL;
       // Name must start with Global\\->Responsabilities of the caller ! sinon			Rts_h = BOF_INVALID_HANDLE_VALUE;
@@ -269,8 +269,8 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
       //       Rts_E = BOF_ERR_EEXIST;
       // #else
       Rts_E = (shm_unlink(Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
-      //close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
-      // #endif
+      // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
+      //  #endif
     }
     //		Rts_E=Bof_DeleteSharedMemory(_rSharedMemory_X.Name_S);
 
@@ -815,12 +815,13 @@ BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool
     if ((_MaxNumberToNotify_U32) && (_MaxNumberToNotify_U32 <= 64))
     {
       _rEvent_X.Reset();
-      _rEvent_X.Magic_U32 = BOF_EVENT_MAGIC;
       _rEvent_X.Name_S = _rName_S;
+
       //		_rEvent_X.Canceled_B = false;
       _rEvent_X.SignaledBitmask_U64 = _InitialState_B ? (1 << (_MaxNumberToNotify_U32 - 1)) - 1 : 0;
       _rEvent_X.MaxNumberToNotify_U32 = _MaxNumberToNotify_U32;
       _rEvent_X.WaitKeepSignaled_B = _WaitKeepSignaled_B;
+      _rEvent_X.Magic_U32 = BOF_EVENT_MAGIC;
       Rts_E = BOF_ERR_NO_ERROR;
     }
   }
@@ -953,7 +954,6 @@ BOFERR Bof_DestroyEvent(BOF_EVENT &_rEvent_X)
   return Rts_E;
 }
 
-
 BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY &_rMin_E, BOF_THREAD_PRIORITY &_rMax_E)
 {
   BOFERR Rts_E;
@@ -961,24 +961,24 @@ BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPo
 #if defined(_WIN32)
   switch (_ThreadSchedulerPolicy_E)
   {
-    case BOF_THREAD_SCHEDULER_POLICY_OTHER:
-    case BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN:
-      _rMin_E = BOF_THREAD_PRIORITY_001;
-      _rMax_E = BOF_THREAD_PRIORITY_084;
-      Rts_E = BOF_ERR_NO_ERROR;
-      break;
+  case BOF_THREAD_SCHEDULER_POLICY_OTHER:
+  case BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN:
+    _rMin_E = BOF_THREAD_PRIORITY_001;
+    _rMax_E = BOF_THREAD_PRIORITY_084;
+    Rts_E = BOF_ERR_NO_ERROR;
+    break;
 
-    case BOF_THREAD_SCHEDULER_POLICY_FIFO:
-      _rMin_E = BOF_THREAD_PRIORITY_085;
-      _rMax_E = BOF_THREAD_PRIORITY_099;
-      Rts_E = BOF_ERR_NO_ERROR;
-      break;
+  case BOF_THREAD_SCHEDULER_POLICY_FIFO:
+    _rMin_E = BOF_THREAD_PRIORITY_085;
+    _rMax_E = BOF_THREAD_PRIORITY_099;
+    Rts_E = BOF_ERR_NO_ERROR;
+    break;
 
-    default:
-      _rMin_E = BOF_THREAD_PRIORITY_001;
-      _rMax_E = BOF_THREAD_PRIORITY_001;
-      Rts_E = BOF_ERR_EINVAL;
-      break;
+  default:
+    _rMin_E = BOF_THREAD_PRIORITY_001;
+    _rMax_E = BOF_THREAD_PRIORITY_001;
+    Rts_E = BOF_ERR_EINVAL;
+    break;
   }
 #else
   int Min_i = sched_get_priority_min(_ThreadSchedulerPolicy_E);
@@ -1039,24 +1039,24 @@ BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_P
   }
   return Rts_E;
 }
-//Internal
-  // THREAD_PRIORITY_TIME_CRITICAL	15	Base priority of 15 for IDLE_PRIORITY_CLASS,
-  // THREAD_PRIORITY_HIGHEST				2	Priority 2 points above the priority class.
-  // THREAD_PRIORITY_ABOVE_NORMAL	1		Priority 1 point above the priority class.
-  // THREAD_PRIORITY_NORMAL				0	Normal priority for the priority class.
-  // THREAD_PRIORITY_BELOW_NORMAL	- 1	Priority 1 point below the priority class.
-  // THREAD_PRIORITY_LOWEST				- 2	Priority 2 points below the priority class.
-  // THREAD_PRIORITY_IDLE					- 15	Base priority of 1 for IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS, or HIGH_PRIORITY_CLASS processes, and a base priority of 16 for REALTIME_PRIORITY_CLASS
-  // processes.
-  /*
-  085->100	15
-  068->084	2
-  051->067  1
-  049->051	0
-  033->049  -1
-  016->032  -2
-  000->015  -15
-  */
+// Internal
+//  THREAD_PRIORITY_TIME_CRITICAL	15	Base priority of 15 for IDLE_PRIORITY_CLASS,
+//  THREAD_PRIORITY_HIGHEST				2	Priority 2 points above the priority class.
+//  THREAD_PRIORITY_ABOVE_NORMAL	1		Priority 1 point above the priority class.
+//  THREAD_PRIORITY_NORMAL				0	Normal priority for the priority class.
+//  THREAD_PRIORITY_BELOW_NORMAL	- 1	Priority 1 point below the priority class.
+//  THREAD_PRIORITY_LOWEST				- 2	Priority 2 points below the priority class.
+//  THREAD_PRIORITY_IDLE					- 15	Base priority of 1 for IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS, or HIGH_PRIORITY_CLASS processes, and a base priority of 16 for REALTIME_PRIORITY_CLASS
+//  processes.
+/*
+085->100	15
+068->084	2
+051->067  1
+049->051	0
+033->049  -1
+016->032  -2
+000->015  -15
+*/
 
 int32_t Bof_PriorityValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E)
 {
@@ -1083,126 +1083,126 @@ int32_t Bof_PriorityValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E)
 #if defined(_WIN32)
     switch (_Priority_E)
     {
-      case BOF_THREAD_PRIORITY_000:
-      case BOF_THREAD_PRIORITY_001:
-      case BOF_THREAD_PRIORITY_002:
-      case BOF_THREAD_PRIORITY_003:
-      case BOF_THREAD_PRIORITY_004:
-      case BOF_THREAD_PRIORITY_005:
-      case BOF_THREAD_PRIORITY_006:
-      case BOF_THREAD_PRIORITY_007:
-      case BOF_THREAD_PRIORITY_008:
-      case BOF_THREAD_PRIORITY_009:
-      case BOF_THREAD_PRIORITY_010:
-      case BOF_THREAD_PRIORITY_011:
-      case BOF_THREAD_PRIORITY_012:
-      case BOF_THREAD_PRIORITY_013:
-      case BOF_THREAD_PRIORITY_014:
-      case BOF_THREAD_PRIORITY_015:
-        Rts_S32 = -15;
-        break;
+    case BOF_THREAD_PRIORITY_000:
+    case BOF_THREAD_PRIORITY_001:
+    case BOF_THREAD_PRIORITY_002:
+    case BOF_THREAD_PRIORITY_003:
+    case BOF_THREAD_PRIORITY_004:
+    case BOF_THREAD_PRIORITY_005:
+    case BOF_THREAD_PRIORITY_006:
+    case BOF_THREAD_PRIORITY_007:
+    case BOF_THREAD_PRIORITY_008:
+    case BOF_THREAD_PRIORITY_009:
+    case BOF_THREAD_PRIORITY_010:
+    case BOF_THREAD_PRIORITY_011:
+    case BOF_THREAD_PRIORITY_012:
+    case BOF_THREAD_PRIORITY_013:
+    case BOF_THREAD_PRIORITY_014:
+    case BOF_THREAD_PRIORITY_015:
+      Rts_S32 = -15;
+      break;
 
-      case BOF_THREAD_PRIORITY_016:
-      case BOF_THREAD_PRIORITY_017:
-      case BOF_THREAD_PRIORITY_018:
-      case BOF_THREAD_PRIORITY_019:
-      case BOF_THREAD_PRIORITY_020:
-      case BOF_THREAD_PRIORITY_021:
-      case BOF_THREAD_PRIORITY_022:
-      case BOF_THREAD_PRIORITY_023:
-      case BOF_THREAD_PRIORITY_024:
-      case BOF_THREAD_PRIORITY_025:
-      case BOF_THREAD_PRIORITY_026:
-      case BOF_THREAD_PRIORITY_027:
-      case BOF_THREAD_PRIORITY_028:
-      case BOF_THREAD_PRIORITY_029:
-      case BOF_THREAD_PRIORITY_030:
-      case BOF_THREAD_PRIORITY_031:
-      case BOF_THREAD_PRIORITY_032:
-        Rts_S32 = -2;
-        break;
+    case BOF_THREAD_PRIORITY_016:
+    case BOF_THREAD_PRIORITY_017:
+    case BOF_THREAD_PRIORITY_018:
+    case BOF_THREAD_PRIORITY_019:
+    case BOF_THREAD_PRIORITY_020:
+    case BOF_THREAD_PRIORITY_021:
+    case BOF_THREAD_PRIORITY_022:
+    case BOF_THREAD_PRIORITY_023:
+    case BOF_THREAD_PRIORITY_024:
+    case BOF_THREAD_PRIORITY_025:
+    case BOF_THREAD_PRIORITY_026:
+    case BOF_THREAD_PRIORITY_027:
+    case BOF_THREAD_PRIORITY_028:
+    case BOF_THREAD_PRIORITY_029:
+    case BOF_THREAD_PRIORITY_030:
+    case BOF_THREAD_PRIORITY_031:
+    case BOF_THREAD_PRIORITY_032:
+      Rts_S32 = -2;
+      break;
 
-      case BOF_THREAD_PRIORITY_033:
-      case BOF_THREAD_PRIORITY_034:
-      case BOF_THREAD_PRIORITY_035:
-      case BOF_THREAD_PRIORITY_036:
-      case BOF_THREAD_PRIORITY_037:
-      case BOF_THREAD_PRIORITY_038:
-      case BOF_THREAD_PRIORITY_039:
-      case BOF_THREAD_PRIORITY_040:
-      case BOF_THREAD_PRIORITY_041:
-      case BOF_THREAD_PRIORITY_042:
-      case BOF_THREAD_PRIORITY_043:
-      case BOF_THREAD_PRIORITY_044:
-      case BOF_THREAD_PRIORITY_045:
-      case BOF_THREAD_PRIORITY_046:
-      case BOF_THREAD_PRIORITY_047:
-      case BOF_THREAD_PRIORITY_048:
-        Rts_S32 = -1;
-        break;
+    case BOF_THREAD_PRIORITY_033:
+    case BOF_THREAD_PRIORITY_034:
+    case BOF_THREAD_PRIORITY_035:
+    case BOF_THREAD_PRIORITY_036:
+    case BOF_THREAD_PRIORITY_037:
+    case BOF_THREAD_PRIORITY_038:
+    case BOF_THREAD_PRIORITY_039:
+    case BOF_THREAD_PRIORITY_040:
+    case BOF_THREAD_PRIORITY_041:
+    case BOF_THREAD_PRIORITY_042:
+    case BOF_THREAD_PRIORITY_043:
+    case BOF_THREAD_PRIORITY_044:
+    case BOF_THREAD_PRIORITY_045:
+    case BOF_THREAD_PRIORITY_046:
+    case BOF_THREAD_PRIORITY_047:
+    case BOF_THREAD_PRIORITY_048:
+      Rts_S32 = -1;
+      break;
 
-      case BOF_THREAD_PRIORITY_049:
-      case BOF_THREAD_PRIORITY_050:
-      case BOF_THREAD_PRIORITY_051:
-        Rts_S32 = 0;
-        break;
+    case BOF_THREAD_PRIORITY_049:
+    case BOF_THREAD_PRIORITY_050:
+    case BOF_THREAD_PRIORITY_051:
+      Rts_S32 = 0;
+      break;
 
-      case BOF_THREAD_PRIORITY_052:
-      case BOF_THREAD_PRIORITY_053:
-      case BOF_THREAD_PRIORITY_054:
-      case BOF_THREAD_PRIORITY_055:
-      case BOF_THREAD_PRIORITY_056:
-      case BOF_THREAD_PRIORITY_057:
-      case BOF_THREAD_PRIORITY_058:
-      case BOF_THREAD_PRIORITY_059:
-      case BOF_THREAD_PRIORITY_060:
-      case BOF_THREAD_PRIORITY_061:
-      case BOF_THREAD_PRIORITY_062:
-      case BOF_THREAD_PRIORITY_063:
-      case BOF_THREAD_PRIORITY_064:
-      case BOF_THREAD_PRIORITY_065:
-      case BOF_THREAD_PRIORITY_066:
-      case BOF_THREAD_PRIORITY_067:
-        Rts_S32 = 1;
-        break;
+    case BOF_THREAD_PRIORITY_052:
+    case BOF_THREAD_PRIORITY_053:
+    case BOF_THREAD_PRIORITY_054:
+    case BOF_THREAD_PRIORITY_055:
+    case BOF_THREAD_PRIORITY_056:
+    case BOF_THREAD_PRIORITY_057:
+    case BOF_THREAD_PRIORITY_058:
+    case BOF_THREAD_PRIORITY_059:
+    case BOF_THREAD_PRIORITY_060:
+    case BOF_THREAD_PRIORITY_061:
+    case BOF_THREAD_PRIORITY_062:
+    case BOF_THREAD_PRIORITY_063:
+    case BOF_THREAD_PRIORITY_064:
+    case BOF_THREAD_PRIORITY_065:
+    case BOF_THREAD_PRIORITY_066:
+    case BOF_THREAD_PRIORITY_067:
+      Rts_S32 = 1;
+      break;
 
-      case BOF_THREAD_PRIORITY_068:
-      case BOF_THREAD_PRIORITY_069:
-      case BOF_THREAD_PRIORITY_070:
-      case BOF_THREAD_PRIORITY_071:
-      case BOF_THREAD_PRIORITY_072:
-      case BOF_THREAD_PRIORITY_073:
-      case BOF_THREAD_PRIORITY_074:
-      case BOF_THREAD_PRIORITY_075:
-      case BOF_THREAD_PRIORITY_076:
-      case BOF_THREAD_PRIORITY_077:
-      case BOF_THREAD_PRIORITY_078:
-      case BOF_THREAD_PRIORITY_079:
-      case BOF_THREAD_PRIORITY_080:
-      case BOF_THREAD_PRIORITY_081:
-      case BOF_THREAD_PRIORITY_082:
-      case BOF_THREAD_PRIORITY_083:
-      case BOF_THREAD_PRIORITY_084:
-        Rts_S32 = 2;
-        break;
+    case BOF_THREAD_PRIORITY_068:
+    case BOF_THREAD_PRIORITY_069:
+    case BOF_THREAD_PRIORITY_070:
+    case BOF_THREAD_PRIORITY_071:
+    case BOF_THREAD_PRIORITY_072:
+    case BOF_THREAD_PRIORITY_073:
+    case BOF_THREAD_PRIORITY_074:
+    case BOF_THREAD_PRIORITY_075:
+    case BOF_THREAD_PRIORITY_076:
+    case BOF_THREAD_PRIORITY_077:
+    case BOF_THREAD_PRIORITY_078:
+    case BOF_THREAD_PRIORITY_079:
+    case BOF_THREAD_PRIORITY_080:
+    case BOF_THREAD_PRIORITY_081:
+    case BOF_THREAD_PRIORITY_082:
+    case BOF_THREAD_PRIORITY_083:
+    case BOF_THREAD_PRIORITY_084:
+      Rts_S32 = 2;
+      break;
 
-      case BOF_THREAD_PRIORITY_085:
-      case BOF_THREAD_PRIORITY_086:
-      case BOF_THREAD_PRIORITY_087:
-      case BOF_THREAD_PRIORITY_088:
-      case BOF_THREAD_PRIORITY_089:
-      case BOF_THREAD_PRIORITY_090:
-      case BOF_THREAD_PRIORITY_091:
-      case BOF_THREAD_PRIORITY_092:
-      case BOF_THREAD_PRIORITY_093:
-      case BOF_THREAD_PRIORITY_094:
-      case BOF_THREAD_PRIORITY_095:
-      case BOF_THREAD_PRIORITY_096:
-      case BOF_THREAD_PRIORITY_097:
-      case BOF_THREAD_PRIORITY_098:
-      case BOF_THREAD_PRIORITY_099:
-        Rts_S32 = 15;
-        break;
+    case BOF_THREAD_PRIORITY_085:
+    case BOF_THREAD_PRIORITY_086:
+    case BOF_THREAD_PRIORITY_087:
+    case BOF_THREAD_PRIORITY_088:
+    case BOF_THREAD_PRIORITY_089:
+    case BOF_THREAD_PRIORITY_090:
+    case BOF_THREAD_PRIORITY_091:
+    case BOF_THREAD_PRIORITY_092:
+    case BOF_THREAD_PRIORITY_093:
+    case BOF_THREAD_PRIORITY_094:
+    case BOF_THREAD_PRIORITY_095:
+    case BOF_THREAD_PRIORITY_096:
+    case BOF_THREAD_PRIORITY_097:
+    case BOF_THREAD_PRIORITY_098:
+    case BOF_THREAD_PRIORITY_099:
+      Rts_S32 = 15;
+      break;
     }
 #else
     Rts_S32 = static_cast<int32_t>(_Priority_E);
@@ -1219,33 +1219,33 @@ BOF_THREAD_PRIORITY Bof_ThreadPriorityFromPriorityValue(int32_t _Priority_S32)
 #if defined(_WIN32)
   switch (_Priority_S32)
   {
-    case -15:
-      Rts_E = BOF_THREAD_PRIORITY_001;
-      break;
+  case -15:
+    Rts_E = BOF_THREAD_PRIORITY_001;
+    break;
 
-    case -2:
-      Rts_E = BOF_THREAD_PRIORITY_016;
-      break;
+  case -2:
+    Rts_E = BOF_THREAD_PRIORITY_016;
+    break;
 
-    case -1:
-      Rts_E = BOF_THREAD_PRIORITY_033;
-      break;
+  case -1:
+    Rts_E = BOF_THREAD_PRIORITY_033;
+    break;
 
-    case 0:
-      Rts_E = BOF_THREAD_PRIORITY_050;
-      break;
+  case 0:
+    Rts_E = BOF_THREAD_PRIORITY_050;
+    break;
 
-    case 1:
-      Rts_E = BOF_THREAD_PRIORITY_052;
-      break;
+  case 1:
+    Rts_E = BOF_THREAD_PRIORITY_052;
+    break;
 
-    case 2:
-      Rts_E = BOF_THREAD_PRIORITY_068;
-      break;
+  case 2:
+    Rts_E = BOF_THREAD_PRIORITY_068;
+    break;
 
-    case 15:
-      Rts_E = BOF_THREAD_PRIORITY_085;
-      break;
+  case 15:
+    Rts_E = BOF_THREAD_PRIORITY_085;
+    break;
   }
 #else
   Rts_E = static_cast<BOF_THREAD_PRIORITY>(_Priority_S32);
@@ -1445,12 +1445,12 @@ static void *S_ThreadLauncher(void *_pContext)
       Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E);
       // Set the priority
       Status_i = pthread_setschedparam(pThread_X->ThreadId, Policy_i, &Params_X);
-/*	  
-printf("pthread_setschedparam sts %d err %d\n", Status_i, errno);
-BOF_THREAD_PRIORITY Min_E, Max_E;
-	  BOFERR a=Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
-printf("BOF_THREAD_SCHEDULER_POLICY_FIFO sts %d min %d max %d\n", a, Min_E, Max_E);
-*/
+      /*
+      printf("pthread_setschedparam sts %d err %d\n", Status_i, errno);
+      BOF_THREAD_PRIORITY Min_E, Max_E;
+          BOFERR a=Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
+      printf("BOF_THREAD_SCHEDULER_POLICY_FIFO sts %d min %d max %d\n", a, Min_E, Max_E);
+      */
       // Verify
       if (Status_i == 0)
       {
@@ -1614,14 +1614,14 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
     {
       Sts_B = TerminateThread(_rThread_X.pThread, 0x69696969) ? true : false;
 #if !defined(NDEBUG)
-      printf("%d Kill thread '%s' Status %d\r\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
+      printf("%d Kill thread '%s' Status %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
 #endif
     }
 #else
     if (ThreadStopTo_B)
     {
 #if !defined(NDEBUG)
-      printf("%d Should Kill thread '%s'\r\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
+      printf("%d Should Kill thread '%s'\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
 #endif
     }
 #endif
@@ -1699,188 +1699,188 @@ BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32)
     }
     switch (Err_i)
     {
-      case 0:
-        Rts_E = BOF_ERR_NO_ERROR;
-        break;
-      case WSAEINTR:
-        Rts_E = BOF_ERR_EINTR;
-        break;
-      case WSAEBADF:
-        Rts_E = BOF_ERR_EBADF;
-        break;
-      case WSAEACCES:
-        Rts_E = BOF_ERR_EACCES;
-        break;
-      case WSAEFAULT:
-        Rts_E = BOF_ERR_EFAULT;
-        break;
-      case WSAEINVAL:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case WSAEMFILE:
-        Rts_E = BOF_ERR_EMFILE;
-        break;
-      case WSAEWOULDBLOCK:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case WSAEINPROGRESS:
-        Rts_E = BOF_ERR_EINPROGRESS;
-        break;
-      case WSAEALREADY:
-        Rts_E = BOF_ERR_EALREADY;
-        break;
-      case WSAENOTSOCK:
-        Rts_E = BOF_ERR_ENOTSOCK;
-        break;
-      case WSAEDESTADDRREQ:
-        Rts_E = BOF_ERR_EDESTADDRREQ;
-        break;
-      case WSAEMSGSIZE:
-        Rts_E = BOF_ERR_EMSGSIZE;
-        break;
-      case WSAEPROTOTYPE:
-        Rts_E = BOF_ERR_EPROTOTYPE;
-        break;
-      case WSAENOPROTOOPT:
-        Rts_E = BOF_ERR_ENOPROTOOPT;
-        break;
-      case WSAEPROTONOSUPPORT:
-        Rts_E = BOF_ERR_EPROTONOSUPPORT;
-        break;
-      case WSAESOCKTNOSUPPORT:
-        Rts_E = BOF_ERR_ESOCKTNOSUPPORT;
-        break;
-      case WSAEOPNOTSUPP:
-        Rts_E = BOF_ERR_EOPNOTSUPP;
-        break;
-      case WSAEPFNOSUPPORT:
-        Rts_E = BOF_ERR_EPFNOSUPPORT;
-        break;
-      case WSAEAFNOSUPPORT:
-        Rts_E = BOF_ERR_EAFNOSUPPORT;
-        break;
-      case WSAEADDRINUSE:
-        Rts_E = BOF_ERR_EADDRINUSE;
-        break;
-      case WSAEADDRNOTAVAIL:
-        Rts_E = BOF_ERR_EADDRNOTAVAIL;
-        break;
-      case WSAENETDOWN:
-        Rts_E = BOF_ERR_ENETDOWN;
-        break;
-      case WSAENETUNREACH:
-        Rts_E = BOF_ERR_ENETUNREACH;
-        break;
-      case WSAENETRESET:
-        Rts_E = BOF_ERR_ENETRESET;
-        break;
-      case WSAECONNABORTED:
-        Rts_E = BOF_ERR_ECONNABORTED;
-        break;
-      case WSAECONNRESET:
-        Rts_E = BOF_ERR_ECONNRESET;
-        break;
-      case WSAENOBUFS:
-        Rts_E = BOF_ERR_ENOBUFS;
-        break;
-      case WSAEISCONN:
-        Rts_E = BOF_ERR_EISCONN;
-        break;
-      case WSAENOTCONN:
-        Rts_E = BOF_ERR_ENOTCONN;
-        break;
-      case WSAESHUTDOWN:
-        Rts_E = BOF_ERR_ESHUTDOWN;
-        break;
-      case WSAETOOMANYREFS:
-        Rts_E = BOF_ERR_ETOOMANYREFS;
-        break;
-      case WSAETIMEDOUT:
-        Rts_E = BOF_ERR_ETIMEDOUT;
-        break;
-      case WSAECONNREFUSED:
-        Rts_E = BOF_ERR_ECONNREFUSED;
-        break;
-      case WSAELOOP:
-        Rts_E = BOF_ERR_ELOOP;
-        break;
-      case WSAENAMETOOLONG:
-        Rts_E = BOF_ERR_ENAMETOOLONG;
-        break;
-      case WSAEHOSTDOWN:
-        Rts_E = BOF_ERR_EHOSTDOWN;
-        break;
-      case WSAEHOSTUNREACH:
-        Rts_E = BOF_ERR_EHOSTUNREACH;
-        break;
-      case WSAENOTEMPTY:
-        Rts_E = BOF_ERR_ENOTEMPTY;
-        break;
-      case WSAEUSERS:
-        Rts_E = BOF_ERR_EUSERS;
-        break;
-      case WSAEDQUOT:
-        Rts_E = BOF_ERR_EDQUOT;
-        break;
-      case WSAESTALE:
-        Rts_E = BOF_ERR_ESTALE;
-        break;
-      case WSAEREMOTE:
-        Rts_E = BOF_ERR_EREMOTE;
-        break;
-        /*
-              case WSAEPROCLIM:
-                Rts_E = BOF_ERR_EPROCLIM;
-                break;
-              case WSASYSNOTREADY:
-                Rts_E = BOF_ERR_SYSNOTREADY;
-                break;
-              case WSAVERNOTSUPPORTED:
-                Rts_E = BOF_ERR_ERNOTSUPPORTED;
-                break;
-              case WSANOTINITIALISED:
-                Rts_E = BOF_ERR_NOTINITIALISED;
-                break;
-              case WSAEDISCON:
-                Rts_E = BOF_ERR_EDISCON;
-                break;
-              case WSAENOMORE:
-                Rts_E = BOF_ERR_ENOMORE;
-                break;
-              case WSAECANCELLED:
-                Rts_E = BOF_ERR_ECANCELLED;
-                break;
-              case WSAEINVALIDPROCTABLE:
-                Rts_E = BOF_ERR_EINVALIDPROCTABLE;
-                break;
-              case WSAEINVALIDPROVIDER:
-                Rts_E = BOF_ERR_EINVALIDPROVIDER;
-                break;
-              case WSAEPROVIDERFAILEDINIT:
-                Rts_E = BOF_ERR_EPROVIDERFAILEDINIT;
-                break;
-              case WSASYSCALLFAILURE:
-                Rts_E = BOF_ERR_SYSCALLFAILURE;
-                break;
-              case WSASERVICE_NOT_FOUND:
-                Rts_E = BOF_ERR_SERVICE_NOT_FOUND;
-                break;
-              case WSATYPE_NOT_FOUND:
-                Rts_E = BOF_ERR_TYPE_NOT_FOUND;
-                break;
-              case WSA_E_NO_MORE:
-                Rts_E = BOF_ERR_E_NO_MORE;
-                break;
-              case WSA_E_CANCELLED:
-                Rts_E = BOF_ERR_E_CANCELLED;
-                break;
-              case WSAEREFUSED:
-                Rts_E = BOF_ERR_EREFUSED;
-                break;
-        */
-      default:
-        Rts_E = BOF_ERR_ENOTTY; // Return an "never" used standard errno "Not a typewriter"
-        break;
+    case 0:
+      Rts_E = BOF_ERR_NO_ERROR;
+      break;
+    case WSAEINTR:
+      Rts_E = BOF_ERR_EINTR;
+      break;
+    case WSAEBADF:
+      Rts_E = BOF_ERR_EBADF;
+      break;
+    case WSAEACCES:
+      Rts_E = BOF_ERR_EACCES;
+      break;
+    case WSAEFAULT:
+      Rts_E = BOF_ERR_EFAULT;
+      break;
+    case WSAEINVAL:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case WSAEMFILE:
+      Rts_E = BOF_ERR_EMFILE;
+      break;
+    case WSAEWOULDBLOCK:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case WSAEINPROGRESS:
+      Rts_E = BOF_ERR_EINPROGRESS;
+      break;
+    case WSAEALREADY:
+      Rts_E = BOF_ERR_EALREADY;
+      break;
+    case WSAENOTSOCK:
+      Rts_E = BOF_ERR_ENOTSOCK;
+      break;
+    case WSAEDESTADDRREQ:
+      Rts_E = BOF_ERR_EDESTADDRREQ;
+      break;
+    case WSAEMSGSIZE:
+      Rts_E = BOF_ERR_EMSGSIZE;
+      break;
+    case WSAEPROTOTYPE:
+      Rts_E = BOF_ERR_EPROTOTYPE;
+      break;
+    case WSAENOPROTOOPT:
+      Rts_E = BOF_ERR_ENOPROTOOPT;
+      break;
+    case WSAEPROTONOSUPPORT:
+      Rts_E = BOF_ERR_EPROTONOSUPPORT;
+      break;
+    case WSAESOCKTNOSUPPORT:
+      Rts_E = BOF_ERR_ESOCKTNOSUPPORT;
+      break;
+    case WSAEOPNOTSUPP:
+      Rts_E = BOF_ERR_EOPNOTSUPP;
+      break;
+    case WSAEPFNOSUPPORT:
+      Rts_E = BOF_ERR_EPFNOSUPPORT;
+      break;
+    case WSAEAFNOSUPPORT:
+      Rts_E = BOF_ERR_EAFNOSUPPORT;
+      break;
+    case WSAEADDRINUSE:
+      Rts_E = BOF_ERR_EADDRINUSE;
+      break;
+    case WSAEADDRNOTAVAIL:
+      Rts_E = BOF_ERR_EADDRNOTAVAIL;
+      break;
+    case WSAENETDOWN:
+      Rts_E = BOF_ERR_ENETDOWN;
+      break;
+    case WSAENETUNREACH:
+      Rts_E = BOF_ERR_ENETUNREACH;
+      break;
+    case WSAENETRESET:
+      Rts_E = BOF_ERR_ENETRESET;
+      break;
+    case WSAECONNABORTED:
+      Rts_E = BOF_ERR_ECONNABORTED;
+      break;
+    case WSAECONNRESET:
+      Rts_E = BOF_ERR_ECONNRESET;
+      break;
+    case WSAENOBUFS:
+      Rts_E = BOF_ERR_ENOBUFS;
+      break;
+    case WSAEISCONN:
+      Rts_E = BOF_ERR_EISCONN;
+      break;
+    case WSAENOTCONN:
+      Rts_E = BOF_ERR_ENOTCONN;
+      break;
+    case WSAESHUTDOWN:
+      Rts_E = BOF_ERR_ESHUTDOWN;
+      break;
+    case WSAETOOMANYREFS:
+      Rts_E = BOF_ERR_ETOOMANYREFS;
+      break;
+    case WSAETIMEDOUT:
+      Rts_E = BOF_ERR_ETIMEDOUT;
+      break;
+    case WSAECONNREFUSED:
+      Rts_E = BOF_ERR_ECONNREFUSED;
+      break;
+    case WSAELOOP:
+      Rts_E = BOF_ERR_ELOOP;
+      break;
+    case WSAENAMETOOLONG:
+      Rts_E = BOF_ERR_ENAMETOOLONG;
+      break;
+    case WSAEHOSTDOWN:
+      Rts_E = BOF_ERR_EHOSTDOWN;
+      break;
+    case WSAEHOSTUNREACH:
+      Rts_E = BOF_ERR_EHOSTUNREACH;
+      break;
+    case WSAENOTEMPTY:
+      Rts_E = BOF_ERR_ENOTEMPTY;
+      break;
+    case WSAEUSERS:
+      Rts_E = BOF_ERR_EUSERS;
+      break;
+    case WSAEDQUOT:
+      Rts_E = BOF_ERR_EDQUOT;
+      break;
+    case WSAESTALE:
+      Rts_E = BOF_ERR_ESTALE;
+      break;
+    case WSAEREMOTE:
+      Rts_E = BOF_ERR_EREMOTE;
+      break;
+      /*
+            case WSAEPROCLIM:
+              Rts_E = BOF_ERR_EPROCLIM;
+              break;
+            case WSASYSNOTREADY:
+              Rts_E = BOF_ERR_SYSNOTREADY;
+              break;
+            case WSAVERNOTSUPPORTED:
+              Rts_E = BOF_ERR_ERNOTSUPPORTED;
+              break;
+            case WSANOTINITIALISED:
+              Rts_E = BOF_ERR_NOTINITIALISED;
+              break;
+            case WSAEDISCON:
+              Rts_E = BOF_ERR_EDISCON;
+              break;
+            case WSAENOMORE:
+              Rts_E = BOF_ERR_ENOMORE;
+              break;
+            case WSAECANCELLED:
+              Rts_E = BOF_ERR_ECANCELLED;
+              break;
+            case WSAEINVALIDPROCTABLE:
+              Rts_E = BOF_ERR_EINVALIDPROCTABLE;
+              break;
+            case WSAEINVALIDPROVIDER:
+              Rts_E = BOF_ERR_EINVALIDPROVIDER;
+              break;
+            case WSAEPROVIDERFAILEDINIT:
+              Rts_E = BOF_ERR_EPROVIDERFAILEDINIT;
+              break;
+            case WSASYSCALLFAILURE:
+              Rts_E = BOF_ERR_SYSCALLFAILURE;
+              break;
+            case WSASERVICE_NOT_FOUND:
+              Rts_E = BOF_ERR_SERVICE_NOT_FOUND;
+              break;
+            case WSATYPE_NOT_FOUND:
+              Rts_E = BOF_ERR_TYPE_NOT_FOUND;
+              break;
+            case WSA_E_NO_MORE:
+              Rts_E = BOF_ERR_E_NO_MORE;
+              break;
+            case WSA_E_CANCELLED:
+              Rts_E = BOF_ERR_E_CANCELLED;
+              break;
+            case WSAEREFUSED:
+              Rts_E = BOF_ERR_EREFUSED;
+              break;
+      */
+    default:
+      Rts_E = BOF_ERR_ENOTTY; // Return an "never" used standard errno "Not a typewriter"
+      break;
     }
   }
   else
@@ -1893,385 +1893,385 @@ BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32)
     // https://github.com/scottt/cygwin-vmci-sockets/blob/master/winsup/cygwin/errno.cc
     switch (Err_i)
     {
-      case 0:
-        Rts_E = BOF_ERR_NO_ERROR;
-        break;
-      case ERROR_ACCESS_DENIED:
-        Rts_E = BOF_ERR_EACCES;
-        break;
-      case ERROR_ACTIVE_CONNECTIONS:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_ALREADY_EXISTS:
-        Rts_E = BOF_ERR_EEXIST;
-        break;
-      case ERROR_BAD_DEVICE:
-        Rts_E = BOF_ERR_ENODEV;
-        break;
-      case ERROR_BAD_EXE_FORMAT:
-        Rts_E = BOF_ERR_ENOEXEC;
-        break;
-      case ERROR_BAD_NETPATH:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_BAD_NET_NAME:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_BAD_NET_RESP:
-        Rts_E = BOF_ERR_ENOSYS;
-        break;
-      case ERROR_BAD_PATHNAME:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_BAD_PIPE:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_BAD_UNIT:
-        Rts_E = BOF_ERR_ENODEV;
-        break;
-      case ERROR_BAD_USERNAME:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_BEGINNING_OF_MEDIA:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_BROKEN_PIPE:
-        Rts_E = BOF_ERR_EPIPE;
-        break;
-      case ERROR_BUSY:
-        Rts_E = BOF_ERR_EBUSY;
-        break;
-      case ERROR_BUS_RESET:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_CALL_NOT_IMPLEMENTED:
-        Rts_E = BOF_ERR_ENOSYS;
-        break;
-      case ERROR_CANCELLED:
-        Rts_E = BOF_ERR_EINTR;
-        break;
-      case ERROR_CANNOT_MAKE:
-        Rts_E = BOF_ERR_EPERM;
-        break;
-      case ERROR_CHILD_NOT_COMPLETE:
-        Rts_E = BOF_ERR_EBUSY;
-        break;
-      case ERROR_COMMITMENT_LIMIT:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_CONNECTION_REFUSED:
-        Rts_E = BOF_ERR_ECONNREFUSED;
-        break;
-      case ERROR_CRC:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_DEVICE_DOOR_OPEN:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_DEVICE_IN_USE:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_DEVICE_REQUIRES_CLEANING:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_DEV_NOT_EXIST:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_DIRECTORY:
-        Rts_E = BOF_ERR_ENOTDIR;
-        break;
-      case ERROR_DIR_NOT_EMPTY:
-        Rts_E = BOF_ERR_ENOTEMPTY;
-        break;
-      case ERROR_DISK_CORRUPT:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_DISK_FULL:
-        Rts_E = BOF_ERR_ENOSPC;
-        break;
-      case ERROR_DS_GENERIC_ERROR:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_DUP_NAME:
-        Rts_E = BOF_ERR_ENOTUNIQ;
-        break;
-      case ERROR_EAS_DIDNT_FIT:
-        Rts_E = BOF_ERR_ENOSPC;
-        break;
-      case ERROR_EAS_NOT_SUPPORTED:
-        Rts_E = BOF_ERR_EOPNOTSUPP;
-        break;
-      case ERROR_EA_LIST_INCONSISTENT:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_EA_TABLE_FULL:
-        Rts_E = BOF_ERR_ENOSPC;
-        break;
-      case ERROR_END_OF_MEDIA:
-        Rts_E = BOF_ERR_ENOSPC;
-        break;
-      case ERROR_EOM_OVERFLOW:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_EXE_MACHINE_TYPE_MISMATCH:
-        Rts_E = BOF_ERR_ENOEXEC;
-        break;
-      case ERROR_EXE_MARKED_INVALID:
-        Rts_E = BOF_ERR_ENOEXEC;
-        break;
-      case ERROR_FILEMARK_DETECTED:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_FILENAME_EXCED_RANGE:
-        Rts_E = BOF_ERR_ENAMETOOLONG;
-        break;
-      case ERROR_FILE_CORRUPT:
-        Rts_E = BOF_ERR_EEXIST;
-        break;
-      case ERROR_FILE_EXISTS:
-        Rts_E = BOF_ERR_EEXIST;
-        break;
-      case ERROR_FILE_INVALID:
-        Rts_E = BOF_ERR_ENXIO;
-        break;
-      case ERROR_FILE_NOT_FOUND:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_HANDLE_DISK_FULL:
-        Rts_E = BOF_ERR_ENOSPC;
-        break;
-      case ERROR_HANDLE_EOF:
-        Rts_E = BOF_ERR_ENODATA;
-        break;
-      case ERROR_INVALID_ADDRESS:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_INVALID_AT_INTERRUPT_TIME:
-        Rts_E = BOF_ERR_EINTR;
-        break;
-      case ERROR_INVALID_BLOCK_LENGTH:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_INVALID_DATA:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_INVALID_DRIVE:
-        Rts_E = BOF_ERR_ENODEV;
-        break;
-      case ERROR_INVALID_EA_NAME:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_INVALID_EXE_SIGNATURE:
-        Rts_E = BOF_ERR_ENOEXEC;
-        break;
-      case ERROR_INVALID_FUNCTION:
-        Rts_E = BOF_ERR_EBADRQC;
-        break;
-      case ERROR_INVALID_HANDLE:
-        Rts_E = BOF_ERR_EBADF;
-        break;
-      case ERROR_INVALID_NAME:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_INVALID_PARAMETER:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_INVALID_SIGNAL_NUMBER:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_IOPL_NOT_ENABLED:
-        Rts_E = BOF_ERR_ENOEXEC;
-        break;
-      case ERROR_IO_DEVICE:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_IO_INCOMPLETE:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_IO_PENDING:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_LOCK_VIOLATION:
-        Rts_E = BOF_ERR_EBUSY;
-        break;
-      case ERROR_MAX_THRDS_REACHED:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_META_EXPANSION_TOO_LONG:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_MOD_NOT_FOUND:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_MORE_DATA:
-        Rts_E = BOF_ERR_EMSGSIZE;
-        break;
-      case ERROR_NEGATIVE_SEEK:
-        Rts_E = BOF_ERR_ESPIPE; // BOF_ERR_EINVAL;
-        break;
-      case ERROR_NETNAME_DELETED:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_NOACCESS:
-        Rts_E = BOF_ERR_EFAULT;
-        break;
-      case ERROR_NONE_MAPPED:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_NONPAGED_SYSTEM_RESOURCES:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_NOT_CONNECTED:
-        Rts_E = BOF_ERR_ENOLINK;
-        break;
-      case ERROR_NOT_ENOUGH_MEMORY:
-        Rts_E = BOF_ERR_ENOMEM;
-        break;
-      case ERROR_NOT_ENOUGH_QUOTA:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_NOT_OWNER:
-        Rts_E = BOF_ERR_EPERM;
-        break;
-      case ERROR_NOT_READY:
-        Rts_E = BOF_ERR_ENOMEDIUM;
-        break;
-      case ERROR_NOT_SAME_DEVICE:
-        Rts_E = BOF_ERR_EXDEV;
-        break;
-      case ERROR_NOT_SUPPORTED:
-        Rts_E = BOF_ERR_ENOSYS;
-        break;
-      case ERROR_NO_DATA:
-        Rts_E = BOF_ERR_EPIPE;
-        break;
-      case ERROR_NO_DATA_DETECTED:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_NO_MEDIA_IN_DRIVE:
-        Rts_E = BOF_ERR_ENOMEDIUM;
-        break;
-      case ERROR_NO_MORE_FILES:
-        Rts_E = BOF_ERR_EMFILE;
-        break;
-      case ERROR_NO_MORE_ITEMS:
-        Rts_E = BOF_ERR_EMFILE;
-        break;
-      case ERROR_NO_MORE_SEARCH_HANDLES:
-        Rts_E = BOF_ERR_ENFILE;
-        break;
-      case ERROR_NO_PROC_SLOTS:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_NO_SIGNAL_SENT:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_NO_SYSTEM_RESOURCES:
-        Rts_E = BOF_ERR_EFBIG;
-        break;
-      case ERROR_NO_TOKEN:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_OPEN_FAILED:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_OPEN_FILES:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_OUTOFMEMORY:
-        Rts_E = BOF_ERR_ENOMEM;
-        break;
-      case ERROR_PAGED_SYSTEM_RESOURCES:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_PAGEFILE_QUOTA:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_PATH_NOT_FOUND:
-        Rts_E = BOF_ERR_ENOENT;
-        break;
-      case ERROR_PIPE_BUSY:
-        Rts_E = BOF_ERR_EBUSY;
-        break;
-      case ERROR_PIPE_CONNECTED:
-        Rts_E = BOF_ERR_EBUSY;
-        break;
-      case ERROR_PIPE_LISTENING:
-        Rts_E = BOF_ERR_ECOMM;
-        break;
-      case ERROR_PIPE_NOT_CONNECTED:
-        Rts_E = BOF_ERR_ECOMM;
-        break;
-      case ERROR_POSSIBLE_DEADLOCK:
-        Rts_E = BOF_ERR_EDEADLK;
-        break;
-      case ERROR_PRIVILEGE_NOT_HELD:
-        Rts_E = BOF_ERR_EPERM;
-        break;
-      case ERROR_PROCESS_ABORTED:
-        Rts_E = BOF_ERR_EFAULT;
-        break;
-      case ERROR_PROC_NOT_FOUND:
-        Rts_E = BOF_ERR_ESRCH;
-        break;
-      case ERROR_REM_NOT_LIST:
-        Rts_E = BOF_ERR_ENONET;
-        break;
-      case ERROR_SECTOR_NOT_FOUND:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_SEEK:
-        Rts_E = BOF_ERR_ESPIPE; // BOF_ERR_EINVAL;
-        break;
-      case ERROR_SERVICE_REQUEST_TIMEOUT:
-        Rts_E = BOF_ERR_ETIMEDOUT;
-        break;
-      case ERROR_SETMARK_DETECTED:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_SHARING_BUFFER_EXCEEDED:
-        Rts_E = BOF_ERR_ENOLCK;
-        break;
-      case ERROR_SHARING_VIOLATION:
-        Rts_E = BOF_ERR_EBUSY;
-        break;
-      case ERROR_SIGNAL_PENDING:
-        Rts_E = BOF_ERR_EBUSY;
-        break;
-      case ERROR_SIGNAL_REFUSED:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_SXS_CANT_GEN_ACTCTX:
-        Rts_E = BOF_ERR_ELIBBAD;
-        break;
-      case ERROR_THREAD_1_INACTIVE:
-        Rts_E = BOF_ERR_EINVAL;
-        break;
-      case ERROR_TIMEOUT:
-        Rts_E = BOF_ERR_ETIMEDOUT;
-        break;
-      case ERROR_TOO_MANY_LINKS:
-        Rts_E = BOF_ERR_EMLINK;
-        break;
-      case ERROR_TOO_MANY_OPEN_FILES:
-        Rts_E = BOF_ERR_EMFILE;
-        break;
-      case ERROR_UNEXP_NET_ERR:
-        Rts_E = BOF_ERR_EIO;
-        break;
-      case ERROR_WAIT_NO_CHILDREN:
-        Rts_E = BOF_ERR_ECHILD;
-        break;
-      case ERROR_WORKING_SET_QUOTA:
-        Rts_E = BOF_ERR_EAGAIN;
-        break;
-      case ERROR_WRITE_PROTECT:
-        Rts_E = BOF_ERR_EROFS;
-        break;
+    case 0:
+      Rts_E = BOF_ERR_NO_ERROR;
+      break;
+    case ERROR_ACCESS_DENIED:
+      Rts_E = BOF_ERR_EACCES;
+      break;
+    case ERROR_ACTIVE_CONNECTIONS:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_ALREADY_EXISTS:
+      Rts_E = BOF_ERR_EEXIST;
+      break;
+    case ERROR_BAD_DEVICE:
+      Rts_E = BOF_ERR_ENODEV;
+      break;
+    case ERROR_BAD_EXE_FORMAT:
+      Rts_E = BOF_ERR_ENOEXEC;
+      break;
+    case ERROR_BAD_NETPATH:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_BAD_NET_NAME:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_BAD_NET_RESP:
+      Rts_E = BOF_ERR_ENOSYS;
+      break;
+    case ERROR_BAD_PATHNAME:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_BAD_PIPE:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_BAD_UNIT:
+      Rts_E = BOF_ERR_ENODEV;
+      break;
+    case ERROR_BAD_USERNAME:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_BEGINNING_OF_MEDIA:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_BROKEN_PIPE:
+      Rts_E = BOF_ERR_EPIPE;
+      break;
+    case ERROR_BUSY:
+      Rts_E = BOF_ERR_EBUSY;
+      break;
+    case ERROR_BUS_RESET:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_CALL_NOT_IMPLEMENTED:
+      Rts_E = BOF_ERR_ENOSYS;
+      break;
+    case ERROR_CANCELLED:
+      Rts_E = BOF_ERR_EINTR;
+      break;
+    case ERROR_CANNOT_MAKE:
+      Rts_E = BOF_ERR_EPERM;
+      break;
+    case ERROR_CHILD_NOT_COMPLETE:
+      Rts_E = BOF_ERR_EBUSY;
+      break;
+    case ERROR_COMMITMENT_LIMIT:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_CONNECTION_REFUSED:
+      Rts_E = BOF_ERR_ECONNREFUSED;
+      break;
+    case ERROR_CRC:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_DEVICE_DOOR_OPEN:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_DEVICE_IN_USE:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_DEVICE_REQUIRES_CLEANING:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_DEV_NOT_EXIST:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_DIRECTORY:
+      Rts_E = BOF_ERR_ENOTDIR;
+      break;
+    case ERROR_DIR_NOT_EMPTY:
+      Rts_E = BOF_ERR_ENOTEMPTY;
+      break;
+    case ERROR_DISK_CORRUPT:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_DISK_FULL:
+      Rts_E = BOF_ERR_ENOSPC;
+      break;
+    case ERROR_DS_GENERIC_ERROR:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_DUP_NAME:
+      Rts_E = BOF_ERR_ENOTUNIQ;
+      break;
+    case ERROR_EAS_DIDNT_FIT:
+      Rts_E = BOF_ERR_ENOSPC;
+      break;
+    case ERROR_EAS_NOT_SUPPORTED:
+      Rts_E = BOF_ERR_EOPNOTSUPP;
+      break;
+    case ERROR_EA_LIST_INCONSISTENT:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_EA_TABLE_FULL:
+      Rts_E = BOF_ERR_ENOSPC;
+      break;
+    case ERROR_END_OF_MEDIA:
+      Rts_E = BOF_ERR_ENOSPC;
+      break;
+    case ERROR_EOM_OVERFLOW:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_EXE_MACHINE_TYPE_MISMATCH:
+      Rts_E = BOF_ERR_ENOEXEC;
+      break;
+    case ERROR_EXE_MARKED_INVALID:
+      Rts_E = BOF_ERR_ENOEXEC;
+      break;
+    case ERROR_FILEMARK_DETECTED:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_FILENAME_EXCED_RANGE:
+      Rts_E = BOF_ERR_ENAMETOOLONG;
+      break;
+    case ERROR_FILE_CORRUPT:
+      Rts_E = BOF_ERR_EEXIST;
+      break;
+    case ERROR_FILE_EXISTS:
+      Rts_E = BOF_ERR_EEXIST;
+      break;
+    case ERROR_FILE_INVALID:
+      Rts_E = BOF_ERR_ENXIO;
+      break;
+    case ERROR_FILE_NOT_FOUND:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_HANDLE_DISK_FULL:
+      Rts_E = BOF_ERR_ENOSPC;
+      break;
+    case ERROR_HANDLE_EOF:
+      Rts_E = BOF_ERR_ENODATA;
+      break;
+    case ERROR_INVALID_ADDRESS:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_INVALID_AT_INTERRUPT_TIME:
+      Rts_E = BOF_ERR_EINTR;
+      break;
+    case ERROR_INVALID_BLOCK_LENGTH:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_INVALID_DATA:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_INVALID_DRIVE:
+      Rts_E = BOF_ERR_ENODEV;
+      break;
+    case ERROR_INVALID_EA_NAME:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_INVALID_EXE_SIGNATURE:
+      Rts_E = BOF_ERR_ENOEXEC;
+      break;
+    case ERROR_INVALID_FUNCTION:
+      Rts_E = BOF_ERR_EBADRQC;
+      break;
+    case ERROR_INVALID_HANDLE:
+      Rts_E = BOF_ERR_EBADF;
+      break;
+    case ERROR_INVALID_NAME:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_INVALID_PARAMETER:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_INVALID_SIGNAL_NUMBER:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_IOPL_NOT_ENABLED:
+      Rts_E = BOF_ERR_ENOEXEC;
+      break;
+    case ERROR_IO_DEVICE:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_IO_INCOMPLETE:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_IO_PENDING:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_LOCK_VIOLATION:
+      Rts_E = BOF_ERR_EBUSY;
+      break;
+    case ERROR_MAX_THRDS_REACHED:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_META_EXPANSION_TOO_LONG:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_MOD_NOT_FOUND:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_MORE_DATA:
+      Rts_E = BOF_ERR_EMSGSIZE;
+      break;
+    case ERROR_NEGATIVE_SEEK:
+      Rts_E = BOF_ERR_ESPIPE; // BOF_ERR_EINVAL;
+      break;
+    case ERROR_NETNAME_DELETED:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_NOACCESS:
+      Rts_E = BOF_ERR_EFAULT;
+      break;
+    case ERROR_NONE_MAPPED:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_NONPAGED_SYSTEM_RESOURCES:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_NOT_CONNECTED:
+      Rts_E = BOF_ERR_ENOLINK;
+      break;
+    case ERROR_NOT_ENOUGH_MEMORY:
+      Rts_E = BOF_ERR_ENOMEM;
+      break;
+    case ERROR_NOT_ENOUGH_QUOTA:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_NOT_OWNER:
+      Rts_E = BOF_ERR_EPERM;
+      break;
+    case ERROR_NOT_READY:
+      Rts_E = BOF_ERR_ENOMEDIUM;
+      break;
+    case ERROR_NOT_SAME_DEVICE:
+      Rts_E = BOF_ERR_EXDEV;
+      break;
+    case ERROR_NOT_SUPPORTED:
+      Rts_E = BOF_ERR_ENOSYS;
+      break;
+    case ERROR_NO_DATA:
+      Rts_E = BOF_ERR_EPIPE;
+      break;
+    case ERROR_NO_DATA_DETECTED:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_NO_MEDIA_IN_DRIVE:
+      Rts_E = BOF_ERR_ENOMEDIUM;
+      break;
+    case ERROR_NO_MORE_FILES:
+      Rts_E = BOF_ERR_EMFILE;
+      break;
+    case ERROR_NO_MORE_ITEMS:
+      Rts_E = BOF_ERR_EMFILE;
+      break;
+    case ERROR_NO_MORE_SEARCH_HANDLES:
+      Rts_E = BOF_ERR_ENFILE;
+      break;
+    case ERROR_NO_PROC_SLOTS:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_NO_SIGNAL_SENT:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_NO_SYSTEM_RESOURCES:
+      Rts_E = BOF_ERR_EFBIG;
+      break;
+    case ERROR_NO_TOKEN:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_OPEN_FAILED:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_OPEN_FILES:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_OUTOFMEMORY:
+      Rts_E = BOF_ERR_ENOMEM;
+      break;
+    case ERROR_PAGED_SYSTEM_RESOURCES:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_PAGEFILE_QUOTA:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_PATH_NOT_FOUND:
+      Rts_E = BOF_ERR_ENOENT;
+      break;
+    case ERROR_PIPE_BUSY:
+      Rts_E = BOF_ERR_EBUSY;
+      break;
+    case ERROR_PIPE_CONNECTED:
+      Rts_E = BOF_ERR_EBUSY;
+      break;
+    case ERROR_PIPE_LISTENING:
+      Rts_E = BOF_ERR_ECOMM;
+      break;
+    case ERROR_PIPE_NOT_CONNECTED:
+      Rts_E = BOF_ERR_ECOMM;
+      break;
+    case ERROR_POSSIBLE_DEADLOCK:
+      Rts_E = BOF_ERR_EDEADLK;
+      break;
+    case ERROR_PRIVILEGE_NOT_HELD:
+      Rts_E = BOF_ERR_EPERM;
+      break;
+    case ERROR_PROCESS_ABORTED:
+      Rts_E = BOF_ERR_EFAULT;
+      break;
+    case ERROR_PROC_NOT_FOUND:
+      Rts_E = BOF_ERR_ESRCH;
+      break;
+    case ERROR_REM_NOT_LIST:
+      Rts_E = BOF_ERR_ENONET;
+      break;
+    case ERROR_SECTOR_NOT_FOUND:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_SEEK:
+      Rts_E = BOF_ERR_ESPIPE; // BOF_ERR_EINVAL;
+      break;
+    case ERROR_SERVICE_REQUEST_TIMEOUT:
+      Rts_E = BOF_ERR_ETIMEDOUT;
+      break;
+    case ERROR_SETMARK_DETECTED:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_SHARING_BUFFER_EXCEEDED:
+      Rts_E = BOF_ERR_ENOLCK;
+      break;
+    case ERROR_SHARING_VIOLATION:
+      Rts_E = BOF_ERR_EBUSY;
+      break;
+    case ERROR_SIGNAL_PENDING:
+      Rts_E = BOF_ERR_EBUSY;
+      break;
+    case ERROR_SIGNAL_REFUSED:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_SXS_CANT_GEN_ACTCTX:
+      Rts_E = BOF_ERR_ELIBBAD;
+      break;
+    case ERROR_THREAD_1_INACTIVE:
+      Rts_E = BOF_ERR_EINVAL;
+      break;
+    case ERROR_TIMEOUT:
+      Rts_E = BOF_ERR_ETIMEDOUT;
+      break;
+    case ERROR_TOO_MANY_LINKS:
+      Rts_E = BOF_ERR_EMLINK;
+      break;
+    case ERROR_TOO_MANY_OPEN_FILES:
+      Rts_E = BOF_ERR_EMFILE;
+      break;
+    case ERROR_UNEXP_NET_ERR:
+      Rts_E = BOF_ERR_EIO;
+      break;
+    case ERROR_WAIT_NO_CHILDREN:
+      Rts_E = BOF_ERR_ECHILD;
+      break;
+    case ERROR_WORKING_SET_QUOTA:
+      Rts_E = BOF_ERR_EAGAIN;
+      break;
+    case ERROR_WRITE_PROTECT:
+      Rts_E = BOF_ERR_EROFS;
+      break;
 
-      default:
-        Rts_E = BOF_ERR_ENOTTY; // Return an "never" used standard errno "Not a typewriter"
-        break;
+    default:
+      Rts_E = BOF_ERR_ENOTTY; // Return an "never" used standard errno "Not a typewriter"
+      break;
     }
   }
 #else
@@ -2316,7 +2316,7 @@ bool Bof_IsPidRunning(uint32_t _Pid_U32)
    * parameter (processId). The Signal parameter is a null value, the error checking is performed, but no signal is sent.
    */
   if ((kill(_Pid_U32, 0) == -1) && (errno == ESRCH) // No process can be found corresponding to processId
-      )
+  )
   {
   }
   else
@@ -2347,7 +2347,7 @@ bool Bof_PatternCompare(const char *_pString_c, const char *_pPattern_c)
     //		       Bof_PatternCompare(_pString_c, _pPattern_c + 1) || *_pString_c && Bof_PatternCompare(_pString_c + 1, _pPattern_c);
 
     return *_pPattern_c - '*' ? *_pString_c ? (*_pPattern_c == '?') || (((*_pString_c) == (*_pPattern_c)) && Bof_PatternCompare(_pString_c + 1, _pPattern_c + 1)) : !*_pPattern_c
-      : Bof_PatternCompare(_pString_c, _pPattern_c + 1) || (*_pString_c && Bof_PatternCompare(_pString_c + 1, _pPattern_c));
+                              : Bof_PatternCompare(_pString_c, _pPattern_c + 1) || (*_pString_c && Bof_PatternCompare(_pString_c + 1, _pPattern_c));
   }
   else
   {
@@ -2446,11 +2446,11 @@ BOFERR Bof_LockMem(int _OsAdvice_i, uint64_t _SizeInByte_U64, void *_pData)
   int Sts_i;
   if (_OsAdvice_i)
   {
-	Sts_i = madvise(_pData, _SizeInByte_U64, _OsAdvice_i);
+    Sts_i = madvise(_pData, _SizeInByte_U64, _OsAdvice_i);
     Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
- 	  Sts_i = mlock(_pData, _SizeInByte_U64);	
+      Sts_i = mlock(_pData, _SizeInByte_U64);
       Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
     }
   }
@@ -2460,7 +2460,7 @@ BOFERR Bof_LockMem(int _OsAdvice_i, uint64_t _SizeInByte_U64, void *_pData)
   }
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-	Sts_i = mlock(_pData, _SizeInByte_U64); 
+    Sts_i = mlock(_pData, _SizeInByte_U64);
     Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
   }
 #endif
@@ -2554,45 +2554,45 @@ BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _A
     AllocateBuffer_X.AllocateZone_E = _AllocateZone_E;
     switch (_AllocateZone_E)
     {
-      default:
-      case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM:
+    default:
+    case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM:
 #if defined(_WIN32)
-        _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(_aligned_malloc(_SizeInByte_U32, _AligmentInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
-        //_rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t*>(VirtualAlloc(nullptr, _SizeInByte_U32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
+      _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(_aligned_malloc(_SizeInByte_U32, _AligmentInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
+      //_rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t*>(VirtualAlloc(nullptr, _SizeInByte_U32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
 #else
-        _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(aligned_alloc(_AligmentInByte_U32, _SizeInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
+      _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(aligned_alloc(_AligmentInByte_U32, _SizeInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
 #endif
-        break;
+      break;
 
-        /*
-         * On a NUMA platform, the kernel will attempt to distribute the huge page pool
-  over all the set of allowed nodes specified by the NUMA memory policy of the
-  task that modifies nr_hugepages. https://www.kernel.org/doc/Documentation/vm/hugetlbpage.txt
-         */
-      case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_HUGE_PAGE:
+      /*
+       * On a NUMA platform, the kernel will attempt to distribute the huge page pool
+over all the set of allowed nodes specified by the NUMA memory policy of the
+task that modifies nr_hugepages. https://www.kernel.org/doc/Documentation/vm/hugetlbpage.txt
+       */
+    case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_HUGE_PAGE:
 #if defined(_WIN32)
 #else
-        void *pBuffer;
+      void *pBuffer;
 
-        S_HugePageId++;
-        BOF_SNPRINTF_NULL_CLIPPED(AllocateBuffer_X.pHugePath_c, sizeof(AllocateBuffer_X.pHugePath_c), BOF_HUGE_PAGE_PATH, S_HugePageId.load());
-        AllocateBuffer_X.Io_i = open(AllocateBuffer_X.pHugePath_c, O_CREAT | O_RDWR, 0755);
-        if (AllocateBuffer_X.Io_i >= 0)
+      S_HugePageId++;
+      BOF_SNPRINTF_NULL_CLIPPED(AllocateBuffer_X.pHugePath_c, sizeof(AllocateBuffer_X.pHugePath_c), BOF_HUGE_PAGE_PATH, S_HugePageId.load());
+      AllocateBuffer_X.Io_i = open(AllocateBuffer_X.pHugePath_c, O_CREAT | O_RDWR, 0755);
+      if (AllocateBuffer_X.Io_i >= 0)
+      {
+        //          BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_SHARED_MEMORY &_rSharedMemory_X)
+        pBuffer = ::mmap(0, _SizeInByte_U32 < BOF_HUGE_PAGE_SIZE ? BOF_HUGE_PAGE_SIZE : _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, AllocateBuffer_X.Io_i, 0);
+        if (pBuffer == MAP_FAILED)
         {
-          //          BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_SHARED_MEMORY &_rSharedMemory_X)
-          pBuffer = ::mmap(0, _SizeInByte_U32 < BOF_HUGE_PAGE_SIZE ? BOF_HUGE_PAGE_SIZE : _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, AllocateBuffer_X.Io_i, 0);
-          if (pBuffer == MAP_FAILED)
-          {
-            ::close(AllocateBuffer_X.Io_i);
-            unlink(AllocateBuffer_X.pHugePath_c);
-          }
-          else
-          {
-            _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(pBuffer);
-          }
+          ::close(AllocateBuffer_X.Io_i);
+          unlink(AllocateBuffer_X.pHugePath_c);
         }
+        else
+        {
+          _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(pBuffer);
+        }
+      }
 #endif
-        break;
+      break;
     }
     if (_rAllocatedBuffer_X.pData_U8)
     {
@@ -2654,28 +2654,28 @@ BOFERR Bof_AlignedMemFree(BOF_BUFFER &_rBuffer_X)
     }
     switch (pAllocateBuffer_X->AllocateZone_E)
     {
-      default:
-      case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM:
+    default:
+    case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM:
 #if defined(_WIN32)
-        _aligned_free(_rBuffer_X.pData_U8);
-        //			VirtualFree(_rBuffer_X.pData_U8, _rBuffer_X.Capacity_U64, MEM_RELEASE);
+      _aligned_free(_rBuffer_X.pData_U8);
+      //			VirtualFree(_rBuffer_X.pData_U8, _rBuffer_X.Capacity_U64, MEM_RELEASE);
 #else
-        free(_rBuffer_X.pData_U8);
+      free(_rBuffer_X.pData_U8);
 #endif
-        break;
+      break;
 
-      case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_HUGE_PAGE:
+    case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_HUGE_PAGE:
 #if defined(_WIN32)
 #else
-        ::munmap(_rBuffer_X.pData_U8, _rBuffer_X.Size_U64);
-        ::close(pAllocateBuffer_X->Io_i);
-        unlink(pAllocateBuffer_X->pHugePath_c);
+      ::munmap(_rBuffer_X.pData_U8, _rBuffer_X.Size_U64);
+      ::close(pAllocateBuffer_X->Io_i);
+      unlink(pAllocateBuffer_X->pHugePath_c);
 #endif
-        break;
+      break;
     }
     //	printf("=======> DELETE Zone %d Must %d handle %x:%p data %lx:%p\n",pAllocateBuffer_X->AllocateZone_E, _rBuffer_X.MustBeDeleted_B, sizeof(BOF_BUFFER_ALLOCATE_HEADER), _rBuffer_X.pUser, _rBuffer_X.SizeInByte_U64, _rBuffer_X.pData_U8);
 
-    _rBuffer_X.MustBeDeleted_B = false;//Done by free or _aligned_free
+    _rBuffer_X.MustBeDeleted_B = false; // Done by free or _aligned_free
     BOF_SAFE_DELETE(pAllocateBuffer_X);
     _rBuffer_X.Reset();
   }
@@ -2708,30 +2708,30 @@ std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZon
       VirtualOffset_S64 = (_rDumpMemoryZoneParam_X.VirtualOffset_S64 == -1) ? reinterpret_cast<int64_t>(_rDumpMemoryZoneParam_X.pMemoryZone) : _rDumpMemoryZoneParam_X.VirtualOffset_S64;
       switch (_rDumpMemoryZoneParam_X.AccessSize_E)
       {
-        case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_64:
-          NbBytePerRead_U32 = 8;
-          MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
-          Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFF8;
-          break;
+      case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_64:
+        NbBytePerRead_U32 = 8;
+        MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
+        Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFF8;
+        break;
 
-        case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32:
-          NbBytePerRead_U32 = 4;
-          MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
-          Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFFC;
-          break;
+      case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32:
+        NbBytePerRead_U32 = 4;
+        MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
+        Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFFC;
+        break;
 
-        case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16:
-          NbBytePerRead_U32 = 2;
-          MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
-          Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFFE;
-          break;
+      case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16:
+        NbBytePerRead_U32 = 2;
+        MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
+        Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFFE;
+        break;
 
-        case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_8:
-        default:
-          NbBytePerRead_U32 = 1;
-          MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
-          Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFFF;
-          break;
+      case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_8:
+      default:
+        NbBytePerRead_U32 = 1;
+        MemoryZoneSizeInByte_U32 = (_rDumpMemoryZoneParam_X.NbItemToDump_U32 * NbBytePerRead_U32);
+        Remain_S32 = static_cast<int32_t>(MemoryZoneSizeInByte_U32) & 0xFFFFFFFF;
+        break;
       }
       if (_rDumpMemoryZoneParam_X.NbItemPerLine_U32 <= (MAX_NBBYTEPERLINE / NbBytePerRead_U32))
       {
@@ -2773,50 +2773,50 @@ std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZon
               {
                 switch (_rDumpMemoryZoneParam_X.AccessSize_E)
                 {
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_64:
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "                   ");
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "                 ");
-                    }
-                    break;
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_64:
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "                   ");
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "                 ");
+                  }
+                  break;
 
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32:
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "           ");
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "         ");
-                    }
-                    break;
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32:
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "           ");
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "         ");
+                  }
+                  break;
 
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16:
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "       ");
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "     ");
-                    }
-                    break;
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16:
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "       ");
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "     ");
+                  }
+                  break;
 
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_8:
-                  default:
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "     ");
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "   ");
-                    }
-                    break;
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_8:
+                default:
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "     ");
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "   ");
+                  }
+                  break;
                 }
               }
               if (_rDumpMemoryZoneParam_X.GenerateAsciiData_B)
@@ -2833,79 +2833,79 @@ std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZon
               {
                 switch (_rDumpMemoryZoneParam_X.AccessSize_E)
                 {
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_64:
-                    //									*(uint64_t *)pData_U8 = *(uint64_t *)(&pMemoryZone_U8[IndexInMemoryZone_U32]);
-                    pDataPtr_U64 = reinterpret_cast<uint64_t *>(pData_U8);
-                    pDataVal_U64 = reinterpret_cast<volatile const uint64_t *>(&pMemoryZone_U8[IndexInMemoryZone_U32]);
-                    *pDataPtr_U64 = *pDataVal_U64;
-                    if (_rDumpMemoryZoneParam_X.ReverseEndianness_B)
-                    {
-                      BOF_SWAP64PTR(pData_U8);
-                    }
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_64:
+                  //									*(uint64_t *)pData_U8 = *(uint64_t *)(&pMemoryZone_U8[IndexInMemoryZone_U32]);
+                  pDataPtr_U64 = reinterpret_cast<uint64_t *>(pData_U8);
+                  pDataVal_U64 = reinterpret_cast<volatile const uint64_t *>(&pMemoryZone_U8[IndexInMemoryZone_U32]);
+                  *pDataPtr_U64 = *pDataVal_U64;
+                  if (_rDumpMemoryZoneParam_X.ReverseEndianness_B)
+                  {
+                    BOF_SWAP64PTR(pData_U8);
+                  }
 
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "0x%016" PRIX64 "%c", *pDataPtr_U64, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "%016" PRIX64 "%c", *pDataPtr_U64, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "0x%016" PRIX64 "%c", *pDataPtr_U64, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "%016" PRIX64 "%c", *pDataPtr_U64, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
 
-                    break;
+                  break;
 
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32:
-                    //									*(uint32_t *)pData_U8 = *(uint32_t *)(&pMemoryZone_U8[IndexInMemoryZone_U32]);
-                    pDataPtr_U32 = reinterpret_cast<uint32_t *>(pData_U8);
-                    pDataVal_U32 = reinterpret_cast<volatile const uint32_t *>(&pMemoryZone_U8[IndexInMemoryZone_U32]);
-                    *pDataPtr_U32 = *pDataVal_U32;
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32:
+                  //									*(uint32_t *)pData_U8 = *(uint32_t *)(&pMemoryZone_U8[IndexInMemoryZone_U32]);
+                  pDataPtr_U32 = reinterpret_cast<uint32_t *>(pData_U8);
+                  pDataVal_U32 = reinterpret_cast<volatile const uint32_t *>(&pMemoryZone_U8[IndexInMemoryZone_U32]);
+                  *pDataPtr_U32 = *pDataVal_U32;
 
-                    if (_rDumpMemoryZoneParam_X.ReverseEndianness_B)
-                    {
-                      BOF_SWAP32PTR(pData_U8);
-                    }
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "0x%08X%c", *pDataPtr_U32, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "%08X%c", *pDataPtr_U32, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
-                    break;
+                  if (_rDumpMemoryZoneParam_X.ReverseEndianness_B)
+                  {
+                    BOF_SWAP32PTR(pData_U8);
+                  }
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "0x%08X%c", *pDataPtr_U32, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "%08X%c", *pDataPtr_U32, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
+                  break;
 
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16:
-                    //									*(uint16_t *)pData_U8 = *(uint16_t *)(&pMemoryZone_U8[IndexInMemoryZone_U32]);
-                    pDataPtr_U16 = reinterpret_cast<uint16_t *>(pData_U8);
-                    pDataVal_U16 = reinterpret_cast<volatile const uint16_t *>(&pMemoryZone_U8[IndexInMemoryZone_U32]);
-                    *pDataPtr_U16 = *pDataVal_U16;
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16:
+                  //									*(uint16_t *)pData_U8 = *(uint16_t *)(&pMemoryZone_U8[IndexInMemoryZone_U32]);
+                  pDataPtr_U16 = reinterpret_cast<uint16_t *>(pData_U8);
+                  pDataVal_U16 = reinterpret_cast<volatile const uint16_t *>(&pMemoryZone_U8[IndexInMemoryZone_U32]);
+                  *pDataPtr_U16 = *pDataVal_U16;
 
-                    if (_rDumpMemoryZoneParam_X.ReverseEndianness_B)
-                    {
-                      BOF_SWAP16PTR(pData_U8);
-                    }
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "0x%04X%c", *pDataPtr_U16, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "%04X%c", *pDataPtr_U16, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
-                    break;
+                  if (_rDumpMemoryZoneParam_X.ReverseEndianness_B)
+                  {
+                    BOF_SWAP16PTR(pData_U8);
+                  }
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "0x%04X%c", *pDataPtr_U16, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "%04X%c", *pDataPtr_U16, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
+                  break;
 
-                  case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_8:
-                  default:
-                    pData_U8[0] = pMemoryZone_U8[IndexInMemoryZone_U32 + 0];
-                    if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "0x%02X%c", *pData_U8, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
-                    else
-                    {
-                      pBinaryData_c += sprintf(pBinaryData_c, "%02X%c", *pData_U8, _rDumpMemoryZoneParam_X.Separator_c);
-                    }
-                    break;
+                case BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_8:
+                default:
+                  pData_U8[0] = pMemoryZone_U8[IndexInMemoryZone_U32 + 0];
+                  if (_rDumpMemoryZoneParam_X.ShowHexaPrefix_B)
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "0x%02X%c", *pData_U8, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
+                  else
+                  {
+                    pBinaryData_c += sprintf(pBinaryData_c, "%02X%c", *pData_U8, _rDumpMemoryZoneParam_X.Separator_c);
+                  }
+                  break;
                 }
               }
               if (_rDumpMemoryZoneParam_X.GenerateAsciiData_B)

@@ -96,7 +96,6 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X) : BofComChannel(BOF_COM_CH
 
         mId_h = CreateFileA(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-        // DBGOUTPUT(TEXT("BofUart::OPEN CreateFile1: %X\r\n"),mId_h);
         if (mId_h != INVALID_HANDLE_VALUE)
         {
           memset(&Dcb_X, 0, sizeof(Dcb_X));
@@ -152,35 +151,10 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X) : BofComChannel(BOF_COM_CH
           Dcb_X.EofChar = 0x00;
           Dcb_X.EvtChar = mUartParam_X.EvtChar_c;
 
-          // DBGOUTPUT(TEXT("BofUart::OPEN: SetCommState\r\n"));
           if (SetCommState(mId_h, &Dcb_X))
           {
-            // DBGOUTPUT(TEXT("BofUart::OPEN: SetupComm\r\n"));
             if (SetupComm(mId_h, mUartParam_X.BaseChannelParam_X.RcvBufferSize_U32, mUartParam_X.BaseChannelParam_X.SndBufferSize_U32))
             {
-              /*test app (BHA)
-               * char p[128];
-               * int i,n;
-               * uint32_t nb,Error_DW;
-               * bool s;
-               * COMSTAT Status_X;
-               *
-               * for (i=0;i<100000;i++)
-               * {
-               *
-               *      n=sprintf(p,"Hello world %d",i);
-               * s=WriteFile(mId_h,p,n,&nb,nullptr);
-               *
-               * s=ClearCommError(mId_h,&Error_DW,&Status_X);
-               *      Sleep(1);
-               *      if (Status_X.cbInQue)
-               *      {
-               *              n=Status_X.cbInQue;
-               * s=ReadFile(mId_h,p,n,&nb,nullptr);
-               *      }
-               * }
-               *
-               */
               if (mUartParam_X.SynchronousWrite_B)
               {
                 mpTxData_O = nullptr;

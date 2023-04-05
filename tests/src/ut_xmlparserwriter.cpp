@@ -33,36 +33,24 @@ USE_BOF_NAMESPACE()
 BOFERR XmlParseResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER & /*_rBofCommandlineOption_X*/, const bool _CheckOk_B, const char * /*_pOptNewVal_c*/)
 {
   BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
-
-  //	printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
-  //	printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), _rBofCommandlineOption_X.ArgType_E, _rBofCommandlineOption_X.pValue, _pOptNewVal_c ? _pOptNewVal_c : "nullptr");
-
   return Rts_E;
 }
 
 bool XmlParseError(int /*_Sts_i*/, const BOFPARAMETER & /*_rXmlEntry_X*/, const char * /*_pValue*/)
 {
   bool Rts_B = true;
-
-  //	printf("XML error %d on entry pUser %p value %s\r\n", _Sts_i, _rXmlEntry_X.pUser, _pValue ? _pValue : "nullptr");
   return Rts_B;
 }
 
 BOFERR XmlWriteResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER & /*_rBofCommandlineOption_X*/, const bool _CheckOk_B, const char * /*_pOptNewVal_c*/)
 {
   BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
-
-  //	printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
-  //	printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), _rBofCommandlineOption_X.ArgType_E, _rBofCommandlineOption_X.pValue, _pOptNewVal_c ? _pOptNewVal_c : "nullptr");
-
   return Rts_E;
 }
 
 bool XmlWriteError(int /*_Sts_i*/, const BOFPARAMETER & /*_rXmlEntry_X*/, const char * /*_pValue*/)
 {
   bool Rts_B = true;
-
-  //	printf("XML error %d on entry pUser %p value %s\r\n", _Sts_i, _rXmlEntry_X.pUser, _pValue ? _pValue : "nullptr");
   return Rts_B;
 }
 static PARSER_APPPARAM S_AppParamXml_X;
@@ -197,7 +185,7 @@ TEST(XmlWriter_Test, XmlVector)
   EXPECT_TRUE(pBofXmlParser_O != nullptr);
 
   XmlOut_S = "";
-  //	Sts_i = BofXmlWriter_O.FromByte("<?xml version='1.0' encoding=\"utf-8\"?>\r\n<!--This is a comment-->\r\n", S_pOptionVector_X, XmlOut_S);
+  //	Sts_i = BofXmlWriter_O.FromByte("<?xml version='1.0' encoding=\"utf-8\"?>\r\n<!--This is a comment-->\n", S_pOptionVector_X, XmlOut_S);
   // EXPECT_EQ(Sts_i, 0);
 
   Sts_i = pBofXmlParser_O->ToByte(S_pOptionVector_X, XmlWriteResultUltimateCheck, XmlWriteError);

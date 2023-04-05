@@ -479,7 +479,7 @@ BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NET
   std::string IpAddress_S, IpMask_S, IpGateway_S;
 
   // TODO IpV6 version
-  // std::cerr << "[          ] You must be admin to run this command" << std::endl;
+  //  std::cerr << "[          ] You must be admin to run this command" << std::endl;
   IpAddress_S = (_rNewInterfaceParam_X.IpAddress_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.IpAddress_S.c_str();
   IpMask_S = (_rNewInterfaceParam_X.IpMask_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.IpMask_S.c_str();
   IpGateway_S = (_rNewInterfaceParam_X.Info_X.IpGateway_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.Info_X.IpGateway_S.c_str();

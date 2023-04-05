@@ -430,7 +430,7 @@ template <typename KeyType> int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U
   {
     Rts_S32 = 0;
 
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "Height difference is %d at node %s\r\n", DiffHeight_S32, pVal_c);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "Height difference is %d at node %s", DiffHeight_S32, pVal_c);
   }
 
   // Verify that balance-factor is correct
@@ -438,7 +438,7 @@ template <typename KeyType> int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U
   {
     Rts_S32 = 0;
 
-    // BOFDBG_OUTPUT_0(DBG_DB,0,"Height difference %d doesnt match balance-factor of %d at node %s\r\n", DiffHeight_S32, mBalance_S32, pVal_c);
+    // BOFDBG_OUTPUT_0(DBG_DB,0,"Height difference %d doesnt match balance-factor of %d at node %s", DiffHeight_S32, mBalance_S32, pVal_c);
   }
 
   // Verify that search-tree property is satisfied
@@ -447,7 +447,7 @@ template <typename KeyType> int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U
     Rts_S32 = 0;
     mpSubTree[LEFTSUBTREE]->GetKey(_Index_U32, &KeyType_E, sizeof(pVal2_c), pVal2_c);
 
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "LEFT: Node %s is *smaller* than left subtree %s\r\n", pVal_c, pVal2_c);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "LEFT: Node %s is *smaller* than left subtree %s", pVal_c, pVal2_c);
   }
 
   if ((mpSubTree[RIGHTSUBTREE]) && (mpSubTree[RIGHTSUBTREE]->Compare(_Index_U32, mpData, BOF_CMP_EQUAL) == BOF_CMP_GREATER))
@@ -455,7 +455,7 @@ template <typename KeyType> int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U
     Rts_S32 = 0;
     mpSubTree[RIGHTSUBTREE]->GetKey(_Index_U32, &KeyType_E, sizeof(pVal2_c), pVal2_c);
 
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "RIGHT: Node %s is *greater* than right subtree %s\r\n", pVal_c, pVal2_c);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "RIGHT: Node %s is *greater* than right subtree %s", pVal_c, pVal2_c);
   }
 
   // Verify that parent link is valid
@@ -465,7 +465,7 @@ template <typename KeyType> int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U
     GetKey(_Index_U32, &KeyType_E, sizeof(pVal_c), pVal_c);
     mpSubTree[LEFTSUBTREE]->GetKey(_Index_U32, &KeyType_E, sizeof(pVal2_c), pVal2_c);
 
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "LEFT: Node %s is not the parent of node %s\r\n", pVal_c, pVal2_c);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "LEFT: Node %s is not the parent of node %s", pVal_c, pVal2_c);
   }
 
   if ((mpSubTree[RIGHTSUBTREE]) && (mpSubTree[RIGHTSUBTREE]->GetSubtree(PARENTSUBTREE)) && (mpSubTree[RIGHTSUBTREE]->GetSubtree(PARENTSUBTREE) != this))
@@ -474,7 +474,7 @@ template <typename KeyType> int32_t BofAvlNode<KeyType>::Check(uint32_t _Index_U
     GetKey(_Index_U32, &KeyType_E, sizeof(pVal_c), pVal_c);
     mpSubTree[RIGHTSUBTREE]->GetKey(_Index_U32, &KeyType_E, sizeof(pVal2_c), pVal2_c);
 
-    // BOFDBG_OUTPUT_0(DBG_DB, 0, "RIGHT: Node %s is not the parent of node %s\r\n", pVal_c, pVal2_c);
+    // BOFDBG_OUTPUT_0(DBG_DB, 0, "RIGHT: Node %s is not the parent of node %s", pVal_c, pVal2_c);
   }
 
   return Rts_S32;

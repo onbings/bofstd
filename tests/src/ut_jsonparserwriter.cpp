@@ -135,38 +135,24 @@ TEST(JsonParser_Test, JsonTypeNative)
 BOFERR JsonParseResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER &_rBofCommandlineOption_X, const bool _CheckOk_B, const char *_pOptNewVal_c)
 {
   BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
-
-  // printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
-  // printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), static_cast<uint32_t>(_rBofCommandlineOption_X.ArgType_E), _rBofCommandlineOption_X.pValue, _pOptNewVal_c ?
-  // _pOptNewVal_c : "nullptr");
-
   return Rts_E;
 }
 
-// bool JsonParseError(int /*_Sts_i*/, const BOFPARAMETER & /*_rJsonEntry_X*/, const char * /*_pValue*/)
 bool JsonParseError(int _Sts_i, const BOFPARAMETER &_rJsonEntry_X, const char *_pValue)
 {
   bool Rts_B = true;
-
-  // printf("JSON error %d on entry pUser %p value %s\r\n", _Sts_i, _rJsonEntry_X.pUser, _pValue ? _pValue : "nullptr");
   return Rts_B;
 }
 
 BOFERR JsonWriteResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER & /*_rBofCommandlineOption_X*/, const bool _CheckOk_B, const char * /*_pOptNewVal_c*/)
 {
   BOFERR Rts_E = _CheckOk_B ? BOF_ERR_NO_ERROR : BOF_ERR_NO;
-
-  //	printf("Check is '%s'\r\n", _CheckOk_B ? "TRUE" : "FALSE");
-  //	printf("Op pUser %p Name %s Tp %d OldVal %p NewVal %s\r\n", _rBofCommandlineOption_X.pUser, _rBofCommandlineOption_X.Name_S.c_str(), _rBofCommandlineOption_X.ArgType_E, _rBofCommandlineOption_X.pValue, _pOptNewVal_c ? _pOptNewVal_c : "nullptr");
-
   return Rts_E;
 }
 
 bool JsonWriteError(int /*_Sts_E*/, const BOFPARAMETER & /*_rJsonEntry_X*/, const char * /*_pValue*/)
 {
   bool Rts_B = true;
-
-  //	printf("JSON error %d on entry pUser %p value %s\r\n", _Sts_E, _rJsonEntry_X.pUser, _pValue ? _pValue : "nullptr");
   return Rts_B;
 }
 //{"JsonType": {"bool":true, "decimal":10, "float":3.14, "string":"Hello world !\n", "employee":{"name":"John", "age":30, "city":"New York"}, "employees":["John", "Anna", "Peter"] }}

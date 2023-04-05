@@ -261,7 +261,7 @@ template <typename KeyType> static void Dump(uint32_t _Index_U32, AVLTRAVERSALOR
 
         if ((Order_E == LTREE) && (_pNode->GetSubtree(LEFTSUBTREE) == nullptr))
         {
-          DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%s                ->nullptr\r\n", pIndent_c), Remain_U32, Sts_U32);
+          DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%s                ->nullptr\n", pIndent_c), Remain_U32, Sts_U32);
         }
 
         if (Remain_U32)
@@ -269,16 +269,16 @@ template <typename KeyType> static void Dump(uint32_t _Index_U32, AVLTRAVERSALOR
           if (Order_E == KEY)
           {
             _pNode->GetKey(_Index_U32, &KeyType_E, sizeof(pVal_c), pVal_c);
-            DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%s%s (%d)\r\n", pIndent_c, pVal_c, _pNode->GetBalance()), Remain_U32, Sts_U32);
+            DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%s%s (%d)\n", pIndent_c, pVal_c, _pNode->GetBalance()), Remain_U32, Sts_U32);
 
             if (_pNode->GetSubtree(PARENTSUBTREE))
             {
               _pNode->GetSubtree(PARENTSUBTREE)->GetKey(_Index_U32, &KeyType_E, sizeof(pVal_c), pVal_c);
-              DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%sP: %s\r\n", pIndent_c, pVal_c), Remain_U32, Sts_U32);
+              DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%sP: %s\n", pIndent_c, pVal_c), Remain_U32, Sts_U32);
             }
             else
             {
-              DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%sP: nullptr\r\n", pIndent_c), Remain_U32, Sts_U32);
+              DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%sP: nullptr\n", pIndent_c), Remain_U32, Sts_U32);
             }
           }
         }
@@ -287,7 +287,7 @@ template <typename KeyType> static void Dump(uint32_t _Index_U32, AVLTRAVERSALOR
         {
           if ((Order_E == RTREE) && (_pNode->GetSubtree(RIGHTSUBTREE) == nullptr))
           {
-            DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%s                ->nullptr\r\n", pIndent_c), Remain_U32, Sts_U32);
+            DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "%s                ->nullptr\n", pIndent_c), Remain_U32, Sts_U32);
           }
         }
       }
@@ -308,7 +308,7 @@ template <typename KeyType> static void Dump(uint32_t _Index_U32, const BofAvlNo
     {
       if (_pNode == nullptr)
       {
-        DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "***EMPTY TREE***\r\n"), Remain_U32, Sts_U32);
+        DBG_INSERTSTRING(*_pNbCharWritten_U32, snprintf(&_pBuffer_c[*_pNbCharWritten_U32], Remain_U32, "***EMPTY TREE***\n"), Remain_U32, Sts_U32);
       }
       else
       {
@@ -517,7 +517,7 @@ template <typename KeyType> int32_t BofAvlTree<KeyType>::Check(uint32_t *_pNbNod
 
     if (Total_U32 != mNbNode_U32)
     {
-      // BOFDBG_OUTPUT_0(DBG_DB,0,"Node free list contains %d used entry which is different of the current number of node %d\r\n",Total_U32,mNbNode_U32);
+      // BOFDBG_OUTPUT_0(DBG_DB,0,"Node free list contains %d used entry which is different of the current number of node %d",Total_U32,mNbNode_U32);
       Rts_S32 = 0;
     }
   }

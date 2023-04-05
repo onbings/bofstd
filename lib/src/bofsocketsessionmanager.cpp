@@ -1218,10 +1218,7 @@ BOFERR BofSocketSessionManager::V_OnProcessing()
               }
             }
           } // for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++)
-          if (NbPollSignaled_U32 != NbPollSet_U32)
-          {
-            // printf("jj");
-          }
+
           BOF_ASSERT(NbPollSignaled_U32 == NbPollSet_U32);
         } // if (PollSocketCmd_X.SocketOp_E != BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_QUIT)
         switch (PollSocketCmd_X.SocketOp_E)
