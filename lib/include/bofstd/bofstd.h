@@ -244,28 +244,29 @@ extern uint32_t GL_BofDbgPrintfStartTime_U32;
     printf("%10d [%08X] " Format, BOF::Bof_GetMsTickCount() - BOF::GL_BofDbgPrintfStartTime_U32, BOF::Bof_CurrentThreadId(), ##__VA_ARGS__);                                                                                                                   \
   }
 
-#if !defined(NDEBUG)
-// #define BOF_ASSERT(_Expression)																													assert( (_Expression) )
-// This one is better to use with gtest to avoid gtest aborf
-// #define BOF_ASSERT(_Expression)                                                         (void)( ( (_Expression) ) || (GL_BofStdParam_X.AssertCallback ? GL_BofStdParam_X.AssertCallback(__FILE__,__LINE__,#_Expression):printf("Assertion failed: %s, file
-// %s, line %d\nPress any key followed by enter to abort the application...",#_Expression, __FILE__, __LINE__), getchar(), abort(), 0) )
-#define BOF_ASSERT(_Expression)                                                                                                                                                                                                                                \
-  (void)(((_Expression)) || (GL_BofStdParam_X.AssertCallback ? static_cast<int>(GL_BofStdParam_X.AssertCallback(__FILE__, __LINE__, #_Expression))                                                                                                             \
-                                                             : printf("Assertion failed: %s, file %s, line %d\nPress any key followed by enter to abort the application...", #_Expression, __FILE__, __LINE__),                                                \
-                             getchar(), abort(), 0))
-#else
-// #define BOF_ASSERT(_Expression)																													assert( (_Expression) )	//Void op by default in release
+#if defined(NDEBUG)  //We are in Release compil
+// #define BOF_ASSERT(_Expression)	assert( (_Expression) )	//Void op by default in release
 // Microsoft assert.h: #define assert(_Expression) (void)( (!!(_Expression)) || (_wassert(_CRT_WIDE(#_Expression), _CRT_WIDE(__FILE__), __LINE__), 0) )
 // #define BOF_ASSERT(_Expression)                                                         if (GL_BofStdParam_X.AssertInRelease_B){(void)( ( (_Expression) ) || (GL_BofStdParam_X.AssertCallback ?
 // GL_BofStdParam_X.AssertCallback(__FILE__,__LINE__,#_Expression):printf("Assertion failed: %s, file %s, line %d\nPress any key followed by enter to abort the application...",#_Expression, __FILE__, __LINE__), getchar(), abort(), 0) );}
 #define BOF_ASSERT(_Expression)                                                                                                                                                                                                                                \
-  if (GL_BofStdParam_X.AssertInRelease_B)                                                                                                                                                                                                                      \
-  {                                                                                                                                                                                                                                                            \
-    (void)(((_Expression)) || (GL_BofStdParam_X.AssertCallback ? static_cast<int>(GL_BofStdParam_X.AssertCallback(__FILE__, __LINE__, #_Expression))                                                                                                           \
-                                                               : printf("Assertion failed: %s, file %s, line %d\nPress any key followed by enter to abort the application...", #_Expression, __FILE__, __LINE__),                                              \
-                               getchar(), abort(), 0));                                                                                                                                                                                                        \
+  if (GL_BofStdParam_X.AssertInRelease_B) \
+  { \
+    int Ch_i;\
+    (void)(((_Expression)) || (GL_BofStdParam_X.AssertCallback ? static_cast<int>(GL_BofStdParam_X.AssertCallback(__FILE__, __LINE__, #_Expression)) \
+                                                               : printf("Assertion failed: %s, file %s, line %d\nPress any key followed by enter to abort the application...", #_Expression, __FILE__, __LINE__),\
+                               Ch_i = getchar(), abort(), 0));\
   }
 // #define BOF_ASSERT(_Expression)
+#else
+// #define BOF_ASSERT(_Expression)	assert( (_Expression) )
+#define BOF_ASSERT(_Expression)                                                                                                                                                                                                                                \
+  { \
+    int Ch_i;\
+    (void)(((_Expression)) || (GL_BofStdParam_X.AssertCallback ? static_cast<int>(GL_BofStdParam_X.AssertCallback(__FILE__, __LINE__, #_Expression)) \
+                                                               : printf("Assertion failed: %s, file %s, line %d\nPress any key followed by enter to abort the application...", #_Expression, __FILE__, __LINE__),\
+                               Ch_i = getchar(), abort(), 0));\
+  }
 #endif
 
 /*

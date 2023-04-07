@@ -291,7 +291,7 @@ uint64_t GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, int _Id_i)
   bool  FileLock_B;
   uintptr_t Io;
 
-  if ((_pFn_c == NULL) || (_pFn_c[0] == 0))
+  if ((_pFn_c == nullptr) || (_pFn_c[0] == 0))
   {
     strcpy(pFn_c, "/dev/null");                                                                 // /dev/null is supposed to be present on alll unix station..
     _CreateFn_B = false;
@@ -305,7 +305,7 @@ uint64_t GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, int _Id_i)
   {
     //Check if id is set in filename. for example you can specify a path to your app exe such as /usr/mc/ucode followed by a numeric id->/usr/mc/ucode/23
     pId_c = strrchr(pFn_c, '/');
-    if (pId_c != NULL)
+    if (pId_c != nullptr)
     {
       _Id_i = atoi(pId_c + 1);
       if (_Id_i == 0)
@@ -345,12 +345,12 @@ uint64_t GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, int _Id_i)
  */
 HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Size_U32, bool *_pAlreadyExist_B)
 {
-  HANDLE                Ret_h = NULL;
+  HANDLE                Ret_h = nullptr;
   BOF_SHARED_MEM_HANDLE *pHandle_X = new BOF_SHARED_MEM_HANDLE();
   bool Ok_B = false;
   U32  Protect_U32 = 0;
 
-  if (pHandle_X != NULL)
+  if (pHandle_X != nullptr)
   {
 #if defined(__linux__) || defined(__APPLE__)
 
@@ -364,7 +364,7 @@ HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Siz
 
 
 
-    if (_pName_c != NULL)
+    if (_pName_c != nullptr)
     {
 #if defined(__ANDROID__)
 #else
@@ -375,7 +375,7 @@ HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Siz
       // Convert the name to "File path" - "Projet Id" couple
       pId_c = strrchr(pFile_c, '/');
 
-      if (pId_c != NULL)
+      if (pId_c != nullptr)
       {
         *pId_c = '\0';
         pId_c += 1;
@@ -396,7 +396,7 @@ HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Siz
         // The semaphore does not exist : create it
         if (pHandle_X->SharedMemId_i == -1)
         {
-          if (_pAlreadyExist_B != NULL)
+          if (_pAlreadyExist_B != nullptr)
           {
             *_pAlreadyExist_B = false;
           }
@@ -430,7 +430,7 @@ HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Siz
         }
         else
         {
-          if (_pAlreadyExist_B != NULL)
+          if (_pAlreadyExist_B != nullptr)
           {
             *_pAlreadyExist_B = true;
           }
@@ -445,14 +445,14 @@ HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Siz
     TCHAR *pName_c = pName_W;
 
 #if UNICODE
-    if (_pName_c != NULL)
+    if (_pName_c != nullptr)
     {
       // On convertit le nom du programme et les arguments en Unicode
       MultiByteToWideChar(CP_ACP, 0, _pName_c, (int)strlen(_pName_c) + 1, pName_W, sizeof(pName_W) / sizeof(pName_W[0]));
     }
     else
     {
-      pName_c = NULL;
+      pName_c = nullptr;
     }
 
 #else
@@ -493,13 +493,13 @@ HANDLE Bof_CreateFileMapping(U32 _AccessType_U32, const char *_pName_c, U32 _Siz
     }
 
     // Create the file mapping
-    pHandle_X->SharedMem_h = CreateFileMapping(NULL, NULL, Protect_U32, 0, _Size_U32, pName_c);
+    pHandle_X->SharedMem_h = CreateFileMapping(nullptr, nullptr, Protect_U32, 0, _Size_U32, pName_c);
 
-    if (pHandle_X->SharedMem_h != NULL)
+    if (pHandle_X->SharedMem_h != nullptr)
     {
       Ok_B = true;
 
-      if (_pAlreadyExist_B != NULL)
+      if (_pAlreadyExist_B != nullptr)
       {
         *_pAlreadyExist_B = (GetLastError() == ERROR_ALREADY_EXISTS);
       }
@@ -547,7 +547,7 @@ uint32_t Bof_UnmapViewOfFile(void *_pMap)
 {
   uint32_t Ret_U32 = (uint32_t)BOF_THREAD_ERR_OK;
 
-  if (_pMap != NULL)
+  if (_pMap != nullptr)
   {
 #if defined(__linux__) || defined(__APPLE__)
 #if defined(__ANDROID__)
@@ -594,12 +594,12 @@ uint32_t Bof_RemoveFileMapping(HANDLE _FileMap_h)
   uint32_t Ret_U32 = (uint32_t)BOF_THREAD_ERR_OK;
   BOF_SHARED_MEM_HANDLE *pHandle_X = (BOF_SHARED_MEM_HANDLE *)_FileMap_h;
 
-  if ((pHandle_X != NULL) && (pHandle_X->Magic_U32 == BOFSHAREDMEM_MAGIC))
+  if ((pHandle_X != nullptr) && (pHandle_X->Magic_U32 == BOFSHAREDMEM_MAGIC))
   {
 #if defined(__linux__) || defined(__APPLE__)
 #if defined(__ANDROID__)
 #else
-    if (shmctl(pHandle_X->SharedMemId_i, IPC_RMID, NULL) != 0)
+    if (shmctl(pHandle_X->SharedMemId_i, IPC_RMID, nullptr) != 0)
     {
       Ret_U32 = (uint32_t)BOF_THREAD_ERR_INTERNAL_ERROR;
     }
@@ -1613,14 +1613,16 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
     if (ThreadStopTo_B)
     {
       Sts_B = TerminateThread(_rThread_X.pThread, 0x69696969) ? true : false;
-#if !defined(NDEBUG)
+#if defined(NDEBUG)  //We are in Release compil
+#else
       printf("%d Kill thread '%s' Status %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
 #endif
     }
 #else
     if (ThreadStopTo_B)
     {
-#if !defined(NDEBUG)
+#if defined(NDEBUG)  //We are in Release compil
+#else
       printf("%d Should Kill thread '%s'\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
 #endif
     }

@@ -230,7 +230,7 @@ BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NET
   int32_t ExitCode_S32;
   std::string IpAddress_S, IpMask_S, IpGateway_S;
 
-  // TODO IpV6 version
+  // TODO: Implement IpV6 BofSocket support
   IpAddress_S = (_rNewInterfaceParam_X.IpAddress_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.IpAddress_S.c_str();
   IpMask_S = (_rNewInterfaceParam_X.IpMask_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.IpMask_S.c_str();
   IpGateway_S = (_rNewInterfaceParam_X.Info_X.IpGateway_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.Info_X.IpGateway_S.c_str();
@@ -478,7 +478,7 @@ BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NET
   int32_t ExitCode_S32, CidrMask_S32;
   std::string IpAddress_S, IpMask_S, IpGateway_S;
 
-  // TODO IpV6 version
+  // TODO: Implement IpV6 BofSocket support
   //  std::cerr << "[          ] You must be admin to run this command" << std::endl;
   IpAddress_S = (_rNewInterfaceParam_X.IpAddress_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.IpAddress_S.c_str();
   IpMask_S = (_rNewInterfaceParam_X.IpMask_S == "") ? "0.0.0.0" : _rNewInterfaceParam_X.IpMask_S.c_str();
@@ -545,7 +545,7 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
   BOF_NETWORK_INTERFACE_PARAM NetworkInterfaceParam_X;
 
 #if defined(_WIN32)
-  // TODO: IPv6 support
+  // TODO: Implement IpV6 BofSocket support
   ULONG AddressSize_U32 = 0;
   DWORD rc;
   int NbIter_i = 0;
@@ -1244,7 +1244,7 @@ var regexUrl = / ^ (https ? ) : \ / \ / ((? : [a - z0 - 9. - ] | % [0 - 9A - F]{
 var regexMailto = / ^ (mailto) : ((? : [a - z0 - 9 - ._~!$ & '()*+,;=:@]|%[0-9A-F]{2})+)?(?:\?((?:[a-z0-9-._~!$&'() * +, ; = :\ / ? @] | % [0 - 9A - F]{ 2 }) *)) ? $ / i;
 
 #endif
-// TODO faire ipv6 version : is sep for port and :: is for ipv6
+// TODO: Implement IpV6 BofSocket support : is sep for port and :: is for ipv6
 BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_rUri_X, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S)
 {
   BOFERR Rts_E = BOF_ERR_FORMAT;
@@ -1330,7 +1330,7 @@ BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_r
    pgm://192.168.1.1:1234>239.192.1.1:5555"		multicast address from local interface 192.168.1.1 port 1234 to group 239.192.1.1 on port 5555
    myprotocol://john.doe:password@www.google.com:123
  */
-// TODO faire ipv6 version : is sep for port and :: is for ipv6
+// TODO: Implement IpV6 BofSocket support : is sep for port and :: is for ipv6
 
 BOFERR ParseIpAddress(const std::string &_rIpAddress_S, const std::string &_rProtocol_S, BOF_SOCKET_ADDRESS_COMPONENT &_rSockAddressComponent_X)
 {

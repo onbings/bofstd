@@ -541,7 +541,7 @@ uint64_t BofProfiler::ToProfileValue(std::chrono::steady_clock::duration _Val)
 
 BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U32, uint64_t _MaxTimeInNs_U64)
 {
-  BOF_PERF_POINT_MGR *pRts_X = NULL;
+  BOF_PERF_POINT_MGR *pRts_X = nullptr;
 
   if ((_pName_c) && (strlen(_pName_c) < BOF_PERF_POINT_MGR_NAME_MAX_CHAR) && (_MaxEntry_U32 <= BOF_MAX_PERF_POINT))
   {

@@ -122,7 +122,7 @@ BOFERR BofMsgThread::V_OnProcessing()
     switch (msg->GetId())
     {
     case MSG_DISPATCH_DELEGATE: {
-      assert(msg->GetData() != NULL);
+      assert(msg->GetData() != nullptr);
 
       // Convert the ThreadMsg void* data back to a DelegateMsg*
       DelegateLib::DelegateMsgBase *delegateMsg = static_cast<DelegateLib::DelegateMsgBase *>(msg->GetData());

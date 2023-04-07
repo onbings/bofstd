@@ -546,7 +546,7 @@ Prototype based on CLib function
 */
 char *Bof_StringToUpperInPlace(char *_pStr_c)
 {
-  char *pRts_c = NULL;
+  char *pRts_c = nullptr;
 
   char  Ch_c;
 

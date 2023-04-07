@@ -390,7 +390,7 @@ Guid newGuid()
 #ifdef GUID_CFUUID
 Guid newGuid()
 {
-  auto newId = CFUUIDCreate(NULL);
+  auto newId = CFUUIDCreate(nullptr);
   auto bytes = CFUUIDGetUUIDBytes(newId);
   CFRelease(newId);
 

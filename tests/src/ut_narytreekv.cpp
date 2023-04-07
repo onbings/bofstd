@@ -82,23 +82,23 @@ TEST(BofNaryTreeKv_Test, Create)
   pNodeHandle[HandleIndex_U32++] = RootHandle;
   EXPECT_TRUE(puBofNaryTreeKv->IsNodeValid(RootHandle));
   /*
-  MountPoint [NULL]
+  MountPoint [nullptr]
   */
   EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, "Dir1", n1, &ParentHandle), BOF_ERR_NO_ERROR);
   /*
-  MountPoint [NULL]
+  MountPoint [nullptr]
   +--- Dir1 [MountPoint]
   */
   pNodeHandle[HandleIndex_U32++] = ParentHandle;
   puBofNaryTreeKv->AddChild(ParentHandle, "FileA", n1, &pNodeHandle[HandleIndex_U32++]);
   /*
-  MountPoint [NULL]
+  MountPoint [nullptr]
   +--- Dir1 [MountPoint]
       +--- FileA [Dir1]
   */
   puBofNaryTreeKv->AddChild(ParentHandle, "FileB", n1, &pNodeHandle[HandleIndex_U32++]);
   /*
-  MountPoint [NULL]
+  MountPoint [nullptr]
   +--- Dir1 [MountPoint]
       +--- FileA [Dir1]
       +--- FileB [Dir1]
@@ -106,7 +106,7 @@ TEST(BofNaryTreeKv_Test, Create)
   EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, "Dir2", n2, &ParentHandle), BOF_ERR_NO_ERROR);
   pNodeHandle[HandleIndex_U32++] = ParentHandle;
   /*
-  MountPoint [NULL]
+  MountPoint [nullptr]
   +--- Dir1 [MountPoint]
       +--- FileA [Dir1]
       +--- FileB [Dir1]
@@ -115,7 +115,7 @@ TEST(BofNaryTreeKv_Test, Create)
   EXPECT_EQ(puBofNaryTreeKv->AddChild(RootHandle, "Dir3", n3, &ParentHandle), BOF_ERR_NO_ERROR);
   pNodeHandle[HandleIndex_U32++] = ParentHandle;
   /*
-  MountPoint [NULL]
+  MountPoint [nullptr]
   +--- Dir1 [MountPoint]
       +--- FileA [Dir1]
       +--- FileB [Dir1]
@@ -130,7 +130,7 @@ TEST(BofNaryTreeKv_Test, Create)
   EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "FileF", n9, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
   EXPECT_EQ(puBofNaryTreeKv->AddChild(ParentHandle, "FileG", n9, &pNodeHandle[HandleIndex_U32++]), BOF_ERR_NO_ERROR);
   /*
-MountPoint [NULL]
+MountPoint [nullptr]
 +--- Dir1 [MountPoint]
     +--- FileA [Dir1]
     +--- FileB [Dir1]

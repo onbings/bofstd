@@ -62,22 +62,10 @@ BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, con
 
 int main(int argc, char *argv[])
 {
+  int Rts_i;
   BOFERR Sts_E;
-  // Still this issue https://github.com/fmtlib/fmt/issues/
-  // look for #if 00 in ut_stringformatter and active them when fixed
-  // link fails with
-  //  1>fmtd.lib(fmtd.dll) : error LNK2005: "protected: __cdecl fmt::v8::detail::buffer<char>::buffer<char>(char *,unsigned __int64,unsigned __int64)" (??0?$buffer@D@detail@v8@fmt@@IEAA@PEAD_K1@Z) already defined in boflogchannel_spdlog.obj
-  // if you activate the following line
-//  f();
-#if defined(_WIN32)
-#else
-#if defined(__ANDROID__)
-#else
-  mallopt(M_CHECK_ACTION, 3);
-#endif
-  signal(SIGPIPE, SIG_IGN);
-#endif
   BOFSTDPARAM StdParam_X;
+
   StdParam_X.AssertInRelease_B = true;
   StdParam_X.AssertCallback = AppBofAssertCallback;
   Sts_E = Bof_Initialize(StdParam_X);
@@ -89,8 +77,7 @@ int main(int argc, char *argv[])
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
 #endif
   testing::InitGoogleTest(&argc, argv);
-  int Rts_i;
- // ::testing::GTEST_FLAG(filter) = "String_Test.StringToUpperInPlace";
+  //::testing::GTEST_FLAG(filter) = "Api_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 
   Rts_i = RUN_ALL_TESTS();
@@ -98,9 +85,11 @@ int main(int argc, char *argv[])
   Sts_E = Bof_Shutdown();
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 
-#if !defined(NDEBUG)
+#if defined(NDEBUG)  //We are in Release compil
+#else
+  std::string Buffer_S;
   std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
-  //	std::cin.ignore();
+  std::getline(std::cin, Buffer_S);
 #endif
 
   return Rts_i;

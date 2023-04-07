@@ -1112,7 +1112,7 @@ BOFERR BofSocketSessionManager::V_OnProcessing()
                         }
                         else
                         {
-                          Sts_E = psSocketSession->ParseAndDispatchIncomingData(0); // TODO Cmd or data byte stream
+                          Sts_E = psSocketSession->ParseAndDispatchIncomingData(0); // TODO: Cmd or data byte stream
                           // BOF_DBG_PRINTF("@@@%s ParseAndDispatchIncomingData Id %08X Sts %s\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, Bof_ErrorCode(Sts_E));
                           if (Sts_E == BOF_ERR_ENETRESET)
                           {

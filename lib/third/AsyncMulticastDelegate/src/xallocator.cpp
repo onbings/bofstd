@@ -186,7 +186,7 @@ static inline void *get_block_ptr(void *block)
 
 /// Returns an allocator instance matching the size provided
 /// @param[in] size - allocator block size
-/// @return Allocator instance handling requested block size or NULL
+/// @return Allocator instance handling requested block size or nullptr
 /// if no allocator exists.
 static inline Allocator *find_allocator(size_t size)
 {
@@ -199,7 +199,7 @@ static inline Allocator *find_allocator(size_t size)
       return _allocators[i];
   }
 
-  return NULL;
+  return nullptr;
 }
 
 /// Insert an allocator instance into the array
@@ -308,10 +308,10 @@ extern "C" Allocator *xallocator_get_allocator(size_t size)
   Allocator *allocator = find_allocator(blockSize);
 
 #ifdef STATIC_POOLS
-  assert(allocator != NULL);
+  assert(allocator != nullptr);
 #else
   // If there is not an allocator already created to handle this block size
-  if (allocator == NULL)
+  if (allocator == nullptr)
   {
     // Create a new allocator to handle blocks of the size required
     allocator = new Allocator(blockSize, 0, 0, "xallocator");
@@ -411,7 +411,7 @@ extern "C" void xalloc_stats()
     if (_allocators[i] == 0)
       break;
 
-    if (_allocators[i]->GetName() != NULL)
+    if (_allocators[i]->GetName() != nullptr)
       cout << _allocators[i]->GetName();
     cout << " Block Size: " << _allocators[i]->GetBlockSize();
     cout << " Block Count: " << _allocators[i]->GetBlockCount();

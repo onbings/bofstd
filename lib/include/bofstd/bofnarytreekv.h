@@ -635,7 +635,7 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowExtraInfo_B, const B
         }
         else
         {
-          _rToString << " [NULL]";
+          _rToString << " [nullptr]";
         }
       }
       _rToString << std::endl;
@@ -652,7 +652,7 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowExtraInfo_B, const B
         }
         else
         {
-          _rToString << " [NULL]";
+          _rToString << " [nullptr]";
         }
       }
       _rToString << std::endl;
@@ -670,7 +670,7 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowExtraInfo_B, const B
         }
         else
         {
-          _rToString << " [NULL]";
+          _rToString << " [nullptr]";
         }
       }
       _rToString << std::endl;

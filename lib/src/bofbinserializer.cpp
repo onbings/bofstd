@@ -113,9 +113,9 @@ uint32_t BofBinSerializer::ToByte(uint8_t _Value_U8, uint32_t _Idx_U32, uint8_t 
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
 
-  if (_pBuffer_U8 != NULL)
+  if (_pBuffer_U8 != nullptr)
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(_Value_U8)) <= _Size_U32)
@@ -176,9 +176,9 @@ uint32_t BofBinSerializer::ToByte(uint16_t _Value_U16, uint32_t _Idx_U32, uint8_
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
 
-  if (_pBuffer_U8 != NULL)
+  if (_pBuffer_U8 != nullptr)
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(_Value_U16)) <= _Size_U32)
@@ -239,9 +239,9 @@ uint32_t BofBinSerializer::ToByte(uint32_t _Value_U32, uint32_t _Idx_U32, uint8_
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
 
-  if (_pBuffer_U8 != NULL)
+  if (_pBuffer_U8 != nullptr)
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(_Value_U32)) <= _Size_U32)
@@ -283,9 +283,9 @@ uint32_t BofBinSerializer::ToByte(uint64_t _Value_U64, uint32_t _Idx_U32, uint8_
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
 
-  if (_pBuffer_U8 != NULL)
+  if (_pBuffer_U8 != nullptr)
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(_Value_U64)) <= _Size_U32)
@@ -347,10 +347,10 @@ uint32_t BofBinSerializer::FromByte(uint8_t *_pValue_U8, uint32_t _Idx_U32, cons
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
-  BOF_ASSERT(_pValue_U8 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
+  BOF_ASSERT(_pValue_U8 != nullptr);
 
-  if ((_pBuffer_U8 != NULL) && (_pValue_U8 != NULL))
+  if ((_pBuffer_U8 != nullptr) && (_pValue_U8 != nullptr))
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(*_pValue_U8)) <= _Size_U32)
@@ -372,10 +372,10 @@ uint32_t BofBinSerializer::FromByte(uint16_t *_pValue_U16, uint32_t _Idx_U32, co
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
-  BOF_ASSERT(_pValue_U16 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
+  BOF_ASSERT(_pValue_U16 != nullptr);
 
-  if ((_pBuffer_U8 != NULL) && (_pValue_U16 != NULL))
+  if ((_pBuffer_U8 != nullptr) && (_pValue_U16 != nullptr))
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(*_pValue_U16)) <= _Size_U32)
@@ -397,10 +397,10 @@ uint32_t BofBinSerializer::FromByte(uint32_t *_pValue_U32, uint32_t _Idx_U32, co
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
-  BOF_ASSERT(_pValue_U32 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
+  BOF_ASSERT(_pValue_U32 != nullptr);
 
-  if ((_pBuffer_U8 != NULL) && (_pValue_U32 != NULL))
+  if ((_pBuffer_U8 != nullptr) && (_pValue_U32 != nullptr))
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(*_pValue_U32)) <= _Size_U32)
@@ -422,10 +422,10 @@ uint32_t BofBinSerializer::FromByte(uint64_t *_pValue_U64, uint32_t _Idx_U32, co
 {
   uint32_t Rts_U32 = 0;
 
-  BOF_ASSERT(_pBuffer_U8 != NULL);
-  BOF_ASSERT(_pValue_U64 != NULL);
+  BOF_ASSERT(_pBuffer_U8 != nullptr);
+  BOF_ASSERT(_pValue_U64 != nullptr);
 
-  if ((_pBuffer_U8 != NULL) && (_pValue_U64 != NULL))
+  if ((_pBuffer_U8 != nullptr) && (_pValue_U64 != nullptr))
   {
     // Avoid buffer overflow
     if ((_Idx_U32 + sizeof(*_pValue_U64)) <= _Size_U32)
@@ -468,7 +468,7 @@ uint32_t BofBinSerializer::FromByte(bool *_pValue_B, uint32_t _Idx_U32, const ui
   uint8_t Value_U8 = 0;
   uint32_t Rts_U32 = 0;
 
-  if (_pValue_B != NULL)
+  if (_pValue_B != nullptr)
   {
     Rts_U32 = FromByte(&Value_U8, _Idx_U32, _pBuffer_U8, _Size_U32, _Version_U16);
     *_pValue_B = (Value_U8 != 0);

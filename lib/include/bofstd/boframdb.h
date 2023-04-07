@@ -1242,7 +1242,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::DumpDatabase(const char 
         if (Remain_U32)
         {
           AtLeastOne_B = true;
-          DBG_INSERTSTRING(Rts_U32, snprintf(&_pBuffer_c[Rts_U32], Remain_U32, "Db 0x%p NbElem %d Index %d\n", static_cast<void *>(this), GetNbRecord(), i_U32), Remain_U32, Sts_U32);
+          DBG_INSERTSTRING(Rts_U32, snprintf(&_pBuffer_c[Rts_U32], Remain_U32, "Db %p NbElem %d Index %d\n", static_cast<void *>(this), GetNbRecord(), i_U32), Remain_U32, Sts_U32);
           if (Remain_U32)
           {
             if (mppRamDbTree[i_U32])

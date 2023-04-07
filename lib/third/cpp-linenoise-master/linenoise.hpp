@@ -312,7 +312,7 @@ inline void FlushBuffer(void)
   DWORD nWritten;
   if (nCharInBuffer <= 0)
     return;
-  WriteConsoleW(hConOut, ChBuffer, nCharInBuffer, &nWritten, NULL);
+  WriteConsoleW(hConOut, ChBuffer, nCharInBuffer, &nWritten, nullptr);
   nCharInBuffer = 0;
 }
 
@@ -420,7 +420,7 @@ inline void InterpretEscSeq(void)
             *def = '7';
             def[1] = '\0';
             GetEnvironmentVariableW(L"ANSICON_DEF", def, lenof(def));
-            a = wcstol(def, NULL, 16);
+            a = wcstol(def, nullptr, 16);
             grm.reverse = FALSE;
             if (a < 0)
             {
@@ -595,7 +595,7 @@ inline void InterpretEscSeq(void)
       Pos.Y = Info.dwCursorPosition.Y + es_argv[0];
       CharInfo.Char.UnicodeChar = ' ';
       CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, NULL, Pos, &CharInfo);
+      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
       return;
 
     case 'M': // ESC[#M Delete # lines.
@@ -613,7 +613,7 @@ inline void InterpretEscSeq(void)
       Pos.Y = Info.dwCursorPosition.Y;
       CharInfo.Char.UnicodeChar = ' ';
       CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, NULL, Pos, &CharInfo);
+      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
       return;
 
     case 'P': // ESC[#P Delete # characters.
@@ -629,7 +629,7 @@ inline void InterpretEscSeq(void)
       Rect.Bottom = Info.dwCursorPosition.Y;
       CharInfo.Char.UnicodeChar = ' ';
       CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, NULL, Info.dwCursorPosition, &CharInfo);
+      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Info.dwCursorPosition, &CharInfo);
       return;
 
     case '@': // ESC[#@ Insert # blank characters.
@@ -647,7 +647,7 @@ inline void InterpretEscSeq(void)
       Pos.Y = Info.dwCursorPosition.Y;
       CharInfo.Char.UnicodeChar = ' ';
       CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, NULL, Pos, &CharInfo);
+      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
       return;
 
     case 'k': // ESC[#k
@@ -967,7 +967,7 @@ inline BOOL ParseAndPrintANSIString(HANDLE hDev, LPCVOID lpBuffer, DWORD nNumber
     }
   }
   FlushBuffer();
-  if (lpNumberOfBytesWritten != NULL)
+  if (lpNumberOfBytesWritten != nullptr)
     *lpNumberOfBytesWritten = nNumberOfBytesToWrite - i;
   return (i == 0);
 }
@@ -1130,7 +1130,7 @@ inline int win32_write(int fd, const void *buffer, unsigned int count)
 
 #define LINENOISE_DEFAULT_HISTORY_MAX_LEN 100
 #define LINENOISE_MAX_LINE 4096
-static const char *unsupported_term[] = {"dumb", "cons25", "emacs", NULL};
+static const char *unsupported_term[] = {"dumb", "cons25", "emacs", nullptr};
 static CompletionCallback completionCallback;
 
 #ifndef _WIN32
@@ -1162,7 +1162,7 @@ struct linenoiseState
 
 enum KEY_ACTION
 {
-  KEY_NULL = 0,   /* NULL */
+  KEY_NULL = 0,   /* nullptr */
   CTRL_A = 1,     /* Ctrl+a */
   CTRL_B = 2,     /* Ctrl-b */
   CTRL_C = 3,     /* Ctrl-c */
@@ -1700,7 +1700,7 @@ inline bool isUnsupportedTerm(void)
   char *term = getenv("TERM");
   int j;
 
-  if (term == NULL)
+  if (term == nullptr)
     return false;
   for (j = 0; unsupported_term[j]; j++)
     if (!strcasecmp(term, unsupported_term[j]))
@@ -2349,7 +2349,7 @@ inline int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, int buflen, con
     /* Only autocomplete when the callback is set. It returns < 0 when
      * there was an error reading from fd. Otherwise it will return the
      * character that should be handled next. */
-    if (c == 9 && completionCallback != NULL)
+    if (c == 9 && completionCallback != nullptr)
     {
       nread = completeLine(&l, cbuf, &c);
       /* Return on errors */

@@ -199,7 +199,7 @@ BofDateTime BofDateTime::FromString(const std::string &_rDateTime_S, const std::
 
   // In case the input string contains more characters than required by the format string, the return value points right after the last consumed
   // input character.In case the whole input string is consumed, the return value points to the null byte at the end of the string.
-  // If strptime() fails to match all of the format string and therefore an error occurred, the function returns NULL.
+  // If strptime() fails to match all of the format string and therefore an error occurred, the function returns nullptr.
 
   memset(&TmInfo_X, 0, sizeof(TmInfo_X));
   TmInfo_X.tm_mday = 1;

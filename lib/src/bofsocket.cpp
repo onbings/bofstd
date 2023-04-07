@@ -159,7 +159,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
   BOFERR Rts_E;
   std::vector<BOF_NETWORK_INTERFACE_PARAM> ListOfNetworkInterface_X;
   bool Bind_B;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
   BOF_SOCKET_ADDRESS Ip_X;
 
   mMaxUdpLen_U32 = 0;
@@ -818,7 +818,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
   std::string Val_S, Option_S;
   //	uint32_t Err_U32;
 
-  bool IsIpV6_B = false, Blocking_B; // TODO
+  bool IsIpV6_B = false, Blocking_B; // TODO: Implement IpV6 BofSocket support
 
   if (mSocket != BOFSOCKET_INVALID)
   {
@@ -1030,7 +1030,7 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
   BOF_SOCKET_PARAM BofSocketParam_X;
   char pUdpConnect_c[0x10000];
   BOF_SOCKET_ADDRESS IpAddress_X;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
   if (mSocket != BOFSOCKET_INVALID)
   {
@@ -1189,7 +1189,7 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
   uint32_t Nb_U32;
   socklen_t Len_i;
   size_t Size;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
   if (mSocket != BOFSOCKET_INVALID)
   {
@@ -1286,7 +1286,7 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
 {
   uint32_t i_U32, Total_U32, NbLoop_U32, LastOne_U32, Nb_U32;
   BOFERR Rts_E = BOF_ERR_INIT;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
   Total_U32 = 0;
   if (mSocket != BOFSOCKET_INVALID)
@@ -1536,7 +1536,7 @@ BOFERR BofSocket::ComputeScatterGatherList(const std::vector<BOF_BUFFER> &_rBuff
 BOFERR BofSocket::WriteScatterGatherData(uint32_t _TimeoutInMs_U32, const std::vector<BOF_BUFFER> &_rBufferCollection, uint32_t &_rNbByteWritten_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
   uint32_t NbBuffer_U32;
   uint64_t Total_U64;
 
@@ -1629,7 +1629,7 @@ BOFERR BofSocket::WriteScatterGatherData(uint32_t _TimeoutInMs_U32, const std::v
 BOFERR BofSocket::ReadScatterGatherData(uint32_t _TimeoutInMs_U32, const std::vector<BOF_BUFFER> &_rBufferCollection, uint32_t &_rNbByteRead_U32, bool &_rPartialRead_B)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
   uint32_t NbBuffer_U32;
   uint64_t Total_U64;
 
@@ -1732,7 +1732,7 @@ BOFERR BofSocket::ReadString(uint32_t _TimeoutInMs_U32, std::string &_rStr_S, ch
   socklen_t Len_i;
   size_t Size;
   char pBuffer_c[0x10000], *p_c;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
   if (mSocket != BOFSOCKET_INVALID)
   {
@@ -2177,7 +2177,7 @@ BOFERR BofSocket::SetSendInterfaceForMulticast(const BOF_SOCKET_ADDRESS &_rInter
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
   BOF_IN_ADDR IpV4InterfaceAddress_X;
   BOF_IN_ADDR6 IpV6InterfaceAddress_X;
-  bool IsIpV6_B = false; // TODO
+  bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
   if (mBofSocketParam_X.MulticastSender_B)
   {

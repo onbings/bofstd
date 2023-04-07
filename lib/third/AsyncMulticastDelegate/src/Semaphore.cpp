@@ -33,8 +33,8 @@ void Semaphore::Create()
 #if USE_WIN32_THREADS
   if (m_sema == INVALID_HANDLE_VALUE)
   {
-    m_sema = CreateEvent(NULL, TRUE, FALSE, TEXT("Semahore"));
-    ASSERT_TRUE(m_sema != NULL);
+    m_sema = CreateEvent(nullptr, TRUE, FALSE, TEXT("Semahore"));
+    ASSERT_TRUE(m_sema != nullptr);
   }
 #endif
 }

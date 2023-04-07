@@ -28,7 +28,7 @@ TEST(Api_Test, Version)
 }
 TEST(Api_Test, ErrorCode)
 {
-  EXPECT_STREQ(BOF::Bof_ErrorCode(BOF_ERR_NO_ERROR), "No error");
+  EXPECT_STREQ(BOF::Bof_ErrorCode(BOF_ERR_NO_ERROR), "BOF_ERR_NO_ERROR: No error");
   EXPECT_STREQ(BOF::Bof_ErrorCode(static_cast<BOFERR>(236996)), "Unknown error (236996/0x39DC4)");
 }
 
@@ -52,7 +52,7 @@ TEST(Api_Test, Exception)
     Msg_S = rException.what();
     //   printf("throw: '%s'\n", Msg_S.c_str());
     //[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ C:\pro\github\bofstd\tests\src\ut_api.cpp:48 (Api_Test_Exception_Test::TestBody)
-    EXPECT_STREQ(Msg_S.substr(0, 76).c_str(), "[BofException]: 10001: Already opened >File '/tmp/log' is already opened< @ "); // The rest of the txt is os and file dependant
+    EXPECT_STREQ(Msg_S.substr(0, 84).c_str(), "[BofException]: 10001: BOF_ERR_ALREADY_OPENED >File '/tmp/log' is already opened< @ "); // The rest of the txt is os and file dependant
   }
   EXPECT_TRUE(ExceptionThrown_B);
 }

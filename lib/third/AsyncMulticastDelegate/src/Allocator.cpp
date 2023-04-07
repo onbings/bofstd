@@ -6,7 +6,7 @@
 // Constructor
 //------------------------------------------------------------------------------
 Allocator::Allocator(size_t size, uint32_t objects, char *memory, const char *name)
-    : m_blockSize(size < sizeof(long *) ? sizeof(long *) : size), m_objectSize(size), m_maxObjects(objects), m_pHead(NULL), m_poolIndex(0), m_blockCnt(0), m_blocksInUse(0), m_allocations(0), m_deallocations(0), m_name(name)
+    : m_blockSize(size < sizeof(long *) ? sizeof(long *) : size), m_objectSize(size), m_maxObjects(objects), m_pHead(nullptr), m_poolIndex(0), m_blockCnt(0), m_blocksInUse(0), m_allocations(0), m_deallocations(0), m_name(name)
 {
   // If using a fixed memory pool
   if (m_maxObjects)
@@ -114,7 +114,7 @@ void Allocator::Push(void *pMemory)
 //------------------------------------------------------------------------------
 void *Allocator::Pop()
 {
-  Block *pBlock = NULL;
+  Block *pBlock = nullptr;
 
   if (m_pHead)
   {

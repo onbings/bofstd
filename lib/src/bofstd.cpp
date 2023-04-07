@@ -369,17 +369,15 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
   HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
 
   // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
-#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
-#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
-#endif
-
+//#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+//#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+//#endif
   // Activate ansi support
   if (Out_h != INVALID_HANDLE_VALUE)
   {
     if (GetConsoleMode(Out_h, &S_ModeOut_DW))
     {
-      S_ModeOut_DW |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-      if (SetConsoleMode(Out_h, S_ModeOut_DW))
+      if (SetConsoleMode(Out_h, S_ModeOut_DW | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
       {
         // wprintf(L"\x1b[31mThis text has a red foreground using SGR.31.\r\n");
       }
@@ -389,13 +387,11 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
   {
     if (GetConsoleMode(In_h, &S_ModeIn_DW))
     {
-      S_ModeIn_DW = static_cast<DWORD>(~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT));
-      if (SetConsoleMode(In_h, S_ModeIn_DW))
+      if (SetConsoleMode(In_h, S_ModeIn_DW | (~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT))))
       {
       }
     }
   }
-
 #else
   signal(SIGPIPE, SIG_IGN);
   /*

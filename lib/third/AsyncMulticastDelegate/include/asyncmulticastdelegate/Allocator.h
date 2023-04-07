@@ -11,18 +11,18 @@ public:
   /// @param[in]  size - size of the fixed blocks
   /// @param[in]  objects - maximum number of object. If 0, new blocks are
   ///		created off the heap as necessary.
-  /// @param[in]	memory - pointer to a block of static memory for allocator or NULL
-  ///		to obtain memory from global heap. If not NULL, the objects argument
+  /// @param[in]	memory - pointer to a block of static memory for allocator or nullptr
+  ///		to obtain memory from global heap. If not nullptr, the objects argument
   ///		defines the size of the memory block (size x objects = memory size in bytes).
   ///	@param[in]	name - optional allocator name string.
-  Allocator(size_t size, uint32_t objects = 0, char *memory = NULL, const char *name = NULL);
+  Allocator(size_t size, uint32_t objects = 0, char *memory = nullptr, const char *name = nullptr);
 
   /// Destructor
   ~Allocator();
 
   /// Get a pointer to a memory block.
   /// @param[in]  size - size of the block to allocate
-  /// @return     Returns pointer to the block. Otherwise NULL if unsuccessful.
+  /// @return     Returns pointer to the block. Otherwise nullptr if unsuccessful.
   void *Allocate(size_t size);
 
   /// Return a pointer to the memory pool.
@@ -30,7 +30,7 @@ public:
   void Deallocate(void *pBlock);
 
   /// Get the allocator name string.
-  /// @return		A pointer to the allocator name or NULL if none was assigned.
+  /// @return		A pointer to the allocator name or nullptr if none was assigned.
   const char *GetName()
   {
     return m_name;
@@ -77,7 +77,7 @@ private:
   void Push(void *pMemory);
 
   /// Pop a memory block from head of free-list.
-  /// @return     Returns pointer to the block. Otherwise NULL if unsuccessful.
+  /// @return     Returns pointer to the block. Otherwise nullptr if unsuccessful.
   void *Pop();
 
   struct Block

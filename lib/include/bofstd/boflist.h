@@ -29,7 +29,8 @@ History:
 // to profile this class
 // #define PROFILE_CLIST
 
-#if !defined(NDEBUG)
+#if defined(NDEBUG)  //We are in Release compil
+#else
 #define CHECK_LIST_INTEGRITY
 #endif
 
@@ -100,9 +101,9 @@ template <typename Element> BofListNode<Element>::BofListNode()
 {
   memset(&Value, 0x00, sizeof(Element));
 
-  pPrev_O = NULL;
-  pNext_O = NULL;
-  pParent_O = NULL;
+  pPrev_O = nullptr;
+  pNext_O = nullptr;
+  pParent_O = nullptr;
 }
 
 /*!
@@ -132,7 +133,7 @@ Summary
 template <typename Element> class BofList
 {
 public:
-  BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B = true, class BofList<Element> *_pNodePool_O = NULL);
+  BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B = true, class BofList<Element> *_pNodePool_O = nullptr);
 
   virtual ~BofList();
 
@@ -158,19 +159,19 @@ public:
 
   bool Remove(BofListNode<Element> *_pNode_O);
 
-  bool RemoveFirst(Element *_pElement = NULL);
+  bool RemoveFirst(Element *_pElement = nullptr);
 
-  bool RemoveLast(Element *_pElement = NULL);
+  bool RemoveLast(Element *_pElement = nullptr);
 
-  bool Remove(Element *_pElement, int (*_pMethod)(const void *, const void *) = NULL);
+  bool Remove(Element *_pElement, int (*_pMethod)(const void *, const void *) = nullptr);
 
-  bool Contains(Element *_pElement, int (*_pMethod)(const void *, const void *) = NULL);
+  bool Contains(Element *_pElement, int (*_pMethod)(const void *, const void *) = nullptr);
 
-  bool Sort(int (*_pMethod)(const void *, const void *) = NULL);
+  bool Sort(int (*_pMethod)(const void *, const void *) = nullptr);
 
-  BofListNode<Element> *Find(Element *_pElement, int (*_pMethod)(const void *, const void *) = NULL);
+  BofListNode<Element> *Find(Element *_pElement, int (*_pMethod)(const void *, const void *) = nullptr);
 
-  BofListNode<Element> *FindLast(Element *_pElement, int (*_pMethod)(const void *, const void *) = NULL);
+  BofListNode<Element> *FindLast(Element *_pElement, int (*_pMethod)(const void *, const void *) = nullptr);
 
   BofListNode<Element> *GetFirst();
 
@@ -195,7 +196,7 @@ public:
   void Unlock();
 
 protected:
-  BofListNode<Element> *GetFreeNode(Element *_pElement = NULL);
+  BofListNode<Element> *GetFreeNode(Element *_pElement = nullptr);
 
   BofListNode<Element> *GetFreeNode(BofListNode<Element> *_pNode_O);
 
@@ -244,7 +245,7 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = TRUE */, class BofList<Element> *_pNodePool_O /* = NULL */)
+template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = TRUE */, class BofList<Element> *_pNodePool_O /* = nullptr */)
 {
   uint32_t I_U32 = 0;
 
@@ -263,31 +264,31 @@ template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U3
   mNbMaxElements_U32 = _NbMaxElements_U32;
 
   // External memory provided
-  if (_pNodePool_O != NULL)
+  if (_pNodePool_O != nullptr)
   {
-    mpNodes_O = NULL;
+    mpNodes_O = nullptr;
     mpNodePoolMgr_O = _pNodePool_O;
   }
   // Create memory internally
   else
   {
     mpNodes_O = new BofListNode<Element>[mNbMaxElements_U32];
-    mpNodePoolMgr_O = NULL;
+    mpNodePoolMgr_O = nullptr;
 
     // Initialize the items
     for (I_U32 = 0; I_U32 < mNbMaxElements_U32; I_U32++)
     {
-      mpNodes_O[I_U32].pPrev_O = (I_U32 == 0) ? NULL : &mpNodes_O[I_U32 - 1];
-      mpNodes_O[I_U32].pNext_O = (I_U32 == mNbMaxElements_U32 - 1) ? NULL : &mpNodes_O[I_U32 + 1];
-      mpNodes_O[I_U32].pParent_O = NULL;
+      mpNodes_O[I_U32].pPrev_O = (I_U32 == 0) ? nullptr : &mpNodes_O[I_U32 - 1];
+      mpNodes_O[I_U32].pNext_O = (I_U32 == mNbMaxElements_U32 - 1) ? nullptr : &mpNodes_O[I_U32 + 1];
+      mpNodes_O[I_U32].pParent_O = nullptr;
     }
 
     mpFreeNodesHead_O = &mpNodes_O[0];
     mpFreeNodesQueue_O = &mpNodes_O[mNbMaxElements_U32 - 1];
   }
 
-  mpHead_O = NULL;
-  mpQueue_O = NULL;
+  mpHead_O = nullptr;
+  mpQueue_O = nullptr;
   mNbElements_U32 = 0;
 
 #if defined(PROFILE_CLIST)
@@ -296,7 +297,7 @@ template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U3
 
 #else
 
-  mpProfiler_O = NULL;
+  mpProfiler_O = nullptr;
 
 #endif
 }
@@ -319,13 +320,13 @@ See also
 */
 template <typename Element> BofList<Element>::~BofList()
 {
-  if (mpNodes_O != NULL)
+  if (mpNodes_O != nullptr)
   {
     BOF_SAFE_DELETE_ARRAY(mpNodes_O);
   }
   Bof_DestroyMutex(mMtx_X);
 
-  if (mpProfiler_O != NULL)
+  if (mpProfiler_O != nullptr)
   {
     BOF_SAFE_DELETE(mpProfiler_O);
   }
@@ -405,11 +406,11 @@ template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element>
   BofListNode<Element> *pNode_O;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pExistingNode_O != NULL);
-  BOF_ASSERT(_pNewNode_O != NULL);
+  BOF_ASSERT(_pExistingNode_O != nullptr);
+  BOF_ASSERT(_pNewNode_O != nullptr);
 #endif
 
-  if ((_pExistingNode_O != NULL) && (_pNewNode_O != NULL))
+  if ((_pExistingNode_O != nullptr) && (_pNewNode_O != nullptr))
   {
     Lock();
 
@@ -418,14 +419,14 @@ template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element>
 #endif
 
     // Make sure we are not messing with items from other lists
-    if ((_pExistingNode_O->pParent_O == this) && (_pNewNode_O->pParent_O == NULL))
+    if ((_pExistingNode_O->pParent_O == this) && (_pNewNode_O->pParent_O == nullptr))
     {
       // The existing node is the queue
       if (_pExistingNode_O == mpQueue_O)
       {
         _pExistingNode_O->pNext_O = _pNewNode_O;
         _pNewNode_O->pPrev_O = _pExistingNode_O;
-        _pNewNode_O->pNext_O = NULL;
+        _pNewNode_O->pNext_O = nullptr;
 
         mpQueue_O = _pNewNode_O;
       }
@@ -478,20 +479,20 @@ See also
 template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element> *_pExistingNode_O, Element *_pElement)
 {
   bool Ret_B = false;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pExistingNode_O != NULL);
-  BOF_ASSERT(_pElement != NULL);
+  BOF_ASSERT(_pExistingNode_O != nullptr);
+  BOF_ASSERT(_pElement != nullptr);
 #endif
 
-  if ((_pExistingNode_O != NULL) && (_pElement != NULL))
+  if ((_pExistingNode_O != nullptr) && (_pElement != nullptr))
   {
     Lock();
 
     pNode_O = GetFreeNode(_pElement);
 
-    if (pNode_O != NULL)
+    if (pNode_O != nullptr)
     {
       Ret_B = AddAfter(_pExistingNode_O, pNode_O);
     }
@@ -523,14 +524,14 @@ See also
 template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element> *_pExistingNode_O, BofListNode<Element> *_pNewNode_O)
 {
   bool Ret_B = false;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pExistingNode_O != NULL);
-  BOF_ASSERT(_pNewNode_O != NULL);
+  BOF_ASSERT(_pExistingNode_O != nullptr);
+  BOF_ASSERT(_pNewNode_O != nullptr);
 #endif
 
-  if ((_pExistingNode_O != NULL) && (_pNewNode_O != NULL))
+  if ((_pExistingNode_O != nullptr) && (_pNewNode_O != nullptr))
   {
     Lock();
 
@@ -539,14 +540,14 @@ template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element
 #endif
 
     // Make sure we are not messing with items from other lists
-    if (_pExistingNode_O->pParent_O == this && _pNewNode_O->pParent_O == NULL)
+    if (_pExistingNode_O->pParent_O == this && _pNewNode_O->pParent_O == nullptr)
     {
       // The existing node is the head
       if (_pExistingNode_O == mpHead_O)
       {
         _pExistingNode_O->pPrev_O = _pNewNode_O;
         _pNewNode_O->pNext_O = _pExistingNode_O;
-        _pNewNode_O->pPrev_O = NULL;
+        _pNewNode_O->pPrev_O = nullptr;
 
         mpHead_O = _pNewNode_O;
       }
@@ -603,20 +604,20 @@ See also
 template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element> *_pExistingNode_O, Element *_pElement)
 {
   bool Ret_B = false;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pExistingNode_O != NULL);
-  BOF_ASSERT(_pElement != NULL);
+  BOF_ASSERT(_pExistingNode_O != nullptr);
+  BOF_ASSERT(_pElement != nullptr);
 #endif
 
-  if ((_pExistingNode_O != NULL) && (_pElement != NULL))
+  if ((_pExistingNode_O != nullptr) && (_pElement != nullptr))
   {
     Lock();
 
     pNode_O = GetFreeNode(_pElement);
 
-    if (pNode_O != NULL)
+    if (pNode_O != nullptr)
     {
       Ret_B = AddBefore(_pExistingNode_O, pNode_O);
     }
@@ -649,10 +650,10 @@ template <typename Element> bool BofList<Element>::AddFirst(BofListNode<Element>
   bool Ret_B = false;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pNode_O != NULL);
+  BOF_ASSERT(_pNode_O != nullptr);
 #endif
 
-  if (_pNode_O != NULL)
+  if (_pNode_O != nullptr)
   {
     Lock();
 
@@ -663,19 +664,19 @@ template <typename Element> bool BofList<Element>::AddFirst(BofListNode<Element>
     GetFreeNode(_pNode_O);
 
     // It's a free node
-    if (_pNode_O->pParent_O == NULL)
+    if (_pNode_O->pParent_O == nullptr)
     {
       // No item in the list
-      if (mpHead_O == NULL)
+      if (mpHead_O == nullptr)
       {
 #if defined(CHECK_LIST_INTEGRITY)
         BOF_ASSERT(mNbElements_U32 == 0);
-        BOF_ASSERT(mpQueue_O == NULL);
+        BOF_ASSERT(mpQueue_O == nullptr);
 #endif
 
         _pNode_O->pParent_O = this;
-        _pNode_O->pNext_O = NULL;
-        _pNode_O->pPrev_O = NULL;
+        _pNode_O->pNext_O = nullptr;
+        _pNode_O->pPrev_O = nullptr;
         mpHead_O = _pNode_O;
         mpQueue_O = _pNode_O;
         mNbElements_U32 = 1;
@@ -717,13 +718,13 @@ See also
 template <typename Element> bool BofList<Element>::AddFirst(Element &_rElement)
 {
   bool Ret_B = false;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
   Lock();
 
   pNode_O = GetFreeNode(&_rElement);
 
-  if (pNode_O != NULL)
+  if (pNode_O != nullptr)
   {
     Ret_B = AddFirst(pNode_O);
   }
@@ -753,13 +754,13 @@ See also
 template <typename Element> bool BofList<Element>::AddFirst(Element *_pElement)
 {
   bool Ret_B = false;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
   Lock();
 
   pNode_O = GetFreeNode(_pElement);
 
-  if (pNode_O != NULL)
+  if (pNode_O != nullptr)
   {
     Ret_B = AddFirst(pNode_O);
   }
@@ -791,10 +792,10 @@ template <typename Element> bool BofList<Element>::AddLast(BofListNode<Element> 
   bool Ret_B = false;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pNode_O != NULL);
+  BOF_ASSERT(_pNode_O != nullptr);
 #endif
 
-  if (_pNode_O != NULL)
+  if (_pNode_O != nullptr)
   {
     Lock();
 
@@ -803,22 +804,22 @@ template <typename Element> bool BofList<Element>::AddLast(BofListNode<Element> 
 #endif
 
     // It's a free node
-    if (_pNode_O->pParent_O == NULL)
+    if (_pNode_O->pParent_O == nullptr)
     {
       GetFreeNode(_pNode_O);
 
       // No item in the list
-      if (mpQueue_O == NULL)
+      if (mpQueue_O == nullptr)
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
         BOF_ASSERT(mNbElements_U32 == 0);
-        BOF_ASSERT(mpHead_O == NULL);
+        BOF_ASSERT(mpHead_O == nullptr);
 #endif
 
         _pNode_O->pParent_O = this;
-        _pNode_O->pNext_O = NULL;
-        _pNode_O->pPrev_O = NULL;
+        _pNode_O->pNext_O = nullptr;
+        _pNode_O->pPrev_O = nullptr;
         mpHead_O = _pNode_O;
         mpQueue_O = _pNode_O;
         mNbElements_U32 = 1;
@@ -864,13 +865,13 @@ See also
 template <typename Element> bool BofList<Element>::AddLast(Element &_rElement)
 {
   bool Ret_B = false;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
   Lock();
 
   pNode_O = GetFreeNode(&_rElement);
 
-  if (pNode_O != NULL)
+  if (pNode_O != nullptr)
   {
     Ret_B = AddLast(pNode_O);
   }
@@ -900,13 +901,13 @@ See also
 template <typename Element> bool BofList<Element>::AddLast(Element *_pElement)
 {
   bool Ret_B = false;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
   Lock();
 
   pNode_O = GetFreeNode(_pElement);
 
-  if (pNode_O != NULL)
+  if (pNode_O != nullptr)
   {
     Ret_B = AddLast(pNode_O);
   }
@@ -938,10 +939,10 @@ template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *
   bool Ret_B = false;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pNode_O != NULL);
+  BOF_ASSERT(_pNode_O != nullptr);
 #endif
 
-  if (_pNode_O != NULL)
+  if (_pNode_O != nullptr)
   {
     Lock();
 
@@ -962,18 +963,18 @@ template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *
       // This is the only item in the list
       if ((_pNode_O == mpHead_O) && (_pNode_O == mpQueue_O))
       {
-        mpHead_O = NULL;
-        mpQueue_O = NULL;
+        mpHead_O = nullptr;
+        mpQueue_O = nullptr;
       }
       // This is the head
       else if (_pNode_O == mpHead_O)
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
-        BOF_ASSERT(_pNode_O->pNext_O != NULL);
+        BOF_ASSERT(_pNode_O->pNext_O != nullptr);
 #endif
 
-        _pNode_O->pNext_O->pPrev_O = NULL;
+        _pNode_O->pNext_O->pPrev_O = nullptr;
         mpHead_O = _pNode_O->pNext_O;
 
         // BOF_ASSERT(mpHead_O->pParent_O == this);
@@ -984,10 +985,10 @@ template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
-        BOF_ASSERT(_pNode_O->pPrev_O != NULL);
+        BOF_ASSERT(_pNode_O->pPrev_O != nullptr);
 #endif
 
-        _pNode_O->pPrev_O->pNext_O = NULL;
+        _pNode_O->pPrev_O->pNext_O = nullptr;
         mpQueue_O = _pNode_O->pPrev_O;
       }
       // It's a 'normal' node
@@ -995,8 +996,8 @@ template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
-        BOF_ASSERT(_pNode_O->pPrev_O != NULL);
-        BOF_ASSERT(_pNode_O->pNext_O != NULL);
+        BOF_ASSERT(_pNode_O->pPrev_O != nullptr);
+        BOF_ASSERT(_pNode_O->pNext_O != nullptr);
 #endif
 
         _pNode_O->pPrev_O->pNext_O = _pNode_O->pNext_O;
@@ -1009,7 +1010,7 @@ template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *
     }
 
 #if defined(CHECK_LIST_INTEGRITY)
-    BOF_ASSERT(_pNode_O->pParent_O == NULL);
+    BOF_ASSERT(_pNode_O->pParent_O == nullptr);
 #endif
 
 #if defined(PROFILE_CLIST)
@@ -1039,13 +1040,13 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::RemoveFirst(Element *_pElement /* = NULL */)
+template <typename Element> bool BofList<Element>::RemoveFirst(Element *_pElement /* = nullptr */)
 {
   bool Ret_B = false;
 
   Lock();
 
-  if (mpHead_O != NULL)
+  if (mpHead_O != nullptr)
   {
     if (_pElement)
     {
@@ -1077,13 +1078,13 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::RemoveLast(Element *_pElement /* = NULL */)
+template <typename Element> bool BofList<Element>::RemoveLast(Element *_pElement /* = nullptr */)
 {
   bool Ret_B = false;
 
   Lock();
 
-  if (mpQueue_O != NULL)
+  if (mpQueue_O != nullptr)
   {
     if (_pElement)
     {
@@ -1127,12 +1128,12 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Remove(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = NULL */)
+template <typename Element> bool BofList<Element>::Remove(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = Find(_pElement, _pMethod);
 
-  if (pNode_O != NULL)
+  if (pNode_O != nullptr)
   {
     Ret_B = Remove(pNode_O);
   }
@@ -1170,9 +1171,9 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Contains(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = NULL */)
+template <typename Element> bool BofList<Element>::Contains(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
-  bool Ret_B = (Find(_pElement, _pMethod) != NULL);
+  bool Ret_B = (Find(_pElement, _pMethod) != nullptr);
 
   return Ret_B;
 }
@@ -1201,7 +1202,7 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Sort(int (*_pMethod)(const void *, const void *) /* = NULL */)
+template <typename Element> bool BofList<Element>::Sort(int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
   bool Ret_B = true;
 
@@ -1247,10 +1248,10 @@ See also
 */
 template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(const void *, const void *), bool _IsCircular_B, bool _IsDouble_B)
 {
-  BofListNode<Element> *pNode1_O = NULL;
-  BofListNode<Element> *pNode2_O = NULL;
-  BofListNode<Element> *pNode3_O = NULL;
-  BofListNode<Element> *pOldHead_O = NULL;
+  BofListNode<Element> *pNode1_O = nullptr;
+  BofListNode<Element> *pNode2_O = nullptr;
+  BofListNode<Element> *pNode3_O = nullptr;
+  BofListNode<Element> *pOldHead_O = nullptr;
   S32 InSize_S32 = 0;
   S32 NbMerges_S32 = 0;
   S32 Size1_S32 = 0;
@@ -1270,8 +1271,8 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
   {
     pNode1_O = mpHead_O;
     pOldHead_O = mpHead_O;
-    mpHead_O = NULL;
-    mpQueue_O = NULL;
+    mpHead_O = nullptr;
+    mpQueue_O = nullptr;
 
     NbMerges_S32 = 0;
 
@@ -1289,7 +1290,7 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
 
         if (_IsCircular_B)
         {
-          pNode2_O = (pNode2_O->pNext_O == pOldHead_O ? NULL : pNode2_O->pNext_O);
+          pNode2_O = (pNode2_O->pNext_O == pOldHead_O ? nullptr : pNode2_O->pNext_O);
         }
         else
         {
@@ -1320,7 +1321,7 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
 
           if (_IsCircular_B && pNode2_O == pOldHead_O)
           {
-            pNode2_O = NULL;
+            pNode2_O = nullptr;
           }
         }
         // pNode2_O is empty : it must come from pNode1_O
@@ -1332,11 +1333,11 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
 
           if (_IsCircular_B && pNode1_O == pOldHead_O)
           {
-            pNode1_O = NULL;
+            pNode1_O = nullptr;
           }
         }
         // The first element from pNode1_O is lower or equal to the one from pNode2_O
-        else if (((_pCompare != NULL) && (_pCompare(&pNode1_O->Value, &pNode2_O->Value) <= 0)) || ((_pCompare == NULL) && (memcmp(&pNode1_O->Value, &pNode2_O->Value, sizeof(Element)) <= 0)))
+        else if (((_pCompare != nullptr) && (_pCompare(&pNode1_O->Value, &pNode2_O->Value) <= 0)) || ((_pCompare == nullptr) && (memcmp(&pNode1_O->Value, &pNode2_O->Value, sizeof(Element)) <= 0)))
         {
           pNode3_O = pNode1_O;
           pNode1_O = pNode1_O->pNext_O;
@@ -1344,7 +1345,7 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
 
           if (_IsCircular_B && pNode1_O == pOldHead_O)
           {
-            pNode1_O = NULL;
+            pNode1_O = nullptr;
           }
         }
         // The first element from pNode1_O is greater than the one from pNode2_O
@@ -1356,7 +1357,7 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
 
           if (_IsCircular_B && pNode2_O == pOldHead_O)
           {
-            pNode2_O = NULL;
+            pNode2_O = nullptr;
           }
         }
 
@@ -1394,7 +1395,7 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
     }
     else
     {
-      mpQueue_O->pNext_O = NULL;
+      mpQueue_O->pNext_O = nullptr;
     }
 
     // If we have done only on merge, we are done
@@ -1437,15 +1438,15 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::Find(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = NULL */)
+template <typename Element> BofListNode<Element> *BofList<Element>::Find(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
-  BofListNode<Element> *Ret_O = NULL;
+  BofListNode<Element> *Ret_O = nullptr;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pElement != NULL);
+  BOF_ASSERT(_pElement != nullptr);
 #endif
 
-  if (_pElement != NULL)
+  if (_pElement != nullptr)
   {
     Lock();
 
@@ -1455,10 +1456,10 @@ template <typename Element> BofListNode<Element> *BofList<Element>::Find(Element
 
     Ret_O = mpHead_O;
 
-    while (Ret_O != NULL)
+    while (Ret_O != nullptr)
     {
       // It's a match
-      if (((_pMethod != NULL) && (_pMethod(&Ret_O->Value, _pElement) == 0)) || ((_pMethod == NULL) && (memcmp(&Ret_O->Value, _pElement, sizeof(Element)) == 0)))
+      if (((_pMethod != nullptr) && (_pMethod(&Ret_O->Value, _pElement) == 0)) || ((_pMethod == nullptr) && (memcmp(&Ret_O->Value, _pElement, sizeof(Element)) == 0)))
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
@@ -1471,7 +1472,7 @@ template <typename Element> BofListNode<Element> *BofList<Element>::Find(Element
       Ret_O = Ret_O->pNext_O;
 
 #if defined(CHECK_LIST_INTEGRITY)
-      if (Ret_O != NULL)
+      if (Ret_O != nullptr)
       {
         BOF_ASSERT(Ret_O->pParent_O == this);
       }
@@ -1517,15 +1518,15 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::FindLast(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = NULL */)
+template <typename Element> BofListNode<Element> *BofList<Element>::FindLast(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
-  BofListNode<Element> *Ret_O = NULL;
+  BofListNode<Element> *Ret_O = nullptr;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pElement != NULL);
+  BOF_ASSERT(_pElement != nullptr);
 #endif
 
-  if (_pElement != NULL)
+  if (_pElement != nullptr)
   {
     Lock();
 
@@ -1535,10 +1536,10 @@ template <typename Element> BofListNode<Element> *BofList<Element>::FindLast(Ele
 
     Ret_O = mpQueue_O;
 
-    while (Ret_O != NULL)
+    while (Ret_O != nullptr)
     {
       // It's a match
-      if (((_pMethod != NULL) && (_pMethod(&Ret_O->Value, _pElement) == 0)) || ((_pMethod == NULL) && (memcmp(&Ret_O->Value, _pElement, sizeof(Element)) == 0)))
+      if (((_pMethod != nullptr) && (_pMethod(&Ret_O->Value, _pElement) == 0)) || ((_pMethod == nullptr) && (memcmp(&Ret_O->Value, _pElement, sizeof(Element)) == 0)))
       {
         break;
       }
@@ -1622,36 +1623,36 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(Element *_pElement /* = NULL */)
+template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(Element *_pElement /* = nullptr */)
 {
-  BofListNode<Element> *pRet_O = NULL;
+  BofListNode<Element> *pRet_O = nullptr;
 
   Lock();
 
-  if (mpNodePoolMgr_O != NULL)
+  if (mpNodePoolMgr_O != nullptr)
   {
     pRet_O = mpNodePoolMgr_O->GetFreeNode(_pElement);
   }
-  else if (mpFreeNodesHead_O != NULL)
+  else if (mpFreeNodesHead_O != nullptr)
   {
     pRet_O = mpFreeNodesHead_O;
     mpFreeNodesHead_O = pRet_O->pNext_O;
 
-    if (mpFreeNodesHead_O != NULL)
+    if (mpFreeNodesHead_O != nullptr)
     {
-      mpFreeNodesHead_O->pPrev_O = NULL;
+      mpFreeNodesHead_O->pPrev_O = nullptr;
     }
     else
     {
-      mpFreeNodesQueue_O = NULL;
+      mpFreeNodesQueue_O = nullptr;
     }
 
     // Clear node attributes
-    pRet_O->pParent_O = NULL;
-    pRet_O->pNext_O = NULL;
-    pRet_O->pPrev_O = NULL;
+    pRet_O->pParent_O = nullptr;
+    pRet_O->pNext_O = nullptr;
+    pRet_O->pPrev_O = nullptr;
 
-    if (_pElement != NULL)
+    if (_pElement != nullptr)
     {
       pRet_O->Value = *_pElement;
     }
@@ -1688,30 +1689,30 @@ template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(
 
   Lock();
 
-  if (mpNodePoolMgr_O != NULL)
+  if (mpNodePoolMgr_O != nullptr)
   {
     pRet_O = mpNodePoolMgr_O->GetFreeNode(_pNode_O);
   }
   else
   {
     // This node is part of the free node pool
-    if (((_pNode_O->pNext_O != NULL) || (_pNode_O->pPrev_O != NULL) || (mpFreeNodesHead_O == _pNode_O) || (mpFreeNodesQueue_O == _pNode_O)) && (_pNode_O->pParent_O == NULL))
+    if (((_pNode_O->pNext_O != nullptr) || (_pNode_O->pPrev_O != nullptr) || (mpFreeNodesHead_O == _pNode_O) || (mpFreeNodesQueue_O == _pNode_O)) && (_pNode_O->pParent_O == nullptr))
     {
       // It's the only item of the list
       if ((_pNode_O == mpFreeNodesHead_O) && (_pNode_O == mpFreeNodesQueue_O))
       {
-        mpFreeNodesHead_O = NULL;
-        mpFreeNodesQueue_O = NULL;
+        mpFreeNodesHead_O = nullptr;
+        mpFreeNodesQueue_O = nullptr;
       }
       // It's the head
       else if (_pNode_O == mpFreeNodesHead_O)
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
-        BOF_ASSERT(_pNode_O->pNext_O != NULL);
+        BOF_ASSERT(_pNode_O->pNext_O != nullptr);
 #endif
 
-        _pNode_O->pNext_O->pPrev_O = NULL;
+        _pNode_O->pNext_O->pPrev_O = nullptr;
         mpFreeNodesHead_O = _pNode_O->pNext_O;
       }
       // It's the tail
@@ -1719,10 +1720,10 @@ template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
-        BOF_ASSERT(_pNode_O->pPrev_O != NULL);
+        BOF_ASSERT(_pNode_O->pPrev_O != nullptr);
 #endif
 
-        _pNode_O->pPrev_O->pNext_O = NULL;
+        _pNode_O->pPrev_O->pNext_O = nullptr;
         mpFreeNodesQueue_O = _pNode_O->pPrev_O;
       }
       // It's an internal node
@@ -1730,8 +1731,8 @@ template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(
       {
 
 #if defined(CHECK_LIST_INTEGRITY)
-        BOF_ASSERT(_pNode_O->pNext_O != NULL);
-        BOF_ASSERT(_pNode_O->pPrev_O != NULL);
+        BOF_ASSERT(_pNode_O->pNext_O != nullptr);
+        BOF_ASSERT(_pNode_O->pPrev_O != nullptr);
 #endif
 
         _pNode_O->pPrev_O->pNext_O = _pNode_O->pNext_O;
@@ -1740,13 +1741,13 @@ template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(
     }
 
 #if defined(CHECK_LIST_INTEGRITY)
-    BOF_ASSERT(_pNode_O->pParent_O == NULL);
+    BOF_ASSERT(_pNode_O->pParent_O == nullptr);
 #endif
 
     // Clear node attributes
-    pRet_O->pParent_O = NULL;
-    pRet_O->pNext_O = NULL;
-    pRet_O->pPrev_O = NULL;
+    pRet_O->pParent_O = nullptr;
+    pRet_O->pNext_O = nullptr;
+    pRet_O->pPrev_O = nullptr;
   }
 
   Unlock();
@@ -1776,33 +1777,33 @@ template <typename Element> bool BofList<Element>::SetFreeNode(BofListNode<Eleme
   bool Ret_B = false;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pNode_O != NULL);
+  BOF_ASSERT(_pNode_O != nullptr);
 #endif
 
-  if (_pNode_O != NULL)
+  if (_pNode_O != nullptr)
   {
     Lock();
 
-    if (mpNodePoolMgr_O != NULL)
+    if (mpNodePoolMgr_O != nullptr)
     {
       Ret_B = mpNodePoolMgr_O->SetFreeNode(_pNode_O);
     }
     else
     {
-      _pNode_O->pParent_O = NULL;
+      _pNode_O->pParent_O = nullptr;
 
       // The free pool is empty
-      if (mpFreeNodesQueue_O == NULL)
+      if (mpFreeNodesQueue_O == nullptr)
       {
-        _pNode_O->pNext_O = NULL;
-        _pNode_O->pPrev_O = NULL;
+        _pNode_O->pNext_O = nullptr;
+        _pNode_O->pPrev_O = nullptr;
         mpFreeNodesHead_O = _pNode_O;
         mpFreeNodesQueue_O = _pNode_O;
       }
       else
       {
         // Put back the node on end of the free pool
-        _pNode_O->pNext_O = NULL;
+        _pNode_O->pNext_O = nullptr;
         _pNode_O->pPrev_O = mpFreeNodesQueue_O;
         mpFreeNodesQueue_O->pNext_O = _pNode_O;
         mpFreeNodesQueue_O = _pNode_O;
@@ -1844,7 +1845,7 @@ template <typename Element> bool BofList<Element>::Clear()
   BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_CLEAR);
 #endif
 
-  while (GetFirst() != NULL)
+  while (GetFirst() != nullptr)
   {
     RemoveFirst();
   };
@@ -1852,8 +1853,8 @@ template <typename Element> bool BofList<Element>::Clear()
 #if defined(CHECK_LIST_INTEGRITY)
 
   BOF_ASSERT(mNbElements_U32 == 0);
-  BOF_ASSERT(mpHead_O == NULL);
-  BOF_ASSERT(mpQueue_O == NULL);
+  BOF_ASSERT(mpHead_O == nullptr);
+  BOF_ASSERT(mpQueue_O == nullptr);
 
 #endif
 
@@ -1994,14 +1995,14 @@ template <typename Element> bool BofList<Element>::GetProfilingStats(uint32_t _I
   bool Ret_B = false;
 
 #if defined(CHECK_LIST_INTEGRITY)
-  BOF_ASSERT(_pStats_X != NULL);
+  BOF_ASSERT(_pStats_X != nullptr);
 #endif
 
-  if (_pStats_X != NULL)
+  if (_pStats_X != nullptr)
   {
     memset(_pStats_X, 0x00, sizeof(_pStats_X));
 
-    if (mpProfiler_O != NULL)
+    if (mpProfiler_O != nullptr)
     {
       Ret_B = mpProfiler_O->GetStats(_ItemId_U32, _pStats_X);
     }
@@ -2034,13 +2035,13 @@ template <typename Element> bool BofList<Element>::CheckConsistency()
 {
   bool Ret_B = false;
   uint32_t NbElements_U32 = 0;
-  BofListNode<Element> *pNode_O = NULL;
+  BofListNode<Element> *pNode_O = nullptr;
 
   Lock();
 
   pNode_O = mpHead_O;
 
-  while (pNode_O != NULL)
+  while (pNode_O != nullptr)
   {
     NbElements_U32 += 1;
 
