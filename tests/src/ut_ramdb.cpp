@@ -223,11 +223,11 @@ BOFCMP DbRow::Compare(uint32_t _Index_U32, DbRow *_pDbRow_O)
 
 void BofRamDb_Test::SetUp()
 {
-  uint32_t ErrorCode_U32;
+  BOFERR ErrorCode_E;
 
-  mpBofRamDb_O = new BofRamDb<DbRow>(BOFRAMDBNBMAXELEM, DbRow::DB_INDEX_MAX, &ErrorCode_U32);
+  mpBofRamDb_O = new BofRamDb<DbRow>(BOFRAMDBNBMAXELEM, DbRow::DB_INDEX_MAX, ErrorCode_E);
   EXPECT_TRUE(mpBofRamDb_O != 0);
-  EXPECT_EQ(ErrorCode_U32, 0);
+  EXPECT_EQ(ErrorCode_E, BOF_ERR_NO_ERROR);
 }
 
 void BofRamDb_Test::TearDown()
