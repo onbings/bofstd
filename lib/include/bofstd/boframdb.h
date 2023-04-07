@@ -116,7 +116,7 @@ private:
   KeyType *mpElementList;
 
 public:
-  BofRamDb(uint32_t _NbMaxElement_U32, uint32_t _NbIndex_U32, uint32_t *_pErrorCode_U32);
+  BofRamDb(uint32_t _NbMaxElement_U32, uint32_t _NbIndex_U32, BOFERR &_rErrorCode_E);
 
   virtual ~BofRamDb();
 
@@ -142,27 +142,27 @@ public:
     return mNbRecord_U32;
   }
 
-  uint32_t GetCursor(uint32_t _Index_U32, BOF_HANDLE *_pCursor_h);
+  BOFERR GetCursor(uint32_t _Index_U32, BOF_HANDLE *_pCursor_h);
 
-  uint32_t FreeCursor(BOF_HANDLE *_pCursor_h);
+  BOFERR FreeCursor(BOF_HANDLE *_pCursor_h);
 
-  uint32_t GetFirstElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
+  BOFERR GetFirstElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
 
-  uint32_t GetLastElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
+  BOFERR GetLastElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
 
-  uint32_t GetCurrentElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
+  BOFERR GetCurrentElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
 
-  uint32_t GetNextElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
+  BOFERR GetNextElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
 
-  uint32_t GetPreviousElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
+  BOFERR GetPreviousElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
 
-  uint32_t InsertElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
+  BOFERR InsertElement(BOF_HANDLE _Cursor_h, KeyType *_pElement);
 
-  uint32_t SearchElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pFoundElement, BOFCMP _Cmp_E);
+  BOFERR SearchElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pFoundElement, BOFCMP _Cmp_E);
 
-  uint32_t UpdateElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pNewElement);
+  BOFERR UpdateElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pNewElement);
 
-  uint32_t DeleteElement(KeyType *_pElement);
+  BOFERR DeleteElement(KeyType *_pElement);
 
   int32_t CheckDb(bool _ExtendedTest_B);
 
@@ -173,7 +173,7 @@ public:
     return &mDbRamStat_X;
   }
 
-  uint32_t ClearStatistic()
+  BOFERR ClearStatistic()
   {
     mDbRamStat_X.Reset();
     return BOF_ERR_NO_ERROR;
@@ -201,11 +201,10 @@ public:
  * V 1.00  Wed Sep 6 2006  BHA : Initial release
  *
  */
-template <typename KeyType> BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U32, uint32_t _NbIndex_U32, uint32_t *_pErrorCode_U32)
+template <typename KeyType> BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U32, uint32_t _NbIndex_U32, BOFERR &_rErrorCode_E)
 {
   uint32_t i_U32;
-
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
 
   Bof_CreateMutex("BofRamDb", true, true, mMtx_X);
   mNbMaxElement_U32 = _NbMaxElement_U32;
@@ -224,7 +223,7 @@ template <typename KeyType> BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U
 
   if ((_NbMaxElement_U32) && (_NbIndex_U32))
   {
-    Rts_U32 = (uint32_t)BOF_ERR_ENOMEM;
+    Rts_E = BOF_ERR_ENOMEM;
 
     // Allocate static storage for data
     mpElementList = new KeyType[mNbMaxElement_U32];
@@ -250,32 +249,29 @@ template <typename KeyType> BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U
           for (i_U32 = 0; i_U32 < mNbIndex_U32; i_U32++)
           {
             // Allocate static storage for avl tree index
-            mppRamDbTree[i_U32] = new BofAvlTree<KeyType>(_NbMaxElement_U32, i_U32, &Rts_U32);
-            if (Rts_U32 != BOF_ERR_NO_ERROR)
+            mppRamDbTree[i_U32] = new BofAvlTree<KeyType>(_NbMaxElement_U32, i_U32, Rts_E);
+            if (Rts_E != BOF_ERR_NO_ERROR)
             {
               break;
             }
 
             if (!mppRamDbTree[i_U32])
             {
-              Rts_U32 = (uint32_t)BOF_ERR_ENOMEM; // Can be set to BOF_ERR_NO_ERROR in a previous call to new BofAvlTree<KeyType>
+              Rts_E = BOF_ERR_ENOMEM; // Can be set to BOF_ERR_NO_ERROR in a previous call to new BofAvlTree<KeyType>
               break;
             }
           }
 
           if (i_U32 == mNbIndex_U32)
           {
-            Rts_U32 = BOF_ERR_NO_ERROR;
+            Rts_E = BOF_ERR_NO_ERROR;
           }
         }
       }
     }
   }
 
-  if (_pErrorCode_U32)
-  {
-    *_pErrorCode_U32 = Rts_U32;
-  }
+  _rErrorCode_E = Rts_E;
 }
 
 template <typename KeyType> BofRamDb<KeyType>::~BofRamDb()
@@ -326,20 +322,20 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::ClearDbAndReleaseCursor(
   return BOF_ERR_NO_ERROR;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::GetCursor(uint32_t _Index_U32, BOF_HANDLE *_pCursor_h)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::GetCursor(uint32_t _Index_U32, BOF_HANDLE *_pCursor_h)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_INDEX;
+  BOFERR Rts_E = BOF_ERR_INDEX;
 
   uint32_t i_U32;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   if (_Index_U32 < mNbIndex_U32)
   {
-    Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if (_pCursor_h)
     {
-      Rts_U32 = (uint32_t)BOF_ERR_NO_MORE;
+      Rts_E = BOF_ERR_NO_MORE;
 
       if (mNbFreeCursor_U32)
       {
@@ -356,7 +352,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetCursor(uint32_t _Inde
             pCursor_X->Index_U32 = _Index_U32;
             *_pCursor_h = (uintptr_t)(reinterpret_cast<void *>(pCursor_X));
             mNbFreeCursor_U32--;
-            Rts_U32 = BOF_ERR_NO_ERROR;
+            Rts_E = BOF_ERR_NO_ERROR;
             break;
           }
         }
@@ -366,12 +362,12 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetCursor(uint32_t _Inde
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::FreeCursor(BOF_HANDLE *_pCursor_h)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::FreeCursor(BOF_HANDLE *_pCursor_h)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   if (_pCursor_h)
@@ -385,15 +381,15 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::FreeCursor(BOF_HANDLE *_
       *_pCursor_h = 0;
       mNbFreeCursor_U32++;
       Bof_UnlockMutex(mMtx_X);
-      Rts_U32 = BOF_ERR_NO_ERROR;
+      Rts_E = BOF_ERR_NO_ERROR;
     }
   }
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::GetFirstElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::GetFirstElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   BofAvlNode<KeyType> *pElement;
@@ -402,7 +398,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetFirstElement(BOF_HAND
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if (_pElement)
     {
@@ -414,23 +410,23 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetFirstElement(BOF_HAND
         pCursor_X->pElement = pElement;
 
         *_pElement = *(pElement->GetData());
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
       }
       else
       {
-        Rts_U32 = (uint32_t)BOF_ERR_EMPTY;
+        Rts_E = BOF_ERR_EMPTY;
       }
 
       Bof_UnlockMutex(mMtx_X);
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::GetLastElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::GetLastElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
-  uint32_t Rts_U32 = BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   BofAvlNode<KeyType> *pElement;
@@ -450,23 +446,23 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetLastElement(BOF_HANDL
       {
         pCursor_X->pElement = pElement;
         *_pElement = *(pElement->GetData());
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
       }
       else
       {
-        Rts_U32 = BOF_ERR_EMPTY;
+        Rts_E = BOF_ERR_EMPTY;
       }
 
       Bof_UnlockMutex(mMtx_X);
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::GetCurrentElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::GetCurrentElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
-  uint32_t Rts_U32 = BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   BofAvlNode<KeyType> *pElement;
@@ -485,23 +481,23 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetCurrentElement(BOF_HA
       if (pElement)
       {
         *_pElement = *(pElement->GetData());
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
       }
       else
       {
-        Rts_U32 = BOF_ERR_EMPTY;
+        Rts_E = BOF_ERR_EMPTY;
       }
 
       Bof_UnlockMutex(mMtx_X);
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::GetNextElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::GetNextElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   BofAvlNode<KeyType> *pElement;
@@ -510,7 +506,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetNextElement(BOF_HANDL
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if (_pElement)
     {
@@ -521,23 +517,23 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetNextElement(BOF_HANDL
       {
         pCursor_X->pElement = pElement;
         *_pElement = *(pElement->GetData());
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
       }
       else
       {
-        Rts_U32 = (uint32_t)BOF_ERR_EOF;
+        Rts_E = BOF_ERR_EOF;
       }
 
       Bof_UnlockMutex(mMtx_X);
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::GetPreviousElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::GetPreviousElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
-  uint32_t Rts_U32 = BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   BofAvlNode<KeyType> *pElement;
@@ -546,7 +542,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetPreviousElement(BOF_H
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if (_pElement)
     {
@@ -557,23 +553,24 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::GetPreviousElement(BOF_H
       {
         pCursor_X->pElement = pElement;
         *_pElement = *(pElement->GetData());
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
       }
       else
       {
-        Rts_U32 = BOF_ERR_EOF;
+        Rts_E = BOF_ERR_EOF;
       }
 
       Bof_UnlockMutex(mMtx_X);
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::InsertElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::InsertElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_CURSOR, Tree_U32, i_U32;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
+  uint32_t Tree_U32, i_U32;
   BOF_RAM_DB_CURSOR *pCursor_X;
   BofAvlNode<KeyType> *pNode_O;
 
@@ -582,17 +579,17 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::InsertElement(BOF_HANDLE
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if (_pElement)
     {
-      Rts_U32 = (uint32_t)BOF_ERR_FULL;
+      Rts_E = BOF_ERR_FULL;
       Bof_LockMutex(mMtx_X);
 
       if (mNextRamDbFreeElement_U32 != 0xFFFFFFFF)
       {
         mpElementList[mNextRamDbFreeElement_U32] = *_pElement;
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
 
         for (Tree_U32 = 0; Tree_U32 < mNbIndex_U32; Tree_U32++)
         {
@@ -600,12 +597,12 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::InsertElement(BOF_HANDLE
 
           if (pNode_O)
           {
-            Rts_U32 = (uint32_t)BOF_ERR_DUPLICATE;
+            Rts_E = BOF_ERR_DUPLICATE;
             break;
           }
         }
 
-        if (Rts_U32 == BOF_ERR_NO_ERROR)
+        if (Rts_E == BOF_ERR_NO_ERROR)
         {
           mNbRecord_U32++;
           mDbRamStat_X.NbInsertExecuted_U32++;
@@ -626,12 +623,12 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::InsertElement(BOF_HANDLE
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::SearchElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pFoundElement, BOFCMP _Cmp_E)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::SearchElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pFoundElement, BOFCMP _Cmp_E)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
 
   BofAvlNode<KeyType> *pElement;
@@ -641,7 +638,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::SearchElement(BOF_HANDLE
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if ((_pSearchElement) && (_pFoundElement))
     {
@@ -654,23 +651,24 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::SearchElement(BOF_HANDLE
         mDbRamStat_X.NbSearchMatch_U32++;
         pCursor_X->pElement = pElement;
         *_pFoundElement = *(pElement->GetData());
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
       }
       else
       {
-        Rts_U32 = (uint32_t)BOF_ERR_EOF;
+        Rts_E = BOF_ERR_EOF;
       }
 
       Bof_UnlockMutex(mMtx_X);
     }
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::DeleteElement(KeyType *_pElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::DeleteElement(KeyType *_pElement)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_EINVAL, i_U32, Position_U32; // ,NbNext_U32,NbPrev_U32;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  uint32_t i_U32, Position_U32; // ,NbNext_U32,NbPrev_U32;
 
   // BOFRAMDBCURSOR			*pCursor_X, *pCurs_X;
   BofAvlNode<KeyType> *pElement;
@@ -685,7 +683,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::DeleteElement(KeyType *_
 
   if (_pElement)
   {
-    Rts_U32 = BOF_ERR_NO_ERROR;
+    Rts_E = BOF_ERR_NO_ERROR;
     Bof_LockMutex(mMtx_X);
 
     // Check if the element is present in all index
@@ -742,12 +740,12 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::DeleteElement(KeyType *_
           }
           else
           {
-            Rts_U32 = (uint32_t)BOF_ERR_INTERNAL;
+            Rts_E = BOF_ERR_INTERNAL;
           }
         }
         else
         {
-          Rts_U32 = (uint32_t)BOF_ERR_INTERNAL;
+          Rts_E = BOF_ERR_INTERNAL;
         }
       }
 
@@ -771,18 +769,18 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::DeleteElement(KeyType *_
     }
     else
     {
-      Rts_U32 = (uint32_t)BOF_ERR_NOT_FOUND;
+      Rts_E = BOF_ERR_NOT_FOUND;
     }
 
     Bof_UnlockMutex(mMtx_X);
   }
 
-  return Rts_U32;
+  return Rts_E;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pNewElement)
+template <typename KeyType> BOFERR BofRamDb<KeyType>::UpdateElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pNewElement)
 {
-  uint32_t Rts_U32 = (uint32_t)BOF_ERR_CURSOR;
+  BOFERR Rts_E = BOF_ERR_CURSOR;
   uint32_t Position_U32;
   uint32_t i_U32;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -795,7 +793,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if ((_pSearchElement) && (_pNewElement))
     {
@@ -857,13 +855,13 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
               if (Position_U32 < mNbMaxElement_U32)
               {
                 mDbRamStat_X.NbUpdateDataExecuted_U32++;
-                Rts_U32 = BOF_ERR_NO_ERROR;
+                Rts_E = BOF_ERR_NO_ERROR;
                 mpElementList[Position_U32] = *_pNewElement;
                 pCursor_X->pElement = pElement;
               }
               else
               {
-                Rts_U32 = (uint32_t)BOF_ERR_INTERNAL;
+                Rts_E = BOF_ERR_INTERNAL;
               }
             }
             else
@@ -872,27 +870,27 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
               PreviousValue = *(pElement->GetData());
 
               // DumpDb();
-              Rts_U32 = DeleteElement(_pSearchElement);
+              Rts_E = DeleteElement(_pSearchElement);
 
               // DumpDb();
-              if (Rts_U32 == BOF_ERR_NO_ERROR)
+              if (Rts_E == BOF_ERR_NO_ERROR)
               {
                 // Check if the new data is valid (!! duplicate index value !!)
                 for (i_U32 = 0; i_U32 < mNbIndex_U32; i_U32++)
                 {
                   if (mppRamDbTree[i_U32]->Search(_pNewElement, BOF_CMP_EQUAL))
                   {
-                    Rts_U32 = (uint32_t)BOF_ERR_DUPLICATE;
+                    Rts_E = BOF_ERR_DUPLICATE;
                     break;
                   }
                 }
 
-                if (Rts_U32 == BOF_ERR_NO_ERROR)
+                if (Rts_E == BOF_ERR_NO_ERROR)
                 {
                   // No duplicate value insert new data
-                  Rts_U32 = InsertElement(_Cursor_h, _pNewElement);
+                  Rts_E = InsertElement(_Cursor_h, _pNewElement);
 
-                  if (Rts_U32 != BOF_ERR_NO_ERROR)
+                  if (Rts_E != BOF_ERR_NO_ERROR)
                   {
                     InsertElement(_Cursor_h, &PreviousValue); // Rollback delete
                   }
@@ -907,7 +905,7 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
                 }
               }
 
-              if (Rts_U32 == BOF_ERR_NO_ERROR)
+              if (Rts_E == BOF_ERR_NO_ERROR)
               {
                 /*
                  *                                              pElement=mppRamDbTree[pCursor_X->Index_U32]->Search(_pSearchElement,BOF_CMP_EQUAL);
@@ -945,14 +943,14 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::UpdateElement(BOF_HANDLE
       }
       else
       {
-        Rts_U32 = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_NO_ERROR;
         mDbRamStat_X.NbUpdateCancelled_U32++;
       }
     }
   }
 
-  // BOFDBG_OUTPUT_0(DBG_FS,Rts_U32,"UpdateElement Rts %X",Rts_U32);
-  return Rts_U32;
+  // BOFDBG_OUTPUT_0(DBG_FS,Rts_E,"UpdateElement Rts %X",Rts_E);
+  return Rts_E;
 }
 
 template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTest_B)

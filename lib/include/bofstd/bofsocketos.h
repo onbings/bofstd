@@ -463,7 +463,7 @@ struct BOF_IPV4_ADDR_U32
   {
     IpAddress_U32 = 0;
   }
-  bool IsNull()
+  bool IsNull() const
   {
     return (IpAddress_U32 == 0);
   }
@@ -476,26 +476,26 @@ struct BOF_IPV4_ADDR_U32
   {
     return !(*this == _rOther_X);
   }
-  void Parse(uint8_t &_rIp1_U8, uint8_t &_rIp2_U8, uint8_t &_rIp3_U8, uint8_t &_rIp4_U8)
+  void Parse(uint8_t &_rIp1_U8, uint8_t &_rIp2_U8, uint8_t &_rIp3_U8, uint8_t &_rIp4_U8) const
   {
-    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
+    const uint8_t *pIp_U8 = (const uint8_t *)(&IpAddress_U32);
     _rIp1_U8 = *pIp_U8++;
     _rIp2_U8 = *pIp_U8++;
     _rIp3_U8 = *pIp_U8++;
     _rIp4_U8 = *pIp_U8++;
   }
-  uint32_t ToBinary()
+  uint32_t ToBinary() const
   {
     return IpAddress_U32;
   }
-  std::string ToString()
+  std::string ToString() const
   {
-    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
+    const uint8_t *pIp_U8 = (const uint8_t *)(&IpAddress_U32);
     return std::to_string(pIp_U8[0]) + '.' + std::to_string(pIp_U8[1]) + '.' + std::to_string(pIp_U8[2]) + '.' + std::to_string(pIp_U8[3]);
   }
-  std::string ToString(uint16_t _Port_U16)
+  std::string ToString(uint16_t _Port_U16) const
   {
-    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
+    const uint8_t *pIp_U8 = (const uint8_t *)(&IpAddress_U32);
     return std::to_string(pIp_U8[0]) + '.' + std::to_string(pIp_U8[1]) + '.' + std::to_string(pIp_U8[2]) + '.' + std::to_string(pIp_U8[3]) + ':' + std::to_string(_Port_U16);
   }
 };

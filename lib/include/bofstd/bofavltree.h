@@ -71,7 +71,7 @@ private:
   BofAvlTree &operator=(const BofAvlTree<KeyType> &) = delete;
 
 public:
-  BofAvlTree(uint32_t _NbMaxElement_U32, uint32_t _Index_U32, uint32_t *_pErrorCode_U32);
+  BofAvlTree(uint32_t _NbMaxElement_U32, uint32_t _Index_U32, BOFERR &_rErrorCode_E);
 
   virtual ~BofAvlTree();
 
@@ -200,9 +200,10 @@ public:
  * V 1.00  Wed Sep 6 2006  BHA : Initial release
  *
  */
-template <typename KeyType> BofAvlTree<KeyType>::BofAvlTree(uint32_t _NbMaxElement_U32, uint32_t _Index_U32, uint32_t *_pErrorCode_U32)
+template <typename KeyType> BofAvlTree<KeyType>::BofAvlTree(uint32_t _NbMaxElement_U32, uint32_t _Index_U32, BOFERR &_rErrorCode_E)
 {
-  uint32_t i_U32, Rts_U32 = (uint32_t)BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  uint32_t i_U32;
 
   mpRoot = nullptr;
   mIndex_U32 = _Index_U32;
@@ -212,7 +213,7 @@ template <typename KeyType> BofAvlTree<KeyType>::BofAvlTree(uint32_t _NbMaxEleme
 
   if (_NbMaxElement_U32)
   {
-    Rts_U32 = BOF_ERR_ENOMEM;
+    Rts_E = BOF_ERR_ENOMEM;
     mpNodeList = new BofAvlNode<KeyType>[mNbMaxElement_U32];
 
     if (mpNodeList)
@@ -225,14 +226,11 @@ template <typename KeyType> BofAvlTree<KeyType>::BofAvlTree(uint32_t _NbMaxEleme
         mpNodeList[i_U32].SetParent(&mpNodeList[i_U32 + 1]);
       }
       mpNodeList[mNbMaxElement_U32 - 1].SetParent(nullptr);
-      Rts_U32 = BOF_ERR_NO_ERROR;
+      Rts_E = BOF_ERR_NO_ERROR;
     }
   }
 
-  if (_pErrorCode_U32)
-  {
-    *_pErrorCode_U32 = Rts_U32;
-  }
+  _rErrorCode_E = Rts_E;
 }
 
 template <typename KeyType> BofAvlTree<KeyType>::~BofAvlTree()
