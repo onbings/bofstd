@@ -39,7 +39,11 @@ BEGIN_BOF_NAMESPACE()
 #define BOF_MS_TO_NANO(v) (static_cast<uint64_t>((v)*1e6))
 #define BOF_S_TO_NANO(v) (static_cast<uint64_t>((v)*1e9))
 #define BOF_INFINITE_TIMEOUT ((uint32_t)-1)
-
+#if defined(_WIN32)
+#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)  {DWORD NbRts; Sts = DeviceIoControl((HANDLE)fd, req, pInBuffer, LenIn, pOutBuffer, LenOut, &NbRts, false); }
+#else
+#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)  {Sts = (::ioctl(fd, req, pInBuffer) < 0 ? false:true;}
+#endif
 enum class BOF_SEEK_METHOD : uint32_t
 {
   BOF_SEEK_BEGIN = 0, /*! The starting point is zero or the beginning of the file.*/
@@ -133,7 +137,7 @@ struct BOF_BUFFER
     pData_U8 = _rOther_X.pData_U8;
     return *this;
   }
-  BOF_BUFFER &operator=(const BOF_BUFFER &&_rrOther_X)
+  BOF_BUFFER &operator=(const BOF_BUFFER &&_rrOther_X) noexcept
   {
     std::lock_guard<std::mutex> Lock(Mtx);
     MustBeDeleted_B = false; // Only one deleter _rrOther_X.MustBeDeleted_B;

@@ -244,6 +244,7 @@ extern uint32_t GL_BofDbgPrintfStartTime_U32;
     printf("%10d [%08X] " Format, BOF::Bof_GetMsTickCount() - BOF::GL_BofDbgPrintfStartTime_U32, BOF::Bof_CurrentThreadId(), ##__VA_ARGS__);                                                                                                                   \
   }
 
+
 #if defined(NDEBUG)  //We are in Release compil
 // #define BOF_ASSERT(_Expression)	assert( (_Expression) )	//Void op by default in release
 // Microsoft assert.h: #define assert(_Expression) (void)( (!!(_Expression)) || (_wassert(_CRT_WIDE(#_Expression), _CRT_WIDE(__FILE__), __LINE__), 0) )

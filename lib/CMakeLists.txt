@@ -212,8 +212,8 @@ set(SYSTEM_FILES
 	src/bofsystem.cpp
 	include/bofstd/bofstring.h
 	src/bofstring.cpp
-	include/bofstd/bofscriptlauncher.h
-	src/bofscriptlauncher.cpp
+	include/bofstd/bofprocess.h
+	src/bofprocess.cpp
 	include/bofstd/bofperformance.h
 	src/bofperformance.cpp  
 	include/bofstd/bofstatistics.h

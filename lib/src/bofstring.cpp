@@ -528,7 +528,7 @@ bool Bof_IsDouble(const std::string &_rInput_S, double &_rVal_lf)
   Sts_i = sscanf(_rInput_S.c_str(), "%lf%c", &_rVal_lf, &Ch_c);
   return (Sts_i == 1);
 }
-/*** StrUpr ******************************************************/
+
 /*!
 Description
 The function strupr converts a string to uppercase.

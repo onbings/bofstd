@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
 #endif
   testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "Api_Test.*";
+  //::testing::GTEST_FLAG(filter) = "BofProcess_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
 
   Rts_i = RUN_ALL_TESTS();

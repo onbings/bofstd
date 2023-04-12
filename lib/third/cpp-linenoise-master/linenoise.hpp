@@ -133,6 +133,8 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#define NOMINMAX
+#define _WINSOCKAPI_
 #include <Windows.h>
 #include <io.h>
 #ifndef STDIN_FILENO

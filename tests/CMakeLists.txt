@@ -115,7 +115,7 @@ set(SOCKIO_FILES
 )
 
 set(SYSTEM_FILES
-        src/ut_scriptlauncher.cpp
+        src/ut_process.cpp
         src/ut_system.cpp
         src/ut_string.cpp
         src/ut_timecode.cpp

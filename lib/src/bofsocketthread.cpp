@@ -6,12 +6,6 @@
   IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
   PURPOSE.
 
-  The class that manage socket operations on a thread
-
-  Name:        SocketThread.cpp
-  Author:      Nicolas Marique : n.marique@evs.tv
-  Revision:    1.0
-
   History:
 
   V 1.00  February 18 2014  NMA : Initial release

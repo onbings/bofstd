@@ -1252,11 +1252,11 @@ template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(con
   BofListNode<Element> *pNode2_O = nullptr;
   BofListNode<Element> *pNode3_O = nullptr;
   BofListNode<Element> *pOldHead_O = nullptr;
-  S32 InSize_S32 = 0;
-  S32 NbMerges_S32 = 0;
-  S32 Size1_S32 = 0;
-  S32 Size2_S32 = 0;
-  S32 I_S32 = 0;
+  int32_t InSize_S32 = 0;
+  int32_t NbMerges_S32 = 0;
+  int32_t Size1_S32 = 0;
+  int32_t Size2_S32 = 0;
+  int32_t I_S32 = 0;
   bool Exit_B = false;
 
   // If the list is empty

@@ -221,7 +221,42 @@ struct BOF_SOCKET_ADDRESS
   {
     return Bof_SocketAddressToString(*this, _ShowProtocol_B, _ShowPortNumber_B);
   }
+  uint32_t ToBinary() const
+  {
+    uint32_t Rts_U32;
+    if (IpV6_B)
+    {
+      BOF_ASSERT(0);
+    }
+    else
+    {
+      Rts_U32 = ntohl(IpV4Address_X.sin_addr.s_addr);
+    }
+    return Rts_U32;
+  }
+  void ToBinary(uint16_t *_pIpV6_U16) const
+  {
+    uint32_t i_U32;
 
+    if (IpV6_B)
+    {
+      if (_pIpV6_U16)
+      {
+        for (i_U32 = 0; i_U32 < 8; i_U32++)
+        {
+#if defined(_WIN32)
+          _pIpV6_U16[i_U32] = IpV6Address_X.sin6_addr.u.Word[i_U32];
+#else
+          _pIpV6_U16[i_U32] = IpV6Address_X.sin6_addr.s6_addr16[i_U32];
+#endif
+        }
+      }
+    }
+    else
+    {
+      BOF_ASSERT(0);
+    }
+  }
   void Set(bool _IpV6_B, BOF_SOCK_TYPE _SocketType_E, uint32_t _Ip1_U32, uint32_t _Ip2_U32, uint32_t _Ip3_U32, uint32_t _Ip4_U32, uint16_t _Port_U16)
   {
     IpV6_B = _IpV6_B;
@@ -352,11 +387,7 @@ struct BOF_SOCKET_ADDRESS
     }
   }
 
-  uint32_t IpV4Address() const
-  {
-    uint32_t Rts_U32 = IpV4Address_X.sin_addr.s_addr;
-    return ntohl(Rts_U32);
-  }
+
   void Parse(BOF_SOCK_TYPE &_rSocketType_E, uint32_t &_rIp1_U32, uint32_t &_rIp2_U32, uint32_t &_rIp3_U32, uint32_t &_rIp4_U32, uint16_t &_rPort_U16)
   {
     if (IpV6_B)
@@ -413,6 +444,10 @@ struct BOF_SOCKET_ADDRESS
     IpV6Address_X.sin6_scope_id = 0;
     // IpV6Address_X.sin6_scope_struct = 0;
   }
+  bool IsValid() const
+  {
+    return (Valid_B);
+  }
 };
 
 // typedef struct ip_addr
@@ -456,7 +491,7 @@ struct BOF_IPV4_ADDR_U32
     }
     else
     {
-      IpAddress_U32 = ntohl(_rBofSocketAddress_X.IpV4Address());
+      IpAddress_U32 = ntohl(_rBofSocketAddress_X.ToBinary());
     }
   }
   void Reset()
@@ -467,6 +502,7 @@ struct BOF_IPV4_ADDR_U32
   {
     return (IpAddress_U32 == 0);
   }
+
   bool operator==(const BOF_IPV4_ADDR_U32 &_rOther_X) const
   {
     return (IpAddress_U32 == _rOther_X.IpAddress_U32);
@@ -498,6 +534,7 @@ struct BOF_IPV4_ADDR_U32
     const uint8_t *pIp_U8 = (const uint8_t *)(&IpAddress_U32);
     return std::to_string(pIp_U8[0]) + '.' + std::to_string(pIp_U8[1]) + '.' + std::to_string(pIp_U8[2]) + '.' + std::to_string(pIp_U8[3]) + ':' + std::to_string(_Port_U16);
   }
+
 };
 
 struct BOF_SOCKET_ADDRESS_COMPONENT;
