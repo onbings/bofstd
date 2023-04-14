@@ -435,7 +435,7 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetLastElement(BOF_HANDLE 
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if (_pElement)
     {
@@ -471,7 +471,7 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetCurrentElement(BOF_HAND
 
   if ((pCursor_X) && (pCursor_X->MagicNumber_U32 == BOFRAMDB_CURSOR_MAGICNUMBER))
   {
-    Rts_U32 = BOF_ERR_EINVAL;
+    Rts_E = BOF_ERR_EINVAL;
 
     if (_pElement)
     {

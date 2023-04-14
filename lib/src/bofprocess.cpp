@@ -152,11 +152,11 @@ int KillSubProcess(BOF_PROCESS _Pid_X, int _Options_i)
   char pCommand_c[256];
   char pResult_c[256];
   char *pLine_c;
-  BOF_SCRIPT_PROCESS ChildPid_X;
+  BOF_PROCESS ChildPid_X;
 
   snprintf(pCommand_c, sizeof(pCommand_c), "ps -o ppid,pid | grep %d | awk '{ print $2 }'", _Pid_X.Pid);
 
-  Status_i = BofScriptLauncher::S_Execute(pResult_c, sizeof(pResult_c), pCommand_c, 1000);
+  Status_i = BofProcess::S_Execute(pResult_c, sizeof(pResult_c), pCommand_c, 1000);
 
   if (Status_i == 0)
   {
@@ -234,7 +234,7 @@ int WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32)
     Status_i = (TerminateProcess(_Pid_X.Pi_X.hProcess, -1)) ? 0 : -1;
   }
 #else
-  RetPid_X.Pid = WaitForPid(_Pid_X.Pid, &Status_i, _Timeout_U32);
+  RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
 
   // Check if process exited
   if (RetPid_X.Pid == _Pid_X.Pid)
@@ -258,18 +258,18 @@ int WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32)
   if (Kill_B)
   {
     // Try terminating it
-    Status_i = KillSubProcess(_Pid_X.Pid, SIGTERM);
+    Status_i = KillSubProcess(_Pid_X, SIGTERM);
     Status_i = kill(_Pid_X.Pid, SIGTERM);
 
-    RetPid_X.Pid = WaitForPid(_Pid_X.Pid, &Status_i, _Timeout_U32);
+    RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
 
     if (RetPid_X.Pid != _Pid_X.Pid)
     {
       // Try killing it
-      Status_i = KillSubProcess(_Pid_X.Pid, SIGKILL);
+      Status_i = KillSubProcess(_Pid_X, SIGKILL);
       Status_i = kill(_Pid_X.Pid, SIGKILL);
 
-      RetPid_X.Pid = WaitForPid(_Pid_X.Pid, &Status_i, _Timeout_U32);
+      RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
     }
   }
 #endif
@@ -731,8 +731,8 @@ int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, cons
   //	bool                       Kill_B    = false;
   char *Args_c[] = {(char *)"sh", (char *)"-c", (char *)_pCommand_c, nullptr};
   char pBuf_c[128];
-  BOF_SCRIPT_PROCESS Pid_X;
-  //	BOF_SCRIPT_PROCESS                      RetPid_X;
+  BOF_PROCESS Pid_X;
+  //	BOF_PROCESS                      RetPid_X;
   posix_spawn_file_actions_t Actions_X;
   posix_spawnattr_t Attributes_X;
   int Policy_i = 0;
@@ -934,7 +934,7 @@ int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char
   //	int     Status_i        = 0;
   int File_i = 0;
   char *Args_c[] = {(char *)"/bin/sh", (char *)"-c", (char *)_pCommand_c, nullptr};
-  BOF_SCRIPT_PROCESS Pid_X = 0;
+  BOF_PROCESS Pid_X;
   ssize_t Read_i = 0;
   char pTempFileName_c[256];
   char pRedirect_c[512];
@@ -970,7 +970,7 @@ int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char
     }
     else if (Pid_X.Pid > 0)
     {
-      Rts_i = WaitForProcessCompletion(Pid_X.Pid, _Timeout_U32);
+      Rts_i = WaitForProcessCompletion(Pid_X, _Timeout_U32);
 
       // Do we have to capture output
       if (CaptureOutput_B)
@@ -1201,7 +1201,7 @@ Returns
 Remarks
   None
 */
-BOF_PROCESS BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16)
+BOF_PROCESS BofProcess::S_SpawnProcess(char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16)
 {
   BOF_PROCESS Rts_X;
   char pTemp_c[0x1000];
@@ -1334,7 +1334,7 @@ bool BofProcess::S_KillProcess(BOF_PROCESS _Pid_X)
   sleep(2);
   Status_i |= kill(_Pid_X.Pid, SIGKILL);
 
-  IsProcessRunning(_Pid_X.Pid);
+  S_IsProcessRunning(_Pid_X);
 
   Rts_B = true;
 #endif

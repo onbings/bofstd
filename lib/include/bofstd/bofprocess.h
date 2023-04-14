@@ -51,10 +51,10 @@ struct BOF_PROCESS
   }
 };
 #else
-struct BOF_SCRIPT_PROCESS
+struct BOF_PROCESS
 {
   pid_t Pid;
-  BOF_SCRIPT_PROCESS()
+  BOF_PROCESS()
   {
     Reset();
   }
@@ -95,7 +95,7 @@ public:
 
   static bool S_KillAllPidByName(const char *_pProcessName_c);
   static bool S_IsProcessRunning(BOF_PROCESS _Pid_X);
-  static BOF_PROCESS S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16);
+  static BOF_PROCESS S_SpawnProcess(char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16);
   static bool S_KillProcess(BOF_PROCESS _Pid_X);
 
 protected:

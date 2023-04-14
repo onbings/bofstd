@@ -124,29 +124,33 @@ TEST_F(BofProcess_Test, Process)
 
   Pid_X = BofProcess::S_SpawnProcess("ThisAppNameDoesNotExist.exe", "", 0);
   EXPECT_EQ(Pid_X.Pid, -1);
+#if defined(_WIN32)
   EXPECT_EQ(Pid_X.Pi_X.dwProcessId, 0);
   EXPECT_EQ(Pid_X.Pi_X.dwThreadId, 0);
   EXPECT_EQ(Pid_X.Pi_X.hProcess, (HANDLE)0);
   EXPECT_EQ(Pid_X.Pi_X.hThread, (HANDLE)0);
-#if defined(_WIN32)
   //Need to specify full path, do not follow the search path
   Pid_X = BofProcess::S_SpawnProcess("C:\\Windows\\notepad.exe", "/A FileDoesNotExist.txt", 0);
 #else
   Pid_X = BofProcess::S_SpawnProcess("nano", "FileDoesNotExist.txt", 0);
 #endif
+
   EXPECT_EQ(Pid_X.Pid, 0);
+#if defined(_WIN32)
   EXPECT_NE(Pid_X.Pi_X.dwProcessId, 0);
   EXPECT_NE(Pid_X.Pi_X.dwThreadId, 0);
   EXPECT_NE(Pid_X.Pi_X.hProcess, (HANDLE)0);
   EXPECT_NE(Pid_X.Pi_X.hThread, (HANDLE)0);
   EXPECT_TRUE(BofProcess::S_IsProcessRunning(Pid_X));
   EXPECT_TRUE(BofProcess::S_KillAllPidByName("notepad.exe"));
-#if defined(_WIN32)
   //Need to specify full path, do not follow the search path
   Pid_X = BofProcess::S_SpawnProcess("C:\\Windows\\notepad.exe", "/A FileDoesNotExist.txt", 0);
 #else
+  EXPECT_TRUE(BofProcess::S_IsProcessRunning(Pid_X));
+  EXPECT_TRUE(BofProcess::S_KillAllPidByName("nano"));
   Pid_X = BofProcess::S_SpawnProcess("nano", "FileDoesNotExist.txt", 0);
 #endif
+
   EXPECT_EQ(Pid_X.Pid, 0);
   EXPECT_TRUE(BofProcess::S_KillProcess(Pid_X));
 }

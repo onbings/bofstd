@@ -30,6 +30,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUI
 #include <sstream>
 #include <string.h>
 #include <string>
+#include <stdint.h>
 
 using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rMasg_S)>;
 
