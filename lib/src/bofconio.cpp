@@ -75,7 +75,7 @@ BofConio::BofConio(const BOF_CONIO_PARAM &_rBofConioParam_X)
 #if defined(_WIN32)
   CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo_X;
   HANDLE Out_h = GetStdHandle(STD_OUTPUT_HANDLE);
-  if (Out_h != INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Out_h))
   {
     GetConsoleScreenBufferInfo(Out_h, &ScreenBufferInfo_X);
     mConsoleWidth_U32 = ScreenBufferInfo_X.srWindow.Right - ScreenBufferInfo_X.srWindow.Left + 1;

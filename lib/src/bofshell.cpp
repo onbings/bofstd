@@ -243,7 +243,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
     {
       if (mExecScript_B)
       {
-        if (IoScript == BOF_INVALID_HANDLE_VALUE)
+        if (!BOF_IS_HANDLE_VALID(IoScript))
         {
           Bof_GetCurrentDirectory(Pwd_S);
           mShellParam_X.psConio->PrintfColor(mShellParam_X.ShellCmdInputColor_E, "Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str());
@@ -257,7 +257,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
           }
         }
 
-        if (IoScript != BOF_INVALID_HANDLE_VALUE)
+        if (BOF_IS_HANDLE_VALID(IoScript))
         {
           if (Bof_ReadLine(IoScript, ScriptLine_S) == BOF_ERR_NO_ERROR)
           {

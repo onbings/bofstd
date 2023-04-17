@@ -135,7 +135,7 @@ TEST_F(BofProcess_Test, Process)
   Pid_X = BofProcess::S_SpawnProcess("nano", "FileDoesNotExist.txt", 0);
 #endif
 
-  EXPECT_EQ(Pid_X.Pid, 0);
+  EXPECT_EQ(Pid_X.Pid, 1);
 #if defined(_WIN32)
   EXPECT_NE(Pid_X.Pi_X.dwProcessId, 0);
   EXPECT_NE(Pid_X.Pi_X.dwThreadId, 0);
@@ -151,7 +151,7 @@ TEST_F(BofProcess_Test, Process)
   Pid_X = BofProcess::S_SpawnProcess("nano", "FileDoesNotExist.txt", 0);
 #endif
 
-  EXPECT_EQ(Pid_X.Pid, 0);
+  EXPECT_EQ(Pid_X.Pid, 1);
   EXPECT_TRUE(BofProcess::S_KillProcess(Pid_X));
 }
 

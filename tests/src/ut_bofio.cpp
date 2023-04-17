@@ -46,11 +46,11 @@ USE_BOF_NAMESPACE()
   814 busy
 */
 constexpr uint32_t WAIT_FOR_POLL_PERIOD = 500;
-constexpr uint16_t DEFAULT_PORT = 51000;
-constexpr uint16_t MIN_PORT_VALUE = 51000;
-constexpr uint16_t MAX_PORT_VALUE = 51099;
-constexpr uint16_t CONTROL_LISTER_MIN_PORT_VALUE = 51100;
-constexpr uint16_t CONTROL_LISTER_MAX_PORT_VALUE = 51199;
+constexpr uint16_t DEFAULT_PORT = 55000;
+constexpr uint16_t MIN_PORT_VALUE = 55000;
+constexpr uint16_t MAX_PORT_VALUE = 55099;
+constexpr uint16_t CONTROL_LISTER_MIN_PORT_VALUE = 55100;
+constexpr uint16_t CONTROL_LISTER_MAX_PORT_VALUE = 55199;
 static uint16_t S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
 
 constexpr uint32_t NB_MAX_H4X_CLIENT = 10;

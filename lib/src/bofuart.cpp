@@ -90,13 +90,13 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X) : BofComChannel(BOF_COM_CH
       sprintf(pWork_c, "COM%d:", i_U32 + 1);
       mId_h = CreateFileA(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-      if (mId_h != INVALID_HANDLE_VALUE)
+      if (BOF_IS_HANDLE_VALID(mId_h))
       {
         CloseHandle(mId_h);
 
         mId_h = CreateFileA(pWork_c, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-        if (mId_h != INVALID_HANDLE_VALUE)
+        if (BOF_IS_HANDLE_VALID(mId_h))
         {
           memset(&Dcb_X, 0, sizeof(Dcb_X));
           Dcb_X.DCBlength = sizeof(DCB);

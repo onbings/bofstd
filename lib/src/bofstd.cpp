@@ -373,7 +373,7 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
 //#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
 //#endif
   // Activate ansi support
-  if (Out_h != INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Out_h))
   {
     if (GetConsoleMode(Out_h, &S_ModeOut_DW))
     {
@@ -383,7 +383,7 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
       }
     }
   }
-  if (In_h != INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(In_h))
   {
     if (GetConsoleMode(In_h, &S_ModeIn_DW))
     {
@@ -449,11 +449,11 @@ BOFERR Bof_Shutdown()
   // Set output mode to handle virtual terminal sequences
   HANDLE Out_h = GetStdHandle(STD_OUTPUT_HANDLE);
   HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
-  if (Out_h != INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Out_h))
   {
     SetConsoleMode(Out_h, S_ModeOut_DW);
   }
-  if (In_h != INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(In_h))
   {
     SetConsoleMode(In_h, S_ModeIn_DW);
   }

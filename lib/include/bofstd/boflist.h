@@ -245,7 +245,7 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = TRUE */, class BofList<Element> *_pNodePool_O /* = nullptr */)
+template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = true */, class BofList<Element> *_pNodePool_O /* = nullptr */)
 {
   uint32_t I_U32 = 0;
 
@@ -391,8 +391,8 @@ Parameters
   _pNewNode_O       - The pointer to the new node to insert in the list
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -467,8 +467,8 @@ Parameters
   _pElement         - The pointer to the element value to give to the new node
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -512,8 +512,8 @@ Parameters
   _pNewNode_O       - The pointer to the new node to insert in the list
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -592,8 +592,8 @@ Parameters
   _pElement         - The pointer to the element value to give to the new node
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -636,8 +636,8 @@ Parameters
   _pNode_O  - The node to insert
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -706,8 +706,8 @@ Parameters
   _rElement - The reference to the element value to give to the new node
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -742,8 +742,8 @@ Parameters
   _pElement - The pointer to the element value to give to the new node
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -778,8 +778,8 @@ Parameters
   _pNode_O  - The node to insert
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -853,8 +853,8 @@ Parameters
   _rElement - The reference to the element value to give to the new node
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -889,8 +889,8 @@ Parameters
   _pElement - The pointer to the element value to give to the new node
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -925,8 +925,8 @@ Parameters
   _pNode_O - The pointer to the node to remove
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -1031,8 +1031,8 @@ Parameters
   None
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -1069,8 +1069,8 @@ Parameters
   None
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -1119,8 +1119,8 @@ Parameters
   _pMethod  - The comparison method
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -1162,8 +1162,8 @@ Parameters
   _pMethod  - The comparison method
 
 Returns
-  TRUE  - An element that matches those criterion is contained in the list
-  FALSE - No such element can be found
+  true  - An element that matches those criterion is contained in the list
+  false - No such element can be found
 
 Remarks
   None
@@ -1193,8 +1193,8 @@ Parameters
   _pMethod  - The comparison method
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -1429,8 +1429,8 @@ Parameters
   _pMethod  - The comparison method
 
 Returns
-  TRUE  - An element that matches those criterion is contained in the list
-  FALSE - No such element can be found
+  true  - An element that matches those criterion is contained in the list
+  false - No such element can be found
 
 Remarks
   None
@@ -1509,8 +1509,8 @@ Parameters
   _pMethod  - The comparison method
 
 Returns
-  TRUE  - An element that matches those criterion is contained in the list
-  FALSE - No such element can be found
+  true  - An element that matches those criterion is contained in the list
+  false - No such element can be found
 
 Remarks
   None
@@ -1763,8 +1763,8 @@ Parameters
   _pNode_O - The node to free
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -1826,8 +1826,8 @@ Parameters
   None
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -1928,8 +1928,8 @@ Parameters
   None
 
 Returns
-  TRUE  - The list is full
-  FALSE - The list is not full
+  true  - The list is full
+  false - The list is not full
 
 Remarks
   None
@@ -1954,8 +1954,8 @@ Parameters
   None
 
 Returns
-  TRUE  - The list is empty
-  FALSE - The list is not empty
+  true  - The list is empty
+  false - The list is not empty
 
 Remarks
   None
@@ -1981,8 +1981,8 @@ Parameters
   _pStats_X   - The pointer to where to store the statistics
 
 Returns
-  TRUE  - The operation was successful
-  FALSE - The operation failed
+  true  - The operation was successful
+  false - The operation failed
 
 Remarks
   None
@@ -2022,8 +2022,8 @@ Parameters
   None
 
 Returns
-  TRUE  - The list is consistent
-  FALSE - The list is not consistent
+  true  - The list is consistent
+  false - The list is not consistent
 
 Remarks
   None

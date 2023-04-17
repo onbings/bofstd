@@ -335,7 +335,7 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
     std::string PatternFilename_S;
     PatternFilename_S = _rPath.FullPathName(true) + "*";
     FindFirstFile_h = FindFirstFileA(PatternFilename_S.c_str(), &FindData_X);
-    if (FindFirstFile_h != INVALID_HANDLE_VALUE)
+    if (BOF_IS_HANDLE_VALID(FindFirstFile_h))
     {
       Rts_E = BOF_ERR_NO_ERROR;
     }
@@ -604,7 +604,7 @@ BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_r
   Flag_i = (_Append_B) ? (O_RDWR | O_CREAT | O_APPEND) : (O_RDWR | O_CREAT | O_TRUNC);
   Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i, _Permission_E);
 #endif
-  if (Io_i != BOF_INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Io_i))
   {
     _rIo = static_cast<uintptr_t>(Io_i);
     // Rts_E = BOF_ERR_NO_ERROR;
@@ -672,7 +672,7 @@ BOFERR Bof_OpenFile(const BOF::BofPath &_rPath, bool _ReadOnly_B, bool _Append_B
   // #endif
   _rIo = static_cast<uintptr_t>(-1);
   Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i);
-  if (Io_i != BOF_INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Io_i))
   {
     _rIo = static_cast<uintptr_t>(Io_i);
     Rts_E = BOF_ERR_NO_ERROR;
@@ -690,7 +690,7 @@ int64_t Bof_SetFileIoPosition(uintptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHO
   int64_t Rts_S64 = -1;
   int Io_i = static_cast<int>(_Io);
 
-  if (Io_i != BOF_INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Io_i))
   {
 #if defined(_WIN32)
     Rts_S64 = _lseeki64(Io_i, _Offset_S64, static_cast<int>(_SeekMethod_E));
@@ -847,7 +847,7 @@ BOFERR Bof_ReadFile(uintptr_t _Io, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8)
   int Io_i = static_cast<int>(_Io);
   int NbRead_i;
 
-  if ((Io_i != BOF_INVALID_HANDLE_VALUE) && (_pBuffer_U8))
+  if (BOF_IS_HANDLE_VALID(Io_i) && (_pBuffer_U8))
   {
     NbRead_i = static_cast<int>(read(Io_i, _pBuffer_U8, static_cast<size_t>(_rNb_U32)));
     _rNb_U32 = static_cast<uint32_t>(NbRead_i);
@@ -871,7 +871,7 @@ BOFERR Bof_WriteFile(uintptr_t _Io, uint32_t &_rNb_U32, const uint8_t *_pBuffer_
   int Io_i = static_cast<int>(_Io);
   uint32_t NbToWrite_U32;
 
-  if ((Io_i != BOF_INVALID_HANDLE_VALUE) && (_pBuffer_U8))
+  if (BOF_IS_HANDLE_VALID(Io_i) && (_pBuffer_U8))
   {
     NbToWrite_U32 = _rNb_U32;
     _rNb_U32 = static_cast<uint32_t>(write(Io_i, _pBuffer_U8, _rNb_U32));
@@ -985,7 +985,7 @@ BOFERR Bof_FlushFile(uintptr_t _Io)
   BOFERR Rts_E = BOF_ERR_EINVAL;
   int Io_i = static_cast<int>(_Io);
 
-  if (Io_i != BOF_INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Io_i))
   {
     //		Rts_E = BOF_ERR_FLUSH;
     // if (flush(Io_i)==0)
@@ -1001,7 +1001,7 @@ BOFERR Bof_CloseFile(uintptr_t &_rIo)
   BOFERR Rts_E = BOF_ERR_EINVAL;
   int Io_i = static_cast<int>(_rIo);
 
-  if (Io_i != BOF_INVALID_HANDLE_VALUE)
+  if (BOF_IS_HANDLE_VALID(Io_i))
   {
     Rts_E = BOF_ERR_CLOSE;
     if (close(Io_i) == 0)
