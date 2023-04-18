@@ -438,7 +438,7 @@ TEST(Threading_Test, SingleThread)
   EXPECT_EQ(Thread_X.StartStopTimeoutInMs_U32, 1000);
   //	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
 #if defined(_WIN32)
-  EXPECT_EQ(Thread_X.ThreadId_U32, 0);
+  EXPECT_EQ(Thread_X.ThreadId, 0);
   EXPECT_EQ(Thread_X.pThread, nullptr);
 #else
   EXPECT_EQ(Thread_X.ThreadId, 0);
@@ -474,7 +474,7 @@ TEST(Threading_Test, SingleThread)
   EXPECT_EQ(Thread_X.StartStopTimeoutInMs_U32, 2000);
   //	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
 #if defined(_WIN32)
-  EXPECT_TRUE(Thread_X.ThreadId_U32 != 0);
+  EXPECT_TRUE(Thread_X.ThreadId != 0);
   EXPECT_FALSE(Thread_X.pThread == nullptr);
 #else
   EXPECT_NE(Thread_X.ThreadId, 0);
@@ -594,7 +594,7 @@ TEST(Threading_Test, MultiThread)
     EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
     //	EXPECT_EQ(pThread_X[i_U32].ThreadFunction, S_TheThread);
 #if defined(_WIN32)
-    EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
     EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
 #else
     EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
@@ -618,7 +618,7 @@ TEST(Threading_Test, MultiThread)
     EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
     //	EXPECT_EQ(Thread_X.ThreadFunction, S_TheThread);
 #if defined(_WIN32)
-    EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
+    EXPECT_TRUE(pThread_X[i_U32].ThreadId != 0);
     EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
 #else
     EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
@@ -714,7 +714,7 @@ TEST(Threading_Test, MultiThreadWithoutMutex)
     EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
     EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
 #if defined(_WIN32)
-    EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
     EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
 #else
     EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
@@ -732,7 +732,7 @@ TEST(Threading_Test, MultiThreadWithoutMutex)
     EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
     EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
 #if defined(_WIN32)
-    EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
+    EXPECT_TRUE(pThread_X[i_U32].ThreadId != 0);
     EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
 #else
     EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
@@ -799,7 +799,7 @@ TEST(Threading_Test, MultiThreadWithMutex)
     EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 0);
     EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, 1000);
 #if defined(_WIN32)
-    EXPECT_EQ(pThread_X[i_U32].ThreadId_U32, 0);
+    EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
     EXPECT_EQ(pThread_X[i_U32].pThread, nullptr);
 #else
     EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
@@ -817,7 +817,7 @@ TEST(Threading_Test, MultiThreadWithMutex)
     EXPECT_EQ(pThread_X[i_U32].StackSize_U32, 4096);
     EXPECT_EQ(pThread_X[i_U32].StartStopTimeoutInMs_U32, STARTSTOPTO);
 #if defined(_WIN32)
-    EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 != 0);
+    EXPECT_TRUE(pThread_X[i_U32].ThreadId != 0);
     EXPECT_FALSE(pThread_X[i_U32].pThread == nullptr);
 #else
     EXPECT_NE(pThread_X[i_U32].ThreadId, 0);

@@ -394,6 +394,11 @@ struct BOF_MUTEX
     Name_S = "";
     Recursive_B = true;
   }
+
+  bool IsValid()
+  {
+    return (Magic_U32 == BOF_MUTEX_MAGIC);
+  }
 };
 
 const uint32_t BOF_EVENT_MAGIC = 0x1F564864;
@@ -425,6 +430,10 @@ struct BOF_EVENT
     //			NotifyAll_B = false;
     WaitKeepSignaled_B = false;
   }
+  bool IsValid()
+  {
+    return (Magic_U32 == BOF_EVENT_MAGIC);
+  }
 };
 
 const uint32_t BOF_SEMAPHORE_MAGIC = 0xABFF8974;
@@ -450,9 +459,13 @@ struct BOF_SEMAPHORE
     Cpt_S32 = 0;
     Max_S32 = 0;
   }
+  bool IsValid()
+  {
+    return (Magic_U32 == BOF_SEMAPHORE_MAGIC);
+  }
 };
 
-const uint32_t BOF__CONDITIONAL_VARIABLE_MAGIC = 0xCBFDE456;
+const uint32_t BOF_CONDITIONAL_VARIABLE_MAGIC = 0xCBFDE456;
 
 struct BOF_CONDITIONAL_VARIABLE
 {
@@ -472,6 +485,10 @@ struct BOF_CONDITIONAL_VARIABLE
     Magic_U32 = 0;
     Name_S = "";
     NotifyAll_B = false;
+  }
+  bool IsValid()
+  {
+    return (Magic_U32 == BOF_CONDITIONAL_VARIABLE_MAGIC);
   }
 };
 
@@ -513,6 +530,10 @@ struct BOF_SHARED_MEMORY
 #endif
     SizeInByte_U32 = 0;
     pBaseAddress = nullptr;
+  }
+  bool IsValid()
+  {
+    return (Magic_U32 == BOF_FILEMAPPING_MAGIC);
   }
 };
 
@@ -651,7 +672,7 @@ struct BOF_THREAD
 
 #if defined(_WIN32)
   void *pThread;         /*! Thread windows handle*/
-  uint32_t ThreadId_U32; /*! Thread windows Id*/
+  uint32_t ThreadId; /*! Thread windows Id*/
 #else
   pthread_t ThreadId;
 #endif
@@ -679,11 +700,15 @@ struct BOF_THREAD
     ThreadRunning_B = false;
 #if defined(_WIN32)
     pThread = nullptr;
-    ThreadId_U32 = 0;
+    ThreadId = 0;
 #else
     ThreadId = 0;
 #endif
     pThreadExitCode = nullptr;
+  }
+  bool IsValid()
+  {
+    return (Magic_U32 == BOF_THREAD_MAGIC);
   }
 };
 
@@ -842,7 +867,7 @@ template <typename... Args> BOFERR Bof_SignalConditionalVariable(BOF_CONDITIONAL
 {
   BOFERR Rts_E = BOF_ERR_INIT;
 
-  if (_rCv_X.Magic_U32 == BOF__CONDITIONAL_VARIABLE_MAGIC)
+  if (_rCv_X.Magic_U32 == BOF_CONDITIONAL_VARIABLE_MAGIC)
   {
     std::unique_lock<std::mutex> WaitLock_O(_rCv_X.Mtx);
     _CvSetter(_Args...);
@@ -856,7 +881,7 @@ template <typename... Args> BOFERR Bof_WaitForConditionalVariable(BOF_CONDITIONA
 {
   BOFERR Rts_E = BOF_ERR_INIT;
 
-  if (_rCv_X.Magic_U32 == BOF__CONDITIONAL_VARIABLE_MAGIC)
+  if (_rCv_X.Magic_U32 == BOF_CONDITIONAL_VARIABLE_MAGIC)
   {
     std::unique_lock<std::mutex> WaitLock_O(_rCv_X.Mtx);
     // if (_rCv_X.Cv.wait_for(WaitLock_O, std::chrono::milliseconds(_TimeoutInMs_U32), _CvPredicate(_Args...)))

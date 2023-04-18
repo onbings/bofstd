@@ -783,11 +783,11 @@ BOFERR Bof_CreateConditionalVariable(const std::string &_rName_S, bool _NotifyAl
 {
   BOFERR Rts_E = BOF_ERR_EEXIST;
 
-  if (_rCv_X.Magic_U32 != BOF__CONDITIONAL_VARIABLE_MAGIC)
+  if (_rCv_X.Magic_U32 != BOF_CONDITIONAL_VARIABLE_MAGIC)
   {
     _rCv_X.Reset();
     _rCv_X.Name_S = _rName_S;
-    _rCv_X.Magic_U32 = BOF__CONDITIONAL_VARIABLE_MAGIC;
+    _rCv_X.Magic_U32 = BOF_CONDITIONAL_VARIABLE_MAGIC;
     _rCv_X.NotifyAll_B = _NotifyAll_B;
     Rts_E = BOF_ERR_NO_ERROR;
   }
@@ -797,7 +797,7 @@ BOFERR Bof_CreateConditionalVariable(const std::string &_rName_S, bool _NotifyAl
 BOFERR Bof_DestroyConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
-  if (_rCv_X.Magic_U32 == BOF__CONDITIONAL_VARIABLE_MAGIC)
+  if (_rCv_X.Magic_U32 == BOF_CONDITIONAL_VARIABLE_MAGIC)
   {
     _rCv_X.Reset();
     Rts_E = BOF_ERR_NO_ERROR;
@@ -1333,7 +1333,7 @@ BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFu
       _rThread_X.ThreadLoopMustExit_B = false;
       _rThread_X.ThreadRunning_B = false;
 #if defined(_WIN32)
-      _rThread_X.ThreadId_U32 = 0;
+      _rThread_X.ThreadId = 0;
       _rThread_X.pThread = nullptr;
 #else
       _rThread_X.ThreadId = 0;
@@ -1509,7 +1509,7 @@ BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_
       _rThread_X.StartStopTimeoutInMs_U32 = _StartStopTimeoutInMs_U32;
 
 #if defined(_WIN32)
-      _rThread_X.pThread = CreateThread(nullptr, _rThread_X.StackSize_U32, (LPTHREAD_START_ROUTINE)S_ThreadLauncher, (void *)&_rThread_X, _rThread_X.StackSize_U32 ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0, (DWORD *)&_rThread_X.ThreadId_U32);
+      _rThread_X.pThread = CreateThread(nullptr, _rThread_X.StackSize_U32, (LPTHREAD_START_ROUTINE)S_ThreadLauncher, (void *)&_rThread_X, _rThread_X.StackSize_U32 ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0, (DWORD *)&_rThread_X.ThreadId);
       Rts_E = (_rThread_X.pThread != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
 #else
       /*
