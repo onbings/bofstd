@@ -17,7 +17,7 @@
 #               06 March 2021 remove dependency on third party and cmake helpers
 #               22 April 2022 updated with NMA cmake and vcpkg ideas 
 
-#cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/github/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-static -DBOFSTD_GENERATE_HELP=ON C:/pro/github/bofstd
+#cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/github/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-windows-static -DBOFSTD_GENERATE_HELP=ON C:/pro/github/bofstd
 
 cmake_minimum_required(VERSION 3.25)
 #message("====ANDROID_PLATFORM==ROOT==================>" ${ANDROID_PLATFORM})

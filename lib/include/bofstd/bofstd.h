@@ -21,7 +21,7 @@
  */
 #pragma once
 /*
-cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-static -DBOFSTD_GENERATE_HELP=ONN C:/pro/github/bofstd
+cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DVCPKG_TARGET_TRIPLET=evs-x64-windows-static -DBOFSTD_GENERATE_HELP=ONN C:/pro/github/bofstd
 */
 #include "boferr.h"
 #include <cstdint>

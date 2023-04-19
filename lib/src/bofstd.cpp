@@ -34,8 +34,8 @@ get push ref dd2b5f2d947de02e2733f603299ffce4d6eff74b		used also during last pha
 - Validate BofSrd and bofstd with the C:\pro\github\vcpkg-packaging-env project
   cd C:\bld\a
   del * /S /Q
-  cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic
--DVCPKG_OVERLAY_PORTS=C:\pro\github\onbings-vcpkg-registry\ports\ C:\pro\github\vcpkg-packaging-env cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic
+  cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-windows-dynamic
+-DVCPKG_OVERLAY_PORTS=C:\pro\github\onbings-vcpkg-registry\ports\ C:\pro\github\vcpkg-packaging-env cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-windows-dynamic
 -DVCPKG_OVERLAY_PORTS=C:\pro\evs-vcpkg-registry\ports\ C:\pro\vcpkg-packaging-env
 
   [DEBUG] Downloading https:\\github.com\onbings\bofstd\archive\dd2b5f2d947de02e2733f603299ffce4d6eff74b.tar.gz
@@ -48,7 +48,7 @@ get push ref dd2b5f2d947de02e2733f603299ffce4d6eff74b		used also during last pha
 
   get the Actual hash  and put it back in SHA512 in C:\pro\github\onbings-vcpkg-registry\ports\bofstd\portfile.cmake
 
-  cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic
+  cmake -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-windows-dynamic
 -DVCPKG_OVERLAY_PORTS=C:\pro\github\onbings-vcpkg-registry\ports\ C:\pro\github\vcpkg-packaging-env Should be ok, compile it with  cmake --build .
 
   cd C:\pro\github\onbings-vcpkg-registry / cd c:\pro\evs-vcpkg-registry
@@ -67,12 +67,12 @@ get push ref dd2b5f2d947de02e2733f603299ffce4d6eff74b		used also during last pha
 
   "baseline": "bf6851917ef574e02fb406c2f50d5956b7edd85d", / "baseline": "efddb77285b616de2e547d7c986d4d61646ffa13",
 
-cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic C:\pro\github\vcpkg-packaging-env
+cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\github\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-windows-dynamic C:\pro\github\vcpkg-packaging-env
 
-cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic C:\pro\vcpkg-packaging-env
-cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-windows-dynamic C:\pro\evs-muse
+cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-windows-dynamic C:\pro\vcpkg-packaging-env
+cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\scripts\buildsystems\vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-windows-dynamic C:\pro\evs-muse
 
-cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/github/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-swx-linux-dynamic -DVCPKG_OVERLAY_PORTS=/home/bha/pro/github/onbings-vcpkg-registry/ports/
+cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/github/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-linux-dynamic -DVCPKG_OVERLAY_PORTS=/home/bha/pro/github/onbings-vcpkg-registry/ports/
 /home/bha/pro/github/bofstd
 */
 #include <bofstd/bofsocket.h>
