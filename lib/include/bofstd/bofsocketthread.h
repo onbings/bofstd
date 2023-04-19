@@ -20,73 +20,225 @@
  */
 #pragma once
 
+#include <bofstd/bofcircularbuffer.h>
 #include <bofstd/bofsocket.h>
 
 BEGIN_BOF_NAMESPACE()
-
-struct BOF_SOCKET_OPERATION_PARAM
+enum BOF_SOCKET_OPERATION
 {
-  BofSocket *pSocket_O; /*! The pointer to the socket object */
-  bool Read_B;          /*! Read data from the socket (write otherwise) */
-  uint32_t Size_U32;    /*! The number of bytes to transfer */
-  uint8_t *pBuffer_U8;  /*! The local data buffer */
-  BOF_SOCKET_OPERATION_PARAM()
+  BOF_SOCKET_OPERATION_LISTEN = 0,
+  BOF_SOCKET_OPERATION_CONNECT,
+  BOF_SOCKET_OPERATION_READ,
+  BOF_SOCKET_OPERATION_WRITE,
+  BOF_SOCKET_OPERATION_DISCONNECT,
+  BOF_SOCKET_OPERATION_MAX
+};
+
+struct BOF_SOCKET_THREAD_PARAM
+{
+  std::string Name_S;
+  uint32_t NbMaxOperationPending_U32;
+  BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
+  BOF_THREAD_PRIORITY ThreadPriority_E;
+
+  BOF_SOCKET_THREAD_PARAM()
   {
     Reset();
   }
-
   void Reset()
   {
-    pSocket_O = nullptr;
-    Read_B = false;
-    Size_U32 = 0;
+    Name_S = "";
+    NbMaxOperationPending_U32 = 0;
+    ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
+    ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_NONE;
+  }
+};
+
+struct BOF_SOCKET_LISTEN_PARAM
+{
+  BOF::BOF_IPV4_ADDR_U32 SrcIpAddr_X;
+  uint16_t SrcPort_U16;
+  uint32_t NbMaxClient_U32;
+  // uint32_t Flag_U32;
+  //  uint32_t *pUdpDataSizeMax_U32;
+  //  uint8_t *pUdpData_U8;
+  BOF_SOCKET_LISTEN_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    SrcIpAddr_X.Reset();
+    SrcPort_U16 = 0;
+    NbMaxClient_U32 = 0;
+    // Flag_U32 = 0;
+  }
+};
+
+struct BOF_SOCKET_CONNECT_PARAM
+{
+  bool Tcp_B;
+  BOF::BOF_IPV4_ADDR_U32 SrcIpAddr_X;
+  uint16_t SrcPort_U16;
+  BOF::BOF_IPV4_ADDR_U32 DstIpAddr_X;
+  uint16_t DstPort_U16;
+  //  uint32_t UdpDataSize_U32;
+  //  uint8_t *pUdpData_U8;
+  BOF_SOCKET_CONNECT_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    Tcp_B = false;
+    SrcIpAddr_X.Reset();
+    SrcPort_U16 = 0;
+    DstIpAddr_X.Reset();
+    DstPort_U16 = 0;
+  }
+};
+
+struct BOF_SOCKET_READ_PARAM
+{
+  BofSocket *pDstSocket_O;
+  uint32_t Nb_U32;
+  uint8_t *pBuffer_U8;
+  BOF_SOCKET_READ_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    pDstSocket_O = nullptr;
+    Nb_U32 = 0;
     pBuffer_U8 = nullptr;
   }
 };
 
+struct BOF_SOCKET_WRITE_PARAM
+{
+  BofSocket *pDstSocket_O;
+  uint32_t Nb_U32;
+  uint8_t *pBuffer_U8;
+  BOF_SOCKET_WRITE_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    pDstSocket_O = nullptr;
+    Nb_U32 = 0;
+    pBuffer_U8 = nullptr;
+  }
+};
+
+struct BOF_SOCKET_DISCONNECT_PARAM
+{
+  BofSocket *pListenSocket_O; // Can be null
+  BofSocket *pDstSocket_O;    // Can be null
+  BOF_SOCKET_DISCONNECT_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    pListenSocket_O = nullptr;
+    pDstSocket_O = nullptr;
+  }
+};
 struct BOF_SOCKET_OPERATION_RESULT
 {
-  BOFERR Sts_E;       /*! The operation status */
-  uint32_t Size_U32;  /*! The total size transferred in bytes */
-  uint32_t Timer_U32; /*! The operation time in ms */
+  BOF_SOCKET_OPERATION Operation_E;
+  uint32_t OpTicket_U32;
+  BOFERR Sts_E;               /*! The operation status */
+  BofSocket *pListenSocket_O; // Created socket
+  BofSocket *pDstSocket_O;    // Created socket
+  uint32_t Size_U32;          /*! The total size transferred in bytes */
+  uint8_t *pBuffer_U8;
+  uint32_t Time_U32; /*! The operation time (in ticks) */
   BOF_SOCKET_OPERATION_RESULT()
   {
     Reset();
   }
-
   void Reset()
   {
-    Sts_E = BOF_ERR_NO_ERROR;
+    Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_MAX;
+    OpTicket_U32 = 0;
+    Sts_E = BOF_ERR_NOT_INIT;
     Size_U32 = 0;
+    pBuffer_U8 = nullptr;
+    Time_U32 = 0;
+    pListenSocket_O = nullptr;
+    pDstSocket_O = nullptr;
+  }
+};
+
+struct BOF_SOCKET_OPERATION_PARAM
+{
+  BOF_SOCKET_OPERATION Operation_E; /*! The operation to perform */
+  uint32_t Ticket_U32;
+  uint32_t TimeOut_U32;
+  uint32_t Timer_U32; /*! The associated timer */
+                      // Using an union create problem: warning C4624: 'onbings::bof::BOF_SOCKET_OPERATION_PARAM': destructor was implicitly defined as deleted
+  // So I inline them
+  BOF_SOCKET_LISTEN_PARAM Listen_X;   /*! The listen operation params */
+  BOF_SOCKET_CONNECT_PARAM Connect_X; /*! The connect operation params */
+  BOF_SOCKET_READ_PARAM Read_X;       /*! The read operation params */
+  BOF_SOCKET_WRITE_PARAM Write_X;     /*! The write operation params */
+  BOF_SOCKET_DISCONNECT_PARAM Disconnect_X;
+  BOF_SOCKET_OPERATION_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_MAX;
+    Ticket_U32 = 0;
+    TimeOut_U32 = 0;
     Timer_U32 = 0;
+    Listen_X.Reset();
+    Connect_X.Reset();
+    Read_X.Reset();
+    Write_X.Reset();
+    Disconnect_X.Reset();
   }
 };
 
 class BOFSTD_EXPORT BofSocketThread : public BofThread
 {
 private:
-  BOF_SOCKET_OPERATION_PARAM mSocketOperationParam_X;   /*! The operation params */
-  BOF_SOCKET_OPERATION_RESULT mSocketOperationResult_X; /*! The operation results */
-  bool mExit_B;                                         /*! The exit flag */
-  bool mInUse_B;                                        /*! An operation is currently pending */
-  bool mDone_B;                                         /*! The flag indicating the operation is done */
-  bool mCancel_B;                                       /*! The operation was cancelled */
+  std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_PARAM>> mpuSocketOperationParamCollection = nullptr;   /*! The operation params */
+  std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_RESULT>> mpuSocketOperationResultCollection = nullptr; /*! The operation result */
+  bool mExit_B = false;                                                                                         /*! The exit flag */
 
 public:
-  BofSocketThread(const std::string &_rName_S, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E);
+  BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadParam_X);
   virtual ~BofSocketThread();
 
-  BOFERR ProgramSocketOperation(BOF_SOCKET_OPERATION_PARAM &_rParam_X);
-  bool IsOperationDone();
-  bool IsOperationPending();
-  BOFERR GetParams(BOF_SOCKET_OPERATION_PARAM &_rParam_X);
-  BOFERR GetResult(BOF_SOCKET_OPERATION_RESULT &_rResult_X);
+  BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_LISTEN_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
+  BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_CONNECT_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
+  BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_READ_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
+  BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_WRITE_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
+  BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_DISCONNECT_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
 
-  BOFERR CancelOperation();
-  BOFERR ClearOperation();
+  bool GetSocketOperationResult(uint32_t _TimeOut_U32, BOF_SOCKET_OPERATION_RESULT &_rOperationResult_X);
+  uint32_t NumberOfOperationPending();
+  uint32_t NumberOfResultPending();
+
+  BOFERR CancelAllOperation();
 
 protected:
   BOFERR V_OnProcessing() override;
+
+private:
+  BOF_SOCKET_THREAD_PARAM mSocketThreadParam_X;
+  uint32_t mTicket_U32 = 0;
+  // BOF::BofSocket *mpServerSocket_O = nullptr;       /*! The server socket */
+  // BOF::BofSocket *mpClientSocket_O = nullptr;       /*! The socket opened as a client */
+  // bool mListenDone_B = false;                     /*! The socket was created from a listen */
+  bool mCancelAllOperation_B = false;
+
+  BofSocket *CreateSocket(bool _Tcp_B, BOF::BOF_IPV4_ADDR_U32 &_rIpAddr_X, uint16_t _Port_U16, uint32_t _NbMaxClient_U32); // 0 for normal socket !=0 for listening one _Listen_B)
 };
 
 END_BOF_NAMESPACE()

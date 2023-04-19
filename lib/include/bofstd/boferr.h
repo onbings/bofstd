@@ -248,10 +248,11 @@ enum BOFERR : int
   BOF_ERR_UNMAP,            ///< Unmap
   BOF_ERR_SCHEDULER,        ///< Scheduler
   BOF_ERR_PRIORITY,         ///< Priority
-  BOF_ERR_HARD_INIT,         ///< Hw Init
-  BOF_ERR_SOFT_INIT,         ///< Stf Init
-  BOF_ERR_LOAD,         ///< Load
-  BOF_ERR_SAVE,         ///< Save
+  BOF_ERR_HARD_INIT,        ///< Hw Init
+  BOF_ERR_SOFT_INIT,        ///< Stf Init
+  BOF_ERR_LOAD,             ///< Load
+  BOF_ERR_SAVE,             ///< Save
+  BOF_ERR_NO_CLIENT,        ///< No client
 };
-//#define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
-//#define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK
+// #define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
+// #define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK
