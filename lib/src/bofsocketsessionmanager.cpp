@@ -396,11 +396,11 @@ BOFERR BofSocketSessionManager::AddToPollList(BOF_SOCKET_SESSION_TYPE _SessionTy
   BOF_POLL_SOCKET_CMD PollSocketCmd_X;
   bool NotFound_B;
 
-  _rSessionId = BOFSOCKET_INVALID;
+  _rSessionId = BOF_INVALID_SOCKET_VALUE;
   if (mBofSocketServerParam_X.ServerMode_E == BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION)
   {
     Rts_E = BOF_ERR_EINVAL;
-    if ((_psSocketSession->NativeBofSocketPointer()) && (_psSocketSession->NativeBofSocketPointer()->GetSocketHandle() != BOFSOCKET_INVALID))
+    if ((_psSocketSession->NativeBofSocketPointer()) && (_psSocketSession->NativeBofSocketPointer()->GetSocketHandle() != BOF_INVALID_SOCKET_VALUE))
     {
       Rts_E = BOF_ERR_INIT;
       if (_psSocketSession->NativeBofSocketPointer()->LastErrorCode() == BOF_ERR_NO_ERROR)
@@ -464,11 +464,11 @@ BOFERR BofSocketSessionManager::AddToPollList(uint32_t _SessionId_U32, std::uniq
   BOF_POLL_SOCKET_CMD PollSocketCmd_X;
   bool NotFound_B;
 
-  _rSessionId = BOFSOCKET_INVALID;
+  _rSessionId = BOF_INVALID_SOCKET_VALUE;
   if (mBofSocketServerParam_X.ServerMode_E == BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_POLLER)
   {
     Rts_E = BOF_ERR_EINVAL;
-    if ((_puSocket) && (_puSocket->GetSocketHandle() != BOFSOCKET_INVALID))
+    if ((_puSocket) && (_puSocket->GetSocketHandle() != BOF_INVALID_SOCKET_VALUE))
     {
       Rts_E = BOF_ERR_INIT;
       if (_puSocket->LastErrorCode() == BOF_ERR_NO_ERROR)

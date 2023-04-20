@@ -574,12 +574,13 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
       }
     }
 #else
-    int iFlags;
+    int iFlags, Sts_i;
     if (DtrState_U8 == 1)
     {
       iFlags = TIOCM_DTR;
 
-      if (ioctl(mId_h, TIOCMBIS, &iFlags) == 0)
+      BOF_IOCTL(mId_h, TIOCMBIS, &iFlags, 0, 0, 0, Sts_i);
+      if (Sts_i == 0)
       {
         Rts_B = true;
       }
@@ -592,7 +593,8 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
     {
       iFlags = TIOCM_DTR;
 
-      if (ioctl(mId_h, TIOCMBIC, &iFlags) == 0)
+      BOF_IOCTL(mId_h, TIOCMBIC, &iFlags, 0, 0, 0, Sts_i);
+      if (Sts_i == 0)
       {
         Rts_B = true;
       }
@@ -614,7 +616,8 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
       {
         iFlags = TIOCM_RTS;
 
-        if (ioctl(mId_h, TIOCMBIS, &iFlags) == 0)
+        BOF_IOCTL(mId_h, TIOCMBIS, &iFlags, 0, 0, 0, Sts_i);
+        if (Sts_i  == 0)
         {
           Rts_B = true;
         }
@@ -627,7 +630,8 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
       {
         iFlags = TIOCM_RTS;
 
-        if (ioctl(mId_h, TIOCMBIC, &iFlags) == 0)
+        BOF_IOCTL(mId_h, TIOCMBIC, &iFlags, 0, 0, 0, Sts_i);
+        if (Sts_i == 0)
         {
           Rts_B = true;
         }
@@ -644,13 +648,6 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
 #endif
   }
 
-  /* check
-   * iFlags = 0;
-   * if (ioctl(mId_h, TIOCMGET, &iFlags) == 0)
-   * {
-   * Rts_B = true;
-   * }
-   */
   return Rts_B;
 }
 
@@ -685,21 +682,23 @@ BOFERR BofUart::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       Rts_E = BOF_ERR_NO_ERROR;
     }
 #else
-    uint32_t NbIn_U32 = 0;
-    uint32_t NbOut_U32 = 0;
-    if ((ioctl(mId_h, FIONREAD, &NbIn_U32) < 0) || (ioctl(mId_h, TIOCOUTQ, &NbOut_U32) < 0))
+    uint32_t NbIn_U32;
+    uint32_t NbOut_U32;
+    int Sts_i;
+    BOF_IOCTL(mId_h, FIONREAD, &NbIn_U32, 0, 0, 0, Sts_i);
+    if (Sts_i < 0)
     {
       NbIn_U32 = 0;
-      NbOut_U32 = 0;
-      // printf("Failed ioctl device %s FIONREAD or TIOCOUTQ: %s\n", mpTTYDeviceName_c, strerror(errno) );
     }
-    else
+    BOF_IOCTL(mId_h, TIOCOUTQ, &NbOut_U32, 0, 0, 0, Sts_i);
+    if (Sts_i < 0)
     {
-      _rStatus_X.NbIn_U32 = NbIn_U32;
-      Nb_U32 = mpTxData_O ? mpTxData_O->GetNbElement() : 0;
-      _rStatus_X.NbOut_U32 = (Nb_U32 > NbOut_U32) ? Nb_U32 : NbOut_U32;
-      Rts_E = BOF_ERR_NO_ERROR;
+      NbOut_U32 = 0;
     }
+    _rStatus_X.NbIn_U32 = NbIn_U32;
+    Nb_U32 = mpTxData_O ? mpTxData_O->GetNbElement() : 0;
+    _rStatus_X.NbOut_U32 = (Nb_U32 > NbOut_U32) ? Nb_U32 : NbOut_U32;
+    Rts_E = BOF_ERR_NO_ERROR;
 
 #endif
   }
@@ -786,11 +785,12 @@ BOFERR BofUart::V_ReadData(uint32_t TimeOut_U32, uint32_t &_rNb_U32, uint8_t *pB
       }
 #else
       uint32_t NbRead_U32 = 0;
-
-      if (ioctl(mId_h, FIONREAD, &NbInQueue_U32) < 0)
+      int Sts_i;
+      BOF_IOCTL(mId_h, FIONREAD, &NbInQueue_U32, 0, 0, 0, Sts_i);
+      if (Sts_i < 0)
       {
         NbInQueue_U32 = 0;
-        // printf("Failed ioctl device %s FIONREAD: %s\n", mpTTYDeviceName_c, strerror(errno) );
+        // printf("Failed BOF_IOCTL device %s FIONREAD: %s\n", mpTTYDeviceName_c, strerror(errno) );
       }
 
       if (NbInQueue_U32)
@@ -1224,6 +1224,7 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
   uint32_t BaudRate_U32 = GetBaudRateConstantValue(_BaudRate_U32);
   uint32_t ClosestBaudRate_U32 = 0;
   struct serial_struct serial_infos_X;
+  int Sts_i;
 
   if ((_BaudRate_U32 != 0) && (_ptty_X != nullptr) && (mId_h != (UART_HANDLE)(-1)))
   {
@@ -1241,8 +1242,8 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
     else /* Try to set custom baud rates */
     {
       serial_infos_X.reserved_char[0] = 0;
-
-      if (ioctl(mId_h, TIOCGSERIAL, &serial_infos_X) >= 0)
+      BOF_IOCTL(mId_h, TIOCGSERIAL, &serial_infos_X, 0, 0, 0, Sts_i);
+      if (Sts_i >= 0)
       {
         serial_infos_X.flags &= ~ASYNC_SPD_MASK;
         serial_infos_X.flags |= ASYNC_SPD_CUST;
@@ -1262,20 +1263,22 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
         }
         else
         {
-          if ((ioctl(mId_h, TIOCSSERIAL, &serial_infos_X) < 0) || (ioctl(mId_h, TIOCGSERIAL, &serial_infos_X) < 0))
+          Rc_B = false;
+          BOF_IOCTL(mId_h, TIOCSSERIAL, &serial_infos_X, 0, 0, 0, Sts_i);
+          if (Sts_i >= 0) 
           {
-            // printf("Failed to configure serial port %s custom baud rate %d: %s\n", mpTTYDeviceName_c, ClosestBaudRate_U32, strerror(errno) );
-          }
-          else
-          {
-            /* Yes set it with B38400 value ;-) */
-            if ((cfsetispeed(_ptty_X, B38400) < 0) || (cfsetospeed(_ptty_X, B38400) < 0))
+            BOF_IOCTL(mId_h, TIOCGSERIAL, &serial_infos_X, 0, 0, 0, Sts_i);
+            if (Sts_i >= 0)
             {
-              // printf("Failed to apply serial port %s custom baud rate %d: %s\n", mpTTYDeviceName_c, ClosestBaudRate_U32, strerror(errno) );
-            }
-            else
-            {
-              Rc_B = true;
+              /* Yes set it with B38400 value ;-) */
+              if ((cfsetispeed(_ptty_X, B38400) < 0) || (cfsetospeed(_ptty_X, B38400) < 0))
+              {
+                // printf("Failed to apply serial port %s custom baud rate %d: %s\n", mpTTYDeviceName_c, ClosestBaudRate_U32, strerror(errno) );
+              }
+              else
+              {
+                Rc_B = true;
+              }
             }
           }
         }

@@ -39,7 +39,7 @@
 #include <netinet/in.h>
 #include <poll.h>
 #include <sys/socket.h>
-
+#include <netinet/tcp.h>  //TCP_MAXSEG
 #define BOF_POLL_RDHUP POLLRDHUP
 #endif
 #define BOF_POLL_IN POLLIN
@@ -51,7 +51,6 @@
 BEGIN_BOF_NAMESPACE()
 class BofSocketIo;
 
-#define BOFSOCKET_INVALID static_cast<BOFSOCKET>(-1) // INVALID_SOCKET
 #if defined(_WIN32)
 typedef SOCKET BOFSOCKET;
 typedef WSABUF SCATTER_GATHER_BUFFER;
@@ -59,6 +58,7 @@ typedef WSABUF SCATTER_GATHER_BUFFER;
 typedef int BOFSOCKET;
 typedef struct iovec SCATTER_GATHER_BUFFER;
 #endif
+const BOFSOCKET BOF_INVALID_SOCKET_VALUE = ((BOFSOCKET)-1);
 
 struct BOF_POLL_SOCKET
 {
@@ -107,7 +107,7 @@ struct BOF_POLL_SOCKET_CMD
   void Reset()
   {
     SocketOp_E = BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_NONE;
-    SessionId = BOFSOCKET_INVALID;
+    SessionId = BOF_INVALID_SOCKET_VALUE;
     AnswerTicket_U32 = 0;
     AnswerArg_U32 = 0;
   }
@@ -483,9 +483,9 @@ struct BOF_IPV4_ADDR_U32
     *pIp_U8++ = *_pIp_U8++;
     *pIp_U8++ = *_pIp_U8++;
   }
-  BOF_IPV4_ADDR_U32(BOF_SOCKET_ADDRESS &_rBofSocketAddress_X)
+  BOF_IPV4_ADDR_U32(const BOF_SOCKET_ADDRESS &_rBofSocketAddress_X)
   {
-    if (_rBofSocketAddress_X.IpV6_B)
+    if ((_rBofSocketAddress_X.IpV6_B) || (!_rBofSocketAddress_X.IsValid()))
     {
       Reset();
     }
@@ -494,6 +494,7 @@ struct BOF_IPV4_ADDR_U32
       IpAddress_U32 = ntohl(_rBofSocketAddress_X.ToBinary());
     }
   }
+
   void Reset()
   {
     IpAddress_U32 = 0;

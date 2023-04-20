@@ -43,7 +43,7 @@ std::atomic<int32_t> BofSocket::S_mBofSocketBalance;
 
 BofSocket::BofSocket() : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
-  mSocket = BOFSOCKET_INVALID;
+  mSocket = BOF_INVALID_SOCKET_VALUE;
   mMaxUdpLen_U32 = 0;
   mMulticastIpInterfaceAddress_X.Reset();
   mMulticastIpAddress_X.Reset();
@@ -53,7 +53,7 @@ BofSocket::BofSocket() : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocket
 
 BofSocket::BofSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
-  mSocket = BOFSOCKET_INVALID;
+  mSocket = BOF_INVALID_SOCKET_VALUE;
   InitializeSocket(_rBofSocketParam_X);
 }
 
@@ -77,7 +77,7 @@ BOFERR BofSocket::ShutdownSocket()
   struct ipv6_mreq IpV6MulticastRequest_X; /* multicast request structure */
 
   // BOF_DBG_PRINTF("Socket[%08X] Shutdown\n", mSocket);
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     if (!Bof_IsIpAddressNull(mDstIpAddress_X) && (!mBofSocketParam_X.MulticastSender_B))
     {
@@ -109,7 +109,7 @@ BOFERR BofSocket::ShutdownSocket()
 #else
     close(mSocket);
 #endif
-    mSocket = BOFSOCKET_INVALID;
+    mSocket = BOF_INVALID_SOCKET_VALUE;
 
     BOF_SAFE_DELETE_ARRAY(mpScatterGatherBuffer_X);
   }
@@ -202,7 +202,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
   }
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    if (mSocket == BOFSOCKET_INVALID)
+    if (mSocket == BOF_INVALID_SOCKET_VALUE)
     {
       if (IsIpV6_B)
       {
@@ -251,7 +251,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
           mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         }
       }
-      if (mSocket == BOFSOCKET_INVALID)
+      if (mSocket == BOF_INVALID_SOCKET_VALUE)
       {
         Rts_E = BOF_ERR_CREATE;
       }
@@ -356,7 +356,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
     {
 #if _WIN32
       Len_i = sizeof(uint32_t);
-      if (getsockopt(mSocket, SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char *>(&mMaxUdpLen_U32), &Len_i) == BOFSOCKET_INVALID)
+      if (getsockopt(mSocket, SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char *>(&mMaxUdpLen_U32), &Len_i) == BOF_INVALID_SOCKET_VALUE)
       {
         Rts_E = BOF_ERR_WRONG_SIZE;
       }
@@ -820,7 +820,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
 
   bool IsIpV6_B = false, Blocking_B; // TODO: Implement IpV6 BofSocket support
 
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     // Option_S = _rOption_S;
 
@@ -1032,10 +1032,10 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
   BOF_SOCKET_ADDRESS IpAddress_X;
   bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     NbUdpRcv_i = 0;
-    DstSocket_X = BOFSOCKET_INVALID;
+    DstSocket_X = BOF_INVALID_SOCKET_VALUE;
     DstIpAddress_X.Reset();
     //	OptionList_S=Bof_StringSplit(_rOption_S, ";");
 
@@ -1095,7 +1095,7 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
           Len = sizeof(DstIpAddress_X.IpV4Address_X);
           DstSocket_X = accept(mSocket, reinterpret_cast<BOF_SOCKADDR *>(&DstIpAddress_X.IpV4Address_X), &Len);
         }
-        if (DstSocket_X != BOFSOCKET_INVALID)
+        if (DstSocket_X != BOF_INVALID_SOCKET_VALUE)
         {
           Sts_E = BOF_ERR_NO_ERROR;
         }
@@ -1104,7 +1104,7 @@ BofComChannel *BofSocket::V_Listen(uint32_t _TimeoutInMs_U32, const std::string 
 
     if (Sts_E == BOF_ERR_NO_ERROR)
     {
-      BOF_ASSERT(DstSocket_X != BOFSOCKET_INVALID);
+      BOF_ASSERT(DstSocket_X != BOF_INVALID_SOCKET_VALUE);
       // Sts_E                                                 = BOF_ERR_ENOTCONN;
       IpAddress_X = mSrcIpAddress_X;
       if (IsIpV6_B)
@@ -1191,7 +1191,7 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
   size_t Size;
   bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Rts_E = BOF_ERR_EINVAL;
     if (_pBuffer_U8)
@@ -1289,7 +1289,7 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
   bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
   Total_U32 = 0;
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Rts_E = BOF_ERR_EINVAL;
     if (pBuffer_U8)
@@ -1547,7 +1547,7 @@ BOFERR BofSocket::WriteScatterGatherData(uint32_t _TimeoutInMs_U32, const std::v
   struct msghdr Msg_X;
 #endif
   _rNbByteWritten_U32 = 0;
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Rts_E = ComputeScatterGatherList(_rBufferCollection, mBofSocketParam_X.MaxNumberOfScatterGatherEntry_U32, mpScatterGatherBuffer_X, NbBuffer_U32, Total_U64);
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -1644,7 +1644,7 @@ BOFERR BofSocket::ReadScatterGatherData(uint32_t _TimeoutInMs_U32, const std::ve
 #endif
   _rNbByteRead_U32 = 0;
   _rPartialRead_B = false;
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Rts_E = ComputeScatterGatherList(_rBufferCollection, mBofSocketParam_X.MaxNumberOfScatterGatherEntry_U32, mpScatterGatherBuffer_X, NbBuffer_U32, Total_U64);
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -1734,7 +1734,7 @@ BOFERR BofSocket::ReadString(uint32_t _TimeoutInMs_U32, std::string &_rStr_S, ch
   char pBuffer_c[0x10000], *p_c;
   bool IsIpV6_B = false; // TODO: Implement IpV6 BofSocket support
 
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Rts_E = SetReadTimeout(_TimeoutInMs_U32);
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -1825,7 +1825,7 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
   _rStatus_X.Reset();
   _rStatus_X.Connected_B = mConnected_B;
   _rStatus_X.Sts_E = mConnected_B ? BOF_ERR_NO_ERROR : BOF_ERR_ENOTCONN;
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     if (IsTcp())
     {
@@ -1878,8 +1878,9 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       _rStatus_X.NbIn_U32 = (uint32_t)Nb;
     }
 #else
-    int Nb;
-    Rts_E = (ioctl(mSocket, FIONREAD, &Nb) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+    int Nb, Sts_i;
+    BOF_IOCTL(mSocket, FIONREAD, &Nb, 0, 0, 0, Sts_i);
+    Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       _rStatus_X.NbIn_U32 = (uint32_t)Nb;
@@ -1894,7 +1895,7 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 
     You should also set a reasonable read timeout, and drop connections that fail it.
 
-    The answer here about ioctl() and FIONREAD is compete nonsense. All that does is tell you how many bytes are presently in the socket receive buffer, available to be read without blocking.
+    The answer here about BOF_IOCTL() and FIONREAD is compete nonsense. All that does is tell you how many bytes are presently in the socket receive buffer, available to be read without blocking.
     If a client doesn't send you anything for five minutes that doesn't constitute a disconnect, but it does cause FIONREAD to be zero. Not the same thing: not even close.
     */
 
@@ -1980,7 +1981,7 @@ BOFERR BofSocket::SetReadTimeout(uint32_t _TimeoutInMs_U32)
   struct pollfd Fds_X;
   int PollStatus_i;
 
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Fds_X.fd = mSocket;
     Fds_X.events = (BOF_POLL_IN | BOF_POLL_RDHUP);
@@ -2023,7 +2024,7 @@ BOFERR BofSocket::SetWriteTimeout(uint32_t _TimeoutInMs_U32)
   struct pollfd Fds_X;
   int PollStatus_i;
 
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Fds_X.fd = mSocket;
     Fds_X.events = (BOF_POLL_OUT | BOF_POLL_RDHUP);
@@ -2068,7 +2069,7 @@ BOFERR BofSocket::SetReadOrWriteTimeout(uint32_t _TimeoutInMs_U32, bool &_ReadDa
 
   _ReadDataPending_B = false;
   _SpaceAvailableForWrite_B = false;
-  if (mSocket != BOFSOCKET_INVALID)
+  if (mSocket != BOF_INVALID_SOCKET_VALUE)
   {
     Fds_X.fd = mSocket;
     Fds_X.events = (BOF_POLL_IN | BOF_POLL_RDHUP | POLLWRNORM);

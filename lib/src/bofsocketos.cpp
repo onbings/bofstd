@@ -369,7 +369,7 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
   struct nlmsghdr *nlMsg;
   //	struct rtmsg      *rtMsg;
   struct route_info RouteInfo_X;
-  int Socket_i;
+  int Socket_i, Sts_i;
   int len = 0;
   int msgSeq = 0;
   char msgBuf[BUFSIZE]; // pretty large buffer
@@ -387,7 +387,8 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
     IfReq_X.ifr_name[IFNAMSIZ - 1] = 0;
 
     _rInterfaceInfo_X.InterfaceFlag_E = BOF_NETWORK_INTERFACE_FLAG::BOF_IFF_NONE;
-    if (ioctl(Socket_i, SIOCGIFFLAGS, &IfReq_X) >= 0)
+    BOF_IOCTL(Socket_i, SIOCGIFFLAGS, &IfReq_X, 0, 0, 0, Sts_i)
+    if (Sts_i >= 0)
     {
       if (IfReq_X.ifr_flags & IFF_UP)
       {
@@ -395,12 +396,14 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
       }
     }
 
-    if (ioctl(Socket_i, SIOCGIFMTU, &IfReq_X) >= 0)
+    BOF_IOCTL(Socket_i, SIOCGIFMTU, &IfReq_X, 0, 0, 0, Sts_i);
+    if (Sts_i >= 0)
     {
       _rInterfaceInfo_X.MtuSize_U32 = IfReq_X.ifr_mtu;
     }
 
-    if (ioctl(Socket_i, SIOCGIFHWADDR, &IfReq_X) >= 0)
+    BOF_IOCTL(Socket_i, SIOCGIFHWADDR, &IfReq_X, 0, 0, 0, Sts_i);
+    if (Sts_i >= 0)
     {
       for (i_U32 = 0; i_U32 < 6; i_U32++)
       {

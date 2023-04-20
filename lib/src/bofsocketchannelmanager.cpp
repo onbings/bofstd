@@ -435,8 +435,7 @@ void BofSocketChannelManager::WaitAsyncCommandQueueEmpty(uint32_t _PollingTimeIn
 	{
 //    Bof_Sleep(_PollTimeInMs_U32);
 	}
-	std::lock_guard<std::mutex> LockGuard(mLockGuardMutex);  //used by OnAsyncEvent
-
+	//std::lock_guard<std::mutex> LockGuard(mLockGuardMutex);  //used by OnAsyncEvent
 }
 
 BOFERR BofSocketChannelManager::SendAsyncConnectCmd(uint32_t _TimeoutInMs_U32, const std::shared_ptr<void> &_rpsUserArg, const std::shared_ptr<BOF_NAMESPACE::BofSocketChannel> &_rpsBofSocketChannel,

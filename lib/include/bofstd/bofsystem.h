@@ -42,7 +42,7 @@ BEGIN_BOF_NAMESPACE()
 #if defined(_WIN32)
 #define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)  {DWORD NbRts; Sts = DeviceIoControl((HANDLE)fd, req, pInBuffer, LenIn, pOutBuffer, LenOut, &NbRts, false); }
 #else
-#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)  {Sts = (::ioctl(fd, req, pInBuffer) < 0 ? false:true;}
+#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)  {Sts = (ioctl(fd, req, pInBuffer) < 0) ? false:true;}
 #endif
 enum class BOF_SEEK_METHOD : uint32_t
 {

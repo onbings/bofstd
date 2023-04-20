@@ -1933,7 +1933,7 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 		}
 #else
 		int Nb;
-		Rts_E = (ioctl(mSocket, FIONREAD, &Nb) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+		Rts_E = (BOF_IOCTL(mSocket, FIONREAD, &Nb, 0, 0, 0, 0) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
 		if (Rts_E == BOF_ERR_NO_ERROR)
 		{
 			_rStatus_X.NbIn_U32 = (uint32_t) Nb;
@@ -1950,7 +1950,7 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 
 		You should also set a reasonable read timeout, and drop connections that fail it.
 
-		The answer here about ioctl() and FIONREAD is compete nonsense. All that does is tell you how many bytes are presently in the socket receive buffer, available to be read without blocking.
+		The answer here about BOF_IOCTL() and FIONREAD is compete nonsense. All that does is tell you how many bytes are presently in the socket receive buffer, available to be read without blocking.
 		If a client doesn't send you anything for five minutes that doesn't constitute a disconnect, but it does cause FIONREAD to be zero. Not the same thing: not even close.
 		*/
 

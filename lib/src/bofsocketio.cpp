@@ -203,7 +203,7 @@ BofSocket *BofSocketIo::NativeBofSocketPointer() const
 }
 BOFSOCKET BofSocketIo::NativeSocketHandle() const
 {
-  BOFSOCKET Rts = BOFSOCKET_INVALID;
+  BOFSOCKET Rts = BOF_INVALID_SOCKET_VALUE;
   if (mpuSocket)
   {
     Rts = mpuSocket->GetSocketHandle();
