@@ -1201,7 +1201,7 @@ Returns
 Remarks
   None
 */
-BOF_PROCESS BofProcess::S_SpawnProcess(char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16)
+BOF_PROCESS BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16)
 {
   BOF_PROCESS Rts_X;
   char pTemp_c[0x1000];
@@ -1248,6 +1248,7 @@ BOF_PROCESS BofProcess::S_SpawnProcess(char *_pProgram_c, const char *_pArgument
   }
 #else
   char *pArgs_c[50];
+  char pArgZero_c[0x1000];
   int NbArgs_i;
   char *pPtr_c;
 
@@ -1267,7 +1268,8 @@ BOF_PROCESS BofProcess::S_SpawnProcess(char *_pProgram_c, const char *_pArgument
 
     pPtr_c = pTemp_c;
     NbArgs_i = 1;
-    pArgs_c[0] = _pProgram_c;
+    Bof_StrNCpy(pArgZero_c, _pProgram_c, sizeof(pArgZero_c));
+    pArgs_c[0] = pArgZero_c;
 
     while ((pPtr_c != nullptr) && (NbArgs_i < static_cast<int>((sizeof(pArgs_c) / sizeof(pArgs_c[0])))))
     {
