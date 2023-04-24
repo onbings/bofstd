@@ -9,6 +9,11 @@
 // #define _CRTDBG_MAP_ALLOC
 // #include <stdlib.h>
 // #include <crtdbg.h>
+#if defined(NDEBUG)  //We are in Release compil
+#else
+#include <vld.h>
+#endif
+
 #else
 #include <malloc.h>
 #endif
@@ -62,10 +67,13 @@ BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, con
 
 int main(int argc, char *argv[])
 {
+#if 0
+  char *p = new char[5];
+  return 0;
+#else
   int Rts_i;
   BOFERR Sts_E;
   BOFSTDPARAM StdParam_X;
-
   StdParam_X.AssertInRelease_B = true;
   StdParam_X.AssertCallback = AppBofAssertCallback;
   Sts_E = Bof_Initialize(StdParam_X);
@@ -79,7 +87,7 @@ int main(int argc, char *argv[])
   testing::InitGoogleTest(&argc, argv);
   //::testing::GTEST_FLAG(filter) = "BofProcess_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
-  //::testing::GTEST_FLAG(filter) = "BofProcess_Test.Process";
+  ::testing::GTEST_FLAG(filter) = "SockIo_Test.ListenMultipleConnect";
 
   Rts_i = RUN_ALL_TESTS();
 
@@ -90,10 +98,11 @@ int main(int argc, char *argv[])
 #else
   std::string Buffer_S;
   std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
-  std::getline(std::cin, Buffer_S);
+//  std::getline(std::cin, Buffer_S);
 #endif
 
   return Rts_i;
+#endif
 }
 
 /*

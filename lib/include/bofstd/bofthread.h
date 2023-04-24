@@ -83,7 +83,7 @@ private:
   std::thread mThread;
   std::thread::native_handle_type mThreadHandle;
   std::string mName_S = "";
-  BOF_MUTEX mMtx_X;
+  BOF_MUTEX mThreadMtx_X;
   std::atomic<int32_t> mLockBalance;
   char mpLastLocker_c[64];
   BOF_EVENT mThreadEnterEvent_X;
@@ -95,14 +95,11 @@ private:
   uint64_t mCpuCoreAffinityMask_U64 = 0;
   BOF_THREAD_SCHEDULER_POLICY mPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
   BOF_THREAD_PRIORITY mPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
-  bool mThreadLoopMustExit_B = false;
-  //		bool mThreadRunning_B = false;
-  bool mThreadExitPosted_B = false;
+  std::atomic<bool> mThreadLoopMustExit_B = false;
 
   BOF_THREAD_CALLBACK mOnCreate = nullptr; // Used to specify callback if the caller does not inherit from BofThread->Setup with SetThreadCallback
   BOF_THREAD_CALLBACK mOnProcessing = nullptr;
   BOF_THREAD_CALLBACK mOnStop = nullptr;
-  uint32_t mLoopTimerWarning_U32 = 0;
 
 public:
 #if 0
@@ -136,8 +133,7 @@ public:
   BOFERR LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreAffinityMask_U64,
                                    uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32);
   BOFERR DestroyBofProcessingThread(const char *_pUser_c);
-  bool IsThreadRunning();
-  BOFERR PostThreatExit(const char *_pUser_c);
+  bool IsThreadRunning(uint32_t _Timeout_U32);
   void SetThreadCallback(BOF_THREAD_CALLBACK _OnCreate, BOF_THREAD_CALLBACK _OnProcessing, BOF_THREAD_CALLBACK _OnStop);
 
   virtual BOFERR V_OnCreate();
@@ -145,8 +141,10 @@ public:
   virtual BOFERR V_OnStop();
   static std::string S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool _ShowChosenCore_B);
   static BOFERR S_ThreadParameterFromString(const char *_pThreadParameter_c, BOF_THREAD_PARAM &_rThreadParam_X);
+  static int S_BofThreadBalance();
 
 private:
+  static std::atomic<int32_t>  S_mBofThreadBalance;
   void BofThread_Thread();
 
   BOFERR InitializeThread(const std::string &_rName_S);

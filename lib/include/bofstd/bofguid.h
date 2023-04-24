@@ -156,9 +156,8 @@ private:
   friend std::ostream &operator<<(std::ostream &s, const BofGuid &guid);
 };
 
-BofGuid newGuid();
-
 #ifdef GUID_ANDROID
+BofGuid newGuid();
 struct AndroidGuidInfo
 {
   static AndroidGuidInfo fromJniEnv(JNIEnv *env);

@@ -79,6 +79,7 @@ BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<Bof
       BofCircularBufferParam_X.MultiThreadAware_B = true;
       BofCircularBufferParam_X.NbMaxElement_U32 = 16;
       BofCircularBufferParam_X.Overwrite_B = true;
+      BofCircularBufferParam_X.Blocking_B = true;
       mpReplyCollection = new BofCircularBuffer<std::string>(BofCircularBufferParam_X);
       if (mpReplyCollection)
       {

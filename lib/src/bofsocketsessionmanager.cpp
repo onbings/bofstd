@@ -268,7 +268,7 @@ BOFERR BofSocketSessionManager::StopProcessingThread()
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   BOF_POLL_SOCKET_CMD PollSocketCmd_X;
 
-  if (IsThreadRunning())
+  if (IsThreadRunning(10))
   {
     PollSocketCmd_X.SocketOp_E = BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_QUIT;
     Rts_E = SendPollSocketCommand(SEND_CMD_ANSWER_TIMEOUT_IN_MS, PollSocketCmd_X);

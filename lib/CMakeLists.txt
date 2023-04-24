@@ -323,6 +323,7 @@ target_include_directories(bofstd-objects
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
+#	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/vld/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below) and bofversioninfo.h (above)
 	#$<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}
 	#$<BUILD_INTERFACE:${FFMPEG_INCLUDE_DIRS}
@@ -521,10 +522,10 @@ install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/bofstd_export.h
 #          DESTINATION include/spdlog-1.3.1		
 #          COMPONENT   bofstd-devel
 # )
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/vld/.	
-         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bofstd/vld
-         COMPONENT   bofstd-devel
-)
+#install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/vld/.	
+#         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bofstd/vld
+#         COMPONENT   bofstd-devel
+#) 
 install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include/asyncmulticastdelegate/.	
          DESTINATION include/asyncmulticastdelegate
          COMPONENT   bofstd-devel

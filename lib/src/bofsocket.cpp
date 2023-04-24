@@ -39,7 +39,7 @@
 
 BEGIN_BOF_NAMESPACE()
 
-std::atomic<int32_t> BofSocket::S_mBofSocketBalance;
+std::atomic<int32_t> BofSocket::S_mBofSocketBalance = 0;
 
 BofSocket::BofSocket() : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {

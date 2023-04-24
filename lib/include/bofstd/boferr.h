@@ -253,6 +253,8 @@ enum BOFERR : int
   BOF_ERR_LOAD,             ///< Load
   BOF_ERR_SAVE,             ///< Save
   BOF_ERR_NO_CLIENT,        ///< No client
+  BOF_ERR_ALREADY_CLOSED,   /*! Object already closed */
+  BOF_ERR_NOT_STARTED,      /*! Not started*/
 };
 // #define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
 // #define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK

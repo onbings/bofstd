@@ -21,9 +21,9 @@
 #pragma once
 // In this order
 #include <chrono>
-// #include <date/date.h>
-// using namespace date::literals;
-// using namespace std::chrono_literals;
+#include <date/date.h>
+using namespace date::literals;
+using namespace std::chrono_literals;
 
 #include <bofstd/bofstd.h>
 
@@ -38,6 +38,7 @@ class BOFSTD_EXPORT BofDateTime
 {
 public:
   BofDateTime();
+  ~BofDateTime();
   BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32);
   BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16);
   BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32);
@@ -51,6 +52,7 @@ public:
   void Reset();
   std::string ToString(const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
   BofDateTime FromString(const std::string &_rDateTime_S, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
+
   bool operator==(const BofDateTime &_Other) const;
   bool operator!=(const BofDateTime &_Other) const;
   uint8_t DayOfWeek() const;
@@ -84,16 +86,11 @@ private:
 
   std::tm mTm_X;
   std::time_t mTimeT;
-  // date::year_month_day mYmd;
-  // date::weekday mWd;
-  // date::hh_mm_ss<std::chrono::nanoseconds> mTime;
+  date::year_month_day mYmd;
+  date::weekday mWd;
+  date::hh_mm_ss<std::chrono::nanoseconds> mTime;
 
   std::chrono::system_clock::time_point mTp;
-  // Opaque pointer design pattern: opaque type here
-private:
-  class BofDateTimeImplementation;
-
-  std::shared_ptr<BofDateTimeImplementation> mpsBofDateTimeImplementation;
 };
 
 BOFSTD_EXPORT BOFERR Bof_ComputeDayOfWeek(const BofDateTime &_rDateTime, uint8_t &_DayOfWeek_U8); // 0 is sunday

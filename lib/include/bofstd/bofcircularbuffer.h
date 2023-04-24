@@ -521,10 +521,10 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Pop(DataType *_
 
   // if (_pData)
   {
-  RetryPop:
+RetryPop:
+    //printf("%d: Bof_WaitForEvent blk %d To %d\n", BOF::Bof_GetMsTickCount(), mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32);
     Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
-    //			printf("@@%d@--->PopIn %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32,
-    //mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
+    //printf("%d: Bof_WaitForEvent end with %d\n", BOF::Bof_GetMsTickCount(), Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       BOF_CIRCULAR_BUFFER_LOCK(Rts_E);

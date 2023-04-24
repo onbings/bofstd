@@ -111,7 +111,8 @@ set(SERDER_FILES
 )
 
 set(SOCKIO_FILES
-	src/ut_bofio.cpp
+	src/ut_sockio.cpp
+	src/ut_sockio_client_server.cpp
 )
 
 set(SYSTEM_FILES
@@ -202,12 +203,38 @@ target_include_directories(bofstd-tests
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../lib/src>
 )
 
+### VLD ###########################################
+add_library(vld SHARED IMPORTED) # or STATIC instead of SHARED
+set_target_properties(vld PROPERTIES
+  IMPORTED_LOCATION "C:/pro/github/vld/package/Win64/vld_x64.dll"		#Win32/vld_x86.dll for 32 bits
+  IMPORTED_IMPLIB	"C:/pro/github/vld/package/Win64/vld.lib"
+  INTERFACE_INCLUDE_DIRECTORIES "C:/pro/github/vld/package/include"
+)
+# Error wil be displayed in visual studio immediate windows (use ctrl-alt-i to make it appears) and in c:\tm\vld.txt (see default vld.ini)
+get_target_property(DllPath vld IMPORTED_LOCATION)
+get_filename_component(DllDir ${DllPath} DIRECTORY)
+
+add_custom_command(TARGET bofstd-tests POST_BUILD    
+    #COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan \"=DllPath================>\"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllPath}  $<TARGET_FILE_DIR:bofstd-tests>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/dbghelp.dll $<TARGET_FILE_DIR:bofstd-tests>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/Microsoft.DTfW.DHL.manifest $<TARGET_FILE_DIR:bofstd-tests>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/../vld.ini $<TARGET_FILE_DIR:bofstd-tests>
+)   
+###################################################
+
 # Link
 target_link_libraries(bofstd-tests
   PRIVATE
     ONBINGS::bofstd-objects
     GTest::GTest
+#	$<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/../lib/third/vld/lib/Win64/vld.lib>
+#	$<$<AND:$<BOOL:${WIN32}>,$<CONFIG:Debug>>:${CMAKE_CURRENT_SOURCE_DIR}/../lib/third/vld/lib/Win64/vld.lib>
+	$<$<AND:$<BOOL:${WIN32}>,$<CONFIG:Debug>>:vld>
 )
+
+
+              
 
 # Object library is not a shared library
 # void import directive only for linking
@@ -215,8 +242,6 @@ target_compile_definitions(bofstd-tests
   PRIVATE
     -DBOFSTD_STATIC_DEFINE=1
 )
-
-
 
 # Add test and allow them to run in //
 gtest_discover_tests(bofstd-tests
