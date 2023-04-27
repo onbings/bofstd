@@ -189,7 +189,7 @@ struct BOF_SOCKET_OPERATION_RESULT
   {
     Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_MAX;
     OpTicket_U32 = 0;
-    Sts_E = BOF_ERR_NOT_INIT;
+    Sts_E = BOF_ERR_SOFT_INIT;
     Size_U32 = 0;
     pBuffer_U8 = nullptr;
     Time_U32 = 0;

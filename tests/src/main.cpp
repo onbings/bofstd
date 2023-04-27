@@ -4,7 +4,6 @@
 
 #include "fmt/format.h"
 #include <iostream>
-
 #if defined(_WIN32)
 // #define _CRTDBG_MAP_ALLOC
 // #include <stdlib.h>
@@ -87,7 +86,7 @@ int main(int argc, char *argv[])
   testing::InitGoogleTest(&argc, argv);
   //::testing::GTEST_FLAG(filter) = "BofProcess_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
-  ::testing::GTEST_FLAG(filter) = "SockIo_Test.ListenMultipleConnect";
+  //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
 
   Rts_i = RUN_ALL_TESTS();
 

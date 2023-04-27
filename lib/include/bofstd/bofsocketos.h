@@ -477,11 +477,18 @@ struct BOF_IPV4_ADDR_U32
   }
   BOF_IPV4_ADDR_U32(uint8_t *_pIp_U8)
   {
-    uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
-    *pIp_U8++ = *_pIp_U8++;
-    *pIp_U8++ = *_pIp_U8++;
-    *pIp_U8++ = *_pIp_U8++;
-    *pIp_U8++ = *_pIp_U8++;
+    if (_pIp_U8)
+    {
+      uint8_t *pIp_U8 = reinterpret_cast<uint8_t *>(&IpAddress_U32);
+      *pIp_U8++ = *_pIp_U8++;
+      *pIp_U8++ = *_pIp_U8++;
+      *pIp_U8++ = *_pIp_U8++;
+      *pIp_U8++ = *_pIp_U8++;
+    }
+    else
+    {
+      IpAddress_U32 = 0;
+    }
   }
   BOF_IPV4_ADDR_U32(const BOF_SOCKET_ADDRESS &_rBofSocketAddress_X)
   {

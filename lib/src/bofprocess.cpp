@@ -54,7 +54,7 @@ BEGIN_BOF_NAMESPACE()
 // #define SCRIPT_LAUNCHER_INTERNAL_ERROR (-1) BOF_ERR_INTERNAL
 // #define SCRIPT_LAUNCHER_PROCESS_CREATION_ERROR (-2) BOF_ERR_CREATE
 // #define SCRIPT_LAUNCHER_INVALID_ARGUMENTS_ERROR (-3) BOF_ERR_EINVAL
-// #define SCRIPT_LAUNCHER_TIMEOUT_ERROR (-4) BOF_ERR_ETIME
+// #define SCRIPT_LAUNCHER_TIMEOUT_ERROR (-4) BOF_ERR_ETIMEDOUT
 // #define SCRIPT_LAUNCHER_PROCESS_ABNORMAL_TERMINATION_ERROR (-5) BOF_ERR_RESET
 // #define SCRIPT_LAUNCHER_NOT_SUPPORTED (-6) BOF_ERR_NOT_SUPPORTED
 uint32_t BofProcess::S_mDefaultTimeout_U32 = 120000;
@@ -192,7 +192,7 @@ int KillSubProcess(BOF_PROCESS _Pid_X, int _Options_i)
 
    Returns
    BOF_ERR_RESET (-5) - The process did not terminated normally
-   BOF_ERR_ETIME                  (-4) - The process did time out
+   BOF_ERR_ETIMEDOUT                  (-4) - The process did time out
 
    The return code of the process otherwise
 
@@ -225,7 +225,7 @@ int WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32)
   }
   else
   {
-    Rts_i = BOF_ERR_ETIME;
+    Rts_i = BOF_ERR_ETIMEDOUT;
     Kill_B = true;
   }
 
@@ -251,7 +251,7 @@ int WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32)
   }
   else
   {
-    Rts_i = BOF_ERR_ETIME;
+    Rts_i = BOF_ERR_ETIMEDOUT;
     Kill_B = true;
   }
 

@@ -335,10 +335,10 @@ target_include_directories(bofstd-objects
 target_link_libraries(bofstd-objects
   PUBLIC
     #ONBINGS::onbings-another-lib
-
-  PRIVATE
 	date::date 
 	date::date-tz
+
+  PRIVATE
 	jsoncpp::jsoncpp 
     spdlog::spdlog
 #    Qt5::Widgets

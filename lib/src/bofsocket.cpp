@@ -1198,12 +1198,12 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
     {
       if (_rNb_U32)
       {
+        Size = _rNb_U32;
+        _rNb_U32 = 0;
         Rts_E = SetReadTimeout(_TimeoutInMs_U32);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
           Rts_E = BOF_ERR_READ;
-          Size = _rNb_U32;
-          _rNb_U32 = 0;
           if (IsUdp())
           {
             // Under linux if you read a datagram bigger than the buff you got the first byte of the buffer

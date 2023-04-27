@@ -231,7 +231,6 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
 
   if (!mThreadLoopMustExit_B)
   {
-    S_mBofThreadBalance--;
     mThreadLoopMustExit_B = true;
     Rts_E = BOF_ERR_NOT_STARTED;
     //printf("%d: DESTROYBOFPROCESSINGTHREAD: CHECK IF MTHREADENTEREVENT_X SIGNALED %d\n", BOF::Bof_GetMsTickCount(), Bof_IsEventSignaled(mThreadEnterEvent_X, 0));
@@ -770,6 +769,7 @@ void BofThread::BofThread_Thread()
   uint32_t Delta_U32;
 
   S_mBofThreadBalance++;  
+  //printf("%d: BOFTHREAD_THREAD BEGIN BAL %d %s\n", BOF::Bof_GetMsTickCount(), S_mBofThreadBalance.load(), mName_S.c_str());
   Sts_E = Bof_SignalEvent(mThreadEnterEvent_X, 0);
   //printf("%d: ENTER THREAD SIGNAL MTHREADENTEREVENT_X %d\n", BOF::Bof_GetMsTickCount(), Sts_E);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
@@ -800,6 +800,7 @@ void BofThread::BofThread_Thread()
 #endif
     }
   }
+
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
@@ -832,6 +833,7 @@ void BofThread::BofThread_Thread()
 #endif
   }
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
     V_OnCreate();
@@ -845,12 +847,13 @@ void BofThread::BofThread_Thread()
           Sts_E = BOF_ERR_NO_ERROR;
         }
       }
+
       if (Sts_E == BOF_ERR_NO_ERROR) 
       {
         LockThreadCriticalSection(" BofThread::BofThread_Thread");
-        //printf("%d: V_ONPROCESSING START mThreadLoopMustExit_B %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load());
+        //printf("%d: V_ONPROCESSING START mThreadLoopMustExit_B %d %s BAL %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), mName_S.c_str(), S_BofThreadBalance());
         Sts_E = V_OnProcessing(); // Return BOF_ERR_CANCEL to exit without calling V_OnStop (underlying thread oject has been destroyed). Any other error code different from BOF_ERR_NO_ERROR will exit AND call V_OnStop
-        //printf("%d: V_ONPROCESSING RETURN %d MTHREADLOOPMUSTEXIT %d\n", BOF::Bof_GetMsTickCount(), Sts_E, mThreadLoopMustExit_B.load());
+        //printf("%d: V_ONPROCESSING RETURN %d MTHREADLOOPMUSTEXIT %d %s\n", BOF::Bof_GetMsTickCount(), Sts_E, mThreadLoopMustExit_B.load(), mName_S.c_str());
 
         UnlockThreadCriticalSection();
       }
@@ -859,9 +862,9 @@ void BofThread::BofThread_Thread()
     V_OnStop();
   }
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
-  //printf("%d: LEAVE THREAD SIGNAL MTHREADEXITEVENT_X %d->EXIT NOW\n", BOF::Bof_GetMsTickCount(), Sts_E);
-  BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   S_mBofThreadBalance--;
+  //printf("%d: LEAVE THREAD SIGNAL MTHREADEXITEVENT_X %d->EXIT NOW Bal %d Ptr %p %s\n", BOF::Bof_GetMsTickCount(), Sts_E, S_mBofThreadBalance.load(), &S_mBofThreadBalance, mName_S.c_str());
+  BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()
 {

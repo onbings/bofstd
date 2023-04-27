@@ -170,6 +170,7 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
     (p) = nullptr;                                                                                                                                                                                                                                             \
   } /*! Delete an array of objects*/
 #define BOF_INC_TICKET_NUMBER(Cpt) {Cpt++; if (Cpt==0) Cpt=1;}  //No zero value
+#define BOF_GTEST_EXPECT_BETWEEN(low,crt,high) {EXPECT_GE(crt,low); EXPECT_LE(crt,high);}
 #define BOF_NB_ELEM_IN_ARRAY(x) (sizeof((x)) / sizeof((x)[0]))
 #define BOF_STRUCT_FIELD_OFFSET(Type, Field) (uintptr_t)(&(((Type *)0)->Field)) /*! Get structure field offset in byte*/
 #define BOF_STRUCT_FIELD_SIZE(Type, Field) (sizeof(((Type *)0)->Field))         /*! Get structure field size in byte*/
