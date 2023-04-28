@@ -458,14 +458,14 @@ struct BOF_SOCKET_ADDRESS
 // We want a memory footprint of 32 bit in network order
 struct BOF_IPV4_ADDR_U32
 {
-  uint32_t IpAddress_U32;
+  uint32_t IpAddress_U32;   //byte in bigendian/network order: a.b.c.d ip gives ABCD in memory address order
   BOF_IPV4_ADDR_U32()
   {
     Reset();
   }
-  BOF_IPV4_ADDR_U32(uint32_t _Ip_U32)
+  BOF_IPV4_ADDR_U32(uint32_t _Ip_U32)   //byte in bigendian/network order => Coherent with ToBinary
   {
-    IpAddress_U32 = BOF_CPU_TO_BE_32(_Ip_U32);
+    IpAddress_U32 = _Ip_U32;     //BOF_CPU_TO_BE_32(_Ip_U32);
   }
   BOF_IPV4_ADDR_U32(uint8_t _Ip1_U8, uint8_t _Ip2_U8, uint8_t _Ip3_U8, uint32_t _Ip4_U8)
   {
@@ -510,7 +510,6 @@ struct BOF_IPV4_ADDR_U32
   {
     return (IpAddress_U32 == 0);
   }
-
   bool operator==(const BOF_IPV4_ADDR_U32 &_rOther_X) const
   {
     return (IpAddress_U32 == _rOther_X.IpAddress_U32);

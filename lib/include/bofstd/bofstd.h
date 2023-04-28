@@ -134,12 +134,12 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
 #define BOF_EXTERN_C
 #endif
 
-#define BOF_GET_FILE_FROM__FILE__(ptr)                                                                                                                                                                                                                         \
+//Can be used with __FILE__
+#define BOF_GET_FILE_FROM_PATH(pPath, pFile)        \
   {                                                                                                                                                                                                                                                            \
-    ptr = strrchr(__FILE__, '/');                                                                                                                                                                                                                              \
-    if (!ptr)                                                                                                                                                                                                                                                  \
-      ptr = strrchr(__FILE__, '\\');                                                                                                                                                                                                                           \
-    ptr = ptr ? ++ptr : __FILE__;                                                                                                                                                                                                                              \
+    pFile = strrchr(pPath, '/');                                                                                                                                                                                                                              \
+    if (!pFile) pFile = strrchr(pPath, '\\');                                                                                                                                                                                                                           \
+    pFile = pFile ? ++pFile : __FILE__;                                                                                                                                                                                                                              \
   }
 #define BOF_COMPUTE_DELTA(start, end, delta)                                                                                                                                                                                                                   \
   {                                                                                                                                                                                                                                                            \

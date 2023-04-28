@@ -248,7 +248,7 @@ struct BOF_RPC_PARSER_RESULT
     RpcStackLen_U32 = 0;
     TimeOut_U32 = 0;
     RpcTag_U16 = 0;
-    *pRpcStack_U8 = 0;
+    pRpcStack_U8 = nullptr;
     for (i_U32 = 0; i_U32 < BOF_RPC_MAXFCTARG; i_U32++)
     {
       pRpcVar_X[i_U32].Reset();
