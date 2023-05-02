@@ -625,9 +625,9 @@ template <typename DataType> BOFERR BofPot<DataType>::IsPotElementInUse(DataType
         InUse_B = (mpInUseElementList_U8[Index_U32] != 0);
       }
 
-      if (InUse_B)
+      if (!InUse_B)
       {
-        Rts_E = BOF_ERR_NO_ERROR;
+        Rts_E = BOF_ERR_EBUSY;
       }
       BOF_POT_UNLOCK()
     }

@@ -419,6 +419,16 @@ struct BOF_PERF_POINT_ENTRY
   uint64_t TimeStampInNs_U64;
   uint64_t Delta_U64;
   char pPointName_c[BOF_PERF_POINT_NAME_MAX_CHAR];
+  BOF_PERF_POINT_ENTRY()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    TimeStampInNs_U64 = 0;
+    Delta_U64 = 0;
+    pPointName_c[0] = 0;
+  }
 };
 
 struct BOF_PERF_POINT_MGR
@@ -434,6 +444,23 @@ struct BOF_PERF_POINT_MGR
   bool Started_B;
   bool Triggered_B;
   BOF_PERF_POINT_ENTRY pEntry_X[BOF_MAX_PERF_POINT];
+  BOF_PERF_POINT_MGR()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    MgrMagicNumber_U32 = 0;
+    pMgrName_c[0] = 0;
+    StartTimeStampInNs_U64 = 0;
+    OverTimeInNs_U64 = 0;
+    MaxEntry_U32 = 0;
+    NbEntry_U32 = 0;
+    MinInNs_U64 = 0;
+    MaxInNs_U64 = 0;
+    Started_B = false;
+    Triggered_B = false;
+  }
 };
 
 BOFSTD_EXPORT BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U32, uint64_t _MaxTimeInNs_U64);

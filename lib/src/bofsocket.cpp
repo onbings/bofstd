@@ -1384,8 +1384,7 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
             {
               Rts_E = BOF_ERR_WRITE;
               Nb_U32 = static_cast<uint32_t>(send(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), (_rNb_U32 - Total_U32), 0));
-              if (static_cast<int>(Nb_U32) >
-                  0) //>= 0)	// https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
+              if (static_cast<int>(Nb_U32) > 0) //>= 0)	// https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
               {
                 Total_U32 += Nb_U32;
                 Rts_E = BOF_ERR_NO_ERROR;

@@ -137,7 +137,7 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_EMLINK, "BOF_ERR_EMLINK: Too many links"},
     {BOF_ERR_EPIPE, "BOF_ERR_EPIPE: Broken pipe"},
     {BOF_ERR_EDOM, "BOF_ERR_EDOM: Math argument out of domain of func"},
-    {BOF_ERR_ERANGE, "BOF_ERR_ERANGE: Math result not representable"},  // 34
+    {BOF_ERR_ERANGE, "BOF_ERR_ERANGE: Math result not representable"},   // 34
     {BOF_ERR_EDEADLK, "BOF_ERR_EDEADLK: Resource deadlock would occur"}, // 35
     {BOF_ERR_ENAMETOOLONG, "BOF_ERR_ENAMETOOLONG: File name too long"},
     {BOF_ERR_ENOLCK, "BOF_ERR_ENOLCK: No record locks available"},
@@ -327,6 +327,7 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_NO_CLIENT, "BOF_ERR_NO_CLIENT"},
     {BOF_ERR_ALREADY_CLOSED, "BOF_ERR_ALREADY_CLOSED"},
     {BOF_ERR_NOT_STARTED, "BOF_ERR_NOT_STARTED"},
+    {BOF_ERR_NOT_SKIP, "BOF_ERR_NOT_SKIP"},
 };
 
 /*
@@ -372,10 +373,10 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
   HANDLE In_h = GetStdHandle(STD_INPUT_HANDLE);
 
   // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
-//#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
-//#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
-//#endif
-  // Activate ansi support
+  // #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+  // #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+  // #endif
+  //  Activate ansi support
   if (BOF_IS_HANDLE_VALID(Out_h))
   {
     if (GetConsoleMode(Out_h, &S_ModeOut_DW))

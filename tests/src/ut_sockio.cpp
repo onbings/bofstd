@@ -136,8 +136,8 @@ TEST(SockIo_Test, ListenConnectDisconnect)
   ListenParam_X.NbMaxClient_U32 = 3;
   ListenParam_X.SrcIpAddr_X = BOF::BOF_IPV4_ADDR_U32(127, 0, 0, 1);
   ListenParam_X.SrcPort_U16 = DEFAULT_LISTENING_PORT;
-//Timeout of listen must be at least half of DEFAULT_INTER_PROCESS_TIMEOUT
-  EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(100 /*DEFAULT_INTER_PROCESS_TIMEOUT*/, ListenParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR); 
+  // Timeout of listen must be at least half of DEFAULT_INTER_PROCESS_TIMEOUT
+  EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(100 /*DEFAULT_INTER_PROCESS_TIMEOUT*/, ListenParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ServerOpTicket_U32, 1);
   EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ServerOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_LISTEN);
@@ -199,10 +199,10 @@ TEST(SockIo_Test, ListenConnectDisconnect)
     SocketThreadParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY_036;
     SocketThreadParam_X.NbMaxOperationPending_U32 = MAX_NB_OP_PENDING;
     SocketThreadParam_X.pListeningSocket_O = nullptr;
-    SocketThreadParam_X.pSocket_O = ServerOperationResult_X.pSocket_O;  // Give it by default so BOF_SOCKET_OPERATION_DISCONNECT can be executed correctly
+    SocketThreadParam_X.pSocket_O = ServerOperationResult_X.pSocket_O; // Give it by default so BOF_SOCKET_OPERATION_DISCONNECT can be executed correctly
     puSocketThreadSession = std::make_unique<BOF::BofSocketThread>(SocketThreadParam_X);
     ASSERT_TRUE(puSocketThreadSession != nullptr);
-    //EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
+    // EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 3);
 
     // Disconnect client
     DisconnectParam_X.Unused_U32 = 0; // ClientOperationResult_X.pSocket_O;
@@ -212,11 +212,11 @@ TEST(SockIo_Test, ListenConnectDisconnect)
     EXPECT_EQ(ClientOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT);
     EXPECT_EQ(ClientOperationResult_X.OpTicket_U32, ClientOpTicket_U32);
     EXPECT_EQ(ClientOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
-    EXPECT_EQ(ClientOperationResult_X.pSocket_O, nullptr);
+    EXPECT_NE(ClientOperationResult_X.pSocket_O, nullptr);
     EXPECT_EQ(ClientOperationResult_X.Size_U32, 0);
     EXPECT_EQ(ClientOperationResult_X.pBuffer_U8, nullptr);
     // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
-    //EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 2);
+    // EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 2);
 
     // Disconnect session
     DisconnectParam_X.Unused_U32 = 0; // ServerOperationResult_X.pSocket_O;
@@ -226,11 +226,11 @@ TEST(SockIo_Test, ListenConnectDisconnect)
     EXPECT_EQ(SessionOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT);
     EXPECT_EQ(SessionOperationResult_X.OpTicket_U32, SessionOpTicket_U32);
     EXPECT_EQ(SessionOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
-    EXPECT_EQ(SessionOperationResult_X.pSocket_O, nullptr);
+    EXPECT_NE(SessionOperationResult_X.pSocket_O, nullptr);
     EXPECT_EQ(SessionOperationResult_X.Size_U32, 0);
     EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, nullptr);
     // EXPECT_NE(SessionOperationResult_X.Time_U32, 0);
-    //EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
+    // EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
 
     Delta_U32 = BOF::Bof_ElapsedMsTime(Timer_U32);
     if (Delta_U32 > Max_U32)
@@ -247,6 +247,7 @@ TEST(SockIo_Test, ListenConnectDisconnect)
   DisconnectParam_X.Unused_U32 = 0; // pListenSocket_O;
   EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, DisconnectParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ServerOpTicket_U32, 2);
+  //BOF::Bof_MsSleep(9999999);
   EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ServerOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT);
   EXPECT_EQ(ServerOperationResult_X.OpTicket_U32, ServerOpTicket_U32);
@@ -259,7 +260,7 @@ TEST(SockIo_Test, ListenConnectDisconnect)
   printf("%d: Max is %d ms DeltaT %d ms\n", BOF::Bof_GetMsTickCount(), Max_U32, BOF::Bof_ElapsedMsTime(Start_U32));
   BOF::Bof_MsSleep(50);
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
-  EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 3);  //We didn't call EXIT op
+  EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 3); // We didn't call EXIT op
 }
 
 TEST(SockIo_Test, ListenMultipleConnect)
@@ -288,7 +289,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
     Timer_U32 = BOF::Bof_GetMsTickCount();
     NbThread_U32 = 0;
     EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     puSocketThreadSessionCollection.clear();
     puSocketThreadClientCollection.clear();
     // Create server listening thread
@@ -308,7 +309,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
     ListenParam_X.SrcIpAddr_X = BOF::BOF_IPV4_ADDR_U32(127, 0, 0, 1);
     ListenParam_X.SrcPort_U16 = DEFAULT_LISTENING_PORT;
 
-    //Timeout of listen must be at least half of DEFAULT_INTER_PROCESS_TIMEOUT
+    // Timeout of listen must be at least half of DEFAULT_INTER_PROCESS_TIMEOUT
     EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(100 /*DEFAULT_INTER_PROCESS_TIMEOUT*/, ListenParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
     EXPECT_EQ(ServerOpTicket_U32, 1);
     EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
@@ -321,7 +322,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
     // EXPECT_EQ(ServerOperationResult_X.Time_U32,0);
     pListenSocket_O = ServerOperationResult_X.pSocket_O;
     NbThread_U32++;
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     ConnectParam_X.Reset();
     ConnectParam_X.Tcp_B = true;
     ConnectParam_X.SrcIpAddr_X = BOF::BOF_IPV4_ADDR_U32(127, 0, 0, 1);
@@ -355,7 +356,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
       // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
       puSocketThreadClientCollection.push_back(std::move(puSocketThreadClient));
       NbThread_U32++;
-      //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+      // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
 
       // Get server session creation param: answer posted due to connect event
       EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
@@ -380,7 +381,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
       ASSERT_TRUE(puSocketThreadSession != nullptr);
       puSocketThreadSessionCollection.push_back(std::move(puSocketThreadSession));
       NbThread_U32++;
-      //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+      // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     }
     EXPECT_EQ(puSocketThreadClientCollection.size(), MAX_NB_CLIENT_SESSION);
     EXPECT_EQ(puSocketThreadSessionCollection.size(), MAX_NB_CLIENT_SESSION);
@@ -396,13 +397,13 @@ TEST(SockIo_Test, ListenMultipleConnect)
       EXPECT_EQ(ClientOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT);
       EXPECT_EQ(ClientOperationResult_X.OpTicket_U32, ClientOpTicket_U32);
       EXPECT_EQ(ClientOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
-      EXPECT_EQ(ClientOperationResult_X.pSocket_O, nullptr);
+      EXPECT_NE(ClientOperationResult_X.pSocket_O, nullptr);
       EXPECT_EQ(ClientOperationResult_X.Size_U32, 0);
       EXPECT_EQ(ClientOperationResult_X.pBuffer_U8, nullptr);
       // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
 
       EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbThread_U32 - j_U32 - 1);
-      //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+      // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     }
 
     // Disconnect session
@@ -416,17 +417,17 @@ TEST(SockIo_Test, ListenMultipleConnect)
       EXPECT_EQ(SessionOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT);
       EXPECT_EQ(SessionOperationResult_X.OpTicket_U32, SessionOpTicket_U32);
       EXPECT_EQ(SessionOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
-      EXPECT_EQ(SessionOperationResult_X.pSocket_O, nullptr);
+      EXPECT_NE(SessionOperationResult_X.pSocket_O, nullptr);
       EXPECT_EQ(SessionOperationResult_X.Size_U32, 0);
       EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, nullptr);
       // EXPECT_NE(SessionOperationResult_X.Time_U32, 0);
       // printf("BOF::BofSocket::S_BofSocketBalance() j %d => %d\n", j_U32, BOF::BofSocket::S_BofSocketBalance());
-      //BOF_GTEST_EXPECT_BETWEEN(MAX_NB_CLIENT_SESSION - j_U32 - 1, BOF::BofSocket::S_BofSocketBalance(), MAX_NB_CLIENT_SESSION - j_U32);
-      //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+      // BOF_GTEST_EXPECT_BETWEEN(MAX_NB_CLIENT_SESSION - j_U32 - 1, BOF::BofSocket::S_BofSocketBalance(), MAX_NB_CLIENT_SESSION - j_U32);
+      // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     }
     EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
-    // Disconnect server
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    //  Disconnect server
     DisconnectParam_X.Reset();
     DisconnectParam_X.Unused_U32 = 0; // pListenSocket_O;
     EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, DisconnectParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
@@ -443,7 +444,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
     // EXPECT_NE(ServerOperationResult_X.Time_U32, 0);
 
     EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
 
     // Leave client threads
     for (j_U32 = 0; j_U32 < MAX_NB_CLIENT_SESSION; j_U32++)
@@ -461,7 +462,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
       EXPECT_EQ(ClientOperationResult_X.pBuffer_U8, nullptr);
       // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
       EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
-      //BOF_GTEST_EXPECT_BETWEEN(NbThread_U32 - j_U32 - 1, BOF::BofThread::S_BofThreadBalance(), NbThread_U32 - j_U32 + 3);
+      // BOF_GTEST_EXPECT_BETWEEN(NbThread_U32 - j_U32 - 1, BOF::BofThread::S_BofThreadBalance(), NbThread_U32 - j_U32 + 3);
     }
 
     // Leave session threads
@@ -480,7 +481,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
       EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, nullptr);
       // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
       EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
-      //BOF_GTEST_EXPECT_BETWEEN(MAX_NB_CLIENT_SESSION - j_U32, BOF::BofThread::S_BofThreadBalance(), MAX_NB_CLIENT_SESSION - j_U32 + 5);
+      // BOF_GTEST_EXPECT_BETWEEN(MAX_NB_CLIENT_SESSION - j_U32, BOF::BofThread::S_BofThreadBalance(), MAX_NB_CLIENT_SESSION - j_U32 + 5);
     }
     // Leave listen threads
     ExitParam_X.Reset();
@@ -496,7 +497,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
     EXPECT_EQ(ServerOperationResult_X.pBuffer_U8, nullptr);
     // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
     EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
 
     Delta_U32 = BOF::Bof_ElapsedMsTime(Timer_U32);
     if (Delta_U32 > Max_U32)
@@ -511,6 +512,211 @@ TEST(SockIo_Test, ListenMultipleConnect)
   }
 
   printf("%d: Max is %d ms DeltaT %d ms\n", BOF::Bof_GetMsTickCount(), Max_U32, BOF::Bof_ElapsedMsTime(Start_U32));
+  BOF::Bof_MsSleep(50);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
+}
+TEST(SockIo_Test, ListenReadWrite)
+{
+  BOF::BOF_SOCKET_THREAD_PARAM SocketThreadParam_X;
+  BOF::BOF_SOCKET_LISTEN_PARAM ListenParam_X;
+  BOF::BOF_SOCKET_CONNECT_PARAM ConnectParam_X;
+  BOF::BOF_SOCKET_READ_PARAM ReadParam_X;
+  BOF::BOF_SOCKET_WRITE_PARAM WriteParam_X;
+  BOF::BOF_SOCKET_DISCONNECT_PARAM DisconnectParam_X;
+  BOF::BOF_SOCKET_EXIT_PARAM ExitParam_X;
+  uint32_t i_U32, Timer_U32, Start_U32, Delta_U32, Max_U32, ServerOpTicket_U32, ClientOpTicket_U32, SessionOpTicket_U32;
+  std::unique_ptr<BOF::BofSocketThread> puSocketThreadServer;
+  std::unique_ptr<BOF::BofSocketThread> puSocketThreadClient;
+  std::unique_ptr<BOF::BofSocketThread> puSocketThreadSession;
+  BOF::BOF_SOCKET_OPERATION_RESULT ServerOperationResult_X, ClientOperationResult_X, SessionOperationResult_X;
+  BOF::BofSocket *pListenSocket_O = nullptr;
+  const char pWelcome_c[] = "220 Welcome !\r\n";
+  uint8_t pBuffer_U8[0x100];
+
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
+
+  // Create server listening thread
+  SocketThreadParam_X.Reset();
+  SocketThreadParam_X.Name_S = "SockIo_Lis_0";
+  SocketThreadParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY_FIFO;
+  SocketThreadParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY_036;
+  SocketThreadParam_X.NbMaxOperationPending_U32 = MAX_NB_OP_PENDING;
+  SocketThreadParam_X.pListeningSocket_O = nullptr;
+  SocketThreadParam_X.pSocket_O = nullptr;
+  puSocketThreadServer = std::make_unique<BOF::BofSocketThread>(SocketThreadParam_X);
+  ASSERT_TRUE(puSocketThreadServer != nullptr);
+
+  ListenParam_X.Reset();
+  ListenParam_X.JustOnce_B = false; // For "ever"
+  ListenParam_X.NbMaxClient_U32 = 3;
+  ListenParam_X.SrcIpAddr_X = BOF::BOF_IPV4_ADDR_U32(127, 0, 0, 1);
+  ListenParam_X.SrcPort_U16 = DEFAULT_LISTENING_PORT;
+
+  // Timeout of listen must be at least half of DEFAULT_INTER_PROCESS_TIMEOUT
+  EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(100 /*DEFAULT_INTER_PROCESS_TIMEOUT*/, ListenParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ServerOpTicket_U32, 1);
+  EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ServerOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_LISTEN);
+  EXPECT_EQ(ServerOperationResult_X.OpTicket_U32, ServerOpTicket_U32);
+  EXPECT_EQ(ServerOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(ServerOperationResult_X.pSocket_O, nullptr);
+  EXPECT_EQ(ServerOperationResult_X.Size_U32, 0);
+  EXPECT_EQ(ServerOperationResult_X.pBuffer_U8, nullptr);
+  // EXPECT_EQ(ServerOperationResult_X.Time_U32,0);
+  pListenSocket_O = ServerOperationResult_X.pSocket_O;
+  // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 1);
+
+  ConnectParam_X.Reset();
+  ConnectParam_X.Tcp_B = true;
+  ConnectParam_X.SrcIpAddr_X = BOF::BOF_IPV4_ADDR_U32(127, 0, 0, 1);
+  ConnectParam_X.SrcPort_U16 = 0;
+  ConnectParam_X.DstIpAddr_X = BOF::BOF_IPV4_ADDR_U32(127, 0, 0, 1);
+  ConnectParam_X.DstPort_U16 = DEFAULT_LISTENING_PORT;
+  // Create client threads
+  SocketThreadParam_X.Reset();
+  SocketThreadParam_X.Name_S = "SockIo_Clt_0";
+  SocketThreadParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY_FIFO;
+  SocketThreadParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY_036;
+  SocketThreadParam_X.NbMaxOperationPending_U32 = MAX_NB_OP_PENDING;
+  SocketThreadParam_X.pListeningSocket_O = nullptr;
+  SocketThreadParam_X.pSocket_O = nullptr;
+  puSocketThreadClient = std::make_unique<BOF::BofSocketThread>(SocketThreadParam_X);
+  ASSERT_TRUE(puSocketThreadClient != nullptr);
+
+  // Connect client to server
+  EXPECT_EQ(puSocketThreadClient->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ConnectParam_X, ClientOpTicket_U32), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ClientOpTicket_U32, 1);
+  EXPECT_EQ(puSocketThreadClient->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ClientOperationResult_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ClientOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_CONNECT);
+  EXPECT_EQ(ClientOperationResult_X.OpTicket_U32, ClientOpTicket_U32);
+  EXPECT_EQ(ClientOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(ClientOperationResult_X.pSocket_O, nullptr);
+  EXPECT_EQ(ClientOperationResult_X.Size_U32, 0);
+  EXPECT_EQ(ClientOperationResult_X.pBuffer_U8, nullptr);
+  // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
+
+  // Get server session creation param: answer posted due to connect event
+  ServerOperationResult_X.Reset();
+  EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ServerOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_CONNECT);
+  EXPECT_EQ(ServerOperationResult_X.OpTicket_U32, ServerOpTicket_U32 + 1);
+  EXPECT_EQ(ServerOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(ServerOperationResult_X.pSocket_O, nullptr);
+  EXPECT_NE(ServerOperationResult_X.pSocket_O, ClientOperationResult_X.pSocket_O);
+  EXPECT_NE(ServerOperationResult_X.pSocket_O, pListenSocket_O);
+  EXPECT_EQ(ServerOperationResult_X.Size_U32, 0);
+  EXPECT_EQ(ServerOperationResult_X.pBuffer_U8, nullptr);
+
+  // Create session threads
+  SocketThreadParam_X.Reset();
+  SocketThreadParam_X.Name_S = "SockIo_Ses_0";
+  SocketThreadParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY_FIFO;
+  SocketThreadParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY_036;
+  SocketThreadParam_X.NbMaxOperationPending_U32 = MAX_NB_OP_PENDING;
+  SocketThreadParam_X.pListeningSocket_O = nullptr;
+  SocketThreadParam_X.pSocket_O = ServerOperationResult_X.pSocket_O; // Give it by default so BOF_SOCKET_OPERATION_DISCONNECT can be executed correctly
+  puSocketThreadSession = std::make_unique<BOF::BofSocketThread>(SocketThreadParam_X);
+  ASSERT_TRUE(puSocketThreadSession != nullptr);
+
+  Max_U32 = 0;
+  Start_U32 = BOF::Bof_GetMsTickCount();
+  for (i_U32 = 0; i_U32 < 500; i_U32++)
+  {
+    Timer_U32 = BOF::Bof_GetMsTickCount();
+    WriteParam_X.Reset();
+    WriteParam_X.pSocket_O = nullptr;// pListenSocket_O;
+    WriteParam_X.Nb_U32 = strlen(pWelcome_c);
+    WriteParam_X.pBuffer_U8 = (uint8_t *)pWelcome_c;
+//    BOFERR e = puSocketThreadClient->GetSocket()->V_WriteData(1000, WriteParam_X.Nb_U32, WriteParam_X.pBuffer_U8);
+    //BOF::BofSocket *p = puSocketThreadServer->GetSocket();
+    //BOFERR e = puSocketThreadServer->GetSocket()->V_WriteData(1000, WriteParam_X.Nb_U32, WriteParam_X.pBuffer_U8);
+    EXPECT_EQ(puSocketThreadSession->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, WriteParam_X, SessionOpTicket_U32), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(SessionOpTicket_U32, 1 + i_U32);
+    EXPECT_EQ(puSocketThreadSession->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, SessionOperationResult_X), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(SessionOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_WRITE);
+    EXPECT_EQ(SessionOperationResult_X.OpTicket_U32, SessionOpTicket_U32);
+    EXPECT_EQ(SessionOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_NE(SessionOperationResult_X.pSocket_O, nullptr);
+    EXPECT_EQ(SessionOperationResult_X.Size_U32, WriteParam_X.Nb_U32);
+    EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, WriteParam_X.pBuffer_U8);
+    EXPECT_LT(SessionOperationResult_X.Time_U32, DEFAULT_INTER_PROCESS_TIMEOUT);
+    //BOF::Bof_MsSleep(99999999);
+
+    memset(pBuffer_U8, 0, sizeof(pBuffer_U8));
+    ReadParam_X.Reset();
+    ReadParam_X.pSocket_O = nullptr;
+    ReadParam_X.Nb_U32 = strlen(pWelcome_c);
+    ReadParam_X.pBuffer_U8 = pBuffer_U8;
+    EXPECT_EQ(puSocketThreadClient->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ReadParam_X, ClientOpTicket_U32), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(ClientOpTicket_U32, 2 + i_U32);
+    EXPECT_EQ(puSocketThreadClient->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ClientOperationResult_X), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(ClientOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_READ);
+    EXPECT_EQ(ClientOperationResult_X.OpTicket_U32, ClientOpTicket_U32);
+    EXPECT_EQ(ClientOperationResult_X.Sts_E, BOF_ERR_NO_ERROR);
+    EXPECT_NE(ClientOperationResult_X.pSocket_O, nullptr);
+    EXPECT_EQ(ClientOperationResult_X.Size_U32, ReadParam_X.Nb_U32);
+    EXPECT_EQ(ClientOperationResult_X.pBuffer_U8, ReadParam_X.pBuffer_U8);
+    EXPECT_LT(ClientOperationResult_X.Time_U32, DEFAULT_INTER_PROCESS_TIMEOUT);
+
+    EXPECT_STREQ(pWelcome_c, (char *)ReadParam_X.pBuffer_U8);
+    Delta_U32 = BOF::Bof_ElapsedMsTime(Timer_U32);
+    if (Delta_U32 > Max_U32)
+    {
+      Max_U32 = Delta_U32;
+    }
+    EXPECT_LT(Delta_U32, 40);
+    if ((Delta_U32 > 30) || ((i_U32 % 50) == 0))
+    {
+      printf("%d: Iter %d Delta %d Max is %d ms\n", BOF::Bof_GetMsTickCount(), i_U32, Delta_U32, Max_U32);
+    }
+  }
+  printf("%d: Max is %d ms DeltaT %d ms\n", BOF::Bof_GetMsTickCount(), Max_U32, BOF::Bof_ElapsedMsTime(Start_U32));
+
+  ExitParam_X.Reset();
+  ExitParam_X.Unused_U32 = 0;
+  EXPECT_EQ(puSocketThreadClient->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ExitParam_X, ClientOpTicket_U32), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ClientOpTicket_U32, 2 + i_U32); // Sesion 0 is used to test error just above
+  EXPECT_EQ(puSocketThreadClient->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ClientOperationResult_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ClientOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_EXIT);
+  EXPECT_EQ(ClientOperationResult_X.OpTicket_U32, ClientOpTicket_U32);
+  EXPECT_EQ(ClientOperationResult_X.Sts_E, BOF_ERR_CANCEL);
+  EXPECT_EQ(ClientOperationResult_X.pSocket_O, nullptr);
+  EXPECT_EQ(ClientOperationResult_X.Size_U32, 0);
+  EXPECT_EQ(ClientOperationResult_X.pBuffer_U8, nullptr);
+  // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
+
+  // Leave session threads
+  
+  ExitParam_X.Reset();
+  ExitParam_X.Unused_U32 = 0;
+  EXPECT_EQ(puSocketThreadSession->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ExitParam_X, SessionOpTicket_U32), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(SessionOpTicket_U32, 1 + i_U32); // Sesion 0 is used to test error just above
+  EXPECT_EQ(puSocketThreadSession->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, SessionOperationResult_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(SessionOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_EXIT);
+  EXPECT_EQ(SessionOperationResult_X.OpTicket_U32, SessionOpTicket_U32);
+  EXPECT_EQ(SessionOperationResult_X.Sts_E, BOF_ERR_CANCEL);
+  EXPECT_EQ(SessionOperationResult_X.pSocket_O, nullptr);
+  EXPECT_EQ(SessionOperationResult_X.Size_U32, 0);
+  EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, nullptr);
+    // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
+   
+  // Leave listen thread
+  ExitParam_X.Reset();
+  ExitParam_X.Unused_U32 = 0;
+  EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ExitParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ServerOpTicket_U32, 2);
+  EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ServerOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_EXIT);
+  EXPECT_EQ(ServerOperationResult_X.OpTicket_U32, ServerOpTicket_U32);
+  EXPECT_EQ(ServerOperationResult_X.Sts_E, BOF_ERR_CANCEL);
+
+  EXPECT_EQ(ServerOperationResult_X.pSocket_O, nullptr);
+  EXPECT_EQ(ServerOperationResult_X.Size_U32, 0);
+  EXPECT_EQ(ServerOperationResult_X.pBuffer_U8, nullptr);
+  // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
+
   BOF::Bof_MsSleep(50);
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
   EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
@@ -558,7 +764,7 @@ TEST(SockIo_Test, ReadWrite)
   ListenParam_X.SrcIpAddr_X = BOF::BOF_IPV4_ADDR_U32(127, 0, 0, 1);
   ListenParam_X.SrcPort_U16 = DEFAULT_LISTENING_PORT;
 
-  //Timeout of listen must be at least half of DEFAULT_INTER_PROCESS_TIMEOUT
+  // Timeout of listen must be at least half of DEFAULT_INTER_PROCESS_TIMEOUT
   EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(100 /*DEFAULT_INTER_PROCESS_TIMEOUT*/, ListenParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ServerOpTicket_U32, 1);
   EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
@@ -570,7 +776,7 @@ TEST(SockIo_Test, ReadWrite)
   EXPECT_EQ(ServerOperationResult_X.pBuffer_U8, nullptr);
   // EXPECT_EQ(ServerOperationResult_X.Time_U32,0);
   pListenSocket_O = ServerOperationResult_X.pSocket_O;
-  //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 1);
+  // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 1);
 
   ConnectParam_X.Reset();
   ConnectParam_X.Tcp_B = true;
@@ -613,7 +819,7 @@ TEST(SockIo_Test, ReadWrite)
     // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
     puSocketThreadClientCollection.push_back(std::move(puSocketThreadClient));
     NbThread_U32++;
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
 
     // Get server session creation param: answer posted due to connect event
     ServerOperationResult_X.Reset();
@@ -639,7 +845,7 @@ TEST(SockIo_Test, ReadWrite)
     ASSERT_TRUE(puSocketThreadSession != nullptr);
     puSocketThreadSessionCollection.push_back(std::move(puSocketThreadSession));
     NbThread_U32++;
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
   }
   EXPECT_EQ(puSocketThreadClientCollection.size(), MAX_NB_CLIENT_SESSION);
   EXPECT_EQ(puSocketThreadSessionCollection.size(), MAX_NB_CLIENT_SESSION);
@@ -651,7 +857,7 @@ TEST(SockIo_Test, ReadWrite)
     Timer_U32 = BOF::Bof_GetMsTickCount();
     NbThread_U32 = 1 + (2 * MAX_NB_CLIENT_SESSION);
     EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbThread_U32);
-    //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     for (j_U32 = 0; j_U32 < MAX_NB_CLIENT_SESSION; j_U32++)
     {
       WriteParam_X.Reset();
@@ -704,7 +910,7 @@ TEST(SockIo_Test, ReadWrite)
   }
   printf("%d: Max is %d ms DeltaT %d ms\n", BOF::Bof_GetMsTickCount(), Max_U32, BOF::Bof_ElapsedMsTime(Start_U32));
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbThread_U32);
-  //EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+  // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
 
   // Error
   j_U32 = 0;
@@ -740,15 +946,13 @@ TEST(SockIo_Test, ReadWrite)
   EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, pRxBuffer_U8[j_U32]);
   EXPECT_GE(SessionOperationResult_X.Time_U32, DEFAULT_INTER_PROCESS_TIMEOUT);
 
-  // BOF::Bof_MsSleep(9999999);
-
   // Leave client threads
   for (j_U32 = 0; j_U32 < MAX_NB_CLIENT_SESSION; j_U32++)
   {
     ExitParam_X.Reset();
     ExitParam_X.Unused_U32 = 0;
     EXPECT_EQ(puSocketThreadClientCollection[j_U32]->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ExitParam_X, ClientOpTicket_U32), BOF_ERR_NO_ERROR);
-    EXPECT_EQ(ClientOpTicket_U32, 2 + MAX_NB_TEST_LOOP + ((j_U32 == 0) ? 1 : 0));//Sesion 0 is used to test error just above
+    EXPECT_EQ(ClientOpTicket_U32, 2 + MAX_NB_TEST_LOOP + ((j_U32 == 0) ? 1 : 0)); // Sesion 0 is used to test error just above
     EXPECT_EQ(puSocketThreadClientCollection[j_U32]->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ClientOperationResult_X), BOF_ERR_NO_ERROR);
     EXPECT_EQ(ClientOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_EXIT);
     EXPECT_EQ(ClientOperationResult_X.OpTicket_U32, ClientOpTicket_U32);
@@ -758,9 +962,9 @@ TEST(SockIo_Test, ReadWrite)
     EXPECT_EQ(ClientOperationResult_X.pBuffer_U8, nullptr);
     // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
     NbThread_U32--;
-    EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbThread_U32);
-    //BOF::Bof_MsSleep(1);
-    //BOF_GTEST_EXPECT_BETWEEN(NbThread_U32, BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbThread_U32);
+    // BOF::Bof_MsSleep(1);
+    // BOF_GTEST_EXPECT_BETWEEN(NbThread_U32, BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
   }
 
   // Leave session threads
@@ -769,7 +973,7 @@ TEST(SockIo_Test, ReadWrite)
     ExitParam_X.Reset();
     ExitParam_X.Unused_U32 = 0;
     EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ExitParam_X, SessionOpTicket_U32), BOF_ERR_NO_ERROR);
-    EXPECT_EQ(SessionOpTicket_U32, 1 + MAX_NB_TEST_LOOP + ((j_U32 == 0) ? 1 : 0));//Sesion 0 is used to test error just above
+    EXPECT_EQ(SessionOpTicket_U32, 1 + MAX_NB_TEST_LOOP + ((j_U32 == 0) ? 1 : 0)); // Sesion 0 is used to test error just above
     EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, SessionOperationResult_X), BOF_ERR_NO_ERROR);
     EXPECT_EQ(SessionOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_EXIT);
     EXPECT_EQ(SessionOperationResult_X.OpTicket_U32, SessionOpTicket_U32);
@@ -779,9 +983,9 @@ TEST(SockIo_Test, ReadWrite)
     EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, nullptr);
     // EXPECT_NE(ClientOperationResult_X.Time_U32, 0);
     NbThread_U32--;
-    EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbThread_U32);
-    //BOF::Bof_MsSleep(1);
-    //BOF_GTEST_EXPECT_BETWEEN(NbThread_U32, BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
+    // EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbThread_U32);
+    // BOF::Bof_MsSleep(1);
+    // BOF_GTEST_EXPECT_BETWEEN(NbThread_U32, BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     BOF_SAFE_DELETE_ARRAY(pRxBuffer_U8[j_U32]);
     BOF_SAFE_DELETE_ARRAY(pTxBuffer_U8[j_U32]);
   }
@@ -803,5 +1007,4 @@ TEST(SockIo_Test, ReadWrite)
   BOF::Bof_MsSleep(50);
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
   EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
-
 }

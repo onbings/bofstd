@@ -548,7 +548,6 @@ BOF_PERF_POINT_MGR *BofPerfPointOpen(const char *_pName_c, uint32_t _MaxEntry_U3
     pRts_X = new BOF_PERF_POINT_MGR;
     if (pRts_X)
     {
-      memset(pRts_X, 0, sizeof(BOF_PERF_POINT_MGR));
       pRts_X->MgrMagicNumber_U32 = BOF_PERF_POINT_MAGIC_NUMBER;
       strcpy(pRts_X->pMgrName_c, _pName_c);
       pRts_X->OverTimeInNs_U64 = _MaxTimeInNs_U64;

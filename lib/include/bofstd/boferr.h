@@ -255,6 +255,7 @@ enum BOFERR : int
   BOF_ERR_NO_CLIENT,        ///< No client
   BOF_ERR_ALREADY_CLOSED,   /*! Object already closed */
   BOF_ERR_NOT_STARTED,      /*! Not started*/
+  BOF_ERR_NOT_SKIP,         /*! Skipped*/
 };
 // #define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
 // #define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK
