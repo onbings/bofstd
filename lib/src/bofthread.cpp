@@ -810,7 +810,7 @@ void BofThread::BofThread_Thread()
     BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
     if (Sts_E == BOF_ERR_NO_ERROR)
     {
-      Sts_E = (WndPrio_S32 = GetThreadPriority(GetCurrentThread())) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
+      Sts_E = (WndPrio_S32 == GetThreadPriority(GetCurrentThread())) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
     }
 
 #else

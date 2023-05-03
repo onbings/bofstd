@@ -247,7 +247,6 @@ TEST(SockIo_Test, ListenConnectDisconnect)
   DisconnectParam_X.Unused_U32 = 0; // pListenSocket_O;
   EXPECT_EQ(puSocketThreadServer->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, DisconnectParam_X, ServerOpTicket_U32), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ServerOpTicket_U32, 2);
-  //BOF::Bof_MsSleep(9999999);
   EXPECT_EQ(puSocketThreadServer->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ServerOperationResult_X), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ServerOperationResult_X.Operation_E, BOF::BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT);
   EXPECT_EQ(ServerOperationResult_X.OpTicket_U32, ServerOpTicket_U32);
@@ -642,7 +641,6 @@ TEST(SockIo_Test, ListenReadWrite)
     EXPECT_EQ(SessionOperationResult_X.Size_U32, WriteParam_X.Nb_U32);
     EXPECT_EQ(SessionOperationResult_X.pBuffer_U8, WriteParam_X.pBuffer_U8);
     EXPECT_LT(SessionOperationResult_X.Time_U32, DEFAULT_INTER_PROCESS_TIMEOUT);
-    //BOF::Bof_MsSleep(99999999);
 
     memset(pBuffer_U8, 0, sizeof(pBuffer_U8));
     ReadParam_X.Reset();

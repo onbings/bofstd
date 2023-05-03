@@ -249,6 +249,8 @@ public:
   uint32_t NumberOfResultPending();
   BofSocket *GetListeningSocket();
   BofSocket *GetSocket();
+  BofSocket *CreateTcpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, uint32_t _NbMaxClient_U32); // 0 for normal socket !=0 for listening one _Listen_B)
+  BofSocket *CreateUdpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, BOF::BOF_IPV4_ADDR_U32 &_rDstIpAddr_X, uint16_t _DstPort_U16);
 
 protected:
   BOFERR V_OnProcessing() override;
@@ -259,7 +261,6 @@ private:
   std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_PARAM>> mpuSocketOperationParamCollection = nullptr;   /*! The operation params */
   std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_RESULT>> mpuSocketOperationResultCollection = nullptr; /*! The operation result */
 
-  BofSocket *CreateSocket(bool _Tcp_B, BOF::BOF_IPV4_ADDR_U32 &_rIpAddr_X, uint16_t _Port_U16, uint32_t _NbMaxClient_U32); // 0 for normal socket !=0 for listening one _Listen_B)
 };
 
 END_BOF_NAMESPACE()

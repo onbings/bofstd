@@ -1277,11 +1277,13 @@ BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_P
   {
 #if defined(_WIN32)
     int32_t WndPrio_S32 = Bof_PriorityValueFromThreadPriority(_ThreadPriority_E);
+    int32_t Prio_S32 = GetThreadPriority(_rThread_X.pThread);
     Rts_E = (SetThreadPriority(_rThread_X.pThread, WndPrio_S32) == TRUE) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
     BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
-      Rts_E = (WndPrio_S32 = GetThreadPriority(_rThread_X.pThread)) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
+      Prio_S32 = GetThreadPriority(_rThread_X.pThread);
+      Rts_E = (WndPrio_S32 == GetThreadPriority(_rThread_X.pThread)) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
     }
 #else
     int Status_i = 0;
@@ -1435,7 +1437,7 @@ static void *S_ThreadLauncher(void *_pContext)
       BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
-        Sts_E = (WndPrio_S32 = GetThreadPriority(pThread_X->pThread)) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
+        Sts_E = (WndPrio_S32 == GetThreadPriority(pThread_X->pThread)) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
       }
 #else
       int Status_i = 0;

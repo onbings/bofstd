@@ -157,7 +157,7 @@ BOFERR BofSocketThread::ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET
   BOF_INC_TICKET_NUMBER(mTicket_U32);
   Param_X.TimeOut_U32 = _TimeOut_U32;
   Param_X.Timer_U32 = BOF::Bof_GetMsTickCount();
-  //printf("================> Tim %d\n", Param_X.Timer_U32);
+  // printf("================> Tim %d\n", Param_X.Timer_U32);
   Param_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT;
   Param_X.Disconnect_X = _rParam_X;
   Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr);
@@ -180,7 +180,7 @@ uint32_t BofSocketThread::NumberOfResultPending()
   return mpuSocketOperationResultCollection->GetNbElement();
 }
 
-BofSocket *BofSocketThread::CreateSocket(bool _Tcp_B, BOF_IPV4_ADDR_U32 &_rIpAddr_X, uint16_t _Port_U16, uint32_t _NbMaxClient_U32) // 0 for normal socket !=0 for listening one _Listen_B)
+BofSocket *BofSocketThread::CreateTcpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, uint32_t _NbMaxClient_U32) // 0 for normal socket !=0 for listening one _Listen_B)
 {
   BofSocket *pRts_O;
   BOF::BOF_SOCKET_PARAM SocketParams_X;
@@ -195,7 +195,7 @@ BofSocket *BofSocketThread::CreateSocket(bool _Tcp_B, BOF_IPV4_ADDR_U32 &_rIpAdd
   SocketParams_X.NoDelay_B = true;
   SocketParams_X.BaseChannelParam_X.RcvBufferSize_U32 = 0;
   SocketParams_X.BaseChannelParam_X.SndBufferSize_U32 = 0;
-  SocketParams_X.BindIpAddress_S = (_Tcp_B ? "tcp://" : "udp://") + _rIpAddr_X.ToString(_Port_U16);
+  SocketParams_X.BindIpAddress_S = "tcp://" + _rSrcIpAddr_X.ToString(_SrcPort_U16);
 
   pRts_O = new BofSocket(SocketParams_X);
   if (pRts_O)
@@ -207,7 +207,42 @@ BofSocket *BofSocketThread::CreateSocket(bool _Tcp_B, BOF_IPV4_ADDR_U32 &_rIpAdd
   }
   return pRts_O;
 }
+BofSocket *BofSocketThread::CreateUdpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, BOF::BOF_IPV4_ADDR_U32 &_rDstIpAddr_X, uint16_t _DstPort_U16)
+{
+  BofSocket *pRts_O;
+  BOF::BOF_SOCKET_PARAM SocketParams_X;
+  BOF::BOF_SOCKET_ADDRESS DstIp_X;
 
+  SocketParams_X.BroadcastPort_U16 = 0;
+  SocketParams_X.MulticastSender_B = false;
+  SocketParams_X.Ttl_U32 = 0;
+  SocketParams_X.KeepAlive_B = false;
+  SocketParams_X.ReUseAddress_B = true;
+  SocketParams_X.BaseChannelParam_X.Blocking_B = true;
+  SocketParams_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
+  SocketParams_X.NoDelay_B = true;
+  SocketParams_X.BaseChannelParam_X.RcvBufferSize_U32 = 0;
+  SocketParams_X.BaseChannelParam_X.SndBufferSize_U32 = 0;
+  SocketParams_X.BindIpAddress_S = "udp://" + _rSrcIpAddr_X.ToString(_SrcPort_U16);
+
+  pRts_O = new BofSocket(SocketParams_X);
+  if (pRts_O)
+  {
+    if (pRts_O->LastErrorCode() != BOF_ERR_NO_ERROR)
+    {
+      BOF_SAFE_DELETE(pRts_O);
+    }
+    else
+    {
+      DstIp_X = BOF::BOF_SOCKET_ADDRESS("udp://" + _rDstIpAddr_X.ToString(_DstPort_U16));
+      if (pRts_O->SetDstIpAddress(DstIp_X) != BOF_ERR_NO_ERROR)
+      {
+        BOF_SAFE_DELETE(pRts_O);
+      }
+    }
+  }
+  return pRts_O;
+}
 BofSocket *BofSocketThread::GetListeningSocket()
 {
   return mSocketThreadParam_X.pListeningSocket_O;
@@ -323,7 +358,7 @@ BOFERR BofSocketThread::V_OnProcessing()
               {
                 if (!mSocketThreadParam_X.pListeningSocket_O) // Specified in the constructor ?
                 {
-                  mSocketThreadParam_X.pListeningSocket_O = CreateSocket(true, Param_X.Listen_X.SrcIpAddr_X, Param_X.Listen_X.SrcPort_U16, Param_X.Listen_X.NbMaxClient_U32);
+                  mSocketThreadParam_X.pListeningSocket_O = CreateTcpSocket(Param_X.Listen_X.SrcIpAddr_X, Param_X.Listen_X.SrcPort_U16, Param_X.Listen_X.NbMaxClient_U32);
                 }
                 if (mSocketThreadParam_X.pListeningSocket_O)
                 {
@@ -411,7 +446,7 @@ BOFERR BofSocketThread::V_OnProcessing()
                 if (Result_X.pSocket_O)
                 {
                   SendResult_B = true;
-                  //mSocketThreadParam_X.pSocket_O = mSocketThreadParam_X.pListeningSocket_O;
+                  // mSocketThreadParam_X.pSocket_O = mSocketThreadParam_X.pListeningSocket_O;
                   Result_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_CONNECT;
                   if (ListeningMode_B)
                   {
@@ -425,24 +460,37 @@ BOFERR BofSocketThread::V_OnProcessing()
                   }
                 }
               }
-              //printf("----listen------------------------------------->id=%d\n", ListenTicketId_U32);
+              // printf("----listen------------------------------------->id=%d\n", ListenTicketId_U32);
               printf("%d: Alive Listen Wait end %p SndRes %d\n", BOF::Bof_GetMsTickCount(), pClient, SendResult_B);
               break;
 
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_CONNECT:
               Result_X.Sts_E = BOF_ERR_ENOMEM;
-              Result_X.pSocket_O = CreateSocket(Param_X.Connect_X.Tcp_B, Param_X.Connect_X.SrcIpAddr_X, Param_X.Connect_X.SrcPort_U16, 0);
-              if (Result_X.pSocket_O)
+              if (Param_X.Connect_X.Tcp_B)
               {
-                Target_S = (Param_X.Connect_X.Tcp_B ? "tcp://" : "udp://") + Param_X.Connect_X.DstIpAddr_X.ToString(Param_X.Connect_X.DstPort_U16);
-                Result_X.Sts_E = Result_X.pSocket_O->V_Connect(Param_X.TimeOut_U32, Target_S, "");
-                if (Result_X.Sts_E == BOF_ERR_NO_ERROR)
+                Result_X.pSocket_O = CreateTcpSocket(Param_X.Connect_X.SrcIpAddr_X, Param_X.Connect_X.SrcPort_U16, 0);
+                if (Result_X.pSocket_O)
                 {
-                  mSocketThreadParam_X.pSocket_O = Result_X.pSocket_O;
+                  Target_S = (Param_X.Connect_X.Tcp_B ? "tcp://" : "udp://") + Param_X.Connect_X.DstIpAddr_X.ToString(Param_X.Connect_X.DstPort_U16);
+                  Result_X.Sts_E = Result_X.pSocket_O->V_Connect(Param_X.TimeOut_U32, Target_S, "");
+                  if (Result_X.Sts_E == BOF_ERR_NO_ERROR)
+                  {
+                    mSocketThreadParam_X.pSocket_O = Result_X.pSocket_O;
+                  }
+                  else
+                  {
+                    BOF_SAFE_DELETE(Result_X.pSocket_O);
+                  }
                 }
-                else
+              }
+              else
+              {
+                Result_X.Sts_E = BOF_ERR_EINVAL;
+                Result_X.pSocket_O = CreateUdpSocket(Param_X.Connect_X.SrcIpAddr_X, Param_X.Connect_X.SrcPort_U16, Param_X.Connect_X.DstIpAddr_X, Param_X.Connect_X.DstPort_U16);
+                if (Result_X.pSocket_O)
                 {
-                  BOF_SAFE_DELETE(Result_X.pSocket_O);
+                  Result_X.Sts_E = BOF_ERR_NO_ERROR;
+                  mSocketThreadParam_X.pSocket_O = Result_X.pSocket_O;
                 }
               }
               break;
@@ -464,7 +512,7 @@ BOFERR BofSocketThread::V_OnProcessing()
                 Result_X.pSocket_O = mSocketThreadParam_X.pListeningSocket_O;
                 ListeningMode_B = false;
                 PollTimeout_U32 = PUSH_POP_TIMEOUT;
-                //Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(Param_X.Timer_U32);
+                // Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(Param_X.Timer_U32);
                 BOF_SAFE_DELETE(mSocketThreadParam_X.pListeningSocket_O);
               }
               else
@@ -504,7 +552,15 @@ BOFERR BofSocketThread::V_OnProcessing()
       }
     }
   } while ((!IsThreadLoopMustExit()) && ((Rts_E == BOF_ERR_NO_ERROR) || (!NewCommandRcv_B)));
-
+  /*
+  if (mSocketThreadParam_X.pListeningSocket_O == mSocketThreadParam_X.pSocket_O)
+  {
+    if (mSocketThreadParam_X.pSocket_O)
+    {
+      printf("jj");
+    }
+  }
+  */
   BOF_SAFE_DELETE(mSocketThreadParam_X.pListeningSocket_O);
   BOF_SAFE_DELETE(mSocketThreadParam_X.pSocket_O);
 
