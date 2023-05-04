@@ -32,6 +32,8 @@
 #include <WinSock2.h>
 #include <ws2tcpip.h>
 #define BOF_POLL_RDHUP 0 // does not exist in _WIN32
+#define socklen_t int
+#define ifaddrs BOF::BOF_NETWORK_INTERFACE_PARAM
 #else
 #define SOCKET_ERROR -1
 
@@ -40,6 +42,11 @@
 #include <poll.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>  //TCP_MAXSEG
+#include <linux/sockios.h>
+#include <sys/ioctl.h>
+#include <ifaddrs.h>
+#include <sys/types.h>
+
 #define BOF_POLL_RDHUP POLLRDHUP
 #endif
 #define BOF_POLL_IN POLLIN
