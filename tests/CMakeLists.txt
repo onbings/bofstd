@@ -203,6 +203,7 @@ target_include_directories(bofstd-tests
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../lib/src>
 )
 
+if(WIN32)
 ### VLD ###########################################
 add_library(vld SHARED IMPORTED) # or STATIC instead of SHARED
 set_target_properties(vld PROPERTIES
@@ -222,6 +223,7 @@ add_custom_command(TARGET bofstd-tests POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/../vld.ini $<TARGET_FILE_DIR:bofstd-tests>
 )   
 ###################################################
+endif()
 
 # Link
 target_link_libraries(bofstd-tests
@@ -232,10 +234,7 @@ target_link_libraries(bofstd-tests
 #	$<$<AND:$<BOOL:${WIN32}>,$<CONFIG:Debug>>:${CMAKE_CURRENT_SOURCE_DIR}/../lib/third/vld/lib/Win64/vld.lib>
 	$<$<AND:$<BOOL:${WIN32}>,$<CONFIG:Debug>>:vld>
 )
-
-
-              
-
+          
 # Object library is not a shared library
 # void import directive only for linking
 target_compile_definitions(bofstd-tests
