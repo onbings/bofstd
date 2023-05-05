@@ -192,12 +192,12 @@ else()
 endif()
 
 # Create target
-add_executable(bofstd-tests
+add_executable(ut_bofstd
   ${SOURCES_FILES}
 )
 
 # Includes
-target_include_directories(bofstd-tests
+target_include_directories(ut_bofstd
   PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../lib/src>
@@ -215,18 +215,18 @@ set_target_properties(vld PROPERTIES
 get_target_property(DllPath vld IMPORTED_LOCATION)
 get_filename_component(DllDir ${DllPath} DIRECTORY)
 
-add_custom_command(TARGET bofstd-tests POST_BUILD    
+add_custom_command(TARGET ut_bofstd POST_BUILD    
     #COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan \"=DllPath================>\"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllPath}  $<TARGET_FILE_DIR:bofstd-tests>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/dbghelp.dll $<TARGET_FILE_DIR:bofstd-tests>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/Microsoft.DTfW.DHL.manifest $<TARGET_FILE_DIR:bofstd-tests>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/../vld.ini $<TARGET_FILE_DIR:bofstd-tests>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllPath}  $<TARGET_FILE_DIR:ut_bofstd>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/dbghelp.dll $<TARGET_FILE_DIR:ut_bofstd>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/Microsoft.DTfW.DHL.manifest $<TARGET_FILE_DIR:ut_bofstd>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/../vld.ini $<TARGET_FILE_DIR:ut_bofstd>
 )   
 ###################################################
 endif()
 
 # Link
-target_link_libraries(bofstd-tests
+target_link_libraries(ut_bofstd
   PRIVATE
     ONBINGS::bofstd-objects
     GTest::GTest
@@ -237,13 +237,13 @@ target_link_libraries(bofstd-tests
           
 # Object library is not a shared library
 # void import directive only for linking
-target_compile_definitions(bofstd-tests
+target_compile_definitions(ut_bofstd
   PRIVATE
     -DBOFSTD_STATIC_DEFINE=1
 )
 
 # Add test and allow them to run in //
-gtest_discover_tests(bofstd-tests
+gtest_discover_tests(ut_bofstd
   XML_OUTPUT_DIR     ${CMAKE_BINARY_DIR}/GTestReports/
   TEST_PREFIX        bofstd_
    DISCOVERY_TIMEOUT 120

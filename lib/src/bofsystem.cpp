@@ -87,8 +87,7 @@ PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurity
 
 BEGIN_BOF_NAMESPACE()
 
-static std::random_device S_Rd;
-static std::mt19937 S_RandomGenerator(S_Rd());
+static std::mt19937 S_RandomGenerator(std::random_device{}());
 static std::uniform_real_distribution<float> S_RandomFloatDistribution(0.0, 1.0f);
 
 // TODO: When validated, remove functionS just after in the#if 0 with the old file mapppint api...
@@ -3083,7 +3082,7 @@ int32_t Bof_Random(bool _Reset_B, int32_t _MinValue_S32, int32_t _MaxValue_S32)
 
   if (_Reset_B)
   {
-    S_RandomGenerator.seed(S_Rd());
+    S_RandomGenerator.seed(std::random_device{}());
   }
   if (_MinValue_S32 > _MaxValue_S32)
   {
