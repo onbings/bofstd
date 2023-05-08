@@ -45,14 +45,14 @@ BofCommandLineParser::~BofCommandLineParser()
 BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  std::vector<std::string> AudioOptionCollection;
+  std::vector<std::string> OptionCollection;
   BOF::BofCommandLineParser OptionParser;
   int Argc_i, i;
   char **ppArgv_c;
   std::string AppName_S = "AppNameBofCommandLineParser";
 
-  AudioOptionCollection = Bof_StringSplit(_rOption_S, ";");
-  Argc_i = static_cast<int>(AudioOptionCollection.size());
+  OptionCollection = Bof_StringSplit(_rOption_S, ";");
+  Argc_i = static_cast<int>(OptionCollection.size());
   if (Argc_i)
   {
     Argc_i++; // For option 0: pgm name
@@ -62,7 +62,7 @@ BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::ve
       ppArgv_c[0] = (char *)AppName_S.c_str();
       for (i = 1; i < Argc_i; i++)
       {
-        ppArgv_c[i] = (char *)AudioOptionCollection[i - 1].c_str();
+        ppArgv_c[i] = (char *)OptionCollection[i - 1].c_str();
       }
       Rts_E = ToByte(Argc_i, ppArgv_c, _rCommandLineOption_X, _ParseCallback_O, _ErrorCallback_O);
       BOF_SAFE_DELETE_ARRAY(ppArgv_c);

@@ -27,7 +27,6 @@ BEGIN_BOF_NAMESPACE()
 enum BOF_SOCKET_OPERATION
 {
   BOF_SOCKET_OPERATION_EXIT = 0,
-  BOF_SOCKET_OPERATION_CANCEL,
   BOF_SOCKET_OPERATION_LISTEN,
   BOF_SOCKET_OPERATION_CONNECT,
   BOF_SOCKET_OPERATION_READ,
@@ -64,18 +63,6 @@ struct BOF_SOCKET_EXIT_PARAM
 {
   uint32_t Unused_U32;
   BOF_SOCKET_EXIT_PARAM()
-  {
-    Reset();
-  }
-  void Reset()
-  {
-    Unused_U32 = 0;
-  }
-};
-struct BOF_SOCKET_CANCEL_PARAM
-{
-  uint32_t Unused_U32;
-  BOF_SOCKET_CANCEL_PARAM()
   {
     Reset();
   }
@@ -206,7 +193,6 @@ struct BOF_SOCKET_OPERATION_PARAM
                       // Using an union create problem: warning C4624: 'onbings::bof::BOF_SOCKET_OPERATION_PARAM': destructor was implicitly defined as deleted
   // So I inline them
   BOF_SOCKET_EXIT_PARAM Exit_X;       /*! The exit operation params */
-  BOF_SOCKET_CANCEL_PARAM Cancel_X;       /*! The exit operation params */
   BOF_SOCKET_LISTEN_PARAM Listen_X;   /*! The listen operation params */
   BOF_SOCKET_CONNECT_PARAM Connect_X; /*! The connect operation params */
   BOF_SOCKET_READ_PARAM Read_X;       /*! The read operation params */
@@ -237,7 +223,6 @@ public:
   virtual ~BofSocketThread();
 
   BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_EXIT_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
-  BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_CANCEL_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
   BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_LISTEN_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
   BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_CONNECT_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
   BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_READ_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
@@ -247,6 +232,9 @@ public:
   BOFERR GetSocketOperationResult(uint32_t _TimeOut_U32, BOF_SOCKET_OPERATION_RESULT &_rOperationResult_X);
   uint32_t NumberOfOperationPending();
   uint32_t NumberOfResultPending();
+  BOFERR CancelSocketOperation(uint32_t _TimeOut_U32);
+  BOFERR ClearSocketOperation();
+
   BofSocket *GetListeningSocket();
   BofSocket *GetSocket();
   BofSocket *CreateTcpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, uint32_t _NbMaxClient_U32); // 0 for normal socket !=0 for listening one _Listen_B)
@@ -260,7 +248,8 @@ private:
   uint32_t mTicket_U32 = 1;
   std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_PARAM>> mpuSocketOperationParamCollection = nullptr;   /*! The operation params */
   std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_RESULT>> mpuSocketOperationResultCollection = nullptr; /*! The operation result */
-
+  std::atomic<bool> mCancel_B = false;
+  BOF_EVENT mCancelEvent_X;
 };
 
 END_BOF_NAMESPACE()

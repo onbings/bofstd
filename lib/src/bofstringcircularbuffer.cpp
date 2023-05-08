@@ -318,7 +318,7 @@ BOFERR BofStringCircularBuffer::PopString(uint32_t *_pNbMax_U32, char *_pData_c,
   if ((_pNbMax_U32) && (_pData_c))
   {
   RetryPop:
-    Rts_E = ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
+    Rts_E = ((mStringCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32) && (mNbElementInBuffer_U32 == 0)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       BOF_STRING_CIRCULAR_BUFFER_LOCK(Rts_E);
