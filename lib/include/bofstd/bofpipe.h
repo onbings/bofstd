@@ -65,15 +65,6 @@ struct BOF_PIPE_PARAM
 
 class BOFSTD_EXPORT BofPipe : public BofComChannel
 {
-private:
-  BOF_PIPE_PARAM mPipeParam_X;
-  std::unique_ptr<BofSocket> mpuUdpPipeMst = nullptr;
-  std::unique_ptr<BofSocket> mpuUdpPipeSlv = nullptr;
-#if defined(_WIN32)
-#else
-  int mPipe_i = -1;
-#endif
-
 public:
   BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X);
   ~BofPipe();
@@ -92,11 +83,14 @@ public:
   BofPipe(const BofPipe &) = delete;
 
 private:
+  BOF_PIPE_PARAM mPipeParam_X;
+  std::unique_ptr<BofSocket> mpuUdpPipeMst = nullptr;
+  std::unique_ptr<BofSocket> mpuUdpPipeSlv = nullptr;
+  bool mFullDuplexUseMaster_B = true;   //to be able to read and write from both side
 #if defined(_WIN32)
   HANDLE mPipe_h = 0;
 #else
   int mPipe_i = -1;
 #endif
-  bool mFullDuplexUseMaster_B = true;   //to be able to read and write from both side
 };
 END_BOF_NAMESPACE()

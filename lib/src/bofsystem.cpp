@@ -1662,7 +1662,7 @@ BOFERR Bof_SetCurrentThreadPriorityLevel(BOF_THREAD_SCHEDULER_POLICY _Policy_E, 
   if (Status_i == 0)
   {
     Status_i = pthread_getschedparam(Thread_h, &Policy_i, &Params_X);
-    if ((Policy_i == _Policy_E) && (Params_X.sched_priority == _Priority_i))
+    if ((Policy_i == _Policy_E) && (Params_X.sched_priority == Priority_i))
     {
       Rts_E = BOF_ERR_NO_ERROR;
     }
