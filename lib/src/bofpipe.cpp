@@ -145,24 +145,28 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
         mErrorCode_E = BOF_ERR_NO_ERROR;
       }
 #else
-      int Status_i, Flag_i;
+      int Status_i, OpenFlag_i, CreateFlag_i;
       mErrorCode_E = BOF_ERR_CREATE;
       switch (mPipeParam_X.PipeAccess_E)
       {
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ:
-          Flag_i = O_RDONLY;
+          OpenFlag_i = O_RDONLY;
+          CreateFlag_i = S_IRUSR;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE:
-          Flag_i = O_WRONLY;
+          OpenFlag_i = O_WRONLY;
+          CreateFlag_i = S_IWUSR;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE:
-          Flag_i = O_RDWR;
+          OpenFlag_i = O_RDWR;
+          CreateFlag_i = S_IRWXU;
           break;
 
         default:
-          Flag_i = 0;
+          OpenFlag_i = 0;
+          CreateFlag_i = 0;
           break;
       }
       mPipe_i = -1;
@@ -171,7 +175,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
         // Under linux a named event does not exist
         // Consequently, we're going to use a named
         // pipe instead
-        Status_i = mkfifo(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_IRWXU);
+        Status_i = mkfifo(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
         if ((Status_i == 0) || (Bof_GetLastError(false) == BOF_ERR_EEXIST))
         {
           // From man fifo(7)
@@ -181,12 +185,12 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
           // This can be used to open a FIFO for writing while there are no readers
           // available. A process that uses both ends of the connection in order to
           // communicate with itself should be very careful to avoid deadlocks.
-          mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), Flag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+          mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
         }
       }
       else
       {
-        mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), Flag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+        mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
       }
       if (mPipe_i >= 0)
       {
