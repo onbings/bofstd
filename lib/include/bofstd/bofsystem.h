@@ -547,10 +547,10 @@ enum BOF_THREAD_SCHEDULER_POLICY
 };
 enum BOF_THREAD_PRIORITY
 {
-  BOF_THREAD_PRIORITY_IDLE = 1,
-  BOF_THREAD_PRIORITY_TIME_CRITICAL = 99,
-  BOF_THREAD_DEFAULT_PRIORITY = 0x7FFFFFFF,
-  BOF_THREAD_NONE = 0x7FFFFFFE,
+//  BOF_THREAD_PRIORITY_IDLE = 1,
+//  BOF_THREAD_PRIORITY_TIME_CRITICAL = 99,
+//  BOF_THREAD_DEFAULT_PRIORITY = 0x7FFFFFFF,
+//  BOF_THREAD_NONE = 0x7FFFFFFE,
 
   BOF_THREAD_PRIORITY_000 = 0,
   BOF_THREAD_PRIORITY_001,
@@ -692,7 +692,7 @@ struct BOF_THREAD
     StackSize_U32 = 0;
     ThreadCpuCoreAffinity_U32 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
     ThreadFunction = nullptr;
     pUserContext = nullptr;
 
@@ -793,6 +793,7 @@ BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THRE
 BOFSTD_EXPORT BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E);
 BOFSTD_EXPORT BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, void **_ppRetCode);
 BOFSTD_EXPORT uint32_t Bof_CurrentThreadId();
+BOFSTD_EXPORT BOFERR Bof_SetCurrentThreadPriorityLevel(BOF_THREAD_SCHEDULER_POLICY _Policy_E, BOF_THREAD_PRIORITY _Priority_E);
 BOFSTD_EXPORT BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFunction, void *_pUserContext, BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT bool Bof_IsThreadValid(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);

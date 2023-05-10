@@ -153,21 +153,25 @@ BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _S
   if ((!Bof_IsEventSignaled(mThreadEnterEvent_X, 0)) && (!Bof_IsEventSignaled(mThreadExitEvent_X, 0)))
   {
     Rts_E = BOF_ERR_NO_ERROR;
+    /*
     if ((_ThreadSchedulerPolicy_E == BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER) && (_ThreadPriority_E != BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000) && (_ThreadPriority_E != BOF_THREAD_DEFAULT_PRIORITY))
     {
       Rts_E = BOF_ERR_EINVAL;
     }
     if (Rts_E == BOF_ERR_NO_ERROR)
+    */
     {
       mWakeUpIntervalInMs_U32 = _WakeUpIntervalInMs_U32;
       mCpuCoreAffinityMask_U64 = _ThreadCpuCoreAffinityMask_U64;
       mPolicy_E = _ThreadSchedulerPolicy_E;
       mPriority_E = _ThreadPriority_E;
       mStartStopTimeoutInMs_U32 = _StartStopTimeoutInMs_U32;
+      /*
       if (mPriority_E == BOF_THREAD_DEFAULT_PRIORITY)
       {
         mPriority_E = (Bof_GetThreadPriorityRange(mPolicy_E, Min_E, Max_E) == BOF_ERR_NO_ERROR) ? (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2) : (BOF_THREAD_PRIORITY)(0);
       }
+      */
       mThread = std::thread(&BofThread::BofThread_Thread, this);
       mThreadHandle = mThread.native_handle(); // Its value disappear after a join or a detach http://www.bo-yang.net/2017/11/19/cpp-kill-detached-thread
 

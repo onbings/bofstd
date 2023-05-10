@@ -153,7 +153,7 @@ void SocketTcp_Test::SetUp()
 
   Sts_E = Bof_CreateThread("ServerThread", S_TcpServerThread, &mServerThreadContext_X, mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_DEFAULT_PRIORITY, 1000);
+  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 

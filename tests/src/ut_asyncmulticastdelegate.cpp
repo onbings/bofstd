@@ -3015,7 +3015,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
 {
   BofMsgThread testThread;
 
-  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY, 0);
+  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050, 0);
 
   // Run unit tests repeatedly to expose problems (e.g. deadlocks, memory leaks) a
   // with async delegates.
@@ -3042,7 +3042,7 @@ TEST(Async_Test, MulticastDelegatePerf)
   struct StructParam structParam;
   uint32_t StartInMs_U32, i_U32;
 
-  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY, 0);
+  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050, 0);
 
   MulticastDelegateSafe1<const StructParam *> MemberFuncStructConstPtr1MulticastDelegate;
   MemberFuncStructConstPtr1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
@@ -3097,14 +3097,14 @@ TEST(Async_Test, AsyncNotifier)
   uint32_t StartInMs_U32, i_U32;
   NOTIFY_ARG MulticastNotifyArg_X;
   MulticastAsyncNotifierParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  MulticastAsyncNotifierParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY;
+  MulticastAsyncNotifierParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050;
   MulticastAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   //  MulticastAsyncNotifierParam_X.MaxPendingRequest_U32     = 100;
 
   //  std::cout << std::is_pointer<StructParam>::value << '\n';
   /*
     BofMsgThread       testThread;
-    testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_DEFAULT_PRIORITY);
+    testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050);
     StructParam structParam;
     MulticastDelegateSafe1<StructParam &> FreeFuncStructRef1MulticastDelegate;
     FreeFuncStructRef1MulticastDelegate += MakeDelegate(&FreeFuncStructRef1, &testThread);

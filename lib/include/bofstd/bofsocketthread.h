@@ -53,7 +53,7 @@ struct BOF_SOCKET_THREAD_PARAM
     Name_S = "";
     NbMaxOperationPending_U32 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
-    ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_NONE;
+    ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050;
     pListeningSocket_O = nullptr;
     pSocket_O = nullptr;
   }

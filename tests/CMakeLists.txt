@@ -116,8 +116,6 @@ set(SOCKIO_FILES
 )
 
 set(SYSTEM_FILES
-        src/ut_process.cpp
-        src/ut_system.cpp
         src/ut_string.cpp
         src/ut_timecode.cpp
         src/ut_guid.cpp
@@ -126,6 +124,8 @@ set(SYSTEM_FILES
 
 set(THREADING_FILES
 	src/ut_threading.cpp
+    src/ut_process.cpp
+    src/ut_system.cpp
 )
 
 

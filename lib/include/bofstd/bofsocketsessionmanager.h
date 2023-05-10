@@ -57,7 +57,7 @@ struct BOF_SOCKET_SERVER_PARAM
     Name_S = "";
     ThreadCpuCoreAffinityMask_U64 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
     Address_S = "";
     NbMaxSession_U32 = 1;
     MinPortValue_U16 = 50000;

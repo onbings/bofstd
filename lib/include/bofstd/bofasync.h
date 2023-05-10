@@ -42,7 +42,7 @@ struct BOF_COMMAND_QUEUE_PARAM
   {
     ThreadCpuCoreAffinityMask_U64 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
     MaxPendingRequest_U32 = 0;
     PollTimeoutInMs_U32 = 0;
   }
@@ -102,7 +102,7 @@ struct BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
   {
     ThreadCpuCoreAffinityMask_U64 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
     // MaxPendingRequest_U32 = 0;
   }
 };

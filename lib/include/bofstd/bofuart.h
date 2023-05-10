@@ -107,7 +107,7 @@ struct BOF_UART_PARAM
     SynchronousWrite_B = false;
     ThreadCpuCoreAffinity_U64 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   }
 };
 

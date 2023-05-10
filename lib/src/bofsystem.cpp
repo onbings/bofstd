@@ -1060,7 +1060,7 @@ BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_P
 int32_t Bof_PriorityValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E)
 {
   int32_t Rts_S32 = -0x7FFFFFFF;
-
+  /*
   if (_Priority_E == BOF_THREAD_PRIORITY_IDLE)
   {
     Rts_S32 = 1;
@@ -1077,7 +1077,9 @@ int32_t Bof_PriorityValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E)
   {
     Rts_S32 = 0x7FFFFFFE;
   }
-  else if ((_Priority_E >= BOF_THREAD_PRIORITY_000) && (_Priority_E <= BOF_THREAD_PRIORITY_099))
+  else 
+*/  
+  if ((_Priority_E >= BOF_THREAD_PRIORITY_000) && (_Priority_E <= BOF_THREAD_PRIORITY_099))
   {
 #if defined(_WIN32)
     switch (_Priority_E)
@@ -1491,6 +1493,7 @@ BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_
 
   if (_rThread_X.Magic_U32 == BOF_THREAD_MAGIC)
   {
+    /*
     if (_ThreadPriority_E == BOF_THREAD_DEFAULT_PRIORITY)
     {
       Rts_E = Bof_GetThreadPriorityRange(_ThreadSchedulerPolicy_E, Min_E, Max_E);
@@ -1502,6 +1505,7 @@ BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_
     }
 
     if (Rts_E == BOF_ERR_NO_ERROR)
+    */
     {
       _rThread_X.StackSize_U32 = _StackSize_U32;
       _rThread_X.ThreadCpuCoreAffinity_U32 = _ThreadCpuCoreAffinity_U32;
@@ -1642,6 +1646,41 @@ uint32_t Bof_CurrentThreadId()
 #endif
   return Rts_U32;
 }
+
+BOFERR Bof_SetCurrentThreadPriorityLevel(BOF_THREAD_SCHEDULER_POLICY _Policy_E, BOF_THREAD_PRIORITY _Priority_E)
+{
+  BOFERR Rts_E = BOF_ERR_PRIORITY;
+  int32_t Priority_i = Bof_PriorityValueFromThreadPriority(_Priority_E);
+#if defined(__linux__)
+  int Status_i = 0;
+  int Policy_i = 0;
+  pthread_t Thread_h = pthread_self();
+  struct sched_param Params_X;
+
+  Params_X.sched_priority = Priority_i;
+  Status_i = pthread_setschedparam(Thread_h, _Policy_E, &Params_X);
+  if (Status_i == 0)
+  {
+    Status_i = pthread_getschedparam(Thread_h, &Policy_i, &Params_X);
+    if ((Policy_i == _Policy_E) && (Params_X.sched_priority == _Priority_i))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+  }
+#else
+  //if (SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS)); // Get the current process and set it to "Realtime" priority class.
+  HANDLE Thread_h = GetCurrentThread(); 
+  if (BOF_IS_HANDLE_VALID(Thread_h))
+  {
+    if (SetThreadPriority(Thread_h, Priority_i)) //THREAD_PRIORITY_LOWEST))// Priority_i))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+  }
+#endif
+  return Rts_E;
+}
+
 uint32_t Bof_InterlockedCompareExchange(volatile uint32_t *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32)
 {
   uint32_t Rts_U32;

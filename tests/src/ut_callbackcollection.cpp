@@ -52,16 +52,16 @@ BOFERR MyCallback2(const MY_CALLBACK_ARG &_rArg_X)
 }
 void MyCallback3(const MY_CALLBACK_ARG &_rArg_X)
 {
-  //printf("MyCallback3 %d: a %d b %f c %s\n", ++CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
+  //printf("MyCallback3 %d: a %d b %f c %s\n", ++S_CallbackCounter_i, _rArg_X.a, _rArg_X.b, _rArg_X.c.c_str());
 }
 int MyCallback4(int _a_i)
 {
-  //printf("MyCallback4 %d: other a=%d\n", ++CallbackCounter_i, _a_i);
+  //printf("MyCallback4 %d: other a=%d\n", ++S_CallbackCounter_i, _a_i);
   return _a_i * 2;
 }
 void MyCallback5(int _a_i)
 {
-  //printf("MyCallback5 %d: other a=%d\n", ++CallbackCounter_i, _a_i);
+  //printf("MyCallback5 %d: other a=%d\n", ++S_CallbackCounter_i, _a_i);
 }
 
 TEST(CallbackCollection_Test, Void)

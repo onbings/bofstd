@@ -208,12 +208,8 @@ set(SOCKIO_FILES
 )
 
 set(SYSTEM_FILES
-	include/bofstd/bofsystem.h
-	src/bofsystem.cpp
 	include/bofstd/bofstring.h
 	src/bofstring.cpp
-	include/bofstd/bofprocess.h
-	src/bofprocess.cpp
 	include/bofstd/bofperformance.h
 	src/bofperformance.cpp  
 	include/bofstd/bofstatistics.h
@@ -234,6 +230,11 @@ set(SYSTEM_FILES
 set(THREADING_FILES
 	include/bofstd/bofthread.h
 	src/bofthread.cpp
+	include/bofstd/bofsystem.h
+	src/bofsystem.cpp
+	include/bofstd/bofprocess.h
+	src/bofprocess.cpp
+
 )
 
 set(SOURCES_FILES

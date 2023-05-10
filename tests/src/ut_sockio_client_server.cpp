@@ -510,7 +510,7 @@ TEST(SockIo_Client_Server_Test, CreateAndDestroyBofSocketServer)
   BofSocketServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketServerParam_X.Name_S = "NoIoCloseTimeoutInMs";
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   
   BofSocketServerParam_X.Address_S = Bof_Sprintf("tcp://0.0.0.0:%d", DEFAULT_PORT);
@@ -567,7 +567,7 @@ TEST(SockIo_Client_Server_Test, SendPollSocketCommand)
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
   BofSocketClientServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   ;
   BofSocketClientServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   ;
@@ -620,7 +620,7 @@ TEST(SockIo_Client_Server_Test, OpenCloseCmdSession)
   BofSocketServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketServerParam_X.Name_S = "MyTcpServer";
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   ;
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   ;
@@ -643,7 +643,7 @@ TEST(SockIo_Client_Server_Test, OpenCloseCmdSession)
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
   BofSocketClientServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   ;
   BofSocketClientServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   ;
@@ -736,7 +736,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   BofSocketServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketServerParam_X.Name_S = "MyTcpServer";
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   ;
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   ;
@@ -759,7 +759,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
   BofSocketClientServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   ;
   BofSocketClientServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   ;
@@ -922,7 +922,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_ServerOpenCloseCmdDataSession)
   BofSocketServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketServerParam_X.Name_S = "MyTcpServer";
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;
   ;
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   ;
@@ -977,7 +977,7 @@ TEST(SockIo_Client_Server_Test, ClientOpenCloseCmdDataSession)
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
   BofSocketClientServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;;
+  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;;
   BofSocketClientServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;;
   BofSocketClientServerParam_X.Address_S = Bof_Sprintf("tcp://0.0.0.0:%d", 0);		//:0->Do not create listen socket
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_CLIENT;
@@ -1086,7 +1086,7 @@ TEST(SockIo_Client_Server_Test, ClientForH4X)
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "MyTcpClientServer";
   BofSocketClientServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;;
+  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;;
   BofSocketClientServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;;
   BofSocketClientServerParam_X.Address_S = Bof_Sprintf("tcp://0.0.0.0:%d", 0);		//:0->Do not create listen socket
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_H4X_CLIENT;
@@ -1190,7 +1190,7 @@ TEST(SockIo_Client_Server_Test, UcodeServer)
   BofSocketServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketServerParam_X.Name_S = BOF::Bof_Sprintf("UcodeProxyServer");
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketServerParam_X.ThreadPriority_E = BOF::BOF_THREAD_DEFAULT_PRIORITY;
+  BofSocketServerParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY_050;
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;;
   BofSocketServerParam_X.Address_S = BOF::Bof_Sprintf("tcp://%s:%d", "127.0.0.1", 60000);
   BofSocketServerParam_X.Address_S = BOF::Bof_Sprintf("tcp://%s:%d", "10.129.170.200", 60000);	//On ubuntu vm
@@ -1241,7 +1241,7 @@ TEST(SockIo_Client_Server_Test, ClientForUcode)
   BofSocketClientServerParam_X.ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
   BofSocketClientServerParam_X.Name_S = "ClientForUcode";
   BofSocketClientServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_DEFAULT_PRIORITY;;
+  BofSocketClientServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_050;;
   BofSocketClientServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;;
   BofSocketClientServerParam_X.Address_S = Bof_Sprintf("tcp://0.0.0.0:%d", 0);		//:0->Do not create listen socket
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_H4X_CLIENT;

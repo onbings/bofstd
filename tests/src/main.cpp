@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   testing::InitGoogleTest(&argc, argv);
   //::testing::GTEST_FLAG(filter) = "BofProcess_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
-  //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
 
   Rts_i = RUN_ALL_TESTS();
 
