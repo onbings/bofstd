@@ -139,7 +139,7 @@ static void *BinaryServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_
 
   return nullptr;
 }
-TEST(Pipe_Test, DISABLED_UdpPipeSingle)
+TEST(Pipe_Test, UdpPipeSingle)
 {
   BOF_PIPE_PARAM PipeParam_X;
   BofPipe *pBofPipeServer, *pBofPipeClient;
@@ -228,7 +228,7 @@ TEST(Pipe_Test, DISABLED_UdpPipeSingle)
   BOF_SAFE_DELETE(pBofPipeClient);
 }
 
-TEST(Pipe_Test, DISABLED_NativePipeSingleString)
+TEST(Pipe_Test, NativePipeSingleString)
 {
   BOF_PIPE_PARAM PipeParam_X;
   BofPipe *pBofPipeServer, *pBofPipeClient;

@@ -72,7 +72,7 @@ std::set<const TestType *> TestType::constructed;
 TEST(Queue_Test, Queue)
 {
   BOFERR Sts_E;
-  BofQueue<uint32_t> Queue(8);
+  BofQueue<uint32_t> Queue(8, true);
   uint32_t i_U32, Size_U32, Val_U32;
   bool Sts_B;
 

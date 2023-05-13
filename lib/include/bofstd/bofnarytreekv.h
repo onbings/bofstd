@@ -35,20 +35,20 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_NARY_TREE_KV_LOCK(Sts)                                                                                                                                                                                                                             \
-  {                                                                                                                                                                                                                                                            \
-    Sts = mNaryTreeKvParam_X.MultiThreadAware_B ? Bof_LockMutex(mTreeMtx_X) : BOF_ERR_NO_ERROR;                                                                                                                                                                \
+#define BOF_NARY_TREE_KV_LOCK(Sts)                                                                    \
+  {                                                                                                   \
+    Sts = mNaryTreeKvParam_X.MultiThreadAware_B ? Bof_LockMutex(mNaryTreeKvMtx_X) : BOF_ERR_NO_ERROR; \
   }
-#define BOF_NARY_TREE_KV_UNLOCK()                                                                                                                                                                                                                              \
-  {                                                                                                                                                                                                                                                            \
-    if (mNaryTreeKvParam_X.MultiThreadAware_B)                                                                                                                                                                                                                 \
-      Bof_UnlockMutex(mTreeMtx_X);                                                                                                                                                                                                                             \
+#define BOF_NARY_TREE_KV_UNLOCK()              \
+  {                                            \
+    if (mNaryTreeKvParam_X.MultiThreadAware_B) \
+      Bof_UnlockMutex(mNaryTreeKvMtx_X);       \
   }
 constexpr uint32_t BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER = 0xBA1CD158;
 
 struct BOF_NARY_TREE_KV_PARAM
 {
-  bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mTreeMtx_X)*/
+  bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mNaryTreeKvMtx_X)*/
 
   BOF_NARY_TREE_KV_PARAM()
   {
@@ -72,7 +72,8 @@ struct BOF_NARY_TREE_KV_PARAM
  * None
  */
 
-template <typename KeyType, typename DataType> class BofNaryTreeKv
+template <typename KeyType, typename DataType>
+class BofNaryTreeKv
 {
 private:
   class Node
@@ -104,7 +105,7 @@ private:
 
 private:
   BOF_NARY_TREE_KV_PARAM mNaryTreeKvParam_X;
-  BOF_MUTEX mTreeMtx_X; /*! Provide a serialized access to shared resources in a multi threaded environment*/
+  BOF_MUTEX mNaryTreeKvMtx_X; /*! Provide a serialized access to shared resources in a multi threaded environment*/
   BOFERR mErrorCode_E;
   Node *mpRoot = nullptr; // the root node of the tree
   uint32_t mMaxDepth_U32 = 0;
@@ -124,8 +125,8 @@ public:
   {
     return mErrorCode_E;
   }
-  BOFERR LockTree();
-  BOFERR UnlockTree();
+  BOFERR LockNaryTreeKv();
+  BOFERR UnlockNaryTreeKv();
 
   BOFERR ClearTree(const BofNaryTreeKvNodeHandle _NodeHandle);
   BOFERR SetRoot(const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pRootHandle);
@@ -145,13 +146,16 @@ private:
 
 //--- BofNaryTreeKv<KeyType, DataType>::Node Class --------------------------------------------------------------------
 
-template <typename KeyType, typename DataType> BofNaryTreeKv<KeyType, DataType>::Node::Node(const KeyType &_rKey, const DataType &_rData) : mKey(_rKey), mValue(_rData), mpParent(nullptr)
+template <typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::Node::Node(const KeyType &_rKey, const DataType &_rData)
+    : mKey(_rKey), mValue(_rData), mpParent(nullptr)
 {
   mChildCollection.clear();
   //  std::cout << "Create " << this << " Key '" << this->Key() << "' Value " << this->Value() << std::endl;
 }
 
-template <typename KeyType, typename DataType> BofNaryTreeKv<KeyType, DataType>::Node::~Node()
+template <typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::Node::~Node()
 {
   BofNaryTreeKv<KeyType, DataType>::Node *pNode;
 
@@ -159,22 +163,26 @@ template <typename KeyType, typename DataType> BofNaryTreeKv<KeyType, DataType>:
   mMagicNumber_U32 = ~BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER; // invalid the usage of external user handle
 }
 
-template <typename KeyType, typename DataType> uint32_t BofNaryTreeKv<KeyType, DataType>::Node::MagicNumber() const
+template <typename KeyType, typename DataType>
+uint32_t BofNaryTreeKv<KeyType, DataType>::Node::MagicNumber() const
 {
   return mMagicNumber_U32;
 }
 
-template <typename KeyType, typename DataType> const KeyType &BofNaryTreeKv<KeyType, DataType>::Node::Key() const
+template <typename KeyType, typename DataType>
+const KeyType &BofNaryTreeKv<KeyType, DataType>::Node::Key() const
 {
   return mKey;
 }
 
-template <typename KeyType, typename DataType> const DataType &BofNaryTreeKv<KeyType, DataType>::Node::Value() const
+template <typename KeyType, typename DataType>
+const DataType &BofNaryTreeKv<KeyType, DataType>::Node::Value() const
 {
   return mValue;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::Node::SetKey(const KeyType &_rKey)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Node::SetKey(const KeyType &_rKey)
 {
   BOFERR Rts_E = BOF_ERR_DUPLICATE;
   Node *pFather = mpParent ? mpParent : this;
@@ -188,23 +196,27 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::Node::SetValue(const DataType &_rValue)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Node::SetValue(const DataType &_rValue)
 {
   mValue = _rValue;
   return BOF_ERR_NO_ERROR;
 }
 
-template <typename KeyType, typename DataType> typename std::list<typename BofNaryTreeKv<KeyType, DataType>::Node *> &BofNaryTreeKv<KeyType, DataType>::Node::ChildCollection()
+template <typename KeyType, typename DataType>
+typename std::list<typename BofNaryTreeKv<KeyType, DataType>::Node *> &BofNaryTreeKv<KeyType, DataType>::Node::ChildCollection()
 {
   return mChildCollection;
 }
 
-template <typename KeyType, typename DataType> uint32_t BofNaryTreeKv<KeyType, DataType>::Node::NumberOfChild() const
+template <typename KeyType, typename DataType>
+uint32_t BofNaryTreeKv<KeyType, DataType>::Node::NumberOfChild() const
 {
   return mChildCollection.size();
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::Node::AddChild(Node *_pNode)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Node::AddChild(Node *_pNode)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -233,7 +245,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> typename BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::PopLastChild()
+template <typename KeyType, typename DataType>
+typename BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::PopLastChild()
 {
   BofNaryTreeKv<KeyType, DataType>::Node *pRts = nullptr;
 
@@ -245,7 +258,8 @@ template <typename KeyType, typename DataType> typename BofNaryTreeKv<KeyType, D
   return pRts;
 }
 
-template <typename KeyType, typename DataType> bool BofNaryTreeKv<KeyType, DataType>::Node::PopAndDeleteChild(Node *_pNode)
+template <typename KeyType, typename DataType>
+bool BofNaryTreeKv<KeyType, DataType>::Node::PopAndDeleteChild(Node *_pNode)
 {
   bool Rts_B = false;
 
@@ -260,56 +274,63 @@ template <typename KeyType, typename DataType> bool BofNaryTreeKv<KeyType, DataT
   }
   return Rts_B;
 }
-template <typename KeyType, typename DataType> typename BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::Parent()
+template <typename KeyType, typename DataType>
+typename BofNaryTreeKv<KeyType, DataType>::Node *BofNaryTreeKv<KeyType, DataType>::Node::Parent()
 {
   return mpParent;
 }
 
-template <typename KeyType, typename DataType> void BofNaryTreeKv<KeyType, DataType>::Node::SetParent(BofNaryTreeKv<KeyType, DataType>::Node *_pNode)
+template <typename KeyType, typename DataType>
+void BofNaryTreeKv<KeyType, DataType>::Node::SetParent(BofNaryTreeKv<KeyType, DataType>::Node *_pNode)
 {
   mpParent = _pNode;
 }
 
 //--- BofNaryTreeKv<KeyType, DataType>: class --------------------------------------------------------------------
-template <typename KeyType, typename DataType> BofNaryTreeKv<KeyType, DataType>::BofNaryTreeKv(const BOF_NARY_TREE_KV_PARAM &_rNaryTreeKvParam_X)
+template <typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::BofNaryTreeKv(const BOF_NARY_TREE_KV_PARAM &_rNaryTreeKvParam_X)
 {
   mNaryTreeKvParam_X = _rNaryTreeKvParam_X;
   mpRoot = nullptr;
-  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", false, false, mTreeMtx_X) : BOF_ERR_NO_ERROR;
+  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", false, false, mNaryTreeKvMtx_X) : BOF_ERR_NO_ERROR;
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
   }
 }
 
-template <typename KeyType, typename DataType> BofNaryTreeKv<KeyType, DataType>::~BofNaryTreeKv()
+template <typename KeyType, typename DataType>
+BofNaryTreeKv<KeyType, DataType>::~BofNaryTreeKv()
 {
   ClearTree(mpRoot);
-  Bof_DestroyMutex(mTreeMtx_X);
+  Bof_DestroyMutex(mNaryTreeKvMtx_X);
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::LockTree()
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::LockNaryTreeKv()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mNaryTreeKvParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_LockMutex(mTreeMtx_X);
+    Rts_E = Bof_LockMutex(mNaryTreeKvMtx_X);
   }
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::UnlockTree()
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::UnlockNaryTreeKv()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mNaryTreeKvParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_UnlockMutex(mTreeMtx_X);
+    Rts_E = Bof_UnlockMutex(mNaryTreeKvMtx_X);
   }
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::SetRoot(const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pRootHandle)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::SetRoot(const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pRootHandle)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -336,7 +357,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::AddChild(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pChildHandle)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::AddChild(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, const DataType &_rData, BofNaryTreeKvNodeHandle *_pChildHandle)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   Node *pNode, *pParent;
@@ -364,7 +386,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::Key(BofNaryTreeKvNodeHandle _NodeHandle, KeyType &_rKey)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Key(BofNaryTreeKvNodeHandle _NodeHandle, KeyType &_rKey)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   Node *pNode;
@@ -382,7 +405,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::Value(BofNaryTreeKvNodeHandle _NodeHandle, DataType &_rValue)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Value(BofNaryTreeKvNodeHandle _NodeHandle, DataType &_rValue)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   Node *pNode;
@@ -400,7 +424,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::SetKey(BofNaryTreeKvNodeHandle _NodeHandle, const KeyType &_rKey)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::SetKey(BofNaryTreeKvNodeHandle _NodeHandle, const KeyType &_rKey)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   Node *pNode;
@@ -418,7 +443,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::SetValue(BofNaryTreeKvNodeHandle _NodeHandle, const DataType &_rValue)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::SetValue(BofNaryTreeKvNodeHandle _NodeHandle, const DataType &_rValue)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   Node *pNode;
@@ -436,7 +462,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::Search(const BofNaryTreeKvNodeHandle _ParentHandle, const std::vector<KeyType> &_rKeyCollection, BofNaryTreeKvNodeHandle *_pNodeHandle)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::Search(const BofNaryTreeKvNodeHandle _ParentHandle, const std::vector<KeyType> &_rKeyCollection, BofNaryTreeKvNodeHandle *_pNodeHandle)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   Node *pParent;
@@ -476,7 +503,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> bool BofNaryTreeKv<KeyType, DataType>::IsNodeValid(const BofNaryTreeKvNodeHandle _NodeHandle) const
+template <typename KeyType, typename DataType>
+bool BofNaryTreeKv<KeyType, DataType>::IsNodeValid(const BofNaryTreeKvNodeHandle _NodeHandle) const
 {
   bool Rts_B = false;
   const Node *pNode = reinterpret_cast<Node *>(_NodeHandle);
@@ -487,7 +515,8 @@ template <typename KeyType, typename DataType> bool BofNaryTreeKv<KeyType, DataT
   return Rts_B;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::GetNodeHandle(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, BofNaryTreeKvNodeHandle *_pNodeHandle)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::GetNodeHandle(const BofNaryTreeKvNodeHandle _ParentHandle, const KeyType &_rKey, BofNaryTreeKvNodeHandle *_pNodeHandle)
 {
   BOFERR Rts_E = BOF_ERR_DONT_EXIST;
   Node *pParent;
@@ -515,7 +544,8 @@ template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, Dat
   return Rts_E;
 }
 
-template <typename KeyType, typename DataType> BOFERR BofNaryTreeKv<KeyType, DataType>::ClearTree(const BofNaryTreeKvNodeHandle _NodeHandle)
+template <typename KeyType, typename DataType>
+BOFERR BofNaryTreeKv<KeyType, DataType>::ClearTree(const BofNaryTreeKvNodeHandle _NodeHandle)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   const Node *pStartNode = reinterpret_cast<const Node *>(_NodeHandle);
@@ -691,7 +721,8 @@ void BofNaryTreeKv<KeyType, DataType>::BrowseTree(bool _ShowExtraInfo_B, const B
   }
 }
 
-template <typename KeyType, typename DataType> std::string BofNaryTreeKv<KeyType, DataType>::ToString(bool _ShowExtraInfo_B, const BofNaryTreeKvNodeHandle _NodeHandle)
+template <typename KeyType, typename DataType>
+std::string BofNaryTreeKv<KeyType, DataType>::ToString(bool _ShowExtraInfo_B, const BofNaryTreeKvNodeHandle _NodeHandle)
 {
   // return "hh";
 

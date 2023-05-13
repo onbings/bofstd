@@ -784,6 +784,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   {
     EXPECT_EQ(puBofSocketClientServer->Connect(NO_IO_CLOSE_TIMEOUT_IN_MS, Bof_Sprintf("tcp://127.0.0.1:%d", 0), Bof_Sprintf("tcp://127.0.0.1:%d", DEFAULT_PORT), psCmdBofSocketIo[i_U32]), BOF_ERR_NO_ERROR);
     ASSERT_TRUE(psCmdBofSocketIo[i_U32] != nullptr);
+    //_DISABLED as we got a t/o here...
     EXPECT_EQ(psCmdBofSocketIo[i_U32]->WaitForCommandReply(NO_IO_CLOSE_TIMEOUT_IN_MS, 220, ReplyCode_U32, Reply_S), BOF_ERR_NO_ERROR);
 
     EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(1 + i_U32, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + ((i_U32 + 1) * 2)));
@@ -909,7 +910,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   //	BOF_DBG_PRINTF("===LeaveFct======================================================================================\n");
 }
 
-TEST(SockIo_Client_Server_Test, DISABLED_ServerOpenCloseCmdDataSession)
+TEST(SockIo_Client_Server_Test, ServerOpenCloseCmdDataSession)
 {
   std::unique_ptr<MyTcpServer> puBofSocketServer;
   BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;

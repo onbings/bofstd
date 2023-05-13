@@ -94,9 +94,9 @@ private:
   uint32_t mPushIndex_U32;  /*! Current position of the write index inside the queue*/
   uint32_t mPopIndex_U32;   /*! Current position of the read index inside the queue*/
   // uint32_t                      mBufferCapacity_U32;                       /*! The maximum number of element inside the queue*/
-  uint32_t mNbElementInBuffer_U32; /*! Current number of element inside the queue*/
-  uint32_t mLevelMax_U32;          /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
-  BOF_MUTEX mRawCbMtx_X;           /*! Provide a serialized access to shared resources in a multi threaded environment*/
+  uint32_t mNbElementInBuffer_U32;   /*! Current number of element inside the queue*/
+  uint32_t mLevelMax_U32;            /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
+  BOF_MUTEX mRawCircularBufferMtx_X; /*! Provide a serialized access to shared resources in a multi threaded environment*/
   BOFERR mErrorCode_E;
 
 public:
@@ -106,36 +106,15 @@ public:
   BofRawCircularBuffer &operator=(const BofRawCircularBuffer &) = delete; // Disallow copying
   BofRawCircularBuffer(const BofRawCircularBuffer &) = delete;
 
-  BOFERR LastErrorCode()
-  {
-    return mErrorCode_E;
-  }
-  BOFERR LockRawQueue();
-  BOFERR UnlockRawQueue();
-  bool IsEmpty()
-  {
-    return mNbElementInBuffer_U32 == 0;
-  }
-  bool IsFull()
-  {
-    return GetNbFreeElement() == 0;
-  }
-  uint32_t GetSlotSize()
-  {
-    return mSlotSize_U32;
-  }
-  uint32_t GetNbElement()
-  {
-    return mSlotSize_U32 ? mNbSlot_U32 : mNbElementInBuffer_U32;
-  }
-  uint32_t GetCapacity()
-  {
-    return mSlotSize_U32 ? mRawCircularBufferParam_X.NbMaxSlot_U32 : mRawCircularBufferParam_X.BufferSizeInByte_U32;
-  }
-  uint32_t GetMaxLevel()
-  {
-    return mLevelMax_U32;
-  }
+  BOFERR LastErrorCode();
+  BOFERR LockRawCircularBuffer();
+  BOFERR UnlockRawCircularBuffer();
+  bool IsEmpty();
+  bool IsFull();
+  uint32_t GetSlotSize();
+  uint32_t GetNbElement();
+  uint32_t GetCapacity();
+  uint32_t GetMaxLevel();
   void Reset();
   uint32_t GetNbFreeElement();
   BOFERR PushBuffer(uint32_t _Nb_U32, const uint8_t *_pData_U8);
@@ -146,10 +125,10 @@ public:
   BOFERR UnlockBuffer(const uint8_t *_pLockedBuffer_U8, uint32_t _Nb_U32);
 
 private:
-  uint32_t ReadNbHeader(uint32_t *_pPopIndex_U32);
-  BOFERR WriteNbHeader(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32);
-  BOFERR ReadPayload(uint32_t *_pPopIndex_U32, uint32_t _Nb_U32, uint8_t *_pData_U8);
-  BOFERR WritePayload(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8);
+  uint32_t ReadNbHeader(uint32_t *_pPopIndex_U32);  //Lock is not taken to avoid recursive mutex
+  BOFERR WriteNbHeader(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32);  //Lock is not taken to avoid recursive mutex
+  BOFERR ReadPayload(uint32_t *_pPopIndex_U32, uint32_t _Nb_U32, uint8_t *_pData_U8); //Lock is not taken to avoid recursive mutex
+  BOFERR WritePayload(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8); //Lock is not taken to avoid recursive mutex
 };
 
 END_BOF_NAMESPACE()

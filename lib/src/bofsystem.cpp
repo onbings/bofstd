@@ -963,20 +963,20 @@ BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPo
   {
     case BOF_THREAD_SCHEDULER_POLICY_OTHER:
     case BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN:
-      _rMin_E = BOF_THREAD_PRIORITY_001;
-      _rMax_E = BOF_THREAD_PRIORITY_084;
+      _rMin_E = BOF_THREAD_PRIORITY_000;
+      _rMax_E = BOF_THREAD_PRIORITY_000;
       Rts_E = BOF_ERR_NO_ERROR;
       break;
 
     case BOF_THREAD_SCHEDULER_POLICY_FIFO:
-      _rMin_E = BOF_THREAD_PRIORITY_085;
+      _rMin_E = BOF_THREAD_PRIORITY_001;
       _rMax_E = BOF_THREAD_PRIORITY_099;
       Rts_E = BOF_ERR_NO_ERROR;
       break;
 
     default:
-      _rMin_E = BOF_THREAD_PRIORITY_001;
-      _rMax_E = BOF_THREAD_PRIORITY_001;
+      _rMin_E = BOF_THREAD_PRIORITY_000;
+      _rMax_E = BOF_THREAD_PRIORITY_000;
       Rts_E = BOF_ERR_EINVAL;
       break;
   }
@@ -1018,7 +1018,17 @@ BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_P
 #if defined(_WIN32)
     void *Process_h = GetCurrentProcess();
 
-    _rPolicy_E = (BOF_THREAD_SCHEDULER_POLICY)GetPriorityClass(Process_h);
+    switch (GetPriorityClass(Process_h))
+    {
+      default:
+      case NORMAL_PRIORITY_CLASS:
+        _rPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+        break;
+
+      case REALTIME_PRIORITY_CLASS:
+        _rPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO;
+        break;
+    }
     _rPriority_E = Bof_ThreadPriorityFromPriorityValue(GetThreadPriority(_rThread_X.pThread));
     Rts_E = BOF_ERR_NO_ERROR;
 #else

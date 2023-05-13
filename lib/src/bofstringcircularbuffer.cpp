@@ -23,14 +23,14 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_STRING_CIRCULAR_BUFFER_LOCK(Sts)                                                                                                                                                                                                                   \
-  {                                                                                                                                                                                                                                                            \
-    Sts = mStringCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mStringCbMtx_X) : BOF_ERR_NO_ERROR;                                                                                                                                                  \
+#define BOF_STRING_CIRCULAR_BUFFER_LOCK(Sts)                                                                              \
+  {                                                                                                                       \
+    Sts = mStringCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mStringCircularBufferMtx_X) : BOF_ERR_NO_ERROR; \
   }
-#define BOF_STRING_CIRCULAR_BUFFER_UNLOCK()                                                                                                                                                                                                                    \
-  {                                                                                                                                                                                                                                                            \
-    if (mStringCircularBufferParam_X.MultiThreadAware_B)                                                                                                                                                                                                       \
-      Bof_UnlockMutex(mStringCbMtx_X);                                                                                                                                                                                                                         \
+#define BOF_STRING_CIRCULAR_BUFFER_UNLOCK()              \
+  {                                                      \
+    if (mStringCircularBufferParam_X.MultiThreadAware_B) \
+      Bof_UnlockMutex(mStringCircularBufferMtx_X);       \
   }
 
 /*!
@@ -79,7 +79,7 @@ BofStringCircularBuffer::BofStringCircularBuffer(const BOF_STRING_CIRCULAR_BUFFE
       mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cbs_canwrite_" + std::to_string(_rStringCircularBufferParam_X.BufferSizeInByte_U32) + "_evt", false, 1, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
-        mErrorCode_E = _rStringCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mStringCbMtx_X) : BOF_ERR_NO_ERROR;
+        mErrorCode_E = _rStringCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mStringCircularBufferMtx_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
           if (mErrorCode_E == BOF_ERR_NO_ERROR)
@@ -132,7 +132,7 @@ BofStringCircularBuffer::BofStringCircularBuffer(const BOF_STRING_CIRCULAR_BUFFE
 
 BofStringCircularBuffer::~BofStringCircularBuffer()
 {
-  Bof_DestroyMutex(mStringCbMtx_X);
+  Bof_DestroyMutex(mStringCircularBufferMtx_X);
 
   if (!mDataPreAllocated_B)
   {
@@ -140,6 +140,46 @@ BofStringCircularBuffer::~BofStringCircularBuffer()
   }
   Bof_DestroyEvent(mCanReadEvent_X);
   Bof_DestroyEvent(mCanWriteEvent_X);
+}
+
+BOFERR BofStringCircularBuffer::LastErrorCode()
+{
+  return mErrorCode_E;
+}
+bool BofStringCircularBuffer::IsEmpty()
+{
+  return mNbCharInBuffer_U32 == 0;
+}
+bool BofStringCircularBuffer::IsFull()
+{
+  return mNbCharInBuffer_U32 == mStringCircularBufferParam_X.BufferSizeInByte_U32;
+}
+uint32_t BofStringCircularBuffer::GetCapacity()
+{
+  return mStringCircularBufferParam_X.BufferSizeInByte_U32;
+}
+uint32_t BofStringCircularBuffer::GetNbElement()
+{
+  return mNbElementInBuffer_U32;
+}
+uint32_t BofStringCircularBuffer::GetNbChar()
+{
+  return mNbCharInBuffer_U32;
+} // Including all the null terminating characters per string pushed
+uint32_t BofStringCircularBuffer::GetNbFreeChar()
+{
+  return mStringCircularBufferParam_X.BufferSizeInByte_U32 - mNbCharInBuffer_U32;
+}
+bool BofStringCircularBuffer::IsBufferOverflow()
+{
+  bool Rts_B = mOverflow_B;
+  mOverflow_B = false;
+  return Rts_B;
+}
+
+uint32_t BofStringCircularBuffer::GetMaxLevel()
+{
+  return mLevelMax_U32;
 }
 
 /*!
@@ -510,23 +550,23 @@ void BofStringCircularBuffer::Reset()
     BOF_STRING_CIRCULAR_BUFFER_UNLOCK();
   }
 }
-BOFERR BofStringCircularBuffer::LockStringQueue()
+BOFERR BofStringCircularBuffer::LockStringCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mStringCircularBufferParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_LockMutex(mStringCbMtx_X);
+    Rts_E = Bof_LockMutex(mStringCircularBufferMtx_X);
   }
   return Rts_E;
 }
-BOFERR BofStringCircularBuffer::UnlockStringQueue()
+BOFERR BofStringCircularBuffer::UnlockStringCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mStringCircularBufferParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_UnlockMutex(mStringCbMtx_X);
+    Rts_E = Bof_UnlockMutex(mStringCircularBufferMtx_X);
   }
   return Rts_E;
 }

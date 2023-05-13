@@ -54,13 +54,15 @@ enum
 
 #ifdef __cplusplus
 BEGIN_BOF_NAMESPACE()
-template <typename Element> class BofList;
+template <typename Element>
+class BofList;
 
 /*!
 Summary
   The class representing a list node
 */
-template <typename Element> class BofListNode
+template <typename Element>
+class BofListNode
 {
   friend class BofList<Element>;
 
@@ -97,7 +99,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element>::BofListNode()
+template <typename Element>
+BofListNode<Element>::BofListNode()
 {
   memset(&Value, 0x00, sizeof(Element));
 
@@ -122,7 +125,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element>::~BofListNode()
+template <typename Element>
+BofListNode<Element>::~BofListNode()
 {
 }
 
@@ -130,7 +134,8 @@ template <typename Element> BofListNode<Element>::~BofListNode()
 Summary
   The class representing the list
 */
-template <typename Element> class BofList
+template <typename Element>
+class BofList
 {
 public:
   BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B = true, class BofList<Element> *_pNodePool_O = nullptr);
@@ -191,9 +196,8 @@ public:
 
   bool CheckConsistency();
 
-  void Lock();
-
-  void Unlock();
+  BOFERR LockList();
+  BOFERR UnlockList();
 
 protected:
   BofListNode<Element> *GetFreeNode(Element *_pElement = nullptr);
@@ -212,7 +216,8 @@ private:
   BofListNode<Element> *mpQueue_O;
   BofListNode<Element> *mpFreeNodesHead_O;
   BofListNode<Element> *mpFreeNodesQueue_O;
-  BOF_MUTEX mMtx_X; // *mpCriticalSection_O;
+  bool mMultiThreadAware_B;
+  BOF_MUTEX mListMtx_X; // *mpCriticalSection_O;
   class BofList<Element> *mpNodePoolMgr_O;
 
   BofProfiler *mpProfiler_O;
@@ -245,19 +250,20 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = true */, class BofList<Element> *_pNodePool_O /* = nullptr */)
+template <typename Element>
+BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = true */, class BofList<Element> *_pNodePool_O /* = nullptr */)
 {
   uint32_t I_U32 = 0;
 
 #if defined(CHECK_LIST_INTEGRITY)
   BOF_ASSERT(_NbMaxElements_U32 > 0);
 #endif
-
+  mMultiThreadAware_B = _ThreadSafe_B;
   // Create a critical section if needed
-  if (_ThreadSafe_B)
+  if (mMultiThreadAware_B)
   {
     // BOFERR Sts_E=
-    Bof_CreateMutex("BofList", false, false, mMtx_X);
+    Bof_CreateMutex("BofList", false, false, mListMtx_X);
   }
 
   // Allocate the memory
@@ -318,14 +324,17 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofList<Element>::~BofList()
+template <typename Element>
+BofList<Element>::~BofList()
 {
   if (mpNodes_O != nullptr)
   {
     BOF_SAFE_DELETE_ARRAY(mpNodes_O);
   }
-  Bof_DestroyMutex(mMtx_X);
-
+  if (mMultiThreadAware_B)
+  {
+    Bof_DestroyMutex(mListMtx_X);
+  }
   if (mpProfiler_O != nullptr)
   {
     BOF_SAFE_DELETE(mpProfiler_O);
@@ -351,10 +360,16 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> void BofList<Element>::Lock()
+template <typename Element>
+BOFERR BofList<Element>::LockList()
 {
-  // BOFERR Sts_E=
-  Bof_LockMutex(mMtx_X);
+  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+
+  if (mMultiThreadAware_B)
+  {
+    Rts_E = Bof_LockMutex(mListMtx_X);
+  }
+  return Rts_E;
 }
 
 /*!
@@ -376,10 +391,16 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> void BofList<Element>::Unlock()
+template <typename Element>
+BOFERR BofList<Element>::UnlockList()
 {
-  // BOFERR Sts_E =
-  Bof_UnlockMutex(mMtx_X);
+  BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+
+  if (mMultiThreadAware_B)
+  {
+    Rts_E = Bof_UnlockMutex(mListMtx_X);
+  }
+  return Rts_E;
 }
 
 /*!
@@ -400,7 +421,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element> *_pExistingNode_O, BofListNode<Element> *_pNewNode_O)
+template <typename Element>
+bool BofList<Element>::AddAfter(BofListNode<Element> *_pExistingNode_O, BofListNode<Element> *_pNewNode_O)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O;
@@ -412,7 +434,7 @@ template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element>
 
   if ((_pExistingNode_O != nullptr) && (_pNewNode_O != nullptr))
   {
-    Lock();
+    LockList();
 
 #if defined(PROFILE_CLIST)
     BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_AFTER);
@@ -452,7 +474,7 @@ template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element>
     BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_AFTER);
 #endif
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -476,7 +498,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element> *_pExistingNode_O, Element *_pElement)
+template <typename Element>
+bool BofList<Element>::AddAfter(BofListNode<Element> *_pExistingNode_O, Element *_pElement)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = nullptr;
@@ -488,7 +511,7 @@ template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element>
 
   if ((_pExistingNode_O != nullptr) && (_pElement != nullptr))
   {
-    Lock();
+    LockList();
 
     pNode_O = GetFreeNode(_pElement);
 
@@ -497,7 +520,7 @@ template <typename Element> bool BofList<Element>::AddAfter(BofListNode<Element>
       Ret_B = AddAfter(_pExistingNode_O, pNode_O);
     }
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -521,7 +544,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element> *_pExistingNode_O, BofListNode<Element> *_pNewNode_O)
+template <typename Element>
+bool BofList<Element>::AddBefore(BofListNode<Element> *_pExistingNode_O, BofListNode<Element> *_pNewNode_O)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = nullptr;
@@ -533,7 +557,7 @@ template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element
 
   if ((_pExistingNode_O != nullptr) && (_pNewNode_O != nullptr))
   {
-    Lock();
+    LockList();
 
 #if defined(PROFILE_CLIST)
     BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_BEFORE);
@@ -577,7 +601,7 @@ template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element
     BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_BEFORE);
 #endif
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -601,7 +625,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element> *_pExistingNode_O, Element *_pElement)
+template <typename Element>
+bool BofList<Element>::AddBefore(BofListNode<Element> *_pExistingNode_O, Element *_pElement)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = nullptr;
@@ -613,7 +638,7 @@ template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element
 
   if ((_pExistingNode_O != nullptr) && (_pElement != nullptr))
   {
-    Lock();
+    LockList();
 
     pNode_O = GetFreeNode(_pElement);
 
@@ -622,7 +647,7 @@ template <typename Element> bool BofList<Element>::AddBefore(BofListNode<Element
       Ret_B = AddBefore(_pExistingNode_O, pNode_O);
     }
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -645,7 +670,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddFirst(BofListNode<Element> *_pNode_O)
+template <typename Element>
+bool BofList<Element>::AddFirst(BofListNode<Element> *_pNode_O)
 {
   bool Ret_B = false;
 
@@ -655,7 +681,7 @@ template <typename Element> bool BofList<Element>::AddFirst(BofListNode<Element>
 
   if (_pNode_O != nullptr)
   {
-    Lock();
+    LockList();
 
 #if defined(PROFILE_CLIST)
     BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_FIRST);
@@ -692,7 +718,7 @@ template <typename Element> bool BofList<Element>::AddFirst(BofListNode<Element>
     BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_FIRST);
 #endif
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -715,12 +741,13 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddFirst(Element &_rElement)
+template <typename Element>
+bool BofList<Element>::AddFirst(Element &_rElement)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = nullptr;
 
-  Lock();
+  LockList();
 
   pNode_O = GetFreeNode(&_rElement);
 
@@ -729,7 +756,7 @@ template <typename Element> bool BofList<Element>::AddFirst(Element &_rElement)
     Ret_B = AddFirst(pNode_O);
   }
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -751,12 +778,13 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddFirst(Element *_pElement)
+template <typename Element>
+bool BofList<Element>::AddFirst(Element *_pElement)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = nullptr;
 
-  Lock();
+  LockList();
 
   pNode_O = GetFreeNode(_pElement);
 
@@ -765,7 +793,7 @@ template <typename Element> bool BofList<Element>::AddFirst(Element *_pElement)
     Ret_B = AddFirst(pNode_O);
   }
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -787,7 +815,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddLast(BofListNode<Element> *_pNode_O)
+template <typename Element>
+bool BofList<Element>::AddLast(BofListNode<Element> *_pNode_O)
 {
   bool Ret_B = false;
 
@@ -797,7 +826,7 @@ template <typename Element> bool BofList<Element>::AddLast(BofListNode<Element> 
 
   if (_pNode_O != nullptr)
   {
-    Lock();
+    LockList();
 
 #if defined(PROFILE_CLIST)
     BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_LAST);
@@ -839,7 +868,7 @@ template <typename Element> bool BofList<Element>::AddLast(BofListNode<Element> 
     BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_ADD_LAST);
 #endif
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -862,12 +891,13 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddLast(Element &_rElement)
+template <typename Element>
+bool BofList<Element>::AddLast(Element &_rElement)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = nullptr;
 
-  Lock();
+  LockList();
 
   pNode_O = GetFreeNode(&_rElement);
 
@@ -876,7 +906,7 @@ template <typename Element> bool BofList<Element>::AddLast(Element &_rElement)
     Ret_B = AddLast(pNode_O);
   }
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -898,12 +928,13 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::AddLast(Element *_pElement)
+template <typename Element>
+bool BofList<Element>::AddLast(Element *_pElement)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = nullptr;
 
-  Lock();
+  LockList();
 
   pNode_O = GetFreeNode(_pElement);
 
@@ -912,7 +943,7 @@ template <typename Element> bool BofList<Element>::AddLast(Element *_pElement)
     Ret_B = AddLast(pNode_O);
   }
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -934,7 +965,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *_pNode_O)
+template <typename Element>
+bool BofList<Element>::Remove(BofListNode<Element> *_pNode_O)
 {
   bool Ret_B = false;
 
@@ -944,7 +976,7 @@ template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *
 
   if (_pNode_O != nullptr)
   {
-    Lock();
+    LockList();
 
 #if defined(PROFILE_CLIST)
     BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_REMOVE);
@@ -1017,7 +1049,7 @@ template <typename Element> bool BofList<Element>::Remove(BofListNode<Element> *
     BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_REMOVE);
 #endif
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -1040,11 +1072,12 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::RemoveFirst(Element *_pElement /* = nullptr */)
+template <typename Element>
+bool BofList<Element>::RemoveFirst(Element *_pElement /* = nullptr */)
 {
   bool Ret_B = false;
 
-  Lock();
+  LockList();
 
   if (mpHead_O != nullptr)
   {
@@ -1056,7 +1089,7 @@ template <typename Element> bool BofList<Element>::RemoveFirst(Element *_pElemen
     Ret_B = Remove(mpHead_O);
   }
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -1078,11 +1111,12 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::RemoveLast(Element *_pElement /* = nullptr */)
+template <typename Element>
+bool BofList<Element>::RemoveLast(Element *_pElement /* = nullptr */)
 {
   bool Ret_B = false;
 
-  Lock();
+  LockList();
 
   if (mpQueue_O != nullptr)
   {
@@ -1094,7 +1128,7 @@ template <typename Element> bool BofList<Element>::RemoveLast(Element *_pElement
     Ret_B = Remove(mpQueue_O);
   }
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -1128,7 +1162,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Remove(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
+template <typename Element>
+bool BofList<Element>::Remove(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
   bool Ret_B = false;
   BofListNode<Element> *pNode_O = Find(_pElement, _pMethod);
@@ -1171,7 +1206,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Contains(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
+template <typename Element>
+bool BofList<Element>::Contains(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
   bool Ret_B = (Find(_pElement, _pMethod) != nullptr);
 
@@ -1202,11 +1238,12 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Sort(int (*_pMethod)(const void *, const void *) /* = nullptr */)
+template <typename Element>
+bool BofList<Element>::Sort(int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
   bool Ret_B = true;
 
-  Lock();
+  LockList();
 
 #if defined(PROFILE_CLIST)
   BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_SORT);
@@ -1218,7 +1255,7 @@ template <typename Element> bool BofList<Element>::Sort(int (*_pMethod)(const vo
   BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_SORT);
 #endif
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -1246,7 +1283,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> void BofList<Element>::ListSort(int (*_pCompare)(const void *, const void *), bool _IsCircular_B, bool _IsDouble_B)
+template <typename Element>
+void BofList<Element>::ListSort(int (*_pCompare)(const void *, const void *), bool _IsCircular_B, bool _IsDouble_B)
 {
   BofListNode<Element> *pNode1_O = nullptr;
   BofListNode<Element> *pNode2_O = nullptr;
@@ -1438,7 +1476,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::Find(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
+template <typename Element>
+BofListNode<Element> *BofList<Element>::Find(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
   BofListNode<Element> *Ret_O = nullptr;
 
@@ -1448,7 +1487,7 @@ template <typename Element> BofListNode<Element> *BofList<Element>::Find(Element
 
   if (_pElement != nullptr)
   {
-    Lock();
+    LockList();
 
 #if defined(PROFILE_CLIST)
     BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_FIND);
@@ -1483,7 +1522,7 @@ template <typename Element> BofListNode<Element> *BofList<Element>::Find(Element
     BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_FIND);
 #endif
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_O;
@@ -1518,7 +1557,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::FindLast(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
+template <typename Element>
+BofListNode<Element> *BofList<Element>::FindLast(Element *_pElement, int (*_pMethod)(const void *, const void *) /* = nullptr */)
 {
   BofListNode<Element> *Ret_O = nullptr;
 
@@ -1528,7 +1568,7 @@ template <typename Element> BofListNode<Element> *BofList<Element>::FindLast(Ele
 
   if (_pElement != nullptr)
   {
-    Lock();
+    LockList();
 
 #if defined(PROFILE_CLIST)
     BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_FIND_LAST);
@@ -1551,7 +1591,7 @@ template <typename Element> BofListNode<Element> *BofList<Element>::FindLast(Ele
     BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_FIND_LAST);
 #endif
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_O;
@@ -1575,7 +1615,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::GetFirst()
+template <typename Element>
+BofListNode<Element> *BofList<Element>::GetFirst()
 {
   BofListNode<Element> *pRet_O = mpHead_O;
 
@@ -1600,7 +1641,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::GetLast()
+template <typename Element>
+BofListNode<Element> *BofList<Element>::GetLast()
 {
   BofListNode<Element> *pRet_O = mpQueue_O;
 
@@ -1623,11 +1665,12 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(Element *_pElement /* = nullptr */)
+template <typename Element>
+BofListNode<Element> *BofList<Element>::GetFreeNode(Element *_pElement /* = nullptr */)
 {
   BofListNode<Element> *pRet_O = nullptr;
 
-  Lock();
+  LockList();
 
   if (mpNodePoolMgr_O != nullptr)
   {
@@ -1662,7 +1705,7 @@ template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(
     }
   }
 
-  Unlock();
+  UnlockList();
 
   return pRet_O;
 }
@@ -1683,11 +1726,12 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(BofListNode<Element> *_pNode_O)
+template <typename Element>
+BofListNode<Element> *BofList<Element>::GetFreeNode(BofListNode<Element> *_pNode_O)
 {
   BofListNode<Element> *pRet_O = _pNode_O;
 
-  Lock();
+  LockList();
 
   if (mpNodePoolMgr_O != nullptr)
   {
@@ -1750,7 +1794,7 @@ template <typename Element> BofListNode<Element> *BofList<Element>::GetFreeNode(
     pRet_O->pPrev_O = nullptr;
   }
 
-  Unlock();
+  UnlockList();
 
   return pRet_O;
 }
@@ -1772,7 +1816,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::SetFreeNode(BofListNode<Element> *_pNode_O)
+template <typename Element>
+bool BofList<Element>::SetFreeNode(BofListNode<Element> *_pNode_O)
 {
   bool Ret_B = false;
 
@@ -1782,7 +1827,7 @@ template <typename Element> bool BofList<Element>::SetFreeNode(BofListNode<Eleme
 
   if (_pNode_O != nullptr)
   {
-    Lock();
+    LockList();
 
     if (mpNodePoolMgr_O != nullptr)
     {
@@ -1812,7 +1857,7 @@ template <typename Element> bool BofList<Element>::SetFreeNode(BofListNode<Eleme
       Ret_B = true;
     }
 
-    Unlock();
+    UnlockList();
   }
 
   return Ret_B;
@@ -1835,11 +1880,12 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::Clear()
+template <typename Element>
+bool BofList<Element>::Clear()
 {
   bool Ret_B = false;
 
-  Lock();
+  LockList();
 
 #if defined(PROFILE_CLIST)
   BOF_ENTER_BENCH(mpProfiler_O, PROFILE_CLIST_CLEAR);
@@ -1864,7 +1910,7 @@ template <typename Element> bool BofList<Element>::Clear()
   BOF_LEAVE_BENCH(mpProfiler_O, PROFILE_CLIST_CLEAR);
 #endif
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }
@@ -1885,7 +1931,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> uint32_t BofList<Element>::GetCount()
+template <typename Element>
+uint32_t BofList<Element>::GetCount()
 {
   uint32_t Ret_U32 = 0;
 
@@ -1911,7 +1958,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> uint32_t BofList<Element>::GetCapacity()
+template <typename Element>
+uint32_t BofList<Element>::GetCapacity()
 {
   uint32_t Ret_U32 = 0;
 
@@ -1937,7 +1985,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::IsFull()
+template <typename Element>
+bool BofList<Element>::IsFull()
 {
   bool Ret_B = false;
 
@@ -1963,7 +2012,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::IsEmpty()
+template <typename Element>
+bool BofList<Element>::IsEmpty()
 {
   bool Ret_B = false;
 
@@ -1990,7 +2040,8 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::GetProfilingStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X)
+template <typename Element>
+bool BofList<Element>::GetProfilingStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X)
 {
   bool Ret_B = false;
 
@@ -2031,13 +2082,14 @@ Remarks
 See also
   Nothing
 */
-template <typename Element> bool BofList<Element>::CheckConsistency()
+template <typename Element>
+bool BofList<Element>::CheckConsistency()
 {
   bool Ret_B = false;
   uint32_t NbElements_U32 = 0;
   BofListNode<Element> *pNode_O = nullptr;
 
-  Lock();
+  LockList();
 
   pNode_O = mpHead_O;
 
@@ -2050,7 +2102,7 @@ template <typename Element> bool BofList<Element>::CheckConsistency()
 
   Ret_B = (NbElements_U32 == mNbElements_U32);
 
-  Unlock();
+  UnlockList();
 
   return Ret_B;
 }

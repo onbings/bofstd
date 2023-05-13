@@ -28,21 +28,21 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_CIRCULAR_BUFFER_LOCK(Sts)                                                                                                                                                                                                                          \
-  {                                                                                                                                                                                                                                                            \
-    Sts = mCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mCbMtx_X) : BOF_ERR_NO_ERROR;                                                                                                                                                              \
+#define BOF_CIRCULAR_BUFFER_LOCK(Sts)                                                                         \
+  {                                                                                                           \
+    Sts = mCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mCircularBufferMtx_X) : BOF_ERR_NO_ERROR; \
   }
-#define BOF_CIRCULAR_BUFFER_UNLOCK()                                                                                                                                                                                                                           \
-  {                                                                                                                                                                                                                                                            \
-    if (mCircularBufferParam_X.MultiThreadAware_B)                                                                                                                                                                                                             \
-      Bof_UnlockMutex(mCbMtx_X);                                                                                                                                                                                                                               \
+#define BOF_CIRCULAR_BUFFER_UNLOCK()               \
+  {                                                \
+    if (mCircularBufferParam_X.MultiThreadAware_B) \
+      Bof_UnlockMutex(mCircularBufferMtx_X);       \
   }
 
 constexpr uint32_t BOF_CIRCULAR_BUFFER_DBG_MAX_ITEM = 32;
 
 struct BOF_CIRCULAR_BUFFER_PARAM
 {
-  bool MultiThreadAware_B;   /*! true if the object is used in a multi threaded application (use mCbMtx_X)*/
+  bool MultiThreadAware_B;   /*! true if the object is used in a multi threaded application (use mCircularBufferMtx_X)*/
   uint32_t NbMaxElement_U32; /*! Specifies the maximum number of element inside the queue*/
   void *pData;               /*! Specifies a pointer to the circular buffer zone (pre-allocated buffer). Set to nullptr if the memory
                               * must be allocated by the function*/
@@ -76,7 +76,8 @@ struct BOF_CIRCULAR_BUFFER_PARAM
  * None
  */
 
-template <typename DataType> class BofCircularBuffer
+template <typename DataType>
+class BofCircularBuffer
 {
 private:
   BOF_CIRCULAR_BUFFER_PARAM mCircularBufferParam_X;
@@ -88,7 +89,7 @@ private:
   uint32_t mNbElementInBuffer_U32;       /*! Current number of element inside the queue including the locked one (mNbElementLockedInBuffer_U32)*/
   uint32_t mNbElementLockedInBuffer_U32; /*! Current number of element locked inside the queue*/
   uint32_t mLevelMax_U32;                /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
-  BOF_MUTEX mCbMtx_X;                    /*! Provide a serialized access to shared resources in a multi threaded environment*/
+  BOF_MUTEX mCircularBufferMtx_X;        /*! Provide a serialized access to shared resources in a multi threaded environment*/
   BOFERR mErrorCode_E;
   BOF_EVENT mCanReadEvent_X;
   BOF_EVENT mCanWriteEvent_X;
@@ -105,10 +106,8 @@ public:
   BofCircularBuffer(const BofCircularBuffer &) = delete;
 
   BOFERR LastErrorCode() const;
-  #if 0
   BOFERR LockCircularBuffer();
   BOFERR UnlockCircularBuffer();
-  #endif
   bool IsEmpty() const;
   bool IsFull() const;
   uint32_t GetNbElement() const;
@@ -133,7 +132,8 @@ public:
   std::string StateInfo();
 };
 
-template <typename DataType> BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &_rCircularBufferParam_X)
+template <typename DataType>
+BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &_rCircularBufferParam_X)
 {
   mCircularBufferParam_X = _rCircularBufferParam_X;
 
@@ -164,7 +164,7 @@ template <typename DataType> BofCircularBuffer<DataType>::BofCircularBuffer(cons
         mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canwrite_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
-          mErrorCode_E = _rCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mCbMtx_X) : BOF_ERR_NO_ERROR;
+          mErrorCode_E = _rCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mCircularBufferMtx_X) : BOF_ERR_NO_ERROR;
           if (mErrorCode_E == BOF_ERR_NO_ERROR)
           {
             if (_rCircularBufferParam_X.pData)
@@ -210,9 +210,10 @@ template <typename DataType> BofCircularBuffer<DataType>::BofCircularBuffer(cons
   }
 }
 
-template <typename DataType> BofCircularBuffer<DataType>::~BofCircularBuffer()
+template <typename DataType>
+BofCircularBuffer<DataType>::~BofCircularBuffer()
 {
-  Bof_DestroyMutex(mCbMtx_X);
+  Bof_DestroyMutex(mCircularBufferMtx_X);
   if (!mDataPreAllocated_B)
   {
     BOF_SAFE_DELETE_ARRAY(mpData_T);
@@ -222,59 +223,68 @@ template <typename DataType> BofCircularBuffer<DataType>::~BofCircularBuffer()
   BOF_SAFE_DELETE_ARRAY(mpLock_U8);
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::LastErrorCode() const
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::LastErrorCode() const
 {
   return mErrorCode_E;
 }
 
-template <typename DataType> bool BofCircularBuffer<DataType>::IsEmpty() const
+template <typename DataType>
+bool BofCircularBuffer<DataType>::IsEmpty() const
 {
   return mNbElementInBuffer_U32 == 0;
 }
 
-template <typename DataType> bool BofCircularBuffer<DataType>::IsFull() const
+template <typename DataType>
+bool BofCircularBuffer<DataType>::IsFull() const
 {
   return mNbElementInBuffer_U32 == mCircularBufferParam_X.NbMaxElement_U32;
 }
 
-template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbElement() const
+template <typename DataType>
+uint32_t BofCircularBuffer<DataType>::GetNbElement() const
 {
   return mNbElementInBuffer_U32;
 }
 
-template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbElementLocked() const
+template <typename DataType>
+uint32_t BofCircularBuffer<DataType>::GetNbElementLocked() const
 {
   return mNbElementLockedInBuffer_U32;
 }
 
-template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetCapacity() const
+template <typename DataType>
+uint32_t BofCircularBuffer<DataType>::GetCapacity() const
 {
   return mCircularBufferParam_X.NbMaxElement_U32;
 }
-#if 0
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::LockCircularBuffer()
+
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::LockCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mCircularBufferParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_LockMutex(mCbMtx_X);
+    Rts_E = Bof_LockMutex(mCircularBufferMtx_X);
   }
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockCircularBuffer()
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::UnlockCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mCircularBufferParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_UnlockMutex(mCbMtx_X);
+    Rts_E = Bof_UnlockMutex(mCircularBufferMtx_X);
   }
   return Rts_E;
 }
-#endif
-template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbFreeElement()
+
+template <typename DataType>
+uint32_t BofCircularBuffer<DataType>::GetNbFreeElement()
 {
   uint32_t Rts_U32 = 0;
 
@@ -288,20 +298,23 @@ template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbFreeElem
   return Rts_U32;
 }
 
-template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetMaxLevel() const
+template <typename DataType>
+uint32_t BofCircularBuffer<DataType>::GetMaxLevel() const
 {
   uint32_t Rts_U32 = mLevelMax_U32;
   return Rts_U32;
 }
 
-template <typename DataType> bool BofCircularBuffer<DataType>::IsBufferOverflow()
+template <typename DataType>
+bool BofCircularBuffer<DataType>::IsBufferOverflow()
 {
   bool Rts_B = mOverflow_B;
   mOverflow_B = false;
   return Rts_B;
 }
 
-template <typename DataType> void BofCircularBuffer<DataType>::Reset()
+template <typename DataType>
+void BofCircularBuffer<DataType>::Reset()
 {
   BOFERR Sts_E;
   BOF_CIRCULAR_BUFFER_LOCK(Sts_E);
@@ -321,12 +334,14 @@ template <typename DataType> void BofCircularBuffer<DataType>::Reset()
   }
 }
 
-template <typename DataType> DataType *BofCircularBuffer<DataType>::GetInternalDataBuffer() const
+template <typename DataType>
+DataType *BofCircularBuffer<DataType>::GetInternalDataBuffer() const
 {
   return mpData_T;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -417,7 +432,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Push(const Data
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::PushForNextPop(const DataType *_pData, bool _ForceIfFull_B, uint32_t _BlockingTimeouItInMs_U32)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::PushForNextPop(const DataType *_pData, bool _ForceIfFull_B, uint32_t _BlockingTimeouItInMs_U32)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -517,7 +533,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::PushForNextPop(
 }
 
 //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::Pop(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::Pop(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -610,7 +627,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Pop(DataType *_
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::PopLastPush(DataType *_pData, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::PopLastPush(DataType *_pData, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
 {
   BOFERR Rts_E;
 
@@ -670,7 +688,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::PopLastPush(Dat
 
 //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
 // Use peek and then pop when treatment is finished..
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::Peek(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::Peek(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -718,7 +737,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Peek(DataType *
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::PeekFromPop(uint32_t _RelativeIndexFromPop_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::PeekFromPop(uint32_t _RelativeIndexFromPop_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t Index_U32;
@@ -767,7 +787,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::PeekFromPop(uin
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::PeekByIndex(uint32_t _AbsoluteIndex_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::PeekByIndex(uint32_t _AbsoluteIndex_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -801,7 +822,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::PeekByIndex(uin
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
 {
   BOFERR Rts_E;
 
@@ -848,7 +870,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIs
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockPop(uint32_t _AbsoluteIndex_U32)
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::UnlockPop(uint32_t _AbsoluteIndex_U32)
 {
   BOFERR Rts_E = BOF_ERR_WRONG_MODE;
   //	uint32_t i_U32;
@@ -890,7 +913,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockPop(uint3
   return Rts_E;
 }
 
-template <typename DataType> bool BofCircularBuffer<DataType>::IsLocked(uint32_t _AbsoluteIndex_U32)
+template <typename DataType>
+bool BofCircularBuffer<DataType>::IsLocked(uint32_t _AbsoluteIndex_U32)
 {
   bool Rts_B = false;
   BOFERR Sts_E;
@@ -906,7 +930,8 @@ template <typename DataType> bool BofCircularBuffer<DataType>::IsLocked(uint32_t
   return Rts_B;
 }
 
-template <typename DataType> bool BofCircularBuffer<DataType>::IsEntryFree(uint32_t _AbsoluteIndex_U32, bool *_pIsLocked_B, DataType **_ppStorage)
+template <typename DataType>
+bool BofCircularBuffer<DataType>::IsEntryFree(uint32_t _AbsoluteIndex_U32, bool *_pIsLocked_B, DataType **_ppStorage)
 {
   bool Rts_B = false;
   // uint32_t Index_U32, EndPush_U32;
@@ -958,7 +983,8 @@ template <typename DataType> bool BofCircularBuffer<DataType>::IsEntryFree(uint3
   return Rts_B;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::SignalReadWrite()
+template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::SignalReadWrite()
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
@@ -984,7 +1010,8 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::SignalReadWrite
   return Rts_E;
 }
 
-template <typename DataType> std::string BofCircularBuffer<DataType>::StateInfo()
+template <typename DataType>
+std::string BofCircularBuffer<DataType>::StateInfo()
 {
   std::string Rts_S;
   uint32_t i_U32, Nb_U32;
@@ -1007,7 +1034,8 @@ template <typename DataType> std::string BofCircularBuffer<DataType>::StateInfo(
       }
       else
       {
-        pDbg_c[i_U32] = (i_U32 == mPopIndex_U32) ? 'R' : (i_U32 == mPushIndex_U32) ? 'W' : '.';
+        pDbg_c[i_U32] = (i_U32 == mPopIndex_U32) ? 'R' : (i_U32 == mPushIndex_U32) ? 'W'
+                                                                                   : '.';
       }
       if (mpLock_U8)
       {

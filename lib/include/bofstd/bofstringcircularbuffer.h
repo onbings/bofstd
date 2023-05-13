@@ -78,7 +78,7 @@ private:
   uint32_t mNbCharInBuffer_U32;         /*! Current number of char inside the queue*/
   uint32_t mNbSnapshotCharInBuffer_U32; /*! copy of mNbCharInBuffer_U32 used for pop Snapshot op*/
   uint32_t mLevelMax_U32;               /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
-  BOF_MUTEX mStringCbMtx_X;             /*! Provide a serialized access to shared resources in a multi threaded environement*/
+  BOF_MUTEX mStringCircularBufferMtx_X; /*! Provide a serialized access to shared resources in a multi threaded environement*/
   BOFERR mErrorCode_E;
   BOF_EVENT mCanReadEvent_X;
   BOF_EVENT mCanWriteEvent_X;
@@ -91,51 +91,20 @@ public:
   BofStringCircularBuffer &operator=(const BofStringCircularBuffer &) = delete; // Disallow copying
   BofStringCircularBuffer(const BofStringCircularBuffer &) = delete;
 
-  BOFERR LastErrorCode()
-  {
-    return mErrorCode_E;
-  }
-  BOFERR LockStringQueue();
-  BOFERR UnlockStringQueue();
-  bool IsEmpty()
-  {
-    return mNbCharInBuffer_U32 == 0;
-  }
-  bool IsFull()
-  {
-    return mNbCharInBuffer_U32 == mStringCircularBufferParam_X.BufferSizeInByte_U32;
-  }
-  uint32_t GetCapacity()
-  {
-    return mStringCircularBufferParam_X.BufferSizeInByte_U32;
-  }
-  uint32_t GetNbElement()
-  {
-    return mNbElementInBuffer_U32;
-  }
-  uint32_t GetNbChar()
-  {
-    return mNbCharInBuffer_U32;
-  } // Including all the null terminating characters per string pushed
-  uint32_t GetNbFreeChar()
-  {
-    return mStringCircularBufferParam_X.BufferSizeInByte_U32 - mNbCharInBuffer_U32;
-  }
+  BOFERR LastErrorCode();
+  BOFERR LockStringCircularBuffer();
+  BOFERR UnlockStringCircularBuffer();
+  bool IsEmpty();
+  bool IsFull();
+  uint32_t GetCapacity();
+  uint32_t GetNbElement();
+  uint32_t GetNbChar();
+  uint32_t GetNbFreeChar();
   BOFERR PushBinary(uint32_t _Size_U32, const char *_pData_c, uint32_t _BlockingTimeouItInMs_U32);
   BOFERR PushString(const char *_pData_c, uint32_t _BlockingTimeouItInMs_U32);
   BOFERR PopString(uint32_t *_pNbMax_U32, char *_pData_c, uint32_t _BlockingTimeouItInMs_U32);
-
-  bool IsBufferOverflow()
-  {
-    bool Rts_B = mOverflow_B;
-    mOverflow_B = false;
-    return Rts_B;
-  }
-
-  uint32_t GetMaxLevel()
-  {
-    return mLevelMax_U32;
-  }
+  bool IsBufferOverflow();
+  uint32_t GetMaxLevel();
   void Reset();
   uint32_t ResyncSnapshot(uint32_t _Index_U32);
 

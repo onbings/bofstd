@@ -59,14 +59,15 @@ struct BOF_STACK_PARAM
 class BOFSTD_EXPORT BofStack
 {
 private:
-  bool mDataPreAllocated_B;   /*! true if mpData_U8 is provided by the caller*/
-  uint32_t mMaxStackSize_U32; /*!<Maximum size of stack*/
-  BOF_MUTEX mMtx_X;           /*! Provide a serialized access to shared resources in a multi threaded environement*/
+  BOF_STACK_PARAM mStackParam_X;
+  bool mDataPreAllocated_B; /*! true if mpData_U8 is provided by the caller*/
+  // uint32_t MaxStackSize_U32.MaxStackSize_U32; /*!<Maximum size of stack*/
+  BOF_MUTEX mStackMtx_X; /*! Provide a serialized access to shared resources in a multi threaded environement*/
   BOFERR mErrorCode_E;
 
 protected:
   uint8_t *mpStack_U8; /*!<Pointer to stack storage*/
-  bool mSwapByte_B;    /*!<true if binary data must be swapped (little/Big endian representation*/
+  // bool mStackParam_X.SwapByte_B;    /*!<true if binary data must be swapped (little/Big endian representation*/
   uint8_t *mpStackLocation_U8;
 
 public:
@@ -76,114 +77,34 @@ public:
 
   BofStack &operator=(const BofStack &) = delete; // Disallow copying
   BofStack(const BofStack &) = delete;
-
-  BOFERR LastErrorCode()
-  {
-    return mErrorCode_E;
-  }
-
-  void SetSwapByte(bool _SwapByte_B)
-  {
-    mSwapByte_B = _SwapByte_B;
-  }
-
+  BOFERR LastErrorCode();
+  void SetSwapByte(bool _SwapByte_B);
   bool PushSkip(uint32_t _NbToSkip_U32);
-
   bool Push(uint8_t Val_U8);
-
   bool Push(uint16_t Val_U16);
-
   bool Push(uint32_t Val_U32);
-
   bool Push(uint64_t Val_U64);
-
   bool Push(float Val_f);
-
   bool Push(double Val_ff);
-
   bool Push(char *pTxt_c);
-
   bool Push(uint32_t _Nb_U32, uint8_t *_pVal_U8);
-
   bool PopSkip(uint32_t _NbToSkip_U32);
-
   bool Pop(uint8_t *pVal_U8);
-
   bool Pop(uint16_t *pVal_U16);
-
   bool Pop(uint32_t *pVal_U32);
-
   bool Pop(uint64_t *pVal_U64);
-
   bool Pop(float *pVal_f);
-
   bool Pop(double *pVal_ff);
-
   bool Pop(char *pTxt_c);
-
   bool Pop(uint32_t _Nb_U32, uint8_t *_pVal_U8);
-
-  bool IsSwapByte()
-  {
-    return mSwapByte_B;
-  }
-
-  // !!!64bits!!!
-  uint32_t GetStackPointer()
-  {
-    return (uint32_t)(mpStackLocation_U8 - mpStack_U8);
-  }
-
-  bool SetStackPointer(uint32_t Ptr_U32)
-  {
-    if (Ptr_U32 < mMaxStackSize_U32)
-    {
-      mpStackLocation_U8 = &mpStack_U8[Ptr_U32];
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-  bool AdjustStackBufferLocation(int32_t _Offset_S32)
-  {
-    int32_t NewPtr_S32 = (static_cast<int32_t>(GetStackPointer()) + _Offset_S32);
-    bool Rts_B = false;
-
-    if ((NewPtr_S32 <= static_cast<int32_t>(mMaxStackSize_U32)) && (NewPtr_S32 >= 0))
-    {
-      mpStackLocation_U8 = &mpStack_U8[NewPtr_S32];
-      Rts_B = true;
-    }
-    return Rts_B;
-  }
-
-  uint32_t GetStackSize()
-  {
-    return mMaxStackSize_U32;
-  }
-
-  // uint8_t				  *GetStack()               {return(mpStack_U8);}
-  uint8_t *GetStackBuffer()
-  {
-    return mpStack_U8;
-  }
-
-  uint8_t *GetCurrentStackBufferLocation()
-  {
-    return mpStackLocation_U8;
-  }
-
-  void LockStack()
-  {
-    Bof_LockMutex(mMtx_X);
-  }
-
-  void UnlockStack()
-  {
-    Bof_UnlockMutex(mMtx_X);
-  }
+  bool IsSwapByte();
+  uint32_t GetStackPointer();
+  bool SetStackPointer(uint32_t Ptr_U32);
+  bool AdjustStackBufferLocation(int32_t _Offset_S32);
+  uint32_t GetStackSize();
+  uint8_t *GetStackBuffer();
+  uint8_t *GetCurrentStackBufferLocation();
+  BOFERR LockStack();
+  BOFERR UnlockStack();
 };
 END_BOF_NAMESPACE()

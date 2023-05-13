@@ -282,7 +282,7 @@ TEST(Threading_Test, Mutex)
   BOF_MUTEX Mtx_X;
 
   EXPECT_EQ(Mtx_X.Magic_U32, 0);
-  EXPECT_TRUE(Mtx_X.Recursive_B);
+  EXPECT_FALSE(Mtx_X.Recursive_B);
   EXPECT_STREQ(Mtx_X.Name_S.c_str(), "");
 
   Sts_E = Bof_CreateMutex("MyMutex", true, true, Mtx_X);
@@ -388,34 +388,19 @@ TEST(Threading_Test, SingleThread)
 
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-#if defined(_WIN32)
-  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_001);
-  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_084);
-#else
   EXPECT_EQ(Min_E, 0);
   EXPECT_EQ(Max_E, 0);
-#endif
 
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-#if defined(_WIN32)
-  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_085);
+  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_001);
   EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_099);
-#else
-  EXPECT_EQ(Min_E, 1);
-  EXPECT_EQ(Max_E, 99);
-#endif
   MidPriority_E = (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2);
 
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-#if defined(_WIN32)
-  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_001);
-  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_084);
-#else
-  EXPECT_EQ(Min_E, 1);
-  EXPECT_EQ(Max_E, 99);
-#endif
+  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_000);
+  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_000);
 
   Sts_E = Bof_LaunchThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, 1000);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
@@ -489,8 +474,8 @@ TEST(Threading_Test, SingleThread)
   Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-  EXPECT_GE(ThreadPriority_E, BOF_THREAD_PRIORITY_085);
-  EXPECT_LE(ThreadPriority_E, BOF_THREAD_PRIORITY_099);
+  EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
+  EXPECT_EQ(ThreadPriority_E, MidPriority_E);
   NewPriority_E = (BOF_THREAD_PRIORITY)(MidPriority_E / 2);
 #else
   EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
@@ -504,8 +489,8 @@ TEST(Threading_Test, SingleThread)
   Sts_E = Bof_GetThreadPriorityLevel(Thread_X, ThreadSchedulerPolicy_E, ThreadPriority_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 #if defined(_WIN32)
-  EXPECT_GE(ThreadPriority_E, BOF_THREAD_PRIORITY_033);
-  EXPECT_LE(ThreadPriority_E, BOF_THREAD_PRIORITY_048);
+  EXPECT_EQ(ThreadPriority_E, BOF_THREAD_PRIORITY_016);
+  EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_OTHER);
 #else
   EXPECT_GE(ThreadPriority_E, NewPriority_E);
   EXPECT_EQ(ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY_FIFO);
@@ -552,16 +537,11 @@ TEST(Threading_Test, MultiThread)
 
   Sts_E = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_OTHER, Min_E, Max_E);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-#if defined(_WIN32)
-  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_001);
-  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_084);
-#else
-  EXPECT_EQ(Min_E, 0);
-  EXPECT_EQ(Max_E, 0);
-#endif
+  EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_000);
+  EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_000);
 
   MidPriority_E = (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2);
-  Sts_E = Bof_CreateMutex("MyMutex", true, true, S_Mtx_X);
+  Sts_E = Bof_CreateMutex("MyMutex", true, false, S_Mtx_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   for (i_U32 = 0; i_U32 < NBTHREAD; i_U32++)

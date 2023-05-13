@@ -134,9 +134,9 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
       }
       if (mPipeParam_X.PipeServer_B)
       {
-        PipeMode_DW = mPipeParam_X.StringMode_B ? (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE) : (PIPE_TYPE_BYTE | PIPE_READMODE_BYTE);
-        PipeMode_DW = |= (mPipeParam_X.BaseChannelParam_X.Blocking_B ? PIPE_WAIT : PIPE_NOWAIT)mPipe_h =
-            CreateNamedPipe(PipeName_S.c_str(), OpenMode_DW, PipeMode_DW, 1, mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32, mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32, 0, nullptr);
+        PipeMode_DW = mPipeParam_X.NativeStringMode_B ? (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE) : (PIPE_TYPE_BYTE | PIPE_READMODE_BYTE);
+        PipeMode_DW |= (mPipeParam_X.BaseChannelParam_X.Blocking_B ? PIPE_WAIT : PIPE_NOWAIT);
+        mPipe_h = CreateNamedPipe(PipeName_S.c_str(), OpenMode_DW, PipeMode_DW, 1, mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32, mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32, 0, nullptr);
       }
       else
       {
@@ -306,12 +306,14 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
       break;
 
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
-      if (mPipe_i >= 0)
-      {
 #if defined(_WIN32)
+      if (BOF_IS_HANDLE_VALID(mPipe_h))
+      {
         _rNbPendingByte_U32 = 1;
         Rts_E = BOF_ERR_NO_ERROR;
 #else
+      if (mPipe_i >= 0)
+      {
         Rts_E = BOF_ERR_ETIMEDOUT;
         pFds_X[0].fd = mPipe_i;
         pFds_X[0].events = (POLLIN);
@@ -354,12 +356,19 @@ BOFERR BofPipe::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
 #if defined(_WIN32)
-      u_long Nb;
-      Rts_E = (ioctlsocket(mPipe_h, FIONREAD, &Nb) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+#if 1
+      _rStatus_X.NbIn_U32 = 1;
+      Rts_E = BOF_ERR_NO_ERROR;
+#else
+      DWORD Error_DW;
+      COMSTAT ComStat_X;
+      Rts_E = (ClearCommError(mPipe_h, &Error_DW, &ComStat_X)) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
-        _rStatus_X.NbIn_U32 = (uint32_t)Nb;
+        _rStatus_X.NbIn_U32 = (uint32_t)ComStat_X.cbInQue;
+        _rStatus_X.NbOut_U32 = (uint32_t)ComStat_X.cbOutQue;
       }
+#endif
 #else
       int Nb_i, Sts_i;
       BOF_IOCTL(mPipe_i, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);

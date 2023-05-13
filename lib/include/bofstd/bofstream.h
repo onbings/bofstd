@@ -40,7 +40,8 @@ public:
 class BofIMemoryStream : virtual BofMemoryStream, public std::istream
 {
 public:
-  BofIMemoryStream(size_t size, char const *base) : BofMemoryStream(base, size), std::istream(static_cast<std::streambuf *>(this))
+  BofIMemoryStream(size_t size, char const *base)
+      : BofMemoryStream(base, size), std::istream(static_cast<std::streambuf *>(this))
   {
   }
 };

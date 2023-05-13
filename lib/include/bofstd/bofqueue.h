@@ -34,12 +34,14 @@
 
 BEGIN_BOF_NAMESPACE()
 
-template <typename T> class BofQueue
+template <typename T>
+class BofQueue
 {
 private:
   //	std::queue<T> mQueue;
   std::queue<T> mQueue;
-  std::mutex mMtx;
+  BOF_MUTEX mQueueMtx_X;
+  bool mMultiThreadAware_B;
   std::condition_variable mCvNotEmpty;
   std::condition_variable mCvNotFull;
   uint32_t mMaxSize_U32;
@@ -48,17 +50,28 @@ public:
   /*
    * Max size 0 for ever growing queue
    */
-  BofQueue(uint32_t _MaxSize_U32) : mMaxSize_U32(_MaxSize_U32)
+  BofQueue(uint32_t _MaxSize_U32, bool _ThreadSafe_B)
+      : mMaxSize_U32(_MaxSize_U32)
   {
     // Pre allocate memory
     if (_MaxSize_U32)
     {
       //		mQueue.resize(_MaxSize_U32);
     }
+    mMultiThreadAware_B = _ThreadSafe_B;
+    if (mMultiThreadAware_B)
+    {
+      // BOFERR Sts_E=
+      Bof_CreateMutex("BofQueue", false, false, mQueueMtx_X);
+    }
   }
 
   virtual ~BofQueue()
   {
+    if (mMultiThreadAware_B)
+    {
+      Bof_DestroyMutex(mQueueMtx_X);
+    }
   }
 
   uint32_t Capacity()
@@ -88,7 +101,7 @@ public:
   {
     BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
-    std::unique_lock<std::mutex> WaitingLock(mMtx);
+    std::unique_lock<std::mutex> WaitingLock(mQueueMtx_X.Mtx);
     if (_TimeoutInMs_U32)
     {
       Rts_E = mCvNotEmpty.wait_for(WaitingLock, std::chrono::milliseconds(_TimeoutInMs_U32), [&]() { return !mQueue.empty(); }) ? BOF_ERR_NO_ERROR : BOF_ERR_ETIMEDOUT;
@@ -113,7 +126,7 @@ public:
   {
     BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
-    std::unique_lock<std::mutex> WaitingLock(mMtx);
+    std::unique_lock<std::mutex> WaitingLock(mQueueMtx_X.Mtx);
     if (mMaxSize_U32)
     {
       if (_TimeoutInMs_U32)
@@ -141,7 +154,7 @@ public:
   {
     BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
-    std::unique_lock<std::mutex> WaitingLock(mMtx);
+    std::unique_lock<std::mutex> WaitingLock(mQueueMtx_X.Mtx);
     if (mMaxSize_U32)
     {
       if (_TimeoutInMs_U32)
@@ -161,6 +174,26 @@ public:
       mQueue.Push(std::move(_rrItem));
       WaitingLock.unlock();
       mCvNotEmpty.notify_one();
+    }
+    return Rts_E;
+  }
+  BOFERR LockQueue()
+  {
+    BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+
+    if (mMultiThreadAware_B)
+    {
+      Rts_E = Bof_LockMutex(mQueueMtx_X);
+    }
+    return Rts_E;
+  }
+  BOFERR UnlockQueue()
+  {
+    BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+
+    if (mMultiThreadAware_B)
+    {
+      Rts_E = Bof_UnlockMutex(mQueueMtx_X);
     }
     return Rts_E;
   }

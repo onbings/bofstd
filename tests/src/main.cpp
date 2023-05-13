@@ -66,15 +66,6 @@ BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, con
 
 int main(int argc, char *argv[])
 {
-/*
-  std::mutex m;
-  m.lock();
-  m.unlock();
-  BOF::BOF_MUTEX mCbMtx_X;
-  BOF::Bof_CreateMutex("BofCircularBuffer", false, false, mCbMtx_X);
-  mCbMtx_X.Mtx.lock();
-  mCbMtx_X.Mtx.unlock();
-*/
 #if 0
   char *p = new char[5];
   return 0;
@@ -93,7 +84,7 @@ int main(int argc, char *argv[])
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
 #endif
   testing::InitGoogleTest(&argc, argv);
-  ::testing::GTEST_FLAG(filter) = "BofCircularBuffer_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.SingleThread";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
   //::testing::GTEST_FLAG(filter) = "Pipe_Test.UdpPipeSingle";
 
@@ -116,10 +107,11 @@ int main(int argc, char *argv[])
 /*
 * WINDOWS
 [----------] Global test environment tear-down
-[==========] 162 tests from 43 test suites ran. (54946 ms total)
-[  PASSED  ] 162 tests.
+[==========] 176 tests from 45 test suites ran. (131092 ms total)
+[  PASSED  ] 176 tests.
 
-  YOU HAVE 2 DISABLED TESTS
+  YOU HAVE 1 DISABLED TEST
+
 
   LINUX:
 

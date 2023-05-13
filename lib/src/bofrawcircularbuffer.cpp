@@ -24,14 +24,14 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_RAW_CIRCULAR_BUFFER_LOCK(Sts)                                                                                                                                                                                                                      \
-  {                                                                                                                                                                                                                                                            \
-    Sts = mRawCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mRawCbMtx_X) : BOF_ERR_NO_ERROR;                                                                                                                                                        \
+#define BOF_RAW_CIRCULAR_BUFFER_LOCK(Sts)                                                                           \
+  {                                                                                                                 \
+    Sts = mRawCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mRawCircularBufferMtx_X) : BOF_ERR_NO_ERROR; \
   }
-#define BOF_RAW_CIRCULAR_BUFFER_UNLOCK()                                                                                                                                                                                                                       \
-  {                                                                                                                                                                                                                                                            \
-    if (mRawCircularBufferParam_X.MultiThreadAware_B)                                                                                                                                                                                                          \
-      Bof_UnlockMutex(mRawCbMtx_X);                                                                                                                                                                                                                            \
+#define BOF_RAW_CIRCULAR_BUFFER_UNLOCK()              \
+  {                                                   \
+    if (mRawCircularBufferParam_X.MultiThreadAware_B) \
+      Bof_UnlockMutex(mRawCircularBufferMtx_X);       \
   }
 
 /*!
@@ -65,7 +65,7 @@ BofRawCircularBuffer::BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &
   mErrorCode_E = BOF_ERR_TOO_SMALL;
   if (mRawCircularBufferParam_X.BufferSizeInByte_U32)
   {
-    mErrorCode_E = _rRawCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mRawCbMtx_X) : BOF_ERR_NO_ERROR;
+    mErrorCode_E = _rRawCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mRawCircularBufferMtx_X) : BOF_ERR_NO_ERROR;
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
       if (_rRawCircularBufferParam_X.pData_U8)
@@ -152,9 +152,37 @@ BofRawCircularBuffer::~BofRawCircularBuffer()
   {
     BOF_SAFE_DELETE_ARRAY(mpData_U8);
   }
-  Bof_DestroyMutex(mRawCbMtx_X);
+  Bof_DestroyMutex(mRawCircularBufferMtx_X);
 }
 
+BOFERR BofRawCircularBuffer::LastErrorCode()
+{
+  return mErrorCode_E;
+}
+bool BofRawCircularBuffer::IsEmpty()
+{
+  return mNbElementInBuffer_U32 == 0;
+}
+bool BofRawCircularBuffer::IsFull()
+{
+  return GetNbFreeElement() == 0;
+}
+uint32_t BofRawCircularBuffer::GetSlotSize()
+{
+  return mSlotSize_U32;
+}
+uint32_t BofRawCircularBuffer::GetNbElement()
+{
+  return mSlotSize_U32 ? mNbSlot_U32 : mNbElementInBuffer_U32;
+}
+uint32_t BofRawCircularBuffer::GetCapacity()
+{
+  return mSlotSize_U32 ? mRawCircularBufferParam_X.NbMaxSlot_U32 : mRawCircularBufferParam_X.BufferSizeInByte_U32;
+}
+uint32_t BofRawCircularBuffer::GetMaxLevel()
+{
+  return mLevelMax_U32;
+}
 /*!
  * Description
  * This function stores a byte buffer of _Nb_U32 byte long inside the circular buffer.
@@ -524,7 +552,7 @@ BOFERR BofRawCircularBuffer::UnlockBuffer(const uint8_t *_pLockedBuffer_U8, uint
 uint32_t BofRawCircularBuffer::ReadNbHeader(uint32_t *_pPopIndex_U32)
 {
   uint32_t Rts_U32, PopIndex_U32;
-
+  //Lock is not taken to avoid recursive mutex
   // No security check (private fct caller has checked everything)
   if (_pPopIndex_U32)
   {
@@ -582,7 +610,7 @@ BOFERR BofRawCircularBuffer::WriteNbHeader(uint32_t *_pPushIndex_U32, uint32_t _
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   uint32_t PushIndex_U32;
-
+  //Lock is not taken to avoid recursive mutex
   // No security check (private fct caller has checked everything)
   if (_pPushIndex_U32)
   {
@@ -641,7 +669,7 @@ BOFERR BofRawCircularBuffer::ReadPayload(uint32_t *_pPopIndex_U32, uint32_t _Nb_
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   uint32_t Nb_U32, PopIndex_U32, NbElementInBuffer_U32;
-
+  //Lock is not taken to avoid recursive mutex
   // No security check (private fct caller has checked everything)
   if (_pPopIndex_U32)
   {
@@ -719,7 +747,7 @@ BOFERR BofRawCircularBuffer::WritePayload(uint32_t *_pPushIndex_U32, uint32_t _N
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   uint32_t Nb_U32, PushIndex_U32, NbElementInBuffer_U32;
-
+  //Lock is not taken to avoid recursive mutex
   // No security check (private fct caller has checked everything)
   if (_pPushIndex_U32)
   {
@@ -800,23 +828,23 @@ BOFERR BofRawCircularBuffer::WritePayload(uint32_t *_pPushIndex_U32, uint32_t _N
   }
   return Rts_E;
 }
-BOFERR BofRawCircularBuffer::LockRawQueue()
+BOFERR BofRawCircularBuffer::LockRawCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mRawCircularBufferParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_LockMutex(mRawCbMtx_X);
+    Rts_E = Bof_LockMutex(mRawCircularBufferMtx_X);
   }
   return Rts_E;
 }
-BOFERR BofRawCircularBuffer::UnlockRawQueue()
+BOFERR BofRawCircularBuffer::UnlockRawCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
   if (mRawCircularBufferParam_X.MultiThreadAware_B)
   {
-    Rts_E = Bof_UnlockMutex(mRawCbMtx_X);
+    Rts_E = Bof_UnlockMutex(mRawCircularBufferMtx_X);
   }
   return Rts_E;
 }
