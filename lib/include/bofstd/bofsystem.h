@@ -40,9 +40,16 @@ BEGIN_BOF_NAMESPACE()
 #define BOF_S_TO_NANO(v) (static_cast<uint64_t>((v)*1e9))
 #define BOF_INFINITE_TIMEOUT ((uint32_t)-1)
 #if defined(_WIN32)
-#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)  {DWORD NbRts; Sts = DeviceIoControl((HANDLE)fd, req, pInBuffer, LenIn, pOutBuffer, LenOut, &NbRts, false); }
+#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)                                     \
+  {                                                                                                       \
+    DWORD NbRts;                                                                                          \
+    Sts = DeviceIoControl((HANDLE)fd, req, pInBuffer, LenIn, pOutBuffer, LenOut, &NbRts, false) ? 0 : -1; \
+  }
 #else
-#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts)  {Sts = (ioctl(fd, req, pInBuffer) < 0) ? false:true;}
+#define BOF_IOCTL(fd, req, LenIn, pInBuffer, LenOut, pOutBuffer, Sts) \
+  {                                                                   \
+    Sts = ioctl(fd, req, pInBuffer);                                  \
+  }
 #endif
 enum class BOF_SEEK_METHOD : uint32_t
 {
@@ -392,7 +399,7 @@ struct BOF_MUTEX
   {
     Magic_U32 = 0;
     Name_S = "";
-    Recursive_B = true;
+    Recursive_B = false;
   }
 
   bool IsValid()
@@ -500,7 +507,8 @@ enum class BOF_ACCESS_TYPE : uint32_t
   BOF_ACCESS_READ = 0x00000001,
   BOF_ACCESS_WRITE = 0x00000002,
 };
-template <> struct IsItAnEnumBitFLag<BOF_ACCESS_TYPE> : std::true_type
+template <>
+struct IsItAnEnumBitFLag<BOF_ACCESS_TYPE> : std::true_type
 {
 };
 
@@ -537,7 +545,6 @@ struct BOF_SHARED_MEMORY
   }
 };
 
-
 enum BOF_THREAD_SCHEDULER_POLICY
 {
   BOF_THREAD_SCHEDULER_POLICY_OTHER = 0, // cf linux sched.h SCHED_OTHER/SCHED_FIFO/SCHED_RR
@@ -547,10 +554,10 @@ enum BOF_THREAD_SCHEDULER_POLICY
 };
 enum BOF_THREAD_PRIORITY
 {
-//  BOF_THREAD_PRIORITY_IDLE = 1,
-//  BOF_THREAD_PRIORITY_TIME_CRITICAL = 99,
-//  BOF_THREAD_DEFAULT_PRIORITY = 0x7FFFFFFF,
-//  BOF_THREAD_NONE = 0x7FFFFFFE,
+  //  BOF_THREAD_PRIORITY_IDLE = 1,
+  //  BOF_THREAD_PRIORITY_TIME_CRITICAL = 99,
+  //  BOF_THREAD_DEFAULT_PRIORITY = 0x7FFFFFFF,
+  //  BOF_THREAD_NONE = 0x7FFFFFFE,
 
   BOF_THREAD_PRIORITY_000 = 0,
   BOF_THREAD_PRIORITY_001,
@@ -671,7 +678,7 @@ struct BOF_THREAD
   void *pThreadExitCode;
 
 #if defined(_WIN32)
-  void *pThread;         /*! Thread windows handle*/
+  void *pThread;     /*! Thread windows handle*/
   uint32_t ThreadId; /*! Thread windows Id*/
 #else
   pthread_t ThreadId;
@@ -764,7 +771,7 @@ typedef union semsetgetval {
 
 BOFSTD_EXPORT BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, BOF_SHARED_MEMORY &_rSharedMemory_X);
 BOFSTD_EXPORT bool Bof_IsSharedMemoryValid(BOF_SHARED_MEMORY &_rSharedMemory_X);
-BOFSTD_EXPORT BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt_B);//__linux__ Need to call this at least once with _RemoveIt_B=true
+BOFSTD_EXPORT BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt_B); //__linux__ Need to call this at least once with _RemoveIt_B=true
 
 BOFSTD_EXPORT BOFERR Bof_CreateSemaphore(const std::string &_rName_S, int32_t _InitialCount_S32, BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT bool Bof_IsSemaphoreValid(BOF_SEMAPHORE &_rSem_X);
@@ -772,11 +779,67 @@ BOFSTD_EXPORT BOFERR Bof_SignalSemaphore(BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT BOFERR Bof_WaitForSemaphore(BOF_SEMAPHORE &_rSem_X, uint32_t _TimeoutInMs_U32);
 BOFSTD_EXPORT BOFERR Bof_DestroySemaphore(BOF_SEMAPHORE &_rSem_X);
 
+/** @brief A simple scoped lock type.
+ *
+ * A lock_guard controls mutex ownership within a scope, releasing
+ * ownership in the destructor.
+ */
+// Mimic std::lock_gard with an on demand Lock op to use with BOF_LOCK_GUARD_MUTEX_ENTER
+template <typename T>
+class BofLockGuard
+{
+public:
+  explicit BofLockGuard(T &_rMtx)
+      : mrMtx(_rMtx), mLockDone_B(false)
+  {
+  }
+
+  void Lock()
+  {
+    if (!mLockDone_B)
+    {
+      mrMtx.lock();
+      mLockDone_B = true;
+    }
+  }
+
+  ~BofLockGuard()
+  {
+    if (mLockDone_B)
+    {
+      mrMtx.unlock();
+    }
+  }
+
+  BofLockGuard(const BofLockGuard &) = delete;
+  BofLockGuard &operator=(const BofLockGuard &) = delete;
+
+private:
+  std::atomic<bool> mLockDone_B;
+  T &mrMtx;
+};
 BOFSTD_EXPORT BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _PriorityInversionAware_B, BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT bool Bof_IsMutexValid(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
+
+#define BOF_GUARD_MUTEX_ENTER(MultiThreadAware, BofMutex, Sts)                      \
+  {                                                                                 \
+    Sts = BOF_ERR_INIT;                                                             \
+    if ((!MultiThreadAware) || (BofMutex.Magic_U32 == BOF_MUTEX_MAGIC))             \
+    {                                                                               \
+      Sts = BOF_ERR_NO_ERROR;                                                       \
+      BOF::BofLockGuard<std::mutex> Lock(BofMutex.Mtx);                             \
+      BOF::BofLockGuard<std::recursive_mutex> RecursiveLock(BofMutex.RecursiveMtx); \
+      if (MultiThreadAware)                                                         \
+      {                                                                             \
+        BofMutex.Recursive_B ? RecursiveLock.Lock() : Lock.Lock();                  \
+      }
+
+#define BOF_GUARD_MUTEX_LEAVE() \
+  }                             \
+  }
 
 BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool _NotifyAll_B*/ uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT bool Bof_IsEventValid(BOF_EVENT &_rEvent_X);
@@ -854,17 +917,21 @@ void Bof_LockRam_ShowNewPagefaultCount(const char *logtext, const char *allowed_
 BOFERR Bof_LockRam(uint32_t _StackSizeInByte_U32, uint64_t _ReserveProcessMemoryInByte_U64);
 #endif
 
-template <typename Container, typename SearchFunc> auto Bof_EraseWhere(Container &_Container, SearchFunc &&_Func) -> decltype(_Container.end())
+template <typename Container, typename SearchFunc>
+auto Bof_EraseWhere(Container &_Container, SearchFunc &&_Func) -> decltype(_Container.end())
 {
   return _Container.erase(std::remove_if(_Container.begin(), _Container.end(), std::forward<SearchFunc>(_Func)), _Container.end());
 }
 
-template <typename... Args> using BofCvPredicateAndReset = std::function<bool(Args...)>;
-template <typename... Args> using BofCvSetter = std::function<void(Args...)>;
+template <typename... Args>
+using BofCvPredicateAndReset = std::function<bool(Args...)>;
+template <typename... Args>
+using BofCvSetter = std::function<void(Args...)>;
 
 BOFSTD_EXPORT BOFERR Bof_CreateConditionalVariable(const std::string &_rName_S, bool _NotifyAll_B, BOF_CONDITIONAL_VARIABLE &_rCv_X);
 
-template <typename... Args> BOFERR Bof_SignalConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, BofCvSetter<Args...> _CvSetter, const Args &..._Args)
+template <typename... Args>
+BOFERR Bof_SignalConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, BofCvSetter<Args...> _CvSetter, const Args &..._Args)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
 
@@ -878,7 +945,8 @@ template <typename... Args> BOFERR Bof_SignalConditionalVariable(BOF_CONDITIONAL
   return Rts_E;
 }
 
-template <typename... Args> BOFERR Bof_WaitForConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, uint32_t _TimeoutInMs_U32, BofCvPredicateAndReset<Args...> _CvPredicateAndReset, const Args &..._Args)
+template <typename... Args>
+BOFERR Bof_WaitForConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, uint32_t _TimeoutInMs_U32, BofCvPredicateAndReset<Args...> _CvPredicateAndReset, const Args &..._Args)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
 

@@ -211,7 +211,7 @@ template <typename DataType> BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPot
       mErrorCode_E = mPotParam_X.Blocking_B ? Bof_CreateEvent("pot_canget_" + std::to_string(mPotParam_X.PotCapacity_U32) + "_evt", false, 1, false, mCanGetEvent_X) : BOF_ERR_NO_ERROR;
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
-        mErrorCode_E = mPotParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofPot", true, true, mPotMtx_X) : BOF_ERR_NO_ERROR;
+        mErrorCode_E = mPotParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofPot", false, false, mPotMtx_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
           mErrorCode_E = BOF_ERR_ENOMEM;
@@ -612,7 +612,7 @@ template <typename DataType> BOFERR BofPot<DataType>::IsPotElementInUse(DataType
 
   if ((_pData_X) && (_pData_X >= mpPotDataStorage_X) && (_pData_X <= mpLastPotElement_X))
   {
-    BOF_POT_LOCK(Rts_E);
+    // Locked by caller BOF_POT_LOCK(Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (mPotParam_X.MagicNumber_U32)
@@ -660,7 +660,10 @@ template <typename DataType> BOFERR BofPot<DataType>::IsPotElementLocked(DataTyp
 
   if ((_pData_X) && (_pData_X >= mpPotDataStorage_X) && (_pData_X <= mpLastPotElement_X))
   {
-    BOF_POT_LOCK(Rts_E);
+    verifier partout que les truc qui lock n 'appelle pas d' autre fonction qui tente de relock
+
+        // Locked by caller (Unlock) BOF_POT_LOCK(Rts_E);
+        Rts_E = BOF_ERR_NO_ERROR;
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (mPotParam_X.MagicNumber_U32)
@@ -675,7 +678,7 @@ template <typename DataType> BOFERR BofPot<DataType>::IsPotElementLocked(DataTyp
 
       Rts_E = Locked_B ? BOF_ERR_NO_ERROR : BOF_ERR_UNLOCK;
 
-      BOF_POT_UNLOCK()
+      // BOF_POT_UNLOCK()
     }
   }
   return Rts_E;

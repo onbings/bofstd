@@ -275,7 +275,7 @@ template <typename KeyType, typename DataType> BofNaryTreeKv<KeyType, DataType>:
 {
   mNaryTreeKvParam_X = _rNaryTreeKvParam_X;
   mpRoot = nullptr;
-  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", true, true, mTreeMtx_X) : BOF_ERR_NO_ERROR;
+  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", false, false, mTreeMtx_X) : BOF_ERR_NO_ERROR;
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
   }
@@ -588,7 +588,7 @@ and then similarly, traverse the sibling nodes.
 - Initialize a variable to store the current depth of the node, for the root node the depth is 0.
 - Declare a boolean array to store the current exploring depths and initially mark all of them to False.
 - If the current node is a root node that is the depth of the node is 0, then simply print the data of the node.
-- Otherwise, Iterate over a loop from 1 to the current depth of node and store, ‘|’ and three spaces for each of the exploring depth and for non-exploring
+- Otherwise, Iterate over a loop from 1 to the current depth of node and store, ï¿½|ï¿½ and three spaces for each of the exploring depth and for non-exploring
   depth print three spaces only.
 - Store the current value of the node and move the output pointer to the next line.
 - If the current node is the last node of that depth then mark that depth as non-exploring.

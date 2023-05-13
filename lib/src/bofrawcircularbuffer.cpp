@@ -65,7 +65,7 @@ BofRawCircularBuffer::BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &
   mErrorCode_E = BOF_ERR_TOO_SMALL;
   if (mRawCircularBufferParam_X.BufferSizeInByte_U32)
   {
-    mErrorCode_E = _rRawCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", true, true, mRawCbMtx_X) : BOF_ERR_NO_ERROR;
+    mErrorCode_E = _rRawCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mRawCbMtx_X) : BOF_ERR_NO_ERROR;
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
       if (_rRawCircularBufferParam_X.pData_U8)

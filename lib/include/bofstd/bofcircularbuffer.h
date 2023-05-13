@@ -105,8 +105,10 @@ public:
   BofCircularBuffer(const BofCircularBuffer &) = delete;
 
   BOFERR LastErrorCode() const;
-  BOFERR LockQueue();
-  BOFERR UnlockQueue();
+  #if 0
+  BOFERR LockCircularBuffer();
+  BOFERR UnlockCircularBuffer();
+  #endif
   bool IsEmpty() const;
   bool IsFull() const;
   uint32_t GetNbElement() const;
@@ -162,7 +164,7 @@ template <typename DataType> BofCircularBuffer<DataType>::BofCircularBuffer(cons
         mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canwrite_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
-          mErrorCode_E = _rCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", true, true, mCbMtx_X) : BOF_ERR_NO_ERROR;
+          mErrorCode_E = _rCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mCbMtx_X) : BOF_ERR_NO_ERROR;
           if (mErrorCode_E == BOF_ERR_NO_ERROR)
           {
             if (_rCircularBufferParam_X.pData)
@@ -249,8 +251,8 @@ template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetCapacity()
 {
   return mCircularBufferParam_X.NbMaxElement_U32;
 }
-
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::LockQueue()
+#if 0
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::LockCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
@@ -261,7 +263,7 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::LockQueue()
   return Rts_E;
 }
 
-template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockQueue()
+template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockCircularBuffer()
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
 
@@ -271,7 +273,7 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockQueue()
   }
   return Rts_E;
 }
-
+#endif
 template <typename DataType> uint32_t BofCircularBuffer<DataType>::GetNbFreeElement()
 {
   uint32_t Rts_U32 = 0;
@@ -333,7 +335,7 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Push(const Data
   RetryPush:
     Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanWriteEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
     //		printf("@@%d@--->PushIn %s nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n", BOF::Bof_GetMsTickCount(),mCanReadEvent_X.Name_S.c_str(),	mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32,
-    //mpLock_U8[mPushIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
+    // mpLock_U8[mPushIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
 
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
@@ -521,10 +523,10 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Pop(DataType *_
 
   // if (_pData)
   {
-RetryPop:
-    //printf("%d: Bof_WaitForEvent blk %d To %d\n", BOF::Bof_GetMsTickCount(), mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32);
+  RetryPop:
+    // printf("%d: Bof_WaitForEvent blk %d To %d\n", BOF::Bof_GetMsTickCount(), mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32);
     Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32) && (mNbElementInBuffer_U32 == 0)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
-    //printf("%d: Bof_WaitForEvent end with %d\n", BOF::Bof_GetMsTickCount(), Rts_E);
+    // printf("%d: Bof_WaitForEvent end with %d\n", BOF::Bof_GetMsTickCount(), Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       BOF_CIRCULAR_BUFFER_LOCK(Rts_E);
@@ -603,7 +605,7 @@ RetryPop:
     }
   }
   //	printf("@@%d@--->PopOut %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32,
-  //mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
+  // mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
 
   return Rts_E;
 }
@@ -672,7 +674,7 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::Peek(DataType *
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
-  Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32) && (mNbElementInBuffer_U32==0)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
+  Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32) && (mNbElementInBuffer_U32 == 0)) ? Bof_WaitForEvent(mCanReadEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
   //  			printf("@@%d@--->PopIn %s LOCKIT %d nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n",BOF::Bof_GetMsTickCount(), mCanReadEvent_X.Name_S.c_str(),mCircularBufferParam_X.PopLockMode_B, mNbElementInBuffer_U32,
   //  mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32, mpLock_U8[mPopIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
   if (Rts_E == BOF_ERR_NO_ERROR)
@@ -852,7 +854,7 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockPop(uint3
   //	uint32_t i_U32;
 
   //	printf("@@%d@UnlockIn %d/%d lock %d nb %d/%d pop %d push %d\n", BOF::Bof_GetMsTickCount(),_AbsoluteIndex_U32, mCircularBufferParam_X.NbMaxElement_U32, mpLock_U8[_AbsoluteIndex_U32],
-  //mNbElementInBuffer_U32,mNbElementLockedInBuffer_U32,mPopIndex_U32,mPushIndex_U32);
+  // mNbElementInBuffer_U32,mNbElementLockedInBuffer_U32,mPopIndex_U32,mPushIndex_U32);
 
   if (mCircularBufferParam_X.PopLockMode_B)
   {
@@ -883,7 +885,7 @@ template <typename DataType> BOFERR BofCircularBuffer<DataType>::UnlockPop(uint3
     }
   }
   //	printf("@@%d@UnlockOut %d/%d lock %d nb %d/%d pop %d push %d Rts %x\n", BOF::Bof_GetMsTickCount(),_AbsoluteIndex_U32, mCircularBufferParam_X.NbMaxElement_U32, mpLock_U8[_AbsoluteIndex_U32],mNbElementInBuffer_U32,mNbElementLockedInBuffer_U32,
-  //mPopIndex_U32, mPushIndex_U32, Rts_E);
+  // mPopIndex_U32, mPushIndex_U32, Rts_E);
 
   return Rts_E;
 }

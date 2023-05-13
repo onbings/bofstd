@@ -42,7 +42,7 @@ BEGIN_BOF_NAMESPACE()
 
 BofStack::BofStack(const BOF_STACK_PARAM &_rStackParam_X)
 {
-  mErrorCode_E = _rStackParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", true, true, mMtx_X) : BOF_ERR_NO_ERROR;
+  mErrorCode_E = _rStackParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mMtx_X) : BOF_ERR_NO_ERROR;
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
 

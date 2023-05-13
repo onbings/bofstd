@@ -579,8 +579,8 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
     {
       iFlags = TIOCM_DTR;
 
-      BOF_IOCTL(mId_h, TIOCMBIS, &iFlags, 0, 0, 0, Sts_i);
-      if (Sts_i == 0)
+      BOF_IOCTL(mId_h, TIOCMBIS, sizeof(iFlags), &iFlags, 0, nullptr, Sts_i);
+      if (Sts_i >= 0)
       {
         Rts_B = true;
       }
@@ -593,8 +593,8 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
     {
       iFlags = TIOCM_DTR;
 
-      BOF_IOCTL(mId_h, TIOCMBIC, &iFlags, 0, 0, 0, Sts_i);
-      if (Sts_i == 0)
+      BOF_IOCTL(mId_h, TIOCMBIC, sizeof(iFlags), &iFlags, 0, nullptr, Sts_i);
+      if (Sts_i >= 0)
       {
         Rts_B = true;
       }
@@ -616,8 +616,8 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
       {
         iFlags = TIOCM_RTS;
 
-        BOF_IOCTL(mId_h, TIOCMBIS, &iFlags, 0, 0, 0, Sts_i);
-        if (Sts_i  == 0)
+        BOF_IOCTL(mId_h, TIOCMBIS, sizeof(iFlags), &iFlags, 0, nullptr, Sts_i);
+        if (Sts_i  >= 0)
         {
           Rts_B = true;
         }
@@ -630,8 +630,8 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
       {
         iFlags = TIOCM_RTS;
 
-        BOF_IOCTL(mId_h, TIOCMBIC, &iFlags, 0, 0, 0, Sts_i);
-        if (Sts_i == 0)
+        BOF_IOCTL(mId_h, TIOCMBIC, sizeof(iFlags), &iFlags, 0, nullptr, Sts_i);
+        if (Sts_i >= 0)
         {
           Rts_B = true;
         }
@@ -685,12 +685,12 @@ BOFERR BofUart::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
     uint32_t NbIn_U32;
     uint32_t NbOut_U32;
     int Sts_i;
-    BOF_IOCTL(mId_h, FIONREAD, &NbIn_U32, 0, 0, 0, Sts_i);
+    BOF_IOCTL(mId_h, FIONREAD, sizeof(NbIn_U32), &NbIn_U32, 0, nullptr, Sts_i);
     if (Sts_i < 0)
     {
       NbIn_U32 = 0;
     }
-    BOF_IOCTL(mId_h, TIOCOUTQ, &NbOut_U32, 0, 0, 0, Sts_i);
+    BOF_IOCTL(mId_h, TIOCOUTQ, sizeof(NbOut_U32), &NbOut_U32, 0, nullptr, Sts_i);
     if (Sts_i < 0)
     {
       NbOut_U32 = 0;
@@ -786,7 +786,7 @@ BOFERR BofUart::V_ReadData(uint32_t TimeOut_U32, uint32_t &_rNb_U32, uint8_t *pB
 #else
       uint32_t NbRead_U32 = 0;
       int Sts_i;
-      BOF_IOCTL(mId_h, FIONREAD, &NbInQueue_U32, 0, 0, 0, Sts_i);
+      BOF_IOCTL(mId_h, FIONREAD, sizeof(NbInQueue_U32), &NbInQueue_U32, 0, nullptr, Sts_i);
       if (Sts_i < 0)
       {
         NbInQueue_U32 = 0;
@@ -1242,7 +1242,7 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
     else /* Try to set custom baud rates */
     {
       serial_infos_X.reserved_char[0] = 0;
-      BOF_IOCTL(mId_h, TIOCGSERIAL, &serial_infos_X, 0, 0, 0, Sts_i);
+      BOF_IOCTL(mId_h, TIOCGSERIAL, sizeof(serial_infos_X), &serial_infos_X, 0, nullptr, Sts_i);
       if (Sts_i >= 0)
       {
         serial_infos_X.flags &= ~ASYNC_SPD_MASK;
@@ -1264,10 +1264,10 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
         else
         {
           Rc_B = false;
-          BOF_IOCTL(mId_h, TIOCSSERIAL, &serial_infos_X, 0, 0, 0, Sts_i);
+          BOF_IOCTL(mId_h, TIOCSSERIAL, sizeof(serial_infos_X), &serial_infos_X, 0, nullptr, Sts_i);
           if (Sts_i >= 0) 
           {
-            BOF_IOCTL(mId_h, TIOCGSERIAL, &serial_infos_X, 0, 0, 0, Sts_i);
+            BOF_IOCTL(mId_h, TIOCGSERIAL, sizeof(serial_infos_X), &serial_infos_X, 0, nullptr, Sts_i);
             if (Sts_i >= 0)
             {
               /* Yes set it with B38400 value ;-) */

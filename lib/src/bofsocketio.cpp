@@ -47,7 +47,7 @@ BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<Bof
     mErrorCode_E = mpuSocket->LastErrorCode();
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
-      //			mErrorCode_E = Bof_CreateMutex(mSocketIoParam_X.Name_S + "_mtx", true, true, mMtx_X);
+      //			mErrorCode_E = Bof_CreateMutex(mSocketIoParam_X.Name_S + "_mtx", false, false, mMtx_X);
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
 
@@ -930,7 +930,7 @@ std::string BofSocketIo::SocketIoDebugInfo()
                        mpReplyCollection ? mpReplyCollection->GetMaxLevel() : 0, mLastPartialReplyCode_U32, mpuSocket.get(), mConnected_B ? "True" : "False", mConnectedFromIp_S.c_str(), mConnectedToIp_S.c_str(), mIsLoggedIn_B ? "True" : "False");
 
   //	Rts_S += Bof_Sprintf("Child:             %d:%p\nParent:            %d:%s\nLock:              %08X %s\n", mpsChildDataChannel.use_count(), mpsChildDataChannel.get(), mpwParentCmdChannel.use_count(), mpwParentCmdChannel.expired() ? "True" : "False",
-  //mMtx_X.Mtx.native_handle(), mpLastLocker_c);
+  // mMtx_X.Mtx.native_handle(), mpLastLocker_c);
   Rts_S += Bof_Sprintf("Child:             %d:%p\nParent:            %d:%s\n", mpsChildDataChannel.use_count(), mpsChildDataChannel.get(), mpwParentCmdChannel.use_count(), mpwParentCmdChannel.expired() ? "True" : "False");
 
   Rts_S +=

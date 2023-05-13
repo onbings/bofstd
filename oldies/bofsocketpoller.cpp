@@ -1,23 +1,23 @@
 /*
-* Copyright (c) 2015-2025, Onbings. All rights reserved.
-*
-* THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-* KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-* PURPOSE.
-*
-* This module implements the BofSocketPoller class.
-*
-* Author:      Bernard HARMEL: onbings@dscloud.me
-* Web:			    onbings.dscloud.me
-* Revision:    1.0
-*
-* Rem:         None
-*
-* History:
-*
-* V 1.00  Jan 05 2019  BHA : Initial release
-*/
+ * Copyright (c) 2015-2025, Onbings. All rights reserved.
+ *
+ * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
+ * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
+ * PURPOSE.
+ *
+ * This module implements the BofSocketPoller class.
+ *
+ * Author:      Bernard HARMEL: onbings@dscloud.me
+ * Web:			    onbings.dscloud.me
+ * Revision:    1.0
+ *
+ * Rem:         None
+ *
+ * History:
+ *
+ * V 1.00  Jan 05 2019  BHA : Initial release
+ */
 
 /*** Include files ***********************************************************/
 
@@ -25,12 +25,11 @@
 
 BEGIN_BOF_NAMESPACE()
 
-
 enum POLL_SOCKET_CMD
 {
   POLL_SOCKET_CMD_CANCEL_WAIT = 'C',
 };
-BofSocketPoller::BofSocketPoller(uint32_t _NbMaxSession_U32): BofThread()
+BofSocketPoller::BofSocketPoller(uint32_t _NbMaxSession_U32) : BofThread()
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
 
@@ -46,23 +45,23 @@ BofSocketPoller::BofSocketPoller(uint32_t _NbMaxSession_U32): BofThread()
     {
     }
 
-    mErrorCode_E = Bof_CreateMutex(mBofSocketPollerParam_X.Name_S + "_mtx", true, true, mMtx_X);
+    mErrorCode_E = Bof_CreateMutex(mBofSocketPollerParam_X.Name_S + "_mtx", false, false, mMtx_X);
     if (mErrorCode_E == BOFERR_NO_ERROR)
     {
       mErrorCode_E = BOFERR_NOT_ENOUGH_RESOURCE;
-      //Entry 0 is for listen socket, Entry 1 if for pipe interrupt and the next ones are for client socket: For each client you can have 2 poll socket: one for cmd and one for data
-      mpPollOp_X = new BOF_POLL_SOCKET[POLL_RESERVED_INDEX_MAX + (mBofSocketPollerParam_X.NbMaxSession_U32 * 2)];  
+      // Entry 0 is for listen socket, Entry 1 if for pipe interrupt and the next ones are for client socket: For each client you can have 2 poll socket: one for cmd and one for data
+      mpPollOp_X = new BOF_POLL_SOCKET[POLL_RESERVED_INDEX_MAX + (mBofSocketPollerParam_X.NbMaxSession_U32 * 2)];
       BOF_ASSERT(mpPollOp_X != nullptr);
       if (mpPollOp_X)
       {
-        memset(mpPollOp_X, 0, sizeof(BOF_POLL_SOCKET)*(POLL_RESERVED_INDEX_MAX + _rBofSocketPollerParam_X.NbMaxSession_U32));
+        memset(mpPollOp_X, 0, sizeof(BOF_POLL_SOCKET) * (POLL_RESERVED_INDEX_MAX + _rBofSocketPollerParam_X.NbMaxSession_U32));
         mpPollOp_X[POLL_RESERVED_INDEX_LISTEN].Fd = mBofSocketPollerParam_X.Listen;
         mpPollOp_X[POLL_RESERVED_INDEX_LISTEN].Event_U16 = POLLIN;
 
         BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mBofSocketPollerParam_X.Name_S;
-        BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;  // _rBofSocketServerParam_X.Blocking_B;
+        BofSocketParam_X.BaseChannelParam_X.Blocking_B = true; // _rBofSocketServerParam_X.Blocking_B;
         BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
-        BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = _rBofSocketPollerParam_X.NbMaxSession_U32 * 2; 
+        BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = _rBofSocketPollerParam_X.NbMaxSession_U32 * 2;
         BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = _rBofSocketPollerParam_X.NbMaxSession_U32 * 2;
         BofSocketParam_X.NoDelay_B = true;
         BofSocketParam_X.ReUseAddress_B = true;
@@ -75,7 +74,7 @@ BofSocketPoller::BofSocketPoller(uint32_t _NbMaxSession_U32): BofThread()
           mErrorCode_E = mpBofSocketForCancellingWait->LastErrorCode();
           if (mErrorCode_E == BOFERR_NO_ERROR)
           {
-            BOF_SOCKET_ADDRESS DstIpAddress;  // (false, BOF_SOCK_TYPE::BOF_SOCK_UDP, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UDP, 127, 0, 0, 1, );
+            BOF_SOCKET_ADDRESS DstIpAddress; // (false, BOF_SOCK_TYPE::BOF_SOCK_UDP, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UDP, 127, 0, 0, 1, );
             DstIpAddress = mpBofSocketForCancellingWait->GetSrcIpAddress();
             mErrorCode_E = mpBofSocketForCancellingWait->SetDstIpAddress(DstIpAddress);
             if (mErrorCode_E == BOFERR_NO_ERROR)
@@ -90,7 +89,7 @@ BofSocketPoller::BofSocketPoller(uint32_t _NbMaxSession_U32): BofThread()
     }
   }
 }
- 
+
 BofSocketPoller::~BofSocketPoller()
 {
   BOF_SAFE_DELETE_ARRAY(mpPollOp_X);
@@ -99,46 +98,46 @@ BofSocketPoller::~BofSocketPoller()
 }
 BOFERR BofSocketPoller::LastErrorCode()
 {
-	return mErrorCode_E;
+  return mErrorCode_E;
 }
 
 BOFERR BofSocketPoller::AddToPollList(SOCKET _Socket, uint32_t &_rIndex_U32)
 {
-	BOFERR Rts_E = BOFERR_INVALID_PARAM;
+  BOFERR Rts_E = BOFERR_INVALID_PARAM;
 
-	if (_Socket != INVALID_SOCKET)
-	{
-		Rts_E = BOFERR_NO_MORE_HANDLE;
-		Bof_LockMutex(mMtx_X);
-		if (mNbSessionPollOp_U32 < mBofSocketPollerParam_X.NbMaxSession_U32)
-		{
+  if (_Socket != INVALID_SOCKET)
+  {
+    Rts_E = BOFERR_NO_MORE_HANDLE;
+    Bof_LockMutex(mMtx_X);
+    if (mNbSessionPollOp_U32 < mBofSocketPollerParam_X.NbMaxSession_U32)
+    {
       mpPollOp_X[POLL_RESERVED_INDEX_MAX + mNbSessionPollOp_U32].Fd = _Socket;
       mpPollOp_X[POLL_RESERVED_INDEX_MAX + mNbSessionPollOp_U32].Event_U16 = POLLIN;
-      _rIndex_U32=mNbSessionPollOp_U32++;
+      _rIndex_U32 = mNbSessionPollOp_U32++;
       Rts_E = BOFERR_NO_ERROR;
-		}
-		Bof_UnlockMutex(mMtx_X);
-	}
-	return Rts_E;
+    }
+    Bof_UnlockMutex(mMtx_X);
+  }
+  return Rts_E;
 }
 
 BOFERR BofSocketPoller::RemoveFromPollList(uint32_t _Index_U32)
 {
-	BOFERR Rts_E = BOFERR_NOT_FOUND;
+  BOFERR Rts_E = BOFERR_NOT_FOUND;
 
-	Bof_LockMutex(mMtx_X);
+  Bof_LockMutex(mMtx_X);
   if (_Index_U32 < mNbSessionPollOp_U32)
   {
-    if (_Index_U32 != mNbSessionPollOp_U32 - 1) //Not the last one
+    if (_Index_U32 != mNbSessionPollOp_U32 - 1) // Not the last one
     {
       _Index_U32 += POLL_RESERVED_INDEX_MAX;
       memmove(&mpPollOp_X[_Index_U32], &mpPollOp_X[_Index_U32 + 1], mNbSessionPollOp_U32 - _Index_U32);
     }
     mNbSessionPollOp_U32--;
     Rts_E = BOFERR_NO_ERROR;
-	}
-	Bof_UnlockMutex(mMtx_X);
-	return Rts_E;
+  }
+  Bof_UnlockMutex(mMtx_X);
+  return Rts_E;
 }
 BOFERR BofSocketPoller::CancelPollWait()
 {
@@ -156,7 +155,7 @@ BOFERR BofSocketPoller::CancelPollWait()
 }
 BOFERR BofSocketPoller::Poll(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPollSet_U32, const BOF_POLL_SOCKET **_ppListOfPollOp_X)
 {
-  BOFERR Rts_E= BOFERR_INVALID_PARAM;
+  BOFERR Rts_E = BOFERR_INVALID_PARAM;
   uint8_t SocketCmd_U8;
   uint32_t Nb_U32 = 1;
 
@@ -177,7 +176,7 @@ BOFERR BofSocketPoller::Poll(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPollSet_U3
           }
           else
           {
-            Rts_E=BOFERR_READ;
+            Rts_E = BOFERR_READ;
           }
         }
       }

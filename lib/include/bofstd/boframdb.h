@@ -206,7 +206,7 @@ template <typename KeyType> BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U
   uint32_t i_U32;
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
-  Bof_CreateMutex("BofRamDb", true, true, mMtx_X);
+  Bof_CreateMutex("BofRamDb", false, false, mMtx_X);
   mNbMaxElement_U32 = _NbMaxElement_U32;
   mNbIndex_U32 = _NbIndex_U32;
   mNbRecord_U32 = 0;

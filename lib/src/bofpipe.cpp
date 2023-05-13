@@ -22,6 +22,7 @@
  *
  * V 1.00  Oct 21 2002  BHA : Initial release
  */
+#include <bofstd/boffs.h>
 #include <bofstd/bofpipe.h>
 #include <bofstd/bofstring.h>
 #if defined(_WIN32)
@@ -63,7 +64,8 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
           mErrorCode_E = mpuUdpPipeMst->SetDstIpAddress(DstIpAddress);
           if (mErrorCode_E == BOF_ERR_NO_ERROR)
           {
-            // printf("PipeIn: Src %s Dst %s\n", mpuUdpPipeMst->GetSrcIpAddress().ToString(true, true).c_str(), mpuUdpPipeMst->GetDstIpAddress().ToString(true, true).c_str());
+            // printf("PipeIn: Src %s Dst %s\n", mpuUdpPipeMst->GetSrcIpAddress().ToString(true, true).c_str(),
+            // mpuUdpPipeMst->GetDstIpAddress().ToString(true, true).c_str());
           }
         }
       }
@@ -94,7 +96,8 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
               mErrorCode_E = mpuUdpPipeSlv->SetDstIpAddress(DstIpAddress);
               if (mErrorCode_E == BOF_ERR_NO_ERROR)
               {
-                // printf("PipeOut: Src %s Dst %s\n", mpuUdpPipeSlv->GetSrcIpAddress().ToString(true, true).c_str(), mpuUdpPipeSlv->GetDstIpAddress().ToString(true, true).c_str());
+                // printf("PipeOut: Src %s Dst %s\n", mpuUdpPipeSlv->GetSrcIpAddress().ToString(true,
+                // true).c_str(), mpuUdpPipeSlv->GetDstIpAddress().ToString(true, true).c_str());
               }
             }
           }
@@ -104,7 +107,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
 
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
 #if defined(_WIN32)
-      DWORD OpenMode_DW, DesiredAccess_DW;
+      DWORD OpenMode_DW, DesiredAccess_DW, PipeMode_DW;
       mErrorCode_E = BOF_ERR_CREATE;
       PipeName_S = "\\\\.\\pipe\\" + mPipeParam_X.BaseChannelParam_X.ChannelName_S;
       switch (mPipeParam_X.PipeAccess_E)
@@ -131,9 +134,9 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
       }
       if (mPipeParam_X.PipeServer_B)
       {
-
-        mPipe_h = CreateNamedPipe(PipeName_S.c_str(), OpenMode_DW, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : PIPE_NOWAIT), 1, mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32,
-                                  mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32, 0, nullptr);
+        PipeMode_DW = mPipeParam_X.StringMode_B ? (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE) : (PIPE_TYPE_BYTE | PIPE_READMODE_BYTE);
+        PipeMode_DW = |= (mPipeParam_X.BaseChannelParam_X.Blocking_B ? PIPE_WAIT : PIPE_NOWAIT)mPipe_h =
+            CreateNamedPipe(PipeName_S.c_str(), OpenMode_DW, PipeMode_DW, 1, mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32, mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32, 0, nullptr);
       }
       else
       {
@@ -146,17 +149,19 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
       }
 #else
       int Status_i, OpenFlag_i, CreateFlag_i;
+      long Size;
       mErrorCode_E = BOF_ERR_CREATE;
+
       switch (mPipeParam_X.PipeAccess_E)
       {
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ:
           OpenFlag_i = O_RDONLY;
-          CreateFlag_i = S_IRUSR;
+          CreateFlag_i = S_IRWXU;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE:
-          OpenFlag_i = O_WRONLY;
-          CreateFlag_i = S_IWUSR;
+          OpenFlag_i = O_RDWR;
+          CreateFlag_i = S_IRWXU;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE:
@@ -175,6 +180,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
         // Under linux a named event does not exist
         // Consequently, we're going to use a named
         // pipe instead
+        Status_i = unlink(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
         Status_i = mkfifo(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
         if ((Status_i == 0) || (Bof_GetLastError(false) == BOF_ERR_EEXIST))
         {
@@ -185,7 +191,8 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
           // This can be used to open a FIFO for writing while there are no readers
           // available. A process that uses both ends of the connection in order to
           // communicate with itself should be very careful to avoid deadlocks.
-          mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+          mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(),
+                         OpenFlag_i | O_NONBLOCK); // OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
         }
       }
       else
@@ -194,7 +201,31 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
       }
       if (mPipe_i >= 0)
       {
-        mErrorCode_E = BOF_ERR_NO_ERROR;
+        // Default is 64KB
+        if ((mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32) || (mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
+        {
+          mErrorCode_E = BOF_ERR_WRONG_SIZE;
+          Size = (long)fcntl(mPipe_i, F_GETPIPE_SZ);
+          Status_i = fcntl(mPipe_i, F_SETPIPE_SZ, (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32));
+          if (Status_i >= 0)
+          {
+            Size = (long)fcntl(mPipe_i, F_GETPIPE_SZ);
+            // Min seems to be 4KB
+            if (Size >= (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
+            {
+              mErrorCode_E = BOF_ERR_NO_ERROR;
+            }
+          }
+        }
+        else
+        {
+          mErrorCode_E = BOF_ERR_NO_ERROR;
+        }
+        if (mErrorCode_E != BOF_ERR_NO_ERROR)
+        {
+          close(mPipe_i);
+          mPipe_i = -1;
+        }
       }
 
 #endif
@@ -258,6 +289,13 @@ BOFERR BofPipe::V_FlushData(uint32_t _TimeoutInMs_U32)
 BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPendingByte_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
+#if defined(_WIN32)
+#else
+  int Nb_i, Sts_i;
+  struct pollfd pFds_X[4];
+#endif
+
+  _rNbPendingByte_U32 = 0;
   switch (mPipeParam_X.PipeType_E)
   {
     case BOF_PIPE_TYPE::BOF_PIPE_OVER_LOCAL_UDP:
@@ -268,7 +306,27 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
       break;
 
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
-      Rts_E = BOF_ERR_NO_ERROR;
+      if (mPipe_i >= 0)
+      {
+#if defined(_WIN32)
+        _rNbPendingByte_U32 = 1;
+        Rts_E = BOF_ERR_NO_ERROR;
+#else
+        Rts_E = BOF_ERR_ETIMEDOUT;
+        pFds_X[0].fd = mPipe_i;
+        pFds_X[0].events = (POLLIN);
+        if (poll(pFds_X, 1, _TimeoutInMs_U32) == 1)
+        {
+          int Nb_i, Sts_i;
+          BOF_IOCTL(mPipe_i, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
+          Rts_E = (Sts_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+          if (Rts_E == BOF_ERR_NO_ERROR)
+          {
+            _rNbPendingByte_U32 = (uint32_t)Nb_i;
+          }
+        }
+#endif
+      }
       break;
 
     default:
@@ -282,8 +340,8 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
 BOFERR BofPipe::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
-  BOF_COM_CHANNEL_STATUS Status_X;
 
+  _rStatus_X.Reset();
   switch (mPipeParam_X.PipeType_E)
   {
     case BOF_PIPE_TYPE::BOF_PIPE_OVER_LOCAL_UDP:
@@ -295,7 +353,22 @@ BOFERR BofPipe::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       break;
 
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
-      Rts_E = BOF_ERR_NO_ERROR;
+#if defined(_WIN32)
+      u_long Nb;
+      Rts_E = (ioctlsocket(mPipe_h, FIONREAD, &Nb) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+      if (Rts_E == BOF_ERR_NO_ERROR)
+      {
+        _rStatus_X.NbIn_U32 = (uint32_t)Nb;
+      }
+#else
+      int Nb_i, Sts_i;
+      BOF_IOCTL(mPipe_i, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
+      Rts_E = (Sts_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+      if (Rts_E == BOF_ERR_NO_ERROR)
+      {
+        _rStatus_X.NbIn_U32 = (uint32_t)Nb_i;
+      }
+#endif
       break;
 
     default:
@@ -309,10 +382,13 @@ BOFERR BofPipe::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_t *_pBuffer_U8)
 {
   BOFERR Rts_E = BOF_ERR_BAD_TYPE;
+  uint32_t i_U32, NbPendingByte_U32;
 #if defined(_WIN32)
   DWORD NumBytesRead_DW = 0;
 #else
   int Nb_i = 0;
+  uint32_t Len_U32;
+  char c_c;
 #endif
 
   if ((mPipeParam_X.PipeAccess_E == BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ) || (mPipeParam_X.PipeAccess_E == BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE))
@@ -324,13 +400,17 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
         if (mpuUdpPipeMst)
         {
           Rts_E = mFullDuplexUseMaster_B ? mpuUdpPipeMst->V_ReadData(_TimeoutInMs_U32, _rNb_U32, _pBuffer_U8) : mpuUdpPipeSlv->V_ReadData(_TimeoutInMs_U32, _rNb_U32, _pBuffer_U8);
-          // printf("PipeRead: Src %s Dst %s %d:%p %s\n", mpuUdpPipeMst->GetSrcIpAddress().ToString(true, true).c_str(), mpuUdpPipeMst->GetDstIpAddress().ToString(true, true).c_str(), _rNb_U32, _pBuffer_U8, Bof_ErrorCode(Rts_E));
+          // printf("PipeRead: Src %s Dst %s %d:%p %s\n", mpuUdpPipeMst->GetSrcIpAddress().ToString(true,
+          // true).c_str(), mpuUdpPipeMst->GetDstIpAddress().ToString(true, true).c_str(), _rNb_U32, _pBuffer_U8,
+          // Bof_ErrorCode(Rts_E));
         }
         break;
 
       case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
 #if defined(_WIN32)
         Rts_E = BOF_ERR_READ;
+        // mPipeParam_X.NativeStringMode_B: naturally supported as pipe is created in this case with
+        // (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE)
         if (ReadFile(mPipe_h, _pBuffer_U8, _rNb_U32, &NumBytesRead_DW, nullptr))
         {
           Rts_E = BOF_ERR_NO_ERROR;
@@ -339,15 +419,50 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
 #else
         if (mPipe_i >= 0)
         {
-          Rts_E = BOF_ERR_READ;
-          Nb_i = static_cast<int>(read(mPipe_i, _pBuffer_U8, _rNb_U32));
-          if (Nb_i >= 0)
+          Rts_E = V_WaitForDataToRead(_TimeoutInMs_U32, NbPendingByte_U32);
+          if (Rts_E == BOF_ERR_NO_ERROR)
           {
-            Rts_E = BOF_ERR_NO_ERROR;
-          }
-          else
-          {
-            Nb_i = 0;
+            if (mPipeParam_X.NativeStringMode_B)
+            {
+              Rts_E = BOF_ERR_EINVAL;
+              if ((_pBuffer_U8) && (_rNb_U32))
+              {
+                // Does not work on pipe handle (seek)            Rts_E = Bof_ReadLine(mPipe_i, _rNb_U32,
+                // (char
+                // *)_pBuffer_U8);
+                Len_U32 = _rNb_U32 - 1;
+                for (i_U32 = 0; i_U32 < Len_U32; i_U32++)
+                {
+                  if (read(mPipe_i, &c_c, 1) > 0)
+                  {
+                    _pBuffer_U8[i_U32] = c_c;
+                    if (c_c == '\n')
+                    {
+                      i_U32++;
+                      break;
+                    }
+                  }
+                  else
+                  {
+                    break;
+                  }
+                }
+                _pBuffer_U8[i_U32] = 0;
+                Nb_i = i_U32;
+              }
+            }
+            else
+            {
+              Nb_i = static_cast<int>(read(mPipe_i, _pBuffer_U8, _rNb_U32));
+            }
+            if (Nb_i > 0)
+            {
+              Rts_E = BOF_ERR_NO_ERROR;
+            }
+            else
+            {
+              Nb_i = 0;
+            }
           }
         }
         _rNb_U32 = Nb_i;
@@ -379,34 +494,51 @@ BOFERR BofPipe::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, const
         if (mpuUdpPipeMst)
         {
           Rts_E = mFullDuplexUseMaster_B ? mpuUdpPipeMst->V_WriteData(_TimeoutInMs_U32, _rNb_U32, _pBuffer_U8) : mpuUdpPipeSlv->V_WriteData(_TimeoutInMs_U32, _rNb_U32, _pBuffer_U8);
-          // printf("PipeWrite: Src %s Dst %s %d:%p %s\n", mpuUdpPipeMst->GetSrcIpAddress().ToString(true, true).c_str(), mpuUdpPipeMst->GetDstIpAddress().ToString(true, true).c_str(), _rNb_U32, _pBuffer_U8, Bof_ErrorCode(Rts_E));
+          // printf("PipeWrite: Src %s Dst %s %d:%p %s\n", mpuUdpPipeMst->GetSrcIpAddress().ToString(true,
+          // true).c_str(), mpuUdpPipeMst->GetDstIpAddress().ToString(true, true).c_str(), _rNb_U32, _pBuffer_U8,
+          // Bof_ErrorCode(Rts_E));
         }
         break;
       case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
-#if defined(_WIN32)
-        Rts_E = BOF_ERR_WRITE;
-        if (WriteFile(mPipe_h, _pBuffer_U8, _rNb_U32, &NumBytesWritten_DW, nullptr))
+        if (mPipeParam_X.NativeStringMode_B)
+        {
+          Rts_E = BOF_ERR_EINVAL;
+          if ((_pBuffer_U8) && (_rNb_U32))
+          {
+            Rts_E = (_pBuffer_U8[_rNb_U32 - 1] == '\n') ? BOF_ERR_NO_ERROR : BOF_ERR_FORMAT;
+          }
+        }
+        else
         {
           Rts_E = BOF_ERR_NO_ERROR;
         }
-        _rNb_U32 = NumBytesWritten_DW;
-#else
-        if (mPipe_i >= 0)
+        if (Rts_E == BOF_ERR_NO_ERROR)
         {
+#if defined(_WIN32)
           Rts_E = BOF_ERR_WRITE;
-          Nb_i = static_cast<int>(write(mPipe_i, _pBuffer_U8, _rNb_U32));
-          // if (static_cast<uint32_t>(Nb_i) == _rNb_U32)
-          if (Nb_i >= 0)
+          if (WriteFile(mPipe_h, _pBuffer_U8, _rNb_U32, &NumBytesWritten_DW, nullptr))
           {
             Rts_E = BOF_ERR_NO_ERROR;
           }
-          else
+          _rNb_U32 = NumBytesWritten_DW;
+#else
+          if (mPipe_i >= 0)
           {
-            Nb_i = 0;
+            Rts_E = BOF_ERR_WRITE;
+            Nb_i = static_cast<int>(write(mPipe_i, _pBuffer_U8, _rNb_U32));
+            // if (static_cast<uint32_t>(Nb_i) == _rNb_U32)
+            if (Nb_i > 0)
+            {
+              Rts_E = BOF_ERR_NO_ERROR;
+            }
+            else
+            {
+              Nb_i = 0;
+            }
           }
-        }
-        _rNb_U32 = Nb_i;
+          _rNb_U32 = Nb_i;
 #endif
+        }
         break;
 
       default:

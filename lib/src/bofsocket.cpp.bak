@@ -1933,7 +1933,7 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 		}
 #else
 		int Nb;
-		Rts_E = (BOF_IOCTL(mSocket, FIONREAD, &Nb, 0, 0, 0, 0) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+		Rts_E = (BOF_IOCTL(mSocket, FIONREAD, 0, &Nb, 0, nullptr, 0) >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
 		if (Rts_E == BOF_ERR_NO_ERROR)
 		{
 			_rStatus_X.NbIn_U32 = (uint32_t) Nb;

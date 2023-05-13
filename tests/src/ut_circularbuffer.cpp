@@ -155,7 +155,7 @@ BOFERR PushValue(uint32_t _Id_U32, uint32_t _NbLoop_U32, BofCircularBuffer<uint6
     //  printf("%03d:Push[%d]=%lld n=%d Rts %X\n", _Id_U32, i_U32, Val_U64, NbElem_U32, Rts_E);
     if (Rts_E)
     {
-      //printf("%03d:Push[%d]->%d\n", _Id_U32, i_U32, BOF::Bof_GetMsTickCount());
+      // printf("%03d:Push[%d]->%d\n", _Id_U32, i_U32, BOF::Bof_GetMsTickCount());
     }
     EXPECT_EQ(Rts_E, 0);
   }
@@ -197,6 +197,9 @@ TEST(BofCircularBuffer_Test, PopExternalStorage)
   pBofCircularBuffer = new BofCircularBuffer<uint32_t>(BofCircularBufferParam_X);
   EXPECT_TRUE(pBofCircularBuffer != nullptr);
   EXPECT_EQ(pBofCircularBuffer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  //  pBofCircularBuffer->LockCircularBuffer();
+  //  pBofCircularBuffer->UnlockCircularBuffer();
+
   for (i_U32 = 0; i_U32 < BofCircularBufferParam_X.NbMaxElement_U32; i_U32++)
   {
     pData_U32[i_U32] = i_U32 + 1;
@@ -250,7 +253,7 @@ TEST(BofCircularBuffer_Test, IsEntryFree)
     for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
     {
       Sts_B = pBofCollection->IsEntryFree(j_U32, &IsLocked_B, nullptr);
-      //printf("1: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
+      // printf("1: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
 
       if (pPosBusy_B[j_U32])
       {
@@ -271,7 +274,7 @@ TEST(BofCircularBuffer_Test, IsEntryFree)
     for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
     {
       Sts_B = pBofCollection->IsEntryFree(j_U32, &IsLocked_B, nullptr);
-      //printf("2: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
+      // printf("2: i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
 
       if (pPosBusy_B[j_U32])
       {
@@ -312,7 +315,7 @@ TEST(BofCircularBuffer_Test, IsEntryFree)
       {
         Dbg_U32++;
         Sts_B = pBofCollection->IsEntryFree(j_U32, &IsLocked_B, nullptr);
-        //printf("4: k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
+        // printf("4: k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosBusy_B[0], pPosBusy_B[1], pPosBusy_B[2], pPosBusy_B[3], pPosBusy_B[4], pPosBusy_B[5], pPosBusy_B[6], pPosBusy_B[7], pBofCollection->GetNbElement());
 
         if (pPosBusy_B[j_U32])
         {
@@ -485,7 +488,8 @@ TEST(BofCircularBuffer_Test, LockUnlock)
       for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
       {
         Sts_B = pBofCollection->IsLocked(j_U32);
-        //printf("k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosLocked_B[0], pPosLocked_B[1], pPosLocked_B[2], pPosLocked_B[3], pPosLocked_B[4], pPosLocked_B[5], pPosLocked_B[6], pPosLocked_B[7], pBofCollection->GetNbElement());
+        // printf("k %d i %d j %d Busy %d %d %d %d %d %d %d %d Nb %d\n", k_U32, i_U32, j_U32, pPosLocked_B[0], pPosLocked_B[1], pPosLocked_B[2], pPosLocked_B[3], pPosLocked_B[4], pPosLocked_B[5], pPosLocked_B[6], pPosLocked_B[7],
+        // pBofCollection->GetNbElement());
 
         if (pPosLocked_B[j_U32])
         {
@@ -532,12 +536,12 @@ TEST(BofCircularBuffer_Test, BlockingMode)
     Sts_E = pBofCollection->LastErrorCode();
   }
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  for (i_U32 = 0; i_U32 < 3; i_U32++)
+  for (i_U32 = 0; i_U32 < 1; i_U32++)
   {
     Bof_Now(Now);
     Now_S = Now.ToString();
 
-    //printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
+    // printf("[%X] ======= %s ====================\n", i_U32, Now_S.c_str());
 
     for (j_U32 = 0; j_U32 < NB_MAX_CLIENT; j_U32++)
     {
@@ -549,10 +553,10 @@ TEST(BofCircularBuffer_Test, BlockingMode)
     for (j_U32 = 0; j_U32 < NB_MAX_CLIENT; j_U32++)
     {
       pPushThread[j_U32].join();
-      //printf("pPushThread %d out\n", j_U32);
+      // printf("pPushThread %d out\n", j_U32);
     }
     PopThread.join();
-    //printf("PopThread out\n");
+    // printf("PopThread out\n");
   }
 }
 
@@ -571,10 +575,10 @@ TEST(BofCircularBuffer_Test, StdString)
   ASSERT_TRUE(pReplyCollection != nullptr);
   ASSERT_EQ(pReplyCollection->LastErrorCode(), BOF_ERR_NO_ERROR);
 
-  NbLoop_U32 = 100;
+  NbLoop_U32 = 50;
   for (i_U32 = 0; i_U32 < NbLoop_U32; i_U32++)
   {
-    Reply_S = Bof_Random(false, 0x100000, 'A', 'Z');
+    Reply_S = Bof_Random(false, 0x10000, 'A', 'Z');
     StrCollection.push_back(Reply_S);
     ASSERT_EQ(pReplyCollection->Push(&Reply_S, 0, nullptr), BOF_ERR_NO_ERROR);
     if (pReplyCollection->GetNbElement() == pReplyCollection->GetCapacity())

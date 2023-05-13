@@ -8,7 +8,7 @@
 // #define _CRTDBG_MAP_ALLOC
 // #include <stdlib.h>
 // #include <crtdbg.h>
-#if defined(NDEBUG)  //We are in Release compil
+#if defined(NDEBUG) // We are in Release compil
 #else
 #include <vld.h>
 #endif
@@ -66,6 +66,15 @@ BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, con
 
 int main(int argc, char *argv[])
 {
+/*
+  std::mutex m;
+  m.lock();
+  m.unlock();
+  BOF::BOF_MUTEX mCbMtx_X;
+  BOF::Bof_CreateMutex("BofCircularBuffer", false, false, mCbMtx_X);
+  mCbMtx_X.Mtx.lock();
+  mCbMtx_X.Mtx.unlock();
+*/
 #if 0
   char *p = new char[5];
   return 0;
@@ -84,20 +93,20 @@ int main(int argc, char *argv[])
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
 #endif
   testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "BofProcess_Test.*";
+  ::testing::GTEST_FLAG(filter) = "BofCircularBuffer_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
-  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Pipe_Test.UdpPipeSingle";
 
   Rts_i = RUN_ALL_TESTS();
 
   Sts_E = Bof_Shutdown();
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 
-#if defined(NDEBUG)  //We are in Release compil
+#if defined(NDEBUG) // We are in Release compil
 #else
   std::string Buffer_S;
   std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
-//  std::getline(std::cin, Buffer_S);
+  //  std::getline(std::cin, Buffer_S);
 #endif
 
   return Rts_i;
@@ -111,7 +120,7 @@ int main(int argc, char *argv[])
 [  PASSED  ] 162 tests.
 
   YOU HAVE 2 DISABLED TESTS
-  
+
   LINUX:
 
 [----------] Global test environment tear-down
@@ -125,6 +134,6 @@ su
 root@ad6c87cec684:/home/bha/bld/bofstd/tests# setcap CAP_SYS_NICE+ep ./bofstd-tests
 exit
 ./bofstd-tests
-  
-to be able to use the FIFO scheduler in my docker container  
+
+to be able to use the FIFO scheduler in my docker container
 */

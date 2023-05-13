@@ -29,7 +29,7 @@ History:
 // to profile this class
 // #define PROFILE_CLIST
 
-#if defined(NDEBUG)  //We are in Release compil
+#if defined(NDEBUG) // We are in Release compil
 #else
 #define CHECK_LIST_INTEGRITY
 #endif
@@ -257,7 +257,7 @@ template <typename Element> BofList<Element>::BofList(uint32_t _NbMaxElements_U3
   if (_ThreadSafe_B)
   {
     // BOFERR Sts_E=
-    Bof_CreateMutex("BofList", true, true, mMtx_X);
+    Bof_CreateMutex("BofList", false, false, mMtx_X);
   }
 
   // Allocate the memory

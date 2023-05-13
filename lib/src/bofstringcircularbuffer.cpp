@@ -79,7 +79,7 @@ BofStringCircularBuffer::BofStringCircularBuffer(const BOF_STRING_CIRCULAR_BUFFE
       mErrorCode_E = mStringCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cbs_canwrite_" + std::to_string(_rStringCircularBufferParam_X.BufferSizeInByte_U32) + "_evt", false, 1, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
-        mErrorCode_E = _rStringCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", true, true, mStringCbMtx_X) : BOF_ERR_NO_ERROR;
+        mErrorCode_E = _rStringCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mStringCbMtx_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
           if (mErrorCode_E == BOF_ERR_NO_ERROR)

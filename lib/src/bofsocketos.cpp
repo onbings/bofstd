@@ -387,7 +387,7 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
     IfReq_X.ifr_name[IFNAMSIZ - 1] = 0;
 
     _rInterfaceInfo_X.InterfaceFlag_E = BOF_NETWORK_INTERFACE_FLAG::BOF_IFF_NONE;
-    BOF_IOCTL(Socket_i, SIOCGIFFLAGS, &IfReq_X, 0, 0, 0, Sts_i)
+    BOF_IOCTL(Socket_i, SIOCGIFFLAGS, sizeof(IfReq_X), &IfReq_X, 0, nullptr, Sts_i)
     if (Sts_i >= 0)
     {
       if (IfReq_X.ifr_flags & IFF_UP)
@@ -396,13 +396,13 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
       }
     }
 
-    BOF_IOCTL(Socket_i, SIOCGIFMTU, &IfReq_X, 0, 0, 0, Sts_i);
+    BOF_IOCTL(Socket_i, SIOCGIFMTU, sizeof(IfReq_X), &IfReq_X, 0, nullptr, Sts_i);
     if (Sts_i >= 0)
     {
       _rInterfaceInfo_X.MtuSize_U32 = IfReq_X.ifr_mtu;
     }
 
-    BOF_IOCTL(Socket_i, SIOCGIFHWADDR, &IfReq_X, 0, 0, 0, Sts_i);
+    BOF_IOCTL(Socket_i, SIOCGIFHWADDR, sizeof(IfReq_X), &IfReq_X, 0, nullptr, Sts_i);
     if (Sts_i >= 0)
     {
       for (i_U32 = 0; i_U32 < 6; i_U32++)

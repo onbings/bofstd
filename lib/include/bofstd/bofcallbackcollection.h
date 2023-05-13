@@ -21,11 +21,12 @@
  */
 #pragma once
 
-#include <bofstd/bofsystem.h>
+#include <bofstd/bofstd.h>
 
 #include <atomic>
 #include <functional>
 #include <map>
+#include <mutex>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -35,7 +36,6 @@ BEGIN_BOF_NAMESPACE()
 template <typename T> //,	typename = typename std::enable_if<std::is_function<typename std::remove_pointer<T>::type>::value	>::type>
 class BofCallbackCollection
 {
-
 private:
   struct CB_ITEM
   {
@@ -54,23 +54,19 @@ private:
     }
   };
 
-  std::atomic<uint32_t> mCallbackId;
+  std::atomic<uint32_t> mCallbackId = 0;
   std::map<uint32_t, CB_ITEM> mCallbackCollection;
-  BOF_MUTEX mMtxCallbackCollection_X;
+  std::mutex mMtxCallbackCollection;
   bool mUnregisterIfFail_B = false;
 
   BofCallbackCollection()
   {
-    BOFERR Sts_E = Bof_CreateMutex("BofCallbackCollection", true, true, mMtxCallbackCollection_X);
-    BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-
     mCallbackId.store(0);
   }
 
 public:
   virtual ~BofCallbackCollection()
   {
-    Bof_DestroyMutex(mMtxCallbackCollection_X);
   }
 
   static BofCallbackCollection<T> &S_Instance()
@@ -89,27 +85,32 @@ public:
   BofCallbackCollection &operator=(BofCallbackCollection &&) = delete;      // Move assign
   BOFERR Register(const T &_rCallback, uint32_t &_rId_U32)
   {
-    BOFERR Rts_E = Bof_LockMutex(mMtxCallbackCollection_X);
+    BOFERR Rts_E = BOF_ERR_NO_ERROR;
     CB_ITEM Cb_X;
 
-    if (Rts_E == BOF_ERR_NO_ERROR)
+    std::lock_guard<std::mutex> Lock(mMtxCallbackCollection);
+    _rId_U32 = ++mCallbackId;
+    if (_rId_U32 == 0)
     {
-      _rId_U32 = ++mCallbackId;
-      //			Cb_X.EraseIt_B=false;
-      Cb_X.Callback = _rCallback;
-      mCallbackCollection[_rId_U32] = Cb_X;
-      Bof_UnlockMutex(mMtxCallbackCollection_X);
+      _rId_U32 = ++mCallbackId; // 0 is reserved
     }
+    //			Cb_X.EraseIt_B=false;
+    Cb_X.Callback = _rCallback;
+    mCallbackCollection[_rId_U32] = Cb_X;
     return Rts_E;
   }
 
   BOFERR Unregister(uint32_t _Id_U32)
   {
-    BOFERR Rts_E = Bof_LockMutex(mMtxCallbackCollection_X);
-
-    if (Rts_E == BOF_ERR_NO_ERROR)
+    std::lock_guard<std::mutex> Lock(mMtxCallbackCollection);
+    BOFERR Rts_E = BOF_ERR_NOT_FOUND;
+    if (_Id_U32 == 0)
     {
-      Rts_E = BOF_ERR_NOT_FOUND;
+      mCallbackCollection.clear();
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    else
+    {
       auto It = mCallbackCollection.find(_Id_U32);
       if (It != mCallbackCollection.end())
       {
@@ -117,77 +118,48 @@ public:
         Rts_E = BOF_ERR_NO_ERROR;
         //					It->second.EraseIt_B=true;
       }
-      Bof_UnlockMutex(mMtxCallbackCollection_X);
     }
     return Rts_E;
   }
 
-  template <typename... Args> BOFERR Call(uint32_t _Id_U32, const Args &..._Args)
+  template <typename... Args> BOFERR Call(uint32_t _Id_U32, const Args &..._rArgs)
   {
     bool HasFailed_B;
+    BOFERR Rts_E = BOF_ERR_NOT_FOUND;
 
-    BOFERR Rts_E = Bof_LockMutex(mMtxCallbackCollection_X);
-    if (Rts_E == BOF_ERR_NO_ERROR)
-    {
-      Rts_E = BOF_ERR_NOT_FOUND;
-      auto It = mCallbackCollection.find(_Id_U32);
-      if (It != mCallbackCollection.end())
-      {
-        /*
-                  if (It->second.EraseIt_B)
-                  {
-                    mCallbackCollection.erase(It);
-                  }
-                  else
-        */
-        {
-          //				static_assert(std::is_same<typename T::result_type, void>::value, "Oops");
-          Rts_E = BOF_ERR_NO_ERROR;
-          CallIt(It->second.Callback, HasFailed_B, _Args...);
-          if ((mUnregisterIfFail_B) && (HasFailed_B))
-          {
-            mCallbackCollection.erase(It);
-            Rts_E = BOF_ERR_CANCEL;
-          }
-        }
-      }
-      Bof_UnlockMutex(mMtxCallbackCollection_X);
-    }
-    return Rts_E;
-  }
-
-  template <typename... Args> BOFERR Call(const Args &..._Args)
-  {
-    BOFERR Rts_E = Bof_LockMutex(mMtxCallbackCollection_X);
-    bool HasFailed_B;
-
-    if (Rts_E == BOF_ERR_NO_ERROR)
+    std::lock_guard<std::mutex> Lock(mMtxCallbackCollection);
+    if (_Id_U32 == 0)
     {
       auto It = mCallbackCollection.begin();
       Rts_E = (It != mCallbackCollection.end()) ? BOF_ERR_NO_ERROR : BOF_ERR_EMPTY;
 
       while (It != mCallbackCollection.end())
       {
-        /*
-                  if (It->second.EraseIt_B)
-                  {
-                    It=mCallbackCollection.erase(It);
-                  }
-                  else
-        */
+        CallIt(It->second.Callback, HasFailed_B, _rArgs...);
+        if ((mUnregisterIfFail_B) && (HasFailed_B))
         {
-          CallIt(It->second.Callback, HasFailed_B, _Args...);
-          if ((mUnregisterIfFail_B) && (HasFailed_B))
-          {
-            It = mCallbackCollection.erase(It);
-          }
-          else
-          {
-            ++It;
-          }
+          It = mCallbackCollection.erase(It);
+        }
+        else
+        {
+          ++It;
         }
       }
-      Bof_UnlockMutex(mMtxCallbackCollection_X);
+    }
+    else
+    {
+      auto It = mCallbackCollection.find(_Id_U32);
+      if (It != mCallbackCollection.end())
+      {
+        //				static_assert(std::is_same<typename T::result_type, void>::value, "Oops");
+        Rts_E = BOF_ERR_NO_ERROR;
+        CallIt(It->second.Callback, HasFailed_B, _rArgs...);
+        if ((mUnregisterIfFail_B) && (HasFailed_B))
+        {
+          mCallbackCollection.erase(It);
+          Rts_E = BOF_ERR_CANCEL;
+        }
+      }
     }
     return Rts_E;
   }

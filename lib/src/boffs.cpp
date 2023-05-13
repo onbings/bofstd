@@ -701,80 +701,89 @@ int64_t Bof_SetFileIoPosition(uintptr_t _Io, int64_t _Offset_S64, BOF_SEEK_METHO
   return Rts_S64;
 }
 
-int ReadLine(uintptr_t _Io, uint32_t _Max_U32, char *_pBuffer_c)
+BOFERR Bof_ReadLine(uintptr_t _Io, uint32_t &_rNb_U32, char *_pBuffer_c)
 {
-  int i, Rts_i = -1, Len_i;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  int i, Len_i;
   char *pData_c;
-  uint32_t Remain_U32;
+  uint32_t Remain_U32, Size_U32;
   char c, pDataRead_c[0x200];
   int64_t Pos_S64;
   bool Break_B;
 
-  if ((_Max_U32) && (_pBuffer_c))
+  Size_U32 = 0;
+  if ((_rNb_U32) && (_pBuffer_c))
   {
+    Rts_E = BOF_ERR_CREATE;
     Pos_S64 = Bof_SetFileIoPosition(_Io, 0, BOF_SEEK_METHOD::BOF_SEEK_CURRENT);
-    Rts_i = 0;
-    c = 0;
-    pData_c = _pBuffer_c;
-    Remain_U32 = _Max_U32;
-    do
+    if (Pos_S64>=0) //for mkfifo
     {
-      Len_i = static_cast<int>(read(static_cast<int>(_Io), pDataRead_c, sizeof(pDataRead_c)));
-      if (Len_i > 0)
+      Rts_E = BOF_ERR_EMPTY;
+      c = 0;
+      pData_c = _pBuffer_c;
+      Remain_U32 = _rNb_U32;
+      do
       {
-        Break_B = false;
-        for (i = 0; i < Len_i; i++)
+        Len_i = static_cast<int>(read(static_cast<int>(_Io), pDataRead_c, sizeof(pDataRead_c)));
+        if (Len_i > 0)
         {
-          c = pDataRead_c[i];
-          *pData_c++ = c;
-          if ((c == 0) || (c == '\n'))
+          Break_B = false;
+          for (i = 0; i < Len_i; i++)
           {
-            i++;
-            Break_B = true;
+            c = pDataRead_c[i];
+            *pData_c++ = c;
+            if ((c == 0) || (c == '\n'))
+            {
+              i++;
+              Break_B = true;
+              break;
+            }
+          }
+          Remain_U32 -= i;
+          Size_U32 += i;
+          if (Break_B)
+          {
             break;
           }
         }
-        Remain_U32 -= i;
-        Rts_i += i;
-        if (Break_B)
+        else
         {
           break;
         }
-      }
-      else
+      } while (Remain_U32);
+      if (Size_U32)
       {
-        break;
-      }
-    } while (Remain_U32);
-    if (Rts_i > 0)
-    {
-      Bof_SetFileIoPosition(_Io, Pos_S64 + Rts_i, BOF_SEEK_METHOD::BOF_SEEK_BEGIN);
-      if (c != 0)
-      {
-        if (Remain_U32)
+        Rts_E = BOF_ERR_NO_ERROR;
+        Bof_SetFileIoPosition(_Io, Pos_S64 + Size_U32, BOF_SEEK_METHOD::BOF_SEEK_BEGIN);
+        if (c != 0)
         {
-          _pBuffer_c[Rts_i] = 0;
-        }
-        else
-        {
-          _pBuffer_c[_Max_U32 - 1] = 0;
+          if (Remain_U32)
+          {
+            _pBuffer_c[Size_U32] = 0;
+          }
+          else
+          {
+            _pBuffer_c[_rNb_U32 - 1] = 0;
+          }
         }
       }
     }
   }
-  return (Rts_i);
+  _rNb_U32 = Size_U32;
+  return (Rts_E);
 }
 
 BOFERR Bof_ReadLine(uintptr_t _Io, std::string &_rLine_S)
 {
-  BOFERR Rts_E = BOF_ERR_READ;
+  BOFERR Rts_E;
+  uint32_t Nb_U32;
   char pBuffer_c[0x10000];
 
-  int Len_i = ReadLine(_Io, sizeof(pBuffer_c), pBuffer_c);
-  if (Len_i > 0)
+  Nb_U32=sizeof(pBuffer_c);
+  Rts_E = Bof_ReadLine(_Io, Nb_U32, pBuffer_c);
+  if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rLine_S = pBuffer_c;
-    Rts_E = BOF_ERR_NO_ERROR;
   }
   return Rts_E;
 }

@@ -43,6 +43,7 @@ struct BOF_PIPE_PARAM
 {
   BOF_PIPE_TYPE PipeType_E;
   bool PipeServer_B;
+  bool NativeStringMode_B;  //BOF_PIPE_NATIVE: if true message should be delimitted by '\n. In this case, the caller must provide a \n terminated buffer to the write function
   BOF_PIPE_ACCESS PipeAccess_E;
   BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
   uint16_t SrcPortBase_U16;                  //for BOF_PIPE_OVER_LOCAL_UDP, local Port for udp in pipe->if 0 let os decide, otherwise use this value for port in and this value+1 for port out
@@ -56,6 +57,7 @@ struct BOF_PIPE_PARAM
   {
     PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_OVER_LOCAL_UNKNOWN;
     PipeServer_B = false;
+    NativeStringMode_B = false;
     PipeAccess_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ;
     BaseChannelParam_X.Reset();
     SrcPortBase_U16 = 0;

@@ -21,6 +21,7 @@
  */
 #include <bofstd/bofsocket.h>
 #include <bofstd/bofstring.h>
+#include <bofstd/bofsystem.h>
 
 #if _WIN32
 // #pragma warning(push)
@@ -1217,6 +1218,7 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
             {
               Len_i = sizeof(mDstIpAddress_X.IpV4Address_X);
               Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *>(_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), &Len_i));
+              // printf("recvfrom Sock %x Nb %d %s\n", mSocket, Nb_U32, mDstIpAddress_X.ToString(true, true).c_str());
             }
             // MSG_TRUNC(since Linux 2.2): seems also to exist in windows
             // For  UNIX datagram(since Linux 3.4) sockets and raw(AF_PACKET), Internet datagram(since Linux 2.4.27 / 2.6.8) and netlink(since Linux 2.6.22): return the real length of the packet or datagram, even when it was longer
@@ -1364,6 +1366,7 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
               else
               {
                 Nb_U32 = static_cast<uint32_t>(sendto(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), LastOne_U32, 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), sizeof(mDstIpAddress_X.IpV4Address_X)));
+                // printf("sendto Sock %x Nb %d %s\n", mSocket, Nb_U32, mDstIpAddress_X.ToString(true, true).c_str());
               }
               if (Nb_U32 == LastOne_U32)
               {
@@ -1384,7 +1387,8 @@ BOFERR BofSocket::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, con
             {
               Rts_E = BOF_ERR_WRITE;
               Nb_U32 = static_cast<uint32_t>(send(mSocket, reinterpret_cast<const char *>(&pBuffer_U8[Total_U32]), (_rNb_U32 - Total_U32), 0));
-              if (static_cast<int>(Nb_U32) > 0) //>= 0)	// https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
+              if (static_cast<int>(Nb_U32) >
+                  0) //>= 0)	// https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
               {
                 Total_U32 += Nb_U32;
                 Rts_E = BOF_ERR_NO_ERROR;
@@ -1877,12 +1881,13 @@ BOFERR BofSocket::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       _rStatus_X.NbIn_U32 = (uint32_t)Nb;
     }
 #else
-    int Nb, Sts_i;
-    BOF_IOCTL(mSocket, FIONREAD, &Nb, 0, 0, 0, Sts_i);
-    Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+    int Nb_i, Sts_i;
+    BOF_IOCTL(mSocket, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
+    Rts_E = (Sts_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
-      _rStatus_X.NbIn_U32 = (uint32_t)Nb;
+      // printf("Sock %x Nb %d\n", mSocket, Nb_i);
+      _rStatus_X.NbIn_U32 = (uint32_t)Nb_i;
     }
 #endif
 
@@ -1987,7 +1992,7 @@ BOFERR BofSocket::SetReadTimeout(uint32_t _TimeoutInMs_U32)
 #if defined(_WIN32)
     PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {
@@ -2075,7 +2080,7 @@ BOFERR BofSocket::SetReadOrWriteTimeout(uint32_t _TimeoutInMs_U32, bool &_ReadDa
 #if defined(_WIN32)
     PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {

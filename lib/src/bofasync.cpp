@@ -79,7 +79,7 @@ BOFERR BofCommandQueue::OnProcessing()
       if (mpuCommandEntryCollection)
       {
         mCommandPending_X.Cmd();
-        Sts_E = mpuCommandEntryCollection->LockQueue();
+        Sts_E = mpuCommandEntryCollection->LockCircularBuffer();
         if (Sts_E == BOF_ERR_NO_ERROR)
         {
           if (mpuCommandEntryCollection->IsEmpty())
@@ -90,7 +90,7 @@ BOFERR BofCommandQueue::OnProcessing()
           {
             mpuCommandEntryCollection->Peek(&mCommandPending_X, 0, nullptr, nullptr);
           }
-          mpuCommandEntryCollection->UnlockQueue();
+          mpuCommandEntryCollection->UnlockCircularBuffer();
         }
       }
     }
@@ -118,7 +118,7 @@ BOFERR BofCommandQueue::PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENT
         }
         else
         {
-          Rts_E = mpuCommandEntryCollection->LockQueue();
+          Rts_E = mpuCommandEntryCollection->LockCircularBuffer();
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
             for (i_U32 = 0; i_U32 < mpuCommandEntryCollection->GetNbElement(); i_U32++)
@@ -137,7 +137,7 @@ BOFERR BofCommandQueue::PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENT
                 break;
               }
             }
-            mpuCommandEntryCollection->UnlockQueue();
+            mpuCommandEntryCollection->UnlockCircularBuffer();
           }
         }
       }

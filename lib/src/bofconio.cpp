@@ -83,7 +83,7 @@ BofConio::BofConio(const BOF_CONIO_PARAM &_rBofConioParam_X)
   }
 #else
   // struct winsize ScreenBufferInfo_X;
-  // BOF_IOCTL(STDOUT_FILENO, TIOCGWINSZ, &ScreenBufferInfo_X, 0, 0, 0, Sts_i);
+  // BOF_IOCTL(STDOUT_FILENO, TIOCGWINSZ, sizeof(ScreenBufferInfo_X), &ScreenBufferInfo_X, 0, nullptr, Sts_i);
   // mConsoleWidth_U32 = ScreenBufferInfo_X.ws_row;
   // mConsoleHeight_U32 = ScreenBufferInfo_X.ws_col;
   //	mConsoleHeight_U32 = atoi(getenv("LINES"));
@@ -337,8 +337,8 @@ uint32_t BofConio::GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c)
   /* Does not work in terminal
    * char LedFlag_c,ShiftState_c;
 
-        BOF_IOCTL(STDIN_FILENO, KDGKBLED, &LedFlag_c, 0, 0, 0, Sts_i);
-        if (Sts_i == 0)
+        BOF_IOCTL(STDIN_FILENO, KDGKBLED, sizeof(LedFlag_c), &LedFlag_c, 0, nullptr, Sts_i);
+        if (Sts_i >= 0)
         {
           if (LedFlag_c & 0x04)
           {
@@ -357,8 +357,8 @@ uint32_t BofConio::GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c)
 
 
         ShiftState_c = 6;
-        BOF_IOCTL(0, TIOCLINUX, &ShiftState_c, 0, 0, 0, Sts_i);
-        if (Sts_i == 0)
+        BOF_IOCTL(0, TIOCLINUX, sizeof(ShiftState_c), &ShiftState_c, 0, nullptr, Sts_i);
+        if (Sts_i >= 0)
         {
           printf("Shift State %02X\n", ShiftState_c);
         }
