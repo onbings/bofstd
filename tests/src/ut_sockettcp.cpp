@@ -120,8 +120,8 @@ static void *S_TcpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B
       }
     }
   }
-  //ClientCollection is a vector of unique pointer->deallocated on return of this function
- // ClientCollection.clear();
+  // ClientCollection is a vector of unique pointer->deallocated on return of this function
+  // ClientCollection.clear();
   return nullptr;
 }
 
@@ -138,9 +138,9 @@ void SocketTcp_Test::SetUp()
 
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "TcpServer";
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 64; // 0->Client
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000;	//0x1000000;
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000;	//0x1000000;
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 64;      // 0->Client
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000; // 0x1000000;
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000; // 0x1000000;
   mServerThreadContext_X.BofSocketParam_X.BindIpAddress_S = "tcp://127.0.0.1:5555";
   mServerThreadContext_X.BofSocketParam_X.ReUseAddress_B = false;
   mServerThreadContext_X.BofSocketParam_X.NoDelay_B = true;
@@ -153,7 +153,7 @@ void SocketTcp_Test::SetUp()
 
   Sts_E = Bof_CreateThread("ServerThread", S_TcpServerThread, &mServerThreadContext_X, mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, 1000);
+  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
@@ -187,9 +187,9 @@ TEST_F(SocketTcp_Test, TcpClientTest)
 
     BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "TcpClient_" + std::to_string(i_U32);
     BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-    BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0; // 0->Client
-    BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000;	//0x1000000;
-    BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000;	//0x1000000;
+    BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;       // 0->Client
+    BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000; // 0x1000000;
+    BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000; // 0x1000000;
 
     BofSocketParam_X.BindIpAddress_S = "tcp://127.0.0.1:0";
     BofSocketParam_X.ReUseAddress_B = false;
@@ -202,11 +202,11 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     BofSocketParam_X.EnableLocalMulticast_B = false;
     Sts_E = puClientSocket->InitializeSocket(BofSocketParam_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    
-    //printf("create sck %d bal %d\n", puClientSocket->GetSocketHandle(), BOF::BofSocket::S_BofSocketBalance());
+
+    // printf("create sck %d bal %d\n", puClientSocket->GetSocketHandle(), BOF::BofSocket::S_BofSocketBalance());
     ClientCollection.push_back(std::move(puClientSocket));
   }
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1);   //+1 because S_TcpServerThread creatre a listening socket
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1); //+1 because S_TcpServerThread creatre a listening socket
 
   for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
   {
@@ -227,7 +227,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_STREQ("QWERTY\n", Str_S.c_str());
   }
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size());//+1 because S_TcpServerThread creatre a listening socket
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size()); //+1 because S_TcpServerThread creatre a listening socket
 
   Nb_U32 = sizeof(pBuffer_U8);
   for (j_U32 = 0; j_U32 < Nb_U32; j_U32++)
@@ -283,7 +283,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
       Sts_E = ClientCollection[i_U32]->V_ReadData(10, Nb_U32, pBuffer_U8);
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
-        //printf("extra rd clt %d nb %d Srv %" PRId64 "Clt %" PRId64 "\n", i_U32, Nb_U32, S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
+        // printf("extra rd clt %d nb %d Srv %" PRId64 "Clt %" PRId64 "\n", i_U32, Nb_U32, S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
         S_TotalCltTcp_U64 += Nb_U32;
       }
       Sts_E = ClientCollection[i_U32]->V_GetStatus(Status_X);
@@ -295,7 +295,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     }
     DeltaWaitEof_U32 = Bof_ElapsedMsTime(StartWaitEof_U32);
     TotalSrvClt_U64 = (S_TotalSrvTcp_U64 + S_TotalCltTcp_U64);
-    //printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
+    // printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvTcp_U64, S_TotalCltTcp_U64);
     if (DeltaWaitEof_U32 > 3000)
     {
       break;
@@ -306,7 +306,7 @@ TEST_F(SocketTcp_Test, TcpClientTest)
   EXPECT_EQ(TotalSrvClt_U64, Total_U64);
   KBPerSec_U32 = (Delta_U32) ? static_cast<uint32_t>((TotalSrvClt_U64 * 1000) / 1024L) / Delta_U32 : 0;
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  //printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32,KBPerSec_U32, KBPerSec_U32 / 1024);
+  // printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32,KBPerSec_U32, KBPerSec_U32 / 1024);
 
   for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
   {
@@ -317,9 +317,9 @@ TEST_F(SocketTcp_Test, TcpClientTest)
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   }
 
-//All client and server session vector of unique pointer->deallocated on return of this function and the exit of server listening thread
-//Socket level is finally checked in the next test function ChkSocketBalance
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size());//+1 because S_TcpServerThread creatre a listening socket
+  // All client and server session vector of unique pointer->deallocated on return of this function and the exit of server listening thread
+  // Socket level is finally checked in the next test function ChkSocketBalance
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size()); //+1 because S_TcpServerThread creatre a listening socket
 }
 
 TEST_F(SocketTcp_Test, ChkSocketBalance)

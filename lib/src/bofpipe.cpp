@@ -34,7 +34,8 @@
 #endif
 BEGIN_BOF_NAMESPACE()
 
-BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TPIPE, mPipeParam_X.BaseChannelParam_X)
+BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
+    : BofComChannel(BOF_COM_CHANNEL_TYPE::TPIPE, mPipeParam_X.BaseChannelParam_X)
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
   BOF_SOCKET_ADDRESS DstIpAddress;
@@ -45,7 +46,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X) : BofComChannel(BOF_COM_CH
   {
     case BOF_PIPE_TYPE::BOF_PIPE_OVER_LOCAL_UDP:
       BofSocketParam_X.BaseChannelParam_X.ChannelName_S = mPipeParam_X.BaseChannelParam_X.ChannelName_S + "_In";
-      BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
+      BofSocketParam_X.BaseChannelParam_X.Blocking_B = mPipeParam_X.BaseChannelParam_X.Blocking_B;
       BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
       BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32;
       BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32;

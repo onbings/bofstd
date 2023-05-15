@@ -1,3 +1,4 @@
+#include <bofstd/boffs.h>
 #include <bofstd/bofsystem.h>
 
 #include "../include/gtestrunner.h"
@@ -84,10 +85,16 @@ int main(int argc, char *argv[])
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
 #endif
   testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "Threading_Test.SingleThread";
-  //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*:BofIo_Test.OpenCloseCmdSession";
-  //::testing::GTEST_FLAG(filter) = "Pipe_Test.UdpPipeSingle";
+  //::testing::GTEST_FLAG(filter) = "XmlWriter_Test.*"; // XmlParser_Test.XmlVector
+  //::testing::GTEST_FLAG(filter) = "SockIo_Test.CreateDelete";
+  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*"; // UdpPipeSingle";
 
+  std::string CrtDir_S;
+  BOF::Bof_GetCurrentDirectory(CrtDir_S);
+  printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
+#if defined(__linux__)
+// for xml test under vscode/docker  BOF::Bof_ChangeCurrentDirectory("/home/bha/bld/Tge2-Debug/bofstd/tests/");
+#endif
   Rts_i = RUN_ALL_TESTS();
 
   Sts_E = Bof_Shutdown();

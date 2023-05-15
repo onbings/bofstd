@@ -67,7 +67,8 @@ class TestBofThread : public BofThread
 public:
   std::atomic<uint32_t> mCpt;
 
-  TestBofThread() : BofThread()
+  TestBofThread()
+      : BofThread()
   {
     mCpt = 0;
     mExit_B = false;
@@ -129,7 +130,7 @@ TEST_F(BofThread_Test, VirtualThreadTrue)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   TestBofThread_O.mCpt = 0;
-  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, 1, 1000, 0);
+  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1, 1000, 0);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Start_U32 = Bof_GetMsTickCount();
   do
@@ -152,7 +153,7 @@ TEST_F(BofThread_Test, VirtualThreadFalse)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   TestBofThread_O.mCpt = 0;
-  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, 1, 1000, 0);
+  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1, 1000, 0);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Start_U32 = Bof_GetMsTickCount();
   do
@@ -402,7 +403,7 @@ TEST(Threading_Test, SingleThread)
   EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_000);
   EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_000);
 
-  Sts_E = Bof_LaunchThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, 1000);
+  Sts_E = Bof_LaunchThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   Sts_E = Bof_DestroyThread(Thread_X);
@@ -647,7 +648,7 @@ TEST(Threading_Test, MultiThread)
 //		EXPECT_TRUE(pThread_X[i_U32].ThreadId_U32 == 0);
 //		EXPECT_TRUE(pThread_X[i_U32].pThread == nullptr);
 #else
-//		EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
+    //		EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
     EXPECT_TRUE(pThread_X[i_U32].ThreadLoopMustExit_B);
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
@@ -703,7 +704,7 @@ TEST(Threading_Test, MultiThreadWithoutMutex)
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
-    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, STARTSTOPTO);
+    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, STARTSTOPTO);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
     EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);

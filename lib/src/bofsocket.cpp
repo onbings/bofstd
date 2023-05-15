@@ -42,7 +42,8 @@ BEGIN_BOF_NAMESPACE()
 
 std::atomic<int32_t> BofSocket::S_mBofSocketBalance = 0;
 
-BofSocket::BofSocket() : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
+BofSocket::BofSocket()
+    : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
   mSocket = BOF_INVALID_SOCKET_VALUE;
   mMaxUdpLen_U32 = 0;
@@ -52,13 +53,15 @@ BofSocket::BofSocket() : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocket
   mConnected_B = false;
 }
 
-BofSocket::BofSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
+BofSocket::BofSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
+    : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
   mSocket = BOF_INVALID_SOCKET_VALUE;
   InitializeSocket(_rBofSocketParam_X);
 }
 
-BofSocket::BofSocket(BOFSOCKET _Socket_h, const BOF_SOCKET_PARAM &_rBofSocketParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
+BofSocket::BofSocket(BOFSOCKET _Socket_h, const BOF_SOCKET_PARAM &_rBofSocketParam_X)
+    : BofComChannel(BOF_COM_CHANNEL_TYPE::TSOCKET, mBofSocketParam_X.BaseChannelParam_X)
 {
   mSocket = (BOFSOCKET)_Socket_h;
   InitializeSocket(_rBofSocketParam_X);
@@ -691,14 +694,14 @@ BOFERR BofSocket::SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _Snd
     Sts_i = setsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, Len_i);
     if (Sts_i)
     {
-      Rts_E = BOF_ERR_INIT;
+      Rts_E = BOF_ERR_TOO_BIG;
     }
     else
     {
       Sts_i = getsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, &Len_i);
       if ((Sts_i) || (Val_U32 < _RcvBufferSize_U32))
       {
-        Rts_E = BOF_ERR_INIT;
+        Rts_E = BOF_ERR_OUT_OF_RANGE;
       }
     }
   }
@@ -716,14 +719,14 @@ BOFERR BofSocket::SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _Snd
     Sts_i = setsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, Len_i);
     if (Sts_i)
     {
-      Rts_E = BOF_ERR_INIT;
+      Rts_E = BOF_ERR_TOO_BIG;
     }
     else
     {
       Sts_i = getsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, &Len_i);
       if ((Sts_i) || (Val_U32 < _SndBufferSize_U32))
       {
-        Rts_E = BOF_ERR_INIT;
+        Rts_E = BOF_ERR_OUT_OF_RANGE;
       }
     }
   }

@@ -3015,7 +3015,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
 {
   BofMsgThread testThread;
 
-  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050, 0);
+  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 0);
 
   // Run unit tests repeatedly to expose problems (e.g. deadlocks, memory leaks) a
   // with async delegates.
@@ -3032,7 +3032,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
   }
 
   //  testThread.ExitThread();
-  //xalloc_stats();
+  // xalloc_stats();
 }
 
 TEST(Async_Test, MulticastDelegatePerf)
@@ -3042,7 +3042,7 @@ TEST(Async_Test, MulticastDelegatePerf)
   struct StructParam structParam;
   uint32_t StartInMs_U32, i_U32;
 
-  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050, 0);
+  testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 0);
 
   MulticastDelegateSafe1<const StructParam *> MemberFuncStructConstPtr1MulticastDelegate;
   MemberFuncStructConstPtr1MulticastDelegate += MakeDelegate(&testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
@@ -3054,7 +3054,7 @@ TEST(Async_Test, MulticastDelegatePerf)
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
   }
-  //printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
+  // printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
   MemberFuncStructConstPtr1MulticastDelegate.Clear();
 
   std::shared_ptr<TestClass1> psTestClass1(new TestClass1());
@@ -3067,7 +3067,7 @@ TEST(Async_Test, MulticastDelegatePerf)
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
   }
-  //printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
+  // printf("%d notif in %d ms\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32));
 }
 
 struct NOTIFY_ARG
@@ -3097,14 +3097,14 @@ TEST(Async_Test, AsyncNotifier)
   uint32_t StartInMs_U32, i_U32;
   NOTIFY_ARG MulticastNotifyArg_X;
   MulticastAsyncNotifierParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  MulticastAsyncNotifierParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050;
+  MulticastAsyncNotifierParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
   MulticastAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   //  MulticastAsyncNotifierParam_X.MaxPendingRequest_U32     = 100;
 
   //  std::cout << std::is_pointer<StructParam>::value << '\n';
   /*
     BofMsgThread       testThread;
-    testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050);
+    testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000);
     StructParam structParam;
     MulticastDelegateSafe1<StructParam &> FreeFuncStructRef1MulticastDelegate;
     FreeFuncStructRef1MulticastDelegate += MakeDelegate(&FreeFuncStructRef1, &testThread);
@@ -3126,9 +3126,9 @@ TEST(Async_Test, AsyncNotifier)
 
   ASSERT_EQ(MulticastAsyncNotifier.Unregister(&MulticastNotifyCallback), BOF_ERR_NO_ERROR);
 
-  //printf("%d notif in %d ms %d still pending, wait for the end\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
+  // printf("%d notif in %d ms %d still pending, wait for the end\n", i_U32, BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
   ASSERT_EQ(MulticastAsyncNotifier.WaitForNoMoreNotificationPending(10, 5000), BOF_ERR_NO_ERROR);
-  //printf("Terminated in %d ms %d still pending\n", BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
+  // printf("Terminated in %d ms %d still pending\n", BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
 }
 
 TEST(Async_Test, SyncNotifier)

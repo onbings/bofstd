@@ -92,7 +92,7 @@ static void *S_UdpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B
   BOF_ASSERT(pThreadContext_X != nullptr);
   Sts_E = ListeningSocket.InitializeSocket(pThreadContext_X->BofSocketParam_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  
+
   while (!_rIsThreadLoopMustExit_B)
   {
     pClient = ListeningSocket.V_Listen(0, "");
@@ -127,8 +127,8 @@ static void *S_UdpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B
       }
     }
   }
-  //ClientCollection is a vector of unique pointer->deallocated on return of this function
-//  ClientCollection.clear();
+  // ClientCollection is a vector of unique pointer->deallocated on return of this function
+  //  ClientCollection.clear();
   return nullptr;
 }
 
@@ -145,9 +145,9 @@ void SocketUdp_Test::SetUp()
 
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "UdpServer";
   mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 64; // 0->Client
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000;	//0x1000000;
-  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000;	//0x1000000;
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 64;      // 0->Client
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000; // 0x1000000;
+  mServerThreadContext_X.BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000; // 0x1000000;
   mServerThreadContext_X.BofSocketParam_X.BindIpAddress_S = "udp://127.0.0.1:5555";
   mServerThreadContext_X.BofSocketParam_X.ReUseAddress_B = false;
   mServerThreadContext_X.BofSocketParam_X.NoDelay_B = true;
@@ -160,7 +160,7 @@ void SocketUdp_Test::SetUp()
 
   Sts_E = Bof_CreateThread("ServerThread", S_UdpServerThread, &mServerThreadContext_X, mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, 1000);
+  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
@@ -198,8 +198,8 @@ TEST_F(SocketUdp_Test, FilterMulticastOnIpAddress)
   BofSocketParam_X.FilterMulticastOnIpAddress_B = true;
   pUdp = new BofSocket(BofSocketParam_X);
   BOF_SAFE_DELETE(pUdp);
-  Bof_MsSleep(100);	
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);   //Because S_UdpServerThread is running 
+  Bof_MsSleep(100);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1); // Because S_UdpServerThread is running
 }
 
 constexpr uint32_t SCATTER_GATHER_IO_TIMEOUT_IN_MS = 100;
@@ -214,15 +214,15 @@ TEST_F(SocketUdp_Test, ScatterGatherIo)
   BOF_SOCKET_ADDRESS DstIpAddress_X;
   bool PartialRead_B;
   uint32_t NbByteRead_U32, NbByteWritten_U32, Start_U32, Delta_U32;
-  
-  //Bof_MsSleep(100);
-  //EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+
+  // Bof_MsSleep(100);
+  // EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
 
   BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "ScatterGatherIo";
   BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-  BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0; // 0->Client
-  BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000;	//0x1000000;
-  BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000;	//0x1000000;
+  BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;       // 0->Client
+  BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000; // 0x1000000;
+  BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000; // 0x1000000;
 
   BofSocketParam_X.BindIpAddress_S = "udp://127.0.0.1:0";
   BofSocketParam_X.ReUseAddress_B = false;
@@ -297,7 +297,7 @@ TEST_F(SocketUdp_Test, ScatterGatherIo)
   EXPECT_EQ(pHeader_U8[0], 0x01);
   EXPECT_NE(pData_U8[0], 0x02);
   BOF_SAFE_DELETE(pUdp);
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1 + 1);   //Because S_UdpServerThread is running and we have a V_Connect udp
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1 + 1); // Because S_UdpServerThread is running and we have a V_Connect udp
 }
 
 const uint32_t SERVER_NB_CLIENT = 50;
@@ -321,9 +321,9 @@ TEST_F(SocketUdp_Test, UdpClientTest)
 
     BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "UdpClient_" + std::to_string(i_U32);
     BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
-    BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0; // 0->Client
-    BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000;	//0x1000000;
-    BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000;	//0x1000000;
+    BofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;       // 0->Client
+    BofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x40000; // 0x1000000;
+    BofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x40000; // 0x1000000;
 
     BofSocketParam_X.BindIpAddress_S = "udp://127.0.0.1:0";
     BofSocketParam_X.ReUseAddress_B = false;
@@ -339,7 +339,7 @@ TEST_F(SocketUdp_Test, UdpClientTest)
     //		printf("create sck %d\r\n", puClientSocket->GetSocketHandle());
     ClientCollection.push_back(std::move(puClientSocket));
   }
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1);   //+1 because S_UdpServerThread creatre a listening socket
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1); //+1 because S_UdpServerThread creatre a listening socket
 
   for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
   {
@@ -394,7 +394,7 @@ TEST_F(SocketUdp_Test, UdpClientTest)
       Sts_E = ClientCollection[i_U32]->V_ReadData(10, Nb_U32, pBuffer_U8);
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
-        //printf("extra rd clt %d nb %d Srv %" PRId64 "Clt %" PRId64 "\n", i_U32, Nb_U32, S_TotalSrvUdp_U64, S_TotalCltUdp_U64);
+        // printf("extra rd clt %d nb %d Srv %" PRId64 "Clt %" PRId64 "\n", i_U32, Nb_U32, S_TotalSrvUdp_U64, S_TotalCltUdp_U64);
         S_TotalCltUdp_U64 += Nb_U32;
       }
       Sts_E = ClientCollection[i_U32]->V_GetStatus(Status_X);
@@ -406,7 +406,7 @@ TEST_F(SocketUdp_Test, UdpClientTest)
     }
     DeltaWaitEof_U32 = Bof_ElapsedMsTime(StartWaitEof_U32);
     TotalSrvClt_U64 = (S_TotalSrvUdp_U64 + S_TotalCltUdp_U64);
-    //printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvUdp_U64, S_TotalCltUdp_U64);
+    // printf("Total %" PRId64 "/%" PRId64 " SizeDelta %" PRId64 " NbTrf %f Srv %" PRId64 " Clt %" PRId64 "\n", Total_U64, TotalSrvClt_U64, Total_U64 - TotalSrvClt_U64, (float)(Total_U64 - TotalSrvClt_U64) / (float)sizeof(pBuffer_U8), S_TotalSrvUdp_U64, S_TotalCltUdp_U64);
     if (DeltaWaitEof_U32 > 1000)
     {
       break;
@@ -417,17 +417,16 @@ TEST_F(SocketUdp_Test, UdpClientTest)
   EXPECT_EQ(TotalSrvClt_U64, Total_U64);
   KBPerSec_U32 = (Delta_U32) ? static_cast<uint32_t>((TotalSrvClt_U64 * 1000) / 1024L) / Delta_U32 : 0;
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  //printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\r\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32, KBPerSec_U32, KBPerSec_U32 / 1024);
+  // printf("%d client %d loop %d KB %d MB in %d ms (extra ms %d)->%d KB/S %d MB/S\r\n", SERVER_NB_CLIENT, CLIENT_NB_LOOP, static_cast<uint32_t>(TotalSrvClt_U64 / 1024L), static_cast<uint32_t>(TotalSrvClt_U64 / 1024L / 1024L), Delta_U32, DeltaWaitEof_U32, KBPerSec_U32, KBPerSec_U32 / 1024);
   for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
   {
     Sts_E = ClientCollection[i_U32]->V_FlushData(10);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_GE(Bof_ElapsedMsTime(Start_U32), static_cast<uint32_t>(500));
   }
-  //All client and server session vector of unique pointer->deallocated on return of this function and the exit of server listening thread
-  //Socket level is finally checked in the next test function ChkSocketBalance
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size());//+1 because S_TcpServerThread creatre a listening socket
-
+  // All client and server session vector of unique pointer->deallocated on return of this function and the exit of server listening thread
+  // Socket level is finally checked in the next test function ChkSocketBalance
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), SERVER_NB_CLIENT + 1 + ClientCollection.size()); //+1 because S_TcpServerThread creatre a listening socket
 }
 
 TEST_F(SocketUdp_Test, ChkSocketBalance)

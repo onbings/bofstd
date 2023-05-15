@@ -13,7 +13,8 @@
 //----------------------------------------------------------------------------
 // BofMsgThread
 //----------------------------------------------------------------------------
-BofMsgThread::BofMsgThread() : BOF::BofThread()
+BofMsgThread::BofMsgThread()
+    : BOF::BofThread()
 {
 }
 
@@ -30,7 +31,7 @@ BofMsgThread::~BofMsgThread()
 //----------------------------------------------------------------------------
 bool BofMsgThread::LaunchThread(const char *threadName, BOF::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF::BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreMaskAffinity_U64)
 {
-  return (LaunchBofProcessingThread(threadName, false, 0, _ThreadSchedulerPolicy_E, _ThreadPriority_E, _ThreadCpuCoreMaskAffinity_U64, 1000, 0) == BOF_ERR_NO_ERROR);
+  return (LaunchBofProcessingThread(threadName, false, 2000, _ThreadSchedulerPolicy_E, _ThreadPriority_E, _ThreadCpuCoreMaskAffinity_U64, 1000, 0) == BOF_ERR_NO_ERROR);
 }
 uint32_t BofMsgThread::GetNbPendingRequest()
 {
@@ -121,38 +122,40 @@ BOFERR BofMsgThread::V_OnProcessing()
 
     switch (msg->GetId())
     {
-    case MSG_DISPATCH_DELEGATE: {
-      assert(msg->GetData() != nullptr);
+      case MSG_DISPATCH_DELEGATE:
+        {
+          assert(msg->GetData() != nullptr);
 
-      // Convert the ThreadMsg void* data back to a DelegateMsg*
-      DelegateLib::DelegateMsgBase *delegateMsg = static_cast<DelegateLib::DelegateMsgBase *>(msg->GetData());
+          // Convert the ThreadMsg void* data back to a DelegateMsg*
+          DelegateLib::DelegateMsgBase *delegateMsg = static_cast<DelegateLib::DelegateMsgBase *>(msg->GetData());
 
-      // Invoke the callback on the target thread
-      delegateMsg->GetDelegateInvoker()->DelegateInvoke(&delegateMsg);
+          // Invoke the callback on the target thread
+          delegateMsg->GetDelegateInvoker()->DelegateInvoke(&delegateMsg);
 
-      // Delete dynamic data passed through message queue
-      delete msg;
-      break;
-    }
+          // Delete dynamic data passed through message queue
+          delete msg;
+          break;
+        }
 
-    case MSG_EXIT_THREAD: {
-      // printf("BofMsgThread purge\n");
-      delete msg;
-      std::unique_lock<std::mutex> lk(m_mutex);
-      while (!m_queue.empty())
-      {
-        msg = m_queue.front();
-        m_queue.pop();
-        delete msg;
-      }
-      Rts_E = BOF_ERR_FINISHED;
-      Finish_B = true;
-      break;
-    }
+      case MSG_EXIT_THREAD:
+        {
+          // printf("BofMsgThread purge\n");
+          delete msg;
+          std::unique_lock<std::mutex> lk(m_mutex);
+          while (!m_queue.empty())
+          {
+            msg = m_queue.front();
+            m_queue.pop();
+            delete msg;
+          }
+          Rts_E = BOF_ERR_FINISHED;
+          Finish_B = true;
+          break;
+        }
 
-    default:
-      assert(0);
-      break;
+      default:
+        assert(0);
+        break;
     }
   }
   // printf("BofMsgThread exiting\n");

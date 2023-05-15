@@ -35,19 +35,19 @@ enum class BOF_PIPE_TYPE : uint32_t
 };
 enum class BOF_PIPE_ACCESS : uint32_t
 {
-  BOF_PIPE_ACCESS_READ = 0,     //For server or client in non full duplex mode, one should use read and the other write
-  BOF_PIPE_ACCESS_WRITE,        //For server or client in non full duplex mode, one should use read and the other write
-  BOF_PIPE_ACCESS_READ_WRITE,   //TODO: Not finished/validated For Full duplex 
+  BOF_PIPE_ACCESS_READ = 0,   // For server or client in non full duplex mode, one should use read and the other write
+  BOF_PIPE_ACCESS_WRITE,      // For server or client in non full duplex mode, one should use read and the other write
+  BOF_PIPE_ACCESS_READ_WRITE, // TODO: Not finished/validated For Full duplex
 };
 struct BOF_PIPE_PARAM
 {
   BOF_PIPE_TYPE PipeType_E;
   bool PipeServer_B;
-  bool NativeStringMode_B;  //BOF_PIPE_NATIVE: if true message should be delimitted by '\n. In this case, the caller must provide a \n terminated buffer to the write function
+  bool NativeStringMode_B; // BOF_PIPE_NATIVE: if true message should be delimitted by '\n. In this case, the caller must provide a \n terminated buffer to the write function
   BOF_PIPE_ACCESS PipeAccess_E;
   BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
-  uint16_t SrcPortBase_U16;                  //for BOF_PIPE_OVER_LOCAL_UDP, local Port for udp in pipe->if 0 let os decide, otherwise use this value for port in and this value+1 for port out
-  uint16_t DstPortBase_U16;                  
+  uint16_t SrcPortBase_U16;                 // for BOF_PIPE_OVER_LOCAL_UDP, local Port for udp in pipe->if 0 let os decide, otherwise use this value for port in and this value+1 for port out
+  uint16_t DstPortBase_U16;
 
   BOF_PIPE_PARAM()
   {
@@ -79,16 +79,22 @@ public:
   BOFERR V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X) override;
   BOFERR V_FlushData(uint32_t _TimeoutInMs_U32) override;
   BOFERR V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPendingByte_U32) override;
-  BOFERR SelectPipeChannel(bool _Master_B); //Used by BOF_PIPE_ACCESS_READ_WRITE
+  BOFERR SelectPipeChannel(bool _Master_B); // Used by BOF_PIPE_ACCESS_READ_WRITE
 
   BofPipe &operator=(const BofPipe &) = delete; // Disallow copying
   BofPipe(const BofPipe &) = delete;
+  // For debug:
+  // BofSocket *GetUdpPipeMst()
+  //{
+  //  return mpuUdpPipeMst.get();
+  //}
 
 private:
   BOF_PIPE_PARAM mPipeParam_X;
   std::unique_ptr<BofSocket> mpuUdpPipeMst = nullptr;
   std::unique_ptr<BofSocket> mpuUdpPipeSlv = nullptr;
-  bool mFullDuplexUseMaster_B = true;   //to be able to read and write from both side
+
+  bool mFullDuplexUseMaster_B = true; // to be able to read and write from both side
 #if defined(_WIN32)
   HANDLE mPipe_h = 0;
 #else

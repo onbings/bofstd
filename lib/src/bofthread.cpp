@@ -826,9 +826,11 @@ void BofThread::BofThread_Thread()
     // Set the priority
     Status_i = pthread_setschedparam(pthread_self(), mPolicy_E, &Params_X);
     // Verify
+    printf("1: Sts %d Pol %d Prio %d errno %d\n", Status_i, mPolicy_E, Params_X.sched_priority, errno);
     if (Status_i == 0)
     {
       Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
+      printf("2: Sts %d Pol %d Prio %d (%d->%d)\n", Status_i, Policy_i, Params_X.sched_priority, mPriority_E, Bof_PriorityValueFromThreadPriority(mPriority_E));
       if (Status_i == 0)
       {
         Sts_E = ((Policy_i == mPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
