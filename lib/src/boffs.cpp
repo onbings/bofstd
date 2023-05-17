@@ -716,7 +716,7 @@ BOFERR Bof_ReadLine(uintptr_t _Io, uint32_t &_rNb_U32, char *_pBuffer_c)
   {
     Rts_E = BOF_ERR_CREATE;
     Pos_S64 = Bof_SetFileIoPosition(_Io, 0, BOF_SEEK_METHOD::BOF_SEEK_CURRENT);
-    if (Pos_S64>=0) //for mkfifo
+    if (Pos_S64 >= 0) // for mkfifo
     {
       Rts_E = BOF_ERR_EMPTY;
       c = 0;
@@ -779,7 +779,7 @@ BOFERR Bof_ReadLine(uintptr_t _Io, std::string &_rLine_S)
   uint32_t Nb_U32;
   char pBuffer_c[0x10000];
 
-  Nb_U32=sizeof(pBuffer_c);
+  Nb_U32 = sizeof(pBuffer_c);
   Rts_E = Bof_ReadLine(_Io, Nb_U32, pBuffer_c);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
@@ -1094,7 +1094,7 @@ BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const B
   // ios::trunc means that the output file will be overwritten if exists
   if (Ifs)
   {
-    Rts_E = BOF_ERR_EXIST;
+    Rts_E = BOF_ERR_EEXIST;
     CreateOut_B = _OverwriteIfExists_B ? true : Bof_IsFileExist(_rSrcPath);
     if (CreateOut_B)
     {

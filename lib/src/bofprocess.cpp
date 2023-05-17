@@ -24,6 +24,7 @@
 #include <bofstd/bofsystem.h>
 
 #include <cstdio>
+// #include <string.h>
 
 #if defined(_WIN32)
 #define popen _popen
@@ -46,9 +47,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/ptrace.h>
 #endif
 extern char **environ;
 
@@ -87,43 +88,46 @@ BOF_PROCESS WaitForPid(BOF_PROCESS _Pid_X, int *_pStatus_i, uint32_t _Timeout_U3
   uint32_t Start_U32, Delta_U32;
 
   RetPid_X.Pid = -1;
-  Start_U32 = Bof_GetMsTickCount();
-  if (_pStatus_i)
+  if (_Pid_X.Pid > 0)
   {
-    do
+    Start_U32 = Bof_GetMsTickCount();
+    if (_pStatus_i)
     {
+      do
+      {
 #if defined(_WIN32)
-      RetPid_X.Pid = _Pid_X.Pid;
-      switch (WaitForSingleObject(_Pid_X.Pi_X.hProcess, 0))
-      {
-        default:
-        case WAIT_ABANDONED:
-        case WAIT_FAILED:
-          *_pStatus_i = -1;
-          break;
+        RetPid_X.Pid = _Pid_X.Pid;
+        switch (WaitForSingleObject(_Pid_X.Pi_X.hProcess, 0))
+        {
+          default:
+          case WAIT_ABANDONED:
+          case WAIT_FAILED:
+            *_pStatus_i = -1;
+            break;
 
-        case WAIT_OBJECT_0:
-          // process has terminated...
-          *_pStatus_i = 0;
-          break;
+          case WAIT_OBJECT_0:
+            // process has terminated...
+            *_pStatus_i = 0;
+            break;
 
-        case WAIT_TIMEOUT:
-          // process is still running...
-          *_pStatus_i = 0;
-          break;
-      }
+          case WAIT_TIMEOUT:
+            // process is still running...
+            *_pStatus_i = 0;
+            break;
+        }
 #else
-      RetPid_X.Pid = waitpid(_Pid_X.Pid, _pStatus_i, WNOHANG);
+        RetPid_X.Pid = waitpid(_Pid_X.Pid, _pStatus_i, WNOHANG);
 #endif
-      Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+        Delta_U32 = Bof_ElapsedMsTime(Start_U32);
 
-      if ((RetPid_X.Pid == -1) || (RetPid_X.Pid == _Pid_X.Pid) || (Delta_U32 >= _Timeout_U32))
-      {
-        break;
-      }
+        if ((RetPid_X.Pid == -1) || (RetPid_X.Pid == _Pid_X.Pid) || (Delta_U32 >= _Timeout_U32))
+        {
+          break;
+        }
 
-      Bof_MsSleep(500);
-    } while (RetPid_X.Pid != _Pid_X.Pid);
+        Bof_MsSleep(500);
+      } while (RetPid_X.Pid != _Pid_X.Pid);
+    }
   }
   return RetPid_X;
 }
@@ -147,38 +151,41 @@ BOF_PROCESS WaitForPid(BOF_PROCESS _Pid_X, int *_pStatus_i, uint32_t _Timeout_U3
  */
 int KillSubProcess(BOF_PROCESS _Pid_X, int _Options_i)
 {
-  int Status_i;
-
-#if defined(_WIN32)
-  Status_i = (TerminateProcess(_Pid_X.Pi_X.hProcess, -1)) ? 0 : -1;
-#else
-  char pCommand_c[256];
-  char pResult_c[256];
-  char *pLine_c;
-  BOF_PROCESS ChildPid_X;
-
-  snprintf(pCommand_c, sizeof(pCommand_c), "ps -o ppid,pid | grep %d | awk '{ print $2 }'", _Pid_X.Pid);
-
-  Status_i = BofProcess::S_Execute(pResult_c, sizeof(pResult_c), pCommand_c, 1000);
-
-  if (Status_i == 0)
+  int Rts_i = -1;
+  if (_Pid_X.Pid > 0)
   {
-    pLine_c = strtok(pResult_c, "\n");
+#if defined(_WIN32)
+    Rts_i = (TerminateProcess(_Pid_X.Pi_X.hProcess, -1)) ? 0 : -1;
+#else
+    char pCommand_c[256];
+    char pResult_c[256];
+    char *pLine_c;
+    BOF_PROCESS Pid_X, ChildPid_X;
+    BOFERR Sts_E;
+    int ExitCode_i;
 
-    while (pLine_c != nullptr)
+    Rts_i = -1;
+    snprintf(pCommand_c, sizeof(pCommand_c), "ps -o ppid,pid | grep %d | awk '{ print $2 }'", _Pid_X.Pid);
+    Sts_E = BofProcess::S_Execute(pResult_c, sizeof(pResult_c), pCommand_c, 1000, Pid_X, ExitCode_i);
+    Rts_i = ExitCode_i;
+    if ((Sts_E == BOF_ERR_NO_ERROR) && (Rts_i == 0))
     {
-      ChildPid_X.Pid = atoi(pLine_c);
-
-      if (ChildPid_X.Pid != _Pid_X.Pid)
+      pLine_c = strtok(pResult_c, "\n");
+      while (pLine_c != nullptr)
       {
-        Status_i |= kill(ChildPid_X.Pid, _Options_i);
-      }
+        ChildPid_X.Pid = atoi(pLine_c);
 
-      pLine_c = strtok(nullptr, "\n");
+        if (ChildPid_X.Pid != _Pid_X.Pid)
+        {
+          Rts_i |= kill(ChildPid_X.Pid, _Options_i);
+        }
+
+        pLine_c = strtok(nullptr, "\n");
+      }
     }
-  }
 #endif
-  return Status_i;
+  }
+  return Rts_i;
 }
 
 /*!
@@ -202,82 +209,90 @@ int KillSubProcess(BOF_PROCESS _Pid_X, int _Options_i)
    Remarks
    None
  */
-int WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32)
+BOFERR WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32, int &_rExitCode_i)
 {
-  int Rts_i = -1;
-  int Status_i = -1;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  // int Status_i = -1;
   BOF_PROCESS RetPid_X;
   bool Kill_B = false;
 
   RetPid_X.Pid = -1;
+  _rExitCode_i = 127;
+  if (_Pid_X.Pid > 0)
+  {
 #if defined(_WIN32)
-  RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
-
-  // Check if process exited
-  if (RetPid_X.Pid == _Pid_X.Pid)
-  {
-    if (WIFEXITED(Status_i))
-    {
-      Rts_i = WEXITSTATUS(Status_i);
-    }
-    else
-    {
-      Kill_B = true;
-      Rts_i = BOF_ERR_RESET;
-    }
-  }
-  else
-  {
-    Rts_i = BOF_ERR_ETIMEDOUT;
-    Kill_B = true;
-  }
-
-  if (Kill_B)
-  {
-    Status_i = (TerminateProcess(_Pid_X.Pi_X.hProcess, -1)) ? 0 : -1;
-  }
-#else
-  RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
-
-  // Check if process exited
-  if (RetPid_X.Pid == _Pid_X.Pid)
-  {
-    if (WIFEXITED(Status_i))
-    {
-      Rts_i = WEXITSTATUS(Status_i);
-    }
-    else
-    {
-      Kill_B = true;
-      Rts_i = BOF_ERR_RESET;
-    }
-  }
-  else
-  {
-    Rts_i = BOF_ERR_ETIMEDOUT;
-    Kill_B = true;
-  }
-
-  if (Kill_B)
-  {
-    // Try terminating it
-    Status_i = KillSubProcess(_Pid_X, SIGTERM);
-    Status_i = kill(_Pid_X.Pid, SIGTERM);
-
     RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
 
-    if (RetPid_X.Pid != _Pid_X.Pid)
+    // Check if process exited
+    if (RetPid_X.Pid == _Pid_X.Pid)
     {
-      // Try killing it
-      Status_i = KillSubProcess(_Pid_X, SIGKILL);
-      Status_i = kill(_Pid_X.Pid, SIGKILL);
+      if (WIFEXITED(Status_i))
+      {
+        Rts_E = WEXITSTATUS(Status_i);
+      }
+      else
+      {
+        Kill_B = true;
+        Rts_E = BOF_ERR_RESET;
+      }
+    }
+    else
+    {
+      Rts_E = BOF_ERR_ETIMEDOUT;
+      Kill_B = true;
+    }
+
+    if (Kill_B)
+    {
+      _rExitCode_i = (TerminateProcess(_Pid_X.Pi_X.hProcess, -1)) ? 0 : -1;
+    }
+#else
+    RetPid_X = WaitForPid(_Pid_X, &_rExitCode_i, _Timeout_U32);
+    Rts_E = BOF_ERR_EKEYEXPIRED;
+    // Check if process exited
+    if (RetPid_X.Pid == _Pid_X.Pid)
+    {
+      if (WIFEXITED(_rExitCode_i))
+      {
+        _rExitCode_i = WEXITSTATUS(_rExitCode_i);
+        if (_rExitCode_i == 0)
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+      else
+      {
+        Kill_B = true;
+        Rts_E = BOF_ERR_RESET;
+      }
+    }
+    else
+    {
+      Rts_E = BOF_ERR_ETIMEDOUT;
+      Kill_B = true;
+    }
+
+    if (Kill_B)
+    {
+      // Try terminating it
+      int Status_i;
+      Status_i = KillSubProcess(_Pid_X, SIGTERM);
+      Status_i = kill(_Pid_X.Pid, SIGTERM);
 
       RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
-    }
-  }
-#endif
 
-  return Rts_i;
+      if (RetPid_X.Pid != _Pid_X.Pid)
+      {
+        // Try killing it
+        Status_i = KillSubProcess(_Pid_X, SIGKILL);
+        Status_i = kill(_Pid_X.Pid, SIGKILL);
+
+        RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
+      }
+    }
+#endif
+  }
+  return Rts_E;
 }
 
 /*!
@@ -686,7 +701,7 @@ BOFERR BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, c
       pArg_c++;
     }
     Rts_E = BofProcess::S_SpawnProcess(pCmd_c, pArg_c, 0, _rPid_X, _rExitCode_i);
-    if ((Rts_E == BOF_ERR_NO_ERROR) && (_rExitCode_i==0) && (_rPid_X.Pid > 0))
+    if ((Rts_E == BOF_ERR_NO_ERROR) && (_rExitCode_i == 0) && (_rPid_X.Pid > 0))
     {
       switch (WaitForSingleObject(_rPid_X.Pi_X.hProcess, _Timeout_U32))
       {
@@ -731,20 +746,16 @@ BOFERR BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, c
 
 #else
     int Len_i = 0;
-    //	int                        Status_i  = 0;
     int I_S32 = 0;
     bool Read_B = false;
-    //	bool                       Kill_B    = false;
     char *Args_c[] = {(char *)"sh", (char *)"-c", (char *)_pCommand_c, nullptr};
     char pBuf_c[128];
-    //	BOF_PROCESS                      RetPid_X;
     posix_spawn_file_actions_t Actions_X;
     posix_spawnattr_t Attributes_X;
     int Policy_i = 0;
     struct sched_param SchedParams_X;
     int stdout_pipe[2];
     int stderr_pipe[2];
-    //	uint64_t                   Timer_U64;
 
     if ((pipe(stdout_pipe) == 0) && (pipe(stderr_pipe) == 0))
     {
@@ -828,11 +839,11 @@ BOFERR BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, c
           }
         }
 
-        Rts_i = WaitForProcessCompletion(_rPid_X, _Timeout_U32);
+        Rts_E = WaitForProcessCompletion(_rPid_X, _Timeout_U32, _rExitCode_i);
       }
       else
       {
-        Rts_i = BOF_ERR_CREATE;
+        Rts_E = BOF_ERR_CREATE;
       }
 
       // Clean up
@@ -841,13 +852,8 @@ BOFERR BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, c
     }
     else
     {
-      Rts_i = BOF_ERR_INTERNAL;
+      Rts_E = BOF_ERR_INTERNAL;
     }
-  }
-  else
-  {
-    Rts_i = BOF_ERR_EINVAL;
-  }
 #endif
   }
   return Rts_E;
@@ -979,7 +985,7 @@ BOFERR BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const c
     }
     else if (_rPid_X.Pid > 0)
     {
-      Rts_i = WaitForProcessCompletion(_rPid_X, _Timeout_U32);
+      Rts_E = WaitForProcessCompletion(_rPid_X, _Timeout_U32, _rExitCode_i);
 
       // Do we have to capture output
       if (CaptureOutput_B)
@@ -1002,7 +1008,7 @@ BOFERR BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const c
     }
     else
     {
-      Rts_i = BOF_ERR_CREATE;
+      Rts_E = BOF_ERR_CREATE;
     }
 #endif
   }
@@ -1082,6 +1088,162 @@ BOFERR BofProcess::S_WriteU32ToFile(const char *_pFile_c, uint32_t _Value_U32)
 
 /*!
 Description
+  This function spawns another process
+
+Parameters
+  _pProgram_c   - The process to spawn
+  _pArguments_c - The associated command line
+  _DbgPort_U16 - If different from zero we lauch the gdb server with the process in arg
+
+Returns
+  >0 - The PID of the spawned process
+  <0 - An error occurred
+
+Remarks
+  None
+*/
+BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
+{
+  BOFERR Rts_E = BOF_ERR_DONT_EXIST;
+  char pTemp_c[0x1000];
+
+  _rExitCode_i = 127;
+  _rPid_X.Reset();
+  if (Bof_IsFileExist(_pProgram_c))
+  {
+    Rts_E = BOF_ERR_NOT_OPENED;
+#if defined(_WIN32)
+    STARTUPINFO Si_X;
+
+    if (_pArguments_c != nullptr)
+    {
+      strncpy(pTemp_c, _pArguments_c, sizeof(pTemp_c));
+    }
+    else
+    {
+      strncpy(pTemp_c, "", sizeof(pTemp_c));
+    }
+    memset(&Si_X, 0, sizeof(Si_X));
+    Si_X.cb = sizeof(Si_X);
+    // Start the child process.
+    if (CreateProcess(_pProgram_c,  // Module name
+                      pTemp_c,      // Command line
+                      nullptr,      // Process handle not inheritable
+                      nullptr,      // Thread handle not inheritable
+                      false,        // Set handle inheritance to FALSE
+                      0,            // No creation flags
+                      nullptr,      // Use parent's environment block
+                      nullptr,      // Use parent's starting directory
+                      &Si_X,        // Pointer to STARTUPINFO structure
+                      &_rPid_X.Pi_X // Pointer to PROCESS_INFORMATION structure
+                      ))
+    {
+      _rPid_X.Pid = (uintptr_t)_rPid_X.Pi_X.hProcess;
+      _rExitCode_i = 0;
+      Rts_E = BOF_ERR_NO_ERROR;
+#if 0
+    // Wait until child process exits.
+    WaitForSingleObject(Rts_X.Pi_X.hProcess, INFINITE);
+
+    // Close process and thread handles.
+    CloseHandle(Rts_X.Pi_X.hProcess);
+    CloseHandle(Rts_X.Pi_X.hThread);
+#endif
+    }
+    else
+    {
+      // DWORD Err_DW = GetLastError();
+      _rPid_X.Pid = -1;
+    }
+#else
+    char *ppArgs_c[64];
+    char pArgZero_c[0x1000];
+    int NbArgs_i;
+    char *pPtr_c;
+    int Pid_i, Sts_i;
+
+    Pid_i = fork();
+    // If PID is null, it means
+    // we are in the child process
+    if (Pid_i == 0)
+    {
+      //_rPid_X.Pid = getpid();
+      // printf("in child pid %d %d\n", _rPid_X.Pid, getpid());
+      if (_pArguments_c != nullptr)
+      {
+        strncpy(pTemp_c, _pArguments_c, sizeof(pTemp_c));
+      }
+      else
+      {
+        strncpy(pTemp_c, "", sizeof(pTemp_c));
+      }
+
+      pPtr_c = pTemp_c;
+      NbArgs_i = 1;
+      Bof_StrNCpy(pArgZero_c, _pProgram_c, sizeof(pArgZero_c));
+      ppArgs_c[0] = pArgZero_c;
+
+      while ((pPtr_c != nullptr) && (NbArgs_i < static_cast<int>((sizeof(ppArgs_c) / sizeof(ppArgs_c[0])))))
+      {
+        ppArgs_c[NbArgs_i++] = pPtr_c;
+        pPtr_c = strchr(pPtr_c, ' ');
+        // printf("in child NbArgs_i %d pPtr_c %p\n", NbArgs_i, pPtr_c);
+        if (pPtr_c != nullptr)
+        {
+          *pPtr_c = '\0';
+          pPtr_c += 1;
+        }
+      }
+
+      ppArgs_c[NbArgs_i - 1] = nullptr;
+      // printf("in child _DbgPort_U16 %d\n", _DbgPort_U16);
+      if (_DbgPort_U16)
+      {
+        if ((_pArguments_c != nullptr) && (_pArguments_c[0] != '\0'))
+        {
+          snprintf(pTemp_c, sizeof(pTemp_c), "gdbserver :%d %s %s", _DbgPort_U16, _pProgram_c, _pArguments_c);
+        }
+        else
+        {
+          snprintf(pTemp_c, sizeof(pTemp_c), "gdbserver :%d %s", _DbgPort_U16, _pProgram_c);
+        }
+
+        BOF::BofProcess::S_Execute(pTemp_c, _rPid_X, _rExitCode_i);
+      }
+      else
+      {
+        // printf("execv %s %s\n", _pProgram_c, ppArgs_c[0]);
+        _rExitCode_i = 0;
+        Rts_E = BOF_ERR_NO_ERROR;
+        // printf("Before execv pid is %d Sts %d errno %d Exit %d Rts %d\n", _rPid_X.Pid, Sts_i, errno, _rExitCode_i, Rts_E);
+
+        Sts_i = execv(_pProgram_c, ppArgs_c);
+        // Should never come back in this code except if error
+        BOF_ASSERT(Sts_i < 0);
+        _rPid_X.Reset();
+        Rts_E = BOF_ERR_DONT_EXIST;
+
+        // printf("execv pid is %d Sts %d errno %d Exit %d Rts %d\n", _rPid_X.Pid, Sts_i, errno, _rExitCode_i, Rts_E);
+      }
+
+      _exit(0);
+    }
+    else
+    {
+      _rPid_X.Pid = Pid_i;
+      // Just special values because we can't say more: we call execv in a child process....
+      _rExitCode_i = 0;
+      Rts_E = BOF_ERR_NO_ERROR;
+      // printf("Main pid is %d Rts %d\n", Pid_i, Rts_E);
+      // int t = wait(&Sts_i);
+      // printf("t=%d S=%d\n", t, Sts_i);
+    }
+#endif
+  }
+  return Rts_E;
+}
+/*!
+Description
   This function kills all processes
   IDs whose name is matching the specified
   one
@@ -1107,14 +1269,15 @@ BOFERR BofProcess::S_KillProcess(const char *_pProcessName_c)
 #if defined(_WIN32)
     snprintf(pCmd_c, sizeof(pCmd_c), "taskkill /IM %s", _pProcessName_c);
 #else
-    snprintf(pCmd_c, sizeof(pCmd_c), "pkill %s", _pProcessName_c);
+    const char *pProcessname_c = strrchr(_pProcessName_c, '/');
+    snprintf(pCmd_c, sizeof(pCmd_c), "pkill %s", pProcessname_c ? pProcessname_c + 1 : _pProcessName_c);
 #endif
     Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (ExitCode_i)
       {
-        Rts_E = BOF_ERR_NO;
+        Rts_E = BOF_ERR_DONT_EXIST;
       }
     }
   }
@@ -1193,135 +1356,6 @@ bool BofProcess::S_IsProcessRunning(BOF_PROCESS _Pid_X)
 
 /*!
 Description
-  This function spawns another process
-
-Parameters
-  _pProgram_c   - The process to spawn
-  _pArguments_c - The associated command line
-  _DbgPort_U16 - If different from zero we lauch the gdb server with the process in arg
-
-Returns
-  >0 - The PID of the spawned process
-  <0 - An error occurred
-
-Remarks
-  None
-*/
-BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
-{
-  BOFERR Rts_E = BOF_ERR_NOT_OPENED;
-  char pTemp_c[0x1000];
-
-  _rExitCode_i = 127;
-#if defined(_WIN32)
-  STARTUPINFO Si_X;
-
-  if (_pArguments_c != nullptr)
-  {
-    strncpy(pTemp_c, _pArguments_c, sizeof(pTemp_c));
-  }
-  else
-  {
-    strncpy(pTemp_c, "", sizeof(pTemp_c));
-  }
-  memset(&Si_X, 0, sizeof(Si_X));
-  Si_X.cb = sizeof(Si_X);
-  // Start the child process.
-  if (CreateProcess(_pProgram_c, // Module name
-                    pTemp_c,     // Command line
-                    nullptr,     // Process handle not inheritable
-                    nullptr,     // Thread handle not inheritable
-                    false,       // Set handle inheritance to FALSE
-                    0,           // No creation flags
-                    nullptr,     // Use parent's environment block
-                    nullptr,     // Use parent's starting directory
-                    &Si_X,       // Pointer to STARTUPINFO structure
-                    &_rPid_X.Pi_X  // Pointer to PROCESS_INFORMATION structure
-                    ))
-  {
-    _rPid_X.Pid = (uintptr_t)_rPid_X.Pi_X.hProcess;
-    _rExitCode_i = 0;
-    Rts_E = BOF_ERR_NO_ERROR;
-#if 0
-    // Wait until child process exits.
-    WaitForSingleObject(Rts_X.Pi_X.hProcess, INFINITE);
-
-    // Close process and thread handles.
-    CloseHandle(Rts_X.Pi_X.hProcess);
-    CloseHandle(Rts_X.Pi_X.hThread);
-#endif
-  }
-  else
-  {
-    // DWORD Err_DW = GetLastError();
-    _rPid_X.Pid = -1;
-  }
-#else
-  char *pArgs_c[50];
-  char pArgZero_c[0x1000];
-  int NbArgs_i;
-  char *pPtr_c;
-
-  Rts_X.Pid = fork();
-  // If PID is null, it means
-  // we are in the child process
-  if (Rts_X.Pid == 0)
-  {
-    if (_pArguments_c != nullptr)
-    {
-      strncpy(pTemp_c, _pArguments_c, sizeof(pTemp_c));
-    }
-    else
-    {
-      strncpy(pTemp_c, " ", sizeof(pTemp_c));
-    }
-
-    pPtr_c = pTemp_c;
-    NbArgs_i = 1;
-    Bof_StrNCpy(pArgZero_c, _pProgram_c, sizeof(pArgZero_c));
-    pArgs_c[0] = pArgZero_c;
-
-    while ((pPtr_c != nullptr) && (NbArgs_i < static_cast<int>((sizeof(pArgs_c) / sizeof(pArgs_c[0])))))
-    {
-      pArgs_c[NbArgs_i++] = pPtr_c;
-      pPtr_c = strchr(pPtr_c, ' ');
-
-      if (pPtr_c != nullptr)
-      {
-        *pPtr_c = '\0';
-        pPtr_c += 1;
-      }
-    }
-
-    pArgs_c[NbArgs_i - 1] = nullptr;
-
-    if (_DbgPort_U16)
-    {
-      if ((_pArguments_c != nullptr) && (_pArguments_c[0] != '\0'))
-      {
-        snprintf(pTemp_c, sizeof(pTemp_c), "gdbserver :%d %s %s", _DbgPort_U16, _pProgram_c, _pArguments_c);
-      }
-      else
-      {
-        snprintf(pTemp_c, sizeof(pTemp_c), "gdbserver :%d %s", _DbgPort_U16, _pProgram_c);
-      }
-
-      BOF::BofProcess::S_Execute(pTemp_c);
-    }
-    else
-    {
-      /*Status_i = */ execv(_pProgram_c, pArgs_c);
-    }
-
-    _exit(0);
-  }
-#endif
-
-  return Rts_E;
-}
-
-/*!
-Description
   This function kills the specified process
 
 Parameters
@@ -1337,23 +1371,30 @@ Remarks
 BOFERR BofProcess::S_KillProcess(BOF_PROCESS _Pid_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
+
+  if (_Pid_X.Pid > 0)
+  {
 #if defined(_WIN32)
-  if (TerminateProcess(_Pid_X.Pi_X.hProcess, -1))
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-  }
+    if (TerminateProcess(_Pid_X.Pi_X.hProcess, -1))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
 #else
-  int Sts_i;
+    int Sts_i;
 
-  Sts_i = kill(_Pid_X.Pid, SIGTERM);
-  if (Sts_i < 0)
-  {
-    //sleep(1);
-    Sts_i = kill(_Pid_X.Pid, SIGKILL);
-  }
-
-  Rts_E = S_IsProcessRunning(_Pid_X) ? BOF_ERR_INTERNAL:BOF_ERR_NO_ERROR;
+    Sts_i = kill(_Pid_X.Pid, SIGTERM);
+    if (Sts_i < 0)
+    {
+      // sleep(1);
+      Sts_i = kill(_Pid_X.Pid, SIGKILL);
+    }
+    if (Sts_i >= 0)
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    // Rts_E = S_IsProcessRunning(_Pid_X) ? BOF_ERR_INTERNAL : BOF_ERR_NO_ERROR;
 #endif
+  }
   return Rts_E;
 }
 

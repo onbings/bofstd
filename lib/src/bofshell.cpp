@@ -25,7 +25,8 @@
 
 BEGIN_BOF_NAMESPACE()
 
-BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X) : mShellParam_X(_rShellParam_X)
+BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X)
+    : mShellParam_X(_rShellParam_X)
 {
   mShellParam_X.psConio = std::make_shared<BofConio>(mShellParam_X.ConioParam_X);
   _rShellParam_X.psConio = mShellParam_X.psConio;
@@ -94,7 +95,7 @@ BOFERR BofShell::AddCommand(const std::string &_rCmd_S, const BOF_SHELL_CMD &_rS
   BOFERR Rts_E;
 
   auto It = mShellParam_X.ShellCmdCollection.insert(std::pair<std::string, BOF_SHELL_CMD>(_rCmd_S, _rShellCmd));
-  Rts_E = It.second ? BOF_ERR_NO_ERROR : BOF_ERR_EXIST;
+  Rts_E = It.second ? BOF_ERR_NO_ERROR : BOF_ERR_EEXIST;
   return Rts_E;
 }
 BOFERR BofShell::Parser(const std::string &_rShellCmd_S)

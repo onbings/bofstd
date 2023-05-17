@@ -233,7 +233,6 @@ enum BOFERR : int
   BOF_ERR_OUTPUT,           /*! Output */
   BOF_ERR_CODEC,            /*! Codec */
   BOF_ERR_INVALID_HANDLE,   /*! Invalid handle value */
-  BOF_ERR_EXIST,            /* Exist */
   BOF_ERR_DONT_EXIST,       /* Don't exist */
   BOF_ERR_OUT_OF_RANGE,     /* Out of range */
   BOF_ERR_EXCEPTION,        ///< Exception

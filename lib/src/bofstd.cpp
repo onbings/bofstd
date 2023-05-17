@@ -305,7 +305,6 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_OUTPUT, "BOF_ERR_OUTPUT"},
     {BOF_ERR_CODEC, "BOF_ERR_CODEC"},
     {BOF_ERR_INVALID_HANDLE, "BOF_ERR_INVALID_HANDLE"},
-    {BOF_ERR_EXIST, "BOF_ERR_EXIST"},
     {BOF_ERR_DONT_EXIST, "BOF_ERR_DONT_EXIST"},
     {BOF_ERR_OUT_OF_RANGE, "BOF_ERR_OUT_OF_RANGE"},
     {BOF_ERR_EXCEPTION, "BOF_ERR_EXCEPTION"},
@@ -469,10 +468,10 @@ BOFERR Bof_Shutdown()
   ------- Stderr: -------
   eJwVxUEOgjAQAMC7r9gXuCGRBA4cMMGb1tQHkFIWXKUt6W5j/L1xLtOLUFbgCPhMgVDJBc/6xanwNvcrRcVPym9siea6WWrnmmqpJo/3nF7kFUtkVRJFSSV7wuA4Hv2+w8aR4NTCVVZ4qIwDdB2czWUcrB1v5p+xhx+4vSxS====
 */
-/*
-  printf("\x1b[0m");
-  tcsetattr(STDIN_FILENO, TCSANOW, &S_SavedTermIos_X);
-  */
+  /*
+    printf("\x1b[0m");
+    tcsetattr(STDIN_FILENO, TCSANOW, &S_SavedTermIos_X);
+    */
 #endif
   // Give some time to thread/logger to shutdown
   BOF::Bof_MsSleep(1000);
@@ -488,7 +487,8 @@ bool Bof_IsWindows()
   return false;
 #endif
 }
-BofException::BofException(std::string _Header_S, std::string _Context_S, std::string _Where_S, int32_t _ErrorCode_S32) : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32)
+BofException::BofException(std::string _Header_S, std::string _Context_S, std::string _Where_S, int32_t _ErrorCode_S32)
+    : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32)
 {
   std::ostringstream Msg;
   Msg << mHeader_S;
