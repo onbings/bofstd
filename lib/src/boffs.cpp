@@ -899,7 +899,7 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, BOF_BUFFER &_rBufferToDeleteAfterUsag
   if (FileSize_U64 != static_cast<uint64_t>(-1))
   {
     _rBufferToDeleteAfterUsage_X.Reset();
-    _rBufferToDeleteAfterUsage_X.MustBeDeleted_B = true;
+    _rBufferToDeleteAfterUsage_X.Deleter_E = BOF_BUFFER_DELETER_DELETE;
     _rBufferToDeleteAfterUsage_X.Size_U64 = FileSize_U64;
     _rBufferToDeleteAfterUsage_X.Capacity_U64 = FileSize_U64;
     if (FileSize_U64 == 0)

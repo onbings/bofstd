@@ -23,6 +23,8 @@
 #include <bofstd/bofprocess.h>
 #include <bofstd/bofsystem.h>
 
+#include <cstdio>
+
 #if defined(_WIN32)
 #define popen _popen
 #define pclose _pclose
@@ -46,6 +48,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/ptrace.h>
 #endif
 extern char **environ;
 
@@ -292,13 +295,13 @@ int WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32)
    Remarks
    None
  */
-bool BofProcess::S_SetDefaultTimeout(uint32_t _Timeout_U32)
+BOFERR BofProcess::S_SetDefaultTimeout(uint32_t _Timeout_U32)
 {
-  bool Rts_B = true;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
   BofProcess::S_mDefaultTimeout_U32 = _Timeout_U32;
 
-  return Rts_B;
+  return Rts_E;
 }
 
 /*!
@@ -335,10 +338,12 @@ uint32_t BofProcess::S_GetDefaultTimeout()
    Remarks
    None
  */
-bool BofProcess::S_SetDefaultExecuteMode(BofProcess::ExecuteMode _Mode_E)
+BOFERR BofProcess::S_SetDefaultExecuteMode(BofProcess::ExecuteMode _Mode_E)
 {
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+
   BofProcess::S_mDefaultMode_E = _Mode_E;
-  return true;
+  return Rts_E;
 }
 
 /*!
@@ -375,9 +380,9 @@ BofProcess::ExecuteMode BofProcess::S_GetDefaultExecuteMode()
    Remarks
    None
  */
-int BofProcess::S_Execute(const char *_pCommand_c)
+BOFERR BofProcess::S_Execute(const char *_pCommand_c, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, BofProcess::S_mDefaultMode_E);
+  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, BofProcess::S_mDefaultMode_E, _rPid_X, _rExitCode_i);
 }
 
 /*!
@@ -396,9 +401,9 @@ int BofProcess::S_Execute(const char *_pCommand_c)
    Remarks
    None
  */
-int BofProcess::S_Execute(const char *_pCommand_c, BofProcess::ExecuteMode _Mode_E)
+BOFERR BofProcess::S_Execute(const char *_pCommand_c, BofProcess::ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, _Mode_E);
+  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, _Mode_E, _rPid_X, _rExitCode_i);
 }
 
 /*!
@@ -417,9 +422,9 @@ int BofProcess::S_Execute(const char *_pCommand_c, BofProcess::ExecuteMode _Mode
    Remarks
    None
  */
-int BofProcess::S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32)
+BOFERR BofProcess::S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, _Timeout_U32, BofProcess::S_mDefaultMode_E);
+  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, _Timeout_U32, BofProcess::S_mDefaultMode_E, _rPid_X, _rExitCode_i);
 }
 
 /*!
@@ -439,9 +444,9 @@ int BofProcess::S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32)
    Remarks
    None
  */
-int BofProcess::S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32, BofProcess::ExecuteMode _Mode_E)
+BOFERR BofProcess::S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32, BofProcess::ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, _Timeout_U32, _Mode_E);
+  return BofProcess::S_Execute(nullptr, 0, _pCommand_c, _Timeout_U32, _Mode_E, _rPid_X, _rExitCode_i);
 }
 
 /*!
@@ -461,9 +466,9 @@ int BofProcess::S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32, BofPro
    Remarks
    None
  */
-int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c)
+BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, BofProcess::S_mDefaultMode_E);
+  return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, BofProcess::S_mDefaultMode_E, _rPid_X, _rExitCode_i);
 }
 
 /*!
@@ -485,9 +490,9 @@ int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCo
    Remarks
    None
  */
-int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32)
+BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, BofProcess::S_mDefaultMode_E);
+  return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, BofProcess::S_mDefaultMode_E, _rPid_X, _rExitCode_i);
 }
 
 /*!
@@ -509,9 +514,9 @@ int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCo
    Remarks
    None
  */
-int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, BofProcess::ExecuteMode _Mode_E)
+BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, BofProcess::ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, _Mode_E);
+  return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, _Mode_E, _rPid_X, _rExitCode_i);
 }
 
 /*!
@@ -534,36 +539,36 @@ int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCo
    Remarks
    None
  */
-int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BofProcess::ExecuteMode _Mode_E)
+BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BofProcess::ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  int Rts_i = 0;
+  BOFERR Rts_E;
 
   switch (_Mode_E)
   {
     case BofProcess::EXECUTE_VFORK:
       {
-        Rts_i = BofProcess::S_Execute_vfork(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
+        Rts_E = BofProcess::S_Execute_vfork(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, _rPid_X, _rExitCode_i);
         break;
       }
     case BofProcess::EXECUTE_POSIX_SPAWN:
       {
-        Rts_i = BofProcess::S_Execute_posix_spawn(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
+        Rts_E = BofProcess::S_Execute_posix_spawn(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, _rPid_X, _rExitCode_i);
         break;
       }
     case BofProcess::EXECUTE_POPEN:
       {
-        Rts_i = BofProcess::S_Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32);
+        Rts_E = BofProcess::S_Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, _rPid_X, _rExitCode_i);
         break;
       }
 
     default:
       {
-        Rts_i = BOF_ERR_EINVAL;
+        Rts_E = BOF_ERR_EINVAL;
         break;
       }
   }
 
-  return Rts_i;
+  return Rts_E;
 }
 
 /*!
@@ -585,16 +590,18 @@ int BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCo
    Remarks
    None
  */
-int BofProcess::S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t /*_Timeout_U32*/)
+BOFERR BofProcess::S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  int Rts_i = 0;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   FILE *pPipe_X = nullptr;
   int Len_i = 0;
   char pCommand_c[256];
   char pBuf_c[128];
 
+  _rExitCode_i = 127;
   if (_pCommand_c != nullptr)
   {
+    Rts_E = BOF_ERR_NOT_OPENED;
     // Redirect stderr to sdout to catch all error
     snprintf(pCommand_c, sizeof(pCommand_c), "%s 2>&1", _pCommand_c);
 
@@ -603,7 +610,7 @@ int BofProcess::S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char
 
     if (pPipe_X != nullptr)
     {
-      // Do we have to capture output
+      // Do we have to capture output6
       if ((_pOutput_c != nullptr) && (_Size_U32 > 0))
       {
         _pOutput_c[0] = '\0';
@@ -622,24 +629,20 @@ int BofProcess::S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char
           }
         }
       }
-
       // Grab the forked status
-      Rts_i = pclose(pPipe_X);
+      _rExitCode_i = pclose(pPipe_X);
+      Rts_E = (_rExitCode_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
 
       // Convert it to get application return code
-      Rts_i = WEXITSTATUS(Rts_i);
+      _rExitCode_i = WEXITSTATUS(_rExitCode_i);
     }
     else
     {
-      Rts_i = BOF_ERR_CREATE;
+      Rts_E = BOF_ERR_CREATE;
     }
   }
-  else
-  {
-    Rts_i = BOF_ERR_EINVAL;
-  }
 
-  return Rts_i;
+  return Rts_E;
 }
 
 /*!
@@ -661,30 +664,31 @@ int BofProcess::S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char
    Remarks
    None
  */
-int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32)
+BOFERR BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  int Rts_i = 0;
-#if defined(_WIN32)
-  BOF_PROCESS Pid_X;
-  char pCmd_c[0x1000], *pArg_c;
-  int Len_i;
-
-  std::string Out_S;
-  bool Sts_B;
-  Rts_i = BOF_ERR_EINVAL;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  _rExitCode_i = 127;
   if (_pCommand_c)
   {
-    sprintf(pCmd_c, "%s >BofSpawnOut.bha", _pCommand_c);
+    Rts_E = BOF_ERR_NOT_OPENED;
+#if defined(_WIN32)
+    char pCmd_c[0x1000], *pArg_c, pSpawnOut_c[0x1000];
+    int Len_i;
+    std::string Out_S;
+    bool Sts_B;
+
+    std::tmpnam(pSpawnOut_c);
+    sprintf(pCmd_c, "%s > %s", _pCommand_c, pSpawnOut_c);
     pArg_c = strchr(pCmd_c, ' ');
     if (pArg_c)
     {
       *pArg_c = 0;
       pArg_c++;
     }
-    Pid_X = BofProcess::S_SpawnProcess(pCmd_c, pArg_c, 0);
-    if (Pid_X.Pid == 1)
+    Rts_E = BofProcess::S_SpawnProcess(pCmd_c, pArg_c, 0, _rPid_X, _rExitCode_i);
+    if ((Rts_E == BOF_ERR_NO_ERROR) && (_rExitCode_i==0) && (_rPid_X.Pid > 0))
     {
-      switch (WaitForSingleObject(Pid_X.Pi_X.hProcess, _Timeout_U32))
+      switch (WaitForSingleObject(_rPid_X.Pi_X.hProcess, _Timeout_U32))
       {
         default:
         case WAIT_ABANDONED:
@@ -705,12 +709,13 @@ int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, cons
 
       if (!Sts_B)
       {
-        Sts_B = TerminateProcess(Pid_X.Pi_X.hProcess, -1);
+        Sts_B = TerminateProcess(_rPid_X.Pi_X.hProcess, -1);
       }
       if (Sts_B)
       {
-        Bof_ReadFile("BofSpawnOut.bha", Out_S);
+        Bof_ReadFile(pSpawnOut_c, Out_S);
       }
+      Bof_DeleteFile(pSpawnOut_c);
       if (_pOutput_c)
       {
         Len_i = BOF::BOF_MIN(_Size_U32 - 1, (uint32_t)Out_S.size());
@@ -718,31 +723,29 @@ int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, cons
         _pOutput_c[Len_i] = 0;
       }
       // Close process and thread handles.
-      CloseHandle(Pid_X.Pi_X.hProcess);
-      CloseHandle(Pid_X.Pi_X.hThread);
-      Rts_i = Sts_B ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+      CloseHandle(_rPid_X.Pi_X.hProcess);
+      CloseHandle(_rPid_X.Pi_X.hThread);
+      Rts_E = Sts_B ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+      _rExitCode_i = 0;
     }
-  }
-#else
-  int Len_i = 0;
-  //	int                        Status_i  = 0;
-  int I_S32 = 0;
-  bool Read_B = false;
-  //	bool                       Kill_B    = false;
-  char *Args_c[] = {(char *)"sh", (char *)"-c", (char *)_pCommand_c, nullptr};
-  char pBuf_c[128];
-  BOF_PROCESS Pid_X;
-  //	BOF_PROCESS                      RetPid_X;
-  posix_spawn_file_actions_t Actions_X;
-  posix_spawnattr_t Attributes_X;
-  int Policy_i = 0;
-  struct sched_param SchedParams_X;
-  int stdout_pipe[2];
-  int stderr_pipe[2];
-  //	uint64_t                   Timer_U64;
 
-  if (_pCommand_c != nullptr)
-  {
+#else
+    int Len_i = 0;
+    //	int                        Status_i  = 0;
+    int I_S32 = 0;
+    bool Read_B = false;
+    //	bool                       Kill_B    = false;
+    char *Args_c[] = {(char *)"sh", (char *)"-c", (char *)_pCommand_c, nullptr};
+    char pBuf_c[128];
+    //	BOF_PROCESS                      RetPid_X;
+    posix_spawn_file_actions_t Actions_X;
+    posix_spawnattr_t Attributes_X;
+    int Policy_i = 0;
+    struct sched_param SchedParams_X;
+    int stdout_pipe[2];
+    int stderr_pipe[2];
+    //	uint64_t                   Timer_U64;
+
     if ((pipe(stdout_pipe) == 0) && (pipe(stderr_pipe) == 0))
     {
       // Create rules to redirect stdout and stderr of spawned process
@@ -780,7 +783,7 @@ int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, cons
       posix_spawnattr_setschedpolicy(&Attributes_X, Policy_i);
 
       // Spawn it
-      if (posix_spawnp(&Pid_X.Pid, Args_c[0], &Actions_X, &Attributes_X, Args_c, environ) == 0)
+      if (posix_spawnp(&_rPid_X.Pid, Args_c[0], &Actions_X, &Attributes_X, Args_c, environ) == 0)
       {
         // Close child-size of the pipes
         close(stdout_pipe[1]);
@@ -825,7 +828,7 @@ int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, cons
           }
         }
 
-        Rts_i = WaitForProcessCompletion(Pid_X, _Timeout_U32);
+        Rts_i = WaitForProcessCompletion(_rPid_X, _Timeout_U32);
       }
       else
       {
@@ -846,7 +849,8 @@ int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, cons
     Rts_i = BOF_ERR_EINVAL;
   }
 #endif
-  return Rts_i;
+  }
+  return Rts_E;
 }
 
 /*!
@@ -868,30 +872,32 @@ int BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, cons
    Remarks
    None
  */
-int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32)
+BOFERR BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  int Rts_i = 0;
-#if defined(_WIN32)
-  BOF_PROCESS Pid_X;
-  char pCmd_c[0x1000], *pArg_c;
-  int Len_i;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  _rExitCode_i = 127;
 
-  std::string Out_S;
-  bool Sts_B;
-  Rts_i = BOF_ERR_EINVAL;
   if (_pCommand_c)
   {
-    sprintf(pCmd_c, "%s >BofSpawnOut.bha", _pCommand_c);
+    Rts_E = BOF_ERR_NOT_OPENED;
+#if defined(_WIN32)
+    char pCmd_c[0x1000], *pArg_c, pSpawnOut_c[0x1000];
+    int Len_i;
+    std::string Out_S;
+    bool Sts_B;
+
+    std::tmpnam(pSpawnOut_c);
+    sprintf(pCmd_c, "%s > %s", _pCommand_c, pSpawnOut_c);
     pArg_c = strchr(pCmd_c, ' ');
     if (pArg_c)
     {
       *pArg_c = 0;
       pArg_c++;
     }
-    Pid_X = BofProcess::S_SpawnProcess(pCmd_c, pArg_c, 0);
-    if (Pid_X.Pid == 1)
+    Rts_E = BofProcess::S_SpawnProcess(pCmd_c, pArg_c, 0, _rPid_X, _rExitCode_i);
+    if ((Rts_E == BOF_ERR_NO_ERROR) && (_rExitCode_i == 0) && (_rPid_X.Pid > 0))
     {
-      switch (WaitForSingleObject(Pid_X.Pi_X.hProcess, _Timeout_U32))
+      switch (WaitForSingleObject(_rPid_X.Pi_X.hProcess, _Timeout_U32))
       {
         default:
         case WAIT_ABANDONED:
@@ -912,12 +918,13 @@ int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char
 
       if (!Sts_B)
       {
-        Sts_B = TerminateProcess(Pid_X.Pi_X.hProcess, -1);
+        Sts_B = TerminateProcess(_rPid_X.Pi_X.hProcess, -1);
       }
       if (Sts_B)
       {
-        Bof_ReadFile("BofSpawnOut.bha", Out_S);
+        Bof_ReadFile(pSpawnOut_c, Out_S);
       }
+      Bof_DeleteFile(pSpawnOut_c);
       if (_pOutput_c)
       {
         Len_i = BOF::BOF_MIN(_Size_U32 - 1, (uint32_t)Out_S.size());
@@ -925,24 +932,26 @@ int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char
         _pOutput_c[Len_i] = 0;
       }
       // Close process and thread handles.
-      CloseHandle(Pid_X.Pi_X.hProcess);
-      CloseHandle(Pid_X.Pi_X.hThread);
-      Rts_i = Sts_B ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+      CloseHandle(_rPid_X.Pi_X.hProcess);
+      CloseHandle(_rPid_X.Pi_X.hThread);
+      if (Sts_B)
+      {
+        Rts_E = BOF_ERR_NO_ERROR;
+        _rExitCode_i = 0;
+      }
+      else
+      {
+        Rts_E = BOF_ERR_INTERNAL;
+      }
     }
-  }
 #else
-  //	int     Status_i        = 0;
-  int File_i = 0;
-  char *Args_c[] = {(char *)"/bin/sh", (char *)"-c", (char *)_pCommand_c, nullptr};
-  BOF_PROCESS Pid_X;
-  ssize_t Read_i = 0;
-  char pTempFileName_c[256];
-  char pRedirect_c[512];
-  bool CaptureOutput_B = (_pOutput_c != nullptr) && (_Size_U32 > 0);
-
-  if (_pCommand_c != nullptr)
-  {
-    // setenv("PATH", "/bin:/sbin:/usr/bin:/usr/sbin:/usr/bin/X11:/usr/local/bin", 1);
+    //	int     Status_i        = 0;
+    int File_i = 0;
+    char *Args_c[] = {(char *)"/bin/sh", (char *)"-c", (char *)_pCommand_c, nullptr};
+    ssize_t Read_i = 0;
+    char pTempFileName_c[256];
+    char pRedirect_c[512];
+    bool CaptureOutput_B = (_pOutput_c != nullptr) && (_Size_U32 > 0);
 
     if (CaptureOutput_B)
     {
@@ -959,18 +968,18 @@ int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char
       }
     }
 
-    Pid_X.Pid = vfork();
+    _rPid_X.Pid = vfork();
 
-    if (Pid_X.Pid == 0)
+    if (_rPid_X.Pid == 0)
     {
       execve(Args_c[0], Args_c, environ);
 
       // Won't reach here except error
       _exit(-1);
     }
-    else if (Pid_X.Pid > 0)
+    else if (_rPid_X.Pid > 0)
     {
-      Rts_i = WaitForProcessCompletion(Pid_X, _Timeout_U32);
+      Rts_i = WaitForProcessCompletion(_rPid_X, _Timeout_U32);
 
       // Do we have to capture output
       if (CaptureOutput_B)
@@ -995,13 +1004,9 @@ int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char
     {
       Rts_i = BOF_ERR_CREATE;
     }
-  }
-  else
-  {
-    Rts_i = BOF_ERR_EINVAL;
-  }
 #endif
-  return Rts_i;
+  }
+  return Rts_E;
 }
 
 /*!
@@ -1019,10 +1024,11 @@ int BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char
    Remarks
    None
  */
-bool BofProcess::S_ReadU32FromFile(const char *_pFile_c, uint32_t *_pValue_U32)
+BOFERR BofProcess::S_ReadU32FromFile(const char *_pFile_c, uint32_t *_pValue_U32)
 {
-  bool Rts_B = false;
-  int Rts_i = 0;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  int ExitCode_i;
+  BOF_PROCESS Pid_X;
   char pResult_c[256];
   char pCmd_c[256];
 
@@ -1031,17 +1037,14 @@ bool BofProcess::S_ReadU32FromFile(const char *_pFile_c, uint32_t *_pValue_U32)
     snprintf(pCmd_c, sizeof(pCmd_c), "cat %s", _pFile_c);
 
     // Execute the command
-    Rts_i = BofProcess::S_Execute(pResult_c, sizeof(pResult_c), pCmd_c);
-
-    if (Rts_i == 0)
+    Rts_E = S_Execute(pResult_c, sizeof(pResult_c), pCmd_c, Pid_X, ExitCode_i);
+    if (Rts_E == BOF_ERR_NO_ERROR)
     {
       // Convert the result
       *_pValue_U32 = (uint32_t)atol(pResult_c);
-      Rts_B = true;
     }
   }
-
-  return Rts_B;
+  return Rts_E;
 }
 
 /*!
@@ -1060,27 +1063,21 @@ bool BofProcess::S_ReadU32FromFile(const char *_pFile_c, uint32_t *_pValue_U32)
    Remarks
    None
  */
-bool BofProcess::S_WriteU32ToFile(const char *_pFile_c, uint32_t _Value_U32)
+BOFERR BofProcess::S_WriteU32ToFile(const char *_pFile_c, uint32_t _Value_U32)
 {
-  bool Rts_B = false;
-  int Rts_i = 0;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  int ExitCode_i;
+  BOF_PROCESS Pid_X;
   char pResult_c[256];
   char pCmd_c[256];
 
   if (_pFile_c != nullptr)
   {
     snprintf(pCmd_c, sizeof(pCmd_c), "echo %d > %s", _Value_U32, _pFile_c);
-
-    // Execute the command
-    Rts_i = BofProcess::S_Execute(pResult_c, sizeof(pResult_c), pCmd_c);
-
-    if (Rts_i == 0)
-    {
-      Rts_B = true;
-    }
+    Rts_E = S_Execute(pResult_c, sizeof(pResult_c), pCmd_c, Pid_X, ExitCode_i);
   }
 
-  return Rts_B;
+  return Rts_E;
 }
 
 /*!
@@ -1098,10 +1095,12 @@ Returns
 Remarks
   None
 */
-bool BofProcess::S_KillAllPidByName(const char *_pProcessName_c)
+BOFERR BofProcess::S_KillProcess(const char *_pProcessName_c)
 {
-  bool Rts_B = false;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
   char pCmd_c[0x1000];
+  int ExitCode_i;
+  BOF_PROCESS Pid_X;
 
   if (_pProcessName_c != nullptr)
   {
@@ -1110,9 +1109,16 @@ bool BofProcess::S_KillAllPidByName(const char *_pProcessName_c)
 #else
     snprintf(pCmd_c, sizeof(pCmd_c), "pkill %s", _pProcessName_c);
 #endif
-    Rts_B = (BOF::BofProcess::S_Execute_popen(nullptr,0,pCmd_c, 0) == 0) ? true : false;
+    Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
+    if (Rts_E == BOF_ERR_NO_ERROR)
+    {
+      if (ExitCode_i)
+      {
+        Rts_E = BOF_ERR_NO;
+      }
+    }
   }
-  return Rts_B;
+  return Rts_E;
 }
 
 /*!
@@ -1201,10 +1207,12 @@ Returns
 Remarks
   None
 */
-BOF_PROCESS BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16)
+BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16, BOF_PROCESS &_rPid_X, int &_rExitCode_i)
 {
-  BOF_PROCESS Rts_X;
+  BOFERR Rts_E = BOF_ERR_NOT_OPENED;
   char pTemp_c[0x1000];
+
+  _rExitCode_i = 127;
 #if defined(_WIN32)
   STARTUPINFO Si_X;
 
@@ -1214,7 +1222,7 @@ BOF_PROCESS BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pAr
   }
   else
   {
-    strncpy(pTemp_c, " ", sizeof(pTemp_c));
+    strncpy(pTemp_c, "", sizeof(pTemp_c));
   }
   memset(&Si_X, 0, sizeof(Si_X));
   Si_X.cb = sizeof(Si_X);
@@ -1228,10 +1236,12 @@ BOF_PROCESS BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pAr
                     nullptr,     // Use parent's environment block
                     nullptr,     // Use parent's starting directory
                     &Si_X,       // Pointer to STARTUPINFO structure
-                    &Rts_X.Pi_X  // Pointer to PROCESS_INFORMATION structure
+                    &_rPid_X.Pi_X  // Pointer to PROCESS_INFORMATION structure
                     ))
   {
-    Rts_X.Pid = 1;
+    _rPid_X.Pid = (uintptr_t)_rPid_X.Pi_X.hProcess;
+    _rExitCode_i = 0;
+    Rts_E = BOF_ERR_NO_ERROR;
 #if 0
     // Wait until child process exits.
     WaitForSingleObject(Rts_X.Pi_X.hProcess, INFINITE);
@@ -1243,8 +1253,8 @@ BOF_PROCESS BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pAr
   }
   else
   {
-    //DWORD Err_DW = GetLastError();
-    Rts_X.Pid = -1;
+    // DWORD Err_DW = GetLastError();
+    _rPid_X.Pid = -1;
   }
 #else
   char *pArgs_c[50];
@@ -1307,7 +1317,7 @@ BOF_PROCESS BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pAr
   }
 #endif
 
-  return Rts_X;
+  return Rts_E;
 }
 
 /*!
@@ -1324,22 +1334,38 @@ Returns
 Remarks
   None
 */
-bool BofProcess::S_KillProcess(BOF_PROCESS _Pid_X)
+BOFERR BofProcess::S_KillProcess(BOF_PROCESS _Pid_X)
 {
-  bool Rts_B = false;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
 #if defined(_WIN32)
-  Rts_B = TerminateProcess(_Pid_X.Pi_X.hProcess, -1);
+  if (TerminateProcess(_Pid_X.Pi_X.hProcess, -1))
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
 #else
-  int Status_i = 0;
+  int Sts_i;
 
-  Status_i = kill(_Pid_X.Pid, SIGTERM);
-  sleep(2);
-  Status_i |= kill(_Pid_X.Pid, SIGKILL);
+  Sts_i = kill(_Pid_X.Pid, SIGTERM);
+  if (Sts_i < 0)
+  {
+    //sleep(1);
+    Sts_i = kill(_Pid_X.Pid, SIGKILL);
+  }
 
-  S_IsProcessRunning(_Pid_X);
-
-  Rts_B = true;
+  Rts_E = S_IsProcessRunning(_Pid_X) ? BOF_ERR_INTERNAL:BOF_ERR_NO_ERROR;
 #endif
-  return Rts_B;
+  return Rts_E;
+}
+
+BOFERR BofProcess::S_AttachProcessToDebugger(BOF_PROCESS _Pid_X)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+#if defined(__linux__)
+  if (ptrace(PTRACE_ATTACH, _Pid_X.Pid, nullptr, nullptr) >= 0)
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+#endif
+  return Rts_E;
 }
 END_BOF_NAMESPACE()

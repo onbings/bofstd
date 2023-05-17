@@ -263,7 +263,7 @@ BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = t
   if (mMultiThreadAware_B)
   {
     // BOFERR Sts_E=
-    Bof_CreateMutex("BofList", false, false, mListMtx_X);
+    Bof_CreateMutex("BofList", true, false, mListMtx_X);
   }
 
   // Allocate the memory

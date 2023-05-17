@@ -75,29 +75,31 @@ public:
     EXECUTE_POSIX_SPAWN
   };
 
-  static int S_Execute(const char *_pCommand_c);
-  static int S_Execute(const char *_pCommand_c, ExecuteMode _Mode_E);
-  static int S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32);
-  static int S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32, ExecuteMode _Mode_E);
-  static int S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c);
-  static int S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, ExecuteMode _Mode_E);
-  static int S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32);
-  static int S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, ExecuteMode _Mode_E);
-  static int S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32);
-  static int S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32);
-  static int S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32);
-  static bool S_SetDefaultExecuteMode(ExecuteMode _Mode_E);
+  static BOFERR S_SetDefaultExecuteMode(ExecuteMode _Mode_E);
   static ExecuteMode S_GetDefaultExecuteMode();
-  static bool S_SetDefaultTimeout(uint32_t _Timeout_U32);
+  static BOFERR S_SetDefaultTimeout(uint32_t _Timeout_U32);
   static uint32_t S_GetDefaultTimeout();
-  static bool S_ReadU32FromFile(const char *_pFile_c, uint32_t *_pValue_U32);
-  static bool S_WriteU32ToFile(const char *_pFile_c, uint32_t _Value_U32);
 
-  static bool S_KillAllPidByName(const char *_pProcessName_c);
+  static BOFERR S_Execute(const char *_pCommand_c, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute(const char *_pCommand_c, ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute(const char *_pCommand_c, uint32_t _Timeout_U32, ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+
+  static BOFERR S_ReadU32FromFile(const char *_pFile_c, uint32_t *_pValue_U32);
+  static BOFERR S_WriteU32ToFile(const char *_pFile_c, uint32_t _Value_U32);
+
+  static BOFERR S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  static BOFERR S_KillProcess(const char *_pProcessName_c);
+  static BOFERR S_KillProcess(BOF_PROCESS _Pid_X);
   static bool S_IsProcessRunning(BOF_PROCESS _Pid_X);
-  static BOF_PROCESS S_SpawnProcess(const char *_pProgram_c, const char *_pArguments_c, uint16_t _DbgPort_U16);
-  static bool S_KillProcess(BOF_PROCESS _Pid_X);
-
+  static BOFERR S_AttachProcessToDebugger(BOF_PROCESS _Pid_X);
 protected:
 private:
   static uint32_t S_mDefaultTimeout_U32;

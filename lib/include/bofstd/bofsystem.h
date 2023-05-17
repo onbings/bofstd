@@ -85,10 +85,18 @@ struct BOF_BUFFER_ALLOCATE_HEADER
     pHugePath_c[0] = 0;
   }
 };
+enum BOF_BUFFER_DELETER
+{
+  BOF_BUFFER_DELETER_NONE = 0,
+  BOF_BUFFER_DELETER_FREE,
+  BOF_BUFFER_DELETER_ALIGNED_FREE,
+  BOF_BUFFER_DELETER_DELETE
+};
+struct BOF_BUFFER;
+BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
 struct BOF_BUFFER
 {
-  bool MustBeDeleted_B;
-  bool MustBeFreeed_B;
+  BOF_BUFFER_DELETER Deleter_E;
   uint64_t Offset_U64; // For seek
   uint64_t Size_U64;
   uint64_t Capacity_U64;
@@ -99,14 +107,13 @@ struct BOF_BUFFER
   BOF_BUFFER()
   {
     // for ReleaseStorage in Reset
-    MustBeDeleted_B = false;
-    MustBeFreeed_B = false;
+    Deleter_E = BOF_BUFFER_DELETER_NONE;
     pUser = nullptr;
     Offset_U64 = 0;
     Size_U64 = 0;
     Capacity_U64 = 0;
     pData_U8 = nullptr;
-    Reset();
+    // Reset();
   }
   /* Use SetStorage
     BOF_BUFFER(uint64_t _Capacity_U64, uint64_t _Size_U64, uint8_t *_pData_U8, bool _MustBeDeleted_B)
@@ -124,8 +131,7 @@ struct BOF_BUFFER
   BOF_BUFFER(const BOF_BUFFER &_rOther_X)
   {
     std::lock_guard<std::mutex> Lock(Mtx);
-    MustBeDeleted_B = false; // Only one deleter  _rOther_X.MustBeDeleted_B;
-    MustBeFreeed_B = false;  // Only one deleter _rOther_X.MustBeFreeed_B;
+    Deleter_E = BOF_BUFFER_DELETER_NONE; // Only one deleter  _rOther_X.MustBeDeleted_B;
     pUser = _rOther_X.pUser;
     Offset_U64 = _rOther_X.Offset_U64;
     Size_U64 = _rOther_X.Size_U64;
@@ -135,8 +141,7 @@ struct BOF_BUFFER
   BOF_BUFFER &operator=(const BOF_BUFFER &_rOther_X)
   {
     std::lock_guard<std::mutex> Lock(Mtx);
-    MustBeDeleted_B = false; // Only one deleter _rOther_X.MustBeDeleted_B;
-    MustBeFreeed_B = false;  // Only one deleter _rOther_X.MustBeFreeed_B;
+    Deleter_E = BOF_BUFFER_DELETER_NONE; // Only one deleter  _rOther_X.MustBeDeleted_B;
     pUser = _rOther_X.pUser;
     Offset_U64 = _rOther_X.Offset_U64;
     Size_U64 = _rOther_X.Size_U64;
@@ -147,8 +152,7 @@ struct BOF_BUFFER
   BOF_BUFFER &operator=(const BOF_BUFFER &&_rrOther_X) noexcept
   {
     std::lock_guard<std::mutex> Lock(Mtx);
-    MustBeDeleted_B = false; // Only one deleter _rrOther_X.MustBeDeleted_B;
-    MustBeFreeed_B = false;  // Only one deleter _rrOther_X.MustBeFreeed_B;
+    Deleter_E = BOF_BUFFER_DELETER_NONE; // Only one deleter  _rOther_X.MustBeDeleted_B;
     pUser = _rrOther_X.pUser;
     Offset_U64 = _rrOther_X.Offset_U64;
     Size_U64 = _rrOther_X.Size_U64;
@@ -160,8 +164,7 @@ struct BOF_BUFFER
   {
     ReleaseStorage();
     std::lock_guard<std::mutex> Lock(Mtx);
-    MustBeDeleted_B = false;
-    MustBeFreeed_B = false;
+    Deleter_E = BOF_BUFFER_DELETER_NONE;
     pUser = nullptr;
     Offset_U64 = 0;
     Size_U64 = 0;
@@ -180,11 +183,10 @@ struct BOF_BUFFER
     BOF_ASSERT(_Capacity_U64 < 0x100000000); // For the moment
     ReleaseStorage();
 
-    MustBeDeleted_B = false;
-    MustBeFreeed_B = false;
+    Deleter_E = BOF_BUFFER_DELETER_NONE;
     if (_pData_U8)
     {
-      pData_U8 = _pData_U8; // Caller can set MustBeDeleted_B or MustBeFreeed_B if needed
+      pData_U8 = _pData_U8; // Caller can set Deleter_E if needed
     }
     else
     {
@@ -304,7 +306,7 @@ struct BOF_BUFFER
     if (pRts)
     {
       std::lock_guard<std::mutex> Lock(Mtx);
-      MustBeDeleted_B = true;
+      Deleter_E = BOF_BUFFER_DELETER_DELETE;
       Capacity_U64 = _Capacity_U64;
       Offset_U64 = 0;
       Size_U64 = 0;
@@ -315,19 +317,23 @@ struct BOF_BUFFER
   void ReleaseStorage()
   {
     std::lock_guard<std::mutex> Lock(Mtx);
-    if (MustBeDeleted_B)
+    switch (Deleter_E)
     {
-      BOF_SAFE_DELETE_ARRAY(pData_U8);
-    }
-    else
-    {
-      if (MustBeFreeed_B)
-      {
+      default:
+      case BOF_BUFFER_DELETER_NONE:
+        break;
+      case BOF_BUFFER_DELETER_DELETE:
+        BOF_SAFE_DELETE_ARRAY(pData_U8);
+        break;
+      case BOF_BUFFER_DELETER_FREE:
         BOF_SAFE_FREE(pData_U8);
-      }
+        break;
+      case BOF_BUFFER_DELETER_ALIGNED_FREE:
+        Bof_AlignedMemFree(*this);
+        break;
     }
-    MustBeDeleted_B = false;
-    MustBeFreeed_B = false;
+    Deleter_E = BOF_BUFFER_DELETER_NONE;
+    pData_U8 = nullptr;
     Capacity_U64 = 0;
     Offset_U64 = 0;
     Size_U64 = 0;

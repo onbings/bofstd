@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
   testing::InitGoogleTest(&argc, argv);
   //::testing::GTEST_FLAG(filter) = "XmlWriter_Test.*"; // XmlParser_Test.XmlVector
   //::testing::GTEST_FLAG(filter) = "SockIo_Test.CreateDelete";
-  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*"; // UdpPipeSingle";
+  //::testing::GTEST_FLAG(filter) = "BofProcess_Test.*"; // UdpPipeSingle";
 
   std::string CrtDir_S;
   BOF::Bof_GetCurrentDirectory(CrtDir_S);

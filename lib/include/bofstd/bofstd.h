@@ -143,7 +143,7 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
         pFile = strrchr(pPath, '/');                                                                                   \
         if (!pFile)                                                                                                    \
             pFile = strrchr(pPath, '\\');                                                                              \
-        pFile = pFile ? ++pFile : __FILE__;                                                                            \
+        pFile = pFile ? ++pFile : pPath;                                                                            \
     }
 #define BOF_COMPUTE_DELTA(start, end, delta)                                                                           \
     {                                                                                                                  \
@@ -208,11 +208,13 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
 #define BOF_ALIGN_ADD_NB_PADDING_BYTE(v, a)                                                                            \
     ((((v) % (a)) != 0) ? ((a) - ((v) % (a))) : 0) // If aligned add a zone of a byte before the next one
 #define BOF_ALIGN_VALUE_ON(v, a) (((v) + (a)-1) & ~((a)-1))
+/*NO use Bof_StrNCpy
 #define BOF_SNPRINTF_NULL_CLIPPED(pBuffer, MaxBufferSize, Format, ...)                                                 \
     {                                                                                                                  \
         snprintf(pBuffer, MaxBufferSize, Format, ##__VA_ARGS__);                                                       \
         pBuffer[MaxBufferSize - 1] = 0;                                                                                \
     }
+    */
 // Use Bof_StrNCpy #define BOF_STRNCPY_NULL_CLIPPED(pDst, pSrc, Count) {strncpy(pDst, pSrc, Count);pDst[Count-1]=0;}
 #define BOF_SET_ADDRESS_MAGIC_NUMBER(p, mn)                                                                            \
     {                                                                                                                  \

@@ -2595,7 +2595,7 @@ BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _A
   {
     Rts_E = BOF_ERR_ENOMEM;
 
-    _rAllocatedBuffer_X.MustBeDeleted_B = true;
+    _rAllocatedBuffer_X.Deleter_E = BOF_BUFFER_DELETER_ALIGNED_FREE;
     _rAllocatedBuffer_X.Capacity_U64 = _SizeInByte_U32;
     _rAllocatedBuffer_X.Size_U64 = 0;
     _rAllocatedBuffer_X.pData_U8 = nullptr;
@@ -2606,7 +2606,6 @@ BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _A
       case BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM:
 #if defined(_WIN32)
         _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(_aligned_malloc(_SizeInByte_U32, _AligmentInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
-                                                                                                                           //_rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t*>(VirtualAlloc(nullptr, _SizeInByte_U32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
 #else
         _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(aligned_alloc(_AligmentInByte_U32, _SizeInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
 #endif
@@ -2677,7 +2676,7 @@ BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _A
       }
       else
       {
-        _rAllocatedBuffer_X.MustBeDeleted_B = false;
+        _rAllocatedBuffer_X.Deleter_E = BOF_BUFFER_DELETER_NONE;
         _rAllocatedBuffer_X.pUser = &AllocateBuffer_X;
         Bof_AlignedMemFree(_rAllocatedBuffer_X);
       }
@@ -2723,7 +2722,7 @@ BOFERR Bof_AlignedMemFree(BOF_BUFFER &_rBuffer_X)
     }
     //	printf("=======> DELETE Zone %d Must %d handle %x:%p data %lx:%p\n",pAllocateBuffer_X->AllocateZone_E, _rBuffer_X.MustBeDeleted_B, sizeof(BOF_BUFFER_ALLOCATE_HEADER), _rBuffer_X.pUser, _rBuffer_X.SizeInByte_U64, _rBuffer_X.pData_U8);
 
-    _rBuffer_X.MustBeDeleted_B = false; // Done by free or _aligned_free
+    _rBuffer_X.Deleter_E = BOF_BUFFER_DELETER_NONE; // Done by free or _aligned_free
     BOF_SAFE_DELETE(pAllocateBuffer_X);
     _rBuffer_X.Reset();
   }
