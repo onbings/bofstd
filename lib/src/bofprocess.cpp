@@ -212,7 +212,6 @@ int KillSubProcess(BOF_PROCESS _Pid_X, int _Options_i)
 BOFERR WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32, int &_rExitCode_i)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  // int Status_i = -1;
   BOF_PROCESS RetPid_X;
   bool Kill_B = false;
 
@@ -221,6 +220,7 @@ BOFERR WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32, int &
   if (_Pid_X.Pid > 0)
   {
 #if defined(_WIN32)
+    int Status_i = -1;
     RetPid_X = WaitForPid(_Pid_X, &Status_i, _Timeout_U32);
 
     // Check if process exited
@@ -228,7 +228,9 @@ BOFERR WaitForProcessCompletion(BOF_PROCESS _Pid_X, uint32_t _Timeout_U32, int &
     {
       if (WIFEXITED(Status_i))
       {
-        Rts_E = WEXITSTATUS(Status_i);
+        Status_i = WEXITSTATUS(Status_i);
+        Rts_E = (Status_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EBADRQC;
+        _rExitCode_i = Status_i;
       }
       else
       {
