@@ -211,7 +211,7 @@ set_target_properties(vld PROPERTIES
   IMPORTED_IMPLIB	"C:/pro/github/vld/package/Win64/vld.lib"
   INTERFACE_INCLUDE_DIRECTORIES "C:/pro/github/vld/package/include"
 )
-# Error wil be displayed in visual studio immediate windows (use ctrl-alt-i to make it appears) and in c:\tm\vld.txt (see default vld.ini)
+# Error wil be displayed in visual studio immediate windows (use ctrl-alt-i to make it appears) and in c:\tmp\vld.txt (see default vld.ini)
 get_target_property(DllPath vld IMPORTED_LOCATION)
 get_filename_component(DllDir ${DllPath} DIRECTORY)
 

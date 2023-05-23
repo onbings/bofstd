@@ -93,10 +93,12 @@ private:
   BOF_PIPE_PARAM mPipeParam_X;
   std::unique_ptr<BofSocket> mpuUdpPipeMst = nullptr;
   std::unique_ptr<BofSocket> mpuUdpPipeSlv = nullptr;
+  std::string mPipeName_S;
 
   bool mFullDuplexUseMaster_B = true; // to be able to read and write from both side
 #if defined(_WIN32)
   HANDLE mPipe_h = 0;
+  DWORD mDesiredAccess_DW = 0;
 #else
   int mPipe_i = -1;
 #endif

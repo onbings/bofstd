@@ -39,7 +39,6 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
   BOF_SOCKET_ADDRESS DstIpAddress;
-  std::string PipeName_S;
   mPipeParam_X = _rPipeParam_X;
 
   switch (mPipeParam_X.PipeType_E)
@@ -108,46 +107,49 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
 
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
 #if defined(_WIN32)
-      DWORD OpenMode_DW, DesiredAccess_DW, PipeMode_DW;
+      DWORD OpenMode_DW, PipeMode_DW;
       mErrorCode_E = BOF_ERR_CREATE;
-      PipeName_S = "\\\\.\\pipe\\" + mPipeParam_X.BaseChannelParam_X.ChannelName_S;
+      mPipeName_S = "\\\\.\\pipe\\" + mPipeParam_X.BaseChannelParam_X.ChannelName_S;
       switch (mPipeParam_X.PipeAccess_E)
       {
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ:
           OpenMode_DW = PIPE_ACCESS_INBOUND;
-          DesiredAccess_DW = GENERIC_READ;
+          mDesiredAccess_DW = GENERIC_READ;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE:
           OpenMode_DW = PIPE_ACCESS_OUTBOUND;
-          DesiredAccess_DW = GENERIC_WRITE;
+          mDesiredAccess_DW = GENERIC_WRITE;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE:
           OpenMode_DW = PIPE_ACCESS_DUPLEX;
-          DesiredAccess_DW = GENERIC_READ | GENERIC_WRITE;
+          mDesiredAccess_DW = GENERIC_READ | GENERIC_WRITE;
           break;
 
         default:
           OpenMode_DW = 0;
-          DesiredAccess_DW = 0;
+          mDesiredAccess_DW = 0;
           break;
       }
       if (mPipeParam_X.PipeServer_B)
       {
         PipeMode_DW = mPipeParam_X.NativeStringMode_B ? (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE) : (PIPE_TYPE_BYTE | PIPE_READMODE_BYTE);
         PipeMode_DW |= (mPipeParam_X.BaseChannelParam_X.Blocking_B ? PIPE_WAIT : PIPE_NOWAIT);
-        mPipe_h = CreateNamedPipe(PipeName_S.c_str(), OpenMode_DW, PipeMode_DW, 1, mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32, mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32, 0, nullptr);
+        mPipe_h = CreateNamedPipe(mPipeName_S.c_str(), OpenMode_DW, PipeMode_DW, 1, mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32, mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32, 0, nullptr);
+        if (BOF_IS_HANDLE_VALID(mPipe_h))
+        {
+          mErrorCode_E = BOF_ERR_NO_ERROR;
+        }
       }
       else
       {
-        mPipe_h = CreateFile(PipeName_S.c_str(), DesiredAccess_DW, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-      }
-      // printf("Srv %d Pipe file '%s' err %d\n", mPipeParam_X.Server_B, PipeName_S.c_str(), GetLastError());
-      if (BOF_IS_HANDLE_VALID(mPipe_h))
-      {
+        // Done in connect as server perhaps is not yet created
+        //         mPipe_h = CreateFile(PipeName_S.c_str(), DesiredAccess_DW, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         mErrorCode_E = BOF_ERR_NO_ERROR;
       }
+      // printf("Srv %d Pipe file '%s' err %d\n", mPipeParam_X.Server_B, PipeName_S.c_str(), GetLastError());
+
 #else
       int Status_i, OpenFlag_i, CreateFlag_i;
       long Size;
@@ -564,9 +566,12 @@ BOFERR BofPipe::V_WriteData(uint32_t _TimeoutInMs_U32, const std::string &_rBuff
   _rNb_U32 = static_cast<uint32_t>(_rBuffer_S.size());
   return V_WriteData(_TimeoutInMs_U32, _rNb_U32, reinterpret_cast<const uint8_t *>(_rBuffer_S.c_str()));
 }
-BOFERR BofPipe::V_Connect(uint32_t /*_TimeoutInMs_U32*/, const std::string & /*_rTarget_S*/, const std::string & /*_rOption_S*/)
+BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTarget_S*/, const std::string & /*_rOption_S*/)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
+#if defined(_WIN32)
+  uint32_t Start_U32;
+#endif
   switch (mPipeParam_X.PipeType_E)
   {
     case BOF_PIPE_TYPE::BOF_PIPE_OVER_LOCAL_UDP:
@@ -578,27 +583,40 @@ BOFERR BofPipe::V_Connect(uint32_t /*_TimeoutInMs_U32*/, const std::string & /*_
       break;
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
 #if defined(_WIN32)
-      if (mPipeParam_X.PipeServer_B)
+      Rts_E = BOF_ERR_ECONNREFUSED;
+      // Done in connect as server perhaps is not yet created when constructor is called
+      Start_U32 = BOF::Bof_GetMsTickCount();
+      do
       {
-        bool Connected_B;
-        // This call blocks until a client process connects to the pipe
-        // Wait for the client to connect; if it succeeds,
-        // the function returns a nonzero value. If the function
-        // returns zero, GetLastError returns ERROR_PIPE_CONNECTED.
-
-        Connected_B = ConnectNamedPipe(mPipe_h, nullptr) ? true : (GetLastError() == ERROR_PIPE_CONNECTED);
-        Rts_E = BOF_ERR_ECONNREFUSED;
-        if (Connected_B)
+        if (mPipeParam_X.PipeServer_B)
         {
-          Rts_E = BOF_ERR_NO_ERROR;
-        }
-      }
-      else
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-      }
-      // printf("Srv %d err %d rts %d\n", mPipeParam_X.Server_B, GetLastError(), Rts_E);
+          bool Connected_B;
+          // This call blocks until a client process connects to the pipe
+          // Wait for the client to connect; if it succeeds,
+          // the function returns a nonzero value. If the function
+          // returns zero, GetLastError returns ERROR_PIPE_CONNECTED.
 
+          Connected_B = ConnectNamedPipe(mPipe_h, nullptr) ? true : (GetLastError() == ERROR_PIPE_CONNECTED);
+          if (Connected_B)
+          {
+            Rts_E = BOF_ERR_NO_ERROR;
+          }
+        }
+        else
+        {
+          mPipe_h = CreateFile(mPipeName_S.c_str(), mDesiredAccess_DW, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+          if (BOF_IS_HANDLE_VALID(mPipe_h))
+          {
+            Rts_E = BOF_ERR_NO_ERROR;
+          }
+        }
+        if (Rts_E != BOF_ERR_NO_ERROR)
+        {
+          BOF::Bof_MsSleep(50);
+        }
+      } while ((Rts_E != BOF_ERR_NO_ERROR) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
+
+      // printf("%s err %d rts %d\n", mPipeParam_X.PipeServer_B ? "PipeSrv":"PipeClt", GetLastError(), Rts_E);
 #else
       if (mPipe_i >= 0)
       {

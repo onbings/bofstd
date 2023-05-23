@@ -50,8 +50,8 @@
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#endif
 extern char **environ;
+#endif
 
 BEGIN_BOF_NAMESPACE()
 
