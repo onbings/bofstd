@@ -57,6 +57,17 @@ enum class BOF_SEEK_METHOD : uint32_t
   BOF_SEEK_CURRENT,   /*! The starting point is the current value of the file pointer.*/
   BOF_SEEK_END        /*! The starting point is the current end-of-file position*/
 };
+//To use with Bof_InterlockedCompareExchange
+enum BOF_COM_RAM_CMD_STATE :uint32_t
+{
+  BOF_COM_RAM_CMD_STATE_FREE = 0,           //ComRam command zone is free
+  BOF_COM_RAM_CMD_STATE_RESERVED,           //Command sender has reserved the command zone to post a new command -> no other one can use this zone when it is in this state
+  BOF_COM_RAM_CMD_STATE_PENDING,            //Command and arg are posted and can be consumed by a client
+  BOF_COM_RAM_CMD_STATE_PROCESSING,         //A client has seen the command and is currently processing
+  BOF_COM_RAM_CMD_STATE_FINISHED,           //Command is finished and result are now available
+  BOF_COM_RAM_CMD_STATE_RESULT,             //Result is read by a client which MUST set the state to BOF_COM_RAM_CMD_STATE_FREE when it has finished
+};
+
 enum class BOF_BUFFER_ALLOCATE_ZONE : uint32_t
 {
   BOF_BUFFER_ALLOCATE_ZONE_RAM = 0,
@@ -847,6 +858,7 @@ BOFSTD_EXPORT BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
   }                             \
   }
 
+
 BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool _NotifyAll_B*/ uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT bool Bof_IsEventValid(BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, /*bool _CancelIt_B*/ uint32_t _Instance_U32);
@@ -868,7 +880,7 @@ BOFSTD_EXPORT bool Bof_IsThreadValid(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);
 BOFSTD_EXPORT BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT BOFERR Bof_GetMemoryState(uint64_t &_rAvailableFreeMemory_U64, uint64_t &_rTotalMemorySize_U64);
-BOFSTD_EXPORT uint32_t Bof_InterlockedCompareExchange(volatile uint32_t *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);
+BOFSTD_EXPORT uint32_t Bof_InterlockedCompareExchange(volatile uint32_t *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);  //See BOF_COM_RAM_CMD_STATE for example
 BOFSTD_EXPORT bool Bof_IsPidRunning(uint32_t _Pid_U32);
 BOFSTD_EXPORT uint32_t Bof_GetCurrentPid();
 BOFSTD_EXPORT BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32 = nullptr);
