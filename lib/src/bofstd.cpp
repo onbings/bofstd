@@ -326,7 +326,10 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_NO_CLIENT, "BOF_ERR_NO_CLIENT"},
     {BOF_ERR_ALREADY_CLOSED, "BOF_ERR_ALREADY_CLOSED"},
     {BOF_ERR_NOT_STARTED, "BOF_ERR_NOT_STARTED"},
-    {BOF_ERR_NOT_SKIP, "BOF_ERR_NOT_SKIP"},
+    {BOF_ERR_SKIP, "BOF_ERR_SKIP"},
+    {BOF_ERR_MTU, "BOF_ERR_MTU"},
+    {BOF_ERR_QOS, "BOF_ERR_QOS"},
+    {BOF_ERR_IP, "BOF_ERR_IP"},
 };
 
 /*
