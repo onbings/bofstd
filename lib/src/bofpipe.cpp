@@ -397,6 +397,7 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
   uint32_t i_U32, NbPendingByte_U32;
 #if defined(_WIN32)
   DWORD NumBytesRead_DW = 0;
+  uint32_t Start_U32;
 #else
   int Nb_i = 0;
   uint32_t Len_U32;
@@ -423,10 +424,19 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
         Rts_E = BOF_ERR_READ;
         // mPipeParam_X.NativeStringMode_B: naturally supported as pipe is created in this case with
         // (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE)
-        if (ReadFile(mPipe_h, _pBuffer_U8, _rNb_U32, &NumBytesRead_DW, nullptr))
+        Start_U32 = BOF::Bof_GetMsTickCount();
+        do
         {
-          Rts_E = BOF_ERR_NO_ERROR;
-        }
+          if (ReadFile(mPipe_h, _pBuffer_U8, _rNb_U32, &NumBytesRead_DW, nullptr))
+          {
+            Rts_E = BOF_ERR_NO_ERROR;
+          }
+          if ((Rts_E != BOF_ERR_NO_ERROR) && (_TimeoutInMs_U32))
+          {
+            BOF::Bof_MsSleep(50);
+          }
+        } while ((Rts_E != BOF_ERR_NO_ERROR) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
+
         _rNb_U32 = NumBytesRead_DW;
 #else
         if (mPipe_i >= 0)
@@ -610,7 +620,7 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
             Rts_E = BOF_ERR_NO_ERROR;
           }
         }
-        if (Rts_E != BOF_ERR_NO_ERROR)
+        if ((Rts_E != BOF_ERR_NO_ERROR) && (_TimeoutInMs_U32))
         {
           BOF::Bof_MsSleep(50);
         }
