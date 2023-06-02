@@ -447,7 +447,10 @@ BOFSTD_EXPORT BOFERR Bof_Shutdown();
 
 BOFSTD_EXPORT std::string Bof_GetVersion();
 
+//For BOF error code
 BOFSTD_EXPORT const char *Bof_ErrorCode(BOFERR _ErrorCode_E);
+//For WIN32 or linux system error code
+BOFSTD_EXPORT std::string Bof_SystemErrorCode(uint32_t _ErrorCode_U32);
 
 BOFSTD_EXPORT bool Bof_IsWindows();
 

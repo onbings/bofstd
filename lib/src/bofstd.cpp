@@ -443,6 +443,11 @@ const char *Bof_ErrorCode(BOFERR _ErrorCode_E)
   return pRts_c;
 }
 
+//For WIN32 or linux system error code
+std::string Bof_SystemErrorCode(uint32_t _ErrorCode_U32)
+{
+  return std::system_category().message(_ErrorCode_U32);
+}
 BOFERR Bof_Shutdown()
 {
   BOFERR Rts_E;

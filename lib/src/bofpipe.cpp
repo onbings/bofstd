@@ -148,7 +148,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
         //         mPipe_h = CreateFile(PipeName_S.c_str(), DesiredAccess_DW, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         mErrorCode_E = BOF_ERR_NO_ERROR;
       }
-      // printf("Srv %d Pipe file '%s' err %d\n", mPipeParam_X.Server_B, PipeName_S.c_str(), GetLastError());
+      //printf("Create Srv %d Pipe file '%s' hndl %p err %d/%s\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe_h, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str());
 
 #else
       int Status_i, OpenFlag_i, CreateFlag_i;
@@ -581,6 +581,7 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
   BOFERR Rts_E = BOF_ERR_INIT;
 #if defined(_WIN32)
   uint32_t Start_U32;
+  bool Connected_B = false;
 #endif
   switch (mPipeParam_X.PipeType_E)
   {
@@ -600,7 +601,6 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
       {
         if (mPipeParam_X.PipeServer_B)
         {
-          bool Connected_B;
           // This call blocks until a client process connects to the pipe
           // Wait for the client to connect; if it succeeds,
           // the function returns a nonzero value. If the function
@@ -617,6 +617,7 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
           mPipe_h = CreateFile(mPipeName_S.c_str(), mDesiredAccess_DW, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
           if (BOF_IS_HANDLE_VALID(mPipe_h))
           {
+            Connected_B = true;
             Rts_E = BOF_ERR_NO_ERROR;
           }
         }
@@ -625,8 +626,7 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
           BOF::Bof_MsSleep(50);
         }
       } while ((Rts_E != BOF_ERR_NO_ERROR) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
-
-      // printf("%s err %d rts %d\n", mPipeParam_X.PipeServer_B ? "PipeSrv":"PipeClt", GetLastError(), Rts_E);
+      //printf("Connect Srv %d Pipe file '%s' hndl %p err %d/%ss Connected %d\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe_h, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str(), Connected_B);
 #else
       if (mPipe_i >= 0)
       {
