@@ -46,99 +46,111 @@ struct SERVER_CONTEXT
   }
 };
 
-static void *ServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)
+static BOFERR ServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_pThreadContext)
 {
-  SERVER_CONTEXT *pContext_X = reinterpret_cast<SERVER_CONTEXT *>(_pContext);
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  SERVER_CONTEXT *pContext_X = reinterpret_cast<SERVER_CONTEXT *>(_pThreadContext);
   uint8_t pBuffer_U8[0x100];
   BOF_COM_CHANNEL_STATUS Status_X;
   char *p_c;
   uint32_t Nb_U32, Cpt_U32;
-  BOFERR Sts_E;
   uint32_t i_U32, Start_U32;
   int Val_i, Expected_i;
 
-  Sts_E = pContext_X->pBofPipeServer->V_Connect(PIPE_TIMEOUT, "", "");
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  Expected_i = 0;
-  Start_U32 = BOF::Bof_GetMsTickCount();
-  for (i_U32 = 0; i_U32 < NB_PIPE_LOOP; i_U32++)
+  if (pContext_X)
   {
-    // printf("Server waits for data[%d]%s", Cpt_U32, Bof_Eol());
-    Sts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
-    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    if (Status_X.NbIn_U32)
-    {
-      //printf("Server nB %d\n", Status_X.NbIn_U32);
-    }
-    Nb_U32 = sizeof(pBuffer_U8);
-    memset(pBuffer_U8, 0, Nb_U32);
-    Sts_E = pContext_X->pBofPipeServer->V_ReadData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
-    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    if (Sts_E == BOF_ERR_NO_ERROR)
-    {
-      p_c = strchr((char *)pBuffer_U8, '\n');
-      EXPECT_TRUE(p_c != nullptr);
-      if (p_c)
-      {
-        *p_c = 0;
-      }
-      Sts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
-      // printf("Server read nb %d data %s nbi %d\n", Nb_U32, pBuffer_U8, Status_X.NbIn_U32);
-      EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-      // printf("Server got '%d:%s' data %s sts %d remain %d\n", Nb_U32, pBuffer_U8, pBuffer_U8, Sts_E, Status_X.NbIn_U32);
+    Rts_E = pContext_X->pBofPipeServer->V_Connect(PIPE_TIMEOUT, "", "");
+    EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
 
-      EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
-      /*
-      sprintf(pId_c, "_%d", Cpt_U32++);
-      strcat(reinterpret_cast<char *>(pBuffer_U8), pId_c);
-      Nb_U32 = strlen(reinterpret_cast<char *>(pBuffer_U8));
-      Sts_E = pContext_X->pBofPipeServer->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
-      //printf("Server send '%d:%s' data sts %d%s", Nb_U32, pBuffer_U8, Sts_E, Bof_Eol());
-      */
-      EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-      EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
-      p_c = strchr((char *)pBuffer_U8, '_');
-      EXPECT_TRUE(p_c != nullptr);
-      Val_i = p_c ? atoi(p_c + 1) : 0;
-      EXPECT_EQ(Expected_i, Val_i);
-      Expected_i++;
-      if (Expected_i == 12)
+    Expected_i = 0;
+    Start_U32 = BOF::Bof_GetMsTickCount();
+    for (i_U32 = 0; i_U32 < NB_PIPE_LOOP; i_U32++)
+    {
+      // printf("Server waits for data[%d]%s", Cpt_U32, Bof_Eol());
+      Rts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
+      EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+      if (Status_X.NbIn_U32)
       {
-        // printf("jj");
-        // break;
+        //printf("Server nB %d\n", Status_X.NbIn_U32);
+      }
+      Nb_U32 = sizeof(pBuffer_U8);
+      memset(pBuffer_U8, 0, Nb_U32);
+      Rts_E = pContext_X->pBofPipeServer->V_ReadData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
+      EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+      if (Rts_E == BOF_ERR_NO_ERROR)
+      {
+        p_c = strchr((char *)pBuffer_U8, '\n');
+        EXPECT_TRUE(p_c != nullptr);
+        if (p_c)
+        {
+          *p_c = 0;
+        }
+        Rts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
+        // printf("Server read nb %d data %s nbi %d\n", Nb_U32, pBuffer_U8, Status_X.NbIn_U32);
+        EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+        // printf("Server got '%d:%s' data %s sts %d remain %d\n", Nb_U32, pBuffer_U8, pBuffer_U8, Rts_E, Status_X.NbIn_U32);
+
+        EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
+        /*
+        sprintf(pId_c, "_%d", Cpt_U32++);
+        strcat(reinterpret_cast<char *>(pBuffer_U8), pId_c);
+        Nb_U32 = strlen(reinterpret_cast<char *>(pBuffer_U8));
+        Rts_E = pContext_X->pBofPipeServer->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
+        //printf("Server send '%d:%s' data sts %d%s", Nb_U32, pBuffer_U8, Rts_E, Bof_Eol());
+        */
+        EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+        EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
+        p_c = strchr((char *)pBuffer_U8, '_');
+        EXPECT_TRUE(p_c != nullptr);
+        Val_i = p_c ? atoi(p_c + 1) : 0;
+        EXPECT_EQ(Expected_i, Val_i);
+        Expected_i++;
+        if (Expected_i == 12)
+        {
+          // printf("jj");
+          // break;
+        }
       }
     }
+    Rts_E = BOF_ERR_EXIT_THREAD;
   }
-  printf("Leave ServerThread\n");
-  return nullptr;
+  // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
+  // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
+  // Thread will be stopped if someone calls Bof_DestroyThread
+  return Rts_E;
 }
 
-static void *BinaryServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)
+static BOFERR BinaryServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_pThreadContext)
 {
-  SERVER_CONTEXT *pContext_X = reinterpret_cast<SERVER_CONTEXT *>(_pContext);
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  SERVER_CONTEXT *pContext_X = reinterpret_cast<SERVER_CONTEXT *>(_pThreadContext);
   uint8_t pBuffer_U8[0x100];
   BOF_COM_CHANNEL_STATUS Status_X;
   uint32_t i_U32, Nb_U32, Size_U32;
-  BOFERR Sts_E;
 
-  Sts_E = pContext_X->pBofPipeServer->V_Connect(PIPE_TIMEOUT, "", "");
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  for (i_U32 = 0; i_U32 < NB_PIPE_LOOP; i_U32++)
+  if (pContext_X)
   {
-    Nb_U32 = 1;
-    pBuffer_U8[0] = (uint8_t)i_U32;
-    Size_U32 = Nb_U32;
-    Sts_E = pContext_X->pBofPipeServer->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
-    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    EXPECT_EQ(Nb_U32, Size_U32);
-    Sts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
-    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    // printf("BinServeur nb %d val %d\n", Status_X.NbIn_U32, pBuffer_U8[0]);
+    Rts_E = pContext_X->pBofPipeServer->V_Connect(PIPE_TIMEOUT, "", "");
+    EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+
+    for (i_U32 = 0; i_U32 < NB_PIPE_LOOP; i_U32++)
+    {
+      Nb_U32 = 1;
+      pBuffer_U8[0] = (uint8_t)i_U32;
+      Size_U32 = Nb_U32;
+      Rts_E = pContext_X->pBofPipeServer->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
+      EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+      EXPECT_EQ(Nb_U32, Size_U32);
+      Rts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
+      EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+      // printf("BinServeur nb %d val %d\n", Status_X.NbIn_U32, pBuffer_U8[0]);
+    }
+    Rts_E = BOF_ERR_EXIT_THREAD;
   }
-  // printf("Leave BinaryServerThread\n");
-  return nullptr;
+  // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
+  // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
+  // Thread will be stopped if someone calls Bof_DestroyThread
+  return Rts_E;
 }
 
 TEST(Pipe_Test, UdpPipeSingle)

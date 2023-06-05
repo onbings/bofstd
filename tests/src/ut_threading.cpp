@@ -40,7 +40,7 @@ public:
   {
   }
 
-  // static void  *ThreadEntryPoint(void *_pContext);
+  // static void  *ThreadEntryPoint(void *_pThreadContext);
 
 protected:
   // You can define per-test set-up and tear-down logic as usual.
@@ -166,83 +166,86 @@ TEST_F(BofThread_Test, VirtualThreadFalse)
   EXPECT_EQ(S_NbThread_U32, 1);
 }
 
-void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)
+BOFERR S_TheThread(const std::atomic<bool> &_rThreadMustStop_B, void *_pThreadContext)
 {
-  THREAD_CONTEXT *pThreadContext_X = (THREAD_CONTEXT *)_pContext;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  THREAD_CONTEXT *pThreadContext_X = (THREAD_CONTEXT *)_pThreadContext;
   uint32_t i_U32, j_U32, SleepTime_U32;
   uint8_t pByteVal_U8[sizeof(S_pValueToProtect_U8)];
   //	uint32_t Now_U32;
   BOF_EVENT Event_X;
-  BOFERR Sts_E;
 
-  BOF_ASSERT(pThreadContext_X != nullptr);
-  S_NbThread_U32++;
-  // Last_U32 = Bof_GetMsTickCount();
-  if (pThreadContext_X->NbLoop_U32)
+  if (pThreadContext_X)
   {
-    for (i_U32 = 0; i_U32 < pThreadContext_X->NbLoop_U32; i_U32++)
+    BOF_ASSERT(pThreadContext_X != nullptr);
+    S_NbThread_U32++;
+    // Last_U32 = Bof_GetMsTickCount();
+    if (pThreadContext_X->NbLoop_U32)
     {
-      Sts_E = Bof_LockMutex(S_Mtx_X);
-      // There is test without mutex EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-      //					Now_U32 = Bof_GetMsTickCount();
-      // printf("[%06d] T %d D %d i %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,i_U32);
-      // Last_U32 = Now_U32;
-
-      for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
+      for (i_U32 = 0; i_U32 < pThreadContext_X->NbLoop_U32; i_U32++)
       {
-        pByteVal_U8[j_U32] = S_pValueToProtect_U8[j_U32];
+        Rts_E = Bof_LockMutex(S_Mtx_X);
+        // There is test without mutex EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+        //					Now_U32 = Bof_GetMsTickCount();
+        // printf("[%06d] T %d D %d i %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,i_U32);
+        // Last_U32 = Now_U32;
+
+        for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
+        {
+          pByteVal_U8[j_U32] = S_pValueToProtect_U8[j_U32];
+        }
+
+        SleepTime_U32 = Bof_Random(true, 10, 50);
+        //			printf("[%06d] Sleep for %d\n", pThreadContext_X->Id_U32, SleepTime_U32);
+        // SleepTime_U32 = 0;
+        Bof_MsSleep(SleepTime_U32);
+
+        // printf("[%06d] Wakeup\n", pThreadContext_X->Id_U32);
+
+        for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
+        {
+          S_pValueToProtect_U8[j_U32] = static_cast<uint8_t>(pByteVal_U8[j_U32] + 1);
+        }
+        Rts_E = Bof_UnlockMutex(S_Mtx_X);
+        // There is test without mutex EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
       }
-
-      SleepTime_U32 = Bof_Random(true, 10, 50);
-      //			printf("[%06d] Sleep for %d\n", pThreadContext_X->Id_U32, SleepTime_U32);
-      // SleepTime_U32 = 0;
-      Bof_MsSleep(SleepTime_U32);
-
-      // printf("[%06d] Wakeup\n", pThreadContext_X->Id_U32);
-
-      for (j_U32 = 0; j_U32 < sizeof(S_pValueToProtect_U8); j_U32++)
-      {
-        S_pValueToProtect_U8[j_U32] = static_cast<uint8_t>(pByteVal_U8[j_U32] + 1);
-      }
-      Sts_E = Bof_UnlockMutex(S_Mtx_X);
-      // There is test without mutex EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     }
-  }
-  else
-  {
-    while (!_rIsThreadLoopMustExit_B)
+    else
     {
-      //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread lock start\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
-      //			Last_U32 = Now_U32;
-      S_ValueToProtect_U32++;
-      Sts_E = Bof_LockMutex(S_Mtx_X);
-      EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+      while (!_rThreadMustStop_B)
+      {
+        //			Now_U32 = Bof_GetMsTickCount();
+        //			printf("[%06d] T %d D %d Thread lock start\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
+        //			Last_U32 = Now_U32;
+        S_ValueToProtect_U32++;
+        Rts_E = Bof_LockMutex(S_Mtx_X);
+        EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
 
-      //			S_ValueToProtect_S64 += pThreadContext_X->Inc_S32;
-      SleepTime_U32 = Bof_Random(true, 10, 100);
+        //			S_ValueToProtect_S64 += pThreadContext_X->Inc_S32;
+        SleepTime_U32 = Bof_Random(true, 10, 100);
 
-      //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Sleep for %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, SleepTime_U32);
-      //			Last_U32 = Now_U32;
+        //			Now_U32 = Bof_GetMsTickCount();
+        //			printf("[%06d] T %d D %d Sleep for %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, SleepTime_U32);
+        //			Last_U32 = Now_U32;
 
-      Bof_MsSleep(SleepTime_U32);
+        Bof_MsSleep(SleepTime_U32);
 
-      Sts_E = Bof_UnlockMutex(S_Mtx_X);
-      EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-      //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread lock end exit %d sts %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,  Sts_E);
-      //			Last_U32 = Now_U32;
+        Rts_E = Bof_UnlockMutex(S_Mtx_X);
+        EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+        //			Now_U32 = Bof_GetMsTickCount();
+        //			printf("[%06d] T %d D %d Thread lock end exit %d sts %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32,  Rts_E);
+        //			Last_U32 = Now_U32;
 
-      //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread wait start\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
-      //			Last_U32 = Now_U32;
+        //			Now_U32 = Bof_GetMsTickCount();
+        //			printf("[%06d] T %d D %d Thread wait start\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32);
+        //			Last_U32 = Now_U32;
 
-      Sts_E = Bof_WaitForEvent(pThreadContext_X->Event_X, pThreadContext_X->SleepInMs_U32, 0);
+        Rts_E = Bof_WaitForEvent(pThreadContext_X->Event_X, pThreadContext_X->SleepInMs_U32, 0);
 
-      //			Now_U32 = Bof_GetMsTickCount();
-      //			printf("[%06d] T %d D %d Thread wait end exit %d sts %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, _rIsThreadLoopMustExit_B, Sts_E);
-      //			Last_U32 = Now_U32;
+        //			Now_U32 = Bof_GetMsTickCount();
+        //			printf("[%06d] T %d D %d Thread wait end exit %d sts %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, _rIsThreadMustStop_B, Sts_E);
+        //			Last_U32 = Now_U32;
+      }
     }
   }
   S_NbThread_U32--;
@@ -250,8 +253,11 @@ void *S_TheThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pCon
   //	Now_U32 = Bof_GetMsTickCount();
   // printf("[%06d] T %d D %d Thread EXIT end nb %d\n", pThreadContext_X->Id_U32, Now_U32, Now_U32 - Last_U32, S_NbThread_U32);
   //	Last_U32 = Now_U32;
-
-  return (void *)0x12345678;
+          // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
+          // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
+          // Thread will be stopped if someone calls Bof_DestroyThread
+  Rts_E = BOF_ERR_EXIT_THREAD;
+  return Rts_E;
 }
 
 TEST(Threading_Test, InterlockedCompareExchange)
@@ -373,13 +379,12 @@ TEST(Threading_Test, Event)
 
 TEST(Threading_Test, SingleThread)
 {
-  BOFERR Sts_E;
+  BOFERR Sts_E, ThreadRtsCode_E;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY Min_E, Max_E, MidPriority_E, ThreadPriority_E, NewPriority_E;
   uint32_t ThreadId_U32;
   THREAD_CONTEXT ThreadContext_X;
   BOF_THREAD Thread_X;
-  void *pThreadRtsCode;
 
   Sts_E = Bof_CreateMutex("MyMutex", true, true, S_Mtx_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -429,7 +434,7 @@ TEST(Threading_Test, SingleThread)
 #else
   EXPECT_EQ(Thread_X.ThreadId, 0);
 #endif
-  EXPECT_FALSE(Thread_X.ThreadLoopMustExit_B);
+  EXPECT_FALSE(Thread_X.ThreadMustStop_B);
   EXPECT_FALSE(Thread_X.ThreadRunning_B);
   EXPECT_EQ(Thread_X.pUserContext, &ThreadContext_X);
   EXPECT_EQ(S_ValueToProtect_U32, 0);
@@ -465,7 +470,7 @@ TEST(Threading_Test, SingleThread)
 #else
   EXPECT_NE(Thread_X.ThreadId, 0);
 #endif
-  EXPECT_FALSE(Thread_X.ThreadLoopMustExit_B);
+  EXPECT_FALSE(Thread_X.ThreadMustStop_B);
   EXPECT_TRUE(Thread_X.ThreadRunning_B);
   EXPECT_EQ(Thread_X.pUserContext, &ThreadContext_X);
   Bof_MsSleep(500);
@@ -500,12 +505,12 @@ TEST(Threading_Test, SingleThread)
   EXPECT_TRUE(Thread_X.ThreadRunning_B);
   EXPECT_NE(S_ValueToProtect_U32, static_cast<uint32_t>(0));
   // Need to do the following 2 lines to start the thread exit sequence as the event has a timeout of 10 s and the startstopto is only 2 sec
-  Thread_X.ThreadLoopMustExit_B = true;
+  Thread_X.ThreadMustStop_B = true;
   Sts_E = Bof_SignalEvent(ThreadContext_X.Event_X, 0);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   BOF::Bof_MsSleep(500);
-  EXPECT_EQ(Bof_GetThreadExitCode(Thread_X, &pThreadRtsCode), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(pThreadRtsCode, (void *)0x12345678);
+  EXPECT_EQ(Bof_GetThreadExitCode(Thread_X, &ThreadRtsCode_E), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ThreadRtsCode_E, BOF_ERR_NO_ERROR);
   Sts_E = Bof_DestroyThread(Thread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_NE(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
@@ -515,7 +520,7 @@ TEST(Threading_Test, SingleThread)
 #else
   // EXPECT_EQ(Thread_X.ThreadId, 0);
 #endif
-  EXPECT_TRUE(Thread_X.ThreadLoopMustExit_B);
+  EXPECT_TRUE(Thread_X.ThreadMustStop_B);
   EXPECT_FALSE(Thread_X.ThreadRunning_B);
 
   Sts_E = Bof_DestroyMutex(S_Mtx_X);
@@ -580,7 +585,7 @@ TEST(Threading_Test, MultiThread)
 #else
     EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadMustStop_B);
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
@@ -604,7 +609,7 @@ TEST(Threading_Test, MultiThread)
 #else
     EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
 #endif
-    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadMustStop_B);
     EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
   }
@@ -650,7 +655,7 @@ TEST(Threading_Test, MultiThread)
 #else
     //		EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-    EXPECT_TRUE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_TRUE(pThread_X[i_U32].ThreadMustStop_B);
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
   }
   Bof_MsSleep(500);
@@ -700,7 +705,7 @@ TEST(Threading_Test, MultiThreadWithoutMutex)
 #else
     EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadMustStop_B);
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
@@ -718,7 +723,7 @@ TEST(Threading_Test, MultiThreadWithoutMutex)
 #else
     EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
 #endif
-    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadMustStop_B);
     EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
   }
@@ -785,7 +790,7 @@ TEST(Threading_Test, MultiThreadWithMutex)
 #else
     EXPECT_EQ(pThread_X[i_U32].ThreadId, 0);
 #endif
-    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadMustStop_B);
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
@@ -803,7 +808,7 @@ TEST(Threading_Test, MultiThreadWithMutex)
 #else
     EXPECT_NE(pThread_X[i_U32].ThreadId, 0);
 #endif
-    EXPECT_FALSE(pThread_X[i_U32].ThreadLoopMustExit_B);
+    EXPECT_FALSE(pThread_X[i_U32].ThreadMustStop_B);
     EXPECT_TRUE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
   }

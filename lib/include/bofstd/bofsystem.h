@@ -678,7 +678,7 @@ enum BOF_THREAD_PRIORITY
   BOF_THREAD_PRIORITY_099,
 };
 
-using BofThreadFunction = std::function<void *(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)>;
+using BofThreadFunction = std::function<BOFERR (const std::atomic<bool> &_rThreadMustStop_B, void *_pThreadContext)>;
 const uint32_t BOF_THREAD_MAGIC = 0xCBE89448;
 
 struct BOF_THREAD
@@ -692,7 +692,7 @@ struct BOF_THREAD
   BOF_THREAD_PRIORITY ThreadPriority_E;
   BofThreadFunction ThreadFunction;
   void *pUserContext;
-  void *pThreadExitCode;
+  BOFERR ThreadExitCode_E;
 
 #if defined(_WIN32)
   void *pThread;     /*! Thread windows handle*/
@@ -700,7 +700,7 @@ struct BOF_THREAD
 #else
   pthread_t ThreadId;
 #endif
-  std::atomic<bool> ThreadLoopMustExit_B;
+  std::atomic<bool> ThreadMustStop_B;
   std::atomic<bool> ThreadRunning_B;
 
   BOF_THREAD()
@@ -720,7 +720,7 @@ struct BOF_THREAD
     ThreadFunction = nullptr;
     pUserContext = nullptr;
 
-    ThreadLoopMustExit_B = false;
+    ThreadMustStop_B = false;
     ThreadRunning_B = false;
 #if defined(_WIN32)
     pThread = nullptr;
@@ -728,7 +728,7 @@ struct BOF_THREAD
 #else
     ThreadId = 0;
 #endif
-    pThreadExitCode = nullptr;
+    ThreadExitCode_E = BOF_ERR_NO_ERROR;
   }
   bool IsValid()
   {
@@ -872,7 +872,8 @@ BOFSTD_EXPORT BOF_THREAD_PRIORITY Bof_ThreadPriorityFromPriorityValue(int32_t _P
 BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY &_rMin_E, BOF_THREAD_PRIORITY &_rMax_E);
 BOFSTD_EXPORT BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY &_rPolicy_E, BOF_THREAD_PRIORITY &_rPriority_E);
 BOFSTD_EXPORT BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E);
-BOFSTD_EXPORT BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, void **_ppRetCode);
+BOFSTD_EXPORT BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, BOFERR *_pRtsCode_E);
+BOFSTD_EXPORT int    Bof_BofThreadBalance();
 BOFSTD_EXPORT uint32_t Bof_CurrentThreadId();
 BOFSTD_EXPORT BOFERR Bof_SetCurrentThreadPriorityLevel(BOF_THREAD_SCHEDULER_POLICY _Policy_E, BOF_THREAD_PRIORITY _Priority_E);
 BOFSTD_EXPORT BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFunction, void *_pUserContext, BOF_THREAD &_rThread_X);

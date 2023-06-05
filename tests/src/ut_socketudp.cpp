@@ -78,10 +78,10 @@ private:
 
 static uint64_t S_TotalSrvUdp_U64 = 0, S_TotalCltUdp_U64 = 0;
 
-static void *S_UdpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B, void *_pContext)
+static BOFERR S_UdpServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_pThreadContext)
 {
-  BOFERR Sts_E;
-  SERVER_THREAD_CONTEXT *pThreadContext_X = (SERVER_THREAD_CONTEXT *)_pContext;
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  SERVER_THREAD_CONTEXT *pServerThreadContext_X = (SERVER_THREAD_CONTEXT *)_pThreadContext;
   BofSocket ListeningSocket;
   BofComChannel *pClient;
   std::vector<std::unique_ptr<BofComChannel>> ClientCollection;
@@ -89,47 +89,52 @@ static void *S_UdpServerThread(const std::atomic<bool> &_rIsThreadLoopMustExit_B
   uint8_t pBuffer_U8[0x10000];
   uint32_t i_U32, Nb_U32, NbToRead_U32;
 
-  BOF_ASSERT(pThreadContext_X != nullptr);
-  Sts_E = ListeningSocket.InitializeSocket(pThreadContext_X->BofSocketParam_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-
-  while (!_rIsThreadLoopMustExit_B)
+  if (pServerThreadContext_X)
   {
-    pClient = ListeningSocket.V_Listen(0, "");
-    if (pClient)
+    BOF_ASSERT(pServerThreadContext_X != nullptr);
+    Rts_E = ListeningSocket.InitializeSocket(pServerThreadContext_X->BofSocketParam_X);
+    EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+
+    while (!_rThreadMustStop_B)
     {
-      ClientCollection.push_back(std::unique_ptr<BofComChannel>(pClient));
-    }
-    for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
-    {
-      BOF_ASSERT(ClientCollection[i_U32] != nullptr);
-      Sts_E = ClientCollection[i_U32]->V_GetStatus(Status_X);
-      EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-      if (Status_X.NbIn_U32)
+      pClient = ListeningSocket.V_Listen(0, "");
+      if (pClient)
       {
-        Nb_U32 = Status_X.NbIn_U32 > sizeof(pBuffer_U8) ? sizeof(pBuffer_U8) : Status_X.NbIn_U32;
-        BOF_ASSERT(Nb_U32 <= sizeof(pBuffer_U8));
-        NbToRead_U32 = Nb_U32;
-        Sts_E = ClientCollection[i_U32]->V_ReadData(1000, NbToRead_U32, pBuffer_U8);
-        S_TotalSrvUdp_U64 += Nb_U32;
+        ClientCollection.push_back(std::unique_ptr<BofComChannel>(pClient));
+      }
+      for (i_U32 = 0; i_U32 < ClientCollection.size(); i_U32++)
+      {
+        BOF_ASSERT(ClientCollection[i_U32] != nullptr);
+        Rts_E = ClientCollection[i_U32]->V_GetStatus(Status_X);
+        EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+        if (Status_X.NbIn_U32)
+        {
+          Nb_U32 = Status_X.NbIn_U32 > sizeof(pBuffer_U8) ? sizeof(pBuffer_U8) : Status_X.NbIn_U32;
+          BOF_ASSERT(Nb_U32 <= sizeof(pBuffer_U8));
+          NbToRead_U32 = Nb_U32;
+          Rts_E = ClientCollection[i_U32]->V_ReadData(1000, NbToRead_U32, pBuffer_U8);
+          S_TotalSrvUdp_U64 += Nb_U32;
 
-        //				printf("srv Rd n %d s %d\r\n", NbToRead_U32, Sts_E);
+          //				printf("srv Rd n %d s %d\r\n", NbToRead_U32, Rts_E);
 
-        EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-        //				EXPECT_EQ(Nb_U32, NbToRead_U32);
+          EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+          //				EXPECT_EQ(Nb_U32, NbToRead_U32);
 
-        Sts_E = ClientCollection[i_U32]->V_WriteData(1000, Nb_U32, pBuffer_U8);
-        //				printf("srv Wrt n %d s %d\r\n", Nb_U32, Sts_E);
-        S_TotalSrvUdp_U64 += Nb_U32;
+          Rts_E = ClientCollection[i_U32]->V_WriteData(1000, Nb_U32, pBuffer_U8);
+          //				printf("srv Wrt n %d s %d\r\n", Nb_U32, Rts_E);
+          S_TotalSrvUdp_U64 += Nb_U32;
 
-        EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-        //				EXPECT_EQ(Nb_U32, NbToRead_U32);
+          EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
+          //				EXPECT_EQ(Nb_U32, NbToRead_U32);
+        }
       }
     }
   }
   // ClientCollection is a vector of unique pointer->deallocated on return of this function
   //  ClientCollection.clear();
-  return nullptr;
+  // Any other error code different from BOF_ERR_NO_ERROR/BOF_ERR_EXIT_THREAD will exit, thread will be stopped if someone calls Bof_DestroyThread
+  Rts_E = BOF_ERR_EXIT_THREAD;
+  return Rts_E;
 }
 
 void SocketUdp_Test::SetUpTestCase()

@@ -258,6 +258,7 @@ enum BOFERR : int
   BOF_ERR_MTU,              ///< Mtu
   BOF_ERR_QOS,              ///< Qos
   BOF_ERR_IP ,              ///< Ip
+  BOF_ERR_EXIT_THREAD,      ///< For Bof_CreateThread/Bof_LaunchTread
 };
 // #define BOF_ERR_EWOULDBLOCK BOF_ERR_EAGAIN
 // #define BOF_ERR_EDEADLOCK BOF_ERR_EDEADLK

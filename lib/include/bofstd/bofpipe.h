@@ -64,7 +64,11 @@ struct BOF_PIPE_PARAM
     DstPortBase_U16 = 0;
   }
 };
-
+#if defined(_WIN32)
+typedef HANDLE BOFPIPE;
+#else
+typedef int BOFPIPE;
+#endif
 class BOFSTD_EXPORT BofPipe : public BofComChannel
 {
 public:
@@ -83,11 +87,7 @@ public:
 
   BofPipe &operator=(const BofPipe &) = delete; // Disallow copying
   BofPipe(const BofPipe &) = delete;
-  // For debug:
-  // BofSocket *GetUdpPipeMst()
-  //{
-  //  return mpuUdpPipeMst.get();
-  //}
+  BOFPIPE GetNativeHandle();
 
 private:
   BOF_PIPE_PARAM mPipeParam_X;
@@ -96,11 +96,10 @@ private:
   std::string mPipeName_S;
 
   bool mFullDuplexUseMaster_B = true; // to be able to read and write from both side
+  BOFPIPE mPipe = (BOFPIPE)-1;
 #if defined(_WIN32)
-  HANDLE mPipe_h = 0;
   DWORD mDesiredAccess_DW = 0;
 #else
-  int mPipe_i = -1;
 #endif
 };
 END_BOF_NAMESPACE()

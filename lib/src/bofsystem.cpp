@@ -89,6 +89,7 @@ BEGIN_BOF_NAMESPACE()
 
 static std::mt19937 S_RandomGenerator(std::random_device{}());
 static std::uniform_real_distribution<float> S_RandomFloatDistribution(0.0, 1.0f);
+static std::atomic<int32_t> S_BofThreadBalance = 0;
 
 // TODO: When validated, remove functionS just after in the#if 0 with the old file mapppint api...
 
@@ -1344,7 +1345,7 @@ BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFu
       _rThread_X.Name_S = _rName_S;
       _rThread_X.ThreadFunction = _ThreadFunction;
       _rThread_X.pUserContext = _pUserContext;
-      _rThread_X.ThreadLoopMustExit_B = false;
+      _rThread_X.ThreadMustStop_B = false;
       _rThread_X.ThreadRunning_B = false;
 #if defined(_WIN32)
       _rThread_X.ThreadId = 0;
@@ -1352,7 +1353,7 @@ BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFu
 #else
       _rThread_X.ThreadId = 0;
 #endif
-      _rThread_X.pThreadExitCode = nullptr;
+      _rThread_X.ThreadExitCode_E = BOF_ERR_NOT_STARTED;
       Rts_E = BOF_ERR_NO_ERROR;
     }
   }
@@ -1374,7 +1375,7 @@ BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFu
  * Remarks
  * None
  */
-BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, void **_ppRetCode)
+BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, BOFERR *_pRtsCode_E)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -1387,9 +1388,9 @@ BOFERR Bof_GetThreadExitCode(BOF_THREAD &_rThread_X, void **_ppRetCode)
     else
     {
       Rts_E = BOF_ERR_NO_ERROR;
-      if (_ppRetCode != nullptr)
+      if (_pRtsCode_E != nullptr)
       {
-        *_ppRetCode = _rThread_X.pThreadExitCode;
+        *_pRtsCode_E = _rThread_X.ThreadExitCode_E;
       }
     }
   }
@@ -1399,16 +1400,23 @@ bool Bof_IsThreadValid(BOF_THREAD &_rThread_X)
 {
   return (_rThread_X.Magic_U32 == BOF_THREAD_MAGIC);
 }
+int Bof_BofThreadBalance()
+{
+  return S_BofThreadBalance.load();
+}
 
-static void *S_ThreadLauncher(void *_pContext)
+static void *S_ThreadLauncher(void *_pThreadContext)
 {
   BOF_THREAD *pThread_X;
   void *pRts = nullptr;
   BOFERR Sts_E = BOF_ERR_EINVAL;
 
-  pThread_X = static_cast<BOF_THREAD *>(_pContext);
+  pThread_X = static_cast<BOF_THREAD *>(_pThreadContext);
   if (pThread_X)
   {
+    S_BofThreadBalance++;
+    printf("Start of thread '%s' BAL %d\n", pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
+
     Sts_E = BOF_ERR_NO_ERROR;
 #if defined(_WIN32)
     // Make a copy to use it after object del
@@ -1481,7 +1489,19 @@ static void *S_ThreadLauncher(void *_pContext)
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
         pThread_X->ThreadRunning_B = true;
-        pRts = pThread_X->ThreadFunction(pThread_X->ThreadLoopMustExit_B, pThread_X->pUserContext);
+        do
+        {
+          // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
+          // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
+          // Thread will be stopped if someone calls Bof_DestroyThread
+          pThread_X->ThreadExitCode_E = pThread_X->ThreadFunction(pThread_X->ThreadMustStop_B, pThread_X->pUserContext); // Returns BOF_ERR_EXIT_THREAD to exit with BOF_ERR_NO_ERROR
+          if (pThread_X->ThreadExitCode_E == BOF_ERR_EXIT_THREAD)
+          {
+            pThread_X->ThreadExitCode_E = BOF_ERR_NO_ERROR;
+            break;
+          }
+        }
+        while ((pThread_X->ThreadExitCode_E == BOF_ERR_NO_ERROR) && (!pThread_X->ThreadMustStop_B));
       }
     }
 #if defined(_WIN32)
@@ -1492,8 +1512,11 @@ static void *S_ThreadLauncher(void *_pContext)
 #endif
 
     pThread_X->ThreadRunning_B = false;
-    pThread_X->pThreadExitCode = pRts;
+    S_BofThreadBalance--;
+    //Bof_ErrorCode can fail does to app shudown (static initializer)
+    printf("End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
   }
+
   return pRts;
 }
 
@@ -1549,6 +1572,8 @@ BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_
       pthread_attr_destroy(&ThreadAttr_X);
 #endif
     }
+    _rThread_X.ThreadExitCode_E = Rts_E;
+
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
 #if defined(_WIN32)
@@ -1565,7 +1590,7 @@ BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_
 
         while (!_rThread_X.ThreadRunning_B)
         {
-          Bof_MsSleep(0); // Yield scheduler
+          Bof_MsSleep(1); // Yield scheduler
           Delta_U32 = Bof_ElapsedMsTime(Start_U32);
 
           if (Delta_U32 > _rThread_X.StartStopTimeoutInMs_U32)
@@ -1596,10 +1621,11 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
   if (_rThread_X.Magic_U32 == BOF_THREAD_MAGIC)
   {
     Rts_E = BOF_ERR_NO_ERROR;
+    Delta_U32 = 0;
     _rThread_X.Magic_U32 = 0; // Cannot make _rThread_X.Reset() at the end of the funct as for example BofThread will clean up this memory zone on thread exit->we just cancel th Magic number to signal closure
     if (_rThread_X.ThreadRunning_B)
     {
-      _rThread_X.ThreadLoopMustExit_B = true;
+      _rThread_X.ThreadMustStop_B = true;
       if (!_rThread_X.StartStopTimeoutInMs_U32)
       {
         ThreadStopTo_B = _rThread_X.ThreadRunning_B;
@@ -1609,7 +1635,7 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
         Start_U32 = Bof_GetMsTickCount();
         while (_rThread_X.ThreadRunning_B)
         {
-          Bof_MsSleep(0); // Bof_MsSleep(0);->yield is not enough
+          Bof_MsSleep(1); // Bof_MsSleep(0);->yield is not enough
           Delta_U32 = Bof_ElapsedMsTime(Start_U32);
           if (Delta_U32 > _rThread_X.StartStopTimeoutInMs_U32)
           {
@@ -1618,12 +1644,17 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
           }
         }
       }
+      printf("Bof_DestroyThread: End of thread '%s' BAL %d, ExitCode %s MustStop %d Delta %d ThreadStopTo %d\n", _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), Bof_ErrorCode(_rThread_X.ThreadExitCode_E), _rThread_X.ThreadMustStop_B.load(),Delta_U32, ThreadStopTo_B);
     }
 #if defined(_WIN32)
     bool Sts_B;
     if (ThreadStopTo_B)
     {
       Sts_B = TerminateThread(_rThread_X.pThread, 0x69696969) ? true : false;
+      if (Sts_B)
+      {
+        S_BofThreadBalance--;
+      }
 #if defined(NDEBUG) // We are in Release compil
 #else
       printf("%d Kill thread '%s' Status %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);

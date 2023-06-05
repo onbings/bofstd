@@ -330,6 +330,7 @@ static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_MTU, "BOF_ERR_MTU"},
     {BOF_ERR_QOS, "BOF_ERR_QOS"},
     {BOF_ERR_IP, "BOF_ERR_IP"},
+    {BOF_ERR_EXIT_THREAD, "BOF_ERR_EXIT_THREAD"},
 };
 
 /*

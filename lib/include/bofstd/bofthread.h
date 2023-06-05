@@ -95,7 +95,7 @@ private:
   uint64_t mCpuCoreAffinityMask_U64 = 0;
   BOF_THREAD_SCHEDULER_POLICY mPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
   BOF_THREAD_PRIORITY mPriority_E = BOF_THREAD_PRIORITY_050;
-  std::atomic<bool> mThreadLoopMustExit_B = false;
+  std::atomic<bool> mThreadMustStop_B = false;
 
   BOF_THREAD_CALLBACK mOnCreate = nullptr; // Used to specify callback if the caller does not inherit from BofThread->Setup with SetThreadCallback
   BOF_THREAD_CALLBACK mOnProcessing = nullptr;
