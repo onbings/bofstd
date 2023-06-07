@@ -130,7 +130,7 @@ struct BOF_SIZE
 // #define BOF_INVALID_HANDLE_VALUE    ((BOF_HANDLE)-1)
 const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
 #define BOF_IS_HANDLE_VALID(handle)                                                                                    \
-    (((uintptr_t)(handle) != 0) && ((uintptr_t)(handle) != BOF::BOF_INVALID_HANDLE_VALUE))
+    (((uintptr_t)(handle) != 0) && ((uintptr_t)(handle) != BOF::BOF_INVALID_HANDLE_VALUE)) // && ((uintptr_t)(handle) != 0xCCCCCCCCCCCCCCCC) && ((uintptr_t)(handle) != 0xCDCDCDCDCDCDCDCD) && ((uintptr_t)(handle) != 0xDDDDDDDDDDDDDDDD))
 #if defined(__cplusplus)
 #define BOF_EXTERN_C extern "C"
 #else

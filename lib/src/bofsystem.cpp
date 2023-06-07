@@ -1493,8 +1493,17 @@ static void *S_ThreadLauncher(void *_pThreadContext)
         {
           // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
           // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
-          // Thread will be stopped if someone calls Bof_DestroyThread
+          // Thread will be stopped if someone calls Bof_StopThread
+
+          //printf("%d ----->DBG call '%s' stop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load());
           pThread_X->ThreadExitCode_E = pThread_X->ThreadFunction(pThread_X->ThreadMustStop_B, pThread_X->pUserContext); // Returns BOF_ERR_EXIT_THREAD to exit with BOF_ERR_NO_ERROR
+          //printf("%d ----->DBG rts '%s' must stop %d exit %d ptr %p\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load(), pThread_X->ThreadExitCode_E, pThread_X);
+          /*
+          if (pThread_X->Name_S == "")
+          {
+            printf("jj");
+          }
+          */
           if (pThread_X->ThreadExitCode_E == BOF_ERR_EXIT_THREAD)
           {
             pThread_X->ThreadExitCode_E = BOF_ERR_NO_ERROR;
@@ -1514,13 +1523,13 @@ static void *S_ThreadLauncher(void *_pThreadContext)
     pThread_X->ThreadRunning_B = false;
     S_BofThreadBalance--;
     //Bof_ErrorCode can fail does to app shudown (static initializer)
-    printf("End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
+    printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
   }
 
   return pRts;
 }
 
-BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32)
+BOFERR Bof_StartThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
   uint32_t Start_U32, Delta_U32;
@@ -1544,6 +1553,7 @@ BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_
 
 #if defined(_WIN32)
       _rThread_X.pThread = CreateThread(nullptr, _rThread_X.StackSize_U32, (LPTHREAD_START_ROUTINE)S_ThreadLauncher, (void *)&_rThread_X, _rThread_X.StackSize_U32 ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0, (DWORD *)&_rThread_X.ThreadId);
+      printf("--->DBG create thread '%s' id %x\n", _rThread_X.Name_S.c_str(), _rThread_X.ThreadId);
       Rts_E = (_rThread_X.pThread != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
 #else
       /*
@@ -1605,14 +1615,14 @@ BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_
       }
       else
       {
-        Bof_DestroyThread(_rThread_X); // Thread has not started in the given time slot->MUST destroy it
+        Bof_StopThread(_rThread_X); // Thread has not started in the given time slot->MUST destroy it
       }
     }
   }
   return Rts_E;
 }
 
-BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
+BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
   uint32_t Start_U32, Delta_U32;
@@ -1625,6 +1635,7 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
     _rThread_X.Magic_U32 = 0; // Cannot make _rThread_X.Reset() at the end of the funct as for example BofThread will clean up this memory zone on thread exit->we just cancel th Magic number to signal closure
     if (_rThread_X.ThreadRunning_B)
     {
+      printf("%d: Bof_StopThread: Begin '%s' ThreadRunning %d StartStopTimeoutInMs %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), _rThread_X.ThreadRunning_B.load(), _rThread_X.StartStopTimeoutInMs_U32);
       _rThread_X.ThreadMustStop_B = true;
       if (!_rThread_X.StartStopTimeoutInMs_U32)
       {
@@ -1635,6 +1646,10 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
         Start_U32 = Bof_GetMsTickCount();
         while (_rThread_X.ThreadRunning_B)
         {
+          if (_rThread_X.Name_S == "CdxCardIrqProcess")
+          {
+            printf("----->DBG wait ptr %p must stop %d\n", &_rThread_X, _rThread_X.ThreadMustStop_B.load());
+          }
           Bof_MsSleep(1); // Bof_MsSleep(0);->yield is not enough
           Delta_U32 = Bof_ElapsedMsTime(Start_U32);
           if (Delta_U32 > _rThread_X.StartStopTimeoutInMs_U32)
@@ -1644,7 +1659,7 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
           }
         }
       }
-      printf("Bof_DestroyThread: End of thread '%s' BAL %d, ExitCode %s MustStop %d Delta %d ThreadStopTo %d\n", _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), Bof_ErrorCode(_rThread_X.ThreadExitCode_E), _rThread_X.ThreadMustStop_B.load(),Delta_U32, ThreadStopTo_B);
+      printf("%d: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(),_rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(),Delta_U32, ThreadStopTo_B);
     }
 #if defined(_WIN32)
     bool Sts_B;
@@ -1657,7 +1672,7 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
       }
 #if defined(NDEBUG) // We are in Release compil
 #else
-      printf("%d Kill thread '%s' Status %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
+      printf("%d: Bof_StopThread: !!WARNING!! Kill thread '%s' Status %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
 #endif
     }
 #else
@@ -1665,7 +1680,7 @@ BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X)
     {
 #if defined(NDEBUG) // We are in Release compil
 #else
-      printf("%d Should Kill thread '%s'\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
+      printf("%d: Bof_StopThread: !!WARNING!! Should Kill thread '%s'\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
 #endif
     }
 #endif

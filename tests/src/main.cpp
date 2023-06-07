@@ -87,8 +87,9 @@ int main(int argc, char *argv[])
   testing::InitGoogleTest(&argc, argv);
   //::testing::GTEST_FLAG(filter) = "XmlWriter_Test.*"; // XmlParser_Test.XmlVector
   //::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
-  //::testing::GTEST_FLAG(filter) = "BofProcess_Test.*"; // UdpPipeSingle";
-
+    //::testing::GTEST_FLAG(filter) = "SocketTcp_Test.TcpClientTest";
+  //  ::testing::GTEST_FLAG(filter) = "SocketTcp_Test.*";
+  //  ::testing::GTEST_FLAG(filter) = "SocketUdp_Test.UdpClientTest";
   //std::string CrtDir_S;
   //BOF::Bof_GetCurrentDirectory(CrtDir_S);
   //printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
@@ -104,7 +105,7 @@ int main(int argc, char *argv[])
 #else
   std::string Buffer_S;
   std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
-  //  std::getline(std::cin, Buffer_S);
+  std::getline(std::cin, Buffer_S);
 #endif
 
   return Rts_i;
@@ -114,7 +115,7 @@ int main(int argc, char *argv[])
 /*
 * WINDOWS
 [----------] Global test environment tear-down
-[==========] 176 tests from 45 test suites ran. (131092 ms total)
+[==========] 176 tests from 45 test suites ran. (153571 ms total)
 [  PASSED  ] 176 tests.
 
   YOU HAVE 1 DISABLED TEST

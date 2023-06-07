@@ -101,7 +101,7 @@ TEST_F(BofPot_Test, PotWithMagic)
 {
   mBofPotParam_X.Reset();
   mBofPotParam_X.MultiThreadAware_B = true;
-  mBofPotParam_X.GetDoNotErasePotElement_B = true;
+  mBofPotParam_X.GetOpPreserveContent_B = true;
   mBofPotParam_X.MagicNumber_U32 = BOFPOTMAGIC;
   mBofPotParam_X.PotCapacity_U32 = 128;
   mBofPotParam_X.Blocking_B = false;
@@ -117,7 +117,7 @@ TEST_F(BofPot_Test, PotWithoutMagic)
 {
   mBofPotParam_X.Reset();
   mBofPotParam_X.MultiThreadAware_B = true;
-  mBofPotParam_X.GetDoNotErasePotElement_B = true;
+  mBofPotParam_X.GetOpPreserveContent_B = true;
   mBofPotParam_X.MagicNumber_U32 = 0; // BOFPOTMAGIC;
   mBofPotParam_X.PotCapacity_U32 = 128;
   mBofPotParam_X.Blocking_B = false;
@@ -407,7 +407,7 @@ TEST_F(BofPot_Test, BlockingMode)
   BofPotParam_X.MagicNumber_U32 = 0;
   BofPotParam_X.MultiThreadAware_B = true;
   BofPotParam_X.PotCapacity_U32 = 8;
-  BofPotParam_X.GetDoNotErasePotElement_B = true;
+  BofPotParam_X.GetOpPreserveContent_B = true;
   BofPotParam_X.Blocking_B = true;
   pBofCollection = new BofPot<uint64_t>(BofPotParam_X);
   if (pBofCollection)

@@ -132,7 +132,7 @@ static BOFERR S_UdpServerThread(const std::atomic<bool> &_rThreadMustStop_B, voi
   }
   // ClientCollection is a vector of unique pointer->deallocated on return of this function
   //  ClientCollection.clear();
-  // Any other error code different from BOF_ERR_NO_ERROR/BOF_ERR_EXIT_THREAD will exit, thread will be stopped if someone calls Bof_DestroyThread
+  // Any other error code different from BOF_ERR_NO_ERROR/BOF_ERR_EXIT_THREAD will exit, thread will be stopped if someone calls Bof_StopThread
   Rts_E = BOF_ERR_EXIT_THREAD;
   return Rts_E;
 }
@@ -165,14 +165,14 @@ void SocketUdp_Test::SetUp()
 
   Sts_E = Bof_CreateThread("ServerThread", S_UdpServerThread, &mServerThreadContext_X, mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
+  Sts_E = Bof_StartThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
 void SocketUdp_Test::TearDown()
 {
   BOFERR Sts_E;
-  Sts_E = Bof_DestroyThread(mSeverThread_X);
+  Sts_E = Bof_StopThread(mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
@@ -180,7 +180,9 @@ TEST_F(SocketUdp_Test, FilterMulticastOnIpAddress)
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
   BofSocket *pUdp;
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+
+  BOF::Bof_MsSleep(20);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
 
   BofSocketParam_X.BaseChannelParam_X.ChannelName_S = "FilterMulticastOnIpAddress";
   BofSocketParam_X.BaseChannelParam_X.Blocking_B = true;
@@ -203,7 +205,7 @@ TEST_F(SocketUdp_Test, FilterMulticastOnIpAddress)
   BofSocketParam_X.FilterMulticastOnIpAddress_B = true;
   pUdp = new BofSocket(BofSocketParam_X);
   BOF_SAFE_DELETE(pUdp);
-  Bof_MsSleep(100);
+  BOF::Bof_MsSleep(20);
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1); // Because S_UdpServerThread is running
 }
 
@@ -318,7 +320,8 @@ TEST_F(SocketUdp_Test, UdpClientTest)
   uint8_t pBuffer_U8[0xF000];
   BOF_COM_CHANNEL_STATUS Status_X;
 
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  BOF::Bof_MsSleep(20);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
 
   for (i_U32 = 0; i_U32 < SERVER_NB_CLIENT; i_U32++)
   {
@@ -436,5 +439,6 @@ TEST_F(SocketUdp_Test, UdpClientTest)
 
 TEST_F(SocketUdp_Test, ChkSocketBalance)
 {
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  BOF::Bof_MsSleep(20);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
 }

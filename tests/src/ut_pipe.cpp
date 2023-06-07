@@ -107,7 +107,6 @@ static BOFERR ServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_p
         Expected_i++;
         if (Expected_i == 12)
         {
-          // printf("jj");
           // break;
         }
       }
@@ -116,7 +115,7 @@ static BOFERR ServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_p
   }
   // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
   // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
-  // Thread will be stopped if someone calls Bof_DestroyThread
+  // Thread will be stopped if someone calls Bof_StopThread
   return Rts_E;
 }
 
@@ -149,7 +148,7 @@ static BOFERR BinaryServerThread(const std::atomic<bool> &_rThreadMustStop_B, vo
   }
   // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
   // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
-  // Thread will be stopped if someone calls Bof_DestroyThread
+  // Thread will be stopped if someone calls Bof_StopThread
   return Rts_E;
 }
 
@@ -213,7 +212,7 @@ TEST(Pipe_Test, UdpPipeSingle)
   Sts_E = Bof_CreateThread("Server", ServerThread, &ServerContext_X, ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_LaunchThread(ServerThread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 1000);
+  Sts_E = Bof_StartThread(ServerThread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   Sts_E = pBofPipeClient->V_Connect(PIPE_TIMEOUT, "", "");
@@ -241,8 +240,8 @@ TEST(Pipe_Test, UdpPipeSingle)
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   // ServerThread(ThreadLoopMustExit_B, &ServerContext_X);
-  BOF::Bof_MsSleep(1000); // Wait until server thread has consumed the data sent by the client
-  Sts_E = Bof_DestroyThread(ServerThread_X);
+  BOF::Bof_MsSleep(100); // Wait until server thread has consumed the data sent by the client
+  Sts_E = Bof_StopThread(ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   BOF_SAFE_DELETE(pBofPipeServer);
@@ -294,7 +293,7 @@ TEST(Pipe_Test, NativePipeSingleString)
   Sts_E = Bof_CreateThread("Server", ServerThread, &ServerContext_X, ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_LaunchThread(ServerThread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 1000);
+  Sts_E = Bof_StartThread(ServerThread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   Sts_E = pBofPipeClient->V_Connect(PIPE_TIMEOUT, "", "");
@@ -327,7 +326,7 @@ TEST(Pipe_Test, NativePipeSingleString)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   // printf("%d loop in %d ms%s", i_U32, Delta_U32, Bof_Eol());
 
-  Sts_E = Bof_DestroyThread(ServerThread_X);
+  Sts_E = Bof_StopThread(ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   BOF_SAFE_DELETE(pBofPipeServer);
@@ -380,7 +379,7 @@ TEST(Pipe_Test, NativePipeSingleBinary)
   Sts_E = Bof_CreateThread("Server", BinaryServerThread, &ServerContext_X, ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_LaunchThread(ServerThread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 1000);
+  Sts_E = Bof_StartThread(ServerThread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   Sts_E = pBofPipeClient->V_Connect(PIPE_TIMEOUT, "", "");
@@ -403,7 +402,7 @@ TEST(Pipe_Test, NativePipeSingleBinary)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   // printf("%d loop in %d ms\n", i_U32, Delta_U32);
 
-  Sts_E = Bof_DestroyThread(ServerThread_X);
+  Sts_E = Bof_StopThread(ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   BOF_SAFE_DELETE(pBofPipeServer);

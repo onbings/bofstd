@@ -165,6 +165,7 @@ TEST(SockIo_Test, ListenConnectDisconnect)
   ConnectParam_X.DstPort_U16 = DEFAULT_LISTENING_PORT;
 
   Max_U32 = 0;
+  BOF::Bof_MsSleep(20);
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
   printf("%d: Connect/Disconnect %d times\n", BOF::Bof_GetMsTickCount(), MAX_NB_TEST_LOOP);
   for (i_U32 = 0; i_U32 < MAX_NB_TEST_LOOP; i_U32++)
@@ -424,6 +425,7 @@ TEST(SockIo_Test, ListenMultipleConnect)
       // BOF_GTEST_EXPECT_BETWEEN(MAX_NB_CLIENT_SESSION - j_U32 - 1, BOF::BofSocket::S_BofSocketBalance(), MAX_NB_CLIENT_SESSION - j_U32);
       // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     }
+    BOF::Bof_MsSleep(20);
     EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
     // EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), NbThread_U32);
     //  Disconnect server

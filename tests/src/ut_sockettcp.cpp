@@ -124,7 +124,7 @@ static BOFERR S_TcpServerThread(const std::atomic<bool> &_rThreadMustStop_B, voi
   // ClientCollection.clear();
           // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
           // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
-          // Thread will be stopped if someone calls Bof_DestroyThread
+          // Thread will be stopped if someone calls Bof_StopThread
   Rts_E = BOF_ERR_EXIT_THREAD;
   return Rts_E;
 }
@@ -157,14 +157,14 @@ void SocketTcp_Test::SetUp()
 
   Sts_E = Bof_CreateThread("ServerThread", S_TcpServerThread, &mServerThreadContext_X, mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_LaunchThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
+  Sts_E = Bof_StartThread(mSeverThread_X, 0x40000, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
 void SocketTcp_Test::TearDown()
 {
   BOFERR Sts_E;
-  Sts_E = Bof_DestroyThread(mSeverThread_X);
+  Sts_E = Bof_StopThread(mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
@@ -183,7 +183,8 @@ TEST_F(SocketTcp_Test, TcpClientTest)
   BOF_COM_CHANNEL_STATUS Status_X;
   std::string Str_S;
 
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  BOF::Bof_MsSleep(20);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
 
   for (i_U32 = 0; i_U32 < SERVER_NB_CLIENT; i_U32++)
   {
@@ -328,7 +329,8 @@ TEST_F(SocketTcp_Test, TcpClientTest)
 
 TEST_F(SocketTcp_Test, ChkSocketBalance)
 {
-  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
+  Bof_MsSleep(20);
+  EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
 }
 #if 0
 TEST(SocketTcp_Test, BasicUdpNonBlockingSocket)

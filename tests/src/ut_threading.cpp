@@ -255,7 +255,7 @@ BOFERR S_TheThread(const std::atomic<bool> &_rThreadMustStop_B, void *_pThreadCo
   //	Last_U32 = Now_U32;
           // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
           // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
-          // Thread will be stopped if someone calls Bof_DestroyThread
+          // Thread will be stopped if someone calls Bof_StopThread
   Rts_E = BOF_ERR_EXIT_THREAD;
   return Rts_E;
 }
@@ -408,10 +408,10 @@ TEST(Threading_Test, SingleThread)
   EXPECT_EQ(Min_E, BOF_THREAD_PRIORITY_000);
   EXPECT_EQ(Max_E, BOF_THREAD_PRIORITY_000);
 
-  Sts_E = Bof_LaunchThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
+  Sts_E = Bof_StartThread(Thread_X, 0, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1000);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_DestroyThread(Thread_X);
+  Sts_E = Bof_StopThread(Thread_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   S_ValueToProtect_U32 = 0;
@@ -453,7 +453,7 @@ TEST(Threading_Test, SingleThread)
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   S_ValueToProtect_U32 = 0;
-  Sts_E = Bof_LaunchThread(Thread_X, 4096, 1, BOF_THREAD_SCHEDULER_POLICY_FIFO, MidPriority_E, 2000);
+  Sts_E = Bof_StartThread(Thread_X, 4096, 1, BOF_THREAD_SCHEDULER_POLICY_FIFO, MidPriority_E, 2000);
   Bof_MsSleep(500);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Thread_X.ThreadCpuCoreAffinity_U32, 1);
@@ -511,7 +511,7 @@ TEST(Threading_Test, SingleThread)
   BOF::Bof_MsSleep(500);
   EXPECT_EQ(Bof_GetThreadExitCode(Thread_X, &ThreadRtsCode_E), BOF_ERR_NO_ERROR);
   EXPECT_EQ(ThreadRtsCode_E, BOF_ERR_NO_ERROR);
-  Sts_E = Bof_DestroyThread(Thread_X);
+  Sts_E = Bof_StopThread(Thread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_NE(Thread_X.Magic_U32, BOF_THREAD_MAGIC);
 #if defined(_WIN32)
@@ -593,7 +593,7 @@ TEST(Threading_Test, MultiThread)
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_TRUE(AvailableFreeMemory_U64 < TotalMemorySize_U64);
     //	printf("Start thread %llx/%llx\n", AvailableFreeMemory_U64, TotalMemorySize_U64);
-    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, MidPriority_E, STARTSTOPTO);
+    Sts_E = Bof_StartThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, MidPriority_E, STARTSTOPTO);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
     EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
@@ -639,7 +639,7 @@ TEST(Threading_Test, MultiThread)
     //		Now_U32 = Bof_GetMsTickCount();
     //		printf("[%06d] T %d D %d ->Destroy thread start\n", i_U32, Now_U32, Now_U32 - Last_U32);
     //		Last_U32 = Now_U32;
-    Sts_E = Bof_DestroyThread(pThread_X[i_U32]);
+    Sts_E = Bof_StopThread(pThread_X[i_U32]);
 
     //		Now_U32 = Bof_GetMsTickCount();
     //		if ((Now_U32 - Last_U32) > 200)
@@ -709,7 +709,7 @@ TEST(Threading_Test, MultiThreadWithoutMutex)
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
-    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, STARTSTOPTO);
+    Sts_E = Bof_StartThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, STARTSTOPTO);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
     EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);
@@ -794,7 +794,7 @@ TEST(Threading_Test, MultiThreadWithMutex)
     EXPECT_FALSE(pThread_X[i_U32].ThreadRunning_B);
     EXPECT_EQ(pThread_X[i_U32].pUserContext, &pThreadContext_X[i_U32]);
 
-    Sts_E = Bof_LaunchThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, STARTSTOPTO);
+    Sts_E = Bof_StartThread(pThread_X[i_U32], 4096, 0, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_050, STARTSTOPTO);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(pThread_X[i_U32].ThreadCpuCoreAffinity_U32, 0);
     EXPECT_EQ(pThread_X[i_U32].Magic_U32, BOF_THREAD_MAGIC);

@@ -32,7 +32,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+
 BEGIN_BOF_NAMESPACE()
+std::mutex BofPipe::S_mPipeCollectionMtx;
+std::map<std::string, BOF_PIPE_ENTRY> BofPipe::S_mPipeCollection;
 
 BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
     : BofComChannel(BOF_COM_CHANNEL_TYPE::TPIPE, mPipeParam_X.BaseChannelParam_X)
@@ -148,13 +151,13 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
         //         mPipe = CreateFile(PipeName_S.c_str(), DesiredAccess_DW, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         mErrorCode_E = BOF_ERR_NO_ERROR;
       }
-      //printf("Create Srv %d Pipe file '%s' hndl %p err %d/%s\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str());
+      // printf("Create Srv %d Pipe file '%s' hndl %p err %d/%s\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str());
 
 #else
       int Status_i, OpenFlag_i, CreateFlag_i;
       long Size;
       mErrorCode_E = BOF_ERR_CREATE;
-
+      mPipeName_S = mPipeParam_X.BaseChannelParam_X.ChannelName_S;
       switch (mPipeParam_X.PipeAccess_E)
       {
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ:
@@ -238,6 +241,43 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       mErrorCode_E = BOF_ERR_EINVAL;
       break;
   }
+  if (mErrorCode_E == BOF_ERR_NO_ERROR)
+  {
+    BOF_PIPE_ENTRY PipeEntry_X;
+    std::string PipeState_S;
+
+    std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
+    auto It = S_mPipeCollection.find(mPipeParam_X.BaseChannelParam_X.ChannelName_S);
+    if (It != S_mPipeCollection.end())
+    {
+      PipeEntry_X = It->second;
+      BOF_ASSERT(PipeEntry_X.NbEndPoint_U32 < BOF_NB_MAX_PIPE_ENTRY);
+      if (PipeEntry_X.NbEndPoint_U32 != 1)
+      {
+        printf("!!WARNING!! pipe '%s' has a bad instance number (%d)\n", It->second.PipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), PipeEntry_X.NbEndPoint_U32);
+        BOF_ASSERT(0);
+      }
+      if (mPipeParam_X.PipeAccess_E != PipeEntry_X.pAccess_E[0])
+      {
+        PipeEntry_X.pAccess_E[1] = mPipeParam_X.PipeAccess_E;
+        PipeEntry_X.NbEndPoint_U32++;
+        S_mPipeCollection[mPipeParam_X.BaseChannelParam_X.ChannelName_S] = PipeEntry_X;
+      }
+      else
+      {
+        PipeState_S = S_GetGlobalPipeState();
+        printf("!!WARNING!! pipe '%s' has the same access type than its endpoint (%d)\nPipeState:\n%s\n", It->second.PipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), It->second.PipeParam_X.PipeAccess_E, PipeState_S.c_str());
+        BOF_ASSERT(0);
+      }
+    }
+    else
+    {
+      PipeEntry_X.PipeParam_X = mPipeParam_X;
+      PipeEntry_X.pAccess_E[0] = mPipeParam_X.PipeAccess_E;
+      PipeEntry_X.NbEndPoint_U32 = 1;
+      S_mPipeCollection[mPipeParam_X.BaseChannelParam_X.ChannelName_S] = PipeEntry_X;
+    }
+  }
 }
 
 BofPipe::~BofPipe()
@@ -247,11 +287,61 @@ BofPipe::~BofPipe()
 #else
   close(mPipe_i);
 #endif
+  std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
+  auto It = S_mPipeCollection.find(mPipeParam_X.BaseChannelParam_X.ChannelName_S);
+  if (It != S_mPipeCollection.end())
+  {
+    It->second.NbEndPoint_U32--;
+    if (It->second.NbEndPoint_U32 == 0)
+    {
+      S_mPipeCollection.erase(It);
+    }
+  }
+  else
+  {
+    printf("!!WARNING!! Cannot find pipe '%s'\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
+    BOF_ASSERT(0);
+  }
 }
 BOFPIPE BofPipe::GetNativeHandle()
 {
   return mPipe;
 }
+std::string BofPipe::S_GetGlobalPipeState()
+{
+  std::string Rts_S;
+  uint32_t i_U32;
+
+  //std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
+  for (const auto &rIt : S_mPipeCollection)
+  {
+    Rts_S += "Name: '" + rIt.second.PipeParam_X.BaseChannelParam_X.ChannelName_S + "' NbEndPoint: " + std::to_string(rIt.second.NbEndPoint_U32) + " Access: ";
+    for (i_U32 = 0; i_U32 < rIt.second.NbEndPoint_U32; i_U32++)
+    {
+      switch (rIt.second.pAccess_E[i_U32])
+      {
+        case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ:
+          Rts_S += "R ";
+          break;
+
+        case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE:
+          Rts_S += "W ";
+          break;
+
+        case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE:
+          Rts_S += "RW ";
+          break;
+
+        default:
+          Rts_S += "? ";
+          break;
+      }
+    }
+    Rts_S += '\n';
+  }
+  return Rts_S;
+}
+
 // TODO: BOF_PIPE_ACCESS_READ_WRITE not finished...
 BOFERR BofPipe::SelectPipeChannel(bool _Master_B) // Used by  BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE
 {
@@ -296,6 +386,8 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
 {
   BOFERR Rts_E = BOF_ERR_INIT;
 #if defined(_WIN32)
+  uint32_t Start_U32;
+  DWORD TotalAvailableByte_DW;
 #else
   int Nb_i, Sts_i;
   struct pollfd pFds_X[4];
@@ -315,8 +407,33 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
 #if defined(_WIN32)
       if (BOF_IS_HANDLE_VALID(mPipe))
       {
-        _rNbPendingByte_U32 = 1;
-        Rts_E = BOF_ERR_NO_ERROR;
+        Start_U32 = BOF::Bof_GetMsTickCount();
+        do
+        {
+          Rts_E = BOF_ERR_INIT;
+          if (PeekNamedPipe(mPipe, nullptr, 0, nullptr, &TotalAvailableByte_DW, nullptr))
+          {
+            _rNbPendingByte_U32 = TotalAvailableByte_DW;
+            Rts_E = TotalAvailableByte_DW ? BOF_ERR_NO_ERROR : BOF_ERR_EMPTY;
+          }
+          if ((Rts_E != BOF_ERR_NO_ERROR) && (_TimeoutInMs_U32))
+          {
+            if (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32)
+            {
+              BOF::Bof_MsSleep(1);
+            }
+            else
+            {
+              Rts_E = BOF_ERR_ETIMEDOUT;
+              break;
+            }
+          }
+          else
+          {
+            break;
+          }
+        } while (Rts_E != BOF_ERR_NO_ERROR);
+      }
 #else
       if (mPipe_i >= 0)
       {
@@ -333,8 +450,8 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
             _rNbPendingByte_U32 = (uint32_t)Nb_i;
           }
         }
-#endif
       }
+#endif
       break;
 
     default:
@@ -362,19 +479,19 @@ BOFERR BofPipe::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
 
     case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
 #if defined(_WIN32)
-#if 1
-      _rStatus_X.NbIn_U32 = 1;
-      Rts_E = BOF_ERR_NO_ERROR;
-#else
-      DWORD Error_DW;
-      COMSTAT ComStat_X;
-      Rts_E = (ClearCommError(mPipe, &Error_DW, &ComStat_X)) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
-      if (Rts_E == BOF_ERR_NO_ERROR)
+      DWORD TotalAvailableByte_DW;
+      if (PeekNamedPipe(mPipe, nullptr, 0, nullptr, &TotalAvailableByte_DW, nullptr))
       {
-        _rStatus_X.NbIn_U32 = (uint32_t)ComStat_X.cbInQue;
-        _rStatus_X.NbOut_U32 = (uint32_t)ComStat_X.cbOutQue;
+        _rStatus_X.NbIn_U32 = TotalAvailableByte_DW;
+        Rts_E = BOF_ERR_NO_ERROR;
       }
-#endif
+      else
+      {
+        if (GetLastError() == ERROR_ACCESS_DENIED)
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
 #else
       int Nb_i, Sts_i;
       BOF_IOCTL(mPipe_i, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
@@ -400,7 +517,6 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
   uint32_t i_U32, NbPendingByte_U32;
 #if defined(_WIN32)
   DWORD NumBytesRead_DW = 0;
-  uint32_t Start_U32;
 #else
   int Nb_i = 0;
   uint32_t Len_U32;
@@ -424,73 +540,66 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
 
       case BOF_PIPE_TYPE::BOF_PIPE_NATIVE:
 #if defined(_WIN32)
-        Rts_E = BOF_ERR_READ;
         // mPipeParam_X.NativeStringMode_B: naturally supported as pipe is created in this case with
         // (PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE)
-        Start_U32 = BOF::Bof_GetMsTickCount();
-        do
+        NumBytesRead_DW = 0;
+        Rts_E = V_WaitForDataToRead(_TimeoutInMs_U32, NbPendingByte_U32);
+        if (Rts_E == BOF_ERR_NO_ERROR)
         {
+          Rts_E = BOF_ERR_READ;
           if (ReadFile(mPipe, _pBuffer_U8, _rNb_U32, &NumBytesRead_DW, nullptr))
           {
             Rts_E = BOF_ERR_NO_ERROR;
           }
-          if ((Rts_E != BOF_ERR_NO_ERROR) && (_TimeoutInMs_U32))
-          {
-            //std::string g = Bof_SystemErrorCode(GetLastError());
-            BOF::Bof_MsSleep(1);
-          }
-        } while ((Rts_E != BOF_ERR_NO_ERROR) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
-
+        }
         _rNb_U32 = NumBytesRead_DW;
 #else
-        if (mPipe_i >= 0)
+        Rts_E = V_WaitForDataToRead(_TimeoutInMs_U32, NbPendingByte_U32);
+        if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          Rts_E = V_WaitForDataToRead(_TimeoutInMs_U32, NbPendingByte_U32);
-          if (Rts_E == BOF_ERR_NO_ERROR)
+          if (mPipeParam_X.NativeStringMode_B)
           {
-            if (mPipeParam_X.NativeStringMode_B)
+            Rts_E = BOF_ERR_EINVAL;
+            if ((_pBuffer_U8) && (_rNb_U32))
             {
-              Rts_E = BOF_ERR_EINVAL;
-              if ((_pBuffer_U8) && (_rNb_U32))
+              // Does not work on pipe handle (seek)            Rts_E = Bof_ReadLine(mPipe_i, _rNb_U32,
+              // (char
+              // *)_pBuffer_U8);
+              Len_U32 = _rNb_U32 - 1;
+              for (i_U32 = 0; i_U32 < Len_U32; i_U32++)
               {
-                // Does not work on pipe handle (seek)            Rts_E = Bof_ReadLine(mPipe_i, _rNb_U32,
-                // (char
-                // *)_pBuffer_U8);
-                Len_U32 = _rNb_U32 - 1;
-                for (i_U32 = 0; i_U32 < Len_U32; i_U32++)
+                if (read(mPipe_i, &c_c, 1) > 0)
                 {
-                  if (read(mPipe_i, &c_c, 1) > 0)
+                  _pBuffer_U8[i_U32] = c_c;
+                  if (c_c == '\n')
                   {
-                    _pBuffer_U8[i_U32] = c_c;
-                    if (c_c == '\n')
-                    {
-                      i_U32++;
-                      break;
-                    }
-                  }
-                  else
-                  {
+                    i_U32++;
                     break;
                   }
                 }
-                _pBuffer_U8[i_U32] = 0;
-                Nb_i = i_U32;
+                else
+                {
+                  break;
+                }
               }
-            }
-            else
-            {
-              Nb_i = static_cast<int>(read(mPipe_i, _pBuffer_U8, _rNb_U32));
-            }
-            if (Nb_i > 0)
-            {
-              Rts_E = BOF_ERR_NO_ERROR;
-            }
-            else
-            {
-              Nb_i = 0;
+              _pBuffer_U8[i_U32] = 0;
+              Nb_i = i_U32;
             }
           }
+          else
+          {
+            Nb_i = static_cast<int>(read(mPipe_i, _pBuffer_U8, _rNb_U32));
+          }
+          if (Nb_i > 0)
+          {
+            Rts_E = BOF_ERR_NO_ERROR;
+          }
+          else
+          {
+            Nb_i = 0;
+          }
         }
+
         _rNb_U32 = Nb_i;
 #endif
         break;
@@ -630,7 +739,7 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
           BOF::Bof_MsSleep(10);
         }
       } while ((Rts_E != BOF_ERR_NO_ERROR) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
-      //printf("Connect Srv %d Pipe file '%s' hndl %p err %d/%ss Connected %d\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str(), Connected_B);
+      // printf("Connect Srv %d Pipe file '%s' hndl %p err %d/%ss Connected %d\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str(), Connected_B);
 #else
       if (mPipe_i >= 0)
       {

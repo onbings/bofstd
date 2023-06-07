@@ -40,7 +40,7 @@ struct BOF_POT_PARAM
 {
   uint32_t MagicNumber_U32;       /*! If not zero, specify the magic number to use to tag in use pot element (first uint32_t var of pot element) */
   bool MultiThreadAware_B;        /*! true if the object is used in a multi threaded application (use mCs)*/
-  bool GetDoNotErasePotElement_B; /*! false if the pot element is memsetted to 0 before returning it to the caller (exept magic number of course) */
+  bool GetOpPreserveContent_B; /*! false if the pot element is memsetted to 0 before returning it to the caller (exept magic number of course) */
   uint32_t PotCapacity_U32;       /*! Specifies the maximum number of element inside the pot*/
   bool Blocking_B;
 
@@ -53,7 +53,7 @@ struct BOF_POT_PARAM
   {
     MagicNumber_U32 = 0;
     MultiThreadAware_B = false;
-    GetDoNotErasePotElement_B = false;
+    GetOpPreserveContent_B = false;
     PotCapacity_U32 = 0;
     Blocking_B = false;
   }
@@ -512,7 +512,7 @@ RetryGet:
           {
             if ((*(uint32_t *)pData_X != mPotParam_X.MagicNumber_U32) && (*(uint32_t *)pData_X != ~mPotParam_X.MagicNumber_U32))
             {
-              if (!mPotParam_X.GetDoNotErasePotElement_B)
+              if (!mPotParam_X.GetOpPreserveContent_B)
               {
                 memset(pData_X, 0, sizeof(DataType)); // Before setting Magic number
               }
@@ -533,7 +533,7 @@ RetryGet:
           {
             if (!*pLocked_U8)
             {
-              if (!mPotParam_X.GetDoNotErasePotElement_B)
+              if (!mPotParam_X.GetOpPreserveContent_B)
               {
                 memset(pData_X, 0, sizeof(DataType));
               }

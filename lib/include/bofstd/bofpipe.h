@@ -25,6 +25,8 @@
 #include <bofstd/bofcomchannel.h>
 #include <bofstd/bofsocket.h>
 
+#include <map>
+
 BEGIN_BOF_NAMESPACE()
 
 enum class BOF_PIPE_TYPE : uint32_t
@@ -64,6 +66,31 @@ struct BOF_PIPE_PARAM
     DstPortBase_U16 = 0;
   }
 };
+
+constexpr uint32_t BOF_NB_MAX_PIPE_ENTRY = 4;
+
+struct BOF_PIPE_ENTRY
+{
+  uint32_t NbEndPoint_U32;
+  BOF_PIPE_ACCESS pAccess_E[BOF_NB_MAX_PIPE_ENTRY];
+  BOF_PIPE_PARAM PipeParam_X;
+
+  BOF_PIPE_ENTRY()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    uint32_t i_U32;
+
+    NbEndPoint_U32 = 0;
+    for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pAccess_E); i_U32++)
+    {
+      pAccess_E[i_U32] = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ;
+    }
+    PipeParam_X.Reset();
+  }
+};
 #if defined(_WIN32)
 typedef HANDLE BOFPIPE;
 #else
@@ -88,6 +115,7 @@ public:
   BofPipe &operator=(const BofPipe &) = delete; // Disallow copying
   BofPipe(const BofPipe &) = delete;
   BOFPIPE GetNativeHandle();
+  std::string S_GetGlobalPipeState();
 
 private:
   BOF_PIPE_PARAM mPipeParam_X;
@@ -101,5 +129,8 @@ private:
   DWORD mDesiredAccess_DW = 0;
 #else
 #endif
+  static std::mutex S_mPipeCollectionMtx;
+  static std::map<std::string, BOF_PIPE_ENTRY> S_mPipeCollection;
+
 };
 END_BOF_NAMESPACE()

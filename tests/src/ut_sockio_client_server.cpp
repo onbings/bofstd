@@ -943,7 +943,7 @@ TEST(SockIo_Client_Server_Test, ServerOpenCloseCmdDataSession)
   {
     BOF_DBG_PRINTF("SERVER LOOP Con %d Poll %d\n", puBofSocketServer->NbConnectedSession(), puBofSocketServer->NbPollChannel());
 
-    Bof_MsSleep(1000);
+    Bof_MsSleep(100);
   } // while (1);	// puBofSocketServer->NbConnectedSession() == 0);
   /*
     EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(0, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1));

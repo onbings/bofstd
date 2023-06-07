@@ -712,11 +712,11 @@ struct BOF_THREAD
   {
     Magic_U32 = 0;
     Name_S = "";
-    StartStopTimeoutInMs_U32 = 1000;
+    StartStopTimeoutInMs_U32 = 0;
     StackSize_U32 = 0;
     ThreadCpuCoreAffinity_U32 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_000;
     ThreadFunction = nullptr;
     pUserContext = nullptr;
 
@@ -878,8 +878,8 @@ BOFSTD_EXPORT uint32_t Bof_CurrentThreadId();
 BOFSTD_EXPORT BOFERR Bof_SetCurrentThreadPriorityLevel(BOF_THREAD_SCHEDULER_POLICY _Policy_E, BOF_THREAD_PRIORITY _Priority_E);
 BOFSTD_EXPORT BOFERR Bof_CreateThread(const std::string &_rName_S, BofThreadFunction _ThreadFunction, void *_pUserContext, BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT bool Bof_IsThreadValid(BOF_THREAD &_rThread_X);
-BOFSTD_EXPORT BOFERR Bof_LaunchThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);
-BOFSTD_EXPORT BOFERR Bof_DestroyThread(BOF_THREAD &_rThread_X);
+BOFSTD_EXPORT BOFERR Bof_StartThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t _ThreadCpuCoreAffinity_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint32_t _StartStopTimeoutInMs_U32);
+BOFSTD_EXPORT BOFERR Bof_StopThread(BOF_THREAD &_rThread_X);
 BOFSTD_EXPORT BOFERR Bof_GetMemoryState(uint64_t &_rAvailableFreeMemory_U64, uint64_t &_rTotalMemorySize_U64);
 BOFSTD_EXPORT uint32_t Bof_InterlockedCompareExchange(volatile uint32_t *_pDestination_U32, uint32_t _ValueToSetIfEqual_U32, uint32_t _CheckIfEqualToThis_U32);  //See BOF_COM_RAM_CMD_STATE for example
 BOFSTD_EXPORT bool Bof_IsPidRunning(uint32_t _Pid_U32);

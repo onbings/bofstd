@@ -876,7 +876,7 @@ void BofThread::BofThread_Thread()
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
   S_mBofThreadBalance--;
   //Bof_ErrorCode can fail does to app shudown (static initializer)
-  printf("End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", mName_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
+  printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mName_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
   //BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()

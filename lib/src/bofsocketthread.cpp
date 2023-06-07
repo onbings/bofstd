@@ -596,7 +596,6 @@ BOFERR BofSocketThread::V_OnProcessing()
   {
     if (mSocketThreadParam_X.pSocket_O)
     {
-      printf("jj");
     }
   }
   */
