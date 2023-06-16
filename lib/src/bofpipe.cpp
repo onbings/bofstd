@@ -180,7 +180,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
           CreateFlag_i = 0;
           break;
       }
-      mPipe_i = -1;
+      mPipe = -1;
       if (mPipeParam_X.PipeServer_B)
       {
         // Under linux a named event does not exist
@@ -197,25 +197,25 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
           // This can be used to open a FIFO for writing while there are no readers
           // available. A process that uses both ends of the connection in order to
           // communicate with itself should be very careful to avoid deadlocks.
-          mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(),
-                         OpenFlag_i | O_NONBLOCK); // OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+          mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(),
+                       OpenFlag_i | O_NONBLOCK); // OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
         }
       }
       else
       {
-        mPipe_i = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+        mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
       }
-      if (mPipe_i >= 0)
+      if (mPipe >= 0)
       {
         // Default is 64KB
         if ((mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32) || (mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
         {
           mErrorCode_E = BOF_ERR_WRONG_SIZE;
-          Size = (long)fcntl(mPipe_i, F_GETPIPE_SZ);
-          Status_i = fcntl(mPipe_i, F_SETPIPE_SZ, (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32));
+          Size = (long)fcntl(mPipe, F_GETPIPE_SZ);
+          Status_i = fcntl(mPipe, F_SETPIPE_SZ, (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32));
           if (Status_i >= 0)
           {
-            Size = (long)fcntl(mPipe_i, F_GETPIPE_SZ);
+            Size = (long)fcntl(mPipe, F_GETPIPE_SZ);
             // Min seems to be 4KB
             if (Size >= (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
             {
@@ -229,8 +229,8 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
         }
         if (mErrorCode_E != BOF_ERR_NO_ERROR)
         {
-          close(mPipe_i);
-          mPipe_i = -1;
+          close(mPipe);
+          mPipe = -1;
         }
       }
 
@@ -287,7 +287,7 @@ BofPipe::~BofPipe()
 #if defined(_WIN32)
   CloseHandle(mPipe);
 #else
-  close(mPipe_i);
+  close(mPipe);
 #endif
   std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
   auto It = S_mPipeCollection.find(mPipeParam_X.BaseChannelParam_X.ChannelName_S);
@@ -299,7 +299,7 @@ BofPipe::~BofPipe()
       {
         if (i_U32 < (It->second.NbEndPoint_U32 - 1))
         {
-          for (j_U32 = i_U32; j_U32 < (It->second.NbEndPoint_U32-1); j_U32++)
+          for (j_U32 = i_U32; j_U32 < (It->second.NbEndPoint_U32 - 1); j_U32++)
           {
             It->second.pAccess_E[j_U32] = It->second.pAccess_E[j_U32 + 1];
           }
@@ -330,7 +330,7 @@ std::string BofPipe::S_GetGlobalPipeState()
   std::string Rts_S;
   uint32_t i_U32;
 
-  //std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
+  // std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
   for (const auto &rIt : S_mPipeCollection)
   {
     Rts_S += "Name: '" + rIt.second.PipeParam_X.BaseChannelParam_X.ChannelName_S + "' NbEndPoint: " + std::to_string(rIt.second.NbEndPoint_U32) + " Access: ";
@@ -458,15 +458,15 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
         } while (Rts_E != BOF_ERR_NO_ERROR);
       }
 #else
-      if (mPipe_i >= 0)
+      if (mPipe >= 0)
       {
         Rts_E = BOF_ERR_ETIMEDOUT;
-        pFds_X[0].fd = mPipe_i;
+        pFds_X[0].fd = mPipe;
         pFds_X[0].events = (POLLIN);
         if (poll(pFds_X, 1, _TimeoutInMs_U32) == 1)
         {
           int Nb_i, Sts_i;
-          BOF_IOCTL(mPipe_i, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
+          BOF_IOCTL(mPipe, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
           Rts_E = (Sts_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
@@ -517,7 +517,7 @@ BOFERR BofPipe::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       }
 #else
       int Nb_i, Sts_i;
-      BOF_IOCTL(mPipe_i, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
+      BOF_IOCTL(mPipe, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
       Rts_E = (Sts_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
@@ -585,13 +585,13 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
             Rts_E = BOF_ERR_EINVAL;
             if ((_pBuffer_U8) && (_rNb_U32))
             {
-              // Does not work on pipe handle (seek)            Rts_E = Bof_ReadLine(mPipe_i, _rNb_U32,
+              // Does not work on pipe handle (seek)            Rts_E = Bof_ReadLine(mPipe, _rNb_U32,
               // (char
               // *)_pBuffer_U8);
               Len_U32 = _rNb_U32 - 1;
               for (i_U32 = 0; i_U32 < Len_U32; i_U32++)
               {
-                if (read(mPipe_i, &c_c, 1) > 0)
+                if (read(mPipe, &c_c, 1) > 0)
                 {
                   _pBuffer_U8[i_U32] = c_c;
                   if (c_c == '\n')
@@ -611,7 +611,7 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
           }
           else
           {
-            Nb_i = static_cast<int>(read(mPipe_i, _pBuffer_U8, _rNb_U32));
+            Nb_i = static_cast<int>(read(mPipe, _pBuffer_U8, _rNb_U32));
           }
           if (Nb_i > 0)
           {
@@ -680,10 +680,10 @@ BOFERR BofPipe::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, const
           }
           _rNb_U32 = NumBytesWritten_DW;
 #else
-          if (mPipe_i >= 0)
+          if (mPipe >= 0)
           {
             Rts_E = BOF_ERR_WRITE;
-            Nb_i = static_cast<int>(write(mPipe_i, _pBuffer_U8, _rNb_U32));
+            Nb_i = static_cast<int>(write(mPipe, _pBuffer_U8, _rNb_U32));
             // if (static_cast<uint32_t>(Nb_i) == _rNb_U32)
             if (Nb_i > 0)
             {
@@ -764,7 +764,7 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
       } while ((Rts_E != BOF_ERR_NO_ERROR) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
       // printf("Connect Srv %d Pipe file '%s' hndl %p err %d/%ss Connected %d\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str(), Connected_B);
 #else
-      if (mPipe_i >= 0)
+      if (mPipe >= 0)
       {
         Rts_E = BOF_ERR_NO_ERROR;
       }
