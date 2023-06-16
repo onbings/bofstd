@@ -115,7 +115,8 @@ public:
   BofPipe &operator=(const BofPipe &) = delete; // Disallow copying
   BofPipe(const BofPipe &) = delete;
   BOFPIPE GetNativeHandle();
-  std::string S_GetGlobalPipeState();
+  static std::string S_GetGlobalPipeState();
+  int S_BofPipeBalance();
 
 private:
   BOF_PIPE_PARAM mPipeParam_X;

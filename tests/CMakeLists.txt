@@ -203,36 +203,20 @@ target_include_directories(ut_bofstd
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../lib/src>
 )
 
-if(WIN32)
 ### VLD ###########################################
-add_library(vld SHARED IMPORTED) # or STATIC instead of SHARED
-set_target_properties(vld PROPERTIES
-  IMPORTED_LOCATION "C:/pro/github/vld/package/Win64/vld_x64.dll"		#Win32/vld_x86.dll for 32 bits
-  IMPORTED_IMPLIB	"C:/pro/github/vld/package/Win64/vld.lib"
-  INTERFACE_INCLUDE_DIRECTORIES "C:/pro/github/vld/package/include"
+set(CMAKE_VLD_TARGET ut_bofstd)
+configure_file(
+  ${CMAKE_SOURCE_DIR}/vld.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vld.cmake
+  @ONLY
 )
-# Error wil be displayed in visual studio immediate windows (use ctrl-alt-i to make it appears) and in c:\tmp\vld.txt (see default vld.ini)
-get_target_property(DllPath vld IMPORTED_LOCATION)
-get_filename_component(DllDir ${DllPath} DIRECTORY)
+include(${CMAKE_CURRENT_BINARY_DIR}/vld.cmake)
+### VLD ###########################################
 
-add_custom_command(TARGET ut_bofstd POST_BUILD    
-    #COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan \"=DllPath================>\"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllPath}  $<TARGET_FILE_DIR:ut_bofstd>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/dbghelp.dll $<TARGET_FILE_DIR:ut_bofstd>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/Microsoft.DTfW.DHL.manifest $<TARGET_FILE_DIR:ut_bofstd>
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DllDir}/../vld.ini $<TARGET_FILE_DIR:ut_bofstd>
-)   
-###################################################
-endif()
-
-# Link
 target_link_libraries(ut_bofstd
   PRIVATE
-    ONBINGS::bofstd-objects
-    GTest::GTest
-#	$<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/../lib/third/vld/lib/Win64/vld.lib>
-#	$<$<AND:$<BOOL:${WIN32}>,$<CONFIG:Debug>>:${CMAKE_CURRENT_SOURCE_DIR}/../lib/third/vld/lib/Win64/vld.lib>
-	$<$<AND:$<BOOL:${WIN32}>,$<CONFIG:Debug>>:vld>
+	ONBINGS::bofstd-objects
+	GTest::GTest
 )
           
 # Object library is not a shared library

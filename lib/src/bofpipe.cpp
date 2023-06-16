@@ -278,10 +278,12 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       S_mPipeCollection[mPipeParam_X.BaseChannelParam_X.ChannelName_S] = PipeEntry_X;
     }
   }
+  printf("Start of pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), mPipeParam_X.PipeAccess_E);
 }
 
 BofPipe::~BofPipe()
 {
+  uint32_t i_U32, j_U32;
 #if defined(_WIN32)
   CloseHandle(mPipe);
 #else
@@ -291,6 +293,21 @@ BofPipe::~BofPipe()
   auto It = S_mPipeCollection.find(mPipeParam_X.BaseChannelParam_X.ChannelName_S);
   if (It != S_mPipeCollection.end())
   {
+    for (i_U32 = 0; i_U32 < It->second.NbEndPoint_U32; i_U32++)
+    {
+      if (mPipeParam_X.PipeAccess_E == It->second.pAccess_E[i_U32])
+      {
+        if (i_U32 < (It->second.NbEndPoint_U32 - 1))
+        {
+          for (j_U32 = i_U32; j_U32 < (It->second.NbEndPoint_U32-1); j_U32++)
+          {
+            It->second.pAccess_E[j_U32] = It->second.pAccess_E[j_U32 + 1];
+          }
+        }
+        break;
+      }
+    }
+
     It->second.NbEndPoint_U32--;
     if (It->second.NbEndPoint_U32 == 0)
     {
@@ -302,6 +319,7 @@ BofPipe::~BofPipe()
     printf("!!WARNING!! Cannot find pipe '%s'\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
     BOF_ASSERT(0);
   }
+  printf("End of pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), mPipeParam_X.PipeAccess_E);
 }
 BOFPIPE BofPipe::GetNativeHandle()
 {
@@ -340,6 +358,11 @@ std::string BofPipe::S_GetGlobalPipeState()
     Rts_S += '\n';
   }
   return Rts_S;
+}
+
+int BofPipe::S_BofPipeBalance()
+{
+  return S_mPipeCollection.size();
 }
 
 // TODO: BOF_PIPE_ACCESS_READ_WRITE not finished...
