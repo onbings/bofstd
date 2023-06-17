@@ -249,10 +249,18 @@ if(MEMORYCHECK_SUPPRESSIONS_FILE)
   file(APPEND ${MEMORYCHECK_SUPPRESSIONS_FILE} ${CONTENT})
 endif()
 
-
+message("--CMAKE_BINARY_DIR------------>" ${CMAKE_BINARY_DIR})
+message("--CMAKE_CURRENT_BINARY_DIR------------>" ${CMAKE_CURRENT_BINARY_DIR})
 message("Copy test files from " ${CMAKE_CURRENT_SOURCE_DIR} "/data to " ${CMAKE_CURRENT_BINARY_DIR} "/data")
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)  #Ut under linux from vscode
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/binaries/bin/data)  #Ut under linux from terminal
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data)
 foreach(Filename ${DATA_FILES})
   message("Copy " ${Filename} " to " ${CMAKE_CURRENT_BINARY_DIR} "/data")
   file(COPY ${Filename} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
-endforeach()
+  message("Copy " ${Filename} " to " ${CMAKE_BINARY_DIR} "/binaries/bin/data")
+  file(COPY ${Filename} DESTINATION ${CMAKE_BINARY_DIR}/binaries/bin/data)
+  message("Copy " ${Filename} " to " ${CMAKE_BINARY_DIR} "/data")
+  file(COPY ${Filename} DESTINATION ${CMAKE_BINARY_DIR}/data)
+
+endforeach() 

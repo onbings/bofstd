@@ -42,7 +42,7 @@ struct BOF_COMMAND_QUEUE_PARAM
   {
     ThreadCpuCoreAffinityMask_U64 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_000;
     MaxPendingRequest_U32 = 0;
     PollTimeoutInMs_U32 = 0;
   }
@@ -84,7 +84,8 @@ private:
   BOFERR OnProcessing();
 };
 
-template <class T> using BOF_MULTICAST_ASYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
+template <class T>
+using BOF_MULTICAST_ASYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
 // typedef void (*BOF_MULTICAST_ASYNC_NOTIFY_FCT)(const BOF_MULTICAST_ASYNC_NOTIFY_ARG *_pNotifyArg_X);
 
 struct BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
@@ -102,12 +103,13 @@ struct BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
   {
     ThreadCpuCoreAffinityMask_U64 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-    ThreadPriority_E = BOF_THREAD_PRIORITY_050;
+    ThreadPriority_E = BOF_THREAD_PRIORITY_000;
     // MaxPendingRequest_U32 = 0;
   }
 };
 
-template <class T> class BofMulticastAsyncNotifier
+template <class T>
+class BofMulticastAsyncNotifier
 {
 public:
   BofMulticastAsyncNotifier(const BOF_MULTICAST_ASYNC_NOTIFIER_PARAM &_rAsyncNotifierParam_X);
@@ -126,23 +128,27 @@ private:
   DelegateLib::MulticastDelegateSafe1<const T *> mMulticastDelegate;
 };
 
-template <class T> BofMulticastAsyncNotifier<T>::BofMulticastAsyncNotifier(const BOF_MULTICAST_ASYNC_NOTIFIER_PARAM &_rAsyncNotifierParam_X)
+template <class T>
+BofMulticastAsyncNotifier<T>::BofMulticastAsyncNotifier(const BOF_MULTICAST_ASYNC_NOTIFIER_PARAM &_rAsyncNotifierParam_X)
 {
   BOFERR Sts_E;
 
   Sts_E = mMsgThread.LaunchBofProcessingThread("BofAsyncNotif", false, 0, _rAsyncNotifierParam_X.ThreadSchedulerPolicy_E, _rAsyncNotifierParam_X.ThreadPriority_E, _rAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
-template <class T> BofMulticastAsyncNotifier<T>::~BofMulticastAsyncNotifier()
+template <class T>
+BofMulticastAsyncNotifier<T>::~BofMulticastAsyncNotifier()
 {
   mMulticastDelegate.Clear();
 }
-template <class T> uint32_t BofMulticastAsyncNotifier<T>::NbPendingNotification()
+template <class T>
+uint32_t BofMulticastAsyncNotifier<T>::NbPendingNotification()
 {
   return mMsgThread.GetNbPendingRequest();
 }
 
-template <class T> BOFERR BofMulticastAsyncNotifier<T>::Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext)
+template <class T>
+BOFERR BofMulticastAsyncNotifier<T>::Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -156,7 +162,8 @@ template <class T> BOFERR BofMulticastAsyncNotifier<T>::Register(BOF_MULTICAST_A
   }
   return Rts_E;
 }
-template <class T> BOFERR BofMulticastAsyncNotifier<T>::Unregister(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct)
+template <class T>
+BOFERR BofMulticastAsyncNotifier<T>::Unregister(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> _pNotifyFct)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -167,7 +174,8 @@ template <class T> BOFERR BofMulticastAsyncNotifier<T>::Unregister(BOF_MULTICAST
   }
   return Rts_E;
 }
-template <class T> BOFERR BofMulticastAsyncNotifier<T>::Notify(const T *_pNotifyArg)
+template <class T>
+BOFERR BofMulticastAsyncNotifier<T>::Notify(const T *_pNotifyArg)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -182,7 +190,8 @@ template <class T> BOFERR BofMulticastAsyncNotifier<T>::Notify(const T *_pNotify
   }
   return Rts_E;
 }
-template <class T> BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32)
+template <class T>
+BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
   uint32_t StartInMs_U32, DeltaInMs_U32;
@@ -208,7 +217,8 @@ template <class T> BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificatio
   return Rts_E;
 }
 
-template <class T> using BOF_MULTICAST_SYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
+template <class T>
+using BOF_MULTICAST_SYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
 
 struct BOF_MULTICAST_SYNC_NOTIFIER_PARAM
 {
@@ -224,7 +234,8 @@ struct BOF_MULTICAST_SYNC_NOTIFIER_PARAM
   }
 };
 
-template <class T> class BofMulticastSyncNotifier
+template <class T>
+class BofMulticastSyncNotifier
 {
 public:
   BofMulticastSyncNotifier(const BOF_MULTICAST_SYNC_NOTIFIER_PARAM &_rSyncNotifierParam_X);
@@ -238,15 +249,18 @@ private:
   DelegateLib::MulticastDelegateSafe1<const T *> mMulticastDelegate;
 };
 
-template <class T> BofMulticastSyncNotifier<T>::BofMulticastSyncNotifier(const BOF_MULTICAST_SYNC_NOTIFIER_PARAM &_rSyncNotifierParam_X)
+template <class T>
+BofMulticastSyncNotifier<T>::BofMulticastSyncNotifier(const BOF_MULTICAST_SYNC_NOTIFIER_PARAM &_rSyncNotifierParam_X)
 {
 }
-template <class T> BofMulticastSyncNotifier<T>::~BofMulticastSyncNotifier()
+template <class T>
+BofMulticastSyncNotifier<T>::~BofMulticastSyncNotifier()
 {
   mMulticastDelegate.Clear();
 }
 
-template <class T> BOFERR BofMulticastSyncNotifier<T>::Register(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext)
+template <class T>
+BOFERR BofMulticastSyncNotifier<T>::Register(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct, void *_pUserContext)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -260,7 +274,8 @@ template <class T> BOFERR BofMulticastSyncNotifier<T>::Register(BOF_MULTICAST_SY
   }
   return Rts_E;
 }
-template <class T> BOFERR BofMulticastSyncNotifier<T>::Unregister(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct)
+template <class T>
+BOFERR BofMulticastSyncNotifier<T>::Unregister(BOF_MULTICAST_SYNC_NOTIFY_FCT<T> _pNotifyFct)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
@@ -271,7 +286,8 @@ template <class T> BOFERR BofMulticastSyncNotifier<T>::Unregister(BOF_MULTICAST_
   }
   return Rts_E;
 }
-template <class T> BOFERR BofMulticastSyncNotifier<T>::Notify(const T *_pNotifyArg)
+template <class T>
+BOFERR BofMulticastSyncNotifier<T>::Notify(const T *_pNotifyArg)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
 

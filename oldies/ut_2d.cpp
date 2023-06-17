@@ -19,22 +19,22 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofsystem.h>
 #include <bofstd/bof2d.h>
-#include <bofstd/bofstring.h>
-#include <bofstd/boffs.h>
+#include <bofstd/bofaudiostandard.h>
 #include <bofstd/bofenum.h>
+#include <bofstd/boffs.h>
+#include <bofstd/bofjsonwriter.h>
+#include <bofstd/bofparameter.h>
+#include <bofstd/bofstring.h>
+#include <bofstd/bofsystem.h>
 #include <bofstd/bofuri.h>
 #include <bofstd/bofvideostandard.h>
-#include <bofstd/bofaudiostandard.h>
-#include <bofstd/bofparameter.h>
-#include <bofstd/bofjsonwriter.h>
 
 #include "gtestrunner.h"
 
 USE_BOF_NAMESPACE()
 
-enum class MUSE_FILE_SYSTEM_MEDIA_TYPE :int32_t
+enum class MUSE_FILE_SYSTEM_MEDIA_TYPE : int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN = 0,
   MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL,
@@ -42,13 +42,14 @@ enum class MUSE_FILE_SYSTEM_MEDIA_TYPE :int32_t
   MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX
 };
 static BofEnum<MUSE_FILE_SYSTEM_MEDIA_TYPE> S_MuseFileSystemMediaTypeEnumConverter({
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, "Unknown" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip" },
-  { MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max" },
-                                                                                   }, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN);
+                                                                                       {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, "Unknown"},
+                                                                                       {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL, "Still"},
+                                                                                       {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_CLIP, "Clip"},
+                                                                                       {MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, "Max"},
+                                                                                   },
+                                                                                   MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN);
 
-enum class MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT :int32_t
+enum class MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT : int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE = 0,
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_UNKNOWN,
@@ -58,15 +59,16 @@ enum class MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT :int32_t
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX
 };
 static BofEnum<MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT> S_MuseFileSystemMediaVideoFormatEnumConverter({
-  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE, "NONE" },
-  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_UNKNOWN, "UNKNOWN" },
-  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG, "PNG" },
-  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_JPG, "JPEG" },
-  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_TGA, "TGA" },
-  { MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX, "MAX" },
-                                                                                                  }, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE);
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE, "NONE"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_UNKNOWN, "UNKNOWN"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_PNG, "PNG"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_JPG, "JPEG"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_TGA, "TGA"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX, "MAX"},
+                                                                                                  },
+                                                                                                  MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE);
 
-enum class MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE :int32_t
+enum class MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE : int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN = 0,
   MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG,
@@ -75,14 +77,15 @@ enum class MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE :int32_t
   MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX
 };
 static BofEnum<MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE> S_MuseFileSystemMediaColorSpaceEnumConverter({
-  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, "UNKNOWN" },
-  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG, "RGB" },
-  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RGBA, "RGBA" },
-  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV, "YUV" },
-  { MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, "MAX" },
-                                                                                                }, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN);
+                                                                                                    {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, "UNKNOWN"},
+                                                                                                    {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RBG, "RGB"},
+                                                                                                    {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_RGBA, "RGBA"},
+                                                                                                    {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_YUV, "YUV"},
+                                                                                                    {MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, "MAX"},
+                                                                                                },
+                                                                                                MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN);
 
-enum class MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT :int32_t
+enum class MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT : int32_t
 {
   MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE = 0,
   MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_UNKNOWN,
@@ -91,12 +94,13 @@ enum class MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT :int32_t
   MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX
 };
 static BofEnum<MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT> S_MuseFileSystemMediaAudioFormatEnumConverter({
-  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE, "None" },
-  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_UNKNOWN, "Unknown" },
-  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_PCM, "Pcm" },
-  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3, "Mp3" },
-  { MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX, "Max" },
-                                                                                                  }, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE);
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE, "None"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_UNKNOWN, "Unknown"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_PCM, "Pcm"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MP3, "Mp3"},
+                                                                                                      {MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX, "Max"},
+                                                                                                  },
+                                                                                                  MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE);
 
 struct MUSE_FILE_SYSTEM_MEDIA_HEADER
 {
@@ -120,15 +124,15 @@ struct MUSE_FILE_SYSTEM_MEDIA_HEADER
   std::string ToString()
   {
     return "Sz " + std::to_string(FileSize_U64) + " Byte Create " + Created.ToString() + " Modif " + Modified.ToString() +
-      S_MuseFileSystemMediaTypeEnumConverter.ToString(MediaType_E);
+           S_MuseFileSystemMediaTypeEnumConverter.ToString(MediaType_E);
   }
 };
 
 struct MUSE_FILE_SYSTEM_MEDIA_VIDEO
 {
-  BofUri Uri;     //evs storage gui
-  BofPath Ref;    //Original path
-  BofPath Path;   //Muse filesystem path
+  BofUri Uri;   // evs storage gui
+  BofPath Ref;  // Original path
+  BofPath Path; // Muse filesystem path
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT VideoFormat_E;
   MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE ColorSpace_E;
   BofVideoStandard VideoStandard;
@@ -149,24 +153,24 @@ struct MUSE_FILE_SYSTEM_MEDIA_VIDEO
     ColorSpace_E = MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN;
     VideoStandard = BofVideoStandard();
     BitDepth_U32 = 0;
-    TpInNs_U64 = 0;         //Still picture is 0
-    DurationInNs_U64 = 0;   //Still picture is 0
+    TpInNs_U64 = 0;       // Still picture is 0
+    DurationInNs_U64 = 0; // Still picture is 0
   }
 
   std::string ToString()
   {
     return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " +
-      S_MuseFileSystemMediaVideoFormatEnumConverter.ToString(VideoFormat_E) + " " +
-      S_MuseFileSystemMediaColorSpaceEnumConverter.ToString(ColorSpace_E) + VideoStandard.ToString() +
-      " Depth " + std::to_string(BitDepth_U32) + " Loc " + std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
+           S_MuseFileSystemMediaVideoFormatEnumConverter.ToString(VideoFormat_E) + " " +
+           S_MuseFileSystemMediaColorSpaceEnumConverter.ToString(ColorSpace_E) + VideoStandard.ToString() +
+           " Depth " + std::to_string(BitDepth_U32) + " Loc " + std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
   }
 };
 
 struct MUSE_FILE_SYSTEM_MEDIA_AUDIO
 {
-  BofUri Uri;     //evs storage gui
-  BofPath Ref;    //Original path
-  BofPath Path;   //Muse filesystem path
+  BofUri Uri;   // evs storage gui
+  BofPath Ref;  // Original path
+  BofPath Path; // Muse filesystem path
   MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT AudioFormat_E;
   BofAudioStandard AudioStandard;
   uint64_t TpInNs_U64;
@@ -183,24 +187,23 @@ struct MUSE_FILE_SYSTEM_MEDIA_AUDIO
     Path = BofPath();
     AudioFormat_E = MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE;
     AudioStandard = BofAudioStandard();
-    TpInNs_U64 = 0;         //Still picture is 0
-    DurationInNs_U64 = 0;   //Still picture is 0
-
+    TpInNs_U64 = 0;       // Still picture is 0
+    DurationInNs_U64 = 0; // Still picture is 0
   }
 
   std::string ToString()
   {
     return Uri.ToString() + " " + Ref.FullPathName(false) + " " + Path.FullPathName(false) + " " +
-      S_MuseFileSystemMediaAudioFormatEnumConverter.ToString(AudioFormat_E) + " " + AudioStandard.ToString() + +" Loc " +
-      std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
+           S_MuseFileSystemMediaAudioFormatEnumConverter.ToString(AudioFormat_E) + " " + AudioStandard.ToString() + +" Loc " +
+           std::to_string(DurationInNs_U64) + ':' + std::to_string(TpInNs_U64);
   }
 };
 
 struct MUSE_FILE_SYSTEM_MEDIA
 {
   MUSE_FILE_SYSTEM_MEDIA_HEADER Header_X;
-  MUSE_FILE_SYSTEM_MEDIA_VIDEO  Video_X;
-  MUSE_FILE_SYSTEM_MEDIA_AUDIO  Audio_X;
+  MUSE_FILE_SYSTEM_MEDIA_VIDEO Video_X;
+  MUSE_FILE_SYSTEM_MEDIA_AUDIO Audio_X;
 
   MUSE_FILE_SYSTEM_MEDIA()
   {
@@ -218,8 +221,8 @@ struct MUSE_FILE_SYSTEM_MEDIA
     return "Header: " + Header_X.ToString() + "\nVideo: " + Video_X.ToString() + "\nAudio: " + Audio_X.ToString();
   }
 };
-//Depends on line terminator and pathname
-//#define CHECK_STR
+// Depends on line terminator and pathname
+// #define CHECK_STR
 void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInfoParser)
 {
   std::string Result_S;
@@ -229,7 +232,7 @@ void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInf
   BOF::BofMediaDetector::MediaStreamType MediaStreamType_E = BOF::BofMediaDetector::MediaStreamType::General;
   std::string MediaStreamType_S, Type_S, Info_S, Extra_S;
   bool MoreThanOptionIAndO_B, NewType_B;
-  //Oss = MediaInfoParser.Option(__T("Info_Version"), __T("0.7.13;MediaInfoDLL_Example_MSVC;0.7.13"));
+  // Oss = MediaInfoParser.Option(__T("Info_Version"), __T("0.7.13;MediaInfoDLL_Example_MSVC;0.7.13"));
 
   Result_S = _rMediaInfoParser.Option("Info_Parameters");
   pBuffer_c = new char[Result_S.size()];
@@ -304,12 +307,7 @@ void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInf
       {
         Info_S = "";
         MoreThanOptionIAndO_B = false;
-        /*
-        if (!strcmp(pParam_c, "DisplayAspectRatio_Origin"))
-        {
-          printf("jj");
-        }
-        */
+
         if (!strcmp(pParam_c, "Inform"))
         {
           Info_S += " I:'Inform'";
@@ -326,7 +324,7 @@ void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInf
             Info_S += " I:'\?\?\?'";
           }
 
-          //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, pParam_c, BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);
+          // EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, pParam_c, BOF::BofMediaDetector::InfoType::Name, Result_S), BOF_ERR_NO_ERROR);
           EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
           if (Result_S != "")
           {
@@ -344,7 +342,7 @@ void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInf
           {
             Info_S += " O:'" + Result_S + "'";
           }
-          //EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, pParam_c, BOF::BofMediaDetector::InfoType::Name_Text, Result_S), BOF_ERR_NO_ERROR);
+          // EXPECT_EQ(_rMediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, pParam_c, BOF::BofMediaDetector::InfoType::Name_Text, Result_S), BOF_ERR_NO_ERROR);
           EXPECT_EQ(_rMediaInfoParser.Query(MediaStreamType_E, pParam_c, BOF::BofMediaDetector::InfoType::Measure_Text, Result_S), BOF_ERR_NO_ERROR);
           if (Result_S != "")
           {
@@ -364,7 +362,7 @@ void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInf
             MoreThanOptionIAndO_B = true;
           }
         }
-        //if (Info_S != "")
+        // if (Info_S != "")
         if ((MoreThanOptionIAndO_B) && (Info_S != ""))
         {
           printf("%s Param '%s' = %s\n", MediaStreamType_S.c_str(), pParam_c, Info_S.c_str());
@@ -376,7 +374,6 @@ void DisplayParamValue(const std::string &_Title_S, BofMediaDetector &_rMediaInf
   } while (q_c);
   BOF_SAFE_DELETE_ARRAY(pBuffer_c);
 }
-
 
 TEST(Bof2d_Test, MediaDetectorParam)
 {
@@ -428,7 +425,7 @@ TEST(Bof2d_Test, MediaDetectorParse)
   BofDateTime Created, Modified;
   BofPath Path, Ref;
   BofVideoStandard Vs;
-  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE  ColorSpace_E;
+  MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE ColorSpace_E;
   MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT VideoFormat_E;
 
   EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
@@ -457,7 +454,7 @@ TEST(Bof2d_Test, MediaDetectorParse)
   EXPECT_EQ(std::atoll(Result_S.c_str()), 9830);
   EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "File_Created_Date", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
   Created.FromString(Result_S, "UTC %Y-%m-%d %H:%M:%S.%q");
-//No the same on different pc  EXPECT_STREQ(Created.ToString("%Y-%m-%d %H:%M:%S.%q").c_str(), "2022-09-17 08:12:46.389");
+  // No the same on different pc  EXPECT_STREQ(Created.ToString("%Y-%m-%d %H:%M:%S.%q").c_str(), "2022-09-17 08:12:46.389");
   EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "File_Modified_Date", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
   Modified.FromString(Result_S, "UTC %Y-%m-%d %H:%M:%S.%q");
   EXPECT_STREQ(Modified.ToString("%Y-%m-%d %H:%M:%S.%q").c_str(), "2022-09-17 11:29:29.185");
@@ -481,74 +478,72 @@ TEST(Bof2d_Test, MediaDetectorParse)
   Val = mMediaInfo.Get(Stream_Image, 0, __T("ChromaSubsampling"), Info_Text);
   */
 
-
-EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "CompleteName", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
-Ref = BofPath(Result_S);
+  EXPECT_EQ(MediaInfoParser.Query(BOF::BofMediaDetector::MediaStreamType::General, "CompleteName", BOF::BofMediaDetector::InfoType::Text, Result_S), BOF_ERR_NO_ERROR);
+  Ref = BofPath(Result_S);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Ref.ToString().c_str(), "C:/bld/bofstd/tests/data/colorbar.jpg");
+  EXPECT_STREQ(Ref.ToString().c_str(), "C:/bld/bofstd/tests/data/colorbar.jpg");
 #endif
-Path = "/media/still/" + Ref.FileNameWithExtension();
-EXPECT_STREQ(Path.ToString().c_str(), "/media/still/colorbar.jpg");
-Vs = BOF::BofVideoStandard(std::to_string(Width_U32) + 'x' + std::to_string(Height_U32) + '@' + std::to_string(Fps_U32) + 'p');
-EXPECT_STREQ(Vs.ToString().c_str(), "259x194@0p");
+  Path = "/media/still/" + Ref.FileNameWithExtension();
+  EXPECT_STREQ(Path.ToString().c_str(), "/media/still/colorbar.jpg");
+  Vs = BOF::BofVideoStandard(std::to_string(Width_U32) + 'x' + std::to_string(Height_U32) + '@' + std::to_string(Fps_U32) + 'p');
+  EXPECT_STREQ(Vs.ToString().c_str(), "259x194@0p");
 
+  EXPECT_NE(MediaInfoParser.ParseFile("./data/dontexist.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 
-EXPECT_NE(MediaInfoParser.ParseFile("./data/dontexist.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
-
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar.jpg\r\nFormat                                   : JPEG\r\nFile size                                : 9.60 KiB\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.60 KiB (100%)\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar.jpg\r\nFormat                                   : JPEG\r\nFile size                                : 9.60 KiB\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.60 KiB (100%)\r\n\r\n");
 #endif
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Html, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Html, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "<html>\r\n\r\n<head>\r\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /></head>\r\n<body>\r\n<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\r\n<tr>\r\n    <td width=\"150\"><h2>General</h2></td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Complete name :</i></td>\r\n    <td colspan=\"3\">C:\\bld\\bofstd\\tests\\data\\colorbar.jpg</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Format :</i></td>\r\n    <td colspan=\"3\">JPEG</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>File size :</i></td>\r\n    <td colspan=\"3\">9.60 KiB</td>\r\n  </tr>\r\n</table>\r\n<br />\r\n<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\r\n<tr>\r\n    <td width=\"150\"><h2>Image</h2></td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Format :</i></td>\r\n    <td colspan=\"3\">JPEG</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Width :</i></td>\r\n    <td colspan=\"3\">259 pixels</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Height :</i></td>\r\n    <td colspan=\"3\">194 pixels</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Color space :</i></td>\r\n    <td colspan=\"3\">YUV</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Chroma subsampling :</i></td>\r\n    <td colspan=\"3\">4:2:2</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Bit depth :</i></td>\r\n    <td colspan=\"3\">8 bits</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Compression mode :</i></td>\r\n    <td colspan=\"3\">Lossy</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Stream size :</i></td>\r\n    <td colspan=\"3\">9.60 KiB (100%)</td>\r\n  </tr>\r\n</table>\r\n<br />\r\n\r\n</body>\r\n</html>\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "<html>\r\n\r\n<head>\r\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /></head>\r\n<body>\r\n<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\r\n<tr>\r\n    <td width=\"150\"><h2>General</h2></td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Complete name :</i></td>\r\n    <td colspan=\"3\">C:\\bld\\bofstd\\tests\\data\\colorbar.jpg</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Format :</i></td>\r\n    <td colspan=\"3\">JPEG</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>File size :</i></td>\r\n    <td colspan=\"3\">9.60 KiB</td>\r\n  </tr>\r\n</table>\r\n<br />\r\n<table width=\"100%\" border=\"0\" cellpadding=\"1\" cellspacing=\"2\" style=\"border:1px solid Navy\">\r\n<tr>\r\n    <td width=\"150\"><h2>Image</h2></td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Format :</i></td>\r\n    <td colspan=\"3\">JPEG</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Width :</i></td>\r\n    <td colspan=\"3\">259 pixels</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Height :</i></td>\r\n    <td colspan=\"3\">194 pixels</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Color space :</i></td>\r\n    <td colspan=\"3\">YUV</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Chroma subsampling :</i></td>\r\n    <td colspan=\"3\">4:2:2</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Bit depth :</i></td>\r\n    <td colspan=\"3\">8 bits</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Compression mode :</i></td>\r\n    <td colspan=\"3\">Lossy</td>\r\n  </tr>\r\n  <tr>\r\n    <td><i>Stream size :</i></td>\r\n    <td colspan=\"3\">9.60 KiB (100%)</td>\r\n  </tr>\r\n</table>\r\n<br />\r\n\r\n</body>\r\n</html>\r\n");
 #endif
-//Leak  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Json, Result_S), BOF_ERR_NO_ERROR);
-//Leak #if defined(CHECK_STR)
-//Leak   EXPECT_STREQ(Result_S.c_str(), "{\r\n\"media\": {\r\n\"@ref\": \"C:\\\\bld\\\\bofstd\\\\tests\\\\data\\\\colorbar.jpg\",\r\n\"track\": [\r\n{\r\n\"@type\": \"General\",\r\n\"ImageCount\": \"1\",\r\n\"FileExtension\": \"jpg\",\r\n\"Format\": \"JPEG\",\r\n\"FileSize\": \"9830\",\r\n\"StreamSize\": \"0\",\r\n\"File_Created_Date\": \"UTC 2022-09-17 08:12:46.389\",\r\n\"File_Created_Date_Local\": \"2022-09-17 10:12:46.389\",\r\n\"File_Modified_Date\": \"UTC 2022-09-17 11:29:29.685000\",\r\n\"File_Modified_Date_Local\": \"2022-09-17 13:29:29.701000\"\r\n},\r\n{\r\n\"@type\": \"Image\",\r\n\"Format\": \"JPEG\",\r\n\"Width\": \"259\",\r\n\"Height\": \"194\",\r\n\"ColorSpace\": \"YUV\",\r\n\"ChromaSubsampling\": \"4:2:2\",\r\n\"BitDepth\": \"8\",\r\n\"Compression_Mode\": \"Lossy\",\r\n\"StreamSize\": \"9830\"\r\n}\r\n]\r\n}\r\n}\r\n");
-//Leak #endif
+  // Leak  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.jpg", BofMediaDetector::ResultFormat::Json, Result_S), BOF_ERR_NO_ERROR);
+  // Leak #if defined(CHECK_STR)
+  // Leak   EXPECT_STREQ(Result_S.c_str(), "{\r\n\"media\": {\r\n\"@ref\": \"C:\\\\bld\\\\bofstd\\\\tests\\\\data\\\\colorbar.jpg\",\r\n\"track\": [\r\n{\r\n\"@type\": \"General\",\r\n\"ImageCount\": \"1\",\r\n\"FileExtension\": \"jpg\",\r\n\"Format\": \"JPEG\",\r\n\"FileSize\": \"9830\",\r\n\"StreamSize\": \"0\",\r\n\"File_Created_Date\": \"UTC 2022-09-17 08:12:46.389\",\r\n\"File_Created_Date_Local\": \"2022-09-17 10:12:46.389\",\r\n\"File_Modified_Date\": \"UTC 2022-09-17 11:29:29.685000\",\r\n\"File_Modified_Date_Local\": \"2022-09-17 13:29:29.701000\"\r\n},\r\n{\r\n\"@type\": \"Image\",\r\n\"Format\": \"JPEG\",\r\n\"Width\": \"259\",\r\n\"Height\": \"194\",\r\n\"ColorSpace\": \"YUV\",\r\n\"ChromaSubsampling\": \"4:2:2\",\r\n\"BitDepth\": \"8\",\r\n\"Compression_Mode\": \"Lossy\",\r\n\"StreamSize\": \"9830\"\r\n}\r\n]\r\n}\r\n}\r\n");
+  // Leak #endif
 
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_jpg_with_bad_ext.png", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_jpg_with_bad_ext.png", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_jpg_with_bad_ext.png\r\nFormat                                   : JPEG\r\nFile size                                : 9.63 KiB\r\nFileExtension_Invalid                    : h3d jpeg jpg jpe jps mpo\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.63 KiB (100%)\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_jpg_with_bad_ext.png\r\nFormat                                   : JPEG\r\nFile size                                : 9.63 KiB\r\nFileExtension_Invalid                    : h3d jpeg jpg jpe jps mpo\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.63 KiB (100%)\r\n\r\n");
 #endif
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_jpg_with_no_ext", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_jpg_with_no_ext", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_jpg_with_no_ext\r\nFormat                                   : JPEG\r\nFile size                                : 9.69 KiB\r\nFileExtension_Invalid                    : h3d jpeg jpg jpe jps mpo\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.69 KiB (100%)\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_jpg_with_no_ext\r\nFormat                                   : JPEG\r\nFile size                                : 9.69 KiB\r\nFileExtension_Invalid                    : h3d jpeg jpg jpe jps mpo\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.69 KiB (100%)\r\n\r\n");
 #endif
 
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.png", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar.png", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar.png\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFile size                                : 1.45 KiB\r\n\r\nImage\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFormat_Compression                       : Deflate\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossless\r\nStream size                              : 1.45 KiB (100%)\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar.png\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFile size                                : 1.45 KiB\r\n\r\nImage\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFormat_Compression                       : Deflate\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossless\r\nStream size                              : 1.45 KiB (100%)\r\n\r\n");
 #endif
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_png_with_bad_ext.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_png_with_bad_ext.jpg", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_png_with_bad_ext.jpg\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFile size                                : 1.45 KiB\r\nFileExtension_Invalid                    : png pns\r\n\r\nImage\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFormat_Compression                       : Deflate\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossless\r\nStream size                              : 1.45 KiB (100%)\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_png_with_bad_ext.jpg\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFile size                                : 1.45 KiB\r\nFileExtension_Invalid                    : png pns\r\n\r\nImage\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFormat_Compression                       : Deflate\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossless\r\nStream size                              : 1.45 KiB (100%)\r\n\r\n");
 #endif
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_png_with_no_ext", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_png_with_no_ext", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_png_with_no_ext\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFile size                                : 976 Bytes\r\nFileExtension_Invalid                    : png pns\r\n\r\nImage\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFormat_Compression                       : Deflate\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossless\r\nStream size                              : 976 Bytes (100%)\r\n\r\n");
-#endif
-
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_uncompress_32b.tga", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
-#if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_uncompress_32b.tga\r\nFormat                                   : TGA\r\nFormat version                           : Version 2\r\nFile size                                : 197 KiB\r\n\r\nImage\r\nFormat                                   : Raw\r\nCodec ID                                 : 2\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 32 bits\r\n\r\n");
-#endif
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_rle_32b.tga", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
-#if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_rle_32b.tga\r\nFormat                                   : TGA\r\nFormat version                           : Version 2\r\nFile size                                : 18.0 KiB\r\n\r\nImage\r\nFormat                                   : RLE\r\nFormat/Info                              : Run-length encoding\r\nCodec ID                                 : 10\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 32 bits\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_png_with_no_ext\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFile size                                : 976 Bytes\r\nFileExtension_Invalid                    : png pns\r\n\r\nImage\r\nFormat                                   : PNG\r\nFormat/Info                              : Portable Network Graphic\r\nFormat_Compression                       : Deflate\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossless\r\nStream size                              : 976 Bytes (100%)\r\n\r\n");
 #endif
 
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_in_raw_32b_194x259.raw", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_uncompress_32b.tga", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_in_raw_32b_194x259.raw\r\nFile size                                : 197 KiB\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_uncompress_32b.tga\r\nFormat                                   : TGA\r\nFormat version                           : Version 2\r\nFile size                                : 197 KiB\r\n\r\nImage\r\nFormat                                   : Raw\r\nCodec ID                                 : 2\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 32 bits\r\n\r\n");
 #endif
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_1920x1080p59_8bit_captured_by_sdk.422", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_rle_32b.tga", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 #if defined(CHECK_STR)
-EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_1920x1080p59_8bit_captured_by_sdk.422\r\nFile size                                : 1.98 MiB\r\n\r\n");
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_rle_32b.tga\r\nFormat                                   : TGA\r\nFormat version                           : Version 2\r\nFile size                                : 18.0 KiB\r\n\r\nImage\r\nFormat                                   : RLE\r\nFormat/Info                              : Run-length encoding\r\nCodec ID                                 : 10\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : RGB\r\nBit depth                                : 32 bits\r\n\r\n");
 #endif
 
-EXPECT_EQ(MediaInfoParser.ParseFile("./data/sample-mp4-file.mp4", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_in_raw_32b_194x259.raw", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+#if defined(CHECK_STR)
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_in_raw_32b_194x259.raw\r\nFile size                                : 197 KiB\r\n\r\n");
+#endif
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/colorbar_1920x1080p59_8bit_captured_by_sdk.422", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
+#if defined(CHECK_STR)
+  EXPECT_STREQ(Result_S.c_str(), "General\r\nComplete name                            : C:\\bld\\bofstd\\tests\\data\\colorbar_1920x1080p59_8bit_captured_by_sdk.422\r\nFile size                                : 1.98 MiB\r\n\r\n");
+#endif
+
+  EXPECT_EQ(MediaInfoParser.ParseFile("./data/sample-mp4-file.mp4", BofMediaDetector::ResultFormat::Text, Result_S), BOF_ERR_NO_ERROR);
 }
 BOFERR ParseFileBuffer(BofPath &_rPathname, std::string &_rResult_S)
 {
@@ -581,7 +576,8 @@ BOFERR ParseFileBuffer(BofPath &_rPathname, std::string &_rResult_S)
     {
       SubBuffer_X.pData_U8 += SubBuffer_X.Size_U64;
     }
-    else Finish_B = true; //For BOF_ERR_NO_ERROR and the other one
+    else
+      Finish_B = true; // For BOF_ERR_NO_ERROR and the other one
     if (!Finish_B)
     {
       if (SubBuffer_X.pData_U8 >= pFirstByteOutOfBuffer_U8)
@@ -613,11 +609,11 @@ TEST(Bof2d_Test, MediaDetectorParseBuffer)
 #if defined(CHECK_STR)
   EXPECT_STREQ(Result_S.c_str(), "General\r\nFormat                                   : JPEG\r\nFile size                                : 9.60 KiB\r\n\r\nImage\r\nFormat                                   : JPEG\r\nWidth                                    : 259 pixels\r\nHeight                                   : 194 pixels\r\nColor space                              : YUV\r\nChroma subsampling                       : 4:2:2\r\nBit depth                                : 8 bits\r\nCompression mode                         : Lossy\r\nStream size                              : 9.60 KiB (100%)\r\n\r\n");
 #endif
-//  for (int i = 0; i < 100; i++)
+  //  for (int i = 0; i < 100; i++)
   {
     Path = BOF::BofPath("./data/football_seal.tga");
     EXPECT_EQ(ParseFileBuffer(Path, Result_S), BOF_ERR_NO_ERROR);
-//    printf("%d: %s\n", i, Result_S.c_str());
+    //    printf("%d: %s\n", i, Result_S.c_str());
   }
 
   Path = BOF::BofPath("./data/colorbar.png");
@@ -655,37 +651,35 @@ TEST(Bof2d_Test, MediaDetectorQuery)
   EXPECT_STREQ(Result_S.c_str(), "File size in bytes");
   EXPECT_EQ(MediaInfoParser.Query(BofMediaDetector::MediaStreamType::General, "FileSize", BofMediaDetector::InfoType::HowTo, Result_S), BOF_ERR_NO_ERROR);
   EXPECT_STREQ(Result_S.c_str(), "");
-  //EXPECT_EQ(MediaInfoParser.Query(BofMediaDetector::MediaStreamType::General, "FileSize", BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
-  //EXPECT_STREQ(Result_S.c_str(), "");
-
+  // EXPECT_EQ(MediaInfoParser.Query(BofMediaDetector::MediaStreamType::General, "FileSize", BofMediaDetector::InfoType::Domain, Result_S), BOF_ERR_NO_ERROR);
+  // EXPECT_STREQ(Result_S.c_str(), "");
 }
 
-
 MUSE_FILE_SYSTEM_MEDIA S_MuseFileSystemMedia_X;
-std::vector< BOFPARAMETER > S_MuseFileSystemMediaJsonSchemaCollection =
-{
-  {nullptr, std::string("FileSize"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.FileSize_U64, UINT64, 0, 0)},
-  {nullptr, std::string("Created"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Created, DATETIME, 0, 0)},
-  {nullptr, std::string("Modified"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Modified, DATETIME, 0, 0)},
-  {nullptr, std::string("Type"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Header_X.MediaType_E,MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, S_MuseFileSystemMediaTypeEnumConverter,MUSE_FILE_SYSTEM_MEDIA_TYPE)},
+std::vector<BOFPARAMETER> S_MuseFileSystemMediaJsonSchemaCollection =
+    {
+        {nullptr, std::string("FileSize"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.FileSize_U64, UINT64, 0, 0)},
+        {nullptr, std::string("Created"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Created, DATETIME, 0, 0)},
+        {nullptr, std::string("Modified"), std::string(""), std::string("UTC %Y-%m-%d %H:%M:%S.%q"), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Header_X.Modified, DATETIME, 0, 0)},
+        {nullptr, std::string("Type"), std::string(""), std::string(""), std::string("Media.Header"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Header_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_MAX, S_MuseFileSystemMediaTypeEnumConverter, MUSE_FILE_SYSTEM_MEDIA_TYPE)},
 
-  {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Uri, URI, 1, 512)},
-  {nullptr, std::string("Ref"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Ref, PATH, 1, 512)},
-  {nullptr, std::string("Path"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Path, PATH, 1, 512)},
-  {nullptr, std::string("Format"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Video_X.VideoFormat_E, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX, S_MuseFileSystemMediaVideoFormatEnumConverter, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT)},
-  {nullptr, std::string("ColorSpace"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Video_X.ColorSpace_E, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, S_MuseFileSystemMediaColorSpaceEnumConverter,MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE) },
-  {nullptr, std::string("Standard"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.VideoStandard, VIDEOSTANDARD, 1, 512) },
-  {nullptr, std::string("BitDepth"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.BitDepth_U32, UINT32, 1, 512) },
-  {nullptr, std::string("TpInNs"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.TpInNs_U64, UINT64, 0, 0) },
-  {nullptr, std::string("DurationInNs"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64, UINT64, 0, 0) },
+        {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Uri, URI, 1, 512)},
+        {nullptr, std::string("Ref"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Ref, PATH, 1, 512)},
+        {nullptr, std::string("Path"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.Path, PATH, 1, 512)},
+        {nullptr, std::string("Format"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Video_X.VideoFormat_E, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_NONE, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT_MAX, S_MuseFileSystemMediaVideoFormatEnumConverter, MUSE_FILE_SYSTEM_MEDIA_VIDEO_FORMAT)},
+        {nullptr, std::string("ColorSpace"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Video_X.ColorSpace_E, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_UNKNOWN, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE::MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE_MAX, S_MuseFileSystemMediaColorSpaceEnumConverter, MUSE_FILE_SYSTEM_MEDIA_COLOR_SPACE)},
+        {nullptr, std::string("Standard"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.VideoStandard, VIDEOSTANDARD, 1, 512)},
+        {nullptr, std::string("BitDepth"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.BitDepth_U32, UINT32, 1, 512)},
+        {nullptr, std::string("TpInNs"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.TpInNs_U64, UINT64, 0, 0)},
+        {nullptr, std::string("DurationInNs"), std::string(""), std::string(""), std::string("Media.Video"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Video_X.DurationInNs_U64, UINT64, 0, 0)},
 
-  {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Uri, URI, 1, 512)},
-  {nullptr, std::string("Ref"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Ref, PATH, 1, 512)},
-  {nullptr, std::string("Path"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Path, PATH, 1, 512)},
-  {nullptr, std::string("Format"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX, S_MuseFileSystemMediaAudioFormatEnumConverter, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT)},
-  {nullptr, std::string("Standard"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.AudioStandard, AUDIOSTANDARD, 1, 512) },
-  {nullptr, std::string("TpInNs"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64, UINT64, 0, 0) },
-  {nullptr, std::string("DurationInNs"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64, UINT64, 0, 0) },
+        {nullptr, std::string("Uri"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Uri, URI, 1, 512)},
+        {nullptr, std::string("Ref"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Ref, PATH, 1, 512)},
+        {nullptr, std::string("Path"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.Path, PATH, 1, 512)},
+        {nullptr, std::string("Format"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_ENUM(S_MuseFileSystemMedia_X.Audio_X.AudioFormat_E, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_NONE, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT::MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT_MAX, S_MuseFileSystemMediaAudioFormatEnumConverter, MUSE_FILE_SYSTEM_MEDIA_AUDIO_FORMAT)},
+        {nullptr, std::string("Standard"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.AudioStandard, AUDIOSTANDARD, 1, 512)},
+        {nullptr, std::string("TpInNs"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.TpInNs_U64, UINT64, 0, 0)},
+        {nullptr, std::string("DurationInNs"), std::string(""), std::string(""), std::string("Media.Audio"), BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(S_MuseFileSystemMedia_X.Audio_X.DurationInNs_U64, UINT64, 0, 0)},
 
 };
 
@@ -746,7 +740,7 @@ BOFERR JsonParserResultUltimateCheck(uint32_t /*_Index_U32*/, const BOFPARAMETER
   return Rts_E;
 }
 
-//bool JsonParseError(int /*_Sts_i*/, const BOFPARAMETER & /*_rJsonEntry_X*/, const char * /*_pValue*/)
+// bool JsonParseError(int /*_Sts_i*/, const BOFPARAMETER & /*_rJsonEntry_X*/, const char * /*_pValue*/)
 bool JsonParserError(int _Sts_i, const BOFPARAMETER &_rJsonEntry_X, const char *_pValue)
 {
   bool Rts_B = true;
@@ -771,8 +765,8 @@ TEST(Bof2d_Test, MediaDetectorFromJson)
   S_MuseFileSystemMedia_X.Reset();
   EXPECT_EQ(BofJsonParser.ToByte(S_MuseFileSystemMediaJsonSchemaCollection, JsonParserResultUltimateCheck, JsonParserError), BOF_ERR_NO_ERROR);
 
-  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Created, BofDateTime(21, 9, 2022, 12, 16, 43, 685000)); 
-  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Modified, BofDateTime(21, 9, 2022, 12, 16, 43, 701000)); 
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Created, BofDateTime(21, 9, 2022, 12, 16, 43, 685000));
+  EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.Modified, BofDateTime(21, 9, 2022, 12, 16, 43, 701000));
   EXPECT_EQ(S_MuseFileSystemMedia_X.Header_X.MediaType_E, MUSE_FILE_SYSTEM_MEDIA_TYPE::MUSE_FILE_SYSTEM_MEDIA_TYPE_STILL);
 
   EXPECT_STREQ(S_MuseFileSystemMedia_X.Video_X.Uri.ToString().c_str(), "storage://10.129.4.172:11000/5/file/b09fdf1fdc7edc9f87c1c0f3efddf742e4f2f4f0");
@@ -796,8 +790,8 @@ TEST(Bof2d_Test, MediaDetectorFromJson)
 
 constexpr uint32_t SAMPLE_WIDTH = 1920;
 constexpr uint32_t SAMPLE_HEIGHT = 540;
-uint8_t            GL_pFileData_U8[SAMPLE_WIDTH * SAMPLE_HEIGHT * 4];
-uint8_t            GL_ConvertedData_U8[SAMPLE_WIDTH * SAMPLE_HEIGHT * 4];
+uint8_t GL_pFileData_U8[SAMPLE_WIDTH * SAMPLE_HEIGHT * 4];
+uint8_t GL_ConvertedData_U8[SAMPLE_WIDTH * SAMPLE_HEIGHT * 4];
 
 TEST(Bof2d_Test, UyvyToBgra)
 {
@@ -841,7 +835,7 @@ TEST(Bof2d_Test, BgraToUyvy)
   FileSize_U32 = SAMPLE_WIDTH * SAMPLE_HEIGHT * 4;
   ConvertedSize_U32 = SAMPLE_WIDTH * SAMPLE_HEIGHT * 2;
   // ConvertedSize_U32=(SAMPLE_WIDTH * SAMPLE_HEIGHT * 2)/4; //With crop and rotate
-  EXPECT_EQ(Bof_OpenFile("./data/bgra.raw", true, false, Io), BOF_ERR_NO_ERROR);   //from previous test
+  EXPECT_EQ(Bof_OpenFile("./data/bgra.raw", true, false, Io), BOF_ERR_NO_ERROR); // from previous test
   EXPECT_EQ(BOF::Bof_ReadFile(Io, FileSize_U32, GL_pFileData_U8), BOF_ERR_NO_ERROR);
   EXPECT_EQ(BOF::Bof_CloseFile(Io), BOF_ERR_NO_ERROR);
 

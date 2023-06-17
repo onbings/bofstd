@@ -641,8 +641,8 @@ BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _Pri
       // https://sakhnik.com/2017/07/16/custom-mutex.html
 
       // Destroy the underlying mutex
-      ::pthread_mutex_destroy(_rMtx_X.Mtx.native_handle());
-      ::pthread_mutex_destroy(_rMtx_X.RecursiveMtx.native_handle());
+      // NO ::pthread_mutex_destroy(_rMtx_X.Mtx.native_handle());
+      // NO ::pthread_mutex_destroy(_rMtx_X.RecursiveMtx.native_handle());
 
       // Create mutex attribute with desired protocol
       pthread_mutexattr_t Attributes_X;
@@ -677,8 +677,16 @@ BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X)
 
   if (_rMtx_X.Magic_U32 == BOF_MUTEX_MAGIC)
   {
-    _rMtx_X.Recursive_B ? _rMtx_X.RecursiveMtx.lock() : _rMtx_X.Mtx.lock();
     Rts_E = BOF_ERR_NO_ERROR;
+    try
+    {
+      _rMtx_X.Recursive_B ? _rMtx_X.RecursiveMtx.lock() : _rMtx_X.Mtx.lock();
+    }
+    catch (const std::exception &e)
+    {
+      // printf("mutex exception %s\n", e.what());
+      Rts_E = BOF_ERR_OPERATION_FAILED;
+    }
   }
   return Rts_E;
 }
@@ -689,8 +697,16 @@ BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X)
 
   if (_rMtx_X.Magic_U32 == BOF_MUTEX_MAGIC)
   {
-    _rMtx_X.Recursive_B ? _rMtx_X.RecursiveMtx.unlock() : _rMtx_X.Mtx.unlock();
     Rts_E = BOF_ERR_NO_ERROR;
+    try
+    {
+      _rMtx_X.Recursive_B ? _rMtx_X.RecursiveMtx.unlock() : _rMtx_X.Mtx.unlock();
+    }
+    catch (const std::exception &e)
+    {
+      // printf("mutex exception %s\n", e.what());
+      Rts_E = BOF_ERR_OPERATION_FAILED;
+    }
   }
   return Rts_E;
 }
@@ -963,12 +979,12 @@ BOFERR Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPo
   switch (_ThreadSchedulerPolicy_E)
   {
     case BOF_THREAD_SCHEDULER_POLICY_OTHER:
-    case BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN:
       _rMin_E = BOF_THREAD_PRIORITY_000;
       _rMax_E = BOF_THREAD_PRIORITY_000;
       Rts_E = BOF_ERR_NO_ERROR;
       break;
 
+    case BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN:
     case BOF_THREAD_SCHEDULER_POLICY_FIFO:
       _rMin_E = BOF_THREAD_PRIORITY_001;
       _rMax_E = BOF_THREAD_PRIORITY_099;
@@ -1415,7 +1431,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
   if (pThread_X)
   {
     S_BofThreadBalance++;
-    printf("Start of thread '%s' BAL %d\n", pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
+    printf("%d: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
 
     Sts_E = BOF_ERR_NO_ERROR;
 #if defined(_WIN32)
@@ -1478,26 +1494,29 @@ static void *S_ThreadLauncher(void *_pThreadContext)
       {
         Status_i = pthread_getschedparam(pThread_X->ThreadId, &Policy_i, &Params_X);
         // printf("status %d\n", Status_i);
+
         if (Status_i == 0)
         {
           Sts_E = ((Policy_i == pThread_X->ThreadSchedulerPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
         }
       }
-
 #endif
+      // printf("%d: DBG S_ThreadLauncher8 val %d ptr %p sts %d\n", Bof_GetMsTickCount(), pThread_X->ThreadRunning_B, &pThread_X->ThreadRunning_B, Sts_E);
       BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
         pThread_X->ThreadRunning_B = true;
+        // printf("%d: DBG S_ThreadLauncher9\n", Bof_GetMsTickCount());
+
         do
         {
           // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
           // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
           // Thread will be stopped if someone calls Bof_StopThread
 
-          //printf("%d ----->DBG call '%s' stop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load());
+          // printf("%d ----->DBG call '%s' stop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load());
           pThread_X->ThreadExitCode_E = pThread_X->ThreadFunction(pThread_X->ThreadMustStop_B, pThread_X->pUserContext); // Returns BOF_ERR_EXIT_THREAD to exit with BOF_ERR_NO_ERROR
-          //printf("%d ----->DBG rts '%s' must stop %d exit %d ptr %p\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load(), pThread_X->ThreadExitCode_E, pThread_X);
+          // printf("%d ----->DBG rts '%s' must stop %d exit %d ptr %p\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load(), pThread_X->ThreadExitCode_E, pThread_X);
           /*
           if (pThread_X->Name_S == "")
           {
@@ -1509,8 +1528,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
             pThread_X->ThreadExitCode_E = BOF_ERR_NO_ERROR;
             break;
           }
-        }
-        while ((pThread_X->ThreadExitCode_E == BOF_ERR_NO_ERROR) && (!pThread_X->ThreadMustStop_B));
+        } while ((pThread_X->ThreadExitCode_E == BOF_ERR_NO_ERROR) && (!pThread_X->ThreadMustStop_B));
       }
     }
 #if defined(_WIN32)
@@ -1522,7 +1540,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
 
     pThread_X->ThreadRunning_B = false;
     S_BofThreadBalance--;
-    //Bof_ErrorCode can fail does to app shudown (static initializer)
+    // Bof_ErrorCode can fail does to app shudown (static initializer)
     printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
   }
 
@@ -1553,7 +1571,7 @@ BOFERR Bof_StartThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t
 
 #if defined(_WIN32)
       _rThread_X.pThread = CreateThread(nullptr, _rThread_X.StackSize_U32, (LPTHREAD_START_ROUTINE)S_ThreadLauncher, (void *)&_rThread_X, _rThread_X.StackSize_U32 ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0, (DWORD *)&_rThread_X.ThreadId);
-      printf("--->DBG create thread '%s' id %x\n", _rThread_X.Name_S.c_str(), _rThread_X.ThreadId);
+      // printf("--->DBG create thread '%s' id %x\n", _rThread_X.Name_S.c_str(), _rThread_X.ThreadId);
       Rts_E = (_rThread_X.pThread != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_CREATE;
 #else
       /*
@@ -1602,6 +1620,7 @@ BOFERR Bof_StartThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t
         {
           Bof_MsSleep(1); // Yield scheduler
           Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+          // printf("%d: DBG check %d\n", Bof_GetMsTickCount(), _rThread_X.ThreadRunning_B);
 
           if (Delta_U32 > _rThread_X.StartStopTimeoutInMs_U32)
           {
@@ -1609,6 +1628,8 @@ BOFERR Bof_StartThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t
           }
         }
       }
+      // printf("%d: DBG end with %d\n", Bof_GetMsTickCount(), _rThread_X.ThreadRunning_B);
+
       if (_rThread_X.ThreadRunning_B)
       {
         Rts_E = BOF_ERR_NO_ERROR;
@@ -1646,10 +1667,6 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
         Start_U32 = Bof_GetMsTickCount();
         while (_rThread_X.ThreadRunning_B)
         {
-          if (_rThread_X.Name_S == "CdxCardIrqProcess")
-          {
-            printf("----->DBG wait ptr %p must stop %d\n", &_rThread_X, _rThread_X.ThreadMustStop_B.load());
-          }
           Bof_MsSleep(1); // Bof_MsSleep(0);->yield is not enough
           Delta_U32 = Bof_ElapsedMsTime(Start_U32);
           if (Delta_U32 > _rThread_X.StartStopTimeoutInMs_U32)
@@ -1659,7 +1676,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
           }
         }
       }
-      printf("%d: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(),_rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(),Delta_U32, ThreadStopTo_B);
+      printf("%d: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(), Delta_U32, ThreadStopTo_B);
     }
 #if defined(_WIN32)
     bool Sts_B;

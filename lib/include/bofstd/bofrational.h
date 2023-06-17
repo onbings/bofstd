@@ -30,14 +30,17 @@ BEGIN_BOF_NAMESPACE()
 class BOFSTD_EXPORT BofRational
 {
 public:
-  BofRational() : mNumerator_S64(0), mDenominator_U64(1)
+  BofRational()
+      : mNumerator_S64(0), mDenominator_U64(1)
   {
   }
-  BofRational(const BofRational &r) : mNumerator_S64(r.mNumerator_S64), mDenominator_U64(r.mDenominator_U64)
+  BofRational(const BofRational &r)
+      : mNumerator_S64(r.mNumerator_S64), mDenominator_U64(r.mDenominator_U64)
   {
   }
   BofRational(double _Number_lf, uint32_t _NbCycle_U32, double _Precision_lf = 5e-4);
-  BofRational(const int64_t num) : mNumerator_S64(num), mDenominator_U64(1)
+  BofRational(const int64_t num)
+      : mNumerator_S64(num), mDenominator_U64(1)
   {
   }
   BofRational(const int64_t num, const uint64_t den, bool _Normalize_B)
@@ -255,6 +258,7 @@ protected:
   {
     mNumerator_S64 = num;
     mDenominator_U64 = (den ? den : 1);
+    // printf("num %zd den %zd\n", mNumerator_S64, mDenominator_U64);
     if (_Normalize_B)
     {
       Normalize();

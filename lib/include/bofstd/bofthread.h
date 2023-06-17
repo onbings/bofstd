@@ -57,7 +57,7 @@ struct BOF_THREAD_PARAM
     AffinityCpuSet_U64 = 0;
     CoreChosen_U32 = 0;
     SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
-    Priority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050;
+    Priority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
   }
 };
 
@@ -94,7 +94,7 @@ private:
   uint32_t mWakeUpIntervalInMs_U32 = 0;
   uint64_t mCpuCoreAffinityMask_U64 = 0;
   BOF_THREAD_SCHEDULER_POLICY mPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  BOF_THREAD_PRIORITY mPriority_E = BOF_THREAD_PRIORITY_050;
+  BOF_THREAD_PRIORITY mPriority_E = BOF_THREAD_PRIORITY_000;
   std::atomic<bool> mThreadMustStop_B = false;
 
   BOF_THREAD_CALLBACK mOnCreate = nullptr; // Used to specify callback if the caller does not inherit from BofThread->Setup with SetThreadCallback
@@ -144,7 +144,7 @@ public:
   static int S_BofThreadBalance();
 
 private:
-  static std::atomic<int32_t>  S_mBofThreadBalance;
+  static std::atomic<int32_t> S_mBofThreadBalance;
   void BofThread_Thread();
 
   BOFERR InitializeThread(const std::string &_rName_S);

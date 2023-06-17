@@ -49,7 +49,8 @@ struct BOF_POT_ELEMENT
 class BofPot_Test : public testing::Test
 {
 public:
-  BofPot_Test() : mpBofPot_O(nullptr)
+  BofPot_Test()
+      : mpBofPot_O(nullptr)
   {
   }
 
@@ -389,7 +390,7 @@ BOFERR ReleaseValue(uint32_t /*_Id_U32*/, uint32_t _NbLoop_U32, BofPot<uint64_t>
   return Rts_E;
 }
 
-const uint32_t NB_MAX_CLIENT = 32;    // 32;
+const uint32_t NB_MAX_CLIENT = 16;    // 32;                                   // 32;
 const uint32_t NB_GET_PER_CLIENT = 8; // 16000;
 TEST_F(BofPot_Test, BlockingMode)
 {

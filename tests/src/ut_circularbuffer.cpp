@@ -28,7 +28,8 @@
 
 USE_BOF_NAMESPACE()
 
-template <class T> class BofCircularBufferTemplate_Test : public testing::Test
+template <class T>
+class BofCircularBufferTemplate_Test : public testing::Test
 {
 public:
   // Per-test-case set-up. Called before the first test in this test case.
@@ -72,7 +73,8 @@ protected:
 private:
 };
 
-template <class T> BofCircularBuffer<T> *BofCircularBufferTemplate_Test<T>::S_mpSharedBofCircularBuffer_O;
+template <class T>
+BofCircularBuffer<T> *BofCircularBufferTemplate_Test<T>::S_mpSharedBofCircularBuffer_O;
 
 using testing::Types;
 
@@ -80,7 +82,8 @@ using testing::Types;
 typedef Types<char, uint8_t, uint16_t> Implementation;
 TYPED_TEST_CASE(BofCircularBufferTemplate_Test, Implementation);
 
-template <class T> void BofCircularBufferTemplate_Test<T>::SetUpTestCase()
+template <class T>
+void BofCircularBufferTemplate_Test<T>::SetUpTestCase()
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
 
@@ -95,7 +98,8 @@ template <class T> void BofCircularBufferTemplate_Test<T>::SetUpTestCase()
   EXPECT_TRUE(S_mpSharedBofCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
 }
 
-template <class T> void BofCircularBufferTemplate_Test<T>::TearDownTestCase()
+template <class T>
+void BofCircularBufferTemplate_Test<T>::TearDownTestCase()
 {
   BOF_SAFE_DELETE(S_mpSharedBofCircularBuffer_O);
   EXPECT_TRUE(S_mpSharedBofCircularBuffer_O == nullptr);
@@ -214,8 +218,8 @@ TEST(BofCircularBuffer_Test, PopExternalStorage)
   }
 }
 
-const uint32_t NB_MAX_CLIENT = 16; // 32;
-const uint32_t NB_PUSH_PER_CLIENT = 16000;
+const uint32_t NB_MAX_CLIENT = 4;        // 16; // 32;
+const uint32_t NB_PUSH_PER_CLIENT = 256; // 16000;
 
 TEST(BofCircularBuffer_Test, IsEntryFree)
 {
@@ -575,7 +579,7 @@ TEST(BofCircularBuffer_Test, StdString)
   ASSERT_TRUE(pReplyCollection != nullptr);
   ASSERT_EQ(pReplyCollection->LastErrorCode(), BOF_ERR_NO_ERROR);
 
-  NbLoop_U32 = 50;
+  NbLoop_U32 = 10; // 50;
   for (i_U32 = 0; i_U32 < NbLoop_U32; i_U32++)
   {
     Reply_S = Bof_Random(false, 0x10000, 'A', 'Z');

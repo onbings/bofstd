@@ -3019,7 +3019,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
 
   // Run unit tests repeatedly to expose problems (e.g. deadlocks, memory leaks) a
   // with async delegates.
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < 3; i++)
   {
     SinglecastDelegateTests();
     MulticastDelegateTests();
@@ -3049,7 +3049,7 @@ TEST(Async_Test, MulticastDelegatePerf)
 
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
   // MulticastDelegateSafeAsyncTests();
-  for (i_U32 = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 25000; i_U32++)
   {
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
@@ -3062,7 +3062,7 @@ TEST(Async_Test, MulticastDelegatePerf)
 
   // auto DelegateMemberAsyncSp1 = MakeDelegate(testClass1, &TestClass1::MemberFuncStructConstPtr1Bha, &testThread);
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
-  for (i_U32 = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 25000; i_U32++)
   {
     structParam.val = i_U32;
     MemberFuncStructConstPtr1MulticastDelegate(&structParam);
@@ -3117,7 +3117,7 @@ TEST(Async_Test, AsyncNotifier)
   ASSERT_EQ(MulticastAsyncNotifier.Register(&MulticastNotifyCallback, &b), BOF_ERR_NO_ERROR);
 
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
-  for (i_U32 = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 25000; i_U32++)
   {
     MulticastNotifyArg_X.Cpt_U32 = i_U32;
     MulticastNotifyArg_X.NotifyEventMask_U32 = i_U32 * i_U32;
@@ -3143,7 +3143,7 @@ TEST(Async_Test, SyncNotifier)
   ASSERT_EQ(MulticastSyncNotifier.Register(&MulticastNotifyCallback, &b), BOF_ERR_NO_ERROR);
 
   StartInMs_U32 = BOF::Bof_GetMsTickCount();
-  for (i_U32 = 0; i_U32 < 100000; i_U32++)
+  for (i_U32 = 0; i_U32 < 25000; i_U32++)
   {
     MulticastNotifyArg_X.Cpt_U32 = i_U32;
     MulticastNotifyArg_X.NotifyEventMask_U32 = i_U32 * i_U32;

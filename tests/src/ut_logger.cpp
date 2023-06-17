@@ -73,10 +73,9 @@ const std::string FILELOGDIR = "C:/tmp/log/";
 const std::string FILELOGDIR = "/tmp/log/";
 #endif
 const std::string LOGHEADER = "%N%d/%m/%C %H:%M:%S:%e %L %n %^%v%$";
-const uint32_t MAXLOGSIZEINBYTE = 0x1000;
+const uint32_t MAXLOGSIZEINBYTE = 0x100;//0x1000;
 const uint32_t MAXNUMBEROFLOGFILE = 3;
-const uint32_t MAXNUMBEROFLOGGERQUEUEENTRIES = 0x100;
-
+const uint32_t MAXNUMBEROFLOGGERQUEUEENTRIES = 32; //0x100;
 const uint32_t LOGLOOPMAX = MAXLOGSIZEINBYTE;
 
 /*

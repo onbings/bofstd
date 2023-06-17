@@ -71,7 +71,7 @@ static BOFERR ServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_p
       EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
       if (Status_X.NbIn_U32)
       {
-        //printf("Server nB %d\n", Status_X.NbIn_U32);
+        // printf("Server nB %d\n", Status_X.NbIn_U32);
       }
       Nb_U32 = sizeof(pBuffer_U8);
       memset(pBuffer_U8, 0, Nb_U32);
@@ -127,9 +127,12 @@ static BOFERR BinaryServerThread(const std::atomic<bool> &_rThreadMustStop_B, vo
   BOF_COM_CHANNEL_STATUS Status_X;
   uint32_t i_U32, Nb_U32, Size_U32;
 
+  // printf("%d: DBGTHRD pContext_X %p\n", BOF::Bof_GetMsTickCount(), pContext_X);
   if (pContext_X)
   {
+    // printf("%d: DBGTHRD V_Connect starts\n", BOF::Bof_GetMsTickCount());
     Rts_E = pContext_X->pBofPipeServer->V_Connect(PIPE_TIMEOUT, "", "");
+    // printf("%d: DBGTHRD V_Connect ends Rts_E %X\n", BOF::Bof_GetMsTickCount(), Rts_E);
     EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
 
     for (i_U32 = 0; i_U32 < NB_PIPE_LOOP; i_U32++)
@@ -137,15 +140,20 @@ static BOFERR BinaryServerThread(const std::atomic<bool> &_rThreadMustStop_B, vo
       Nb_U32 = 1;
       pBuffer_U8[0] = (uint8_t)i_U32;
       Size_U32 = Nb_U32;
+      // printf("%d: DBGTHRD write start i %d rts %X n %d/%d\n", BOF::Bof_GetMsTickCount(), i_U32, Rts_E, Nb_U32, Size_U32);
       Rts_E = pContext_X->pBofPipeServer->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
+      // printf("%d: DBGTHRD write ends i %d rts %X n %d/%d\n", BOF::Bof_GetMsTickCount(), i_U32, Rts_E, Nb_U32, Size_U32);
+
       EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(Nb_U32, Size_U32);
       Rts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
+      // printf("%d: DBGTHRD nb %d val %d rts %d\n", BOF::Bof_GetMsTickCount(), Status_X.NbIn_U32, pBuffer_U8[0], Rts_E);
       EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
-      // printf("BinServeur nb %d val %d\n", Status_X.NbIn_U32, pBuffer_U8[0]);
     }
     Rts_E = BOF_ERR_EXIT_THREAD;
   }
+  // printf("%d: DBGTHRD Exit rts %d\n", BOF::Bof_GetMsTickCount(), Rts_E);
+
   // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
   // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
   // Thread will be stopped if someone calls Bof_StopThread
@@ -393,11 +401,12 @@ TEST(Pipe_Test, NativePipeSingleBinary)
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     Nb_U32 = 1;
     memset(pBuffer_U8, 0, Nb_U32);
+    // printf("%d: DBG wait in read i %d\n", BOF::Bof_GetMsTickCount(), i_U32);
     Sts_E = pBofPipeClient->V_ReadData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
+    // printf("%d: DBG Client rcv %d nb %d/%d sts %d\n", BOF::Bof_GetMsTickCount(), pBuffer_U8[0], Status_X.NbIn_U32, Nb_U32, Sts_E);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(Nb_U32, 1);
     EXPECT_EQ(pBuffer_U8[0], (uint8_t)i_U32);
-    // printf("Client rcv %d nb %d\n", pBuffer_U8[0], Status_X.NbIn_U32);
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   // printf("%d loop in %d ms\n", i_U32, Delta_U32);

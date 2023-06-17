@@ -297,6 +297,7 @@ void BofDateTime::InitDateTime()
 {
   mYmd = date::year_month_day(date::year(mYear_U16), date::month(mMonth_U8), date::day(mDay_U8));
   mIsValid_B = mYmd.ok();
+  mTimeT = -1;
   if (mIsValid_B)
   {
     if (mMicroSecond_U32 < 1000000)

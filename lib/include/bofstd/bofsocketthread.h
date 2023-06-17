@@ -41,8 +41,8 @@ struct BOF_SOCKET_THREAD_PARAM
   uint32_t NbMaxOperationPending_U32;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY ThreadPriority_E;
-  BofSocket *pListeningSocket_O;     //Can be null if you make listen/connect call
-  BofSocket *pSocket_O;              //Can be null if you make listen/connect call used when deining BofSocketThread for Session thread
+  BofSocket *pListeningSocket_O; // Can be null if you make listen/connect call
+  BofSocket *pSocket_O;          // Can be null if you make listen/connect call used when deining BofSocketThread for Session thread
 
   BOF_SOCKET_THREAD_PARAM()
   {
@@ -53,7 +53,7 @@ struct BOF_SOCKET_THREAD_PARAM
     Name_S = "";
     NbMaxOperationPending_U32 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
-    ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_050;
+    ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
     pListeningSocket_O = nullptr;
     pSocket_O = nullptr;
   }
@@ -113,7 +113,7 @@ struct BOF_SOCKET_CONNECT_PARAM
 
 struct BOF_SOCKET_READ_PARAM
 {
-  BofSocket *pSocket_O;     //Optional, if not specified will use the mSocketThreadParam_X.pSocket_O value
+  BofSocket *pSocket_O; // Optional, if not specified will use the mSocketThreadParam_X.pSocket_O value
   uint32_t Nb_U32;
   uint8_t *pBuffer_U8;
   BOF_SOCKET_READ_PARAM()
@@ -130,7 +130,7 @@ struct BOF_SOCKET_READ_PARAM
 
 struct BOF_SOCKET_WRITE_PARAM
 {
-  BofSocket *pSocket_O;     //Optional, if not specified will use the mSocketThreadParam_X.pSocket_O value
+  BofSocket *pSocket_O; // Optional, if not specified will use the mSocketThreadParam_X.pSocket_O value
   uint32_t Nb_U32;
   uint8_t *pBuffer_U8;
   BOF_SOCKET_WRITE_PARAM()
@@ -147,7 +147,7 @@ struct BOF_SOCKET_WRITE_PARAM
 
 struct BOF_SOCKET_DISCONNECT_PARAM
 {
-//  BofSocket *pSocket_O;           
+  //  BofSocket *pSocket_O;
   uint32_t Unused_U32;
   BOF_SOCKET_DISCONNECT_PARAM()
   {
@@ -155,7 +155,7 @@ struct BOF_SOCKET_DISCONNECT_PARAM
   }
   void Reset()
   {
-//    pSocket_O = nullptr;
+    //    pSocket_O = nullptr;
     Unused_U32 = 0;
   }
 };
@@ -163,9 +163,9 @@ struct BOF_SOCKET_OPERATION_RESULT
 {
   BOF_SOCKET_OPERATION Operation_E;
   uint32_t OpTicket_U32;
-  BOFERR Sts_E;               /*! The operation status */
-  BofSocket *pSocket_O;    // Created socket
-  uint32_t Size_U32;          /*! The total size transferred in bytes */
+  BOFERR Sts_E;         /*! The operation status */
+  BofSocket *pSocket_O; // Created socket
+  uint32_t Size_U32;    /*! The total size transferred in bytes */
   uint8_t *pBuffer_U8;
   uint32_t Time_U32; /*! The operation time (in ticks) */
   BOF_SOCKET_OPERATION_RESULT()

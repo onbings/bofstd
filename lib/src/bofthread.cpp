@@ -773,7 +773,7 @@ void BofThread::BofThread_Thread()
   uint32_t Delta_U32;
 
   S_mBofThreadBalance++;
-  printf("Start of thread '%s' BAL %d\n",  mName_S.c_str(), S_mBofThreadBalance.load());
+  printf("%d: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), mName_S.c_str(), S_mBofThreadBalance.load());
   Sts_E = Bof_SignalEvent(mThreadEnterEvent_X, 0);
   // printf("%d: ENTER THREAD SIGNAL MTHREADENTEREVENT_X %d\n", BOF::Bof_GetMsTickCount(), Sts_E);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
@@ -822,15 +822,18 @@ void BofThread::BofThread_Thread()
     int Policy_i = mPolicy_E;
     struct sched_param Params_X;
     Sts_E = BOF_ERR_SCHEDULER;
+    Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
+    // printf("0: Sts %d Pol %d Prio %d\n", Status_i, Policy_i, Params_X.sched_priority);
+
     Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(mPriority_E);
     // Set the priority
     Status_i = pthread_setschedparam(pthread_self(), mPolicy_E, &Params_X);
     // Verify
-    printf("1: Sts %d Pol %d Prio %d errno %d\n", Status_i, mPolicy_E, Params_X.sched_priority, errno);
+    // printf("1: Sts %d Pol %d Prio %d errno %d\n", Status_i, mPolicy_E, Params_X.sched_priority, errno);
     if (Status_i == 0)
     {
       Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
-      printf("2: Sts %d Pol %d Prio %d (%d->%d)\n", Status_i, Policy_i, Params_X.sched_priority, mPriority_E, Bof_PriorityValueFromThreadPriority(mPriority_E));
+      // printf("2: Sts %d Pol %d Prio %d (%d->%d)\n", Status_i, Policy_i, Params_X.sched_priority, mPriority_E, Bof_PriorityValueFromThreadPriority(mPriority_E));
       if (Status_i == 0)
       {
         Sts_E = ((Policy_i == mPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
@@ -858,10 +861,10 @@ void BofThread::BofThread_Thread()
       {
         LockThreadCriticalSection(" BofThread::BofThread_Thread");
         // printf("%d: V_ONPROCESSING START mThreadLoopMustExit_B %d %s BAL %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), mName_S.c_str(), S_BofThreadBalance());
-  // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
-  // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
-  // Thread will be stopped if someone calls  DestroyBofProcessingThread or destroy the object
-        Sts_E = V_OnProcessing(); 
+        // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
+        // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
+        // Thread will be stopped if someone calls  DestroyBofProcessingThread or destroy the object
+        Sts_E = V_OnProcessing();
         UnlockThreadCriticalSection();
         if (Sts_E == BOF_ERR_EXIT_THREAD)
         {
@@ -875,9 +878,9 @@ void BofThread::BofThread_Thread()
   }
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
   S_mBofThreadBalance--;
-  //Bof_ErrorCode can fail does to app shudown (static initializer)
+  // Bof_ErrorCode can fail does to app shudown (static initializer)
   printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mName_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
-  //BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+  // BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()
 {

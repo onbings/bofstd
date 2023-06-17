@@ -55,7 +55,10 @@ BofRational::BofRational(double _Number_lf, uint32_t _NbCycle_U32, double _Preci
     // printf("bha: %d %f %f prec %f %f/%f\n", Counter_U32, WholePart_lf, DecimalPart_lf, _Precision_lf, Vec1[0], Vec1[1]);
   }
   double Val_lf = (double)(Sign_i * Vec1[0]) / (double)Vec1[1];
-  Set((uint64_t)(Sign_i * Vec1[0]), (uint64_t)Vec1[1], false);
+  // printf("num %lf -> %zd\n", (Sign_i * Vec1[0]), (int64_t)(Sign_i * Vec1[0]));
+  // printf("den %lf -> %zd\n", (Vec1[1]), (uint64_t)(Vec1[1]));
+
+  Set((int64_t)(Sign_i * Vec1[0]), (uint64_t)Vec1[1], false);
   // printf("%f Fract: %lld/%lld Val %f Delta %f Frac %lld/%lld\n", _Number_lf, (uint64_t)(Sign_i * Vec1[0]), (uint64_t)Vec1[1], Val_lf, Val_lf - _Number_lf, Num(), Den());
   // as_fraction(_Number_lf);
 }

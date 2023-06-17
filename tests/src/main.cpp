@@ -69,6 +69,7 @@ BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, con
 
 int main(int argc, char *argv[])
 {
+
 #if 0
   char *p = new char[5];
   return 0;
@@ -87,17 +88,21 @@ int main(int argc, char *argv[])
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
 #endif
   testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "XmlWriter_Test.*"; // XmlParser_Test.XmlVector
-  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
-    //::testing::GTEST_FLAG(filter) = "SocketTcp_Test.TcpClientTest";
-  //  ::testing::GTEST_FLAG(filter) = "SocketTcp_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory"; // XmlParser_Test.XmlVector
+
+  //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*"; // XmlParser_Test.XmlVector
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.ThreadParameterFromString";
+  //::testing::GTEST_FLAG(filter) = "DateTime_Test.ValidateDateTime";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.SingleThread";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThread";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithMutex";
+  //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.Mutex"; // SingleThread
   //  ::testing::GTEST_FLAG(filter) = "SocketUdp_Test.UdpClientTest";
-  //std::string CrtDir_S;
-  //BOF::Bof_GetCurrentDirectory(CrtDir_S);
-  //printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
-#if defined(__linux__)
-// for xml test under vscode/docker  BOF::Bof_ChangeCurrentDirectory("/home/bha/bld/Tge2-Debug/bofstd/tests/");
-#endif
+  // std::string CrtDir_S;
+  // BOF::Bof_GetCurrentDirectory(CrtDir_S);
+  // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
   Rts_i = RUN_ALL_TESTS();
 
   Sts_E = Bof_Shutdown();
@@ -122,14 +127,15 @@ int main(int argc, char *argv[])
 
   YOU HAVE 1 DISABLED TEST
 
-
   LINUX:
 
-[----------] Global test environment tear-down
-[==========] 164 tests from 43 test suites ran. (72546 ms total)
-[  PASSED  ] 164 tests.
+[==========] 170 tests from 43 test suites ran. (45271 ms total)
+[  PASSED  ] 169 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Threading_Test.SharedMemory
 
-  YOU HAVE 2 DISABLED TESTS
+ 1 FAILED TEST
+  YOU HAVE 6 DISABLED TESTS
 
 need to launch test with
 su
@@ -138,4 +144,19 @@ exit
 ./bofstd-tests
 
 to be able to use the FIFO scheduler in my docker container
+*/
+/*
+[==========] 167 tests from 44 test suites ran. (72028 ms total)
+[  PASSED  ] 160 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SocketOs_Test.ListAndSetupInterface
+[  FAILED  ] DateTime_Test.ValidateDateTime
+[  FAILED  ] Threading_Test.SingleThread
+[  FAILED  ] Threading_Test.MultiThread
+[  FAILED  ] Threading_Test.MultiThreadWithoutMutex
+[  FAILED  ] Threading_Test.MultiThreadWithMutex
+[  FAILED  ] System_Test.Rational
+
+ 7 FAILED TESTS
+  YOU HAVE 9 DISABLED TESTS
 */

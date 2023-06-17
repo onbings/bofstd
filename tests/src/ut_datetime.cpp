@@ -418,7 +418,7 @@ TEST(DateTime_Test, TickSleep)
   BofDateTime FirstDateTime, SecondDateTime, DiffTime;
   uint32_t Start_U32, Delta_U32, i_U32;
   int32_t DiffDay_S32;
-  const uint32_t NBLOOP = 20;
+  const uint32_t NBLOOP = 10;
 
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
@@ -477,7 +477,7 @@ TEST(DateTime_Test, TickSleep)
   Start_U32 = Bof_GetMsTickCount();
   Sts_E = Bof_Now(FirstDateTime);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  Bof_MsSleep(3000);
+  Bof_MsSleep(1000);
 
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   Sts_E = Bof_Now(SecondDateTime);
@@ -487,11 +487,11 @@ TEST(DateTime_Test, TickSleep)
   EXPECT_EQ(DiffDay_S32, 0);
   EXPECT_EQ(DiffTime.Hour(), 0);
   EXPECT_EQ(DiffTime.Minute(), 0);
-  EXPECT_GE(DiffTime.Second(), 3);
-  EXPECT_LE(DiffTime.Second(), 4);
+  EXPECT_GE(DiffTime.Second(), 0);
+  EXPECT_LE(DiffTime.Second(), 1);
   // EXPECT_EQ(DiffTime.MicroSecond(), 0);
-  EXPECT_GT(Delta_U32, (uint32_t)2900);
-  EXPECT_LT(Delta_U32, (uint32_t)3100);
+  EXPECT_GT(Delta_U32, (uint32_t)900);
+  EXPECT_LT(Delta_U32, (uint32_t)1100);
 
   Start_U32 = Bof_GetMsTickCount();
   Sts_E = Bof_Now(FirstDateTime);

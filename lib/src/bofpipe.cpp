@@ -183,11 +183,11 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       mPipe = -1;
       if (mPipeParam_X.PipeServer_B)
       {
-        // Under linux a named event does not exist
-        // Consequently, we're going to use a named
-        // pipe instead
-        Status_i = unlink(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
+        // Under linux a named event does not exist Consequently, we're going to use a named pipe instead
+        // NO!!! Status_i = unlink(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
+        // printf(">DBGBOF< pipe server %s mkfifo %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
         Status_i = mkfifo(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
+        // printf(">DBGBOF< pipe server sts %d/%d\n", Status_i, Bof_GetLastError(false));
         if ((Status_i == 0) || (Bof_GetLastError(false) == BOF_ERR_EEXIST))
         {
           // From man fifo(7)
@@ -197,14 +197,18 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
           // This can be used to open a FIFO for writing while there are no readers
           // available. A process that uses both ends of the connection in order to
           // communicate with itself should be very careful to avoid deadlocks.
+          // printf(">DBGBOF< pipe server %s %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i);
           mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(),
                        OpenFlag_i | O_NONBLOCK); // OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
         }
       }
       else
       {
+        // printf(">DBGBOF< pipe client %s %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i);
         mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
       }
+      // printf(">DBGBOF< srv/clt pipe %s id %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe);
+
       if (mPipe >= 0)
       {
         // Default is 64KB
@@ -241,6 +245,8 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       mErrorCode_E = BOF_ERR_EINVAL;
       break;
   }
+  // printf(">DBGBOF< srv/clt pipe %s final state %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mErrorCode_E);
+
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
     BOF_PIPE_ENTRY PipeEntry_X;
@@ -458,16 +464,21 @@ BOFERR BofPipe::V_WaitForDataToRead(uint32_t _TimeoutInMs_U32, uint32_t &_rNbPen
         } while (Rts_E != BOF_ERR_NO_ERROR);
       }
 #else
+      // printf(">DBGBOF< wait for data from pipe %d\n", mPipe);
       if (mPipe >= 0)
       {
+        int Nb_i, Sts_i;
         Rts_E = BOF_ERR_ETIMEDOUT;
         pFds_X[0].fd = mPipe;
         pFds_X[0].events = (POLLIN);
-        if (poll(pFds_X, 1, _TimeoutInMs_U32) == 1)
+        // printf(">DBGBOF< poll %d for %d\n", mPipe, _TimeoutInMs_U32);
+        Nb_i = poll(pFds_X, 1, _TimeoutInMs_U32);
+        // printf(">DBGBOF< end of poll %d for %d->%d\n", mPipe, _TimeoutInMs_U32, Nb_i);
+        if (Nb_i == 1)
         {
-          int Nb_i, Sts_i;
           BOF_IOCTL(mPipe, FIONREAD, sizeof(Nb_i), &Nb_i, 0, nullptr, Sts_i);
           Rts_E = (Sts_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EINVAL;
+          // printf(">DBGBOF< end of poll Sts_i %d->%d\n", Sts_i, Rts_E);
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
             _rNbPendingByte_U32 = (uint32_t)Nb_i;
@@ -611,7 +622,9 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
           }
           else
           {
+            // printf(">DBGBOF< read pipe %d\n", mPipe);
             Nb_i = static_cast<int>(read(mPipe, _pBuffer_U8, _rNb_U32));
+            // printf(">DBGBOF< end read pipe %d %d\n", mPipe, Nb_i);
           }
           if (Nb_i > 0)
           {
@@ -680,10 +693,13 @@ BOFERR BofPipe::V_WriteData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, const
           }
           _rNb_U32 = NumBytesWritten_DW;
 #else
+          // printf(">DBGBOF< write pipe %d\n", mPipe);
           if (mPipe >= 0)
           {
             Rts_E = BOF_ERR_WRITE;
             Nb_i = static_cast<int>(write(mPipe, _pBuffer_U8, _rNb_U32));
+            // printf(">DBGBOF< end write pipe %d nb %d\n", mPipe, Nb_i);
+
             // if (static_cast<uint32_t>(Nb_i) == _rNb_U32)
             if (Nb_i > 0)
             {

@@ -102,6 +102,7 @@ TEST(XmlParser_Test, Xml)
 
   Bof_GetCurrentDirectory(CrtDir);
   Path = CrtDir + "data/xmlparser.xml";
+  printf("-->%s\n", Path.ToString(false).c_str());
   EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
   pBofXmlParser_O = new BofXmlParser(XmlData_S);
@@ -180,7 +181,8 @@ TEST(XmlWriter_Test, XmlVector)
 
   Bof_GetCurrentDirectory(CrtDir);
   Path = CrtDir + "data/xmlvectorparser.xml";
-  EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
+  // printf("Crtdir %s path %s\n", CrtDir.FullPathName(false).c_str(), Path.FullPathName(false).c_str());
+  ASSERT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
   pBofXmlParser_O = new BofXmlParser(XmlData_S);
   EXPECT_TRUE(pBofXmlParser_O != nullptr);

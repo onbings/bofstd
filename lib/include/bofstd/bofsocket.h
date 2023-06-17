@@ -179,6 +179,7 @@ public:
 
   bool IsBlocking();
   static bool S_IsPortFree(uint16_t _Port_U18);
+  static uint16_t S_FindFreePort(bool _JustOne_B, uint32_t _PortMin_U32, uint32_t _PortMax_U32);
   BOFERR SetTtl(uint32_t _Ttl_U32);
 
   BOFERR DisableNagle();
