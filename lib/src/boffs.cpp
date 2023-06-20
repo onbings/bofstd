@@ -601,7 +601,14 @@ BOFERR Bof_CreateFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_r
   // Io_i = _open(_rPath.FullPathName(false).c_str(), Flag_i, _S_IREAD | _S_IWRITE | _S_IEXEC);
   Io_i = _open(_rPath.FullPathName(false).c_str(), Flag_i, _S_IREAD);
 #else
-  Flag_i = (_Append_B) ? (O_RDWR | O_CREAT | O_APPEND) : (O_RDWR | O_CREAT | O_TRUNC);
+  if (Bof_IsAnyBitFlagSet(_Permission_E, BOF_FILE_PERMISSION::BOF_PERM_S_IWUSR))
+  {
+    Flag_i = (_Append_B) ? (O_RDWR | O_CREAT | O_APPEND) : (O_RDWR | O_CREAT | O_TRUNC);
+  }
+  else
+  {
+    Flag_i = (_Append_B) ? (O_RDONLY | O_CREAT | O_APPEND) : (O_RDONLY | O_CREAT | O_TRUNC);
+  }
   Io_i = open(_rPath.FullPathName(false).c_str(), Flag_i, _Permission_E);
 #endif
   if (BOF_IS_HANDLE_VALID(Io_i))

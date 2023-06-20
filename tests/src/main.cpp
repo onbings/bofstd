@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory"; // XmlParser_Test.XmlVector
 
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*"; // XmlParser_Test.XmlVector
-  //::testing::GTEST_FLAG(filter) = "Threading_Test.ThreadParameterFromString";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
   //::testing::GTEST_FLAG(filter) = "DateTime_Test.ValidateDateTime";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.SingleThread";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThread";
@@ -130,11 +130,8 @@ int main(int argc, char *argv[])
   LINUX:
 
 [==========] 170 tests from 43 test suites ran. (45271 ms total)
-[  PASSED  ] 169 tests.
-[  FAILED  ] 1 test, listed below:
-[  FAILED  ] Threading_Test.SharedMemory
+[  PASSED  ] 170 tests.
 
- 1 FAILED TEST
   YOU HAVE 6 DISABLED TESTS
 
 need to launch test with

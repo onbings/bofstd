@@ -957,7 +957,7 @@ const uint32_t SHRSIZE = 0x10000;
 TEST(Threading_Test, SharedMemory)
 {
   BOFERR Sts_E;
-  BOF_SHARED_MEMORY ShrMem_X, AnotherShrMem_X;
+  BOF_SHARED_MEMORY ShrMem_X, AnotherShrMem_X, YetAnotherShrMem_X;
   uint32_t i_U32, *pVal_U32, pCpyVal_U32[128];
 
   EXPECT_EQ(ShrMem_X.Magic_U32, 0);
@@ -1013,26 +1013,26 @@ TEST(Threading_Test, SharedMemory)
       pVal_U32[i_U32] = i_U32 * 2;
     }
   }
-  Sts_E = Bof_CloseSharedMemory(ShrMem_X, false);
+  Sts_E = Bof_CloseSharedMemory(AnotherShrMem_X, false);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_NE(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
-  EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "");
+  EXPECT_NE(AnotherShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
+  EXPECT_STREQ(AnotherShrMem_X.Name_S.c_str(), "");
 #if defined(_WIN32)
-  EXPECT_EQ(ShrMem_X.pHandle, nullptr);
+  EXPECT_EQ(AnotherShrMem_X.pHandle, nullptr);
 #else
 #endif
-  EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
+  EXPECT_EQ(AnotherShrMem_X.pBaseAddress, nullptr);
 
-  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
+  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, YetAnotherShrMem_X);
   EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
-  EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
-  EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
+  EXPECT_EQ(YetAnotherShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
+  EXPECT_STREQ(YetAnotherShrMem_X.Name_S.c_str(), "MyShr");
 #if defined(_WIN32)
-  EXPECT_NE(ShrMem_X.pHandle, nullptr);
+  EXPECT_NE(YetAnotherShrMem_X.pHandle, nullptr);
 #else
 #endif
-  EXPECT_NE(ShrMem_X.pBaseAddress, nullptr);
-  pVal_U32 = static_cast<uint32_t *>(ShrMem_X.pBaseAddress);
+  EXPECT_NE(YetAnotherShrMem_X.pBaseAddress, nullptr);
+  pVal_U32 = static_cast<uint32_t *>(YetAnotherShrMem_X.pBaseAddress);
   if (pVal_U32)
   {
     for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pCpyVal_U32); i_U32++)
@@ -1044,6 +1044,9 @@ TEST(Threading_Test, SharedMemory)
       pVal_U32[i_U32] = i_U32 * 3;
     }
   }
+  Sts_E = Bof_CloseSharedMemory(YetAnotherShrMem_X, false);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+
   Sts_E = Bof_CloseSharedMemory(ShrMem_X, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
