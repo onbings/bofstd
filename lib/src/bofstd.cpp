@@ -357,7 +357,7 @@ std::string Bof_GetVersion()
   return std::to_string(BOFSTD_VERSION_MAJOR) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH) + "." + std::to_string(BOFSTD_VERSION_BUILD);
 }
 
-BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
+BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
 {
   BOFERR Rts_E;
 
@@ -368,6 +368,11 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
   /* Set the locale to the POSIX C environment */
   setlocale(LC_ALL, "C");
 #if defined(_WIN32)
+  char pComputerName_c[MAX_COMPUTERNAME_LENGTH + 1];
+  if (GetComputerNameA(pComputerName_c, sizeof(pComputerName_c)))
+  {
+    _rStdParam_X.ComputerName_S = pComputrerName_c;
+  }
   SetConsoleOutputCP(65001);
 
   // You need to enable ansi/vt100 control char under windows 10
@@ -400,6 +405,11 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
     }
   }
 #else
+  char pComputerName_c[512];
+  if (gethostname(pComputerName_c, sizeof(pComputerName_c)) == 0)
+  {
+    _rStdParam_X.ComputerName_S = pComputerName_c;
+  }
   signal(SIGPIPE, SIG_IGN);
   /*
   tcgetattr(STDIN_FILENO, &S_SavedTermIos_X);
@@ -423,6 +433,7 @@ BOFERR Bof_Initialize(const BOFSTDPARAM &_rStdParam_X)
     }
     */
 #endif
+  _rStdParam_X.Version_S = Bof_GetVersion();
   return Rts_E;
 }
 
@@ -444,7 +455,7 @@ const char *Bof_ErrorCode(BOFERR _ErrorCode_E)
   return pRts_c;
 }
 
-//For WIN32 or linux system error code
+// For WIN32 or linux system error code
 std::string Bof_SystemErrorCode(uint32_t _ErrorCode_U32)
 {
   return std::system_category().message(_ErrorCode_U32);

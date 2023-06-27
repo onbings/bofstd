@@ -81,8 +81,13 @@ int main(int argc, char *argv[])
   StdParam_X.AssertCallback = AppBofAssertCallback;
   Sts_E = Bof_Initialize(StdParam_X);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-  std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
-
+  // std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
+  printf("Running BofStd V %s on %s\n", StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str());
+  for (int i = 0; i < 7; i++)
+  {
+    printf("hello world %d\n", i);
+  }
+  // const char *pp = StdParam_X.ComputerName_S.c_str();
 #if defined(_WIN32)
 #else
   ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
@@ -98,7 +103,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithMutex";
   //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
-  //::testing::GTEST_FLAG(filter) = "Threading_Test.Mutex"; // SingleThread
+  //::testing::GTEST_FLAG(filter) = "Bit_Test.*";
   //  ::testing::GTEST_FLAG(filter) = "SocketUdp_Test.UdpClientTest";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
@@ -156,4 +161,65 @@ to be able to use the FIFO scheduler in my docker container
 
  7 FAILED TESTS
   YOU HAVE 9 DISABLED TESTS
+*/
+/*
+root@evstge2:/root# ifconfig
+eth-1gb0  Link encap:Ethernet  HWaddr 00:1C:F3:0A:20:44
+          inet addr:10.129.171.112  Bcast:10.129.171.255  Mask:255.255.255.0
+          inet6 addr: fe80::21c:f3ff:fe0a:2044/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
+          RX packets:10 errors:0 dropped:1 overruns:0 frame:0
+          TX packets:32 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:10000
+          RX bytes:1336 (1.3 KiB)  TX bytes:5334 (5.2 KiB)
+          Memory:1ae4000-1ae4fff
+
+eth-1gb1  Link encap:Ethernet  HWaddr 00:1C:F3:0A:20:45
+          inet addr:10.129.172.21  Bcast:10.129.172.255  Mask:255.255.255.0
+          inet6 addr: fe80::21c:f3ff:fe0a:2045/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:29 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:10000
+          RX bytes:0 (0.0 B)  TX bytes:5207 (5.0 KiB)
+          Memory:1ae6000-1ae6fff
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:360 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:360 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:28323 (27.6 KiB)  TX bytes:28323 (27.6 KiB)
+
+root@evstge2:/root# ^C
+root@evstge2:/root# ^C
+root@evstge2:/root# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: sit0@NONE: <NOARP> mtu 1480 qdisc noop state DOWN group default qlen 1000
+    link/sit 0.0.0.0 brd 0.0.0.0
+3: eth-1gb0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc prio state UP group default qlen 10000
+    link/ether 00:1c:f3:0a:20:44 brd ff:ff:ff:ff:ff:ff
+    inet 10.129.171.112/24 brd 10.129.171.255 scope global eth-1gb0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::21c:f3ff:fe0a:2044/64 scope link
+       valid_lft forever preferred_lft forever
+4: eth-1gb1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc prio state UP group default qlen 10000
+    link/ether 00:1c:f3:0a:20:45 brd ff:ff:ff:ff:ff:ff
+    inet 10.129.172.21/24 brd 10.129.172.255 scope global eth-1gb1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::21c:f3ff:fe0a:2045/64 scope link
+       valid_lft forever preferred_lft forever
+5: eth-10gb0: <BROADCAST,MULTICAST> mtu 9000 qdisc noop state DOWN group default qlen 1000
+    link/ether 00:1c:f3:0a:20:46 brd ff:ff:ff:ff:ff:ff
+6: eth-10gb1: <BROADCAST,MULTICAST> mtu 9000 qdisc noop state DOWN group default qlen 1000
+    link/ether 00:1c:f3:0a:20:47 brd ff:ff:ff:ff:ff:ff
+root@evstge2:/root#
+
 */
