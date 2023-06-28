@@ -24,10 +24,11 @@
 
 USE_BOF_NAMESPACE()
 
-class BofStringCircularBuffer_Test : public testing::Test
+class StringCircularBuffer_Test : public testing::Test
 {
 public:
-  BofStringCircularBuffer_Test() : mpBofStringCircularBuffer_O(nullptr)
+  StringCircularBuffer_Test()
+      : mpBofStringCircularBuffer_O(nullptr)
   {
   }
 
@@ -50,15 +51,15 @@ private:
 
 /*** Factory functions called at the beginning/end of each test case **********/
 
-void BofStringCircularBuffer_Test::SetUpTestCase()
+void StringCircularBuffer_Test::SetUpTestCase()
 {
 }
 
-void BofStringCircularBuffer_Test::TearDownTestCase()
+void StringCircularBuffer_Test::TearDownTestCase()
 {
 }
 
-void BofStringCircularBuffer_Test::SetUp()
+void StringCircularBuffer_Test::SetUp()
 {
   mBofStringCircularBufferParam_X.Reset();
   mBofStringCircularBufferParam_X.MultiThreadAware_B = true;
@@ -72,13 +73,13 @@ void BofStringCircularBuffer_Test::SetUp()
   EXPECT_TRUE(mpBofStringCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
 }
 
-void BofStringCircularBuffer_Test::TearDown()
+void StringCircularBuffer_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofStringCircularBuffer_O);
   EXPECT_TRUE(mpBofStringCircularBuffer_O == nullptr);
 }
 
-TEST_F(BofStringCircularBuffer_Test, ByteBuffer)
+TEST_F(StringCircularBuffer_Test, ByteBuffer)
 {
   BOFERR Sts_E;
   uint32_t Nb_U32, i_U32, Size_U32, Index_U32;

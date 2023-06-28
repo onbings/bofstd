@@ -22,7 +22,7 @@
 #define MAX_ELEMENTS (50)
 
 // To use a test fixture, derive from testing::Test class
-class SerializerTest : public testing::Test
+class BinSerializer_Test : public testing::Test
 {
 protected:
   /*!
@@ -53,7 +53,7 @@ protected:
 Summary
   This is the unit test of the CList constructor
 */
-TEST_F(SerializerTest, Constructor)
+TEST_F(BinSerializer_Test, Constructor)
 {
   EXPECT_TRUE(mpBigEndianSerializer_O->GetStreamEndianness() == BOF::BOF_STREAM_IS_BIG_ENDIAN);
   EXPECT_TRUE(mpBigEndianSerializer_O->IsStreamBigEndian() == true);
@@ -64,7 +64,7 @@ TEST_F(SerializerTest, Constructor)
   EXPECT_TRUE(mpLittleEndianSerializer_OmpBigEndianSerializer_O->IsStreamLittleEndian() == true);
 }
 
-TEST_F(SerializerTest, Endianness)
+TEST_F(BinSerializer_Test, Endianness)
 {
   uint16_t Val_U16 = 0x1234, ValSwap_U16;
   uint32_t Val_U32 = 0x56789ABC, ValSwap_U32;
@@ -176,7 +176,7 @@ TEST_F(SerializerTest, Endianness)
 Summary
   This is the unit test of the BOF::BofBinSerializer "ToByte" method
 */
-TEST_F(SerializerTest, Serializer_ToByte)
+TEST_F(BinSerializer_Test, Serializer_ToByte)
 {
   uint8_t Value_U8 = 0x12;
   int8_t Value_S8 = -13;
@@ -309,7 +309,7 @@ TEST_F(SerializerTest, Serializer_ToByte)
 Summary
   This is the unit test of the BOF::BofBinSerializer "ToByte" method
 */
-TEST_F(SerializerTest, Serializer_FromByte)
+TEST_F(BinSerializer_Test, Serializer_FromByte)
 {
   uint8_t Value_U8 = 0;
   int8_t Value_S8 = 0;

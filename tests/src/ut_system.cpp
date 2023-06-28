@@ -118,10 +118,10 @@ TEST(System_Test, SystemUsageInfo)
 #else
   EXPECT_EQ(Bof_SystemUsageInfo("/", SystemUsageInfo_X), BOF_ERR_NO_ERROR);
 #endif
-  //printf("ss %d\n", SystemUsageInfo_X.DISK.SectorSizeInByte_U32);
-  //printf("bs %d\n", SystemUsageInfo_X.DISK.BlockSizeInByte_U32);
-  //printf("cap %zu\n", SystemUsageInfo_X.DISK.CapacityInByte_U64);
-  //printf("rem %zu\n", SystemUsageInfo_X.DISK.RemainingSizeInByte_U64);
+  // printf("ss %d\n", SystemUsageInfo_X.DISK.SectorSizeInByte_U32);
+  // printf("bs %d\n", SystemUsageInfo_X.DISK.BlockSizeInByte_U32);
+  // printf("cap %zu\n", SystemUsageInfo_X.DISK.CapacityInByte_U64);
+  // printf("rem %zu\n", SystemUsageInfo_X.DISK.RemainingSizeInByte_U64);
 }
 
 TEST(System_Test, VideoStandard)
@@ -636,7 +636,7 @@ TEST(System_Test, Exec)
 #if defined(_WIN32)
   Cmd_S = Bof_Sprintf("dir");
 #else
-  Cmd_S = "ls";
+  Cmd_S = "ls -al";
 #endif
   Sts_E = Bof_Exec(Cmd_S, &Output_S, ExitCode_S32);
   //	std::cerr << "[          ] Exit code " << ExitCode_S32 << " Output:" << std::endl << Output_S << std::endl;

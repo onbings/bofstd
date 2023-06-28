@@ -244,25 +244,28 @@ BOFERR Bof_GetCurrentDirectory(BofPath &_rPath)
   return (Rts_E);
 }
 
-BOFERR Bof_ChangeCurrentDirectory(const BofPath &_rPath)
+BOFERR Bof_SetCurrentDirectory(const BofPath &_rPath)
 {
   BOFERR Rts_E = BOF_ERR_ENOTDIR;
   // int Sts_i;
 
+  if (_rPath.IsDirectory())
+  {
 #if defined(_WIN32)
-  if (SetCurrentDirectoryA(_rPath.FullPathName(true).c_str()))
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-  }
+    if (SetCurrentDirectoryA(_rPath.FullPathName(true).c_str()))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
 #else
-  if (chdir(_rPath.FullPathName(false).c_str()) == 0)
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-  }
+    if (chdir(_rPath.FullPathName(false).c_str()) == 0)
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
 #endif
-  //	Sts_i = zsys_dir_change(_rPath.FullPathName(false).c_str());
-  //	Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_DONT_EXIST;
-  // printf("dir %s errno %d\n",_rPath.FullPathName(false).c_str(),errno);
+    //	Sts_i = zsys_dir_change(_rPath.FullPathName(false).c_str());
+    //	Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_DONT_EXIST;
+    // printf("dir %s errno %d\n",_rPath.FullPathName(false).c_str(),errno);
+  }
   return Rts_E;
 }
 

@@ -83,28 +83,67 @@ int main(int argc, char *argv[])
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   // std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
   printf("Running BofStd V %s on %s\n", StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str());
-  for (int i = 0; i < 7; i++)
-  {
-    printf("hello world %d\n", i);
-  }
-  // const char *pp = StdParam_X.ComputerName_S.c_str();
+  // for (int i = 0; i < 7; i++)
+  //{
+  //   printf("hello world %d\n", i);
+  // }
+  //  const char *pp = StdParam_X.ComputerName_S.c_str();
+
 #if defined(_WIN32)
 #else
-  ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
+  // Ok on tge2, there is an uart  ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
 #endif
   testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory"; // XmlParser_Test.XmlVector
+  // Dont touch
+  //::testing::GTEST_FLAG(filter) = "Api_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Async_Test.*";
+  //::testing::GTEST_FLAG(filter) = "AsyncMuticastDelegate_Test.*";
+  //::testing::GTEST_FLAG(filter) = "BinSerializer_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Bit_Test.*";
+  //::testing::GTEST_FLAG(filter) = "ConIo_Test.*";
+  //::testing::GTEST_FLAG(filter) = "CallbackCollection_Test.*";
+  //::testing::GTEST_FLAG(filter) = "CircularBuffer_Test.*";
+  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Crypto_Test.*";
+  //::testing::GTEST_FLAG(filter) = "DateTime_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Enum_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Fs_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Guid_Test.*";
+  //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Logger_Test.*";
+  //::testing::GTEST_FLAG(filter) = "NaryTreeKv_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Path_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Pot_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Process_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Queue_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RamDb_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBufferNoSlotsize_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBufferWithSlotsize_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Shell_Test.*";
+  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.ListAndSetupInterface"; //*";
+  //::testing::GTEST_FLAG(filter) = "SocketTcp_Test.*";
+  //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*";
+  //::testing::GTEST_FLAG(filter) = "SockIo_Client_Server_Test.*";
+  //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
+  //::testing::GTEST_FLAG(filter) = "String_Test.*";
+  //::testing::GTEST_FLAG(filter) = "StringCircularBuffer_Test.*";
+  ////::testing::GTEST_FLAG(filter) = "stringformatter a fixer.*";
+  //::testing::GTEST_FLAG(filter) = "System_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Threading_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Timecode_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Uart_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Uri_Test.*";
+  //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
 
-  //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*"; // XmlParser_Test.XmlVector
-  //::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
-  //::testing::GTEST_FLAG(filter) = "DateTime_Test.ValidateDateTime";
+  // Use these one
   //::testing::GTEST_FLAG(filter) = "Threading_Test.SingleThread";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThread";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithMutex";
   //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
   //::testing::GTEST_FLAG(filter) = "Bit_Test.*";
-  //  ::testing::GTEST_FLAG(filter) = "SocketUdp_Test.UdpClientTest";
+  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
   // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
@@ -146,21 +185,16 @@ exit
 ./bofstd-tests
 
 to be able to use the FIFO scheduler in my docker container
-*/
-/*
-[==========] 167 tests from 44 test suites ran. (72028 ms total)
-[  PASSED  ] 160 tests.
-[  FAILED  ] 7 tests, listed below:
-[  FAILED  ] SocketOs_Test.ListAndSetupInterface
-[  FAILED  ] DateTime_Test.ValidateDateTime
-[  FAILED  ] Threading_Test.SingleThread
-[  FAILED  ] Threading_Test.MultiThread
-[  FAILED  ] Threading_Test.MultiThreadWithoutMutex
-[  FAILED  ] Threading_Test.MultiThreadWithMutex
-[  FAILED  ] System_Test.Rational
 
- 7 FAILED TESTS
-  YOU HAVE 9 DISABLED TESTS
+On Tge2:
+[----------] Global test environment tear-down
+[==========] 174 tests from 46 test suites ran. (51212 ms total)
+[  PASSED  ] 173 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Async_Test.OverloadCommandQueue
+
+ 1 FAILED TEST
+  YOU HAVE 7 DISABLED TESTS
 */
 /*
 root@evstge2:/root# ifconfig

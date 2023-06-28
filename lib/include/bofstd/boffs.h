@@ -121,7 +121,7 @@ BOFSTD_EXPORT BOFERR Bof_GetCurrentDirectory(std::string &_rPath_S);
 /// @param _rNewDirectory_S : Specifies the new current directory
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
 /// @remarks _rCurrentDirectory_S will be terminated by a / character
-BOFSTD_EXPORT BOFERR Bof_ChangeCurrentDirectory(const BofPath &_rNewDirectory_S);
+BOFSTD_EXPORT BOFERR Bof_SetCurrentDirectory(const BofPath &_rNewDirectory_S);
 
 /// @brief Create a new directory and its sub directories if needed with a given permission
 /// @param _Permission_E : Specifies the directory permissions.

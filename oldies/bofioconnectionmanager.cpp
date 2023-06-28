@@ -7,7 +7,8 @@
 static uint32_t S_LineNumber_U32 = 0;
 static uint32_t S_LastTime_U32 = 0;
 
-template <typename... Args> void DbgOut(const char *_pFmt_c, const Args &..._Args)
+template <typename... Args>
+void DbgOut(const char *_pFmt_c, const Args &..._Args)
 {
   uint32_t Now_U32, Delta_U32;
   char pText_c[0x1000];
@@ -124,6 +125,7 @@ BofIoConnectionManager::~BofIoConnectionManager()
   std::string Dbg_S;
   Dbg_S = BuildConnectionInfo();
   DBG_OUT("Before while\n\n%s", Dbg_S.c_str());
+  DestroyBofProcessingThread("~BofIoConnectionManager");
 
   while (mUvDisconnectingConnectionCollection.size())
   {
@@ -1857,9 +1859,9 @@ BOFERR BofIoConnectionManager::V_OnUvWalk(BOF_UV_CALLBACK *_pBofUvCallback_X, uv
 
   switch (_pHandle->type)
   {
-#define X(uc, lc)                                                                                                                                                                                                                                              \
-  case UV_##uc:                                                                                                                                                                                                                                                \
-    pType_c = #lc;                                                                                                                                                                                                                                             \
+#define X(uc, lc)  \
+  case UV_##uc:    \
+    pType_c = #lc; \
     break;
     UV_HANDLE_TYPE_MAP(X)
 #undef X

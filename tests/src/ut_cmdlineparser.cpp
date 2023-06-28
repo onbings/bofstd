@@ -207,7 +207,7 @@ BOFERR CmdLineParseError(const char *_pError_c)
 
 static std::vector<BOFPARAMETER> S_pCommandLineOption_X = {
     //? cannot be used                   {nullptr, std::string("?"),        std::string("Ask help."),                                                         std::string(""),                  std::string(""), BOFPARAMETER_ARG_FLAG::NONE,
-    //BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
+    // BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
 
     {nullptr, std::string("h"), std::string("Ask help."), std::string(""), std::string(""), BOFPARAMETER_ARG_FLAG::NONE, BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
     {nullptr, std::string("help"), std::string("Ask help."), std::string(""), std::string(""), BOFPARAMETER_ARG_FLAG::NONE, BOF_PARAM_DEF_VARIABLE(S_AppParam_X.AskHelp_B, BOOL, true, 0)},
@@ -411,7 +411,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
-  strcpy(ppArgument_c[Argc_i], "--uri2=myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  strcpy(ppArgument_c[Argc_i], "--uri2=myprotocol://john.doe:password@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
   pArgv_c[Argc_i] = ppArgument_c[Argc_i];
   Argc_i++;
 
@@ -484,11 +484,11 @@ TEST_F(CmdLineParser_Test, CmdLine)
   if (S_AppParam_X.AskHelp_B)
   {
     pBofCommandLineParser_O->BuildHelpString(S_pCommandLineOption_X, std::string(ppArgument_c[0]) + "\n", HelpString_S);
-    //printf("%s", HelpString_S.c_str());
+    // printf("%s", HelpString_S.c_str());
   }
   else
   {
-    //printf("No help required.\n");
+    // printf("No help required.\n");
   }
 
   // goto m;
@@ -586,7 +586,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   Uri_S = S_AppParam_X.Uri1.ToString();
   EXPECT_STREQ(Uri_S.c_str(), "myprotocol:/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
   Uri_S = S_AppParam_X.Uri2.ToString();
-  EXPECT_STREQ(Uri_S.c_str(), "myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  EXPECT_STREQ(Uri_S.c_str(), "myprotocol://john.doe:password@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   EXPECT_STREQ(S_AppParam_X.Vs.ToString().c_str(), "1920x1080@59.94i");
   EXPECT_STREQ(S_AppParam_X.As.ToString().c_str(), "16xS24L32@48000");
@@ -599,7 +599,7 @@ TEST_F(CmdLineParser_Test, CmdLine)
   char                pVal_c[7][256];
   */
   pBofCommandLineParser_O->BuildHelpString(S_pCommandLineOption_X, ppArgument_c[0], HelpString_S);
-  //printf("%s", HelpString_S.c_str());
+  // printf("%s", HelpString_S.c_str());
 
   BOF_SAFE_DELETE(pBofCommandLineParser_O);
 }

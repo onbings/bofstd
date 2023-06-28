@@ -26,7 +26,7 @@
 USE_BOF_NAMESPACE()
 
 // To use a test fixture, derive from testing::Test class
-class BofProcess_Test : public testing::Test
+class Process_Test : public testing::Test
 {
 protected:
   /*!
@@ -46,7 +46,7 @@ protected:
   }
 };
 
-TEST_F(BofProcess_Test, Execute_popen)
+TEST_F(Process_Test, Execute_popen)
 {
   int ExitCode_i;
   BOFERR Sts_E;
@@ -71,7 +71,7 @@ TEST_F(BofProcess_Test, Execute_popen)
   EXPECT_NE(ExitCode_i, 0);
 }
 
-TEST_F(BofProcess_Test, Execute_vfork)
+TEST_F(Process_Test, Execute_vfork)
 {
   int ExitCode_i;
   BOFERR Sts_E;
@@ -97,7 +97,7 @@ TEST_F(BofProcess_Test, Execute_vfork)
   EXPECT_NE(ExitCode_i, 0);
 }
 
-TEST_F(BofProcess_Test, Execute_posix_spawn)
+TEST_F(Process_Test, Execute_posix_spawn)
 {
   int ExitCode_i;
   BOFERR Sts_E;
@@ -123,7 +123,7 @@ TEST_F(BofProcess_Test, Execute_posix_spawn)
   EXPECT_NE(ExitCode_i, 0);
 }
 
-TEST_F(BofProcess_Test, Process)
+TEST_F(Process_Test, Process)
 {
   BOF_PROCESS Pid_X;
   int ExitCode_i;

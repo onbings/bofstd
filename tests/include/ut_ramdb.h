@@ -113,11 +113,12 @@ public:
   BOFCMP Compare(uint32_t _Index_U32, DbRow *_pDbRow_O);
 };
 
-class BofRamDb_Test : public ::testing::Test
+class RamDb_Test : public ::testing::Test
 {
 private:
 public:
-  BofRamDb_Test() : mpBofRamDb_O(nullptr)
+  RamDb_Test()
+      : mpBofRamDb_O(nullptr)
   {
   }
 

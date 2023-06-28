@@ -46,15 +46,15 @@ struct BOF_POT_ELEMENT
   }
 };
 
-class BofPot_Test : public testing::Test
+class Pot_Test : public testing::Test
 {
 public:
-  BofPot_Test()
+  Pot_Test()
       : mpBofPot_O(nullptr)
   {
   }
 
-  virtual ~BofPot_Test()
+  virtual ~Pot_Test()
   {
   }
 
@@ -78,27 +78,27 @@ private:
 
 /*** Factory functions called at the beginning/end of each test case **********/
 
-void BofPot_Test::SetUpTestCase()
+void Pot_Test::SetUpTestCase()
 {
 }
 
-void BofPot_Test::TearDownTestCase()
+void Pot_Test::TearDownTestCase()
 {
 }
 
 #define BOFPOTMAGIC 0x12345678
 
-void BofPot_Test::SetUp()
+void Pot_Test::SetUp()
 {
 }
 
-void BofPot_Test::TearDown()
+void Pot_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofPot_O);
   EXPECT_TRUE(mpBofPot_O == nullptr);
 }
 
-TEST_F(BofPot_Test, PotWithMagic)
+TEST_F(Pot_Test, PotWithMagic)
 {
   mBofPotParam_X.Reset();
   mBofPotParam_X.MultiThreadAware_B = true;
@@ -114,7 +114,7 @@ TEST_F(BofPot_Test, PotWithMagic)
   PotTest();
 }
 
-TEST_F(BofPot_Test, PotWithoutMagic)
+TEST_F(Pot_Test, PotWithoutMagic)
 {
   mBofPotParam_X.Reset();
   mBofPotParam_X.MultiThreadAware_B = true;
@@ -129,7 +129,7 @@ TEST_F(BofPot_Test, PotWithoutMagic)
 
   PotTest();
 }
-void BofPot_Test::PotTest()
+void Pot_Test::PotTest()
 {
   uint32_t i_U32, Nb_U32, Index_U32;
   BOF_POT_ELEMENT *pPotElem1_X, *pPotElem2_X;
@@ -392,7 +392,7 @@ BOFERR ReleaseValue(uint32_t /*_Id_U32*/, uint32_t _NbLoop_U32, BofPot<uint64_t>
 
 const uint32_t NB_MAX_CLIENT = 16;    // 32;                                   // 32;
 const uint32_t NB_GET_PER_CLIENT = 8; // 16000;
-TEST_F(BofPot_Test, BlockingMode)
+TEST_F(Pot_Test, BlockingMode)
 {
   BOF_POT_PARAM BofPotParam_X;
   BOFERR Sts_E;

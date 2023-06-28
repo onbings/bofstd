@@ -8,7 +8,8 @@ uint32_t BofSocketChannelManager::S_mAsyncCmdTicket_U32 = 0;
 class BofSocketChannelManagerFactory : public BofSocketChannelManager
 {
 public:
-  BofSocketChannelManagerFactory(const BOF_SOCKET_CHANNEL_MANAGER_PARAM &_rBofSocketChannelManagerParam_X) : BofSocketChannelManager(_rBofSocketChannelManagerParam_X)
+  BofSocketChannelManagerFactory(const BOF_SOCKET_CHANNEL_MANAGER_PARAM &_rBofSocketChannelManagerParam_X)
+      : BofSocketChannelManager(_rBofSocketChannelManagerParam_X)
   {
   }
 
@@ -22,7 +23,8 @@ std::shared_ptr<BofSocketChannelManager> BofSocketChannelManager::S_BofSocketCha
   return std::make_shared<BofSocketChannelManagerFactory>(_rBofSocketChannelManagerParam_X);
 }
 
-BofSocketChannelManager::BofSocketChannelManager(const BOF_SOCKET_CHANNEL_MANAGER_PARAM &_rBofSocketChannelManagerParam_X) : BofThread()
+BofSocketChannelManager::BofSocketChannelManager(const BOF_SOCKET_CHANNEL_MANAGER_PARAM &_rBofSocketChannelManagerParam_X)
+    : BofThread()
 {
   //  DBG_OUT("============> create BofSocketChannelManager %s p %p\n", _rBofSocketChannelManagerParam_X.Name_S.c_str(),this);
   mBofSocketChannelManagerParam_X = _rBofSocketChannelManagerParam_X;
@@ -73,7 +75,7 @@ BofSocketChannelManager::~BofSocketChannelManager()
   BOFERR Sts_E;
   // CHANNEL_RESOURCE_RELEASE_STATE ResourceReleaseState_E;
   // DBG_OUT("============> DELETE BofSocketChannelManager %s p %p\n", mBofSocketChannelManagerParam_X.Name_S.c_str(), this);
-
+  DestroyBofProcessingThread("~BofSocketChannelManager");
   //  DBG_OUT("----> ~BofSocketChannelManager Start %d\n", mBofSocketChannelCollection.size());
   while (mBofSocketChannelCollection.size())
   {

@@ -33,6 +33,7 @@ set(BIT_FILES
 )
 
 set(CALLBACK_FILES
+	src/ut_async.cpp 
 	src/ut_callbackcollection.cpp 
 )
 
@@ -50,6 +51,7 @@ set(COM_FILES
 
 set(CONIO_SHELL_FILES
 	src/ut_shell.cpp
+	src/ut_conio.cpp
 )
 
 set(CONTAINER_FILES
@@ -195,7 +197,6 @@ endif()
 add_executable(ut_bofstd
   ${SOURCES_FILES}
 )
-
 # Includes
 target_include_directories(ut_bofstd
   PRIVATE

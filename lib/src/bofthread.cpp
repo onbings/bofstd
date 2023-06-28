@@ -244,9 +244,11 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
       // printf("%d: DESTROYBOFPROCESSINGTHREAD MTHREADENTEREVENT_X SIGNALED, CHECK IF MTHREADEXITEVENT_X SIGNALED %d\n", BOF::Bof_GetMsTickCount(), Bof_IsEventSignaled(mThreadExitEvent_X, 0));
       if (!Bof_IsEventSignaled(mThreadExitEvent_X, 0))
       {
+        // printf("%d: SignalThreadWakeUpEvent\n", BOF::Bof_GetMsTickCount());
         SignalThreadWakeUpEvent();
+        // printf("%d: Bof_WaitForEvent start\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
         ThreadStopTo_B = (Bof_WaitForEvent(mThreadExitEvent_X, mStartStopTimeoutInMs_U32, 0) != BOF_ERR_NO_ERROR);
-        // printf("%d: MTHREADEXITEVENT_X NOT SIGNALED WAKEUP AND CHECK TIMEOUT %d\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
+        // printf("%d: Bof_WaitForEvent stop To %d\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
       }
 
       // printf("%d: THREADSTOPTO %d ?\n", Bof_GetMsTickCount(), ThreadStopTo_B);
@@ -265,12 +267,12 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
     }
     else
     {
-      // printf("%d: THREAD NEVER BEEN STARTED\n", BOF::Bof_GetMsTickCount());
+      printf("%d: THREAD NEVER BEEN STARTED\n", BOF::Bof_GetMsTickCount());
     }
   }
   else
   {
-    // printf("%d: DESTROYBOFPROCESSINGTHREAD: DELETE ALREADY DONE\n", BOF::Bof_GetMsTickCount());
+    printf("%d: DESTROYBOFPROCESSINGTHREAD: DELETE ALREADY DONE\n", BOF::Bof_GetMsTickCount());
   }
   // printf("%d: JOINABLE ? %d\n", Bof_GetMsTickCount(), mThread.joinable());
   if (mThread.joinable()) // Needed to clanup std::thread if launch failed

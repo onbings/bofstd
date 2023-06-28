@@ -26,10 +26,11 @@ USE_BOF_NAMESPACE()
 
 #define NBPUSHSAMESIZE 16
 
-class BofRawCircularBufferNoSlotsize_Test : public testing::Test
+class RawCircularBufferNoSlotsize_Test : public testing::Test
 {
 public:
-  BofRawCircularBufferNoSlotsize_Test() : mpBofRawCircularBuffer_O(nullptr)
+  RawCircularBufferNoSlotsize_Test()
+      : mpBofRawCircularBuffer_O(nullptr)
   {
   }
 
@@ -52,15 +53,15 @@ private:
 
 /*** Factory functions called at the beginning/end of each test case **********/
 
-void BofRawCircularBufferNoSlotsize_Test::SetUpTestCase()
+void RawCircularBufferNoSlotsize_Test::SetUpTestCase()
 {
 }
 
-void BofRawCircularBufferNoSlotsize_Test::TearDownTestCase()
+void RawCircularBufferNoSlotsize_Test::TearDownTestCase()
 {
 }
 
-void BofRawCircularBufferNoSlotsize_Test::SetUp()
+void RawCircularBufferNoSlotsize_Test::SetUp()
 {
   mBofRawCircularBufferParam_X.Reset();
   mBofRawCircularBufferParam_X.MultiThreadAware_B = true;
@@ -73,13 +74,13 @@ void BofRawCircularBufferNoSlotsize_Test::SetUp()
   EXPECT_TRUE(mpBofRawCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
 }
 
-void BofRawCircularBufferNoSlotsize_Test::TearDown()
+void RawCircularBufferNoSlotsize_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofRawCircularBuffer_O);
   EXPECT_TRUE(mpBofRawCircularBuffer_O == nullptr);
 }
 
-TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
+TEST_F(RawCircularBufferNoSlotsize_Test, ByteBuffer)
 {
   uint32_t Nb_U32, i_U32, Index_U32, Size_U32;
   BOFERR Sts_E;
@@ -452,10 +453,11 @@ TEST_F(BofRawCircularBufferNoSlotsize_Test, ByteBuffer)
   EXPECT_EQ(0, Nb_U32);
 }
 
-class BofRawCircularBufferWithSlotsize_Test : public testing::Test
+class RawCircularBufferWithSlotsize_Test : public testing::Test
 {
 public:
-  BofRawCircularBufferWithSlotsize_Test() : mpBofRawCircularBuffer_O(nullptr)
+  RawCircularBufferWithSlotsize_Test()
+      : mpBofRawCircularBuffer_O(nullptr)
   {
   }
 
@@ -478,15 +480,15 @@ private:
 
 /*** Factory functions called at the beginning/end of each test case **********/
 
-void BofRawCircularBufferWithSlotsize_Test::SetUpTestCase()
+void RawCircularBufferWithSlotsize_Test::SetUpTestCase()
 {
 }
 
-void BofRawCircularBufferWithSlotsize_Test::TearDownTestCase()
+void RawCircularBufferWithSlotsize_Test::TearDownTestCase()
 {
 }
 
-void BofRawCircularBufferWithSlotsize_Test::SetUp()
+void RawCircularBufferWithSlotsize_Test::SetUp()
 {
   mBofRawCircularBufferParam_X.Reset();
   mBofRawCircularBufferParam_X.MultiThreadAware_B = true;
@@ -499,13 +501,13 @@ void BofRawCircularBufferWithSlotsize_Test::SetUp()
   EXPECT_TRUE(mpBofRawCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
 }
 
-void BofRawCircularBufferWithSlotsize_Test::TearDown()
+void RawCircularBufferWithSlotsize_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofRawCircularBuffer_O);
   EXPECT_TRUE(mpBofRawCircularBuffer_O == nullptr);
 }
 
-TEST_F(BofRawCircularBufferWithSlotsize_Test, CheckByteBuffer)
+TEST_F(RawCircularBufferWithSlotsize_Test, CheckByteBuffer)
 {
   uint32_t Nb_U32, i_U32, Index_U32, Size_U32;
   BOFERR Sts_E;

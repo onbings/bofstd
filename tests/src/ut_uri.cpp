@@ -71,38 +71,39 @@ TEST(Uri_Test, UriConstructorDestructor)
   EXPECT_TRUE(Uri.IsValid());
   EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol:/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
-  Uri = BofUri("myprotocol", "john.doe:password@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
+  // Need internet  Uri = BofUri("myprotocol", "john.doe:password@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
+  Uri = BofUri("myprotocol", "john.doe:password@1.2.3.4:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe:password@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
   EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(SchemeAuthority_X.Password_S.c_str(), "password");
 
-  Uri = BofUri("myprotocol", "john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
+  Uri = BofUri("myprotocol", "john.doe@1.2.3.4:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
-  EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@www.google.com:123");
+  EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@1.2.3.4:123");
   EXPECT_STREQ(SchemeAuthority_X.Protocol_S.c_str(), "myprotocol");
   EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
-  EXPECT_STREQ(SchemeAuthority_X.IpAddress_S.c_str(), "www.google.com");
+  EXPECT_STREQ(SchemeAuthority_X.IpAddress_S.c_str(), "1.2.3.4");
   EXPECT_EQ(SchemeAuthority_X.Port_U16, 123);
 
-  Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey#top");
+  Uri = BofUri("myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt?tag=networking&order=newest;justkey#top");
   EXPECT_TRUE(Uri.IsValid());
   // printf("Uri: '%s'\n", Uri.ToString().c_str());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest&tag=networking#top");
 
   SchemeAuthority_X = Uri.SchemeAuthority(SchemeAuthority_S);
-  EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@www.google.com:123");
+  EXPECT_STREQ(SchemeAuthority_S.c_str(), "myprotocol://john.doe@1.2.3.4:123");
   EXPECT_STREQ(SchemeAuthority_X.Protocol_S.c_str(), "myprotocol");
   EXPECT_STREQ(SchemeAuthority_X.User_S.c_str(), "john.doe");
-  EXPECT_STREQ(SchemeAuthority_X.IpAddress_S.c_str(), "www.google.com");
+  EXPECT_STREQ(SchemeAuthority_X.IpAddress_S.c_str(), "1.2.3.4");
   EXPECT_EQ(SchemeAuthority_X.Port_U16, 123);
 
   EXPECT_STREQ(Uri.Scheme().c_str(), "myprotocol");
-  EXPECT_STREQ(Uri.Authority().c_str(), "john.doe@www.google.com:123");
+  EXPECT_STREQ(Uri.Authority().c_str(), "john.doe@1.2.3.4:123");
 
   IpAddress_X = Uri.IpAddress(IpAddress_S);
   // Can chage (google.com) EXPECT_STREQ(IpAddress_S.c_str(), "myprotocol://142.251.36.4:123");
@@ -127,17 +128,17 @@ TEST(Uri_Test, UriConstructorDestructor)
   Fragment_S = Uri.Fragment();
   EXPECT_STREQ(Fragment_S.c_str(), "top");
 
-  Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?tag=networking&order=newest;justkey");
+  Uri = BofUri("myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt?tag=networking&order=newest;justkey");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey&order=newest&tag=networking");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest&tag=networking");
 
-  Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt#top");
+  Uri = BofUri("myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt#top");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt#top");
 
-  Uri = BofUri("myprotocol://john.doe@www.google.com:123/forum/questions/file.txt");
+  Uri = BofUri("myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt");
   EXPECT_TRUE(Uri.IsValid());
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt");
 }
 
 TEST(Uri_Test, Set)
@@ -158,7 +159,7 @@ TEST(Uri_Test, Set)
   EXPECT_EQ(Uri.SetScheme("myprotocol"), BOF_ERR_NO_ERROR);
   EXPECT_TRUE(Uri.IsValid());
 
-  EXPECT_EQ(Uri.SetAuthority("john.doe@www.google.com:123"), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Uri.SetAuthority("john.doe@1.2.3.4:123"), BOF_ERR_NO_ERROR);
   EXPECT_TRUE(Uri.IsValid());
 
   EXPECT_EQ(Uri.SetPath(std::string("/forum/questions/file.txt")), BOF_ERR_NO_ERROR);
@@ -170,7 +171,7 @@ TEST(Uri_Test, Set)
   EXPECT_EQ(Uri.SetFragment("top"), BOF_ERR_NO_ERROR);
   EXPECT_TRUE(Uri.IsValid());
 
-  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@www.google.com:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
+  EXPECT_STREQ(Uri.ToString().c_str(), "myprotocol://john.doe@1.2.3.4:123/forum/questions/file.txt?justkey;order=newest;tag=networking#top");
 }
 
 TEST(Uri_Test, QueryParamCollection)
@@ -182,7 +183,7 @@ TEST(Uri_Test, QueryParamCollection)
   std::map<std::string, std::string> QueryParamCollection;
   BofUri Uri;
 
-  Uri = BofUri("myprotocol", "john.doe@www.google.com:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
+  Uri = BofUri("myprotocol", "john.doe@1.2.3.4:123", "/forum/questions/file.txt", "tag=networking&order=newest;justkey", "top");
   EXPECT_TRUE(Uri.IsValid());
   EXPECT_EQ(Uri.SetQueryParamDelimiter('&'), BOF_ERR_NO_ERROR);
 

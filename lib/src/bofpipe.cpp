@@ -186,6 +186,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
         // Under linux a named event does not exist Consequently, we're going to use a named pipe instead
         // NO!!! Status_i = unlink(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
         // printf(">DBGBOF< pipe server %s mkfifo %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
+        //!!! Server must be created FIRST !!!
         Status_i = mkfifo(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
         // printf(">DBGBOF< pipe server sts %d/%d\n", Status_i, Bof_GetLastError(false));
         if ((Status_i == 0) || (Bof_GetLastError(false) == BOF_ERR_EEXIST))
@@ -204,6 +205,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       }
       else
       {
+        //!!! Server must be created FIRST !!!
         // printf(">DBGBOF< pipe client %s %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i);
         mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
       }
@@ -294,6 +296,10 @@ BofPipe::~BofPipe()
   CloseHandle(mPipe);
 #else
   close(mPipe);
+  if ((mPipeParam_X.PipeType_E == BOF_PIPE_TYPE::BOF_PIPE_NATIVE) && (mPipeParam_X.PipeServer_B))
+  {
+    unlink(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
+  }
 #endif
   std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
   auto It = S_mPipeCollection.find(mPipeParam_X.BaseChannelParam_X.ChannelName_S);

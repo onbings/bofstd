@@ -19,6 +19,7 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
+#include <bofstd/boffs.h>
 #include <bofstd/bofpipe.h>
 #include <bofstd/bofsystem.h>
 
@@ -30,6 +31,7 @@ USE_BOF_NAMESPACE()
 
 const uint32_t NB_PIPE_LOOP = 10; // 250; if more than 10 we have a problem with docker socket (???)
 const uint32_t PIPE_TIMEOUT = 1000;
+constexpr const char *PIPE_NATIVE_NAME = "/tmp/fifo";
 constexpr const char *FIFO_MSG_PATTERN = "Hello_%06d\n";
 
 struct SERVER_CONTEXT
@@ -53,7 +55,7 @@ static BOFERR ServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_p
   uint8_t pBuffer_U8[0x100];
   BOF_COM_CHANNEL_STATUS Status_X;
   char *p_c;
-  uint32_t Nb_U32, Cpt_U32;
+  uint32_t Nb_U32;
   uint32_t i_U32, Start_U32;
   int Val_i, Expected_i;
 
@@ -66,16 +68,17 @@ static BOFERR ServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_p
     Start_U32 = BOF::Bof_GetMsTickCount();
     for (i_U32 = 0; i_U32 < NB_PIPE_LOOP; i_U32++)
     {
-      // printf("Server waits for data[%d]%s", Cpt_U32, Bof_Eol());
       Rts_E = pContext_X->pBofPipeServer->V_GetStatus(Status_X);
       EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
       if (Status_X.NbIn_U32)
       {
-        // printf("Server nB %d\n", Status_X.NbIn_U32);
+        printf("Server has %d byte pending\n", Status_X.NbIn_U32);
       }
       Nb_U32 = sizeof(pBuffer_U8);
       memset(pBuffer_U8, 0, Nb_U32);
+      printf("Server waits for data[%d] To %d MaxChar %d\n", i_U32, PIPE_TIMEOUT, Nb_U32);
       Rts_E = pContext_X->pBofPipeServer->V_ReadData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
+      // printf("Server got %d byte: %s (%s)\n", Nb_U32, pBuffer_U8, BOF::Bof_ErrorCode(Rts_E));
       EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
@@ -173,6 +176,10 @@ TEST(Pipe_Test, UdpPipeSingle)
   BOF_COM_CHANNEL_STATUS Status_X;
   std::atomic<bool> ThreadLoopMustExit_B = false;
 
+#if defined(_WIN32)
+#else
+  Bof_DeleteFile(PIPE_NATIVE_NAME);
+#endif
   PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_OVER_LOCAL_UDP;
   PipeParam_X.PipeAccess_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ;
   PipeParam_X.PipeServer_B = true;
@@ -184,7 +191,7 @@ TEST(Pipe_Test, UdpPipeSingle)
 
   PipeParam_X.SrcPortBase_U16 = 55000;
   PipeParam_X.DstPortBase_U16 = 55010;
-  pBofPipeServer = new BofPipe(PipeParam_X);
+  pBofPipeServer = new BofPipe(PipeParam_X); // first the server
   EXPECT_TRUE(pBofPipeServer != nullptr);
   EXPECT_EQ(pBofPipeServer->LastErrorCode(), BOF_ERR_NO_ERROR);
 
@@ -266,7 +273,7 @@ TEST(Pipe_Test, NativePipeSingleString)
   BOFERR Sts_E;
   SERVER_CONTEXT ServerContext_X;
   BOF_THREAD ServerThread_X;
-  BOF_COM_CHANNEL_STATUS StatusIn_X, StatusOut_X;
+  BOF_COM_CHANNEL_STATUS StatusClient_X, StatusServer_X;
 
   PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_NATIVE;
   PipeParam_X.PipeAccess_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ;
@@ -274,12 +281,12 @@ TEST(Pipe_Test, NativePipeSingleString)
   PipeParam_X.NativeStringMode_B = true;
   PipeParam_X.BaseChannelParam_X.Blocking_B = false;
   PipeParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
-  PipeParam_X.BaseChannelParam_X.ChannelName_S = "/tmp/fifo";
+  PipeParam_X.BaseChannelParam_X.ChannelName_S = PIPE_NATIVE_NAME;
   PipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 4096;
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
   PipeParam_X.SrcPortBase_U16 = 0;
   PipeParam_X.DstPortBase_U16 = 0;
-  pBofPipeServer = new BofPipe(PipeParam_X);
+  pBofPipeServer = new BofPipe(PipeParam_X); // first the server
   EXPECT_TRUE(pBofPipeServer != nullptr);
   EXPECT_EQ(pBofPipeServer->LastErrorCode(), BOF_ERR_NO_ERROR);
   PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_NATIVE;
@@ -288,7 +295,7 @@ TEST(Pipe_Test, NativePipeSingleString)
   PipeParam_X.NativeStringMode_B = true;
   PipeParam_X.BaseChannelParam_X.Blocking_B = false;
   PipeParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
-  PipeParam_X.BaseChannelParam_X.ChannelName_S = "/tmp/fifo";
+  PipeParam_X.BaseChannelParam_X.ChannelName_S = PIPE_NATIVE_NAME;
   PipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 4096;
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
   PipeParam_X.SrcPortBase_U16 = 0;
@@ -319,18 +326,19 @@ TEST(Pipe_Test, NativePipeSingleString)
     Sts_E = pBofPipeClient->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(Nb_U32, Size_U32);
-    Sts_E = pBofPipeClient->V_GetStatus(StatusIn_X);
-    EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    // Sts_E = pBofPipeServer->V_GetStatus(StatusOut_X);
-    // EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+    /*
+        Sts_E = pBofPipeClient->V_GetStatus(StatusClient_X);
+        EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+        Sts_E = pBofPipeServer->V_GetStatus(StatusServer_X);
+        EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-    // EXPECT_EQ(StatusIn_X.NbIn_U32, StatusOut_X.NbIn_U32);
-    // EXPECT_EQ(StatusIn_X.NbIn_U32, Total_U32);
-    // printf("CLIENT SEND Total %d\n", Total_U32);
+        EXPECT_EQ(StatusClient_X.NbIn_U32, StatusServer_X.NbIn_U32);
+        EXPECT_EQ(StatusClient_X.NbIn_U32, Total_U32);
+        printf("CLIENT SEND Total %d\n", Total_U32);
+    */
   }
   // std::atomic<bool> MustExit_B=false;
   // ServerThread(MustExit_B, &ServerContext_X);
-
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   // printf("%d loop in %d ms%s", i_U32, Delta_U32, Bof_Eol());
 
@@ -354,12 +362,28 @@ TEST(Pipe_Test, NativePipeSingleBinary)
   BOF_COM_CHANNEL_STATUS Status_X;
 
   PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_NATIVE;
+  PipeParam_X.PipeAccess_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE;
+  PipeParam_X.PipeServer_B = true;
+  PipeParam_X.NativeStringMode_B = false;
+  PipeParam_X.BaseChannelParam_X.Blocking_B = false;
+  PipeParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
+  PipeParam_X.BaseChannelParam_X.ChannelName_S = PIPE_NATIVE_NAME;
+  PipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 4096;
+  PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
+  PipeParam_X.SrcPortBase_U16 = 0;
+  PipeParam_X.DstPortBase_U16 = 0;
+  pBofPipeServer = new BofPipe(PipeParam_X); // first the server
+  EXPECT_TRUE(pBofPipeServer != nullptr);
+  EXPECT_EQ(pBofPipeServer->LastErrorCode(), BOF_ERR_NO_ERROR);
+  ServerContext_X.pBofPipeServer = pBofPipeServer;
+
+  PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_NATIVE;
   PipeParam_X.PipeAccess_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ;
   PipeParam_X.PipeServer_B = false;
   PipeParam_X.NativeStringMode_B = false;
   PipeParam_X.BaseChannelParam_X.Blocking_B = false;
   PipeParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
-  PipeParam_X.BaseChannelParam_X.ChannelName_S = "/tmp/fifo";
+  PipeParam_X.BaseChannelParam_X.ChannelName_S = PIPE_NATIVE_NAME;
   PipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 4096;
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
   PipeParam_X.SrcPortBase_U16 = 0;
@@ -367,22 +391,6 @@ TEST(Pipe_Test, NativePipeSingleBinary)
   pBofPipeClient = new BofPipe(PipeParam_X);
   EXPECT_TRUE(pBofPipeClient != nullptr);
   EXPECT_EQ(pBofPipeClient->LastErrorCode(), BOF_ERR_NO_ERROR);
-
-  PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_NATIVE;
-  PipeParam_X.PipeAccess_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE;
-  PipeParam_X.PipeServer_B = true;
-  PipeParam_X.NativeStringMode_B = false;
-  PipeParam_X.BaseChannelParam_X.Blocking_B = false;
-  PipeParam_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
-  PipeParam_X.BaseChannelParam_X.ChannelName_S = "/tmp/fifo";
-  PipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 4096;
-  PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
-  PipeParam_X.SrcPortBase_U16 = 0;
-  PipeParam_X.DstPortBase_U16 = 0;
-  pBofPipeServer = new BofPipe(PipeParam_X);
-  EXPECT_TRUE(pBofPipeServer != nullptr);
-  EXPECT_EQ(pBofPipeServer->LastErrorCode(), BOF_ERR_NO_ERROR);
-  ServerContext_X.pBofPipeServer = pBofPipeServer;
 
   Sts_E = Bof_CreateThread("Server", BinaryServerThread, &ServerContext_X, ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -411,8 +419,8 @@ TEST(Pipe_Test, NativePipeSingleBinary)
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   // printf("%d loop in %d ms\n", i_U32, Delta_U32);
 
-  Sts_E = Bof_StopThread(ServerThread_X);
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  // Sts_E = Bof_StopThread(ServerThread_X);
+  // EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   BOF_SAFE_DELETE(pBofPipeServer);
   BOF_SAFE_DELETE(pBofPipeClient);

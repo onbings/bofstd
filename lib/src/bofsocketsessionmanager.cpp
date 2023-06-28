@@ -31,15 +31,15 @@
 #endif
 // int con = -1, lis = -1;
 BEGIN_BOF_NAMESPACE()
-#define SEND_OPTIONAL_ANSWER(Arg)                                                                                                                                                                                                                              \
-  {                                                                                                                                                                                                                                                            \
-    if (PollSocketCmd_X.AnswerTicket_U32)                                                                                                                                                                                                                      \
-    {                                                                                                                                                                                                                                                          \
-      PollSocketCmd_X.AnswerArg_U32 = Arg;                                                                                                                                                                                                                     \
-      Nb_U32 = sizeof(BOF_POLL_SOCKET_CMD);                                                                                                                                                                                                                    \
-      Sts_E = mpsPollControlReceiver->NativeBofSocketPointer()->V_WriteData(0, Nb_U32, reinterpret_cast<uint8_t *>(&PollSocketCmd_X));                                                                                                                         \
-      BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);                                                                                                                                                                                                                   \
-    }                                                                                                                                                                                                                                                          \
+#define SEND_OPTIONAL_ANSWER(Arg)                                                                                                      \
+  {                                                                                                                                    \
+    if (PollSocketCmd_X.AnswerTicket_U32)                                                                                              \
+    {                                                                                                                                  \
+      PollSocketCmd_X.AnswerArg_U32 = Arg;                                                                                             \
+      Nb_U32 = sizeof(BOF_POLL_SOCKET_CMD);                                                                                            \
+      Sts_E = mpsPollControlReceiver->NativeBofSocketPointer()->V_WriteData(0, Nb_U32, reinterpret_cast<uint8_t *>(&PollSocketCmd_X)); \
+      BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);                                                                                           \
+    }                                                                                                                                  \
   }
 
 constexpr uint32_t POLL_TIMEOUT_IN_MS = 500;
@@ -54,7 +54,8 @@ static BofEnum<BOF_SOCKET_SESSION_TYPE> S_BofSocketSessionTypeEnumConverter({{BO
                                                                              {BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL, "DATA_CHANNEL"}},
                                                                             BOF_SOCKET_SESSION_TYPE::UNKNOWN);
 
-BofSocketSessionManager::BofSocketSessionManager(IBofSocketSessionFactory *_pIBofSocketSessionFactory, BofSocketServer *_pBofSocketServer, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X) : BofThread()
+BofSocketSessionManager::BofSocketSessionManager(IBofSocketSessionFactory *_pIBofSocketSessionFactory, BofSocketServer *_pBofSocketServer, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X)
+    : BofThread()
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
   uint32_t i_U32, PollControllSocketBufferSize_U32, Start_U32, Delta_U32, TimeoutInMs_U32;
@@ -208,7 +209,7 @@ BofSocketSessionManager::BofSocketSessionManager(IBofSocketSessionFactory *_pIBo
           }
         }
       }
-//      BOF_ASSERT(mErrorCode_E == BOF_ERR_NO_ERROR);
+      //      BOF_ASSERT(mErrorCode_E == BOF_ERR_NO_ERROR);
     }
   }
 }
@@ -1028,7 +1029,7 @@ BOFERR BofSocketSessionManager::V_OnProcessing()
             if (REvent_U16) // NbPollSet_U32)
             {
               //							BOF_DBG_PRINTF("@@@%s iter %d on %d evt %04X sz %d chk %d/%d Fd[%d]=%08X evt %04X\n",  mBofSocketServerParam_X.Name_S.c_str(), i_U32, mNbPollEntry.load(), REvent_U16, static_cast<uint32_t>(mSessionCollection.size()),
-              //NbPollSignaled_U32, NbPollSet_U32, i_U32, mpPollOp_X[i_U32].Fd, REvent_U16);
+              // NbPollSignaled_U32, NbPollSet_U32, i_U32, mpPollOp_X[i_U32].Fd, REvent_U16);
             }
             Rts_E = BOF_ERR_NOT_FOUND;
             SessionId = mpPollOp_X[i_U32].Fd;
@@ -1038,133 +1039,133 @@ BOFERR BofSocketSessionManager::V_OnProcessing()
               if (REvent_U16)
               {
                 //								BOF_DBG_PRINTF("@@@%s evt %X LastIoTime %d now %d -> %d ms for %d:%p id %08X typ %d\n",  mBofSocketServerParam_X.Name_S.c_str(), REvent_U16, psSocketSession->LastIoTimeInMs(), Bof_GetMsTickCount(), Bof_GetMsTickCount() -
-                //psSocketSession->LastIoTimeInMs(), psSocketSession.use_count(), psSocketSession.get(), psSocketSession->SessionId(), psSocketSession->SessionType());
+                // psSocketSession->LastIoTimeInMs(), psSocketSession.use_count(), psSocketSession.get(), psSocketSession->SessionId(), psSocketSession->SessionType());
 
                 psSocketSession->LastIoTimeInMs(Bof_GetMsTickCount());
                 switch (psSocketSession->SessionType())
                 {
-                default:
-                case BOF_SOCKET_SESSION_TYPE::UNKNOWN:
-                case BOF_SOCKET_SESSION_TYPE::CMD_POLL_WAIT:
-                  BOF_ASSERT(0); // mpPollOp_X[0] has been managed by BofSocketSessionManager::Poll
-                  break;
+                  default:
+                  case BOF_SOCKET_SESSION_TYPE::UNKNOWN:
+                  case BOF_SOCKET_SESSION_TYPE::CMD_POLL_WAIT:
+                    BOF_ASSERT(0); // mpPollOp_X[0] has been managed by BofSocketSessionManager::Poll
+                    break;
 
-                case BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER:
-                  if (REvent_U16 & BOF_POLL_IN) // First data
-                  {
-                    if (mpBofSocketServer) // Only BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER/DATA_LISTENER have a psSocketServer
+                  case BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER:
+                    if (REvent_U16 & BOF_POLL_IN) // First data
                     {
-                      Sts_E = mpBofSocketServer->SignalConnectionRequest(psSocketSession->NativeBofSocketPointer());
-                    }
-                  }
-                  if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL)) // After error which can be set also with BOF_POLL_IN (Data channel write and closed)
-                  {
-                  }
-                  break;
-
-                case BOF_SOCKET_SESSION_TYPE::DATA_LISTENER:
-                  if (REvent_U16 & BOF_POLL_IN) // First data
-                  {
-                    psParentSocketSession = psSocketSession->ParentCmdChannel().expired() ? nullptr : psSocketSession->ParentCmdChannel().lock();
-                    if ((mpBofSocketServer) && (psSocketSession->NativeBofSocketPointer()) && (psParentSocketSession)) // only BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER/DATA_LISTENER have a psSocketServer
-                    {
-                      Sts_E = BOF_ERR_ECONNREFUSED;
-                      pChannel = psSocketSession->NativeBofSocketPointer()->V_Listen(0, "");
-                      if (pChannel)
+                      if (mpBofSocketServer) // Only BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER/DATA_LISTENER have a psSocketServer
                       {
-                        puDataSocket.reset(dynamic_cast<BofSocket *>(pChannel));
-                        if (puDataSocket)
-                        {
-                          ////BOF_DBG_PRINTF("@@@%s DATA_LISTENER Parent typ %d Id %08X To %d ses %d   Vs   Sock typ %d Id %08X To %d ses %d\n",  mBofSocketServerParam_X.Name_S.c_str(), psParentSocketSession->SessionType(),
-                          ///psParentSocketSession->SessionId(), psParentSocketSession->NoIoCloseTimeoutInMs(), psParentSocketSession->SessionIndex(), psSocketSession->SessionType(), psSocketSession->SessionId(), psSocketSession->NoIoCloseTimeoutInMs(),
-                          ///psSocketSession->SessionIndex());
-                          Sts_E = mpBofSocketServer->ConnectSession(BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL, psParentSocketSession, psParentSocketSession->NoIoCloseTimeoutInMs(), std::move(puDataSocket), psParentSocketSession->SessionIndex(),
-                                                                    psDataSocketSession);
-                        }
+                        Sts_E = mpBofSocketServer->SignalConnectionRequest(psSocketSession->NativeBofSocketPointer());
                       }
                     }
-                  }
-                  if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL)) // After error which can be set also with BOF_POLL_IN (Data channel write and closed)
-                  {
-                  }
-                  ////BOF_DBG_PRINTF("@@@%s DATA_LISTENER Start Remove Id %08X %d/%d\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, i_U32, mNbPollEntry.load());
-                  Sts_E = RemovePollEntry(false, SessionId);
-                  if (Sts_E == BOF_ERR_NO_ERROR) // We are in the for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++) loop AND mNbPollEntry_U32 has been reduced -> dec i_U32 to prevent  i_U32++ in loop
-                  {
-                    i_U32--;
-                  }
-                  ////BOF_DBG_PRINTF("@@@%s DATA_LISTENER End Remove Id %08X Sts %d i %d/%d\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, Sts_E,i_U32,mNbPollEntry.load());
-                  break;
-
-                case BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL:
-                case BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL:
-                case BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL:
-
-                  if (REvent_U16 & BOF_POLL_IN) // First data
-                  {
-                    if (psSocketSession->Connected())
+                    if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL)) // After error which can be set also with BOF_POLL_IN (Data channel write and closed)
                     {
-                      if (psSocketSession->NativeBofSocketPointer())
+                    }
+                    break;
+
+                  case BOF_SOCKET_SESSION_TYPE::DATA_LISTENER:
+                    if (REvent_U16 & BOF_POLL_IN) // First data
+                    {
+                      psParentSocketSession = psSocketSession->ParentCmdChannel().expired() ? nullptr : psSocketSession->ParentCmdChannel().lock();
+                      if ((mpBofSocketServer) && (psSocketSession->NativeBofSocketPointer()) && (psParentSocketSession)) // only BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER/DATA_LISTENER have a psSocketServer
                       {
-                        if (psSocketSession->SessionType() == BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL)
+                        Sts_E = BOF_ERR_ECONNREFUSED;
+                        pChannel = psSocketSession->NativeBofSocketPointer()->V_Listen(0, "");
+                        if (pChannel)
                         {
-                          Sts_E = psSocketSession->V_SignalPoll(REvent_U16, psSocketSession);
-                        }
-                        else
-                        {
-                          Sts_E = psSocketSession->ParseAndDispatchIncomingData(0); // TODO: Cmd or data byte stream
-                          // BOF_DBG_PRINTF("@@@%s ParseAndDispatchIncomingData Id %08X Sts %s\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, Bof_ErrorCode(Sts_E));
-                          if (Sts_E == BOF_ERR_ENETRESET)
+                          puDataSocket.reset(dynamic_cast<BofSocket *>(pChannel));
+                          if (puDataSocket)
                           {
-                            REvent_U16 |= BOF_POLL_HUP; // Force it to avoid duplicate V_SignalError (below and if (REvent_U16 &  (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL))	//After err
-                            Sts_E = BOF_ERR_NO_ERROR;
-                            /*
-                                                      psSocketSession->V_SignalError(psSocketSession->SocketUserArg(), Sts_E, "V_OnProcessing2", true);
-                                                      Sts_E = RemovePollEntry(false, SessionId);
-                                                      if (Sts_E == BOF_ERR_NO_ERROR)	//We are in the for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++) loop AND mNbPollEntry_U32 has been reduced -> dec i_U32 to prevent  i_U32++ in loop
-                                                      {
-                                                        i_U32--;
-                                                      }
-                            */
+                            ////BOF_DBG_PRINTF("@@@%s DATA_LISTENER Parent typ %d Id %08X To %d ses %d   Vs   Sock typ %d Id %08X To %d ses %d\n",  mBofSocketServerParam_X.Name_S.c_str(), psParentSocketSession->SessionType(),
+                            /// psParentSocketSession->SessionId(), psParentSocketSession->NoIoCloseTimeoutInMs(), psParentSocketSession->SessionIndex(), psSocketSession->SessionType(), psSocketSession->SessionId(), psSocketSession->NoIoCloseTimeoutInMs(),
+                            /// psSocketSession->SessionIndex());
+                            Sts_E = mpBofSocketServer->ConnectSession(BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL, psParentSocketSession, psParentSocketSession->NoIoCloseTimeoutInMs(), std::move(puDataSocket), psParentSocketSession->SessionIndex(),
+                                                                      psDataSocketSession);
                           }
                         }
-                        BOF_ASSERT((Sts_E == BOF_ERR_NO_ERROR) || (Sts_E == BOF_ERR_EMPTY)); // data cannot be read->Stay in BOF_POLL_IN
                       }
                     }
-                  }
-
-                  if (REvent_U16 & BOF_POLL_OUT)
-                  {
-                  }
-
-                  if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL)) // After error which can be set also with BOF_POLL_IN (Data channel write and closed)
-                  {
-                    if (psSocketSession->NotifyType() == BOF_SOCKET_IO_NOTIFY_TYPE::WHEN_FULL_OR_CLOSED)
+                    if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL)) // After error which can be set also with BOF_POLL_IN (Data channel write and closed)
                     {
-                      Sts_E = psSocketSession->NotifyPendingData();
                     }
-                    Sts_E = BOF_ERR_INTERNAL;
-                    //	if (SocketSession_X.pSocketIo)  //BOF_SOCKET_SESSION_TYPE::CANCEL/LISTENER has no session
-                    if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP))
-                    {
-                      Sts_E = BOF_ERR_ENETRESET;
-                    }
-                    else if (REvent_U16 & BOF_POLL_ERR)
-                    {
-                      Sts_E = BOF_ERR_ECONNABORTED;
-                    }
-                    else if (REvent_U16 & BOF_POLL_NVAL)
-                    {
-                      Sts_E = BOF_ERR_NOT_OPENED;
-                    }
-                    psSocketSession->V_SignalError(Sts_E, "V_OnProcessing1", true);
+                    ////BOF_DBG_PRINTF("@@@%s DATA_LISTENER Start Remove Id %08X %d/%d\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, i_U32, mNbPollEntry.load());
                     Sts_E = RemovePollEntry(false, SessionId);
-                    BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
                     if (Sts_E == BOF_ERR_NO_ERROR) // We are in the for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++) loop AND mNbPollEntry_U32 has been reduced -> dec i_U32 to prevent  i_U32++ in loop
                     {
                       i_U32--;
                     }
-                  }
+                    ////BOF_DBG_PRINTF("@@@%s DATA_LISTENER End Remove Id %08X Sts %d i %d/%d\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, Sts_E,i_U32,mNbPollEntry.load());
+                    break;
+
+                  case BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL:
+                  case BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL:
+                  case BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL:
+
+                    if (REvent_U16 & BOF_POLL_IN) // First data
+                    {
+                      if (psSocketSession->Connected())
+                      {
+                        if (psSocketSession->NativeBofSocketPointer())
+                        {
+                          if (psSocketSession->SessionType() == BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL)
+                          {
+                            Sts_E = psSocketSession->V_SignalPoll(REvent_U16, psSocketSession);
+                          }
+                          else
+                          {
+                            Sts_E = psSocketSession->ParseAndDispatchIncomingData(0); // TODO: Cmd or data byte stream
+                            // BOF_DBG_PRINTF("@@@%s ParseAndDispatchIncomingData Id %08X Sts %s\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, Bof_ErrorCode(Sts_E));
+                            if (Sts_E == BOF_ERR_ENETRESET)
+                            {
+                              REvent_U16 |= BOF_POLL_HUP; // Force it to avoid duplicate V_SignalError (below and if (REvent_U16 &  (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL))	//After err
+                              Sts_E = BOF_ERR_NO_ERROR;
+                              /*
+                                                        psSocketSession->V_SignalError(psSocketSession->SocketUserArg(), Sts_E, "V_OnProcessing2", true);
+                                                        Sts_E = RemovePollEntry(false, SessionId);
+                                                        if (Sts_E == BOF_ERR_NO_ERROR)	//We are in the for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++) loop AND mNbPollEntry_U32 has been reduced -> dec i_U32 to prevent  i_U32++ in loop
+                                                        {
+                                                          i_U32--;
+                                                        }
+                              */
+                            }
+                          }
+                          BOF_ASSERT((Sts_E == BOF_ERR_NO_ERROR) || (Sts_E == BOF_ERR_EMPTY)); // data cannot be read->Stay in BOF_POLL_IN
+                        }
+                      }
+                    }
+
+                    if (REvent_U16 & BOF_POLL_OUT)
+                    {
+                    }
+
+                    if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP | BOF_POLL_ERR | BOF_POLL_NVAL)) // After error which can be set also with BOF_POLL_IN (Data channel write and closed)
+                    {
+                      if (psSocketSession->NotifyType() == BOF_SOCKET_IO_NOTIFY_TYPE::WHEN_FULL_OR_CLOSED)
+                      {
+                        Sts_E = psSocketSession->NotifyPendingData();
+                      }
+                      Sts_E = BOF_ERR_INTERNAL;
+                      //	if (SocketSession_X.pSocketIo)  //BOF_SOCKET_SESSION_TYPE::CANCEL/LISTENER has no session
+                      if (REvent_U16 & (BOF_POLL_HUP | BOF_POLL_RDHUP))
+                      {
+                        Sts_E = BOF_ERR_ENETRESET;
+                      }
+                      else if (REvent_U16 & BOF_POLL_ERR)
+                      {
+                        Sts_E = BOF_ERR_ECONNABORTED;
+                      }
+                      else if (REvent_U16 & BOF_POLL_NVAL)
+                      {
+                        Sts_E = BOF_ERR_NOT_OPENED;
+                      }
+                      psSocketSession->V_SignalError(Sts_E, "V_OnProcessing1", true);
+                      Sts_E = RemovePollEntry(false, SessionId);
+                      BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+                      if (Sts_E == BOF_ERR_NO_ERROR) // We are in the for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++) loop AND mNbPollEntry_U32 has been reduced -> dec i_U32 to prevent  i_U32++ in loop
+                      {
+                        i_U32--;
+                      }
+                    }
 
                 } // switch
               }
@@ -1172,36 +1173,36 @@ BOFERR BofSocketSessionManager::V_OnProcessing()
               {
                 switch (psSocketSession->SessionType())
                 {
-                default:
-                case BOF_SOCKET_SESSION_TYPE::UNKNOWN:
-                case BOF_SOCKET_SESSION_TYPE::CMD_POLL_WAIT:
-                  BOF_ASSERT(0); // mpPollOp_X[0] has been managed by BofSocketSessionManager::Poll
-                  break;
+                  default:
+                  case BOF_SOCKET_SESSION_TYPE::UNKNOWN:
+                  case BOF_SOCKET_SESSION_TYPE::CMD_POLL_WAIT:
+                    BOF_ASSERT(0); // mpPollOp_X[0] has been managed by BofSocketSessionManager::Poll
+                    break;
 
-                case BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER:
-                  break;
+                  case BOF_SOCKET_SESSION_TYPE::SERVER_LISTENER:
+                    break;
 
-                case BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL:
-                case BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL:
-                case BOF_SOCKET_SESSION_TYPE::DATA_LISTENER:
-                case BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL:
-                  if (psSocketSession->NoIoCloseTimeoutInMs())
-                  {
-                    Delta_U32 = Bof_ElapsedMsTime(psSocketSession->LastIoTimeInMs());
-                    if (Delta_U32 > psSocketSession->NoIoCloseTimeoutInMs())
+                  case BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL:
+                  case BOF_SOCKET_SESSION_TYPE::DATA_CHANNEL:
+                  case BOF_SOCKET_SESSION_TYPE::DATA_LISTENER:
+                  case BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL:
+                    if (psSocketSession->NoIoCloseTimeoutInMs())
                     {
-                      ////BOF_DBG_PRINTF("@@@%s Timeout -> I'm going to RemovePollEntry Id %08X delta %d/%d for %d:%p\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, Delta_U32, psSocketSession->NoIoCloseTimeoutInMs(), psSocketSession.use_count(),
-                      ///(void *)psSocketSession.get());
-
-                      Sts_E = RemovePollEntry(false, SessionId);
-                      if (Sts_E == BOF_ERR_NO_ERROR) // We are in the for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++) loop AND mNbPollEntry_U32 has been reduced -> dec i_U32 to prevent  i_U32++ in loop
+                      Delta_U32 = Bof_ElapsedMsTime(psSocketSession->LastIoTimeInMs());
+                      if (Delta_U32 > psSocketSession->NoIoCloseTimeoutInMs())
                       {
-                        i_U32--;
+                        ////BOF_DBG_PRINTF("@@@%s Timeout -> I'm going to RemovePollEntry Id %08X delta %d/%d for %d:%p\n",  mBofSocketServerParam_X.Name_S.c_str(), SessionId, Delta_U32, psSocketSession->NoIoCloseTimeoutInMs(), psSocketSession.use_count(),
+                        ///(void *)psSocketSession.get());
+
+                        Sts_E = RemovePollEntry(false, SessionId);
+                        if (Sts_E == BOF_ERR_NO_ERROR) // We are in the for (i_U32 = 1; i_U32 < mNbPollEntry_U32; i_U32++) loop AND mNbPollEntry_U32 has been reduced -> dec i_U32 to prevent  i_U32++ in loop
+                        {
+                          i_U32--;
+                        }
+                        ////BOF_DBG_PRINTF("@@@%s Timeout i %d Nb %d/%d\n",  mBofSocketServerParam_X.Name_S.c_str(), i_U32, NbPollSignaled_U32, NbPollSet_U32);
                       }
-                      ////BOF_DBG_PRINTF("@@@%s Timeout i %d Nb %d/%d\n",  mBofSocketServerParam_X.Name_S.c_str(), i_U32, NbPollSignaled_U32, NbPollSet_U32);
                     }
-                  }
-                  break;
+                    break;
                 }
               }
             }
@@ -1223,60 +1224,60 @@ BOFERR BofSocketSessionManager::V_OnProcessing()
         } // if (PollSocketCmd_X.SocketOp_E != BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_QUIT)
         switch (PollSocketCmd_X.SocketOp_E)
         {
-        case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_NONE:
-          break;
+          case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_NONE:
+            break;
 
-        case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_QUIT:
-          ////BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_QUIT\n",  mBofSocketServerParam_X.Name_S.c_str());
-          EndOfCmdProcessing_B = true;
-          Rts_E = BOF_ERR_STOPPED; // Not  BOF_ERR_CANCEL !
-          SEND_OPTIONAL_ANSWER(Rts_E);
-          break;
+          case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_QUIT:
+            ////BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_QUIT\n",  mBofSocketServerParam_X.Name_S.c_str());
+            EndOfCmdProcessing_B = true;
+            Rts_E = BOF_ERR_STOPPED; // Not  BOF_ERR_CANCEL !
+            SEND_OPTIONAL_ANSWER(Rts_E);
+            break;
 
-        case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_ADD_ENTRY:
-          // BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_ADD_ENTRY NbPollEntry %d Max %d Id %08X\n",  mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), mNbMaxPollEntry_U32, PollSocketCmd_X.SessionId);
-          Sts_E = BOF_ERR_TOO_BIG;
-          if (mNbPollEntry < mNbMaxPollEntry_U32)
-          {
-            Sts_E = BOF_ERR_NOT_FOUND;
-            psAddSocketSession = FindAndGetBofSocketIo(" Find_V_OnProcessing_2", PollSocketCmd_X.SessionId);
-            if (psAddSocketSession != nullptr)
+          case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_ADD_ENTRY:
+            // BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_ADD_ENTRY NbPollEntry %d Max %d Id %08X\n",  mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), mNbMaxPollEntry_U32, PollSocketCmd_X.SessionId);
+            Sts_E = BOF_ERR_TOO_BIG;
+            if (mNbPollEntry < mNbMaxPollEntry_U32)
             {
-              Sts_E = psAddSocketSession->V_SignalOpened(psAddSocketSession->SessionIndex(), psAddSocketSession); // , (psSocketSession->ParentCmdChannel().expired()) ? nullptr : psSocketSession->ParentCmdChannel().lock());
-              // BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_ADD_ENTRY AddIt Fd[%d]=%08X Session %d\n", mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), PollSocketCmd_X.SessionId, psAddSocketSession->SessionIndex());
-              if (Sts_E == BOF_ERR_NO_ERROR)
+              Sts_E = BOF_ERR_NOT_FOUND;
+              psAddSocketSession = FindAndGetBofSocketIo(" Find_V_OnProcessing_2", PollSocketCmd_X.SessionId);
+              if (psAddSocketSession != nullptr)
               {
-                mpPollOp_X[mNbPollEntry].Fd = PollSocketCmd_X.SessionId;
-                mpPollOp_X[mNbPollEntry].Event_U16 = (BOF_POLL_IN | BOF_POLL_RDHUP);
-                mNbPollEntry++;
-                if ((psAddSocketSession->SessionType() == BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL) || (psAddSocketSession->SessionType() == BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL))
+                Sts_E = psAddSocketSession->V_SignalOpened(psAddSocketSession->SessionIndex(), psAddSocketSession); // , (psSocketSession->ParentCmdChannel().expired()) ? nullptr : psSocketSession->ParentCmdChannel().lock());
+                // BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_ADD_ENTRY AddIt Fd[%d]=%08X Session %d\n", mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), PollSocketCmd_X.SessionId, psAddSocketSession->SessionIndex());
+                if (Sts_E == BOF_ERR_NO_ERROR)
                 {
-                  LockThreadCriticalSection(" ConnectSession");
-                  mConnectedSessionCollection.push_back(psAddSocketSession);
-                  UnlockThreadCriticalSection();
+                  mpPollOp_X[mNbPollEntry].Fd = PollSocketCmd_X.SessionId;
+                  mpPollOp_X[mNbPollEntry].Event_U16 = (BOF_POLL_IN | BOF_POLL_RDHUP);
+                  mNbPollEntry++;
+                  if ((psAddSocketSession->SessionType() == BOF_SOCKET_SESSION_TYPE::COMMAND_CHANNEL) || (psAddSocketSession->SessionType() == BOF_SOCKET_SESSION_TYPE::POLL_CHANNEL))
+                  {
+                    LockThreadCriticalSection(" ConnectSession");
+                    mConnectedSessionCollection.push_back(psAddSocketSession);
+                    UnlockThreadCriticalSection();
+                  }
                 }
               }
             }
-          }
-          SEND_OPTIONAL_ANSWER(Sts_E);
-          BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-          break;
+            SEND_OPTIONAL_ANSWER(Sts_E);
+            BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+            break;
 
-        case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_REMOVE_ENTRY:
-          // BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_REMOVE_ENTRY NbPollEntry %d RemItT Fd[?]=%08X\n",  mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), PollSocketCmd_X.SessionId);
-          Sts_E = RemovePollEntry(false, PollSocketCmd_X.SessionId);
-          BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-          SEND_OPTIONAL_ANSWER(Sts_E);
-          break;
+          case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_REMOVE_ENTRY:
+            // BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_REMOVE_ENTRY NbPollEntry %d RemItT Fd[?]=%08X\n",  mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), PollSocketCmd_X.SessionId);
+            Sts_E = RemovePollEntry(false, PollSocketCmd_X.SessionId);
+            BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+            SEND_OPTIONAL_ANSWER(Sts_E);
+            break;
 
-        case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_TEST:
-          ////BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_TEST NbPollEntry %d RemItT Fd[?]=%08X\n",  mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), PollSocketCmd_X.SessionId);
-          mNbPollEntry++;
-          SEND_OPTIONAL_ANSWER(BOF_ERR_NO_ERROR);
-          break;
+          case BOF_POLL_SOCKET_OP::BOF_POLL_SOCKET_OP_TEST:
+            ////BOF_DBG_PRINTF("@@@%s POLL_SOCKET_OP_TEST NbPollEntry %d RemItT Fd[?]=%08X\n",  mBofSocketServerParam_X.Name_S.c_str(), mNbPollEntry.load(), PollSocketCmd_X.SessionId);
+            mNbPollEntry++;
+            SEND_OPTIONAL_ANSWER(BOF_ERR_NO_ERROR);
+            break;
 
-        default:
-          break;
+          default:
+            break;
         } // switch
         if (EndOfCmdProcessing_B)
         {

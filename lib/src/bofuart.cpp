@@ -57,7 +57,8 @@ uint32_t GetBaudRateConstantValue(uint32_t _BaudRate_U32);
  * See Also
  * ~BofCircularBuffer
  */
-BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X) : BofComChannel(BOF_COM_CHANNEL_TYPE::TUART, mUartParam_X.BaseChannelParam_X), BofThread() // , 0, _rUartParam_X.SynchronousWritePriority_U32, 1000, (uint32_t)-1)
+BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
+    : BofComChannel(BOF_COM_CHANNEL_TYPE::TUART, mUartParam_X.BaseChannelParam_X), BofThread() // , 0, _rUartParam_X.SynchronousWritePriority_U32, 1000, (uint32_t)-1)
 // Set startStopTimeout to 0 to prevent time loss when closing port
 // BofThread("BofUart", _rUartParam_X.SynchronousWritePriority_U32 ? SCHED_FIFO:SCHED_OTHER, _rUartParam_X.SynchronousWritePriority_U32, 0, -1)
 {
@@ -261,32 +262,36 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X) : BofComChannel(BOF_COM_CH
             /* Parity settings */
             switch (mUartParam_X.Parity_U8)
             {
-            case (BOF_UART_NOPARITY): {
-              /* Disable parity checking */
-              tty_X.c_cflag &= ~(PARENB);
-              break;
-            }
+              case (BOF_UART_NOPARITY):
+                {
+                  /* Disable parity checking */
+                  tty_X.c_cflag &= ~(PARENB);
+                  break;
+                }
 
-            case (BOF_UART_ODDPARITY): {
-              /* Enable odd parity checking */
-              tty_X.c_iflag |= (INPCK | ISTRIP);
-              tty_X.c_cflag |= (PARENB | PARODD);
-              break;
-            }
+              case (BOF_UART_ODDPARITY):
+                {
+                  /* Enable odd parity checking */
+                  tty_X.c_iflag |= (INPCK | ISTRIP);
+                  tty_X.c_cflag |= (PARENB | PARODD);
+                  break;
+                }
 
-            case (BOF_UART_EVENPARITY): {
-              /* Enable even parity checking */
-              tty_X.c_iflag |= (INPCK | ISTRIP);
-              tty_X.c_cflag |= (PARENB);
-              tty_X.c_cflag &= ~(PARODD);
-              break;
-            }
+              case (BOF_UART_EVENPARITY):
+                {
+                  /* Enable even parity checking */
+                  tty_X.c_iflag |= (INPCK | ISTRIP);
+                  tty_X.c_cflag |= (PARENB);
+                  tty_X.c_cflag &= ~(PARODD);
+                  break;
+                }
 
-            default: {
-              ConfigOK_B = false;
-              // printf("Failed to set device %s parity %d settings\n", mpTTYDeviceName_c, mUartParam_X.Parity_U8);
-              break;
-            }
+              default:
+                {
+                  ConfigOK_B = false;
+                  // printf("Failed to set device %s parity %d settings\n", mpTTYDeviceName_c, mUartParam_X.Parity_U8);
+                  break;
+                }
             }
 
             /* Data bits settings */
@@ -294,51 +299,59 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X) : BofComChannel(BOF_COM_CH
 
             switch (mUartParam_X.Data_U8)
             {
-            case 5: {
-              tty_X.c_cflag |= CS5;
-              break;
-            } /* Select 5 data bits */
+              case 5:
+                {
+                  tty_X.c_cflag |= CS5;
+                  break;
+                } /* Select 5 data bits */
 
-            case 6: {
-              tty_X.c_cflag |= CS6;
-              break;
-            } /* Select 6 data bits */
+              case 6:
+                {
+                  tty_X.c_cflag |= CS6;
+                  break;
+                } /* Select 6 data bits */
 
-            case 7: {
-              tty_X.c_cflag |= CS7;
-              break;
-            } /* Select 7 data bits */
+              case 7:
+                {
+                  tty_X.c_cflag |= CS7;
+                  break;
+                } /* Select 7 data bits */
 
-            case 8: {
-              tty_X.c_cflag |= CS8;
-              break;
-            } /* Select 8 data bits */
+              case 8:
+                {
+                  tty_X.c_cflag |= CS8;
+                  break;
+                } /* Select 8 data bits */
 
-            default: {
-              ConfigOK_B = false;
-              // printf("Failed to set device %s data bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Data_U8);
-              break;
-            }
+              default:
+                {
+                  ConfigOK_B = false;
+                  // printf("Failed to set device %s data bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Data_U8);
+                  break;
+                }
             }
 
             /* Stop settings */
             switch (mUartParam_X.Stop_U8)
             {
-            case BOF_UART_ONESTOPBIT: {
-              tty_X.c_cflag &= ~CSTOPB;
-              break;
-            } /* One Stop bit  */
+              case BOF_UART_ONESTOPBIT:
+                {
+                  tty_X.c_cflag &= ~CSTOPB;
+                  break;
+                } /* One Stop bit  */
 
-            case BOF_UART_TWOSTOPBITS: {
-              tty_X.c_cflag |= CSTOPB;
-              break;
-            } /* Two Stop bits */
+              case BOF_UART_TWOSTOPBITS:
+                {
+                  tty_X.c_cflag |= CSTOPB;
+                  break;
+                } /* Two Stop bits */
 
-            default: {
-              ConfigOK_B = false;
-              // printf("Failed to set device %s stop bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Stop_U8);
-              break;
-            }
+              default:
+                {
+                  ConfigOK_B = false;
+                  // printf("Failed to set device %s stop bits %d settings\n", mpTTYDeviceName_c, mUartParam_X.Stop_U8);
+                  break;
+                }
             }
 
             /* XonXoff settings */
@@ -429,7 +442,7 @@ BofUart::~BofUart()
 {
   // BOF_COM_CHANNEL_STATUS Status_X;
   // uint32_t                 Start_U32, Delta_U32;
-
+  DestroyBofProcessingThread("~BofUart");
   if (mOpen_B)
   {
     /* NO need to purge as we close the port !!!! (can block ittask for 1 sec)
@@ -617,7 +630,7 @@ bool BofUart::SetRtsDtrState(uint8_t RtsState_U8, uint8_t DtrState_U8)
         iFlags = TIOCM_RTS;
 
         BOF_IOCTL(mId_h, TIOCMBIS, sizeof(iFlags), &iFlags, 0, nullptr, Sts_i);
-        if (Sts_i  >= 0)
+        if (Sts_i >= 0)
         {
           Rts_B = true;
         }
@@ -1265,7 +1278,7 @@ bool BofUart::SetBaudRateValue(struct termios *_ptty_X, uint32_t _BaudRate_U32)
         {
           Rc_B = false;
           BOF_IOCTL(mId_h, TIOCSSERIAL, sizeof(serial_infos_X), &serial_infos_X, 0, nullptr, Sts_i);
-          if (Sts_i >= 0) 
+          if (Sts_i >= 0)
           {
             BOF_IOCTL(mId_h, TIOCGSERIAL, sizeof(serial_infos_X), &serial_infos_X, 0, nullptr, Sts_i);
             if (Sts_i >= 0)
@@ -1338,108 +1351,120 @@ uint32_t GetBaudRateConstantValue(uint32_t _BaudRate_U32)
 
   switch (_BaudRate_U32)
   {
-  case (110): {
+    case (110):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_110;
+        BaudValue_U32 = CBR_110;
 #else
-    BaudValue_U32 = B110;
+        BaudValue_U32 = B110;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (300): {
+    case (300):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_300;
+        BaudValue_U32 = CBR_300;
 #else
-    BaudValue_U32 = B300;
+        BaudValue_U32 = B300;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (600): {
+    case (600):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_600;
+        BaudValue_U32 = CBR_600;
 #else
-    BaudValue_U32 = B600;
+        BaudValue_U32 = B600;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (1200): {
+    case (1200):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_1200;
+        BaudValue_U32 = CBR_1200;
 #else
-    BaudValue_U32 = B1200;
+        BaudValue_U32 = B1200;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (2400): {
+    case (2400):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_2400;
+        BaudValue_U32 = CBR_2400;
 #else
-    BaudValue_U32 = B2400;
+        BaudValue_U32 = B2400;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (4800): {
+    case (4800):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_4800;
+        BaudValue_U32 = CBR_4800;
 #else
-    BaudValue_U32 = B4800;
+        BaudValue_U32 = B4800;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (9600): {
+    case (9600):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_9600;
+        BaudValue_U32 = CBR_9600;
 #else
-    BaudValue_U32 = B9600;
+        BaudValue_U32 = B9600;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (19200): {
+    case (19200):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_19200;
+        BaudValue_U32 = CBR_19200;
 #else
-    BaudValue_U32 = B19200;
+        BaudValue_U32 = B19200;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (38400): {
+    case (38400):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_38400;
+        BaudValue_U32 = CBR_38400;
 #else
-    BaudValue_U32 = B38400;
+        BaudValue_U32 = B38400;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (57600): {
+    case (57600):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_57600;
+        BaudValue_U32 = CBR_57600;
 #else
-    BaudValue_U32 = B57600;
+        BaudValue_U32 = B57600;
 #endif
-    break;
-  }
+        break;
+      }
 
-  case (115200): {
+    case (115200):
+      {
 #if defined(_WIN32)
-    BaudValue_U32 = CBR_115200;
+        BaudValue_U32 = CBR_115200;
 #else
-    BaudValue_U32 = B115200;
+        BaudValue_U32 = B115200;
 #endif
-    break;
-  }
+        break;
+      }
 
-  default: {
-  }
-  break;
+    default:
+      {
+      }
+      break;
   }
 
   return BaudValue_U32;

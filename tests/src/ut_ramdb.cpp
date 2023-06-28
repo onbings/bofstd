@@ -137,29 +137,32 @@ void DbRow::GetKey(uint32_t _Index_U32, BOFTYPE *_pType_E, uint32_t _MaxChar_U32
 
     switch (_Index_U32)
     {
-    case DB_INDEX_KEY_U32: {
-      snprintf(_pVal_c, _MaxChar_U32, "0x%08X", mDbRowData_X.Key_U32);
-      *_pType_E = BOF_TYPE_U32;
-    }
-    break;
+      case DB_INDEX_KEY_U32:
+        {
+          snprintf(_pVal_c, _MaxChar_U32, "0x%08X", mDbRowData_X.Key_U32);
+          *_pType_E = BOF_TYPE_U32;
+        }
+        break;
 
-    case DB_INDEX_KEY_TEXT16: {
-      NbChar_U32 = (_MaxChar_U32 < sizeof(mDbRowData_X.pKeyText16_c)) ? _MaxChar_U32 : sizeof(mDbRowData_X.pKeyText16_c);
-      memcpy(_pVal_c, mDbRowData_X.pKeyText16_c, NbChar_U32);
+      case DB_INDEX_KEY_TEXT16:
+        {
+          NbChar_U32 = (_MaxChar_U32 < sizeof(mDbRowData_X.pKeyText16_c)) ? _MaxChar_U32 : sizeof(mDbRowData_X.pKeyText16_c);
+          memcpy(_pVal_c, mDbRowData_X.pKeyText16_c, NbChar_U32);
 
-      if (NbChar_U32 < _MaxChar_U32)
-      {
-        _pVal_c[NbChar_U32] = 0;
-      }
-      *_pType_E = BOF_TYPE_CHAR;
-    }
-    break;
+          if (NbChar_U32 < _MaxChar_U32)
+          {
+            _pVal_c[NbChar_U32] = 0;
+          }
+          *_pType_E = BOF_TYPE_CHAR;
+        }
+        break;
 
-    default: {
-      _pVal_c[0] = 0;
-      *_pType_E = BOF_TYPE_NOTHING;
-    }
-    break;
+      default:
+        {
+          _pVal_c[0] = 0;
+          *_pType_E = BOF_TYPE_NOTHING;
+        }
+        break;
     }
   }
 }
@@ -186,42 +189,45 @@ BOFCMP DbRow::Compare(uint32_t _Index_U32, DbRow *_pDbRow_O)
 
   switch (_Index_U32)
   {
-  case DB_INDEX_KEY_U32: {
-    if (GetKey() == _pDbRow_O->GetKey())
-    {
-      Rts_E = BOF_CMP_EQUAL;
-    }
-    else
-    {
-      Rts_E = (_pDbRow_O->GetKey() < GetKey()) ? BOF_CMP_LESS : BOF_CMP_GREATER;
-    }
-  }
-  break;
+    case DB_INDEX_KEY_U32:
+      {
+        if (GetKey() == _pDbRow_O->GetKey())
+        {
+          Rts_E = BOF_CMP_EQUAL;
+        }
+        else
+        {
+          Rts_E = (_pDbRow_O->GetKey() < GetKey()) ? BOF_CMP_LESS : BOF_CMP_GREATER;
+        }
+      }
+      break;
 
-  case DB_INDEX_KEY_TEXT16: {
-    Sts_i = memcmp(GetText16(), _pDbRow_O->GetText16(), sizeof(mDbRowData_X.pKeyText16_c));
+    case DB_INDEX_KEY_TEXT16:
+      {
+        Sts_i = memcmp(GetText16(), _pDbRow_O->GetText16(), sizeof(mDbRowData_X.pKeyText16_c));
 
-    if (!Sts_i)
-    {
-      Rts_E = BOF_CMP_EQUAL;
-    }
-    else
-    {
-      Rts_E = (Sts_i > 0) ? BOF_CMP_LESS : BOF_CMP_GREATER;
-    }
-  }
-  break;
+        if (!Sts_i)
+        {
+          Rts_E = BOF_CMP_EQUAL;
+        }
+        else
+        {
+          Rts_E = (Sts_i > 0) ? BOF_CMP_LESS : BOF_CMP_GREATER;
+        }
+      }
+      break;
 
-  default: {
-    Rts_E = BOF_CMP_EQUAL;
-  }
-  break;
+    default:
+      {
+        Rts_E = BOF_CMP_EQUAL;
+      }
+      break;
   }
 
   return Rts_E;
 }
 
-void BofRamDb_Test::SetUp()
+void RamDb_Test::SetUp()
 {
   BOFERR ErrorCode_E;
 
@@ -230,13 +236,13 @@ void BofRamDb_Test::SetUp()
   EXPECT_EQ(ErrorCode_E, BOF_ERR_NO_ERROR);
 }
 
-void BofRamDb_Test::TearDown()
+void RamDb_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofRamDb_O);
   EXPECT_TRUE(mpBofRamDb_O == 0);
 }
 
-TEST_F(BofRamDb_Test, Init)
+TEST_F(RamDb_Test, Init)
 {
   uint32_t NbRecord_U32, NbCursor_U32, Nb_U32, Err_U32;
   bool Sts_B;
@@ -303,7 +309,7 @@ TEST_F(BofRamDb_Test, Init)
   EXPECT_EQ(Err_U32, 0);
 }
 
-TEST_F(BofRamDb_Test, Cursor)
+TEST_F(RamDb_Test, Cursor)
 {
   uint32_t Err_U32;
   int i, j;
@@ -346,7 +352,7 @@ TEST_F(BofRamDb_Test, Cursor)
   }
 }
 
-TEST_F(BofRamDb_Test, Insert)
+TEST_F(RamDb_Test, Insert)
 {
   uint32_t Err_U32, Val_U32;
   int i, j;

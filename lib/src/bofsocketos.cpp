@@ -254,6 +254,7 @@ BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NET
   return Rts_E;
 }
 #else
+// TODO: Remove IsFlagValid at the end
 bool IsFlagValid(uint16_t _Flag_U16, bool _IpV6_B)
 {
   return (_Flag_U16 & IFF_UP)                              //  Only use interfaces that are running
@@ -261,9 +262,9 @@ bool IsFlagValid(uint16_t _Flag_U16, bool _IpV6_B)
          && ((_IpV6_B || (_Flag_U16 & IFF_BROADCAST))      //  Only use interfaces that have BROADCAST
              && (!_IpV6_B || (_Flag_U16 & IFF_MULTICAST))) //  or IPv6 and MULTICAST
 #if defined(IFF_SLAVE)
-         && !(_Flag_U16 & IFF_SLAVE)                       //  Ignore devices that are bonding slaves.
+         && !(_Flag_U16 & IFF_SLAVE) //  Ignore devices that are bonding slaves.
 #endif
-         && !(_Flag_U16 & IFF_POINTOPOINT);                //  Ignore point to point interfaces.
+         && !(_Flag_U16 & IFF_POINTOPOINT); //  Ignore point to point interfaces.
 }
 
 int readNlSock(int sockFd, char *bufPtr, size_t buf_size, int seqNum, int pId)
@@ -333,25 +334,29 @@ int parseRoutes(struct nlmsghdr *nlHdr, struct route_info *rtInfo, int _Family_i
     {
       switch (rtAttr->rta_type)
       {
-      case RTA_OIF: {
-        if_indextoname(*(int *)RTA_DATA(rtAttr), rtInfo->ifName);
-        break;
-      }
+        case RTA_OIF:
+          {
+            if_indextoname(*(int *)RTA_DATA(rtAttr), rtInfo->ifName);
+            break;
+          }
 
-      case RTA_GATEWAY: {
-        memcpy(&rtInfo->gateWay, RTA_DATA(rtAttr), sizeof(rtInfo->gateWay));
-        break;
-      }
+        case RTA_GATEWAY:
+          {
+            memcpy(&rtInfo->gateWay, RTA_DATA(rtAttr), sizeof(rtInfo->gateWay));
+            break;
+          }
 
-      case RTA_PREFSRC: {
-        memcpy(&rtInfo->srcAddr, RTA_DATA(rtAttr), sizeof(rtInfo->srcAddr));
-        break;
-      }
+        case RTA_PREFSRC:
+          {
+            memcpy(&rtInfo->srcAddr, RTA_DATA(rtAttr), sizeof(rtInfo->srcAddr));
+            break;
+          }
 
-      case RTA_DST: {
-        memcpy(&rtInfo->dstAddr, RTA_DATA(rtAttr), sizeof(rtInfo->dstAddr));
-        break;
-      }
+        case RTA_DST:
+          {
+            memcpy(&rtInfo->dstAddr, RTA_DATA(rtAttr), sizeof(rtInfo->dstAddr));
+            break;
+          }
       }
     }
   }
@@ -630,6 +635,11 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
   struct ifaddrs *pListOfInterfaces;
   struct ifaddrs *pInterface_X;
   bool IpV6_B;
+  char pHost_c[NI_MAXHOST];
+  int Family_i, Sts_i;
+  char pIp_c[INET6_ADDRSTRLEN];
+  uint32_t MskNetIfOk_U32, MskNetIfBad_U32;
+  BOFERR Sts_E;
 
   if (getifaddrs(&pListOfInterfaces) == 0)
   {
@@ -637,25 +647,87 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
     Rts_E = BOF_ERR_NO_ERROR;
     while ((pInterface_X) && (Rts_E == BOF_ERR_NO_ERROR))
     {
-      IpV6_B = ((pInterface_X->ifa_addr) && (pInterface_X->ifa_addr->sa_family == AF_INET6));
-
-      //  On Solaris, loopback interfaces have a nullptr in ifa_broadaddr
-      if ((pInterface_X->ifa_addr) && ((pInterface_X->ifa_broadaddr) || (IpV6_B)) &&
-          ((pInterface_X->ifa_addr->sa_family == AF_INET) || (IpV6_B))
-          // Seems to be needed for running VirtualBox VMs on MacOS (see #1802)
-          && ((pInterface_X->ifa_netmask->sa_family == AF_INET) || (IpV6_B)) && (IsFlagValid(pInterface_X->ifa_flags, IpV6_B)))
+      if (pInterface_X->ifa_addr)
       {
-        Rts_E = Bof_GetIpMaskGw(pInterface_X->ifa_name, pInterface_X->ifa_addr, pInterface_X->ifa_netmask, pInterface_X->ifa_broadaddr, NetworkInterfaceParam_X);
-        if (Rts_E == BOF_ERR_NO_ERROR)
+        Family_i = pInterface_X->ifa_addr->sa_family;
+        printf("--- Interface: %s Family is %d, accept only %d or %d-----------------------------\n", pInterface_X->ifa_name, Family_i, AF_INET, AF_INET6);
+        if ((Family_i == AF_INET) || (Family_i == AF_INET6))
         {
-          _rListOfNetworkInterface_X.push_back(NetworkInterfaceParam_X);
-        }
-      }
+          Sts_i = getnameinfo(pInterface_X->ifa_addr,
+                              (Family_i == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6),
+                              pHost_c, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
+
+          printf("getnameinfo sts %d\n", Sts_i);
+          if (Sts_i == 0)
+          {
+            IpV6_B = (Family_i == AF_INET6);
+
+            printf("Address: %s\n", pHost_c);
+            printf("Family: %s\n", IpV6_B ? "IPv6" : "IPv4");
+            inet_ntop(Family_i, pInterface_X->ifa_addr->sa_data, pIp_c, INET6_ADDRSTRLEN);
+            printf("ifa_addr: %s\n", pIp_c);
+
+            // Display ifa_netmask
+            if (pInterface_X->ifa_netmask)
+            {
+              inet_ntop(Family_i, pInterface_X->ifa_netmask->sa_data, pIp_c, INET6_ADDRSTRLEN);
+              printf("ifa_netmask: %s\n", pIp_c);
+            }
+
+            // Display ifu_broadaddr
+            if (pInterface_X->ifa_broadaddr)
+            {
+              inet_ntop(Family_i, pInterface_X->ifa_broadaddr->sa_data, pIp_c, INET6_ADDRSTRLEN);
+              printf("ifu_broadaddr: %s\n", pIp_c);
+            }
+            // Display ifa_flags
+            printf("ifa_flags: 0x%X ", pInterface_X->ifa_flags);
+
+            if (pInterface_X->ifa_flags & IFF_UP)
+              printf("UP ");
+            if (pInterface_X->ifa_flags & IFF_BROADCAST)
+              printf("BROADCAST ");
+            if (pInterface_X->ifa_flags & IFF_DEBUG)
+              printf("DEBUG ");
+            if (pInterface_X->ifa_flags & IFF_LOOPBACK)
+              printf("LOOPBACK ");
+            if (pInterface_X->ifa_flags & IFF_POINTOPOINT)
+              printf("POINTOPOINT ");
+            if (pInterface_X->ifa_flags & IFF_RUNNING)
+              printf("RUNNING ");
+            if (pInterface_X->ifa_flags & IFF_NOARP)
+              printf("NOARP ");
+            if (pInterface_X->ifa_flags & IFF_PROMISC)
+              printf("PROMISC ");
+            if (pInterface_X->ifa_flags & IFF_MULTICAST)
+              printf("MULTICAST ");
+            printf("\n");
+
+            // if (IsFlagValid(pInterface_X->ifa_flags, IpV6_B))
+            MskNetIfOk_U32 = IFF_UP | IFF_BROADCAST | IFF_MULTICAST;
+            MskNetIfBad_U32 = IFF_LOOPBACK | IFF_SLAVE | IFF_POINTOPOINT;
+            printf("  ->Check flag for bad capabilities  %08X AND %08X, result is %08X and should be 00000000\n", pInterface_X->ifa_flags, MskNetIfBad_U32, pInterface_X->ifa_flags & MskNetIfBad_U32);
+            if ((pInterface_X->ifa_flags & MskNetIfBad_U32) == 0)
+            {
+              printf("  ->Check flag for good capabilities %08X AND %08X, result is %08X and should be %08X\n", pInterface_X->ifa_flags, MskNetIfOk_U32, pInterface_X->ifa_flags & MskNetIfOk_U32, MskNetIfOk_U32);
+
+              if ((pInterface_X->ifa_flags & MskNetIfOk_U32) == MskNetIfOk_U32)
+              {
+                Sts_E = Bof_GetIpMaskGw(pInterface_X->ifa_name, pInterface_X->ifa_addr, pInterface_X->ifa_netmask, pInterface_X->ifa_broadaddr, NetworkInterfaceParam_X);
+                printf("  ->Final interface status: %s\n", (Rts_E == BOF_ERR_NO_ERROR) ? "validated" : "rejected");
+                if (Sts_E == BOF_ERR_NO_ERROR)
+                {
+                  _rListOfNetworkInterface_X.push_back(NetworkInterfaceParam_X);
+                }
+              }
+            }
+          } // if getnameinfo
+        }   // if ((Family_i == AF_INET) || (Family_i == AF_INET6))
+      }     // if (pInterface_X->ifa_addr)
       pInterface_X = pInterface_X->ifa_next;
-    }
+    } // while ((pInterface_X) && (Rts_E == BOF_ERR_NO_ERROR))
+    freeifaddrs(pListOfInterfaces);
   }
-  freeifaddrs(pListOfInterfaces);
-// #endif
 #endif
   return (Rts_E);
 }
@@ -674,41 +746,41 @@ int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S)
     {
       switch (pIpVal_i[i])
       {
-      case 0x80:
-        Rts_S32 += 1;
-        break;
+        case 0x80:
+          Rts_S32 += 1;
+          break;
 
-      case 0xC0:
-        Rts_S32 += 2;
-        break;
+        case 0xC0:
+          Rts_S32 += 2;
+          break;
 
-      case 0xE0:
-        Rts_S32 += 3;
-        break;
+        case 0xE0:
+          Rts_S32 += 3;
+          break;
 
-      case 0xF0:
-        Rts_S32 += 4;
-        break;
+        case 0xF0:
+          Rts_S32 += 4;
+          break;
 
-      case 0xF8:
-        Rts_S32 += 5;
-        break;
+        case 0xF8:
+          Rts_S32 += 5;
+          break;
 
-      case 0xFC:
-        Rts_S32 += 6;
-        break;
+        case 0xFC:
+          Rts_S32 += 6;
+          break;
 
-      case 0xFE:
-        Rts_S32 += 7;
-        break;
+        case 0xFE:
+          Rts_S32 += 7;
+          break;
 
-      case 0xFF:
-        Rts_S32 += 8;
-        break;
+        case 0xFF:
+          Rts_S32 += 8;
+          break;
 
-      default:
-        Finish_B = true;
-        break;
+        default:
+          Finish_B = true;
+          break;
       }
     }
   }

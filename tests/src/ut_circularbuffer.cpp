@@ -56,7 +56,7 @@ protected:
   static BofCircularBuffer<T> *S_mpSharedBofCircularBuffer_O;
 };
 
-class BofCircularBuffer_Test : public testing::Test
+class CircularBuffer_Test : public testing::Test
 {
 public:
   // Per-test-case set-up. Called before the first test in this test case.
@@ -125,21 +125,21 @@ TYPED_TEST(BofCircularBufferTemplate_Test, TheTest)
 
 /*** Factory functions called at the beginning/end of each test case **********/
 
-void BofCircularBuffer_Test::SetUpTestCase()
+void CircularBuffer_Test::SetUpTestCase()
 {
 }
 
-void BofCircularBuffer_Test::TearDownTestCase()
+void CircularBuffer_Test::TearDownTestCase()
 {
 }
 
 /*** Factory functions called at the beginning/end of each test *****************/
 
-void BofCircularBuffer_Test::SetUp()
+void CircularBuffer_Test::SetUp()
 {
 }
 
-void BofCircularBuffer_Test::TearDown()
+void CircularBuffer_Test::TearDown()
 {
 }
 
@@ -185,7 +185,7 @@ BOFERR PopValue(uint32_t /*_Id_U32*/, uint32_t _NbLoop_U32, BofCircularBuffer<ui
   }
   return Rts_E;
 }
-TEST(BofCircularBuffer_Test, PopExternalStorage)
+TEST(CircularBuffer_Test, PopExternalStorage)
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
   BofCircularBuffer<uint32_t> *pBofCircularBuffer;
@@ -221,7 +221,7 @@ TEST(BofCircularBuffer_Test, PopExternalStorage)
 const uint32_t NB_MAX_CLIENT = 4;        // 16; // 32;
 const uint32_t NB_PUSH_PER_CLIENT = 256; // 16000;
 
-TEST(BofCircularBuffer_Test, IsEntryFree)
+TEST(CircularBuffer_Test, IsEntryFree)
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
   BOFERR Sts_E;
@@ -337,7 +337,7 @@ TEST(BofCircularBuffer_Test, IsEntryFree)
   }
 }
 
-TEST(BofCircularBuffer_Test, LockUnlock)
+TEST(CircularBuffer_Test, LockUnlock)
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
   BOFERR Sts_E;
@@ -517,7 +517,7 @@ TEST(BofCircularBuffer_Test, LockUnlock)
     }
   }
 }
-TEST(BofCircularBuffer_Test, BlockingMode)
+TEST(CircularBuffer_Test, BlockingMode)
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
   BOFERR Sts_E;
@@ -564,7 +564,7 @@ TEST(BofCircularBuffer_Test, BlockingMode)
   }
 }
 
-TEST(BofCircularBuffer_Test, StdString)
+TEST(CircularBuffer_Test, StdString)
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
   BofCircularBuffer<std::string> *pReplyCollection = nullptr;

@@ -99,7 +99,10 @@ TEST(XmlParser_Test, Xml)
   std::string XmlData_S;
 
   S_AppParamXml_X.Reset();
-
+#if defined(WIN32)
+#else
+  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
+#endif
   Bof_GetCurrentDirectory(CrtDir);
   Path = CrtDir + "data/xmlparser.xml";
   printf("-->%s\n", Path.ToString(false).c_str());
@@ -148,7 +151,10 @@ TEST(XmlParser_Test, XmlVector)
   std::string XmlData_S;
 
   S_AppParamVector_X.Reset();
-
+#if defined(WIN32)
+#else
+  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
+#endif
   // Should be /home/bha/bld/Tge2-Debug/bofstd/tests/data/xmlvectorparser.xml
   Bof_GetCurrentDirectory(CrtDir);
   Path = CrtDir + "data/xmlvectorparser.xml";
@@ -178,7 +184,10 @@ TEST(XmlWriter_Test, XmlVector)
   BofXmlWriter BofXmlWriter_O;
 
   S_AppParamVector_X.Reset();
-
+#if defined(WIN32)
+#else
+  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
+#endif
   Bof_GetCurrentDirectory(CrtDir);
   Path = CrtDir + "data/xmlvectorparser.xml";
   // printf("Crtdir %s path %s\n", CrtDir.FullPathName(false).c_str(), Path.FullPathName(false).c_str());
@@ -283,7 +292,10 @@ TEST(XmlWriter_Test, Xml)
   std::string XmlData_S, XmlOut_S;
 
   S_AppParamXml_X.Reset();
-
+#if defined(WIN32)
+#else
+  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
+#endif
   // Should be /home/bha/bld/Tge2-Debug/bofstd/tests/data/xmlparser.xml
   Bof_GetCurrentDirectory(CrtDir);
   Path = CrtDir + "data/xmlparser.xml";

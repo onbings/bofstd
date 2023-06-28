@@ -59,7 +59,7 @@ std::ostream &operator<<(std::ostream &_rOs, TREE_NODE const &_rArg)
   return _rOs;
 }
 
-TEST(BofNaryTreeKv_Test, Create)
+TEST(NaryTreeKv_Test, Create)
 {
   uint32_t i_U32, HandleIndex_U32;
   std::string ToString_S, Key_S;
@@ -167,7 +167,7 @@ MountPoint [nullptr]
 #endif
 
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  //std::cout << ToString_S;
+  // std::cout << ToString_S;
 
   KeyCollection.clear();
   KeyCollection.push_back("MountPoint");
@@ -224,23 +224,23 @@ MountPoint [nullptr]
   EXPECT_NE(puBofNaryTreeKv->GetNodeHandle(NodeHandle, "FileZ", &NodeHandle), BOF_ERR_NO_ERROR);
 
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  //std::cout << ToString_S;
+  // std::cout << ToString_S;
 
   ParentHandle = pNodeHandle[HandleIndex_U32 - 3]; // Remove FileE
   ToString_S = puBofNaryTreeKv->ToString(true, ParentHandle);
-  //std::cout << ToString_S;
+  // std::cout << ToString_S;
   puBofNaryTreeKv->ClearTree(ParentHandle);
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  //std::cout << ToString_S;
+  // std::cout << ToString_S;
 
   ParentHandle = pNodeHandle[HandleIndex_U32 - 5]; // Remove Dir4
   ToString_S = puBofNaryTreeKv->ToString(true, ParentHandle);
-  //std::cout << ToString_S;
+  // std::cout << ToString_S;
   puBofNaryTreeKv->ClearTree(ParentHandle);
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  //std::cout << ToString_S;
+  // std::cout << ToString_S;
 
   puBofNaryTreeKv->ClearTree(RootHandle);
   ToString_S = puBofNaryTreeKv->ToString(true, RootHandle);
-  //std::cout << ToString_S;
+  // std::cout << ToString_S;
 }

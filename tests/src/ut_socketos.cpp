@@ -408,14 +408,14 @@ void TestSocketAddress(bool _IsIpV6_B)
 
   BOF_SOCKET_ADDRESS_COMPONENT Uri_X;
   std::string Path_S, Query_S, Fragment_S;
-myprotocol: // john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
+  // john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top
   /// myprotocol: / forum / questions / file.txt ? justkey & order = newest; tag = networking#top
-  Sts_E = Bof_SplitUri("myprotocol://john.doe:password@www.google.com:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top", Uri_X, Path_S, Query_S, Fragment_S);
+  Sts_E = Bof_SplitUri("myprotocol://john.doe:password@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top", Uri_X, Path_S, Query_S, Fragment_S);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_STREQ(Uri_X.Protocol_S.c_str(), "myprotocol");
   EXPECT_STREQ(Uri_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(Uri_X.Password_S.c_str(), "password");
-  EXPECT_STREQ(Uri_X.IpAddress_S.c_str(), "www.google.com");
+  EXPECT_STREQ(Uri_X.IpAddress_S.c_str(), "1.2.3.4");
   EXPECT_EQ(Uri_X.Port_U16, 123);
   EXPECT_STREQ(Path_S.c_str(), "/forum/questions/file.txt");
   EXPECT_STREQ(Query_S.c_str(), "justkey&order=newest;tag=networking");
@@ -433,11 +433,11 @@ myprotocol: // john.doe:password@www.google.com:123/forum/questions/file.txt?jus
   EXPECT_STREQ(Fragment_S.c_str(), "top");
 
   Sts_E = Bof_SplitIpAddress("10.131.125", HostIpAddress_X);
-  #if defined(_WIN32)
+#if defined(_WIN32)
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-  #else
-  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);	//10.131.0.125 under linux
-  #endif
+#else
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR); // 10.131.0.125 under linux
+#endif
   Sts_E = Bof_SplitIpAddress("10.131.125,250", HostIpAddress_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
   Sts_E = Bof_SplitIpAddress("10.131.125.ab", HostIpAddress_X);
@@ -538,7 +538,7 @@ myprotocol: // john.doe:password@www.google.com:123/forum/questions/file.txt?jus
   Ip_S = Bof_SocketAddressToString(IpAddressComponent_X.Ip_X, true, true);
   EXPECT_EQ(Ip_S, "???://1.2.3.4:0");
 
-  Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:0>john.doe:password@www.google.com:123", InterfaceIpAddressComponent_X, IpAddressComponent_X);
+  Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:0>john.doe:password@1.2.3.4:123", InterfaceIpAddressComponent_X, IpAddressComponent_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_STREQ(InterfaceIpAddressComponent_X.Protocol_S.c_str(), "udp");
   EXPECT_STREQ(InterfaceIpAddressComponent_X.IpAddress_S.c_str(), "193.169.2.3");
@@ -549,7 +549,7 @@ myprotocol: // john.doe:password@www.google.com:123/forum/questions/file.txt?jus
   Ip_S = Bof_SocketAddressToString(InterfaceIpAddressComponent_X.Ip_X, false, true);
   EXPECT_EQ(Ip_S, "193.169.2.3:0");
   Ip_S = Bof_SocketAddressToString(IpAddressComponent_X.Ip_X, false, true);
-  // EXPECT_EQ(Ip_S, "142.251.36.4:123"); can change www.google.com
+  // EXPECT_EQ(Ip_S, "142.251.36.4:123"); can change 1.2.3.4
 
   Sts_E = Bof_ResolveIpAddress("tcp://192.168.1.1:1234", InterfaceIpAddress_X, IpAddress_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -862,7 +862,6 @@ TEST(SocketOs_Test, ListAndSetupInterface)
   TestListAndSetupInterface(false);
   TestListAndSetupInterface(true);
 }
-
 
 void TestIpAddressBinSer(bool _IsIpV6_B)
 {

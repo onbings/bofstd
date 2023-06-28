@@ -18,8 +18,8 @@
  */
 
 /*** Includes **********************************************************************************************************************/
-#include <cstdint>
 #include <bofstd/bofthreadgeneric.h>
+#include <cstdint>
 #include <string.h>
 
 BEGIN_BOF_NAMESPACE()
@@ -45,18 +45,18 @@ BEGIN_BOF_NAMESPACE()
  * Remarks
  * None
  */
-CBofThreadGeneric::CBofThreadGeneric() : BofThread()
+CBofThreadGeneric::CBofThreadGeneric()
+    : BofThread()
 {
-	mFunc = nullptr;
-	mpContext = nullptr;
-	mpRetCode = nullptr;
-	mDone_B = false;
-	mStackSize_U32 = 0;
+  mFunc = nullptr;
+  mpContext = nullptr;
+  mpRetCode = nullptr;
+  mDone_B = false;
+  mStackSize_U32 = 0;
 
-	//NO ! memset(&mParams_X, 0x00, sizeof( mParams_X ) );
-	mParams_X = GetThreadParam();
+  // NO ! memset(&mParams_X, 0x00, sizeof( mParams_X ) );
+  mParams_X = GetThreadParam();
 }
-
 
 /*!
  * Description
@@ -73,8 +73,8 @@ CBofThreadGeneric::CBofThreadGeneric() : BofThread()
  */
 CBofThreadGeneric::~CBofThreadGeneric()
 {
+  DestroyBofProcessingThread("~CBofThreadGeneric");
 }
-
 
 /*!
  * Description
@@ -93,13 +93,12 @@ CBofThreadGeneric::~CBofThreadGeneric()
  */
 uint32_t CBofThreadGeneric::SetThreadFunction(BOF_THREAD_GENERIC_FUNC _pFunc)
 {
-	uint32_t Ret_U32 = 0;
+  uint32_t Ret_U32 = 0;
 
-	mFunc = _pFunc;
+  mFunc = _pFunc;
 
-	return Ret_U32;
+  return Ret_U32;
 }
-
 
 /*!
  * Description
@@ -118,13 +117,12 @@ uint32_t CBofThreadGeneric::SetThreadFunction(BOF_THREAD_GENERIC_FUNC _pFunc)
  */
 uint32_t CBofThreadGeneric::SetThreadContext(void *_pContext)
 {
-	uint32_t Ret_U32 = 0;
+  uint32_t Ret_U32 = 0;
 
-	mpContext = _pContext;
+  mpContext = _pContext;
 
-	return Ret_U32;
+  return Ret_U32;
 }
-
 
 /*!
  * Description
@@ -143,13 +141,12 @@ uint32_t CBofThreadGeneric::SetThreadContext(void *_pContext)
  */
 uint32_t CBofThreadGeneric::SetThreadStackSize(uint32_t _StackSize_U32)
 {
-	uint32_t Ret_U32 = 0;
+  uint32_t Ret_U32 = 0;
 
-	mStackSize_U32 = _StackSize_U32;
+  mStackSize_U32 = _StackSize_U32;
 
-	return Ret_U32;
+  return Ret_U32;
 }
-
 
 /*!
  * Description
@@ -167,25 +164,24 @@ uint32_t CBofThreadGeneric::SetThreadStackSize(uint32_t _StackSize_U32)
  */
 uint32_t CBofThreadGeneric::SetThreadParams(BOFTHREADPARAM *_pParams_X)
 {
-	uint32_t Ret_U32 = (uint32_t) -1;
-//BOFTHREADPARAM *pThreadState_X;
+  uint32_t Ret_U32 = (uint32_t)-1;
+  // BOFTHREADPARAM *pThreadState_X;
 
-	if (_pParams_X != nullptr)
-	{
-		memcpy(&mParams_X, _pParams_X, sizeof(mParams_X));
-		/*
-		pThreadState_X = GetThreadState();
-		if (pThreadState_X)
-		{
-			memcpy(pThreadState_X, _pParams_X, sizeof(mParams_X));
-		}
+  if (_pParams_X != nullptr)
+  {
+    memcpy(&mParams_X, _pParams_X, sizeof(mParams_X));
+    /*
+    pThreadState_X = GetThreadState();
+    if (pThreadState_X)
+    {
+      memcpy(pThreadState_X, _pParams_X, sizeof(mParams_X));
+    }
 */
-		Ret_U32 = 0;
-	}
+    Ret_U32 = 0;
+  }
 
-	return Ret_U32;
+  return Ret_U32;
 }
-
 
 /*!
  * Description
@@ -202,9 +198,8 @@ uint32_t CBofThreadGeneric::SetThreadParams(BOFTHREADPARAM *_pParams_X)
  */
 uint32_t CBofThreadGeneric::GetThreadStackSize()
 {
-	return mStackSize_U32;
+  return mStackSize_U32;
 }
-
 
 /*!
  * Description
@@ -222,18 +217,17 @@ uint32_t CBofThreadGeneric::GetThreadStackSize()
  */
 uint32_t CBofThreadGeneric::GetThreadParams(BOFTHREADPARAM *_pParams_X)
 {
-	uint32_t Ret_U32 = (uint32_t) -1;
+  uint32_t Ret_U32 = (uint32_t)-1;
 
-	if (_pParams_X != nullptr)
-	{
-		memcpy(_pParams_X, &mParams_X, sizeof(mParams_X));
+  if (_pParams_X != nullptr)
+  {
+    memcpy(_pParams_X, &mParams_X, sizeof(mParams_X));
 
-		Ret_U32 = 0;
-	}
+    Ret_U32 = 0;
+  }
 
-	return Ret_U32;
+  return Ret_U32;
 }
-
 
 /*!
  * Description
@@ -253,9 +247,8 @@ uint32_t CBofThreadGeneric::GetThreadParams(BOFTHREADPARAM *_pParams_X)
  */
 BOFERR CBofThreadGeneric::V_OnCreate()
 {
-	return BOFERR_NO_ERROR;
+  return BOFERR_NO_ERROR;
 }
-
 
 /*!
  * Description
@@ -276,20 +269,19 @@ BOFERR CBofThreadGeneric::V_OnCreate()
  */
 BOFERR CBofThreadGeneric::V_OnProcessing()
 {
-	BOFERR Rts_E = BOFERR_NO_ERROR;
+  BOFERR Rts_E = BOFERR_NO_ERROR;
 
-	mDone_B = false;
+  mDone_B = false;
 
-	if (mFunc != nullptr)
-	{
-		mpRetCode = mFunc(mpContext);
-	}
+  if (mFunc != nullptr)
+  {
+    mpRetCode = mFunc(mpContext);
+  }
 
-	mDone_B = true;
+  mDone_B = true;
 
-	return Rts_E;
+  return Rts_E;
 }
-
 
 /*!
  * Description
@@ -309,9 +301,8 @@ BOFERR CBofThreadGeneric::V_OnProcessing()
  */
 BOFERR CBofThreadGeneric::V_OnStop()
 {
-	return BOFERR_NO_ERROR;
+  return BOFERR_NO_ERROR;
 }
-
 
 /*!
  * Description
@@ -330,9 +321,8 @@ BOFERR CBofThreadGeneric::V_OnStop()
  */
 bool CBofThreadGeneric::IsThreadDone()
 {
-	return mDone_B;
+  return mDone_B;
 }
-
 
 /*!
  * Description
@@ -349,7 +339,6 @@ bool CBofThreadGeneric::IsThreadDone()
  */
 void *CBofThreadGeneric::GetExitCode()
 {
-	return mpRetCode;
+  return mpRetCode;
 }
 END_BOF_NAMESPACE()
-

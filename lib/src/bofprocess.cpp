@@ -1280,6 +1280,18 @@ BOFERR BofProcess::S_KillProcess(const char *_pProcessName_c)
       if (ExitCode_i)
       {
         Rts_E = BOF_ERR_DONT_EXIST;
+#if defined(_WIN32)
+#else
+        snprintf(pCmd_c, sizeof(pCmd_c), "killall %s", pProcessname_c ? pProcessname_c + 1 : _pProcessName_c);
+        Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          if (ExitCode_i)
+          {
+            Rts_E = BOF_ERR_DONT_EXIST;
+          }
+        }
+#endif
       }
     }
   }

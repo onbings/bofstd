@@ -23,6 +23,7 @@ BofMsgThread::BofMsgThread()
 //----------------------------------------------------------------------------
 BofMsgThread::~BofMsgThread()
 {
+  //???   DestroyBofProcessingThread("~BofMsgThread");
   ExitThread(10, 1000);
 }
 

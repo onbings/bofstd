@@ -63,7 +63,7 @@ struct BOF_COMMAND_QUEUE_ENTRY
     Cmd = _Cmd;
   }
 };
-class BOFSTD_EXPORT BofCommandQueue
+class BOFSTD_EXPORT BofCommandQueue : public BofThread
 {
 public:
   BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueueParam_X);
@@ -77,11 +77,10 @@ public:
 
 private:
   BOF_COMMAND_QUEUE_PARAM mCommandQueueParam_X;
-  std::unique_ptr<BofThread> mpuCommandQueueThread = nullptr;
   std::unique_ptr<BofCircularBuffer<BOF_COMMAND_QUEUE_ENTRY>> mpuCommandEntryCollection = nullptr;
   //	std::atomic<bool> mCommandEntryPending;
   BOF_COMMAND_QUEUE_ENTRY mCommandPending_X;
-  BOFERR OnProcessing();
+  BOFERR V_OnProcessing() override;
 };
 
 template <class T>

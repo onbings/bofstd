@@ -3011,7 +3011,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
   }
 }
 
-TEST(Async_Test, AsyncMulticastDelegateLib)
+TEST(AsyncMuticastDelegate_Test, AsyncMulticastDelegateLib)
 {
   BofMsgThread testThread;
 
@@ -3035,7 +3035,7 @@ TEST(Async_Test, AsyncMulticastDelegateLib)
   // xalloc_stats();
 }
 
-TEST(Async_Test, MulticastDelegatePerf)
+TEST(AsyncMuticastDelegate_Test, MulticastDelegatePerf)
 {
   BofMsgThread testThread;
   TestClass1 testClass1;
@@ -3091,7 +3091,7 @@ static int b = 0x90ABCDEF;
 static int c = 0x87654321;
 
 // #include <type_traits>
-TEST(Async_Test, AsyncNotifier)
+TEST(AsyncMuticastDelegate_Test, AsyncNotifier)
 {
   BOF::BOF_MULTICAST_ASYNC_NOTIFIER_PARAM MulticastAsyncNotifierParam_X;
   uint32_t StartInMs_U32, i_U32;
@@ -3131,7 +3131,7 @@ TEST(Async_Test, AsyncNotifier)
   // printf("Terminated in %d ms %d still pending\n", BOF::Bof_ElapsedMsTime(StartInMs_U32), MulticastAsyncNotifier.NbPendingNotification());
 }
 
-TEST(Async_Test, SyncNotifier)
+TEST(AsyncMuticastDelegate_Test, SyncNotifier)
 {
   BOF::BOF_MULTICAST_SYNC_NOTIFIER_PARAM MulticastSyncNotifierParam_X;
   uint32_t StartInMs_U32, i_U32;

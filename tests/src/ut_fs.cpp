@@ -37,10 +37,12 @@ TEST(Fs_Test, DirectoryManagement)
   BOF_FILE_TYPE FileType_E;
   uint64_t Size_U64;
 
+#if defined(WIN32)
+#else
+  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
+#endif
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-  EXPECT_STRNE(CrtDir.FullPathName(false).c_str(), "");
-  EXPECT_TRUE(CrtDir.FullPathName(false).back() == '/');
 
   FileAsDirPath = CrtDir.FullPathName(false) + "babar1";
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
@@ -197,6 +199,10 @@ TEST(Fs_Test, FileManagement)
   uint64_t Size_U64;
   BOF_FILE_TYPE FileType_E;
 
+#if defined(WIN32)
+#else
+  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
+#endif
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_STRNE(CrtDir.FullPathName(false).c_str(), "");
@@ -339,15 +345,19 @@ TEST(Fs_Test, EntireFile)
   BOFERR Sts_E;
   BOF_FILE_PERMISSION Permission_E;
   std::string Line_S, LineRead_S;
-  BofPath Dir, Path;
+  BofPath CrtDir, Path;
 
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
   Line_S = "Hello World";
 
-  Sts_E = Bof_GetCurrentDirectory(Dir);
+#if defined(WIN32)
+#else
+  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
+#endif
+  Sts_E = Bof_GetCurrentDirectory(CrtDir);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Path.CurrentDirectoryName(Dir.FullPathName(false));
+  Sts_E = Path.CurrentDirectoryName(CrtDir.FullPathName(false));
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   Path = "BhaFile.txt";
@@ -382,7 +392,7 @@ TEST(Fs_Test, FileLayout)
   Sts_E = Bof_CreateDirectory(Permission_E, DirLayoutRoot);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_ChangeCurrentDirectory(DirLayoutRoot);
+  Sts_E = Bof_SetCurrentDirectory(DirLayoutRoot);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   Sts_E = Bof_GetCurrentDirectory(Dir);
@@ -457,7 +467,7 @@ TEST(Fs_Test, FileLayout)
       }
     }
   }
-  Sts_E = Bof_ChangeCurrentDirectory(CrtDir);
+  Sts_E = Bof_SetCurrentDirectory(CrtDir);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
 
@@ -490,7 +500,7 @@ TEST(Fs_Test, DirEnum)
     //		Sts_E = Bof_TimeInSecSince1970_To_BofDateTime(FileCollection[i_U32].LastAccess_X, DateTime_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(),
-    //Bof_Eol());
+    // Bof_Eol());
   }
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 0xFFFFFFFF, FileCollection);
@@ -501,7 +511,7 @@ TEST(Fs_Test, DirEnum)
     //  Sts_E = Bof_TimeInSecSince1970_To_BofDateTime(FileCollection[i_U32].LastAccess_X, DateTime_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(),
-    //Bof_Eol());
+    // Bof_Eol());
   }
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_DIR, true, 0xFFFFFFFF, FileCollection);

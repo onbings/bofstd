@@ -52,10 +52,11 @@ static const MD5_TEST_PATTERN_ENTRY S_pMd5TestPatternTable_X[] = {
     {"12345678901234567890123456789012345678901234567890123456789012345678901234567890", {0x57, 0xed, 0xf4, 0xa2, 0x2b, 0xe3, 0xc9, 0x55, 0xac, 0x49, 0xda, 0x2e, 0x21, 0x07, 0xb6, 0x7a}},
 };
 
-class BofCrypto_Test : public ::testing::TestWithParam<MD5_TEST_PATTERN_ENTRY>
+class Crypto_Test : public ::testing::TestWithParam<MD5_TEST_PATTERN_ENTRY>
 {
 public:
-  BofCrypto_Test() : mpBofCryptoMd5_O(nullptr)
+  Crypto_Test()
+      : mpBofCryptoMd5_O(nullptr)
   {
   }
 
@@ -79,22 +80,22 @@ protected:
 
 USE_BOF_NAMESPACE()
 
-void BofCrypto_Test::SetUp()
+void Crypto_Test::SetUp()
 {
   mpBofCryptoMd5_O = new BofCryptoMd5();
   EXPECT_TRUE(mpBofCryptoMd5_O != 0);
 }
 
-void BofCrypto_Test::TearDown()
+void Crypto_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofCryptoMd5_O);
   EXPECT_TRUE(mpBofCryptoMd5_O == 0);
 }
 
-INSTANTIATE_TEST_CASE_P(Md5TestPattern, BofCrypto_Test, ::testing::ValuesIn(S_pMd5TestPatternTable_X));
-// INSTANTIATE_TEST_SUITE_P(Md5TestPattern, BofCrypto_Test, ::testing::ValuesIn(S_pMd5TestPatternTable_X));
+INSTANTIATE_TEST_CASE_P(Md5TestPattern, Crypto_Test, ::testing::ValuesIn(S_pMd5TestPatternTable_X));
+// INSTANTIATE_TEST_SUITE_P(Md5TestPattern, Crypto_Test, ::testing::ValuesIn(S_pMd5TestPatternTable_X));
 
-TEST_P(BofCrypto_Test, HashOk)
+TEST_P(Crypto_Test, HashOk)
 {
   char pIn_c[256];
   uint8_t pOut_U8[16];
@@ -112,7 +113,7 @@ TEST_P(BofCrypto_Test, HashOk)
   EXPECT_TRUE(Equal_B);
 }
 
-TEST_P(BofCrypto_Test, HashBad)
+TEST_P(Crypto_Test, HashBad)
 {
   char pIn_c[256];
   uint8_t pOut_U8[16];
@@ -135,7 +136,7 @@ TEST_P(BofCrypto_Test, HashBad)
 }
 
 // https://www.di-mgt.com.au/sha_testvectors.html
-TEST(BofCrypto_Test, Sha1)
+TEST(Crypto_Test, Sha1)
 {
   EXPECT_STREQ(BofSha1::S_FromString("").c_str(), "da39a3ee5e6b4b0d3255bfef95601890afd80709");
   EXPECT_STREQ(BofSha1::S_FromString("abc").c_str(), "a9993e364706816aba3e25717850c26c9cd0d89d");
