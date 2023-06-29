@@ -363,6 +363,7 @@ uint16_t BofSocket::S_FindFreePort(bool _JustOne_B, uint32_t _PortMin_U32, uint3
     printf("---Range: %d-%d: %d entries------------------------\n", BlockStart_U32, Port_U32 - 1, Port_U32 - BlockStart_U32);
   }
   printf("%d tested between %d and %d:\n  %d free\n  %d busy\n", NbTested_U32, _PortMin_U32, _PortMax_U32, NbFree_U32, NbBusy_U32);
+  return Rts_U16;
 }
 
 /*!

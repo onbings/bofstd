@@ -920,9 +920,10 @@ BOFERR BofConio::GetTextCursorPosition(uint32_t &_rX_U32, uint32_t &_rY_U32)
   BOFERR Rts_E = BOF_ERR_INPUT;
 
 #if defined(_WIN32)
+
+#if 0
   char pAttribute_c[64];
   int Char_i, Index_i;
-
   printf("\x1b[6n");
 
   Index_i = 0;
@@ -939,6 +940,15 @@ BOFERR BofConio::GetTextCursorPosition(uint32_t &_rX_U32, uint32_t &_rY_U32)
     }
   } while (Index_i < sizeof(pAttribute_c) - 4);
   fseek(stdin, 0, SEEK_END);
+#else
+  HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  if (GetConsoleScreenBufferInfo(console, &csbi))
+  {
+    _rX_U32 = csbi.dwCursorPosition.X;
+    _rY_U32 = csbi.dwCursorPosition.Y;
+  }
+#endif
 #else
   _rX_U32 = 1;
   _rY_U32 = 1;

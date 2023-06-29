@@ -138,7 +138,11 @@ uint64_t Bof_GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, uint8_t _I
     }
     if (Bof_IsFileExist(pFn_c))
     {
+#if defined(_WIN32)
+      Rts_U64 = 0;
+#else
       Rts_U64 = (uint64_t)ftok(pFn_c, _Id_U8); // ftok need an exiting filename .
+#endif
     }
   }
   return Rts_U64;
@@ -1337,7 +1341,7 @@ BOF_THREAD_PRIORITY Bof_ThreadPriorityFromPriorityValue(int32_t _Priority_S32)
   switch (_Priority_S32)
   {
     case -15:
-      Rts_E = BOF_THREAD_PRIORITY_001;
+      Rts_E = BOF_THREAD_PRIORITY_000;
       break;
 
     case -2:

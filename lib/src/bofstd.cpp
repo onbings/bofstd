@@ -369,9 +369,10 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   setlocale(LC_ALL, "C");
 #if defined(_WIN32)
   char pComputerName_c[MAX_COMPUTERNAME_LENGTH + 1];
-  if (GetComputerNameA(pComputerName_c, sizeof(pComputerName_c)))
+  DWORD Nb_DW = sizeof(pComputerName_c);
+  if (GetComputerNameA(pComputerName_c, &Nb_DW))
   {
-    _rStdParam_X.ComputerName_S = pComputrerName_c;
+    _rStdParam_X.ComputerName_S = pComputerName_c;
   }
   SetConsoleOutputCP(65001);
 

@@ -165,11 +165,10 @@ int main(int argc, char *argv[])
 
 /*
 * WINDOWS
-[----------] Global test environment tear-down
-[==========] 176 tests from 45 test suites ran. (153571 ms total)
-[  PASSED  ] 176 tests.
+[==========] 174 tests from 46 test suites ran. (82449 ms total)
+[  PASSED  ] 174 tests.
 
-  YOU HAVE 1 DISABLED TEST
+  YOU HAVE 7 DISABLED TESTS
 
   LINUX:
 
@@ -187,13 +186,9 @@ exit
 to be able to use the FIFO scheduler in my docker container
 
 On Tge2:
-[----------] Global test environment tear-down
-[==========] 174 tests from 46 test suites ran. (51212 ms total)
-[  PASSED  ] 173 tests.
-[  FAILED  ] 1 test, listed below:
-[  FAILED  ] Async_Test.OverloadCommandQueue
+[==========] 174 tests from 46 test suites ran. (45466 ms total)
+[  PASSED  ] 174 tests.
 
- 1 FAILED TEST
   YOU HAVE 7 DISABLED TESTS
 */
 /*
