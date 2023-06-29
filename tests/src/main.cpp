@@ -82,7 +82,11 @@ int main(int argc, char *argv[])
   Sts_E = Bof_Initialize(StdParam_X);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   // std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
-  printf("Running BofStd V %s on %s\n", StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str());
+#if defined(_WIN32)
+  printf("Running BofStd V %s on %s under Windows\n", StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str());
+#else
+  printf("Running BofStd V %s on %s under Linux\n", StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str());
+#endif
   // for (int i = 0; i < 7; i++)
   //{
   //   printf("hello world %d\n", i);
