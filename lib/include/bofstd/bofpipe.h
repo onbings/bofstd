@@ -50,7 +50,6 @@ struct BOF_PIPE_PARAM
   BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
   uint16_t SrcPortBase_U16;                 // for BOF_PIPE_OVER_LOCAL_UDP, local Port for udp in pipe->if 0 let os decide, otherwise use this value for port in and this value+1 for port out
   uint16_t DstPortBase_U16;
-
   BOF_PIPE_PARAM()
   {
     Reset();
@@ -129,9 +128,9 @@ private:
 #if defined(_WIN32)
   DWORD mDesiredAccess_DW = 0;
 #else
+  int mOpenFlag_i = 0;
 #endif
   static std::mutex S_mPipeCollectionMtx;
   static std::map<std::string, BOF_PIPE_ENTRY> S_mPipeCollection;
-
 };
 END_BOF_NAMESPACE()

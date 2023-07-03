@@ -75,6 +75,7 @@ cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\sc
 cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/github/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-linux-dynamic -DVCPKG_OVERLAY_PORTS=/home/bha/pro/github/onbings-vcpkg-registry/ports/
 /home/bha/pro/github/bofstd
 */
+#include <bofstd/boffs.h>
 #include <bofstd/bofsocket.h>
 #include <bofversioninfo.h>
 #include <locale.h>
@@ -90,11 +91,9 @@ DWORD S_ModeIn_DW = 0, S_ModeOut_DW = 0;
 #else
 #include <signal.h>
 #include <sys/ioctl.h>
+#include <sys/utsname.h>
 #include <termios.h>
 #include <unistd.h>
-// static struct termios S_SavedTermIos_X;
-// static struct termios S_NewTermIos_X;
-
 #endif
 
 BOFSTD_EXPORT BOF::BOFSTDPARAM GL_BofStdParam_X;
@@ -369,6 +368,17 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   setlocale(LC_ALL, "C");
 #if defined(_WIN32)
   char pComputerName_c[MAX_COMPUTERNAME_LENGTH + 1];
+  OSVERSIONINFOEX osVersionInfo;
+  ZeroMemory(&osVersionInfo, sizeof(OSVERSIONINFOEX));
+  osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+  debug this if (GetVersionEx((OSVERSIONINFO *)&osVersionInfo))
+  {
+    printf("Operating System: Windows\n");
+    printf("Version: %d.%d\n", osVersionInfo.dwMajorVersion, osVersionInfo.dwMinorVersion);
+    printf("Build Number: %d\n", osVersionInfo.dwBuildNumber);
+    // Add additional characteristics if needed
+  }
+  _rStdParam_X.OsName_S = "Windows";
   DWORD Nb_DW = sizeof(pComputerName_c);
   if (GetComputerNameA(pComputerName_c, &Nb_DW))
   {
@@ -406,7 +416,14 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
     }
   }
 #else
-  char pComputerName_c[512];
+  char pComputerName_c[1024];
+  struct utsname Si_X;
+
+  if (uname(&Si_X) != -1)
+  {
+    sprintf(pComputerName_c, "%s %s %s Cpu %s", Si_X.sysname, Si_X.release, Si_X.version, Si_X.machine);
+    _rStdParam_X.OsName_S = pComputerName_c;
+  }
   if (gethostname(pComputerName_c, sizeof(pComputerName_c)) == 0)
   {
     _rStdParam_X.ComputerName_S = pComputerName_c;
@@ -508,6 +525,19 @@ bool Bof_IsWindows()
   return false;
 #endif
 }
+
+bool Bof_AmIRunningInsideDocker()
+{
+  bool Rts_B;
+
+#if defined(_WIN32)
+  Rts_B = BOF::Bof_IsFileExist("C:\\.dockerenv"); // TODO: Not sure of this, true in linux
+#else
+  Rts_B = BOF::Bof_IsFileExist("/.dockerenv");
+#endif
+  return Rts_B;
+}
+
 BofException::BofException(std::string _Header_S, std::string _Context_S, std::string _Where_S, int32_t _ErrorCode_S32)
     : mHeader_S(_Header_S), mContext_S(_Context_S), mWhere_S(_Where_S), mErrorCode_E((BOFERR)_ErrorCode_S32)
 {

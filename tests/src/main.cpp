@@ -69,7 +69,6 @@ BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, con
 
 int main(int argc, char *argv[])
 {
-
 #if 0
   char *p = new char[5];
   return 0;
@@ -77,16 +76,14 @@ int main(int argc, char *argv[])
   int Rts_i;
   BOFERR Sts_E;
   BOFSTDPARAM StdParam_X;
+  std::string HelpString_S, Cwd_S;
+
   StdParam_X.AssertInRelease_B = true;
   StdParam_X.AssertCallback = AppBofAssertCallback;
   Sts_E = Bof_Initialize(StdParam_X);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-  // std::cout << "BofStd version " << Bof_GetVersion() << std::endl;
-#if defined(_WIN32)
-  printf("Running BofStd V %s on %s under Windows\n", StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str());
-#else
-  printf("Running BofStd V %s on %s under Linux\n", StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str());
-#endif
+  Bof_GetCurrentDirectory(Cwd_S);
+  printf("\nPwd %s\nRunning BofStd V %s on %s under %s\n", Cwd_S.c_str(), StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str(), StdParam_X.OsName_S.c_str());
   // for (int i = 0; i < 7; i++)
   //{
   //   printf("hello world %d\n", i);

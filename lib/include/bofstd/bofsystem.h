@@ -791,7 +791,7 @@ typedef union semsetgetval {
 } BOF_SEM_SETGETVAL;
 
 BOFSTD_EXPORT uint64_t Bof_GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, uint8_t _Id_U8);
-BOFSTD_EXPORT BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, BOF_SHARED_MEMORY &_rSharedMemory_X);
+BOFSTD_EXPORT BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, const std::string &_rFallbackSystemVKeySubDir_S, BOF_SHARED_MEMORY &_rSharedMemory_X);
 BOFSTD_EXPORT bool Bof_IsSharedMemoryValid(BOF_SHARED_MEMORY &_rSharedMemory_X);
 BOFSTD_EXPORT BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt_B); //__linux__ Need to call this at least once with _RemoveIt_B=true
 

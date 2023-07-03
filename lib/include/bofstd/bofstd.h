@@ -58,6 +58,7 @@ struct BOFSTDPARAM
   BofAssertCallback AssertCallback;
 
   // Output param
+  std::string OsName_S;
   std::string ComputerName_S;
   std::string Version_S;
 
@@ -70,6 +71,7 @@ struct BOFSTDPARAM
   {
     AssertInRelease_B = false;
     AssertCallback = nullptr;
+    OsName_S = "";
     ComputerName_S = "";
     Version_S = "";
   }
@@ -458,6 +460,7 @@ BOFSTD_EXPORT const char *Bof_ErrorCode(BOFERR _ErrorCode_E);
 BOFSTD_EXPORT std::string Bof_SystemErrorCode(uint32_t _ErrorCode_U32);
 
 BOFSTD_EXPORT bool Bof_IsWindows();
+BOFSTD_EXPORT bool Bof_AmIRunningInsideDocker();
 
 template <typename T>
 BOFERR Bof_StringToBin(uint32_t _Base_U32, const char *_pAsciiNumber_c, T &_rConvertedValue)

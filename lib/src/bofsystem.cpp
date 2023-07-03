@@ -154,7 +154,7 @@ uint64_t Bof_GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, uint8_t _I
 //  and Bof_CreateFileMapping does not correcly generate SemKey = ftok(pFile_c, (char) Id_i); ->use GenerateSystemVKey
 //   if app crash shared memory stay active=>this is mainly use by nma to store event name->this should also work with Bof_OpenFileMapping=> a confimer avec nma
 
-BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, BOF_SHARED_MEMORY &_rSharedMemory_X)
+BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, const std::string &_rFallbackSystemVKeySubDir_S, BOF_SHARED_MEMORY &_rSharedMemory_X)
 {
   BOFERR Rts_E = BOF_ERR_ALREADY_OPENED;
 
@@ -263,7 +263,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           Mode |= S_IRUSR | S_IWUSR;
         }
         Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
-        printf("Bof_OpenSharedMemory '%s' 1: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
+        printf("Bof_OpenSharedMemory '%s'     1: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
         if (Handle_i >= 0)
         {
           Rts_E = (ftruncate(Handle_i, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_SIZE;
@@ -273,7 +273,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           //        Handle_i = shm_open(Name_S.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
           Access_i ^= O_EXCL;
           Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
-          printf("Bof_OpenSharedMemory '%s' 2: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
+          printf("Bof_OpenSharedMemory '%s'     2: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
           if (Handle_i >= 0)
           {
             Rts_E = BOF_ERR_EEXIST;
@@ -295,7 +295,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
         else
         {
           // Posix interface failed (tge2 docket), fallback on System V api
-          _rSharedMemory_X.PathNameSystemV_S = "/tmp" + Name_S;
+          _rSharedMemory_X.PathNameSystemV_S = _rFallbackSystemVKeySubDir_S + Name_S;
           ShmKey = Bof_GenerateSystemVKey(true, _rSharedMemory_X.PathNameSystemV_S.c_str(), 1);
           // ShmKey = Bof_GenerateSystemVKey(true, nullptr, 1);
           printf("Bof_OpenSharedMemory '%s' 3: key %x\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), ShmKey);
@@ -399,13 +399,18 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
           }
           else
           {
-
             Rts_E = (shm_unlink(_rSharedMemory_X.Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
+            printf("--> '%s' RemoveIt %d Rts %d err %d\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E, errno);
+            if (Rts_E == BOF_ERR_ENOENT)
+            {
+              Rts_E = BOF_ERR_NO_ERROR;
+            }
             // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
             //  #endif
           }
         }
 #endif
+
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       _rSharedMemory_X.Reset();
@@ -413,6 +418,8 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
 
     //		Rts_E = BOF_ERR_NO_ERROR;
   }
+  printf("Bof_CloseSharedMemory '%s' RemoveIt %d Rts %d\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E);
+
   return Rts_E;
 }
 
@@ -1575,12 +1582,12 @@ static void *S_ThreadLauncher(void *_pThreadContext)
           Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E);
           // Set the priority
           Status_i = pthread_setschedparam(pThread_X->ThreadId, Policy_i, &Params_X);
-          /*
-          printf("pthread_setschedparam sts %d err %d Pol %d Prio %d\n", Status_i, errno, Policy_i, Params_X.sched_priority);
+
+          // printf("pthread_setschedparam sts %d err %d Pol %d Prio %d\n", Status_i, errno, Policy_i, Params_X.sched_priority);
           BOF_THREAD_PRIORITY Min_E, Max_E;
-              BOFERR a=Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
-          printf("BOF_THREAD_SCHEDULER_POLICY_FIFO sts %d min %d max %d\n", a, Min_E, Max_E);
-          */
+          BOFERR a = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
+          // printf("BOF_THREAD_SCHEDULER_POLICY_FIFO sts %d min %d max %d\n", a, Min_E, Max_E);
+
           // Verify
           if (Status_i == 0)
           {
@@ -1593,7 +1600,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
             }
           }
 #endif
-      // printf("%d: DBG S_ThreadLauncher8 val %d ptr %p sts %d\n", Bof_GetMsTickCount(), pThread_X->ThreadRunning_B, &pThread_X->ThreadRunning_B, Sts_E);
+      // printf("%d: DBG S_ThreadLauncher8 val %d ptr %p sts %d\n", Bof_GetMsTickCount(), pThread_X->ThreadRunning_B.load(), &pThread_X->ThreadRunning_B, Sts_E);
       BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
       if (Sts_E == BOF_ERR_NO_ERROR)
       {

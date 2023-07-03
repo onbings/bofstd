@@ -397,7 +397,7 @@ TEST(Threading_Test, SingleThread)
 {
   BOFERR Sts_E, ThreadRtsCode_E;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
-  BOF_THREAD_PRIORITY Min_E, Max_E, ThreadPriority_E;//, NewPriority_E, MidPriority_E;
+  BOF_THREAD_PRIORITY Min_E, Max_E, ThreadPriority_E; //, NewPriority_E, MidPriority_E;
   uint32_t ThreadId_U32;
   THREAD_CONTEXT ThreadContext_X;
   BOF_THREAD Thread_X;
@@ -946,7 +946,7 @@ TEST(Threading_Test, SharedMemory)
   EXPECT_EQ(ShrMem_X.pBaseAddress, nullptr);
   EXPECT_NE(Bof_CloseSharedMemory(ShrMem_X, false), BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, ShrMem_X);
+  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, "/tmp", ShrMem_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(ShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
   EXPECT_STREQ(ShrMem_X.Name_S.c_str(), "MyShr");
@@ -968,7 +968,7 @@ TEST(Threading_Test, SharedMemory)
       EXPECT_EQ(pCpyVal_U32[i_U32], i_U32);
     }
   }
-  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, AnotherShrMem_X);
+  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_READ | BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, "/tmp", AnotherShrMem_X);
   EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
   EXPECT_EQ(AnotherShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
   EXPECT_STREQ(AnotherShrMem_X.Name_S.c_str(), "MyShr");
@@ -1000,7 +1000,7 @@ TEST(Threading_Test, SharedMemory)
 #endif
   EXPECT_EQ(AnotherShrMem_X.pBaseAddress, nullptr);
 
-  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, YetAnotherShrMem_X);
+  Sts_E = Bof_OpenSharedMemory("MyShr", SHRSIZE, BOF_ACCESS_TYPE::BOF_ACCESS_WRITE, "/tmp", YetAnotherShrMem_X);
   EXPECT_EQ(Sts_E, BOF_ERR_EEXIST);
   EXPECT_EQ(YetAnotherShrMem_X.Magic_U32, BOF_FILEMAPPING_MAGIC);
   EXPECT_STREQ(YetAnotherShrMem_X.Name_S.c_str(), "MyShr");

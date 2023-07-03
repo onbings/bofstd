@@ -154,29 +154,30 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       // printf("Create Srv %d Pipe file '%s' hndl %p err %d/%s\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str());
 
 #else
-      int Status_i, OpenFlag_i, CreateFlag_i;
+      int Status_i, CreateFlag_i;
       long Size;
+      uint32_t Start_U32;
       mErrorCode_E = BOF_ERR_CREATE;
       mPipeName_S = mPipeParam_X.BaseChannelParam_X.ChannelName_S;
       switch (mPipeParam_X.PipeAccess_E)
       {
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ:
-          OpenFlag_i = O_RDONLY;
+          mOpenFlag_i = O_RDONLY;
           CreateFlag_i = S_IRWXU;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_WRITE:
-          OpenFlag_i = O_RDWR;
+          mOpenFlag_i = O_RDWR;
           CreateFlag_i = S_IRWXU;
           break;
 
         case BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE:
-          OpenFlag_i = O_RDWR;
+          mOpenFlag_i = O_RDWR;
           CreateFlag_i = S_IRWXU;
           break;
 
         default:
-          OpenFlag_i = 0;
+          mOpenFlag_i = 0;
           CreateFlag_i = 0;
           break;
       }
@@ -185,10 +186,9 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       {
         // Under linux a named event does not exist Consequently, we're going to use a named pipe instead
         // NO!!! Status_i = unlink(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
-        // printf(">DBGBOF< pipe server %s mkfifo %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
         //!!! Server must be created FIRST !!!
         Status_i = mkfifo(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), CreateFlag_i);
-        // printf(">DBGBOF< pipe server sts %d/%d\n", Status_i, Bof_GetLastError(false));
+        printf("Create pipe server %s mkfifo sts %d err %s\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), Status_i, Bof_ErrorCode(Bof_GetLastError(false)));
         if ((Status_i == 0) || (Bof_GetLastError(false) == BOF_ERR_EEXIST))
         {
           // From man fifo(7)
@@ -198,48 +198,25 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
           // This can be used to open a FIFO for writing while there are no readers
           // available. A process that uses both ends of the connection in order to
           // communicate with itself should be very careful to avoid deadlocks.
-          // printf(">DBGBOF< pipe server %s %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i);
+          // printf(">DBGBOF< pipe server %s %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mOpenFlag_i);
           mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(),
-                       OpenFlag_i | O_NONBLOCK); // OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+                       mOpenFlag_i | O_NONBLOCK); // mOpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+          if (mPipe >= 0)
+          {
+            mErrorCode_E = BOF_ERR_NO_ERROR;
+          }
+          printf("Pipe server %s has handle %d err %s\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe, Bof_ErrorCode(Bof_GetLastError(false)));
         }
       }
       else
       {
         //!!! Server must be created FIRST !!!
-        // printf(">DBGBOF< pipe client %s %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i);
-        mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), OpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+        // Done in connect as server perhaps is not yet created
+        // mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mOpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+        printf("Create pipe client %s\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
+        mErrorCode_E = BOF_ERR_NO_ERROR;
       }
       // printf(">DBGBOF< srv/clt pipe %s id %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe);
-
-      if (mPipe >= 0)
-      {
-        // Default is 64KB
-        if ((mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32) || (mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
-        {
-          mErrorCode_E = BOF_ERR_WRONG_SIZE;
-          Size = (long)fcntl(mPipe, F_GETPIPE_SZ);
-          Status_i = fcntl(mPipe, F_SETPIPE_SZ, (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32));
-          if (Status_i >= 0)
-          {
-            Size = (long)fcntl(mPipe, F_GETPIPE_SZ);
-            // Min seems to be 4KB
-            if (Size >= (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
-            {
-              mErrorCode_E = BOF_ERR_NO_ERROR;
-            }
-          }
-        }
-        else
-        {
-          mErrorCode_E = BOF_ERR_NO_ERROR;
-        }
-        if (mErrorCode_E != BOF_ERR_NO_ERROR)
-        {
-          close(mPipe);
-          mPipe = -1;
-        }
-      }
-
 #endif
       break;
 
@@ -286,7 +263,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       S_mPipeCollection[mPipeParam_X.BaseChannelParam_X.ChannelName_S] = PipeEntry_X;
     }
   }
-  printf("Start of pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), mPipeParam_X.PipeAccess_E);
+  printf("Pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), mPipeParam_X.PipeAccess_E);
 }
 
 BofPipe::~BofPipe()
@@ -605,6 +582,7 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
               // Does not work on pipe handle (seek)            Rts_E = Bof_ReadLine(mPipe, _rNb_U32,
               // (char
               // *)_pBuffer_U8);
+              Rts_E = BOF_ERR_READ;
               Len_U32 = _rNb_U32 - 1;
               for (i_U32 = 0; i_U32 < Len_U32; i_U32++)
               {
@@ -628,6 +606,7 @@ BOFERR BofPipe::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint8_
           }
           else
           {
+            Rts_E = BOF_ERR_READ;
             // printf(">DBGBOF< read pipe %d\n", mPipe);
             Nb_i = static_cast<int>(read(mPipe, _pBuffer_U8, _rNb_U32));
             // printf(">DBGBOF< end read pipe %d %d\n", mPipe, Nb_i);
@@ -734,11 +713,12 @@ BOFERR BofPipe::V_WriteData(uint32_t _TimeoutInMs_U32, const std::string &_rBuff
   _rNb_U32 = static_cast<uint32_t>(_rBuffer_S.size());
   return V_WriteData(_TimeoutInMs_U32, _rNb_U32, reinterpret_cast<const uint8_t *>(_rBuffer_S.c_str()));
 }
+
 BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTarget_S*/, const std::string & /*_rOption_S*/)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
-#if defined(_WIN32)
   uint32_t Start_U32;
+#if defined(_WIN32)
   bool Connected_B = false;
 #endif
   switch (mPipeParam_X.PipeType_E)
@@ -781,17 +761,66 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
         }
         if ((Rts_E != BOF_ERR_NO_ERROR) && (_TimeoutInMs_U32))
         {
-          BOF::Bof_MsSleep(10);
+          BOF::Bof_MsSleep(1);
         }
       } while ((Rts_E != BOF_ERR_NO_ERROR) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
       // printf("Connect Srv %d Pipe file '%s' hndl %p err %d/%ss Connected %d\n", mPipeParam_X.PipeServer_B, mPipeName_S.c_str(), mPipe, GetLastError(), Bof_SystemErrorCode(GetLastError()).c_str(), Connected_B);
 #else
+      int Status_i;
+      long Size;
+      if (mPipeParam_X.PipeServer_B)
+      {
+        if (mPipe >= 0)
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+      else
+      {
+        //!!! Server must be created FIRST !!!
+        Start_U32 = BOF::Bof_GetMsTickCount();
+        while ((access(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), F_OK) != 0) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32))
+        {
+          // Server FIFO doesn't exist yet, wait for some time
+          Bof_MsSleep(1);
+        }
+        printf(">DBGPIPE< pipe client %s Flag %x\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mOpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+        mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mOpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+        printf(">DBGPIPE< pipe client %s open %d err %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe, Bof_GetLastError(false));
+      }
+      // printf(">DBGBOF< srv/clt pipe %s id %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe);
+
       if (mPipe >= 0)
       {
-        Rts_E = BOF_ERR_NO_ERROR;
+        // Default is 64KB
+        if ((mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32) || (mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
+        {
+          Rts_E = BOF_ERR_WRONG_SIZE;
+          Size = (long)fcntl(mPipe, F_GETPIPE_SZ);
+          Status_i = fcntl(mPipe, F_SETPIPE_SZ, (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32));
+          if (Status_i >= 0)
+          {
+            Size = (long)fcntl(mPipe, F_GETPIPE_SZ);
+            // Min seems to be 4KB
+            if (Size >= (mPipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 + mPipeParam_X.BaseChannelParam_X.SndBufferSize_U32))
+            {
+              Rts_E = BOF_ERR_NO_ERROR;
+            }
+          }
+        }
+        else
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+        if (Rts_E != BOF_ERR_NO_ERROR)
+        {
+          close(mPipe);
+          mPipe = -1;
+        }
       }
 #endif
       break;
+
     default:
       Rts_E = BOF_ERR_INIT;
       break;
