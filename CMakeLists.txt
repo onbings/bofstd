@@ -194,16 +194,16 @@ add_library(bofstd-config-files INTERFACE
 # those find_package in order to transitively link with our own dependencies.
 #
 # By isolating them in a file, we fulfill a double objective
-#  1�) We can simply include it to find the dependencies we need
-#  2�) We can later install that file and include it from our configuration
+#  1) We can simply include it to find the dependencies we need
+#  2) We can later install that file and include it from our configuration
 #      file. As such, our dependees will automatically transitively find
 #      our dependencies
 #
 # Remark 1
 # --------
 #  As always, we might have 2 types of dependencies.
-#    1�) The ones needed to link with our libraries (i.e. usage requirements)
-#    2�) The ones only needed to build              (i.e. build requirements)
+#    1) The ones needed to link with our libraries (i.e. usage requirements)
+#    2) The ones only needed to build              (i.e. build requirements)
 #
 #   As a consequence, we should probably have 2 dependencies files
 #     - A public  one that will be installed     (Dependencies.cmake)
@@ -213,8 +213,8 @@ add_library(bofstd-config-files INTERFACE
 # --------
 #  ALL dependencies used by the library (public AND private) should be referenced in the public
 #  dependency file (Dependencies.cmake). Because,
-#  1�) When compiled as a static library, even private libraries needs to be supplied to the linker.
-#  2�) To run unit tests, we might still need to have found private libraries
+#  1) When compiled as a static library, even private libraries needs to be supplied to the linker.
+#  2) To run unit tests, we might still need to have found private libraries
 
 # Give the file a nice naming convention
 configure_file(

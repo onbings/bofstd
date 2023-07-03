@@ -359,6 +359,7 @@ std::string Bof_GetVersion()
 BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
 {
   BOFERR Rts_E;
+  char pComputerName_c[1024];
 
   GL_BofStdParam_X = _rStdParam_X;
   GL_BofDbgPrintfStartTime_U32 = Bof_GetMsTickCount();
@@ -367,18 +368,15 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   /* Set the locale to the POSIX C environment */
   setlocale(LC_ALL, "C");
 #if defined(_WIN32)
-  char pComputerName_c[MAX_COMPUTERNAME_LENGTH + 1];
   OSVERSIONINFOEX osVersionInfo;
   ZeroMemory(&osVersionInfo, sizeof(OSVERSIONINFOEX));
   osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-  debug this if (GetVersionEx((OSVERSIONINFO *)&osVersionInfo))
-  {
-    printf("Operating System: Windows\n");
-    printf("Version: %d.%d\n", osVersionInfo.dwMajorVersion, osVersionInfo.dwMinorVersion);
-    printf("Build Number: %d\n", osVersionInfo.dwBuildNumber);
-    // Add additional characteristics if needed
-  }
   _rStdParam_X.OsName_S = "Windows";
+  if (GetVersionEx((OSVERSIONINFO *)&osVersionInfo))
+  {
+    sprintf(pComputerName_c, "Windows %d.%d.%d", osVersionInfo.dwMajorVersion, osVersionInfo.dwMinorVersion, osVersionInfo.dwBuildNumber);
+    _rStdParam_X.OsName_S = pComputerName_c;
+  }
   DWORD Nb_DW = sizeof(pComputerName_c);
   if (GetComputerNameA(pComputerName_c, &Nb_DW))
   {
@@ -416,9 +414,9 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
     }
   }
 #else
-  char pComputerName_c[1024];
   struct utsname Si_X;
 
+  _rStdParam_X.OsName_S = "Linux";
   if (uname(&Si_X) != -1)
   {
     sprintf(pComputerName_c, "%s %s %s Cpu %s", Si_X.sysname, Si_X.release, Si_X.version, Si_X.machine);
