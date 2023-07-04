@@ -49,7 +49,7 @@ endif()
 # Define options to enable/disable non-necessary artifacts
 option(BOFSTD_BUILD_TESTS    "Build units tests of bofstd"      ON)
 option(BOFSTD_BUILD_TOOLS    "Build companion tools of bofstd"  OFF)
-option(BOFSTD_BUILD_EXAMPLES "Build examples of bofstd"         OFF)
+option(BOFSTD_BUILD_EXAMPLES "Build examples of bofstd"         ON)
 
 # Some options allow to tune the 'API & versioning' behaviour.
 #  - Do we want to create binaries with explicit version in them (e.g. libbofstd.so.1.0.1) ?
@@ -263,7 +263,7 @@ add_subdirectory(lib)
 
 # Optional
 if(BOFSTD_BUILD_EXAMPLES)
-  add_subdirectory(example)
+  add_subdirectory(apps)
 endif()
 
 if(BOFSTD_BUILD_TESTS)
