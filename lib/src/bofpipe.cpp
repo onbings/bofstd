@@ -779,14 +779,27 @@ BOFERR BofPipe::V_Connect(uint32_t _TimeoutInMs_U32, const std::string & /*_rTar
       {
         //!!! Server must be created FIRST !!!
         Start_U32 = BOF::Bof_GetMsTickCount();
-        while ((access(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), F_OK) != 0) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32))
+        printf(">DBGPIPE< pipe client %s Check access for %d ms\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), _TimeoutInMs_U32);
+        do
         {
-          // Server FIFO doesn't exist yet, wait for some time
-          Bof_MsSleep(1);
-        }
-        printf(">DBGPIPE< pipe client %s Flag %x\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mOpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
+          Status_i = access(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), F_OK);
+          if (Status_i)
+          {
+            // Server FIFO doesn't exist yet, wait for some time
+            Bof_MsSleep(1);
+          }
+        } while ((Status_i) && (BOF::Bof_ElapsedMsTime(Start_U32) < _TimeoutInMs_U32));
+
+        printf(">DBGPIPE< pipe client %s access %d Flag %x errno %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), Status_i, mOpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK), errno);
         mPipe = open(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mOpenFlag_i | (mPipeParam_X.BaseChannelParam_X.Blocking_B ? 0 : O_NONBLOCK));
-        printf(">DBGPIPE< pipe client %s open %d err %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe, Bof_GetLastError(false));
+        if (mPipe >= 0)
+        {
+          printf(">DBGPIPE< pipe client %s open %d CONNECTED TO SERVER\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe);
+        }
+        else
+        {
+          printf(">DBGPIPE< pipe client %s open %d errno %d err %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe, errno, Bof_GetLastError(false));
+        }
       }
       // printf(">DBGBOF< srv/clt pipe %s id %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mPipe);
 
