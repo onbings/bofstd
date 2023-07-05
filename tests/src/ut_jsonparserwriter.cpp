@@ -183,12 +183,8 @@ TEST(JsonParser_Test, JsonType)
 
   S_JsonType_X.Reset();
 
-#if defined(WIN32)
-#else
-  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
-#endif
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "data/jsonparser.json";
+  Path = CrtDir + "../data/jsonparser.json";
   // printf("crtdir %s Jsonpath is %s\n", CrtDir.FullPathName(false).c_str(), Path.FullPathName(false).c_str());
 
   EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
@@ -428,12 +424,8 @@ TEST(JsonParser_Test, Json)
   EXPECT_STREQ("add_source", BofJsonParser::S_RootName(JsonIn_S).c_str());
 
   S_AppParamJson_X.Reset();
-#if defined(WIN32)
-#else
-  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
-#endif
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "data/jsonparser.json";
+  Path = CrtDir + "../data/jsonparser.json";
   EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
 
   pBofJsonParser_O = new BofJsonParser(JsonData_S);
@@ -530,13 +522,10 @@ TEST(JsonWriter_Test, Json)
   BofJsonParser *pBofJsonParser_O;
   BofPath CrtDir, Path;
   std::string JsonData_S;
-#if defined(WIN32)
-#else
-  EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
-#endif
+
   // memset(&S_AppParam_X, 0, sizeof(S_AppParam_X) );
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "data/jsonparser.json";
+  Path = CrtDir + "../data/jsonparser.json";
   EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
 
   pBofJsonParser_O = new BofJsonParser(JsonData_S);
