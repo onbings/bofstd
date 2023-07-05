@@ -194,18 +194,18 @@ else()
 endif()
 
 # Create target
-add_executable(ut_bofstd
+add_executable(ut_BofStd
   ${SOURCES_FILES}
 )
 # Includes
-target_include_directories(ut_bofstd
+target_include_directories(ut_BofStd
   PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../lib/src>
 )
 
 ### VLD ###########################################
-set(CMAKE_VLD_TARGET ut_bofstd)
+set(CMAKE_VLD_TARGET ut_BofStd)
 configure_file(
   ${CMAKE_SOURCE_DIR}/vld.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/vld.cmake
@@ -214,7 +214,7 @@ configure_file(
 include(${CMAKE_CURRENT_BINARY_DIR}/vld.cmake)
 ### VLD ###########################################
 
-target_link_libraries(ut_bofstd
+target_link_libraries(ut_BofStd
   PRIVATE
 	ONBINGS::bofstd-objects
 	GTest::GTest
@@ -222,13 +222,13 @@ target_link_libraries(ut_bofstd
           
 # Object library is not a shared library
 # void import directive only for linking
-target_compile_definitions(ut_bofstd
+target_compile_definitions(ut_BofStd
   PRIVATE
     -DBOFSTD_STATIC_DEFINE=1
 )
 
 # Add test and allow them to run in //
-gtest_discover_tests(ut_bofstd
+gtest_discover_tests(ut_BofStd
   XML_OUTPUT_DIR     ${CMAKE_BINARY_DIR}/GTestReports/
   TEST_PREFIX        bofstd_
    DISCOVERY_TIMEOUT 120
