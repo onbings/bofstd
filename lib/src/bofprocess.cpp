@@ -1111,7 +1111,7 @@ BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArgumen
 
   _rExitCode_i = 127;
   _rPid_X.Reset();
-  if (Bof_IsFileExist(_pProgram_c))
+  if (Bof_IsPathExist(_pProgram_c))
   {
     Rts_E = BOF_ERR_NOT_OPENED;
 #if defined(_WIN32)

@@ -1088,7 +1088,7 @@ BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath)
   return Rts_E;
 }
 
-bool Bof_IsFileExist(const BofPath &_rPath)
+bool Bof_IsPathExist(const BofPath &_rPath)
 {
   return _rPath.IsExist();
   // ifstream infile(fileName);
@@ -1105,7 +1105,7 @@ BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const B
   if (Ifs)
   {
     Rts_E = BOF_ERR_EEXIST;
-    CreateOut_B = _OverwriteIfExists_B ? true : Bof_IsFileExist(_rSrcPath);
+    CreateOut_B = _OverwriteIfExists_B ? true : Bof_IsPathExist(_rSrcPath);
     if (CreateOut_B)
     {
       Rts_E = BOF_ERR_CREATE;
