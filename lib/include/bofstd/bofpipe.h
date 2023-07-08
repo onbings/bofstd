@@ -50,6 +50,7 @@ struct BOF_PIPE_PARAM
   BOF_COM_CHANNEL_PARAM BaseChannelParam_X; // Base properties of each channel
   uint16_t SrcPortBase_U16;                 // for BOF_PIPE_OVER_LOCAL_UDP, local Port for udp in pipe->if 0 let os decide, otherwise use this value for port in and this value+1 for port out
   uint16_t DstPortBase_U16;
+  std::string PipeUser_S;
   BOF_PIPE_PARAM()
   {
     Reset();
@@ -63,15 +64,32 @@ struct BOF_PIPE_PARAM
     BaseChannelParam_X.Reset();
     SrcPortBase_U16 = 0;
     DstPortBase_U16 = 0;
+    PipeUser_S = "";
   }
 };
 
-constexpr uint32_t BOF_NB_MAX_PIPE_ENTRY = 4;
+constexpr uint32_t BOF_NB_MAX_PIPE_ENTRY_PARAM = 4;
+
+struct BOF_PIPE_ENTRY_PARAM
+{
+  std::string User_S;
+  BOF_PIPE_ACCESS Access_E;
+
+  BOF_PIPE_ENTRY_PARAM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    User_S = "";
+    Access_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE;
+  }
+};
 
 struct BOF_PIPE_ENTRY
 {
   uint32_t NbEndPoint_U32;
-  BOF_PIPE_ACCESS pAccess_E[BOF_NB_MAX_PIPE_ENTRY];
+  BOF_PIPE_ENTRY_PARAM pParam_X[BOF_NB_MAX_PIPE_ENTRY_PARAM];
   BOF_PIPE_PARAM PipeParam_X;
 
   BOF_PIPE_ENTRY()
@@ -83,9 +101,9 @@ struct BOF_PIPE_ENTRY
     uint32_t i_U32;
 
     NbEndPoint_U32 = 0;
-    for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pAccess_E); i_U32++)
+    for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pParam_X); i_U32++)
     {
-      pAccess_E[i_U32] = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ;
+      pParam_X[i_U32].Reset();
     }
     PipeParam_X.Reset();
   }

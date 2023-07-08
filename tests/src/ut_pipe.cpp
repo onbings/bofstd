@@ -191,6 +191,8 @@ TEST(Pipe_Test, UdpPipeSingle)
 
   PipeParam_X.SrcPortBase_U16 = 55000;
   PipeParam_X.DstPortBase_U16 = 55010;
+  PipeParam_X.PipeUser_S = "Ut1";
+
   pBofPipeServer = new BofPipe(PipeParam_X); // first the server
   EXPECT_TRUE(pBofPipeServer != nullptr);
   EXPECT_EQ(pBofPipeServer->LastErrorCode(), BOF_ERR_NO_ERROR);
@@ -206,6 +208,8 @@ TEST(Pipe_Test, UdpPipeSingle)
 
   PipeParam_X.SrcPortBase_U16 = 55010;
   PipeParam_X.DstPortBase_U16 = 55000;
+  PipeParam_X.PipeUser_S = "Ut2";
+
   pBofPipeClient = new BofPipe(PipeParam_X);
   EXPECT_TRUE(pBofPipeClient != nullptr);
   EXPECT_EQ(pBofPipeClient->LastErrorCode(), BOF_ERR_NO_ERROR);
@@ -275,6 +279,7 @@ TEST(Pipe_Test, NativePipeSingleString)
   BOF_THREAD ServerThread_X;
   BOF_COM_CHANNEL_STATUS StatusClient_X, StatusServer_X;
 
+  PipeParam_X.PipeUser_S = "Ut";
   PipeParam_X.PipeType_E = BOF_PIPE_TYPE::BOF_PIPE_NATIVE;
   PipeParam_X.PipeAccess_E = BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ;
   PipeParam_X.PipeServer_B = true;
@@ -286,6 +291,8 @@ TEST(Pipe_Test, NativePipeSingleString)
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
   PipeParam_X.SrcPortBase_U16 = 0;
   PipeParam_X.DstPortBase_U16 = 0;
+  PipeParam_X.PipeUser_S = "Ut3";
+
   pBofPipeServer = new BofPipe(PipeParam_X); // first the server
   EXPECT_TRUE(pBofPipeServer != nullptr);
   EXPECT_EQ(pBofPipeServer->LastErrorCode(), BOF_ERR_NO_ERROR);
@@ -300,6 +307,8 @@ TEST(Pipe_Test, NativePipeSingleString)
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
   PipeParam_X.SrcPortBase_U16 = 0;
   PipeParam_X.DstPortBase_U16 = 0;
+  PipeParam_X.PipeUser_S = "Ut4";
+
   pBofPipeClient = new BofPipe(PipeParam_X);
   EXPECT_TRUE(pBofPipeClient != nullptr);
   EXPECT_EQ(pBofPipeClient->LastErrorCode(), BOF_ERR_NO_ERROR);
@@ -372,6 +381,8 @@ TEST(Pipe_Test, NativePipeSingleBinary)
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
   PipeParam_X.SrcPortBase_U16 = 0;
   PipeParam_X.DstPortBase_U16 = 0;
+  PipeParam_X.PipeUser_S = "Ut5";
+
   pBofPipeServer = new BofPipe(PipeParam_X); // first the server
   EXPECT_TRUE(pBofPipeServer != nullptr);
   EXPECT_EQ(pBofPipeServer->LastErrorCode(), BOF_ERR_NO_ERROR);
@@ -388,6 +399,8 @@ TEST(Pipe_Test, NativePipeSingleBinary)
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
   PipeParam_X.SrcPortBase_U16 = 0;
   PipeParam_X.DstPortBase_U16 = 0;
+  PipeParam_X.PipeUser_S = "Ut6";
+
   pBofPipeClient = new BofPipe(PipeParam_X);
   EXPECT_TRUE(pBofPipeClient != nullptr);
   EXPECT_EQ(pBofPipeClient->LastErrorCode(), BOF_ERR_NO_ERROR);

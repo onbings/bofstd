@@ -284,6 +284,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, Handle_i, 0);
           if (_rSharedMemory_X.pBaseAddress != MAP_FAILED)
           {
+            printf("Bof_OpenSharedMemory '%s'     3: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
             if (Rts_E != BOF_ERR_EEXIST)
             {
               Rts_E = BOF_ERR_NO_ERROR;
@@ -298,13 +299,13 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           _rSharedMemory_X.PathNameSystemV_S = _rFallbackSystemVKeySubDir_S + Name_S;
           ShmKey = Bof_GenerateSystemVKey(true, _rSharedMemory_X.PathNameSystemV_S.c_str(), 1);
           // ShmKey = Bof_GenerateSystemVKey(true, nullptr, 1);
-          printf("Bof_OpenSharedMemory '%s' 3: key %x\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), ShmKey);
+          printf("Bof_OpenSharedMemory '%s' 4: key %x\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), ShmKey);
           if (ShmKey != -1)
           {
             // Handle_i = shmget(IPC_PRIVATE, _SizeInByte_U32, IPC_EXCL | IPC_CREAT | 0666);
             // printf("%x %d\n", 0666, 0666);                 // 1b6 438
             Handle_i = shmget(ShmKey, _SizeInByte_U32, Mode); // IPC_EXCL | IPC_CREAT | 0666);
-            printf("Bof_OpenSharedMemory '%s' 4: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
+            printf("Bof_OpenSharedMemory '%s' 5: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
             if (Handle_i >= 0)
             {
               _rSharedMemory_X.pBaseAddress = shmat(Handle_i, 0, 0);
@@ -320,7 +321,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
             else
             {
               Handle_i = shmget(ShmKey, _SizeInByte_U32, IPC_EXCL | IPC_CREAT | Mode); //| 0666);
-              printf("Bof_OpenSharedMemory '%s' 5: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
+              printf("Bof_OpenSharedMemory '%s' 6: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
               if (Handle_i >= 0)
               {
                 _rSharedMemory_X.pBaseAddress = shmat(Handle_i, 0, 0);
@@ -330,6 +331,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
                 }
                 else
                 {
+                  printf("Bof_OpenSharedMemory '%s'     7: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
                   Rts_E = BOF_ERR_NO_ERROR;
                 }
               }
@@ -379,34 +381,52 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
       }
     }
 #else
+        int Sts_i;
         if (_rSharedMemory_X.pBaseAddress)
         {
           if (_rSharedMemory_X.HandleSystemV_i >= 0)
           {
             Rts_E = (shmdt(_rSharedMemory_X.pBaseAddress) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_UNMAP;
+            printf("shmdt errno %d Rts_E %d\n", errno, Rts_E);
+            if ((Rts_E == BOF_ERR_NO_ERROR) || (Rts_E == BOF_ERR_ENOTDIR))
+            {
+              // NO !! Sts_i = close(_rSharedMemory_X.HandleSystemV_i);
+              //  Can fail if already _RemoveIt_B by someone else  Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
+              Rts_E = BOF_ERR_NO_ERROR;
+            }
           }
           else
           {
             Rts_E = (munmap(_rSharedMemory_X.pBaseAddress, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_UNMAP;
-          }
-        }
-        if ((Rts_E == BOF_ERR_NO_ERROR) && (_RemoveIt_B))
-        {
-          if (_rSharedMemory_X.HandleSystemV_i >= 0)
-          {
-            Rts_E = (shmctl(_rSharedMemory_X.HandleSystemV_i, IPC_RMID, nullptr) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
-            Bof_DeleteFile(_rSharedMemory_X.PathNameSystemV_S);
-          }
-          else
-          {
-            Rts_E = (shm_unlink(_rSharedMemory_X.Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
-            printf("--> '%s' RemoveIt %d Rts %d err %d\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E, errno);
-            if (Rts_E == BOF_ERR_ENOENT)
+            if (Rts_E == BOF_ERR_NO_ERROR)
             {
-              Rts_E = BOF_ERR_NO_ERROR;
+              // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
             }
-            // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
-            //  #endif
+          }
+          BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
+
+          if ((Rts_E == BOF_ERR_NO_ERROR) && (_RemoveIt_B))
+          {
+            if (_rSharedMemory_X.HandleSystemV_i >= 0)
+            {
+              Rts_E = (shmctl(_rSharedMemory_X.HandleSystemV_i, IPC_RMID, nullptr) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
+              printf("shmctl errno %d Rts_E %d %s\n", errno, Rts_E, _rSharedMemory_X.PathNameSystemV_S.c_str());
+              Bof_DeleteFile(_rSharedMemory_X.PathNameSystemV_S);
+              if (Rts_E == BOF_ERR_EMLINK)
+              {
+                // NO !! Sts_i = close(_rSharedMemory_X.HandleSystemV_i);
+                //  Can fail if already _RemoveIt_B by someone else  Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
+                Rts_E = BOF_ERR_NO_ERROR;
+              }
+            }
+            else
+            {
+              Rts_E = (shm_unlink(_rSharedMemory_X.Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
+              printf("Bof_CloseSharedMemory--> '%s' RemoveIt %d Rts %d err %d %x:%p\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E, errno, _rSharedMemory_X.SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
+              // Can fail if already _RemoveIt_B by someone else
+              Rts_E = BOF_ERR_NO_ERROR;
+              // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
+            }
           }
         }
 #endif
@@ -1616,12 +1636,6 @@ static void *S_ThreadLauncher(void *_pThreadContext)
           // printf("%d ----->DBG call '%s' stop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load());
           pThread_X->ThreadExitCode_E = pThread_X->ThreadFunction(pThread_X->ThreadMustStop_B, pThread_X->pUserContext); // Returns BOF_ERR_EXIT_THREAD to exit with BOF_ERR_NO_ERROR
           // printf("%d ----->DBG rts '%s' must stop %d exit %d ptr %p\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load(), pThread_X->ThreadExitCode_E, pThread_X);
-          /*
-          if (pThread_X->Name_S == "")
-          {
-            printf("jj");
-          }
-          */
           if (pThread_X->ThreadExitCode_E == BOF_ERR_EXIT_THREAD)
           {
             pThread_X->ThreadExitCode_E = BOF_ERR_NO_ERROR;
