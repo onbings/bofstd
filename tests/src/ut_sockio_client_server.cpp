@@ -49,9 +49,9 @@ constexpr uint32_t WAIT_FOR_POLL_PERIOD = 500;
 constexpr uint16_t DEFAULT_PORT = 55000;
 constexpr uint16_t MIN_PORT_VALUE = 55000;
 constexpr uint16_t MAX_PORT_VALUE = 55099;
-constexpr uint16_t CONTROL_LISTER_MIN_PORT_VALUE = 55100;
-constexpr uint16_t CONTROL_LISTER_MAX_PORT_VALUE = 55199;
-static uint16_t S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+constexpr uint16_t CONTROL_LISTENER_MIN_PORT_VALUE = 55100;
+constexpr uint16_t CONTROL_LISTENER_MAX_PORT_VALUE = 55199;
+static uint16_t S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
 
 constexpr uint32_t NB_MAX_H4X_CLIENT = 10;
 constexpr uint32_t SEND_CMD_ANSWER_TIMEOUT_IN_MS = 5000;
@@ -182,6 +182,7 @@ public:
     {
       Rts_E = mpMyTcpServer->ListenForDataChannelConnection(true, shared_from_this(), NO_IO_CLOSE_TIMEOUT_IN_MS / 2, "127.0.0.1");
     }
+
     BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
 
     return Rts_E;
@@ -464,7 +465,7 @@ BOFERR MyTcpClientServer::V_CloseSession(std::shared_ptr<BofSocketIo> _psSession
   return BOF_ERR_NO_ERROR;
 }
 
-TEST(SockIo_Client_Server_Test, DISABLED_CreateAndDestroyBofSocketServer)
+TEST(SockIo_Client_Server_Test, CreateAndDestroyBofSocketServer)
 {
   uint32_t i_U32;
   BOF_POLL_SOCKET_CMD PollSocketCmd_X;
@@ -482,10 +483,10 @@ TEST(SockIo_Client_Server_Test, DISABLED_CreateAndDestroyBofSocketServer)
   BofSocketServerParam_X.NbMaxSession_U32 = 0;
   BofSocketServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
   /*
@@ -514,7 +515,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_CreateAndDestroyBofSocketServer)
   }
 }
 
-TEST(SockIo_Client_Server_Test, DISABLED_SendPollSocketCommand)
+TEST(SockIo_Client_Server_Test, SendPollSocketCommand)
 {
   BOF_POLL_SOCKET_CMD PollSocketCommand_X;
 
@@ -539,10 +540,10 @@ TEST(SockIo_Client_Server_Test, DISABLED_SendPollSocketCommand)
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_CLIENT;
   BofSocketClientServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketClientServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketClientServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 
@@ -567,7 +568,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_SendPollSocketCommand)
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), NbSock_i);
 }
 
-TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdSession)
+TEST(SockIo_Client_Server_Test, OpenCloseCmdSession)
 {
   std::unique_ptr<MyTcpServer> puBofSocketServer;
   BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
@@ -592,10 +593,10 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdSession)
   BofSocketServerParam_X.NbMaxSession_U32 = NB_MAX_SESSION;
   BofSocketServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 
@@ -615,10 +616,10 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdSession)
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_CLIENT;
   BofSocketClientServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketClientServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketClientServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 
@@ -640,7 +641,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdSession)
 
   EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NB_MAX_CLIENT * 1)));
   EXPECT_EQ(puBofSocketServer->NbConnectedSession(), NB_MAX_CLIENT);
-  //	ASSERT_GE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1) - 1);	//Minus 1 as a temporary poll socket is created as DATA_LISTERNER and is replaced with the data poll sock when the whole process is okk so WaitForNbConnectedSession can
+  //	ASSERT_GE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1) - 1);	//Minus 1 as a temporary poll socket is created as DATA_LISTENERNER and is replaced with the data poll sock when the whole process is okk so WaitForNbConnectedSession can
   // see 4 and here we have 3 	ASSERT_LE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
   EXPECT_EQ(puBofSocketServer->NbPollChannel(), 1 + 1 + (NB_MAX_CLIENT * 1));
 
@@ -701,17 +702,17 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   BofSocketServerParam_X.Name_S = "MyTcpServer";
   BofSocketServerParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
   BofSocketServerParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY_000;
-  ;
+
   BofSocketServerParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
-  ;
+
   BofSocketServerParam_X.Address_S = Bof_Sprintf("tcp://0.0.0.0:%d", DEFAULT_PORT);
   BofSocketServerParam_X.NbMaxSession_U32 = NB_MAX_SESSION;
   BofSocketServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 
@@ -731,10 +732,10 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_CLIENT;
   BofSocketClientServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketClientServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketClientServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 
@@ -793,7 +794,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + 1 + (NbMaxClient_U32 * 2)));
   EXPECT_EQ(puBofSocketServer->NbConnectedSession(), NbMaxClient_U32);
   ASSERT_GE(puBofSocketServer->NbPollChannel(),
-            1 + 1 + (NbMaxClient_U32 * 2) - 1); // Minus 1 as a temporary poll socket is created as DATA_LISTERNER and is replaced with the data poll sock when the whole process is okk so WaitForNbConnectedSession can see 4 and here we have 3
+            1 + 1 + (NbMaxClient_U32 * 2) - 1); // Minus 1 as a temporary poll socket is created as DATA_LISTENERNER and is replaced with the data poll sock when the whole process is okk so WaitForNbConnectedSession can see 4 and here we have 3
   ASSERT_LE(puBofSocketServer->NbPollChannel(), 1 + 1 + (NbMaxClient_U32 * 2));
 
   EXPECT_EQ(BOF_ERR_NO_ERROR, puBofSocketClientServer->WaitForNbConnectedSession(NB_MAX_CLIENT, WAIT_FOR_POLL_PERIOD, NO_IO_CLOSE_TIMEOUT_IN_MS / 2, 1 + (NbMaxClient_U32 * 2)));
@@ -874,7 +875,7 @@ TEST(SockIo_Client_Server_Test, DISABLED_OpenCloseCmdDataSession)
   //	BOF_DBG_PRINTF("===LeaveFct======================================================================================\n");
 }
 
-TEST(SockIo_Client_Server_Test, DISABLED_ServerOpenCloseCmdDataSession)
+TEST(SockIo_Client_Server_Test, ServerOpenCloseCmdDataSession)
 {
   std::unique_ptr<MyTcpServer> puBofSocketServer;
   BOF_SOCKET_SERVER_PARAM BofSocketServerParam_X;
@@ -944,10 +945,10 @@ TEST(SockIo_Client_Server_Test, ClientOpenCloseCmdDataSession)
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_CLIENT;
   BofSocketClientServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketClientServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketClientServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 
@@ -1053,10 +1054,10 @@ TEST(SockIo_Client_Server_Test, ClientForH4X)
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_H4X_CLIENT;
   BofSocketClientServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketClientServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketClientServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 
@@ -1209,10 +1210,10 @@ TEST(SockIo_Client_Server_Test, ClientForUcode)
   BofSocketClientServerParam_X.NbMaxSession_U32 = NB_MAX_H4X_CLIENT;
   BofSocketClientServerParam_X.MinPortValue_U16 = MIN_PORT_VALUE;
   BofSocketClientServerParam_X.MaxPortValue_U16 = MAX_PORT_VALUE;
-  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListerPort_U16++;
-  if (S_ControlListerPort_U16 >= CONTROL_LISTER_MAX_PORT_VALUE)
+  BofSocketClientServerParam_X.PollControlListenerPort_U16 = S_ControlListenerPort_U16++;
+  if (S_ControlListenerPort_U16 >= CONTROL_LISTENER_MAX_PORT_VALUE)
   {
-    S_ControlListerPort_U16 = CONTROL_LISTER_MIN_PORT_VALUE;
+    S_ControlListenerPort_U16 = CONTROL_LISTENER_MIN_PORT_VALUE;
   }
   BofSocketClientServerParam_X.PollControlListenerTimeoutInMs_U32 = NO_IO_CLOSE_TIMEOUT_IN_MS;
 

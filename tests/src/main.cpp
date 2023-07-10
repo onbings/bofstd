@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
   // Use these one
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
-  //::testing::GTEST_FLAG(filter) = "Process_Test.*";
+  //::testing::GTEST_FLAG(filter) = "SockIo_Client_Server_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
   //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
   //::testing::GTEST_FLAG(filter) = "Bit_Test.*";
