@@ -156,7 +156,16 @@ bool Bof_StringIsPresent(const std::string &_rStr_S, const std::string &_rCharTo
 {
   return (_rStr_S.find_first_of(_rCharToLookFor_S) != std::string::npos);
 }
-
+int Bof_StringIsPresent(const std::vector<std::string> &_rStrCollection, const std::string &_rStr_S)
+{
+  int Rts_i = -1;
+  auto It = std::find(_rStrCollection.begin(), _rStrCollection.end(), _rStr_S);
+  if (It != _rStrCollection.end())
+  {
+    Rts_i = std::distance(_rStrCollection.begin(), It);
+  }
+  return Rts_i;
+}
 bool Bof_StringIsAllTheSameChar(const std::string &_rStr_S, char _CharToLookFor_c)
 {
   bool Rts_B = false;
@@ -548,7 +557,7 @@ char *Bof_StringToUpperInPlace(char *_pStr_c)
 {
   char *pRts_c = nullptr;
 
-  char  Ch_c;
+  char Ch_c;
 
   if (_pStr_c)
   {
@@ -561,7 +570,7 @@ char *Bof_StringToUpperInPlace(char *_pStr_c)
     }
   }
 
-  return(pRts_c);
+  return (pRts_c);
 }
 
 /*!
@@ -678,7 +687,7 @@ std::string Bof_Sprintf(const char *_pFormat_c, ...)
         va_start(Arg, _pFormat_c);
         Size_i = vsnprintf(pBuffer_c, SizeBuffer_i + 1, _pFormat_c, Arg);
         va_end(Arg);
-        //printf("%d/%d fmt %s len %d buf %s lenb %d\n", Size_i, SizeBuffer_i, _pFormat_c, (int)strlen(_pFormat_c), pBuffer_c, (int)strlen(pBuffer_c));
+        // printf("%d/%d fmt %s len %d buf %s lenb %d\n", Size_i, SizeBuffer_i, _pFormat_c, (int)strlen(_pFormat_c), pBuffer_c, (int)strlen(pBuffer_c));
         BOF_ASSERT(Size_i == SizeBuffer_i);
         Rts_S = pBuffer_c;
         BOF_SAFE_DELETE_ARRAY(pBuffer_c);

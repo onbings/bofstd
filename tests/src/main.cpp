@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
   //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
   //::testing::GTEST_FLAG(filter) = "Bit_Test.*";
-  //::testing::GTEST_FLAG(filter) = "Pipe_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Shell_Test.Shell";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
   // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());

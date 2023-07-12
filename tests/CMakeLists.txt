@@ -20,6 +20,8 @@ set(DATA_FILES
   ./data/colorbar_uncompress_32b.tga
   ./data/colorbar_rle_32b.tga
   ./data/sample-mp4-file.mp4
+  ./data/shell_script_1.bof
+  ./data/shell_script_2.bof
 )
 
 set(API_FILES

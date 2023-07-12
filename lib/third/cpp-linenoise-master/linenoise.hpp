@@ -402,434 +402,435 @@ inline void InterpretEscSeq(void)
     GetConsoleScreenBufferInfo(hConOut, &Info);
     switch (suffix)
     {
-    case 'm':
-      if (es_argc == 0)
-        es_argv[es_argc++] = 0;
-      for (i = 0; i < es_argc; i++)
-      {
-        if (30 <= es_argv[i] && es_argv[i] <= 37)
-          grm.foreground = es_argv[i] - 30;
-        else if (40 <= es_argv[i] && es_argv[i] <= 47)
-          grm.background = es_argv[i] - 40;
-        else
-          switch (es_argv[i])
-          {
-          case 0:
-          case 39:
-          case 49: {
-            WCHAR def[4];
-            int a;
-            *def = '7';
-            def[1] = '\0';
-            GetEnvironmentVariableW(L"ANSICON_DEF", def, lenof(def));
-            a = wcstol(def, nullptr, 16);
-            grm.reverse = FALSE;
-            if (a < 0)
+      case 'm':
+        if (es_argc == 0)
+          es_argv[es_argc++] = 0;
+        for (i = 0; i < es_argc; i++)
+        {
+          if (30 <= es_argv[i] && es_argv[i] <= 37)
+            grm.foreground = es_argv[i] - 30;
+          else if (40 <= es_argv[i] && es_argv[i] <= 47)
+            grm.background = es_argv[i] - 40;
+          else
+            switch (es_argv[i])
             {
-              grm.reverse = TRUE;
-              a = -a;
-            }
-            if (es_argv[i] != 49)
-              grm.foreground = attr2ansi[a & 7];
-            if (es_argv[i] != 39)
-              grm.background = attr2ansi[(a >> 4) & 7];
-            if (es_argv[i] == 0)
-            {
-              if (es_argc == 1)
-              {
-                grm.bold = a & FOREGROUND_INTENSITY;
-                grm.underline = a & BACKGROUND_INTENSITY;
-              }
-              else
-              {
+              case 0:
+              case 39:
+              case 49:
+                {
+                  WCHAR def[4];
+                  int a;
+                  *def = '7';
+                  def[1] = '\0';
+                  GetEnvironmentVariableW(L"ANSICON_DEF", def, lenof(def));
+                  a = wcstol(def, nullptr, 16);
+                  grm.reverse = FALSE;
+                  if (a < 0)
+                  {
+                    grm.reverse = TRUE;
+                    a = -a;
+                  }
+                  if (es_argv[i] != 49)
+                    grm.foreground = attr2ansi[a & 7];
+                  if (es_argv[i] != 39)
+                    grm.background = attr2ansi[(a >> 4) & 7];
+                  if (es_argv[i] == 0)
+                  {
+                    if (es_argc == 1)
+                    {
+                      grm.bold = a & FOREGROUND_INTENSITY;
+                      grm.underline = a & BACKGROUND_INTENSITY;
+                    }
+                    else
+                    {
+                      grm.bold = 0;
+                      grm.underline = 0;
+                    }
+                    grm.rvideo = 0;
+                    grm.concealed = 0;
+                  }
+                }
+                break;
+
+              case 1:
+                grm.bold = FOREGROUND_INTENSITY;
+                break;
+              case 5: // blink
+              case 4:
+                grm.underline = BACKGROUND_INTENSITY;
+                break;
+              case 7:
+                grm.rvideo = 1;
+                break;
+              case 8:
+                grm.concealed = 1;
+                break;
+              case 21: // oops, this actually turns on double underline
+              case 22:
                 grm.bold = 0;
+                break;
+              case 25:
+              case 24:
                 grm.underline = 0;
-              }
-              grm.rvideo = 0;
-              grm.concealed = 0;
+                break;
+              case 27:
+                grm.rvideo = 0;
+                break;
+              case 28:
+                grm.concealed = 0;
+                break;
             }
-          }
-          break;
-
-          case 1:
-            grm.bold = FOREGROUND_INTENSITY;
-            break;
-          case 5: // blink
-          case 4:
-            grm.underline = BACKGROUND_INTENSITY;
-            break;
-          case 7:
-            grm.rvideo = 1;
-            break;
-          case 8:
-            grm.concealed = 1;
-            break;
-          case 21: // oops, this actually turns on double underline
-          case 22:
-            grm.bold = 0;
-            break;
-          case 25:
-          case 24:
-            grm.underline = 0;
-            break;
-          case 27:
-            grm.rvideo = 0;
-            break;
-          case 28:
-            grm.concealed = 0;
-            break;
-          }
-      }
-      if (grm.concealed)
-      {
-        if (grm.rvideo)
+        }
+        if (grm.concealed)
         {
-          attribut = foregroundcolor[grm.foreground] | backgroundcolor[grm.foreground];
+          if (grm.rvideo)
+          {
+            attribut = foregroundcolor[grm.foreground] | backgroundcolor[grm.foreground];
+            if (grm.bold)
+              attribut |= FOREGROUND_INTENSITY | BACKGROUND_INTENSITY;
+          }
+          else
+          {
+            attribut = foregroundcolor[grm.background] | backgroundcolor[grm.background];
+            if (grm.underline)
+              attribut |= FOREGROUND_INTENSITY | BACKGROUND_INTENSITY;
+          }
+        }
+        else if (grm.rvideo)
+        {
+          attribut = foregroundcolor[grm.background] | backgroundcolor[grm.foreground];
           if (grm.bold)
-            attribut |= FOREGROUND_INTENSITY | BACKGROUND_INTENSITY;
+            attribut |= BACKGROUND_INTENSITY;
+          if (grm.underline)
+            attribut |= FOREGROUND_INTENSITY;
         }
         else
+          attribut = foregroundcolor[grm.foreground] | grm.bold | backgroundcolor[grm.background] | grm.underline;
+        if (grm.reverse)
+          attribut = ((attribut >> 4) & 15) | ((attribut & 15) << 4);
+        SetConsoleTextAttribute(hConOut, attribut);
+        return;
+
+      case 'J':
+        if (es_argc == 0)
+          es_argv[es_argc++] = 0; // ESC[J == ESC[0J
+        if (es_argc != 1)
+          return;
+        switch (es_argv[0])
         {
-          attribut = foregroundcolor[grm.background] | backgroundcolor[grm.background];
-          if (grm.underline)
-            attribut |= FOREGROUND_INTENSITY | BACKGROUND_INTENSITY;
+          case 0: // ESC[0J erase from cursor to end of display
+            len = (Info.dwSize.Y - Info.dwCursorPosition.Y - 1) * Info.dwSize.X + Info.dwSize.X - Info.dwCursorPosition.X - 1;
+            FillConsoleOutputCharacter(hConOut, ' ', len, Info.dwCursorPosition, &NumberOfCharsWritten);
+            FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Info.dwCursorPosition, &NumberOfCharsWritten);
+            return;
+
+          case 1: // ESC[1J erase from start to cursor.
+            Pos.X = 0;
+            Pos.Y = 0;
+            len = Info.dwCursorPosition.Y * Info.dwSize.X + Info.dwCursorPosition.X + 1;
+            FillConsoleOutputCharacter(hConOut, ' ', len, Pos, &NumberOfCharsWritten);
+            FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Pos, &NumberOfCharsWritten);
+            return;
+
+          case 2: // ESC[2J Clear screen and home cursor
+            Pos.X = 0;
+            Pos.Y = 0;
+            len = Info.dwSize.X * Info.dwSize.Y;
+            FillConsoleOutputCharacter(hConOut, ' ', len, Pos, &NumberOfCharsWritten);
+            FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Pos, &NumberOfCharsWritten);
+            SetConsoleCursorPosition(hConOut, Pos);
+            return;
+
+          default:
+            return;
         }
-      }
-      else if (grm.rvideo)
-      {
-        attribut = foregroundcolor[grm.background] | backgroundcolor[grm.foreground];
-        if (grm.bold)
-          attribut |= BACKGROUND_INTENSITY;
-        if (grm.underline)
-          attribut |= FOREGROUND_INTENSITY;
-      }
-      else
-        attribut = foregroundcolor[grm.foreground] | grm.bold | backgroundcolor[grm.background] | grm.underline;
-      if (grm.reverse)
-        attribut = ((attribut >> 4) & 15) | ((attribut & 15) << 4);
-      SetConsoleTextAttribute(hConOut, attribut);
-      return;
 
-    case 'J':
-      if (es_argc == 0)
-        es_argv[es_argc++] = 0; // ESC[J == ESC[0J
-      if (es_argc != 1)
-        return;
-      switch (es_argv[0])
-      {
-      case 0: // ESC[0J erase from cursor to end of display
-        len = (Info.dwSize.Y - Info.dwCursorPosition.Y - 1) * Info.dwSize.X + Info.dwSize.X - Info.dwCursorPosition.X - 1;
-        FillConsoleOutputCharacter(hConOut, ' ', len, Info.dwCursorPosition, &NumberOfCharsWritten);
-        FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Info.dwCursorPosition, &NumberOfCharsWritten);
+      case 'K':
+        if (es_argc == 0)
+          es_argv[es_argc++] = 0; // ESC[K == ESC[0K
+        if (es_argc != 1)
+          return;
+        switch (es_argv[0])
+        {
+          case 0: // ESC[0K Clear to end of line
+            len = Info.dwSize.X - Info.dwCursorPosition.X + 1;
+            FillConsoleOutputCharacter(hConOut, ' ', len, Info.dwCursorPosition, &NumberOfCharsWritten);
+            FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Info.dwCursorPosition, &NumberOfCharsWritten);
+            return;
+
+          case 1: // ESC[1K Clear from start of line to cursor
+            Pos.X = 0;
+            Pos.Y = Info.dwCursorPosition.Y;
+            FillConsoleOutputCharacter(hConOut, ' ', Info.dwCursorPosition.X + 1, Pos, &NumberOfCharsWritten);
+            FillConsoleOutputAttribute(hConOut, Info.wAttributes, Info.dwCursorPosition.X + 1, Pos, &NumberOfCharsWritten);
+            return;
+
+          case 2: // ESC[2K Clear whole line.
+            Pos.X = 0;
+            Pos.Y = Info.dwCursorPosition.Y;
+            FillConsoleOutputCharacter(hConOut, ' ', Info.dwSize.X, Pos, &NumberOfCharsWritten);
+            FillConsoleOutputAttribute(hConOut, Info.wAttributes, Info.dwSize.X, Pos, &NumberOfCharsWritten);
+            return;
+
+          default:
+            return;
+        }
+
+      case 'X': // ESC[#X Erase # characters.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[X == ESC[1X
+        if (es_argc != 1)
+          return;
+        FillConsoleOutputCharacter(hConOut, ' ', es_argv[0], Info.dwCursorPosition, &NumberOfCharsWritten);
+        FillConsoleOutputAttribute(hConOut, Info.wAttributes, es_argv[0], Info.dwCursorPosition, &NumberOfCharsWritten);
         return;
 
-      case 1: // ESC[1J erase from start to cursor.
+      case 'L': // ESC[#L Insert # blank lines.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[L == ESC[1L
+        if (es_argc != 1)
+          return;
+        Rect.Left = 0;
+        Rect.Top = Info.dwCursorPosition.Y;
+        Rect.Right = Info.dwSize.X - 1;
+        Rect.Bottom = Info.dwSize.Y - 1;
         Pos.X = 0;
-        Pos.Y = 0;
-        len = Info.dwCursorPosition.Y * Info.dwSize.X + Info.dwCursorPosition.X + 1;
-        FillConsoleOutputCharacter(hConOut, ' ', len, Pos, &NumberOfCharsWritten);
-        FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Pos, &NumberOfCharsWritten);
+        Pos.Y = Info.dwCursorPosition.Y + es_argv[0];
+        CharInfo.Char.UnicodeChar = ' ';
+        CharInfo.Attributes = Info.wAttributes;
+        ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
         return;
 
-      case 2: // ESC[2J Clear screen and home cursor
+      case 'M': // ESC[#M Delete # lines.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[M == ESC[1M
+        if (es_argc != 1)
+          return;
+        if (es_argv[0] > Info.dwSize.Y - Info.dwCursorPosition.Y)
+          es_argv[0] = Info.dwSize.Y - Info.dwCursorPosition.Y;
+        Rect.Left = 0;
+        Rect.Top = Info.dwCursorPosition.Y + es_argv[0];
+        Rect.Right = Info.dwSize.X - 1;
+        Rect.Bottom = Info.dwSize.Y - 1;
         Pos.X = 0;
-        Pos.Y = 0;
-        len = Info.dwSize.X * Info.dwSize.Y;
-        FillConsoleOutputCharacter(hConOut, ' ', len, Pos, &NumberOfCharsWritten);
-        FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Pos, &NumberOfCharsWritten);
+        Pos.Y = Info.dwCursorPosition.Y;
+        CharInfo.Char.UnicodeChar = ' ';
+        CharInfo.Attributes = Info.wAttributes;
+        ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
+        return;
+
+      case 'P': // ESC[#P Delete # characters.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[P == ESC[1P
+        if (es_argc != 1)
+          return;
+        if (Info.dwCursorPosition.X + es_argv[0] > Info.dwSize.X - 1)
+          es_argv[0] = Info.dwSize.X - Info.dwCursorPosition.X;
+        Rect.Left = Info.dwCursorPosition.X + es_argv[0];
+        Rect.Top = Info.dwCursorPosition.Y;
+        Rect.Right = Info.dwSize.X - 1;
+        Rect.Bottom = Info.dwCursorPosition.Y;
+        CharInfo.Char.UnicodeChar = ' ';
+        CharInfo.Attributes = Info.wAttributes;
+        ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Info.dwCursorPosition, &CharInfo);
+        return;
+
+      case '@': // ESC[#@ Insert # blank characters.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[@ == ESC[1@
+        if (es_argc != 1)
+          return;
+        if (Info.dwCursorPosition.X + es_argv[0] > Info.dwSize.X - 1)
+          es_argv[0] = Info.dwSize.X - Info.dwCursorPosition.X;
+        Rect.Left = Info.dwCursorPosition.X;
+        Rect.Top = Info.dwCursorPosition.Y;
+        Rect.Right = Info.dwSize.X - 1 - es_argv[0];
+        Rect.Bottom = Info.dwCursorPosition.Y;
+        Pos.X = Info.dwCursorPosition.X + es_argv[0];
+        Pos.Y = Info.dwCursorPosition.Y;
+        CharInfo.Char.UnicodeChar = ' ';
+        CharInfo.Attributes = Info.wAttributes;
+        ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
+        return;
+
+      case 'k': // ESC[#k
+      case 'A': // ESC[#A Moves cursor up # lines
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[A == ESC[1A
+        if (es_argc != 1)
+          return;
+        Pos.Y = Info.dwCursorPosition.Y - es_argv[0];
+        if (Pos.Y < 0)
+          Pos.Y = 0;
+        Pos.X = Info.dwCursorPosition.X;
         SetConsoleCursorPosition(hConOut, Pos);
         return;
 
-      default:
-        return;
-      }
-
-    case 'K':
-      if (es_argc == 0)
-        es_argv[es_argc++] = 0; // ESC[K == ESC[0K
-      if (es_argc != 1)
-        return;
-      switch (es_argv[0])
-      {
-      case 0: // ESC[0K Clear to end of line
-        len = Info.dwSize.X - Info.dwCursorPosition.X + 1;
-        FillConsoleOutputCharacter(hConOut, ' ', len, Info.dwCursorPosition, &NumberOfCharsWritten);
-        FillConsoleOutputAttribute(hConOut, Info.wAttributes, len, Info.dwCursorPosition, &NumberOfCharsWritten);
+      case 'e': // ESC[#e
+      case 'B': // ESC[#B Moves cursor down # lines
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[B == ESC[1B
+        if (es_argc != 1)
+          return;
+        Pos.Y = Info.dwCursorPosition.Y + es_argv[0];
+        if (Pos.Y >= Info.dwSize.Y)
+          Pos.Y = Info.dwSize.Y - 1;
+        Pos.X = Info.dwCursorPosition.X;
+        SetConsoleCursorPosition(hConOut, Pos);
         return;
 
-      case 1: // ESC[1K Clear from start of line to cursor
-        Pos.X = 0;
+      case 'a': // ESC[#a
+      case 'C': // ESC[#C Moves cursor forward # spaces
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[C == ESC[1C
+        if (es_argc != 1)
+          return;
+        Pos.X = Info.dwCursorPosition.X + es_argv[0];
+        if (Pos.X >= Info.dwSize.X)
+          Pos.X = Info.dwSize.X - 1;
         Pos.Y = Info.dwCursorPosition.Y;
-        FillConsoleOutputCharacter(hConOut, ' ', Info.dwCursorPosition.X + 1, Pos, &NumberOfCharsWritten);
-        FillConsoleOutputAttribute(hConOut, Info.wAttributes, Info.dwCursorPosition.X + 1, Pos, &NumberOfCharsWritten);
+        SetConsoleCursorPosition(hConOut, Pos);
         return;
 
-      case 2: // ESC[2K Clear whole line.
-        Pos.X = 0;
+      case 'j': // ESC[#j
+      case 'D': // ESC[#D Moves cursor back # spaces
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[D == ESC[1D
+        if (es_argc != 1)
+          return;
+        Pos.X = Info.dwCursorPosition.X - es_argv[0];
+        if (Pos.X < 0)
+          Pos.X = 0;
         Pos.Y = Info.dwCursorPosition.Y;
-        FillConsoleOutputCharacter(hConOut, ' ', Info.dwSize.X, Pos, &NumberOfCharsWritten);
-        FillConsoleOutputAttribute(hConOut, Info.wAttributes, Info.dwSize.X, Pos, &NumberOfCharsWritten);
+        SetConsoleCursorPosition(hConOut, Pos);
+        return;
+
+      case 'E': // ESC[#E Moves cursor down # lines, column 1.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[E == ESC[1E
+        if (es_argc != 1)
+          return;
+        Pos.Y = Info.dwCursorPosition.Y + es_argv[0];
+        if (Pos.Y >= Info.dwSize.Y)
+          Pos.Y = Info.dwSize.Y - 1;
+        Pos.X = 0;
+        SetConsoleCursorPosition(hConOut, Pos);
+        return;
+
+      case 'F': // ESC[#F Moves cursor up # lines, column 1.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[F == ESC[1F
+        if (es_argc != 1)
+          return;
+        Pos.Y = Info.dwCursorPosition.Y - es_argv[0];
+        if (Pos.Y < 0)
+          Pos.Y = 0;
+        Pos.X = 0;
+        SetConsoleCursorPosition(hConOut, Pos);
+        return;
+
+      case '`': // ESC[#`
+      case 'G': // ESC[#G Moves cursor column # in current row.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[G == ESC[1G
+        if (es_argc != 1)
+          return;
+        Pos.X = es_argv[0] - 1;
+        if (Pos.X >= Info.dwSize.X)
+          Pos.X = Info.dwSize.X - 1;
+        if (Pos.X < 0)
+          Pos.X = 0;
+        Pos.Y = Info.dwCursorPosition.Y;
+        SetConsoleCursorPosition(hConOut, Pos);
+        return;
+
+      case 'd': // ESC[#d Moves cursor row #, current column.
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[d == ESC[1d
+        if (es_argc != 1)
+          return;
+        Pos.Y = es_argv[0] - 1;
+        if (Pos.Y < 0)
+          Pos.Y = 0;
+        if (Pos.Y >= Info.dwSize.Y)
+          Pos.Y = Info.dwSize.Y - 1;
+        SetConsoleCursorPosition(hConOut, Pos);
+        return;
+
+      case 'f': // ESC[#;#f
+      case 'H': // ESC[#;#H Moves cursor to line #, column #
+        if (es_argc == 0)
+          es_argv[es_argc++] = 1; // ESC[H == ESC[1;1H
+        if (es_argc == 1)
+          es_argv[es_argc++] = 1; // ESC[#H == ESC[#;1H
+        if (es_argc > 2)
+          return;
+        Pos.X = es_argv[1] - 1;
+        if (Pos.X < 0)
+          Pos.X = 0;
+        if (Pos.X >= Info.dwSize.X)
+          Pos.X = Info.dwSize.X - 1;
+        Pos.Y = es_argv[0] - 1;
+        if (Pos.Y < 0)
+          Pos.Y = 0;
+        if (Pos.Y >= Info.dwSize.Y)
+          Pos.Y = Info.dwSize.Y - 1;
+        SetConsoleCursorPosition(hConOut, Pos);
+        return;
+
+      case 's': // ESC[s Saves cursor position for recall later
+        if (es_argc != 0)
+          return;
+        SavePos = Info.dwCursorPosition;
+        return;
+
+      case 'u': // ESC[u Return to saved cursor position
+        if (es_argc != 0)
+          return;
+        SetConsoleCursorPosition(hConOut, SavePos);
+        return;
+
+      case 'n': // ESC[#n Device status report
+        if (es_argc != 1)
+          return; // ESC[n == ESC[0n -> ignored
+        switch (es_argv[0])
+        {
+          case 5:                    // ESC[5n Report status
+            SendSequence(L"\33[0n"); // "OK"
+            return;
+
+          case 6: // ESC[6n Report cursor position
+            {
+              WCHAR buf[32];
+              swprintf(buf, 32, L"\33[%d;%dR", Info.dwCursorPosition.Y + 1, Info.dwCursorPosition.X + 1);
+              SendSequence(buf);
+            }
+            return;
+
+          default:
+            return;
+        }
+
+      case 't': // ESC[#t Window manipulation
+        if (es_argc != 1)
+          return;
+        if (es_argv[0] == 21) // ESC[21t Report xterm window's title
+        {
+          WCHAR buf[MAX_PATH * 2];
+          DWORD len = GetConsoleTitleW(buf + 3, lenof(buf) - 3 - 2);
+          // Too bad if it's too big or fails.
+          buf[0] = ESC;
+          buf[1] = ']';
+          buf[2] = 'l';
+          buf[3 + len] = ESC;
+          buf[3 + len + 1] = '\\';
+          buf[3 + len + 2] = '\0';
+          SendSequence(buf);
+        }
         return;
 
       default:
         return;
-      }
-
-    case 'X': // ESC[#X Erase # characters.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[X == ESC[1X
-      if (es_argc != 1)
-        return;
-      FillConsoleOutputCharacter(hConOut, ' ', es_argv[0], Info.dwCursorPosition, &NumberOfCharsWritten);
-      FillConsoleOutputAttribute(hConOut, Info.wAttributes, es_argv[0], Info.dwCursorPosition, &NumberOfCharsWritten);
-      return;
-
-    case 'L': // ESC[#L Insert # blank lines.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[L == ESC[1L
-      if (es_argc != 1)
-        return;
-      Rect.Left = 0;
-      Rect.Top = Info.dwCursorPosition.Y;
-      Rect.Right = Info.dwSize.X - 1;
-      Rect.Bottom = Info.dwSize.Y - 1;
-      Pos.X = 0;
-      Pos.Y = Info.dwCursorPosition.Y + es_argv[0];
-      CharInfo.Char.UnicodeChar = ' ';
-      CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
-      return;
-
-    case 'M': // ESC[#M Delete # lines.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[M == ESC[1M
-      if (es_argc != 1)
-        return;
-      if (es_argv[0] > Info.dwSize.Y - Info.dwCursorPosition.Y)
-        es_argv[0] = Info.dwSize.Y - Info.dwCursorPosition.Y;
-      Rect.Left = 0;
-      Rect.Top = Info.dwCursorPosition.Y + es_argv[0];
-      Rect.Right = Info.dwSize.X - 1;
-      Rect.Bottom = Info.dwSize.Y - 1;
-      Pos.X = 0;
-      Pos.Y = Info.dwCursorPosition.Y;
-      CharInfo.Char.UnicodeChar = ' ';
-      CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
-      return;
-
-    case 'P': // ESC[#P Delete # characters.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[P == ESC[1P
-      if (es_argc != 1)
-        return;
-      if (Info.dwCursorPosition.X + es_argv[0] > Info.dwSize.X - 1)
-        es_argv[0] = Info.dwSize.X - Info.dwCursorPosition.X;
-      Rect.Left = Info.dwCursorPosition.X + es_argv[0];
-      Rect.Top = Info.dwCursorPosition.Y;
-      Rect.Right = Info.dwSize.X - 1;
-      Rect.Bottom = Info.dwCursorPosition.Y;
-      CharInfo.Char.UnicodeChar = ' ';
-      CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Info.dwCursorPosition, &CharInfo);
-      return;
-
-    case '@': // ESC[#@ Insert # blank characters.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[@ == ESC[1@
-      if (es_argc != 1)
-        return;
-      if (Info.dwCursorPosition.X + es_argv[0] > Info.dwSize.X - 1)
-        es_argv[0] = Info.dwSize.X - Info.dwCursorPosition.X;
-      Rect.Left = Info.dwCursorPosition.X;
-      Rect.Top = Info.dwCursorPosition.Y;
-      Rect.Right = Info.dwSize.X - 1 - es_argv[0];
-      Rect.Bottom = Info.dwCursorPosition.Y;
-      Pos.X = Info.dwCursorPosition.X + es_argv[0];
-      Pos.Y = Info.dwCursorPosition.Y;
-      CharInfo.Char.UnicodeChar = ' ';
-      CharInfo.Attributes = Info.wAttributes;
-      ScrollConsoleScreenBuffer(hConOut, &Rect, nullptr, Pos, &CharInfo);
-      return;
-
-    case 'k': // ESC[#k
-    case 'A': // ESC[#A Moves cursor up # lines
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[A == ESC[1A
-      if (es_argc != 1)
-        return;
-      Pos.Y = Info.dwCursorPosition.Y - es_argv[0];
-      if (Pos.Y < 0)
-        Pos.Y = 0;
-      Pos.X = Info.dwCursorPosition.X;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 'e': // ESC[#e
-    case 'B': // ESC[#B Moves cursor down # lines
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[B == ESC[1B
-      if (es_argc != 1)
-        return;
-      Pos.Y = Info.dwCursorPosition.Y + es_argv[0];
-      if (Pos.Y >= Info.dwSize.Y)
-        Pos.Y = Info.dwSize.Y - 1;
-      Pos.X = Info.dwCursorPosition.X;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 'a': // ESC[#a
-    case 'C': // ESC[#C Moves cursor forward # spaces
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[C == ESC[1C
-      if (es_argc != 1)
-        return;
-      Pos.X = Info.dwCursorPosition.X + es_argv[0];
-      if (Pos.X >= Info.dwSize.X)
-        Pos.X = Info.dwSize.X - 1;
-      Pos.Y = Info.dwCursorPosition.Y;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 'j': // ESC[#j
-    case 'D': // ESC[#D Moves cursor back # spaces
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[D == ESC[1D
-      if (es_argc != 1)
-        return;
-      Pos.X = Info.dwCursorPosition.X - es_argv[0];
-      if (Pos.X < 0)
-        Pos.X = 0;
-      Pos.Y = Info.dwCursorPosition.Y;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 'E': // ESC[#E Moves cursor down # lines, column 1.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[E == ESC[1E
-      if (es_argc != 1)
-        return;
-      Pos.Y = Info.dwCursorPosition.Y + es_argv[0];
-      if (Pos.Y >= Info.dwSize.Y)
-        Pos.Y = Info.dwSize.Y - 1;
-      Pos.X = 0;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 'F': // ESC[#F Moves cursor up # lines, column 1.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[F == ESC[1F
-      if (es_argc != 1)
-        return;
-      Pos.Y = Info.dwCursorPosition.Y - es_argv[0];
-      if (Pos.Y < 0)
-        Pos.Y = 0;
-      Pos.X = 0;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case '`': // ESC[#`
-    case 'G': // ESC[#G Moves cursor column # in current row.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[G == ESC[1G
-      if (es_argc != 1)
-        return;
-      Pos.X = es_argv[0] - 1;
-      if (Pos.X >= Info.dwSize.X)
-        Pos.X = Info.dwSize.X - 1;
-      if (Pos.X < 0)
-        Pos.X = 0;
-      Pos.Y = Info.dwCursorPosition.Y;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 'd': // ESC[#d Moves cursor row #, current column.
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[d == ESC[1d
-      if (es_argc != 1)
-        return;
-      Pos.Y = es_argv[0] - 1;
-      if (Pos.Y < 0)
-        Pos.Y = 0;
-      if (Pos.Y >= Info.dwSize.Y)
-        Pos.Y = Info.dwSize.Y - 1;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 'f': // ESC[#;#f
-    case 'H': // ESC[#;#H Moves cursor to line #, column #
-      if (es_argc == 0)
-        es_argv[es_argc++] = 1; // ESC[H == ESC[1;1H
-      if (es_argc == 1)
-        es_argv[es_argc++] = 1; // ESC[#H == ESC[#;1H
-      if (es_argc > 2)
-        return;
-      Pos.X = es_argv[1] - 1;
-      if (Pos.X < 0)
-        Pos.X = 0;
-      if (Pos.X >= Info.dwSize.X)
-        Pos.X = Info.dwSize.X - 1;
-      Pos.Y = es_argv[0] - 1;
-      if (Pos.Y < 0)
-        Pos.Y = 0;
-      if (Pos.Y >= Info.dwSize.Y)
-        Pos.Y = Info.dwSize.Y - 1;
-      SetConsoleCursorPosition(hConOut, Pos);
-      return;
-
-    case 's': // ESC[s Saves cursor position for recall later
-      if (es_argc != 0)
-        return;
-      SavePos = Info.dwCursorPosition;
-      return;
-
-    case 'u': // ESC[u Return to saved cursor position
-      if (es_argc != 0)
-        return;
-      SetConsoleCursorPosition(hConOut, SavePos);
-      return;
-
-    case 'n': // ESC[#n Device status report
-      if (es_argc != 1)
-        return; // ESC[n == ESC[0n -> ignored
-      switch (es_argv[0])
-      {
-      case 5:                    // ESC[5n Report status
-        SendSequence(L"\33[0n"); // "OK"
-        return;
-
-      case 6: // ESC[6n Report cursor position
-      {
-        WCHAR buf[32];
-        swprintf(buf, 32, L"\33[%d;%dR", Info.dwCursorPosition.Y + 1, Info.dwCursorPosition.X + 1);
-        SendSequence(buf);
-      }
-        return;
-
-      default:
-        return;
-      }
-
-    case 't': // ESC[#t Window manipulation
-      if (es_argc != 1)
-        return;
-      if (es_argv[0] == 21) // ESC[21t Report xterm window's title
-      {
-        WCHAR buf[MAX_PATH * 2];
-        DWORD len = GetConsoleTitleW(buf + 3, lenof(buf) - 3 - 2);
-        // Too bad if it's too big or fails.
-        buf[0] = ESC;
-        buf[1] = ']';
-        buf[2] = 'l';
-        buf[3 + len] = ESC;
-        buf[3 + len + 1] = '\\';
-        buf[3 + len + 2] = '\0';
-        SendSequence(buf);
-      }
-      return;
-
-    default:
-      return;
     }
   }
   else // (prefix == ']')
@@ -1008,42 +1009,42 @@ inline int win32read(int *c)
         /* Ctrl+Key */
         switch (*c)
         {
-        case 'D':
-          *c = 4;
-          return 1;
-        case 'C':
-          *c = 3;
-          return 1;
-        case 'H':
-          *c = 8;
-          return 1;
-        case 'T':
-          *c = 20;
-          return 1;
-        case 'B': /* ctrl-b, left_arrow */
-          *c = 2;
-          return 1;
-        case 'F': /* ctrl-f right_arrow*/
-          *c = 6;
-          return 1;
-        case 'P': /* ctrl-p up_arrow*/
-          *c = 16;
-          return 1;
-        case 'N': /* ctrl-n down_arrow*/
-          *c = 14;
-          return 1;
-        case 'U': /* Ctrl+u, delete the whole line. */
-          *c = 21;
-          return 1;
-        case 'K': /* Ctrl+k, delete from current to end of line. */
-          *c = 11;
-          return 1;
-        case 'A': /* Ctrl+a, go to the start of the line */
-          *c = 1;
-          return 1;
-        case 'E': /* ctrl+e, go to the end of the line */
-          *c = 5;
-          return 1;
+          case 'D':
+            *c = 4;
+            return 1;
+          case 'C':
+            *c = 3;
+            return 1;
+          case 'H':
+            *c = 8;
+            return 1;
+          case 'T':
+            *c = 20;
+            return 1;
+          case 'B': /* ctrl-b, left_arrow */
+            *c = 2;
+            return 1;
+          case 'F': /* ctrl-f right_arrow*/
+            *c = 6;
+            return 1;
+          case 'P': /* ctrl-p up_arrow*/
+            *c = 16;
+            return 1;
+          case 'N': /* ctrl-n down_arrow*/
+            *c = 14;
+            return 1;
+          case 'U': /* Ctrl+u, delete the whole line. */
+            *c = 21;
+            return 1;
+          case 'K': /* Ctrl+k, delete from current to end of line. */
+            *c = 11;
+            return 1;
+          case 'A': /* Ctrl+a, go to the start of the line */
+            *c = 1;
+            return 1;
+          case 'E': /* ctrl+e, go to the end of the line */
+            *c = 5;
+            return 1;
         }
 
         /* Other Ctrl+KEYs ignored */
@@ -1054,39 +1055,39 @@ inline int win32read(int *c)
         switch (e.wVirtualKeyCode)
         {
 
-        case VK_ESCAPE: /* ignore - send ctrl-c, will return -1 */
-          *c = 3;
-          return 1;
-        case VK_RETURN: /* enter */
-          *c = 13;
-          return 1;
-        case VK_LEFT: /* left */
-          *c = 2;
-          return 1;
-        case VK_RIGHT: /* right */
-          *c = 6;
-          return 1;
-        case VK_UP: /* up */
-          *c = 16;
-          return 1;
-        case VK_DOWN: /* down */
-          *c = 14;
-          return 1;
-        case VK_HOME:
-          *c = 1;
-          return 1;
-        case VK_END:
-          *c = 5;
-          return 1;
-        case VK_BACK:
-          *c = 8;
-          return 1;
-        case VK_DELETE:
-          *c = 127;
-          return 1;
-        default:
-          if (*c)
+          case VK_ESCAPE: /* ignore - send ctrl-c, will return -1 */
+            *c = 3;
             return 1;
+          case VK_RETURN: /* enter */
+            *c = 13;
+            return 1;
+          case VK_LEFT: /* left */
+            *c = 2;
+            return 1;
+          case VK_RIGHT: /* right */
+            *c = 6;
+            return 1;
+          case VK_UP: /* up */
+            *c = 16;
+            return 1;
+          case VK_DOWN: /* down */
+            *c = 14;
+            return 1;
+          case VK_HOME:
+            *c = 1;
+            return 1;
+          case VK_END:
+            *c = 5;
+            return 1;
+          case VK_BACK:
+            *c = 8;
+            return 1;
+          case VK_DELETE:
+            *c = 127;
+            return 1;
+          default:
+            if (*c)
+              return 1;
         }
       }
     }
@@ -1332,62 +1333,1573 @@ static int unicodeIsWideChar(unsigned long cp)
 }
 
 static unsigned long unicodeCombiningCharTable[] = {
-    0x0300,  0x0301,  0x0302,  0x0303,  0x0304,  0x0305,  0x0306,  0x0307,  0x0308,  0x0309,  0x030A,  0x030B,  0x030C,  0x030D,  0x030E,  0x030F,  0x0310,  0x0311,  0x0312,  0x0313,  0x0314,  0x0315,  0x0316,  0x0317,  0x0318,  0x0319,  0x031A,  0x031B,
-    0x031C,  0x031D,  0x031E,  0x031F,  0x0320,  0x0321,  0x0322,  0x0323,  0x0324,  0x0325,  0x0326,  0x0327,  0x0328,  0x0329,  0x032A,  0x032B,  0x032C,  0x032D,  0x032E,  0x032F,  0x0330,  0x0331,  0x0332,  0x0333,  0x0334,  0x0335,  0x0336,  0x0337,
-    0x0338,  0x0339,  0x033A,  0x033B,  0x033C,  0x033D,  0x033E,  0x033F,  0x0340,  0x0341,  0x0342,  0x0343,  0x0344,  0x0345,  0x0346,  0x0347,  0x0348,  0x0349,  0x034A,  0x034B,  0x034C,  0x034D,  0x034E,  0x034F,  0x0350,  0x0351,  0x0352,  0x0353,
-    0x0354,  0x0355,  0x0356,  0x0357,  0x0358,  0x0359,  0x035A,  0x035B,  0x035C,  0x035D,  0x035E,  0x035F,  0x0360,  0x0361,  0x0362,  0x0363,  0x0364,  0x0365,  0x0366,  0x0367,  0x0368,  0x0369,  0x036A,  0x036B,  0x036C,  0x036D,  0x036E,  0x036F,
-    0x0483,  0x0484,  0x0485,  0x0486,  0x0487,  0x0591,  0x0592,  0x0593,  0x0594,  0x0595,  0x0596,  0x0597,  0x0598,  0x0599,  0x059A,  0x059B,  0x059C,  0x059D,  0x059E,  0x059F,  0x05A0,  0x05A1,  0x05A2,  0x05A3,  0x05A4,  0x05A5,  0x05A6,  0x05A7,
-    0x05A8,  0x05A9,  0x05AA,  0x05AB,  0x05AC,  0x05AD,  0x05AE,  0x05AF,  0x05B0,  0x05B1,  0x05B2,  0x05B3,  0x05B4,  0x05B5,  0x05B6,  0x05B7,  0x05B8,  0x05B9,  0x05BA,  0x05BB,  0x05BC,  0x05BD,  0x05BF,  0x05C1,  0x05C2,  0x05C4,  0x05C5,  0x05C7,
-    0x0610,  0x0611,  0x0612,  0x0613,  0x0614,  0x0615,  0x0616,  0x0617,  0x0618,  0x0619,  0x061A,  0x064B,  0x064C,  0x064D,  0x064E,  0x064F,  0x0650,  0x0651,  0x0652,  0x0653,  0x0654,  0x0655,  0x0656,  0x0657,  0x0658,  0x0659,  0x065A,  0x065B,
-    0x065C,  0x065D,  0x065E,  0x065F,  0x0670,  0x06D6,  0x06D7,  0x06D8,  0x06D9,  0x06DA,  0x06DB,  0x06DC,  0x06DF,  0x06E0,  0x06E1,  0x06E2,  0x06E3,  0x06E4,  0x06E7,  0x06E8,  0x06EA,  0x06EB,  0x06EC,  0x06ED,  0x0711,  0x0730,  0x0731,  0x0732,
-    0x0733,  0x0734,  0x0735,  0x0736,  0x0737,  0x0738,  0x0739,  0x073A,  0x073B,  0x073C,  0x073D,  0x073E,  0x073F,  0x0740,  0x0741,  0x0742,  0x0743,  0x0744,  0x0745,  0x0746,  0x0747,  0x0748,  0x0749,  0x074A,  0x07A6,  0x07A7,  0x07A8,  0x07A9,
-    0x07AA,  0x07AB,  0x07AC,  0x07AD,  0x07AE,  0x07AF,  0x07B0,  0x07EB,  0x07EC,  0x07ED,  0x07EE,  0x07EF,  0x07F0,  0x07F1,  0x07F2,  0x07F3,  0x0816,  0x0817,  0x0818,  0x0819,  0x081B,  0x081C,  0x081D,  0x081E,  0x081F,  0x0820,  0x0821,  0x0822,
-    0x0823,  0x0825,  0x0826,  0x0827,  0x0829,  0x082A,  0x082B,  0x082C,  0x082D,  0x0859,  0x085A,  0x085B,  0x08E3,  0x08E4,  0x08E5,  0x08E6,  0x08E7,  0x08E8,  0x08E9,  0x08EA,  0x08EB,  0x08EC,  0x08ED,  0x08EE,  0x08EF,  0x08F0,  0x08F1,  0x08F2,
-    0x08F3,  0x08F4,  0x08F5,  0x08F6,  0x08F7,  0x08F8,  0x08F9,  0x08FA,  0x08FB,  0x08FC,  0x08FD,  0x08FE,  0x08FF,  0x0900,  0x0901,  0x0902,  0x093A,  0x093C,  0x0941,  0x0942,  0x0943,  0x0944,  0x0945,  0x0946,  0x0947,  0x0948,  0x094D,  0x0951,
-    0x0952,  0x0953,  0x0954,  0x0955,  0x0956,  0x0957,  0x0962,  0x0963,  0x0981,  0x09BC,  0x09C1,  0x09C2,  0x09C3,  0x09C4,  0x09CD,  0x09E2,  0x09E3,  0x0A01,  0x0A02,  0x0A3C,  0x0A41,  0x0A42,  0x0A47,  0x0A48,  0x0A4B,  0x0A4C,  0x0A4D,  0x0A51,
-    0x0A70,  0x0A71,  0x0A75,  0x0A81,  0x0A82,  0x0ABC,  0x0AC1,  0x0AC2,  0x0AC3,  0x0AC4,  0x0AC5,  0x0AC7,  0x0AC8,  0x0ACD,  0x0AE2,  0x0AE3,  0x0B01,  0x0B3C,  0x0B3F,  0x0B41,  0x0B42,  0x0B43,  0x0B44,  0x0B4D,  0x0B56,  0x0B62,  0x0B63,  0x0B82,
-    0x0BC0,  0x0BCD,  0x0C00,  0x0C3E,  0x0C3F,  0x0C40,  0x0C46,  0x0C47,  0x0C48,  0x0C4A,  0x0C4B,  0x0C4C,  0x0C4D,  0x0C55,  0x0C56,  0x0C62,  0x0C63,  0x0C81,  0x0CBC,  0x0CBF,  0x0CC6,  0x0CCC,  0x0CCD,  0x0CE2,  0x0CE3,  0x0D01,  0x0D41,  0x0D42,
-    0x0D43,  0x0D44,  0x0D4D,  0x0D62,  0x0D63,  0x0DCA,  0x0DD2,  0x0DD3,  0x0DD4,  0x0DD6,  0x0E31,  0x0E34,  0x0E35,  0x0E36,  0x0E37,  0x0E38,  0x0E39,  0x0E3A,  0x0E47,  0x0E48,  0x0E49,  0x0E4A,  0x0E4B,  0x0E4C,  0x0E4D,  0x0E4E,  0x0EB1,  0x0EB4,
-    0x0EB5,  0x0EB6,  0x0EB7,  0x0EB8,  0x0EB9,  0x0EBB,  0x0EBC,  0x0EC8,  0x0EC9,  0x0ECA,  0x0ECB,  0x0ECC,  0x0ECD,  0x0F18,  0x0F19,  0x0F35,  0x0F37,  0x0F39,  0x0F71,  0x0F72,  0x0F73,  0x0F74,  0x0F75,  0x0F76,  0x0F77,  0x0F78,  0x0F79,  0x0F7A,
-    0x0F7B,  0x0F7C,  0x0F7D,  0x0F7E,  0x0F80,  0x0F81,  0x0F82,  0x0F83,  0x0F84,  0x0F86,  0x0F87,  0x0F8D,  0x0F8E,  0x0F8F,  0x0F90,  0x0F91,  0x0F92,  0x0F93,  0x0F94,  0x0F95,  0x0F96,  0x0F97,  0x0F99,  0x0F9A,  0x0F9B,  0x0F9C,  0x0F9D,  0x0F9E,
-    0x0F9F,  0x0FA0,  0x0FA1,  0x0FA2,  0x0FA3,  0x0FA4,  0x0FA5,  0x0FA6,  0x0FA7,  0x0FA8,  0x0FA9,  0x0FAA,  0x0FAB,  0x0FAC,  0x0FAD,  0x0FAE,  0x0FAF,  0x0FB0,  0x0FB1,  0x0FB2,  0x0FB3,  0x0FB4,  0x0FB5,  0x0FB6,  0x0FB7,  0x0FB8,  0x0FB9,  0x0FBA,
-    0x0FBB,  0x0FBC,  0x0FC6,  0x102D,  0x102E,  0x102F,  0x1030,  0x1032,  0x1033,  0x1034,  0x1035,  0x1036,  0x1037,  0x1039,  0x103A,  0x103D,  0x103E,  0x1058,  0x1059,  0x105E,  0x105F,  0x1060,  0x1071,  0x1072,  0x1073,  0x1074,  0x1082,  0x1085,
-    0x1086,  0x108D,  0x109D,  0x135D,  0x135E,  0x135F,  0x1712,  0x1713,  0x1714,  0x1732,  0x1733,  0x1734,  0x1752,  0x1753,  0x1772,  0x1773,  0x17B4,  0x17B5,  0x17B7,  0x17B8,  0x17B9,  0x17BA,  0x17BB,  0x17BC,  0x17BD,  0x17C6,  0x17C9,  0x17CA,
-    0x17CB,  0x17CC,  0x17CD,  0x17CE,  0x17CF,  0x17D0,  0x17D1,  0x17D2,  0x17D3,  0x17DD,  0x180B,  0x180C,  0x180D,  0x18A9,  0x1920,  0x1921,  0x1922,  0x1927,  0x1928,  0x1932,  0x1939,  0x193A,  0x193B,  0x1A17,  0x1A18,  0x1A1B,  0x1A56,  0x1A58,
-    0x1A59,  0x1A5A,  0x1A5B,  0x1A5C,  0x1A5D,  0x1A5E,  0x1A60,  0x1A62,  0x1A65,  0x1A66,  0x1A67,  0x1A68,  0x1A69,  0x1A6A,  0x1A6B,  0x1A6C,  0x1A73,  0x1A74,  0x1A75,  0x1A76,  0x1A77,  0x1A78,  0x1A79,  0x1A7A,  0x1A7B,  0x1A7C,  0x1A7F,  0x1AB0,
-    0x1AB1,  0x1AB2,  0x1AB3,  0x1AB4,  0x1AB5,  0x1AB6,  0x1AB7,  0x1AB8,  0x1AB9,  0x1ABA,  0x1ABB,  0x1ABC,  0x1ABD,  0x1B00,  0x1B01,  0x1B02,  0x1B03,  0x1B34,  0x1B36,  0x1B37,  0x1B38,  0x1B39,  0x1B3A,  0x1B3C,  0x1B42,  0x1B6B,  0x1B6C,  0x1B6D,
-    0x1B6E,  0x1B6F,  0x1B70,  0x1B71,  0x1B72,  0x1B73,  0x1B80,  0x1B81,  0x1BA2,  0x1BA3,  0x1BA4,  0x1BA5,  0x1BA8,  0x1BA9,  0x1BAB,  0x1BAC,  0x1BAD,  0x1BE6,  0x1BE8,  0x1BE9,  0x1BED,  0x1BEF,  0x1BF0,  0x1BF1,  0x1C2C,  0x1C2D,  0x1C2E,  0x1C2F,
-    0x1C30,  0x1C31,  0x1C32,  0x1C33,  0x1C36,  0x1C37,  0x1CD0,  0x1CD1,  0x1CD2,  0x1CD4,  0x1CD5,  0x1CD6,  0x1CD7,  0x1CD8,  0x1CD9,  0x1CDA,  0x1CDB,  0x1CDC,  0x1CDD,  0x1CDE,  0x1CDF,  0x1CE0,  0x1CE2,  0x1CE3,  0x1CE4,  0x1CE5,  0x1CE6,  0x1CE7,
-    0x1CE8,  0x1CED,  0x1CF4,  0x1CF8,  0x1CF9,  0x1DC0,  0x1DC1,  0x1DC2,  0x1DC3,  0x1DC4,  0x1DC5,  0x1DC6,  0x1DC7,  0x1DC8,  0x1DC9,  0x1DCA,  0x1DCB,  0x1DCC,  0x1DCD,  0x1DCE,  0x1DCF,  0x1DD0,  0x1DD1,  0x1DD2,  0x1DD3,  0x1DD4,  0x1DD5,  0x1DD6,
-    0x1DD7,  0x1DD8,  0x1DD9,  0x1DDA,  0x1DDB,  0x1DDC,  0x1DDD,  0x1DDE,  0x1DDF,  0x1DE0,  0x1DE1,  0x1DE2,  0x1DE3,  0x1DE4,  0x1DE5,  0x1DE6,  0x1DE7,  0x1DE8,  0x1DE9,  0x1DEA,  0x1DEB,  0x1DEC,  0x1DED,  0x1DEE,  0x1DEF,  0x1DF0,  0x1DF1,  0x1DF2,
-    0x1DF3,  0x1DF4,  0x1DF5,  0x1DFC,  0x1DFD,  0x1DFE,  0x1DFF,  0x20D0,  0x20D1,  0x20D2,  0x20D3,  0x20D4,  0x20D5,  0x20D6,  0x20D7,  0x20D8,  0x20D9,  0x20DA,  0x20DB,  0x20DC,  0x20E1,  0x20E5,  0x20E6,  0x20E7,  0x20E8,  0x20E9,  0x20EA,  0x20EB,
-    0x20EC,  0x20ED,  0x20EE,  0x20EF,  0x20F0,  0x2CEF,  0x2CF0,  0x2CF1,  0x2D7F,  0x2DE0,  0x2DE1,  0x2DE2,  0x2DE3,  0x2DE4,  0x2DE5,  0x2DE6,  0x2DE7,  0x2DE8,  0x2DE9,  0x2DEA,  0x2DEB,  0x2DEC,  0x2DED,  0x2DEE,  0x2DEF,  0x2DF0,  0x2DF1,  0x2DF2,
-    0x2DF3,  0x2DF4,  0x2DF5,  0x2DF6,  0x2DF7,  0x2DF8,  0x2DF9,  0x2DFA,  0x2DFB,  0x2DFC,  0x2DFD,  0x2DFE,  0x2DFF,  0x302A,  0x302B,  0x302C,  0x302D,  0x3099,  0x309A,  0xA66F,  0xA674,  0xA675,  0xA676,  0xA677,  0xA678,  0xA679,  0xA67A,  0xA67B,
-    0xA67C,  0xA67D,  0xA69E,  0xA69F,  0xA6F0,  0xA6F1,  0xA802,  0xA806,  0xA80B,  0xA825,  0xA826,  0xA8C4,  0xA8E0,  0xA8E1,  0xA8E2,  0xA8E3,  0xA8E4,  0xA8E5,  0xA8E6,  0xA8E7,  0xA8E8,  0xA8E9,  0xA8EA,  0xA8EB,  0xA8EC,  0xA8ED,  0xA8EE,  0xA8EF,
-    0xA8F0,  0xA8F1,  0xA926,  0xA927,  0xA928,  0xA929,  0xA92A,  0xA92B,  0xA92C,  0xA92D,  0xA947,  0xA948,  0xA949,  0xA94A,  0xA94B,  0xA94C,  0xA94D,  0xA94E,  0xA94F,  0xA950,  0xA951,  0xA980,  0xA981,  0xA982,  0xA9B3,  0xA9B6,  0xA9B7,  0xA9B8,
-    0xA9B9,  0xA9BC,  0xA9E5,  0xAA29,  0xAA2A,  0xAA2B,  0xAA2C,  0xAA2D,  0xAA2E,  0xAA31,  0xAA32,  0xAA35,  0xAA36,  0xAA43,  0xAA4C,  0xAA7C,  0xAAB0,  0xAAB2,  0xAAB3,  0xAAB4,  0xAAB7,  0xAAB8,  0xAABE,  0xAABF,  0xAAC1,  0xAAEC,  0xAAED,  0xAAF6,
-    0xABE5,  0xABE8,  0xABED,  0xFB1E,  0xFE00,  0xFE01,  0xFE02,  0xFE03,  0xFE04,  0xFE05,  0xFE06,  0xFE07,  0xFE08,  0xFE09,  0xFE0A,  0xFE0B,  0xFE0C,  0xFE0D,  0xFE0E,  0xFE0F,  0xFE20,  0xFE21,  0xFE22,  0xFE23,  0xFE24,  0xFE25,  0xFE26,  0xFE27,
-    0xFE28,  0xFE29,  0xFE2A,  0xFE2B,  0xFE2C,  0xFE2D,  0xFE2E,  0xFE2F,  0x101FD, 0x102E0, 0x10376, 0x10377, 0x10378, 0x10379, 0x1037A, 0x10A01, 0x10A02, 0x10A03, 0x10A05, 0x10A06, 0x10A0C, 0x10A0D, 0x10A0E, 0x10A0F, 0x10A38, 0x10A39, 0x10A3A, 0x10A3F,
-    0x10AE5, 0x10AE6, 0x11001, 0x11038, 0x11039, 0x1103A, 0x1103B, 0x1103C, 0x1103D, 0x1103E, 0x1103F, 0x11040, 0x11041, 0x11042, 0x11043, 0x11044, 0x11045, 0x11046, 0x1107F, 0x11080, 0x11081, 0x110B3, 0x110B4, 0x110B5, 0x110B6, 0x110B9, 0x110BA, 0x11100,
-    0x11101, 0x11102, 0x11127, 0x11128, 0x11129, 0x1112A, 0x1112B, 0x1112D, 0x1112E, 0x1112F, 0x11130, 0x11131, 0x11132, 0x11133, 0x11134, 0x11173, 0x11180, 0x11181, 0x111B6, 0x111B7, 0x111B8, 0x111B9, 0x111BA, 0x111BB, 0x111BC, 0x111BD, 0x111BE, 0x111CA,
-    0x111CB, 0x111CC, 0x1122F, 0x11230, 0x11231, 0x11234, 0x11236, 0x11237, 0x112DF, 0x112E3, 0x112E4, 0x112E5, 0x112E6, 0x112E7, 0x112E8, 0x112E9, 0x112EA, 0x11300, 0x11301, 0x1133C, 0x11340, 0x11366, 0x11367, 0x11368, 0x11369, 0x1136A, 0x1136B, 0x1136C,
-    0x11370, 0x11371, 0x11372, 0x11373, 0x11374, 0x114B3, 0x114B4, 0x114B5, 0x114B6, 0x114B7, 0x114B8, 0x114BA, 0x114BF, 0x114C0, 0x114C2, 0x114C3, 0x115B2, 0x115B3, 0x115B4, 0x115B5, 0x115BC, 0x115BD, 0x115BF, 0x115C0, 0x115DC, 0x115DD, 0x11633, 0x11634,
-    0x11635, 0x11636, 0x11637, 0x11638, 0x11639, 0x1163A, 0x1163D, 0x1163F, 0x11640, 0x116AB, 0x116AD, 0x116B0, 0x116B1, 0x116B2, 0x116B3, 0x116B4, 0x116B5, 0x116B7, 0x1171D, 0x1171E, 0x1171F, 0x11722, 0x11723, 0x11724, 0x11725, 0x11727, 0x11728, 0x11729,
-    0x1172A, 0x1172B, 0x16AF0, 0x16AF1, 0x16AF2, 0x16AF3, 0x16AF4, 0x16B30, 0x16B31, 0x16B32, 0x16B33, 0x16B34, 0x16B35, 0x16B36, 0x16F8F, 0x16F90, 0x16F91, 0x16F92, 0x1BC9D, 0x1BC9E, 0x1D167, 0x1D168, 0x1D169, 0x1D17B, 0x1D17C, 0x1D17D, 0x1D17E, 0x1D17F,
-    0x1D180, 0x1D181, 0x1D182, 0x1D185, 0x1D186, 0x1D187, 0x1D188, 0x1D189, 0x1D18A, 0x1D18B, 0x1D1AA, 0x1D1AB, 0x1D1AC, 0x1D1AD, 0x1D242, 0x1D243, 0x1D244, 0x1DA00, 0x1DA01, 0x1DA02, 0x1DA03, 0x1DA04, 0x1DA05, 0x1DA06, 0x1DA07, 0x1DA08, 0x1DA09, 0x1DA0A,
-    0x1DA0B, 0x1DA0C, 0x1DA0D, 0x1DA0E, 0x1DA0F, 0x1DA10, 0x1DA11, 0x1DA12, 0x1DA13, 0x1DA14, 0x1DA15, 0x1DA16, 0x1DA17, 0x1DA18, 0x1DA19, 0x1DA1A, 0x1DA1B, 0x1DA1C, 0x1DA1D, 0x1DA1E, 0x1DA1F, 0x1DA20, 0x1DA21, 0x1DA22, 0x1DA23, 0x1DA24, 0x1DA25, 0x1DA26,
-    0x1DA27, 0x1DA28, 0x1DA29, 0x1DA2A, 0x1DA2B, 0x1DA2C, 0x1DA2D, 0x1DA2E, 0x1DA2F, 0x1DA30, 0x1DA31, 0x1DA32, 0x1DA33, 0x1DA34, 0x1DA35, 0x1DA36, 0x1DA3B, 0x1DA3C, 0x1DA3D, 0x1DA3E, 0x1DA3F, 0x1DA40, 0x1DA41, 0x1DA42, 0x1DA43, 0x1DA44, 0x1DA45, 0x1DA46,
-    0x1DA47, 0x1DA48, 0x1DA49, 0x1DA4A, 0x1DA4B, 0x1DA4C, 0x1DA4D, 0x1DA4E, 0x1DA4F, 0x1DA50, 0x1DA51, 0x1DA52, 0x1DA53, 0x1DA54, 0x1DA55, 0x1DA56, 0x1DA57, 0x1DA58, 0x1DA59, 0x1DA5A, 0x1DA5B, 0x1DA5C, 0x1DA5D, 0x1DA5E, 0x1DA5F, 0x1DA60, 0x1DA61, 0x1DA62,
-    0x1DA63, 0x1DA64, 0x1DA65, 0x1DA66, 0x1DA67, 0x1DA68, 0x1DA69, 0x1DA6A, 0x1DA6B, 0x1DA6C, 0x1DA75, 0x1DA84, 0x1DA9B, 0x1DA9C, 0x1DA9D, 0x1DA9E, 0x1DA9F, 0x1DAA1, 0x1DAA2, 0x1DAA3, 0x1DAA4, 0x1DAA5, 0x1DAA6, 0x1DAA7, 0x1DAA8, 0x1DAA9, 0x1DAAA, 0x1DAAB,
-    0x1DAAC, 0x1DAAD, 0x1DAAE, 0x1DAAF, 0x1E8D0, 0x1E8D1, 0x1E8D2, 0x1E8D3, 0x1E8D4, 0x1E8D5, 0x1E8D6, 0xE0100, 0xE0101, 0xE0102, 0xE0103, 0xE0104, 0xE0105, 0xE0106, 0xE0107, 0xE0108, 0xE0109, 0xE010A, 0xE010B, 0xE010C, 0xE010D, 0xE010E, 0xE010F, 0xE0110,
-    0xE0111, 0xE0112, 0xE0113, 0xE0114, 0xE0115, 0xE0116, 0xE0117, 0xE0118, 0xE0119, 0xE011A, 0xE011B, 0xE011C, 0xE011D, 0xE011E, 0xE011F, 0xE0120, 0xE0121, 0xE0122, 0xE0123, 0xE0124, 0xE0125, 0xE0126, 0xE0127, 0xE0128, 0xE0129, 0xE012A, 0xE012B, 0xE012C,
-    0xE012D, 0xE012E, 0xE012F, 0xE0130, 0xE0131, 0xE0132, 0xE0133, 0xE0134, 0xE0135, 0xE0136, 0xE0137, 0xE0138, 0xE0139, 0xE013A, 0xE013B, 0xE013C, 0xE013D, 0xE013E, 0xE013F, 0xE0140, 0xE0141, 0xE0142, 0xE0143, 0xE0144, 0xE0145, 0xE0146, 0xE0147, 0xE0148,
-    0xE0149, 0xE014A, 0xE014B, 0xE014C, 0xE014D, 0xE014E, 0xE014F, 0xE0150, 0xE0151, 0xE0152, 0xE0153, 0xE0154, 0xE0155, 0xE0156, 0xE0157, 0xE0158, 0xE0159, 0xE015A, 0xE015B, 0xE015C, 0xE015D, 0xE015E, 0xE015F, 0xE0160, 0xE0161, 0xE0162, 0xE0163, 0xE0164,
-    0xE0165, 0xE0166, 0xE0167, 0xE0168, 0xE0169, 0xE016A, 0xE016B, 0xE016C, 0xE016D, 0xE016E, 0xE016F, 0xE0170, 0xE0171, 0xE0172, 0xE0173, 0xE0174, 0xE0175, 0xE0176, 0xE0177, 0xE0178, 0xE0179, 0xE017A, 0xE017B, 0xE017C, 0xE017D, 0xE017E, 0xE017F, 0xE0180,
-    0xE0181, 0xE0182, 0xE0183, 0xE0184, 0xE0185, 0xE0186, 0xE0187, 0xE0188, 0xE0189, 0xE018A, 0xE018B, 0xE018C, 0xE018D, 0xE018E, 0xE018F, 0xE0190, 0xE0191, 0xE0192, 0xE0193, 0xE0194, 0xE0195, 0xE0196, 0xE0197, 0xE0198, 0xE0199, 0xE019A, 0xE019B, 0xE019C,
-    0xE019D, 0xE019E, 0xE019F, 0xE01A0, 0xE01A1, 0xE01A2, 0xE01A3, 0xE01A4, 0xE01A5, 0xE01A6, 0xE01A7, 0xE01A8, 0xE01A9, 0xE01AA, 0xE01AB, 0xE01AC, 0xE01AD, 0xE01AE, 0xE01AF, 0xE01B0, 0xE01B1, 0xE01B2, 0xE01B3, 0xE01B4, 0xE01B5, 0xE01B6, 0xE01B7, 0xE01B8,
-    0xE01B9, 0xE01BA, 0xE01BB, 0xE01BC, 0xE01BD, 0xE01BE, 0xE01BF, 0xE01C0, 0xE01C1, 0xE01C2, 0xE01C3, 0xE01C4, 0xE01C5, 0xE01C6, 0xE01C7, 0xE01C8, 0xE01C9, 0xE01CA, 0xE01CB, 0xE01CC, 0xE01CD, 0xE01CE, 0xE01CF, 0xE01D0, 0xE01D1, 0xE01D2, 0xE01D3, 0xE01D4,
-    0xE01D5, 0xE01D6, 0xE01D7, 0xE01D8, 0xE01D9, 0xE01DA, 0xE01DB, 0xE01DC, 0xE01DD, 0xE01DE, 0xE01DF, 0xE01E0, 0xE01E1, 0xE01E2, 0xE01E3, 0xE01E4, 0xE01E5, 0xE01E6, 0xE01E7, 0xE01E8, 0xE01E9, 0xE01EA, 0xE01EB, 0xE01EC, 0xE01ED, 0xE01EE, 0xE01EF,
+    0x0300,
+    0x0301,
+    0x0302,
+    0x0303,
+    0x0304,
+    0x0305,
+    0x0306,
+    0x0307,
+    0x0308,
+    0x0309,
+    0x030A,
+    0x030B,
+    0x030C,
+    0x030D,
+    0x030E,
+    0x030F,
+    0x0310,
+    0x0311,
+    0x0312,
+    0x0313,
+    0x0314,
+    0x0315,
+    0x0316,
+    0x0317,
+    0x0318,
+    0x0319,
+    0x031A,
+    0x031B,
+    0x031C,
+    0x031D,
+    0x031E,
+    0x031F,
+    0x0320,
+    0x0321,
+    0x0322,
+    0x0323,
+    0x0324,
+    0x0325,
+    0x0326,
+    0x0327,
+    0x0328,
+    0x0329,
+    0x032A,
+    0x032B,
+    0x032C,
+    0x032D,
+    0x032E,
+    0x032F,
+    0x0330,
+    0x0331,
+    0x0332,
+    0x0333,
+    0x0334,
+    0x0335,
+    0x0336,
+    0x0337,
+    0x0338,
+    0x0339,
+    0x033A,
+    0x033B,
+    0x033C,
+    0x033D,
+    0x033E,
+    0x033F,
+    0x0340,
+    0x0341,
+    0x0342,
+    0x0343,
+    0x0344,
+    0x0345,
+    0x0346,
+    0x0347,
+    0x0348,
+    0x0349,
+    0x034A,
+    0x034B,
+    0x034C,
+    0x034D,
+    0x034E,
+    0x034F,
+    0x0350,
+    0x0351,
+    0x0352,
+    0x0353,
+    0x0354,
+    0x0355,
+    0x0356,
+    0x0357,
+    0x0358,
+    0x0359,
+    0x035A,
+    0x035B,
+    0x035C,
+    0x035D,
+    0x035E,
+    0x035F,
+    0x0360,
+    0x0361,
+    0x0362,
+    0x0363,
+    0x0364,
+    0x0365,
+    0x0366,
+    0x0367,
+    0x0368,
+    0x0369,
+    0x036A,
+    0x036B,
+    0x036C,
+    0x036D,
+    0x036E,
+    0x036F,
+    0x0483,
+    0x0484,
+    0x0485,
+    0x0486,
+    0x0487,
+    0x0591,
+    0x0592,
+    0x0593,
+    0x0594,
+    0x0595,
+    0x0596,
+    0x0597,
+    0x0598,
+    0x0599,
+    0x059A,
+    0x059B,
+    0x059C,
+    0x059D,
+    0x059E,
+    0x059F,
+    0x05A0,
+    0x05A1,
+    0x05A2,
+    0x05A3,
+    0x05A4,
+    0x05A5,
+    0x05A6,
+    0x05A7,
+    0x05A8,
+    0x05A9,
+    0x05AA,
+    0x05AB,
+    0x05AC,
+    0x05AD,
+    0x05AE,
+    0x05AF,
+    0x05B0,
+    0x05B1,
+    0x05B2,
+    0x05B3,
+    0x05B4,
+    0x05B5,
+    0x05B6,
+    0x05B7,
+    0x05B8,
+    0x05B9,
+    0x05BA,
+    0x05BB,
+    0x05BC,
+    0x05BD,
+    0x05BF,
+    0x05C1,
+    0x05C2,
+    0x05C4,
+    0x05C5,
+    0x05C7,
+    0x0610,
+    0x0611,
+    0x0612,
+    0x0613,
+    0x0614,
+    0x0615,
+    0x0616,
+    0x0617,
+    0x0618,
+    0x0619,
+    0x061A,
+    0x064B,
+    0x064C,
+    0x064D,
+    0x064E,
+    0x064F,
+    0x0650,
+    0x0651,
+    0x0652,
+    0x0653,
+    0x0654,
+    0x0655,
+    0x0656,
+    0x0657,
+    0x0658,
+    0x0659,
+    0x065A,
+    0x065B,
+    0x065C,
+    0x065D,
+    0x065E,
+    0x065F,
+    0x0670,
+    0x06D6,
+    0x06D7,
+    0x06D8,
+    0x06D9,
+    0x06DA,
+    0x06DB,
+    0x06DC,
+    0x06DF,
+    0x06E0,
+    0x06E1,
+    0x06E2,
+    0x06E3,
+    0x06E4,
+    0x06E7,
+    0x06E8,
+    0x06EA,
+    0x06EB,
+    0x06EC,
+    0x06ED,
+    0x0711,
+    0x0730,
+    0x0731,
+    0x0732,
+    0x0733,
+    0x0734,
+    0x0735,
+    0x0736,
+    0x0737,
+    0x0738,
+    0x0739,
+    0x073A,
+    0x073B,
+    0x073C,
+    0x073D,
+    0x073E,
+    0x073F,
+    0x0740,
+    0x0741,
+    0x0742,
+    0x0743,
+    0x0744,
+    0x0745,
+    0x0746,
+    0x0747,
+    0x0748,
+    0x0749,
+    0x074A,
+    0x07A6,
+    0x07A7,
+    0x07A8,
+    0x07A9,
+    0x07AA,
+    0x07AB,
+    0x07AC,
+    0x07AD,
+    0x07AE,
+    0x07AF,
+    0x07B0,
+    0x07EB,
+    0x07EC,
+    0x07ED,
+    0x07EE,
+    0x07EF,
+    0x07F0,
+    0x07F1,
+    0x07F2,
+    0x07F3,
+    0x0816,
+    0x0817,
+    0x0818,
+    0x0819,
+    0x081B,
+    0x081C,
+    0x081D,
+    0x081E,
+    0x081F,
+    0x0820,
+    0x0821,
+    0x0822,
+    0x0823,
+    0x0825,
+    0x0826,
+    0x0827,
+    0x0829,
+    0x082A,
+    0x082B,
+    0x082C,
+    0x082D,
+    0x0859,
+    0x085A,
+    0x085B,
+    0x08E3,
+    0x08E4,
+    0x08E5,
+    0x08E6,
+    0x08E7,
+    0x08E8,
+    0x08E9,
+    0x08EA,
+    0x08EB,
+    0x08EC,
+    0x08ED,
+    0x08EE,
+    0x08EF,
+    0x08F0,
+    0x08F1,
+    0x08F2,
+    0x08F3,
+    0x08F4,
+    0x08F5,
+    0x08F6,
+    0x08F7,
+    0x08F8,
+    0x08F9,
+    0x08FA,
+    0x08FB,
+    0x08FC,
+    0x08FD,
+    0x08FE,
+    0x08FF,
+    0x0900,
+    0x0901,
+    0x0902,
+    0x093A,
+    0x093C,
+    0x0941,
+    0x0942,
+    0x0943,
+    0x0944,
+    0x0945,
+    0x0946,
+    0x0947,
+    0x0948,
+    0x094D,
+    0x0951,
+    0x0952,
+    0x0953,
+    0x0954,
+    0x0955,
+    0x0956,
+    0x0957,
+    0x0962,
+    0x0963,
+    0x0981,
+    0x09BC,
+    0x09C1,
+    0x09C2,
+    0x09C3,
+    0x09C4,
+    0x09CD,
+    0x09E2,
+    0x09E3,
+    0x0A01,
+    0x0A02,
+    0x0A3C,
+    0x0A41,
+    0x0A42,
+    0x0A47,
+    0x0A48,
+    0x0A4B,
+    0x0A4C,
+    0x0A4D,
+    0x0A51,
+    0x0A70,
+    0x0A71,
+    0x0A75,
+    0x0A81,
+    0x0A82,
+    0x0ABC,
+    0x0AC1,
+    0x0AC2,
+    0x0AC3,
+    0x0AC4,
+    0x0AC5,
+    0x0AC7,
+    0x0AC8,
+    0x0ACD,
+    0x0AE2,
+    0x0AE3,
+    0x0B01,
+    0x0B3C,
+    0x0B3F,
+    0x0B41,
+    0x0B42,
+    0x0B43,
+    0x0B44,
+    0x0B4D,
+    0x0B56,
+    0x0B62,
+    0x0B63,
+    0x0B82,
+    0x0BC0,
+    0x0BCD,
+    0x0C00,
+    0x0C3E,
+    0x0C3F,
+    0x0C40,
+    0x0C46,
+    0x0C47,
+    0x0C48,
+    0x0C4A,
+    0x0C4B,
+    0x0C4C,
+    0x0C4D,
+    0x0C55,
+    0x0C56,
+    0x0C62,
+    0x0C63,
+    0x0C81,
+    0x0CBC,
+    0x0CBF,
+    0x0CC6,
+    0x0CCC,
+    0x0CCD,
+    0x0CE2,
+    0x0CE3,
+    0x0D01,
+    0x0D41,
+    0x0D42,
+    0x0D43,
+    0x0D44,
+    0x0D4D,
+    0x0D62,
+    0x0D63,
+    0x0DCA,
+    0x0DD2,
+    0x0DD3,
+    0x0DD4,
+    0x0DD6,
+    0x0E31,
+    0x0E34,
+    0x0E35,
+    0x0E36,
+    0x0E37,
+    0x0E38,
+    0x0E39,
+    0x0E3A,
+    0x0E47,
+    0x0E48,
+    0x0E49,
+    0x0E4A,
+    0x0E4B,
+    0x0E4C,
+    0x0E4D,
+    0x0E4E,
+    0x0EB1,
+    0x0EB4,
+    0x0EB5,
+    0x0EB6,
+    0x0EB7,
+    0x0EB8,
+    0x0EB9,
+    0x0EBB,
+    0x0EBC,
+    0x0EC8,
+    0x0EC9,
+    0x0ECA,
+    0x0ECB,
+    0x0ECC,
+    0x0ECD,
+    0x0F18,
+    0x0F19,
+    0x0F35,
+    0x0F37,
+    0x0F39,
+    0x0F71,
+    0x0F72,
+    0x0F73,
+    0x0F74,
+    0x0F75,
+    0x0F76,
+    0x0F77,
+    0x0F78,
+    0x0F79,
+    0x0F7A,
+    0x0F7B,
+    0x0F7C,
+    0x0F7D,
+    0x0F7E,
+    0x0F80,
+    0x0F81,
+    0x0F82,
+    0x0F83,
+    0x0F84,
+    0x0F86,
+    0x0F87,
+    0x0F8D,
+    0x0F8E,
+    0x0F8F,
+    0x0F90,
+    0x0F91,
+    0x0F92,
+    0x0F93,
+    0x0F94,
+    0x0F95,
+    0x0F96,
+    0x0F97,
+    0x0F99,
+    0x0F9A,
+    0x0F9B,
+    0x0F9C,
+    0x0F9D,
+    0x0F9E,
+    0x0F9F,
+    0x0FA0,
+    0x0FA1,
+    0x0FA2,
+    0x0FA3,
+    0x0FA4,
+    0x0FA5,
+    0x0FA6,
+    0x0FA7,
+    0x0FA8,
+    0x0FA9,
+    0x0FAA,
+    0x0FAB,
+    0x0FAC,
+    0x0FAD,
+    0x0FAE,
+    0x0FAF,
+    0x0FB0,
+    0x0FB1,
+    0x0FB2,
+    0x0FB3,
+    0x0FB4,
+    0x0FB5,
+    0x0FB6,
+    0x0FB7,
+    0x0FB8,
+    0x0FB9,
+    0x0FBA,
+    0x0FBB,
+    0x0FBC,
+    0x0FC6,
+    0x102D,
+    0x102E,
+    0x102F,
+    0x1030,
+    0x1032,
+    0x1033,
+    0x1034,
+    0x1035,
+    0x1036,
+    0x1037,
+    0x1039,
+    0x103A,
+    0x103D,
+    0x103E,
+    0x1058,
+    0x1059,
+    0x105E,
+    0x105F,
+    0x1060,
+    0x1071,
+    0x1072,
+    0x1073,
+    0x1074,
+    0x1082,
+    0x1085,
+    0x1086,
+    0x108D,
+    0x109D,
+    0x135D,
+    0x135E,
+    0x135F,
+    0x1712,
+    0x1713,
+    0x1714,
+    0x1732,
+    0x1733,
+    0x1734,
+    0x1752,
+    0x1753,
+    0x1772,
+    0x1773,
+    0x17B4,
+    0x17B5,
+    0x17B7,
+    0x17B8,
+    0x17B9,
+    0x17BA,
+    0x17BB,
+    0x17BC,
+    0x17BD,
+    0x17C6,
+    0x17C9,
+    0x17CA,
+    0x17CB,
+    0x17CC,
+    0x17CD,
+    0x17CE,
+    0x17CF,
+    0x17D0,
+    0x17D1,
+    0x17D2,
+    0x17D3,
+    0x17DD,
+    0x180B,
+    0x180C,
+    0x180D,
+    0x18A9,
+    0x1920,
+    0x1921,
+    0x1922,
+    0x1927,
+    0x1928,
+    0x1932,
+    0x1939,
+    0x193A,
+    0x193B,
+    0x1A17,
+    0x1A18,
+    0x1A1B,
+    0x1A56,
+    0x1A58,
+    0x1A59,
+    0x1A5A,
+    0x1A5B,
+    0x1A5C,
+    0x1A5D,
+    0x1A5E,
+    0x1A60,
+    0x1A62,
+    0x1A65,
+    0x1A66,
+    0x1A67,
+    0x1A68,
+    0x1A69,
+    0x1A6A,
+    0x1A6B,
+    0x1A6C,
+    0x1A73,
+    0x1A74,
+    0x1A75,
+    0x1A76,
+    0x1A77,
+    0x1A78,
+    0x1A79,
+    0x1A7A,
+    0x1A7B,
+    0x1A7C,
+    0x1A7F,
+    0x1AB0,
+    0x1AB1,
+    0x1AB2,
+    0x1AB3,
+    0x1AB4,
+    0x1AB5,
+    0x1AB6,
+    0x1AB7,
+    0x1AB8,
+    0x1AB9,
+    0x1ABA,
+    0x1ABB,
+    0x1ABC,
+    0x1ABD,
+    0x1B00,
+    0x1B01,
+    0x1B02,
+    0x1B03,
+    0x1B34,
+    0x1B36,
+    0x1B37,
+    0x1B38,
+    0x1B39,
+    0x1B3A,
+    0x1B3C,
+    0x1B42,
+    0x1B6B,
+    0x1B6C,
+    0x1B6D,
+    0x1B6E,
+    0x1B6F,
+    0x1B70,
+    0x1B71,
+    0x1B72,
+    0x1B73,
+    0x1B80,
+    0x1B81,
+    0x1BA2,
+    0x1BA3,
+    0x1BA4,
+    0x1BA5,
+    0x1BA8,
+    0x1BA9,
+    0x1BAB,
+    0x1BAC,
+    0x1BAD,
+    0x1BE6,
+    0x1BE8,
+    0x1BE9,
+    0x1BED,
+    0x1BEF,
+    0x1BF0,
+    0x1BF1,
+    0x1C2C,
+    0x1C2D,
+    0x1C2E,
+    0x1C2F,
+    0x1C30,
+    0x1C31,
+    0x1C32,
+    0x1C33,
+    0x1C36,
+    0x1C37,
+    0x1CD0,
+    0x1CD1,
+    0x1CD2,
+    0x1CD4,
+    0x1CD5,
+    0x1CD6,
+    0x1CD7,
+    0x1CD8,
+    0x1CD9,
+    0x1CDA,
+    0x1CDB,
+    0x1CDC,
+    0x1CDD,
+    0x1CDE,
+    0x1CDF,
+    0x1CE0,
+    0x1CE2,
+    0x1CE3,
+    0x1CE4,
+    0x1CE5,
+    0x1CE6,
+    0x1CE7,
+    0x1CE8,
+    0x1CED,
+    0x1CF4,
+    0x1CF8,
+    0x1CF9,
+    0x1DC0,
+    0x1DC1,
+    0x1DC2,
+    0x1DC3,
+    0x1DC4,
+    0x1DC5,
+    0x1DC6,
+    0x1DC7,
+    0x1DC8,
+    0x1DC9,
+    0x1DCA,
+    0x1DCB,
+    0x1DCC,
+    0x1DCD,
+    0x1DCE,
+    0x1DCF,
+    0x1DD0,
+    0x1DD1,
+    0x1DD2,
+    0x1DD3,
+    0x1DD4,
+    0x1DD5,
+    0x1DD6,
+    0x1DD7,
+    0x1DD8,
+    0x1DD9,
+    0x1DDA,
+    0x1DDB,
+    0x1DDC,
+    0x1DDD,
+    0x1DDE,
+    0x1DDF,
+    0x1DE0,
+    0x1DE1,
+    0x1DE2,
+    0x1DE3,
+    0x1DE4,
+    0x1DE5,
+    0x1DE6,
+    0x1DE7,
+    0x1DE8,
+    0x1DE9,
+    0x1DEA,
+    0x1DEB,
+    0x1DEC,
+    0x1DED,
+    0x1DEE,
+    0x1DEF,
+    0x1DF0,
+    0x1DF1,
+    0x1DF2,
+    0x1DF3,
+    0x1DF4,
+    0x1DF5,
+    0x1DFC,
+    0x1DFD,
+    0x1DFE,
+    0x1DFF,
+    0x20D0,
+    0x20D1,
+    0x20D2,
+    0x20D3,
+    0x20D4,
+    0x20D5,
+    0x20D6,
+    0x20D7,
+    0x20D8,
+    0x20D9,
+    0x20DA,
+    0x20DB,
+    0x20DC,
+    0x20E1,
+    0x20E5,
+    0x20E6,
+    0x20E7,
+    0x20E8,
+    0x20E9,
+    0x20EA,
+    0x20EB,
+    0x20EC,
+    0x20ED,
+    0x20EE,
+    0x20EF,
+    0x20F0,
+    0x2CEF,
+    0x2CF0,
+    0x2CF1,
+    0x2D7F,
+    0x2DE0,
+    0x2DE1,
+    0x2DE2,
+    0x2DE3,
+    0x2DE4,
+    0x2DE5,
+    0x2DE6,
+    0x2DE7,
+    0x2DE8,
+    0x2DE9,
+    0x2DEA,
+    0x2DEB,
+    0x2DEC,
+    0x2DED,
+    0x2DEE,
+    0x2DEF,
+    0x2DF0,
+    0x2DF1,
+    0x2DF2,
+    0x2DF3,
+    0x2DF4,
+    0x2DF5,
+    0x2DF6,
+    0x2DF7,
+    0x2DF8,
+    0x2DF9,
+    0x2DFA,
+    0x2DFB,
+    0x2DFC,
+    0x2DFD,
+    0x2DFE,
+    0x2DFF,
+    0x302A,
+    0x302B,
+    0x302C,
+    0x302D,
+    0x3099,
+    0x309A,
+    0xA66F,
+    0xA674,
+    0xA675,
+    0xA676,
+    0xA677,
+    0xA678,
+    0xA679,
+    0xA67A,
+    0xA67B,
+    0xA67C,
+    0xA67D,
+    0xA69E,
+    0xA69F,
+    0xA6F0,
+    0xA6F1,
+    0xA802,
+    0xA806,
+    0xA80B,
+    0xA825,
+    0xA826,
+    0xA8C4,
+    0xA8E0,
+    0xA8E1,
+    0xA8E2,
+    0xA8E3,
+    0xA8E4,
+    0xA8E5,
+    0xA8E6,
+    0xA8E7,
+    0xA8E8,
+    0xA8E9,
+    0xA8EA,
+    0xA8EB,
+    0xA8EC,
+    0xA8ED,
+    0xA8EE,
+    0xA8EF,
+    0xA8F0,
+    0xA8F1,
+    0xA926,
+    0xA927,
+    0xA928,
+    0xA929,
+    0xA92A,
+    0xA92B,
+    0xA92C,
+    0xA92D,
+    0xA947,
+    0xA948,
+    0xA949,
+    0xA94A,
+    0xA94B,
+    0xA94C,
+    0xA94D,
+    0xA94E,
+    0xA94F,
+    0xA950,
+    0xA951,
+    0xA980,
+    0xA981,
+    0xA982,
+    0xA9B3,
+    0xA9B6,
+    0xA9B7,
+    0xA9B8,
+    0xA9B9,
+    0xA9BC,
+    0xA9E5,
+    0xAA29,
+    0xAA2A,
+    0xAA2B,
+    0xAA2C,
+    0xAA2D,
+    0xAA2E,
+    0xAA31,
+    0xAA32,
+    0xAA35,
+    0xAA36,
+    0xAA43,
+    0xAA4C,
+    0xAA7C,
+    0xAAB0,
+    0xAAB2,
+    0xAAB3,
+    0xAAB4,
+    0xAAB7,
+    0xAAB8,
+    0xAABE,
+    0xAABF,
+    0xAAC1,
+    0xAAEC,
+    0xAAED,
+    0xAAF6,
+    0xABE5,
+    0xABE8,
+    0xABED,
+    0xFB1E,
+    0xFE00,
+    0xFE01,
+    0xFE02,
+    0xFE03,
+    0xFE04,
+    0xFE05,
+    0xFE06,
+    0xFE07,
+    0xFE08,
+    0xFE09,
+    0xFE0A,
+    0xFE0B,
+    0xFE0C,
+    0xFE0D,
+    0xFE0E,
+    0xFE0F,
+    0xFE20,
+    0xFE21,
+    0xFE22,
+    0xFE23,
+    0xFE24,
+    0xFE25,
+    0xFE26,
+    0xFE27,
+    0xFE28,
+    0xFE29,
+    0xFE2A,
+    0xFE2B,
+    0xFE2C,
+    0xFE2D,
+    0xFE2E,
+    0xFE2F,
+    0x101FD,
+    0x102E0,
+    0x10376,
+    0x10377,
+    0x10378,
+    0x10379,
+    0x1037A,
+    0x10A01,
+    0x10A02,
+    0x10A03,
+    0x10A05,
+    0x10A06,
+    0x10A0C,
+    0x10A0D,
+    0x10A0E,
+    0x10A0F,
+    0x10A38,
+    0x10A39,
+    0x10A3A,
+    0x10A3F,
+    0x10AE5,
+    0x10AE6,
+    0x11001,
+    0x11038,
+    0x11039,
+    0x1103A,
+    0x1103B,
+    0x1103C,
+    0x1103D,
+    0x1103E,
+    0x1103F,
+    0x11040,
+    0x11041,
+    0x11042,
+    0x11043,
+    0x11044,
+    0x11045,
+    0x11046,
+    0x1107F,
+    0x11080,
+    0x11081,
+    0x110B3,
+    0x110B4,
+    0x110B5,
+    0x110B6,
+    0x110B9,
+    0x110BA,
+    0x11100,
+    0x11101,
+    0x11102,
+    0x11127,
+    0x11128,
+    0x11129,
+    0x1112A,
+    0x1112B,
+    0x1112D,
+    0x1112E,
+    0x1112F,
+    0x11130,
+    0x11131,
+    0x11132,
+    0x11133,
+    0x11134,
+    0x11173,
+    0x11180,
+    0x11181,
+    0x111B6,
+    0x111B7,
+    0x111B8,
+    0x111B9,
+    0x111BA,
+    0x111BB,
+    0x111BC,
+    0x111BD,
+    0x111BE,
+    0x111CA,
+    0x111CB,
+    0x111CC,
+    0x1122F,
+    0x11230,
+    0x11231,
+    0x11234,
+    0x11236,
+    0x11237,
+    0x112DF,
+    0x112E3,
+    0x112E4,
+    0x112E5,
+    0x112E6,
+    0x112E7,
+    0x112E8,
+    0x112E9,
+    0x112EA,
+    0x11300,
+    0x11301,
+    0x1133C,
+    0x11340,
+    0x11366,
+    0x11367,
+    0x11368,
+    0x11369,
+    0x1136A,
+    0x1136B,
+    0x1136C,
+    0x11370,
+    0x11371,
+    0x11372,
+    0x11373,
+    0x11374,
+    0x114B3,
+    0x114B4,
+    0x114B5,
+    0x114B6,
+    0x114B7,
+    0x114B8,
+    0x114BA,
+    0x114BF,
+    0x114C0,
+    0x114C2,
+    0x114C3,
+    0x115B2,
+    0x115B3,
+    0x115B4,
+    0x115B5,
+    0x115BC,
+    0x115BD,
+    0x115BF,
+    0x115C0,
+    0x115DC,
+    0x115DD,
+    0x11633,
+    0x11634,
+    0x11635,
+    0x11636,
+    0x11637,
+    0x11638,
+    0x11639,
+    0x1163A,
+    0x1163D,
+    0x1163F,
+    0x11640,
+    0x116AB,
+    0x116AD,
+    0x116B0,
+    0x116B1,
+    0x116B2,
+    0x116B3,
+    0x116B4,
+    0x116B5,
+    0x116B7,
+    0x1171D,
+    0x1171E,
+    0x1171F,
+    0x11722,
+    0x11723,
+    0x11724,
+    0x11725,
+    0x11727,
+    0x11728,
+    0x11729,
+    0x1172A,
+    0x1172B,
+    0x16AF0,
+    0x16AF1,
+    0x16AF2,
+    0x16AF3,
+    0x16AF4,
+    0x16B30,
+    0x16B31,
+    0x16B32,
+    0x16B33,
+    0x16B34,
+    0x16B35,
+    0x16B36,
+    0x16F8F,
+    0x16F90,
+    0x16F91,
+    0x16F92,
+    0x1BC9D,
+    0x1BC9E,
+    0x1D167,
+    0x1D168,
+    0x1D169,
+    0x1D17B,
+    0x1D17C,
+    0x1D17D,
+    0x1D17E,
+    0x1D17F,
+    0x1D180,
+    0x1D181,
+    0x1D182,
+    0x1D185,
+    0x1D186,
+    0x1D187,
+    0x1D188,
+    0x1D189,
+    0x1D18A,
+    0x1D18B,
+    0x1D1AA,
+    0x1D1AB,
+    0x1D1AC,
+    0x1D1AD,
+    0x1D242,
+    0x1D243,
+    0x1D244,
+    0x1DA00,
+    0x1DA01,
+    0x1DA02,
+    0x1DA03,
+    0x1DA04,
+    0x1DA05,
+    0x1DA06,
+    0x1DA07,
+    0x1DA08,
+    0x1DA09,
+    0x1DA0A,
+    0x1DA0B,
+    0x1DA0C,
+    0x1DA0D,
+    0x1DA0E,
+    0x1DA0F,
+    0x1DA10,
+    0x1DA11,
+    0x1DA12,
+    0x1DA13,
+    0x1DA14,
+    0x1DA15,
+    0x1DA16,
+    0x1DA17,
+    0x1DA18,
+    0x1DA19,
+    0x1DA1A,
+    0x1DA1B,
+    0x1DA1C,
+    0x1DA1D,
+    0x1DA1E,
+    0x1DA1F,
+    0x1DA20,
+    0x1DA21,
+    0x1DA22,
+    0x1DA23,
+    0x1DA24,
+    0x1DA25,
+    0x1DA26,
+    0x1DA27,
+    0x1DA28,
+    0x1DA29,
+    0x1DA2A,
+    0x1DA2B,
+    0x1DA2C,
+    0x1DA2D,
+    0x1DA2E,
+    0x1DA2F,
+    0x1DA30,
+    0x1DA31,
+    0x1DA32,
+    0x1DA33,
+    0x1DA34,
+    0x1DA35,
+    0x1DA36,
+    0x1DA3B,
+    0x1DA3C,
+    0x1DA3D,
+    0x1DA3E,
+    0x1DA3F,
+    0x1DA40,
+    0x1DA41,
+    0x1DA42,
+    0x1DA43,
+    0x1DA44,
+    0x1DA45,
+    0x1DA46,
+    0x1DA47,
+    0x1DA48,
+    0x1DA49,
+    0x1DA4A,
+    0x1DA4B,
+    0x1DA4C,
+    0x1DA4D,
+    0x1DA4E,
+    0x1DA4F,
+    0x1DA50,
+    0x1DA51,
+    0x1DA52,
+    0x1DA53,
+    0x1DA54,
+    0x1DA55,
+    0x1DA56,
+    0x1DA57,
+    0x1DA58,
+    0x1DA59,
+    0x1DA5A,
+    0x1DA5B,
+    0x1DA5C,
+    0x1DA5D,
+    0x1DA5E,
+    0x1DA5F,
+    0x1DA60,
+    0x1DA61,
+    0x1DA62,
+    0x1DA63,
+    0x1DA64,
+    0x1DA65,
+    0x1DA66,
+    0x1DA67,
+    0x1DA68,
+    0x1DA69,
+    0x1DA6A,
+    0x1DA6B,
+    0x1DA6C,
+    0x1DA75,
+    0x1DA84,
+    0x1DA9B,
+    0x1DA9C,
+    0x1DA9D,
+    0x1DA9E,
+    0x1DA9F,
+    0x1DAA1,
+    0x1DAA2,
+    0x1DAA3,
+    0x1DAA4,
+    0x1DAA5,
+    0x1DAA6,
+    0x1DAA7,
+    0x1DAA8,
+    0x1DAA9,
+    0x1DAAA,
+    0x1DAAB,
+    0x1DAAC,
+    0x1DAAD,
+    0x1DAAE,
+    0x1DAAF,
+    0x1E8D0,
+    0x1E8D1,
+    0x1E8D2,
+    0x1E8D3,
+    0x1E8D4,
+    0x1E8D5,
+    0x1E8D6,
+    0xE0100,
+    0xE0101,
+    0xE0102,
+    0xE0103,
+    0xE0104,
+    0xE0105,
+    0xE0106,
+    0xE0107,
+    0xE0108,
+    0xE0109,
+    0xE010A,
+    0xE010B,
+    0xE010C,
+    0xE010D,
+    0xE010E,
+    0xE010F,
+    0xE0110,
+    0xE0111,
+    0xE0112,
+    0xE0113,
+    0xE0114,
+    0xE0115,
+    0xE0116,
+    0xE0117,
+    0xE0118,
+    0xE0119,
+    0xE011A,
+    0xE011B,
+    0xE011C,
+    0xE011D,
+    0xE011E,
+    0xE011F,
+    0xE0120,
+    0xE0121,
+    0xE0122,
+    0xE0123,
+    0xE0124,
+    0xE0125,
+    0xE0126,
+    0xE0127,
+    0xE0128,
+    0xE0129,
+    0xE012A,
+    0xE012B,
+    0xE012C,
+    0xE012D,
+    0xE012E,
+    0xE012F,
+    0xE0130,
+    0xE0131,
+    0xE0132,
+    0xE0133,
+    0xE0134,
+    0xE0135,
+    0xE0136,
+    0xE0137,
+    0xE0138,
+    0xE0139,
+    0xE013A,
+    0xE013B,
+    0xE013C,
+    0xE013D,
+    0xE013E,
+    0xE013F,
+    0xE0140,
+    0xE0141,
+    0xE0142,
+    0xE0143,
+    0xE0144,
+    0xE0145,
+    0xE0146,
+    0xE0147,
+    0xE0148,
+    0xE0149,
+    0xE014A,
+    0xE014B,
+    0xE014C,
+    0xE014D,
+    0xE014E,
+    0xE014F,
+    0xE0150,
+    0xE0151,
+    0xE0152,
+    0xE0153,
+    0xE0154,
+    0xE0155,
+    0xE0156,
+    0xE0157,
+    0xE0158,
+    0xE0159,
+    0xE015A,
+    0xE015B,
+    0xE015C,
+    0xE015D,
+    0xE015E,
+    0xE015F,
+    0xE0160,
+    0xE0161,
+    0xE0162,
+    0xE0163,
+    0xE0164,
+    0xE0165,
+    0xE0166,
+    0xE0167,
+    0xE0168,
+    0xE0169,
+    0xE016A,
+    0xE016B,
+    0xE016C,
+    0xE016D,
+    0xE016E,
+    0xE016F,
+    0xE0170,
+    0xE0171,
+    0xE0172,
+    0xE0173,
+    0xE0174,
+    0xE0175,
+    0xE0176,
+    0xE0177,
+    0xE0178,
+    0xE0179,
+    0xE017A,
+    0xE017B,
+    0xE017C,
+    0xE017D,
+    0xE017E,
+    0xE017F,
+    0xE0180,
+    0xE0181,
+    0xE0182,
+    0xE0183,
+    0xE0184,
+    0xE0185,
+    0xE0186,
+    0xE0187,
+    0xE0188,
+    0xE0189,
+    0xE018A,
+    0xE018B,
+    0xE018C,
+    0xE018D,
+    0xE018E,
+    0xE018F,
+    0xE0190,
+    0xE0191,
+    0xE0192,
+    0xE0193,
+    0xE0194,
+    0xE0195,
+    0xE0196,
+    0xE0197,
+    0xE0198,
+    0xE0199,
+    0xE019A,
+    0xE019B,
+    0xE019C,
+    0xE019D,
+    0xE019E,
+    0xE019F,
+    0xE01A0,
+    0xE01A1,
+    0xE01A2,
+    0xE01A3,
+    0xE01A4,
+    0xE01A5,
+    0xE01A6,
+    0xE01A7,
+    0xE01A8,
+    0xE01A9,
+    0xE01AA,
+    0xE01AB,
+    0xE01AC,
+    0xE01AD,
+    0xE01AE,
+    0xE01AF,
+    0xE01B0,
+    0xE01B1,
+    0xE01B2,
+    0xE01B3,
+    0xE01B4,
+    0xE01B5,
+    0xE01B6,
+    0xE01B7,
+    0xE01B8,
+    0xE01B9,
+    0xE01BA,
+    0xE01BB,
+    0xE01BC,
+    0xE01BD,
+    0xE01BE,
+    0xE01BF,
+    0xE01C0,
+    0xE01C1,
+    0xE01C2,
+    0xE01C3,
+    0xE01C4,
+    0xE01C5,
+    0xE01C6,
+    0xE01C7,
+    0xE01C8,
+    0xE01C9,
+    0xE01CA,
+    0xE01CB,
+    0xE01CC,
+    0xE01CD,
+    0xE01CE,
+    0xE01CF,
+    0xE01D0,
+    0xE01D1,
+    0xE01D2,
+    0xE01D3,
+    0xE01D4,
+    0xE01D5,
+    0xE01D6,
+    0xE01D7,
+    0xE01D8,
+    0xE01D9,
+    0xE01DA,
+    0xE01DB,
+    0xE01DC,
+    0xE01DD,
+    0xE01DE,
+    0xE01DF,
+    0xE01E0,
+    0xE01E1,
+    0xE01E2,
+    0xE01E3,
+    0xE01E4,
+    0xE01E5,
+    0xE01E6,
+    0xE01E7,
+    0xE01E8,
+    0xE01E9,
+    0xE01EA,
+    0xE01EB,
+    0xE01EC,
+    0xE01ED,
+    0xE01EE,
+    0xE01EF,
 };
 
 static int unicodeCombiningCharTableSize = sizeof(unicodeCombiningCharTable) / sizeof(unicodeCombiningCharTable[0]);
@@ -1540,22 +3052,22 @@ inline int isAnsiEscape(const char *buf, int buf_len, int *len)
     {
       switch (buf[off++])
       {
-      case 'A':
-      case 'B':
-      case 'C':
-      case 'D':
-      case 'E':
-      case 'F':
-      case 'G':
-      case 'H':
-      case 'J':
-      case 'K':
-      case 'S':
-      case 'T':
-      case 'f':
-      case 'm':
-        *len = off;
-        return 1;
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'J':
+        case 'K':
+        case 'S':
+        case 'T':
+        case 'f':
+        case 'm':
+          *len = off;
+          return 1;
       }
     }
   }
@@ -1967,26 +3479,26 @@ inline int completeLine(struct linenoiseState *ls, char *cbuf, int *c)
 
       switch (*c)
       {
-      case 9: /* tab */
-        i = (i + 1) % (lc.size() + 1);
-        if (i == static_cast<int>(lc.size()))
-          linenoiseBeep();
-        break;
-      case 27: /* escape */
-        /* Re-show original buffer */
-        if (i < static_cast<int>(lc.size()))
-          refreshLine(ls);
-        stop = 1;
-        break;
-      default:
-        /* Update buffer and return */
-        if (i < static_cast<int>(lc.size()))
-        {
-          nwritten = snprintf(ls->buf, ls->buflen, "%s", &lc[i][0]);
-          ls->len = ls->pos = nwritten;
-        }
-        stop = 1;
-        break;
+        case 9: /* tab */
+          i = (i + 1) % (lc.size() + 1);
+          if (i == static_cast<int>(lc.size()))
+            linenoiseBeep();
+          break;
+        case 27: /* escape */
+          /* Re-show original buffer */
+          if (i < static_cast<int>(lc.size()))
+            refreshLine(ls);
+          stop = 1;
+          break;
+        default:
+          /* Update buffer and return */
+          if (i < static_cast<int>(lc.size()))
+          {
+            nwritten = snprintf(ls->buf, ls->buflen, "%s", &lc[i][0]);
+            ls->len = ls->pos = nwritten;
+          }
+          stop = 1;
+          break;
       }
     }
   }
@@ -2364,148 +3876,148 @@ inline int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, int buflen, con
 
     switch (c)
     {
-    case ENTER: /* enter */
-      if (!history.empty())
-        history.pop_back();
-      if (mlmode)
-        linenoiseEditMoveEnd(&l);
-      return (int)l.len;
-    case CTRL_C: /* ctrl-c */
-      errno = EAGAIN;
-      return -1;
-    case BACKSPACE: /* backspace */
-    case 8:         /* ctrl-h */
-      linenoiseEditBackspace(&l);
-      break;
-    case CTRL_D: /* ctrl-d, remove char at right of cursor, or if the
-                    line is empty, act as end-of-file. */
-      if (l.len > 0)
-      {
-        linenoiseEditDelete(&l);
-      }
-      else
-      {
-        history.pop_back();
+      case ENTER: /* enter */
+        if (!history.empty())
+          history.pop_back();
+        if (mlmode)
+          linenoiseEditMoveEnd(&l);
+        return (int)l.len;
+      case CTRL_C: /* ctrl-c */
+        errno = EAGAIN;
         return -1;
-      }
-      break;
-    case CTRL_T: /* ctrl-t, swaps current character with previous. */
-      if (l.pos > 0 && l.pos < l.len)
-      {
-        char aux = buf[l.pos - 1];
-        buf[l.pos - 1] = buf[l.pos];
-        buf[l.pos] = aux;
-        if (l.pos != l.len - 1)
-          l.pos++;
-        refreshLine(&l);
-      }
-      break;
-    case CTRL_B: /* ctrl-b */
-      linenoiseEditMoveLeft(&l);
-      break;
-    case CTRL_F: /* ctrl-f */
-      linenoiseEditMoveRight(&l);
-      break;
-    case CTRL_P: /* ctrl-p */
-      linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_PREV);
-      break;
-    case CTRL_N: /* ctrl-n */
-      linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_NEXT);
-      break;
-    case ESC: /* escape sequence */
-      /* Read the next two bytes representing the escape sequence.
-       * Use two calls to handle slow terminals returning the two
-       * chars at different times. */
-      if (read(l.ifd, seq, 1) == -1)
+      case BACKSPACE: /* backspace */
+      case 8:         /* ctrl-h */
+        linenoiseEditBackspace(&l);
         break;
-      if (read(l.ifd, seq + 1, 1) == -1)
-        break;
-
-      /* ESC [ sequences. */
-      if (seq[0] == '[')
-      {
-        if (seq[1] >= '0' && seq[1] <= '9')
+      case CTRL_D: /* ctrl-d, remove char at right of cursor, or if the
+                      line is empty, act as end-of-file. */
+        if (l.len > 0)
         {
-          /* Extended escape, read additional byte. */
-          if (read(l.ifd, seq + 2, 1) == -1)
-            break;
-          if (seq[2] == '~')
-          {
-            switch (seq[1])
-            {
-            case '3': /* Delete key. */
-              linenoiseEditDelete(&l);
-              break;
-            }
-          }
+          linenoiseEditDelete(&l);
         }
         else
         {
-          switch (seq[1])
+          history.pop_back();
+          return -1;
+        }
+        break;
+      case CTRL_T: /* ctrl-t, swaps current character with previous. */
+        if (l.pos > 0 && l.pos < l.len)
+        {
+          char aux = buf[l.pos - 1];
+          buf[l.pos - 1] = buf[l.pos];
+          buf[l.pos] = aux;
+          if (l.pos != l.len - 1)
+            l.pos++;
+          refreshLine(&l);
+        }
+        break;
+      case CTRL_B: /* ctrl-b */
+        linenoiseEditMoveLeft(&l);
+        break;
+      case CTRL_F: /* ctrl-f */
+        linenoiseEditMoveRight(&l);
+        break;
+      case CTRL_P: /* ctrl-p */
+        linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_PREV);
+        break;
+      case CTRL_N: /* ctrl-n */
+        linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_NEXT);
+        break;
+      case ESC: /* escape sequence */
+        /* Read the next two bytes representing the escape sequence.
+         * Use two calls to handle slow terminals returning the two
+         * chars at different times. */
+        if (read(l.ifd, seq, 1) == -1)
+          break;
+        if (read(l.ifd, seq + 1, 1) == -1)
+          break;
+
+        /* ESC [ sequences. */
+        if (seq[0] == '[')
+        {
+          if (seq[1] >= '0' && seq[1] <= '9')
           {
-          case 'A': /* Up */
-            linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_PREV);
-            break;
-          case 'B': /* Down */
-            linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_NEXT);
-            break;
-          case 'C': /* Right */
-            linenoiseEditMoveRight(&l);
-            break;
-          case 'D': /* Left */
-            linenoiseEditMoveLeft(&l);
-            break;
-          case 'H': /* Home */
-            linenoiseEditMoveHome(&l);
-            break;
-          case 'F': /* End*/
-            linenoiseEditMoveEnd(&l);
-            break;
+            /* Extended escape, read additional byte. */
+            if (read(l.ifd, seq + 2, 1) == -1)
+              break;
+            if (seq[2] == '~')
+            {
+              switch (seq[1])
+              {
+                case '3': /* Delete key. */
+                  linenoiseEditDelete(&l);
+                  break;
+              }
+            }
+          }
+          else
+          {
+            switch (seq[1])
+            {
+              case 'A': /* Up */
+                linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_PREV);
+                break;
+              case 'B': /* Down */
+                linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_NEXT);
+                break;
+              case 'C': /* Right */
+                linenoiseEditMoveRight(&l);
+                break;
+              case 'D': /* Left */
+                linenoiseEditMoveLeft(&l);
+                break;
+              case 'H': /* Home */
+                linenoiseEditMoveHome(&l);
+                break;
+              case 'F': /* End*/
+                linenoiseEditMoveEnd(&l);
+                break;
+            }
           }
         }
-      }
 
-      /* ESC O sequences. */
-      else if (seq[0] == 'O')
-      {
-        switch (seq[1])
+        /* ESC O sequences. */
+        else if (seq[0] == 'O')
         {
-        case 'H': /* Home */
-          linenoiseEditMoveHome(&l);
-          break;
-        case 'F': /* End*/
-          linenoiseEditMoveEnd(&l);
-          break;
+          switch (seq[1])
+          {
+            case 'H': /* Home */
+              linenoiseEditMoveHome(&l);
+              break;
+            case 'F': /* End*/
+              linenoiseEditMoveEnd(&l);
+              break;
+          }
         }
-      }
-      break;
-    default:
-      if (linenoiseEditInsert(&l, cbuf, nread))
-        return -1;
-      break;
-    case CTRL_U: /* Ctrl+u, delete the whole line. */
-      buf[0] = '\0';
-      l.pos = l.len = 0;
-      refreshLine(&l);
-      break;
-    case CTRL_K: /* Ctrl+k, delete from current to end of line. */
-      buf[l.pos] = '\0';
-      l.len = l.pos;
-      refreshLine(&l);
-      break;
-    case CTRL_A: /* Ctrl+a, go to the start of the line */
-      linenoiseEditMoveHome(&l);
-      break;
-    case CTRL_E: /* ctrl+e, go to the end of the line */
-      linenoiseEditMoveEnd(&l);
-      break;
-    case CTRL_L: /* ctrl+l, clear screen */
-      linenoiseClearScreen();
-      refreshLine(&l);
-      break;
-    case CTRL_W: /* ctrl+w, delete previous word */
-      linenoiseEditDeletePrevWord(&l);
-      break;
+        break;
+      default:
+        if (linenoiseEditInsert(&l, cbuf, nread))
+          return -1;
+        break;
+      case CTRL_U: /* Ctrl+u, delete the whole line. */
+        buf[0] = '\0';
+        l.pos = l.len = 0;
+        refreshLine(&l);
+        break;
+      case CTRL_K: /* Ctrl+k, delete from current to end of line. */
+        buf[l.pos] = '\0';
+        l.len = l.pos;
+        refreshLine(&l);
+        break;
+      case CTRL_A: /* Ctrl+a, go to the start of the line */
+        linenoiseEditMoveHome(&l);
+        break;
+      case CTRL_E: /* ctrl+e, go to the end of the line */
+        linenoiseEditMoveEnd(&l);
+        break;
+      case CTRL_L: /* ctrl+l, clear screen */
+        linenoiseClearScreen();
+        refreshLine(&l);
+        break;
+      case CTRL_W: /* ctrl+w, delete previous word */
+        linenoiseEditDeletePrevWord(&l);
+        break;
     }
   }
   return l.len;
