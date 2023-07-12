@@ -30,6 +30,9 @@ BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X)
 {
   AddCommand("q", BOF_SHELL_CMD("Leave shell console.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellQuit)));
   AddCommand("?", BOF_SHELL_CMD("Show the list of commands.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellHelp)));
+  AddCommand("arg", BOF_SHELL_CMD("Show descrition of the args of a command.", {"ShellCmd"}, &mScriptPath, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellCmdArg)));
+  AddCommandArgument("arg", "ShellCmd",
+                     BOF::BOFPARAMETER(nullptr, "", "Specify which shell command must show its argument", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mArgShellCmd_S, STDSTRING, 0, 0)));
   AddCommand("exec", BOF_SHELL_CMD("Execute a script from a script.", {"ScripFilename"}, &mScriptPath, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellExec)));
   AddCommandArgument("exec", "ScripFilename",
                      BOF::BOFPARAMETER(nullptr, "", "Specify the script to execute", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST, BOF_PARAM_DEF_VARIABLE(mScriptPath, PATH, 0, 0)));
@@ -109,7 +112,7 @@ BOFERR BofShell::ShellHelp(void *_pArg, std::string &_rShellRes_S)
   auto pIt = mShellCmdCollection.begin();
   while (pIt != mShellCmdCollection.end())
   {
-    _rShellRes_S = _rShellRes_S + Bof_Sprintf("%-8s: %s [", pIt->first.c_str(), pIt->second.Help_S.c_str());
+    _rShellRes_S = _rShellRes_S + Bof_Sprintf("%-12s: %s [", pIt->first.c_str(), pIt->second.Help_S.c_str());
     i_U32 = 0;
     for (auto &rIt : pIt->second.ArgNameCollection)
     {
@@ -142,6 +145,35 @@ BOFERR BofShell::ShellExec(void *_pArg, std::string &_rShellRes_S)
   }
   Rts_E = ExecScript(mScriptPath);
   return BOF_ERR_NO_ERROR;
+}
+BOFERR BofShell::ShellCmdArg(void *_pArg, std::string &_rShellResult_S)
+{
+  BOFERR Rts_E = BOF_ERR_DONT_EXIST;
+  std::string Cmd_S, Prefix_S, ArgName_S;
+  int Index_i;
+
+  mArgShellCmd_S = Bof_StringTrim(mArgShellCmd_S);
+  _rShellResult_S = "Argument of command '" + mArgShellCmd_S + "' are:\n";
+  auto ItCmd = mShellCmdCollection.find(mArgShellCmd_S);
+  if (ItCmd != mShellCmdCollection.end())
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+    Prefix_S = mArgShellCmd_S + "::";
+    for (auto Item : ItCmd->second.ArgNameCollection)
+    {
+      ArgName_S = Bof_StringTrim(Item);
+      if (ArgName_S.find(Prefix_S) != 0)
+      {
+        ArgName_S = Prefix_S + ArgName_S;
+      }
+      auto It = mShellArgCollection.find(ArgName_S);
+      if (It != mShellArgCollection.end())
+      {
+        _rShellResult_S = _rShellResult_S + Bof_Sprintf("  %-22s: %s\n", It->first.c_str(), It->second.Description_S.c_str());
+      }
+    }
+  }
+  return Rts_E;
 }
 BOFERR BofShell::Parser(const std::string &_rShellCmd_S, std::string &_rShellRes_S)
 {

@@ -140,6 +140,7 @@ private:
   BOFERR ShellHelp(void *_pArg, std::string &_rShellResult_S);
   BOFERR ShellQuit(void *_pArg, std::string &_rShellResult_S);
   BOFERR ShellExec(void *_pArg, std::string &_rShellResult_S);
+  BOFERR ShellCmdArg(void *_pArg, std::string &_rShellResult_S);
 
   bool mFinish_B = false;
   bool mExecScript_B = false;
@@ -149,6 +150,7 @@ private:
   uintptr_t mIoScript = BOF_INVALID_HANDLE_VALUE;
   std::map<std::string, BOF_SHELL_CMD> mShellCmdCollection;
   std::map<std::string, BOFPARAMETER> mShellArgCollection;
+  std::string mArgShellCmd_S;
 };
 
 class BOFSTD_EXPORT BofShellConsole
