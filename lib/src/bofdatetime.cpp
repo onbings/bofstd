@@ -43,19 +43,6 @@ BofDateTime::BofDateTime()
   Reset();
 }
 
-void BofDateTime::Reset()
-{
-  mYear_U16 = 1970;
-  mMonth_U8 = 1;
-  mDay_U8 = 1;
-  mHour_U8 = 0;
-  mMinute_U8 = 0;
-  mSecond_U8 = 0;
-  mMicroSecond_U32 = 0;
-  //			DayOfWeek_U8 = 4;  //Thursday
-  InitDateTime();
-}
-
 BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
 {
   mYear_U16 = _Year_U16;
@@ -105,11 +92,32 @@ BofDateTime::BofDateTime(const std::tm &_rTm_X, uint32_t _MicroSecond_U32)
 BofDateTime::~BofDateTime()
 {
 }
+
 void BofDateTime::ClearDate()
 {
   mYear_U16 = 0;
   mMonth_U8 = 0;
   mDay_U8 = 0;
+  mIsValid_B = false;
+}
+void BofDateTime::ClearTime()
+{
+  mHour_U8 = 0;
+  mMinute_U8 = 0;
+  mSecond_U8 = 0;
+  mMicroSecond_U32 = 0;
+}
+void BofDateTime::Reset()
+{
+  mYear_U16 = 1970;
+  mMonth_U8 = 1;
+  mDay_U8 = 1;
+  mHour_U8 = 0;
+  mMinute_U8 = 0;
+  mSecond_U8 = 0;
+  mMicroSecond_U32 = 0;
+  //			DayOfWeek_U8 = 4;  //Thursday
+  InitDateTime();
 }
 
 bool BofDateTime::IsTimeInADay() const

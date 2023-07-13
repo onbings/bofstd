@@ -45,11 +45,12 @@ public:
   BofDateTime(const std::tm &_rTm_X, uint32_t _MicroSecond_U32);
 
   void ClearDate();
+  void ClearTime();
+  void Reset();
   bool IsTimeInADay() const;
   bool IsValid() const;
   bool IsUnixEpoch() const;
   bool IsMidnight() const;
-  void Reset();
   std::string ToString(const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
   BofDateTime FromString(const std::string &_rDateTime_S, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
 
