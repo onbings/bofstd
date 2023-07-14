@@ -120,6 +120,23 @@ struct BOF_SHELL_PARAM
   }
 };
 
+struct BOF_SHELL_SPAWN_PARAM
+{
+  BOF::BofPath ProcessPath;
+  std::string ProcessArg_S;
+
+  BOF_SHELL_SPAWN_PARAM()
+  {
+    Reset();
+  }
+
+  void Reset()
+  {
+    ProcessPath = "";
+    ProcessArg_S = "";
+  }
+};
+
 class BOFSTD_EXPORT BofShell
 {
 private:
@@ -139,18 +156,25 @@ public:
 private:
   BOFERR ShellHelp(void *_pArg, std::string &_rShellResult_S);
   BOFERR ShellQuit(void *_pArg, std::string &_rShellResult_S);
+  std::string mScriptFilename_S;
   BOFERR ShellExec(void *_pArg, std::string &_rShellResult_S);
+  std::string mArgShellCmd_S;
   BOFERR ShellCmdArg(void *_pArg, std::string &_rShellResult_S);
+  std::string mEchoText_S;
+  BOFERR ShellEcho(void *_pArg, std::string &_rShellResult_S);
+  BOFERR ShellDoYouWantToContinue(void *_pArg, std::string &_rShellResult_S);
+  BOF_SHELL_SPAWN_PARAM mSpawnParam_X;
+  BOFERR ShellSpawn(void *_pArg, std::string &_rShellResult_S);
+  uint32_t mSleepTime_U32;
+  BOFERR ShellSleep(void *_pArg, std::string &_rShellResult_S);
 
   bool mFinish_B = false;
   bool mExecScript_B = false;
   bool mExecuteOnlyOneCommand_B = false;
   BofPath mScriptPath;
-  std::string mScriptFilename_S;
   uintptr_t mIoScript = BOF_INVALID_HANDLE_VALUE;
   std::map<std::string, BOF_SHELL_CMD> mShellCmdCollection;
   std::map<std::string, BOFPARAMETER> mShellArgCollection;
-  std::string mArgShellCmd_S;
 };
 
 class BOFSTD_EXPORT BofShellConsole

@@ -228,7 +228,7 @@ BOFSTD_EXPORT BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, cons
 BOFSTD_EXPORT uint64_t Bof_GetFileSize(const BofPath &_rPath);
 BOFSTD_EXPORT BOFERR Bof_DeleteFile(const BofPath &_rPath);
 BOFSTD_EXPORT BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath);
-BOFSTD_EXPORT bool Bof_IsPathExist(const BofPath &_rPath);
+BOFSTD_EXPORT bool Bof_IsPathExist(const BofPath &_rPath, bool &_rItIsADirectory);
 BOFSTD_EXPORT BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const BofPath &_rDstPath);
 BOFSTD_EXPORT BOFERR Bof_ResetFileContent(const BofPath &_rPath, bool _ReOpenMode_B, int64_t _Offset_S64);
 

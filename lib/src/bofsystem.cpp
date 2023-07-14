@@ -98,6 +98,7 @@ uint64_t Bof_GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, uint8_t _I
   uint64_t Rts_U64 = -1; // IPC_PRIVATE is 0
   char pFn_c[512];       //, *pId_c;
   uintptr_t Io;
+  bool ItIsADirectory_B;
 
   if (_Id_U8)
   {
@@ -136,7 +137,7 @@ uint64_t Bof_GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, uint8_t _I
       //      Bof_CreateFile(BOF::BOF_FILE_PERMISSION_READ_FOR_ALL | BOF::BOF_FILE_PERMISSION_WRITE_FOR_ALL, pFn_c, false, Io); // If it fails, it will also fails on the following line
       Bof_CreateFile(BOF_FILE_PERMISSION_DEFAULT_R, pFn_c, false, Io); // If it fails, it will also fails on the following line
     }
-    if (Bof_IsPathExist(pFn_c))
+    if (Bof_IsPathExist(pFn_c, ItIsADirectory_B))
     {
 #if defined(_WIN32)
       Rts_U64 = 0;

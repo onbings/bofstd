@@ -275,12 +275,12 @@ static int nonoption_flags_len;
 #endif
 
 #ifdef USE_NONOPTION_FLAGS
-#define SWAP_FLAGS(ch1, ch2)                                                                                                                                                                                                                                   \
-  if (nonoption_flags_len > 0)                                                                                                                                                                                                                                 \
-  {                                                                                                                                                                                                                                                            \
-    char __tmp = __getopt_nonoption_flags[ch1];                                                                                                                                                                                                                \
-    __getopt_nonoption_flags[ch1] = __getopt_nonoption_flags[ch2];                                                                                                                                                                                             \
-    __getopt_nonoption_flags[ch2] = __tmp;                                                                                                                                                                                                                     \
+#define SWAP_FLAGS(ch1, ch2)                                       \
+  if (nonoption_flags_len > 0)                                     \
+  {                                                                \
+    char __tmp = __getopt_nonoption_flags[ch1];                    \
+    __getopt_nonoption_flags[ch1] = __getopt_nonoption_flags[ch2]; \
+    __getopt_nonoption_flags[ch2] = __tmp;                         \
   }
 #else
 #define SWAP_FLAGS(ch1, ch2)
@@ -711,7 +711,8 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
     {
       if (print_errors)
       {
-        fprintf(stderr, _("%s: option `%s' is ambiguous\n"), argv[0], argv[optind]);
+        // fprintf(stderr, _("%s: option `%s' is ambiguous\n"), argv[0], argv[optind]);
+        printf("%s: option `%s' is ambiguous\n", argv[0], argv[optind]);
       }
       nextchar += strlen(nextchar);
       optind++;
@@ -739,12 +740,12 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
             if (argv[optind - 1][1] == '-')
             {
               /* --option */
-              // fprintf ( stderr,	_ ( "%s: option `--%s' doesn't allow an argument\n" ), argv[ 0 ], pfound->name );
+              printf("%s: option `--%s' doesn't allow an argument\n", argv[0], pfound->name);
             }
             else
             {
               /* +option or -option */
-              // fprintf ( stderr,_ ( "%s: option `%c%s' doesn't allow an argument\n" ),	argv[ 0 ], argv[ optind - 1 ][ 0 ], pfound->name );
+              printf("%s: option `%c%s' doesn't allow an argument\n", argv[0], argv[optind - 1][0], pfound->name);
             }
           }
 
@@ -764,7 +765,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
         {
           if (print_errors)
           {
-            // fprintf ( stderr,	_ ( "%s: option `%s' requires an argument\n" ),argv[ 0 ], argv[ optind - 1 ] );
+            printf("%s: option `%s' requires an argument\n", argv[0], argv[optind - 1]);
           }
           nextchar += strlen(nextchar);
           optopt = pfound->val;
@@ -797,7 +798,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
         if (argv[optind][1] == '-')
         {
           /* --option */
-          // fprintf ( stderr, _ ( "%s: unrecognized option `--%s'\n" ),	argv[ 0 ], nextchar );
+          printf("%s: unrecognized option `--%s'\n", argv[0], nextchar);
         }
         else
         {
@@ -831,11 +832,11 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
         if (posixly_correct)
         {
           /* 1003.2 specifies the format of this message.  */
-          // fprintf ( stderr, _ ( "%s: illegal option -- %c\n" ),	argv[ 0 ], c );
+          printf("%s: illegal option -- %c\n", argv[0], c);
         }
         else
         {
-          // fprintf ( stderr, _ ( "%s: invalid option -- %c\n" ),	argv[ 0 ], c );
+          printf("%s: invalid option -- %c\n", argv[0], c);
         }
       }
       optopt = c;
@@ -867,7 +868,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
         if (print_errors)
         {
           /* 1003.2 specifies the format of this message.  */
-          // fprintf ( stderr, _ ( "%s: option requires an argument -- %c\n" ),argv[ 0 ], c );
+          printf("%s: option requires an argument -- %c\n", argv[0], c);
         }
         optopt = c;
 
@@ -928,7 +929,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
       {
         if (print_errors)
         {
-          // fprintf ( stderr, _ ( "%s: option `-W %s' is ambiguous\n" ),	argv[ 0 ], argv[ optind ] );
+          printf("%s: option `-W %s' is ambiguous\n", argv[0], argv[optind]);
         }
         nextchar += strlen(nextchar);
         optind++;
@@ -951,7 +952,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
           {
             if (print_errors)
             {
-              // fprintf ( stderr, _ ( "%s: option `-W %s' doesn't allow an argument\n" ),	argv[ 0 ], pfound->name );
+              printf("%s: option `-W %s' doesn't allow an argument\n", argv[0], pfound->name);
             }
 
             nextchar += strlen(nextchar);
@@ -968,7 +969,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
           {
             if (print_errors)
             {
-              // fprintf ( stderr,	_ ( "%s: option `%s' requires an argument\n" ),	argv[ 0 ], argv[ optind - 1 ] );
+              printf("%s: option `%s' requires an argument\n", argv[0], argv[optind - 1]);
             }
             nextchar += strlen(nextchar);
             return optstring[0] == ':' ? ':' : '?';
@@ -1024,7 +1025,7 @@ int _getopt_internal(int argc, char *const *argv, const char *optstring, const s
           if (print_errors)
           {
             /* 1003.2 specifies the format of this message.  */
-            // fprintf ( stderr,	_ ( "%s: option requires an argument -- %c\n" ),	argv[ 0 ], c );
+            printf("%s: option requires an argument -- %c\n", argv[0], c);
           }
           optopt = c;
 
@@ -1088,46 +1089,51 @@ int main(int argc, char **argv)
 
     switch (c)
     {
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': {
-      if ((digit_optind != 0) && (digit_optind != this_option_optind))
-      {
-        printf("digits occur in two different argv-elements.\n");
-      }
-      digit_optind = this_option_optind;
-      printf("option %c\n", c);
-    }
-    break;
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        {
+          if ((digit_optind != 0) && (digit_optind != this_option_optind))
+          {
+            printf("digits occur in two different argv-elements.\n");
+          }
+          digit_optind = this_option_optind;
+          printf("option %c\n", c);
+        }
+        break;
 
-    case 'a': {
-      printf("option a\n");
-    }
-    break;
+      case 'a':
+        {
+          printf("option a\n");
+        }
+        break;
 
-    case 'b': {
-      printf("option b\n");
-    }
-    break;
+      case 'b':
+        {
+          printf("option b\n");
+        }
+        break;
 
-    case 'c': {
-      printf("option c with value `%s'\n", optarg);
-    }
-    break;
+      case 'c':
+        {
+          printf("option c with value `%s'\n", optarg);
+        }
+        break;
 
-    case '?': {
-    }
-    break;
+      case '?':
+        {
+        }
+        break;
 
-    default:
-      printf("?? getopt returned character code 0%o ??\n", c);
+      default:
+        printf("?? getopt returned character code 0%o ??\n", c);
     }
   }
 

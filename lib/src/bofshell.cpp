@@ -18,6 +18,7 @@
  */
 
 #include <bofstd/boffs.h>
+#include <bofstd/bofprocess.h>
 #include <bofstd/bofshell.h>
 #include <bofstd/bofstring.h>
 
@@ -30,12 +31,28 @@ BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X)
 {
   AddCommand("q", BOF_SHELL_CMD("Leave shell console.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellQuit)));
   AddCommand("?", BOF_SHELL_CMD("Show the list of commands.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellHelp)));
-  AddCommand("arg", BOF_SHELL_CMD("Show descrition of the args of a command.", {"ShellCmd"}, &mScriptPath, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellCmdArg)));
+
+  AddCommand("arg", BOF_SHELL_CMD("Show descrition of the args of a command.", {"ShellCmd"}, &mArgShellCmd_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellCmdArg)));
   AddCommandArgument("arg", "ShellCmd",
                      BOF::BOFPARAMETER(nullptr, "", "Specify which shell command must show its argument", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mArgShellCmd_S, STDSTRING, 0, 0)));
+  AddCommand("spawn", BOF_SHELL_CMD("Spawn a process given in argument.", {"ProcessPath", "ProcessArg"}, &mSpawnParam_X, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellSpawn)));
+  AddCommandArgument("spawn", "ProcessPath",
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the process to spawn", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST, BOF_PARAM_DEF_VARIABLE(mSpawnParam_X.ProcessPath, PATH, 0, 0)));
+  AddCommandArgument("spawn", "ProcessArg",
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the argument of the spawned process", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mSpawnParam_X.ProcessArg_S, STDSTRING, 0, 0)));
+
+  AddCommand("sleep", BOF_SHELL_CMD("Sleep the script for a given number of ms.", {"SleepTimeInMs"}, &mSleepTime_U32, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellSleep)));
+  AddCommandArgument("sleep", "SleepTimeInMs",
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the number of millisecond to sleep", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mSleepTime_U32, UINT32, 0, 0)));
   AddCommand("exec", BOF_SHELL_CMD("Execute a script from a script.", {"ScripFilename"}, &mScriptPath, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellExec)));
   AddCommandArgument("exec", "ScripFilename",
                      BOF::BOFPARAMETER(nullptr, "", "Specify the script to execute", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST, BOF_PARAM_DEF_VARIABLE(mScriptPath, PATH, 0, 0)));
+
+  AddCommand("echo", BOF_SHELL_CMD("Display the argument string in the output channel.", {"EchoText"}, &mEchoText_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellEcho)));
+  AddCommandArgument("echo", "EchoText",
+                     BOF::BOFPARAMETER(nullptr, "", "Specify which shell command must show its argument", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
+
+  AddCommand("dywtc?", BOF_SHELL_CMD("Ask if the user want to continue.", {}, &mEchoText_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellDoYouWantToContinue)));
 }
 BofShell::~BofShell()
 {
@@ -175,6 +192,74 @@ BOFERR BofShell::ShellCmdArg(void *_pArg, std::string &_rShellResult_S)
   }
   return Rts_E;
 }
+BOFERR BofShell::ShellEcho(void *_pArg, std::string &_rShellResult_S)
+{
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+  std::string Cmd_S, Prefix_S, ArgName_S;
+  int Index_i;
+
+  mEchoText_S = Bof_StringTrim(mEchoText_S);
+  _rShellResult_S = mEchoText_S;
+  return Rts_E;
+}
+
+// spawn(/opt/evs/AppFs/evs-gbio/bin/gbio_irq_listen,hello)
+BOFERR BofShell::ShellSpawn(void *_pArg, std::string &_rShellResult_S)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  BOF_SHELL_SPAWN_PARAM *pSpawnParam_X = (BOF_SHELL_SPAWN_PARAM *)_pArg;
+  int ExitCode_i;
+  BOF_PROCESS Pid_X;
+
+  _rShellResult_S = "";
+  if (pSpawnParam_X)
+  {
+    _rShellResult_S = "Spawn '" + pSpawnParam_X->ProcessPath.ToString(false) + "'(" + pSpawnParam_X->ProcessArg_S + ")\n";
+    Rts_E = BOF::BofProcess::S_SpawnProcess(pSpawnParam_X->ProcessPath.ToString(false).c_str(), pSpawnParam_X->ProcessArg_S.c_str(), 0, Pid_X, ExitCode_i);
+    if ((Rts_E == BOF_ERR_NO_ERROR) && (ExitCode_i == 0) && (Pid_X.Pid > 0))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    else
+    {
+      Rts_E = BOF_ERR_ENOEXEC;
+    }
+    if (Rts_E == BOF_ERR_NO_ERROR)
+    {
+    }
+  }
+  _rShellResult_S = "Spawn Sts=" + std::string(BOF::Bof_ErrorCode(Rts_E)) + "\n" + _rShellResult_S;
+  return Rts_E;
+}
+
+BOFERR BofShell::ShellDoYouWantToContinue(void *_pArg, std::string &_rShellResult_S)
+{
+  BOFERR Rts_E = BOF_ERR_NO;
+
+  if ((mShellParam_X.InputStream) && (mShellParam_X.OutputStream))
+  {
+    if (mShellParam_X.OutputStream(false, "Are you sure you want to continue (Y/N) ?\n") == BOF_ERR_NO_ERROR)
+    {
+      if (mShellParam_X.InputStream("", _rShellResult_S) == BOF_ERR_NO_ERROR)
+      {
+        if (_rShellResult_S == "Y")
+        {
+          _rShellResult_S = "";
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
+    }
+  }
+  return Rts_E;
+}
+
+BOFERR BofShell::ShellSleep(void *_pArg, std::string &_rShellResult_S)
+{
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+
+  BOF::Bof_MsSleep(mSleepTime_U32);
+  return Rts_E;
+}
 BOFERR BofShell::Parser(const std::string &_rShellCmd_S, std::string &_rShellRes_S)
 {
   BOFERR Rts_E = BOF_ERR_FORMAT;
@@ -302,6 +387,9 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
     if (mShellParam_X.OutputStream)
     {
       mShellParam_X.OutputStream(false, (mExecuteOnlyOneCommand_B ? "EXEC: " : "FIRST: ") + CmdLine_S + '\n');
+      // std::string Cwd_S;
+      // Bof_GetCurrentDirectory(Cwd_S);
+      // printf("cwd %s\n", Cwd_S.c_str());
     }
   }
   do

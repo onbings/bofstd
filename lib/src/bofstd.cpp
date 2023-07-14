@@ -527,11 +527,12 @@ bool Bof_IsWindows()
 bool Bof_AmIRunningInsideDocker()
 {
   bool Rts_B;
+  bool ItIsADirectory_B;
 
 #if defined(_WIN32)
-  Rts_B = BOF::Bof_IsPathExist("C:\\.dockerenv"); // TODO: Not sure of this, true in linux
+  Rts_B = BOF::Bof_IsPathExist("C:\\.dockerenv, ItIsADirectory_B") && (!ItIsADirectory_B)); // TODO: Not sure of this, true in linux
 #else
-  Rts_B = BOF::Bof_IsPathExist("/.dockerenv");
+  Rts_B = (BOF::Bof_IsPathExist("/.dockerenv", ItIsADirectory_B) && (!ItIsADirectory_B));
 #endif
   return Rts_B;
 }

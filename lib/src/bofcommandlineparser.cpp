@@ -139,7 +139,7 @@ BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, c
         getopt_reset();
         do
         {
-          opterr = 0;            // Callers store zero here to inhibit the error message `getopt' prints for unrecognized options.
+          opterr = 1;            // BHA Callers store zero here to inhibit the error message `getopt' prints for unrecognized options.
           IndexInLongOpt_i = -1; // getopt_long stores the option index here.
           Sts_i = getopt_long(_Argc_i, _ppArgv_c, pGetOptShort_c, pGetOptLong_X, &IndexInLongOpt_i);
 

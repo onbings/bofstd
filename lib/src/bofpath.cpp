@@ -307,7 +307,7 @@ bool BofPath::IsExist() const
   BOF_FILE_TYPE FileType_E;
 
   FileType_E = Bof_GetFileType(*this);
-  Rts_B = IsDirectory() ? (FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR) : (FileType_E != BOF_FILE_TYPE::BOF_FILE_DONT_EXIST);
+  Rts_B = IsDirectory() ? (FileType_E == BOF_FILE_TYPE::BOF_FILE_DIR) : ((FileType_E != BOF_FILE_TYPE::BOF_FILE_DONT_EXIST) && (FileType_E != BOF_FILE_TYPE::BOF_FILE_DIR));
 
   return (Rts_B);
 }

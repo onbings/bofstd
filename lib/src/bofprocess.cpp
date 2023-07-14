@@ -771,7 +771,7 @@ BOFERR BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, c
       posix_spawn_file_actions_addclose(&Actions_X, stderr_pipe[1]);
 
       // MUL-2103 : Make sure the system path are in PATH
-      // setenv("PATH", "/bin:/sbin:/usr/bin:/usr/sbin:/usr/bin/X11:/usr/local/bin", 1);
+      // setenv("PATH", "/bin:/sbin:/usr/bin:/usr/sbin:/usr/bin/X11:/usr/local/bin:/opt/evs/AppFs/evs-gbio/bin", 1);
 
       // Create attributes
 
@@ -1108,10 +1108,11 @@ BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArgumen
 {
   BOFERR Rts_E = BOF_ERR_DONT_EXIST;
   char pTemp_c[0x1000];
+  bool ItIsADirectory_B;
 
   _rExitCode_i = 127;
   _rPid_X.Reset();
-  if (Bof_IsPathExist(_pProgram_c))
+  if ((Bof_IsPathExist(_pProgram_c, ItIsADirectory_B)) && (!ItIsADirectory_B)) // Bof_GetFileType
   {
     Rts_E = BOF_ERR_NOT_OPENED;
 #if defined(_WIN32)

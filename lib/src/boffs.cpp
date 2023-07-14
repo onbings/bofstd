@@ -1088,9 +1088,14 @@ BOFERR Bof_RenameFile(const BofPath &_rOldPath, const BofPath &_rNewPath)
   return Rts_E;
 }
 
-bool Bof_IsPathExist(const BofPath &_rPath)
+bool Bof_IsPathExist(const BofPath &_rPath, bool &_rItIsADirectory)
 {
-  return _rPath.IsExist();
+  bool Rts_B = _rPath.IsExist();
+  if (Rts_B)
+  {
+    _rItIsADirectory = _rPath.IsDirectory();
+  }
+  return Rts_B;
   // ifstream infile(fileName);
   // return infile.good();
 }
@@ -1099,13 +1104,14 @@ BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const B
 {
   BOFERR Rts_E = BOF_ERR_ENOENT;
   bool CreateOut_B;
+  bool ItIsADirectory_B;
 
   std::ifstream Ifs(_rSrcPath.FullPathName(false).c_str());
   // ios::trunc means that the output file will be overwritten if exists
   if (Ifs)
   {
     Rts_E = BOF_ERR_EEXIST;
-    CreateOut_B = _OverwriteIfExists_B ? true : Bof_IsPathExist(_rSrcPath);
+    CreateOut_B = _OverwriteIfExists_B ? true : Bof_IsPathExist(_rSrcPath, ItIsADirectory_B);
     if (CreateOut_B)
     {
       Rts_E = BOF_ERR_CREATE;
