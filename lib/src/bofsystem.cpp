@@ -155,7 +155,7 @@ uint64_t Bof_GenerateSystemVKey(bool _CreateFn_B, const char *_pFn_c, uint8_t _I
 //  and Bof_CreateFileMapping does not correcly generate SemKey = ftok(pFile_c, (char) Id_i); ->use GenerateSystemVKey
 //   if app crash shared memory stay active=>this is mainly use by nma to store event name->this should also work with Bof_OpenFileMapping=> a confimer avec nma
 
-BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, const std::string &_rFallbackSystemVKeySubDir_S, BOF_SHARED_MEMORY &_rSharedMemory_X)
+BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U32, BOF_ACCESS_TYPE _AccessType_E, const std::string &_rFallbackSystemVKeySubDir_S, BOF_HANDLE _DriverHandle, BOF_SHARED_MEMORY &_rSharedMemory_X)
 {
   BOFERR Rts_E = BOF_ERR_ALREADY_OPENED;
 
@@ -212,6 +212,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           }
           else
           {
+            _rSharedMemory_X.DriverHandle = _DriverHandle;
             _rSharedMemory_X.Magic_U32 = BOF_FILEMAPPING_MAGIC;
           }
         }
@@ -263,66 +264,60 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           Access_i |= O_RDWR;
           Mode |= S_IRUSR | S_IWUSR;
         }
-        Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
-        printf("Bof_OpenSharedMemory '%s'     1: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
-        if (Handle_i >= 0)
+        if (BOF_IS_HANDLE_VALID(_DriverHandle))
         {
-          Rts_E = (ftruncate(Handle_i, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_SIZE;
-        }
-        else
-        {
-          //        Handle_i = shm_open(Name_S.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-          Access_i ^= O_EXCL;
-          Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
-          printf("Bof_OpenSharedMemory '%s'     2: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
-          if (Handle_i >= 0)
-          {
-            Rts_E = BOF_ERR_EEXIST;
-          }
-        }
-        if (Handle_i >= 0)
-        {
-          _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, Handle_i, 0);
+          _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, _DriverHandle, 0);
           if (_rSharedMemory_X.pBaseAddress != MAP_FAILED)
           {
-            printf("Bof_OpenSharedMemory '%s'     3: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
-            if (Rts_E != BOF_ERR_EEXIST)
-            {
-              Rts_E = BOF_ERR_NO_ERROR;
-            }
-            _rSharedMemory_X.Magic_U32 = BOF_FILEMAPPING_MAGIC;
+            printf("Bof_OpenSharedMemory '%s'     0: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
+            Rts_E = BOF_ERR_NO_ERROR;
           }
-          close(Handle_i); // After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
         }
         else
         {
-          // Posix interface failed (tge2 docket), fallback on System V api
-          _rSharedMemory_X.PathNameSystemV_S = _rFallbackSystemVKeySubDir_S + Name_S;
-          ShmKey = Bof_GenerateSystemVKey(true, _rSharedMemory_X.PathNameSystemV_S.c_str(), 1);
-          // ShmKey = Bof_GenerateSystemVKey(true, nullptr, 1);
-          printf("Bof_OpenSharedMemory '%s' 4: key %x\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), ShmKey);
-          if (ShmKey != -1)
+          Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
+          printf("Bof_OpenSharedMemory '%s'     1: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
+          if (Handle_i >= 0)
           {
-            // Handle_i = shmget(IPC_PRIVATE, _SizeInByte_U32, IPC_EXCL | IPC_CREAT | 0666);
-            // printf("%x %d\n", 0666, 0666);                 // 1b6 438
-            Handle_i = shmget(ShmKey, _SizeInByte_U32, Mode); // IPC_EXCL | IPC_CREAT | 0666);
-            printf("Bof_OpenSharedMemory '%s' 5: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
+            Rts_E = (ftruncate(Handle_i, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_SIZE;
+          }
+          else
+          {
+            //        Handle_i = shm_open(Name_S.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+            Access_i ^= O_EXCL;
+            Handle_i = shm_open(Name_S.c_str(), Access_i, Mode);
+            printf("Bof_OpenSharedMemory '%s'     2: Acc %x Mode %d Size %X -> Hndl %d errno %d\n", Name_S.c_str(), Access_i, Mode, _SizeInByte_U32, Handle_i, errno);
             if (Handle_i >= 0)
             {
-              _rSharedMemory_X.pBaseAddress = shmat(Handle_i, 0, 0);
-              if ((uintptr_t)_rSharedMemory_X.pBaseAddress == -1)
+              Rts_E = BOF_ERR_EEXIST;
+            }
+          }
+          if (Handle_i >= 0)
+          {
+            _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, Handle_i, 0);
+            if (_rSharedMemory_X.pBaseAddress != MAP_FAILED)
+            {
+              printf("Bof_OpenSharedMemory '%s'     3: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
+              if (Rts_E != BOF_ERR_EEXIST)
               {
-                Rts_E = BOF_ERR_MAP;
-              }
-              else
-              {
-                Rts_E = BOF_ERR_EEXIST;
+                Rts_E = BOF_ERR_NO_ERROR;
               }
             }
-            else
+            close(Handle_i); // After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
+          }
+          else
+          {
+            // Posix interface failed (tge2 docket), fallback on System V api
+            _rSharedMemory_X.PathNameSystemV_S = _rFallbackSystemVKeySubDir_S + Name_S;
+            ShmKey = Bof_GenerateSystemVKey(true, _rSharedMemory_X.PathNameSystemV_S.c_str(), 1);
+            // ShmKey = Bof_GenerateSystemVKey(true, nullptr, 1);
+            printf("Bof_OpenSharedMemory '%s' 4: key %x\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), ShmKey);
+            if (ShmKey != -1)
             {
-              Handle_i = shmget(ShmKey, _SizeInByte_U32, IPC_EXCL | IPC_CREAT | Mode); //| 0666);
-              printf("Bof_OpenSharedMemory '%s' 6: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
+              // Handle_i = shmget(IPC_PRIVATE, _SizeInByte_U32, IPC_EXCL | IPC_CREAT | 0666);
+              // printf("%x %d\n", 0666, 0666);                 // 1b6 438
+              Handle_i = shmget(ShmKey, _SizeInByte_U32, Mode); // IPC_EXCL | IPC_CREAT | 0666);
+              printf("Bof_OpenSharedMemory '%s' 5: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
               if (Handle_i >= 0)
               {
                 _rSharedMemory_X.pBaseAddress = shmat(Handle_i, 0, 0);
@@ -332,17 +327,35 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
                 }
                 else
                 {
-                  printf("Bof_OpenSharedMemory '%s'     7: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
-                  Rts_E = BOF_ERR_NO_ERROR;
+                  Rts_E = BOF_ERR_EEXIST;
+                }
+              }
+              else
+              {
+                Handle_i = shmget(ShmKey, _SizeInByte_U32, IPC_EXCL | IPC_CREAT | Mode); //| 0666);
+                printf("Bof_OpenSharedMemory '%s' 6: Mode %d Key %x Size %X -> Hndl %d errno %d\n", _rSharedMemory_X.PathNameSystemV_S.c_str(), Mode, ShmKey, _SizeInByte_U32, Handle_i, errno);
+                if (Handle_i >= 0)
+                {
+                  _rSharedMemory_X.pBaseAddress = shmat(Handle_i, 0, 0);
+                  if ((uintptr_t)_rSharedMemory_X.pBaseAddress == -1)
+                  {
+                    Rts_E = BOF_ERR_MAP;
+                  }
+                  else
+                  {
+                    printf("Bof_OpenSharedMemory '%s'     7: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
+                    Rts_E = BOF_ERR_NO_ERROR;
+                  }
                 }
               }
             }
-            if ((Rts_E == BOF_ERR_NO_ERROR) || (Rts_E == BOF_ERR_EEXIST))
-            {
-              _rSharedMemory_X.HandleSystemV_i = Handle_i;
-              _rSharedMemory_X.Magic_U32 = BOF_FILEMAPPING_MAGIC;
-            }
           }
+        }
+        if ((Rts_E == BOF_ERR_NO_ERROR) || (Rts_E == BOF_ERR_EEXIST))
+        {
+          _rSharedMemory_X.HandleSystemV_i = Handle_i;
+          _rSharedMemory_X.DriverHandle = _DriverHandle;
+          _rSharedMemory_X.Magic_U32 = BOF_FILEMAPPING_MAGIC;
         }
       }
     }
