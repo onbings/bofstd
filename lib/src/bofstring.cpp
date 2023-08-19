@@ -633,16 +633,16 @@ _pStr_c :					A pointer to the string being converted
 Returns
 int64_t: The integer value of the converted string is returned
 */
-int64_t Bof_CharToBinary(const char *_pStr_c)
+int64_t Bof_StrToBin(uint8_t _Base_U8, const char *_pStr_c)
 {
   int64_t Rts_S64;
   char *p_c;
-
-  //  If the value of base is zero, the syntax expected is similar to that of integer constants, which is formed by a succession of :
-  //  An optional sign character(+or -)
-  //    An optional prefix indicating octal or hexadecimal base("0" or "0x" / "0X" respectively)
-  //    A sequence of decimal digits(if no base prefix was specified) or either octal or hexadecimal digits if a specific prefix is present
-  Rts_S64 = strtol(_pStr_c, &p_c, 0);
+  // base must be between 2 and 36 inclusive, or be the special value 0.
+  // If the value of base is zero, the syntax expected is similar to that of integer constants, which is formed by a succession of :
+  //   An optional sign character(+or -)
+  //     An optional prefix indicating octal or hexadecimal base("0" or "0x" / "0X" respectively)
+  //     A sequence of decimal digits(if no base prefix was specified) or either octal or hexadecimal digits if a specific prefix is present
+  Rts_S64 = strtol(_pStr_c, &p_c, _Base_U8);
 
   return (Rts_S64);
 }

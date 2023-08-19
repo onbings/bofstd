@@ -25,6 +25,22 @@
 
 USE_BOF_NAMESPACE()
 
+TEST(String_Test, StrToBin)
+{
+  EXPECT_EQ(Bof_StrToBin(1, "111"), 0);
+  EXPECT_EQ(Bof_StrToBin(60, "111"), 0);
+  EXPECT_EQ(Bof_StrToBin(10, "0x111"), 0);
+
+  EXPECT_EQ(Bof_StrToBin(0, "111"), 111);
+  EXPECT_EQ(Bof_StrToBin(0, "0111"), 73); // Octal
+  EXPECT_EQ(Bof_StrToBin(0, "00111"), 73);
+  EXPECT_EQ(Bof_StrToBin(0, "0x111"), 273);
+
+  EXPECT_EQ(Bof_StrToBin(10, "111"), 111);
+  EXPECT_EQ(Bof_StrToBin(10, "0111"), 111);
+  EXPECT_EQ(Bof_StrToBin(10, "00111"), 111);
+  EXPECT_EQ(Bof_StrToBin(16, "0x111"), 273);
+}
 TEST(String_Test, StringToUpperInPlace)
 {
   char pWork_c[128];
@@ -100,7 +116,7 @@ TEST(String_Test, WideCharToMultiByte)
   Str_S = Bof_Utf16ToUtf8(Str_WS);
   // EXPECT_STREQ(Str_S.c_str(), Str_WS.c_str());
   // From https://en.wikipedia.org/wiki/Windows-1252
-  //	Str_WS = L"¼½¾¿";
+  //	Str_WS = L"ï¿½ï¿½ï¿½ï¿½";
   //	Str_S = Bof_Utf16ToUtf8(Str_WS);
   Str_WS = L"\u0141";
   Str_S = Bof_Utf16ToUtf8(Str_WS);

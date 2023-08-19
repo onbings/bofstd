@@ -230,10 +230,12 @@ public:
   BOFERR ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET_DISCONNECT_PARAM &_rParam_X, uint32_t &_rOpTicket_U32);
 
   BOFERR GetSocketOperationResult(uint32_t _TimeOut_U32, BOF_SOCKET_OPERATION_RESULT &_rOperationResult_X);
-  uint32_t NumberOfOperationPending();
+  bool IsOperationPending();
+  uint32_t NumberOfOperationWaiting();
   uint32_t NumberOfResultPending();
   BOFERR CancelSocketOperation(uint32_t _TimeOut_U32);
   BOFERR ClearSocketOperation();
+  BOFERR ResetSocketOperation();
 
   BofSocket *GetListeningSocket();
   BofSocket *GetSocket();
@@ -249,6 +251,7 @@ private:
   std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_PARAM>> mpuSocketOperationParamCollection = nullptr;   /*! The operation params */
   std::unique_ptr<BofCircularBuffer<BOF_SOCKET_OPERATION_RESULT>> mpuSocketOperationResultCollection = nullptr; /*! The operation result */
   std::atomic<bool> mCancel_B = false;
+  std::atomic<bool> mOperationPending_B = false; // only cleared by ClearSocketOperation or CancelSocketOperation
   BOF_EVENT mCancelEvent_X;
 };
 

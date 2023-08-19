@@ -157,6 +157,26 @@ int BofSocket::S_BofSocketBalance()
 {
   return S_mBofSocketBalance.load();
 }
+std::string BofSocket::ToString()
+{
+  std::string Rts_S;
+  BOF_SOCKET_ADDRESS Ip_X;
+  char pIpParam_c[512];
+  int Len_i;
+
+  Len_i = sprintf(pIpParam_c, "Sck '%s' %c L%d R%d T%d Ip %s->%s %c BAL %d Ttl %d Brd %d Reuse %c NoDelay %c",
+                  mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(),
+                  mBofSocketParam_X.BaseChannelParam_X.Blocking_B ? 'B' : '-', mBofSocketParam_X.BaseChannelParam_X.ListenBackLog_U32, mBofSocketParam_X.BaseChannelParam_X.RcvBufferSize_U32, mBofSocketParam_X.BaseChannelParam_X.SndBufferSize_U32, mSrcIpAddress_X.ToString(true, true).c_str(), mDstIpAddress_X.ToString(true, true).c_str(),
+                  mConnected_B ? 'C' : '-', S_mBofSocketBalance.load(), mBofSocketParam_X.Ttl_U32, mBofSocketParam_X.BroadcastPort_U16, mBofSocketParam_X.ReUseAddress_B ? 'T' : 'F', mBofSocketParam_X.NoDelay_B ? 'T' : 'F');
+  if (mBofSocketParam_X.MulticastInterfaceIpAddress_S != "")
+  {
+    sprintf(&pIpParam_c[Len_i], " Mc %c %s;%s ", mBofSocketParam_X.MulticastSender_B ? 'S' : '-', mMulticastIpInterfaceAddress_X.ToString(true, true).c_str(), mMulticastIpAddress_X.ToString(true, true).c_str());
+  }
+  Rts_S = pIpParam_c;
+  // Rts_S = Rts_S + " bnd " + mBofSocketParam_X.BindIpAddress_S;
+
+  return Rts_S;
+}
 
 BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
 {
@@ -1021,6 +1041,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
         }
         else
         {
+          printf("[CON] %d->true V_CON %s\n", mConnected_B, ToString().c_str());
           mConnected_B = true;
         }
       }
@@ -1033,6 +1054,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
         }
         else
         {
+          printf("[CON] %d->true UDP %s\n", mConnected_B, ToString().c_str());
           mConnected_B = true;
         }
       }
@@ -2017,6 +2039,8 @@ BOFERR BofSocket::SetDstIpAddress(BOF_SOCKET_ADDRESS &_rDstIpAddress_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   mDstIpAddress_X = _rDstIpAddress_X;
+  printf("[CON] %d->%d %s\n", mConnected_B, (!_rDstIpAddress_X.IsNull()), ToString().c_str());
+  mConnected_B = (!_rDstIpAddress_X.IsNull());
   return Rts_E;
 }
 

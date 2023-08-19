@@ -37,14 +37,14 @@
 #else
 #define SOCKET_ERROR -1
 
+#include <ifaddrs.h>
+#include <linux/sockios.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h> //TCP_MAXSEG
 #include <poll.h>
-#include <sys/socket.h>
-#include <netinet/tcp.h>  //TCP_MAXSEG
-#include <linux/sockios.h>
 #include <sys/ioctl.h>
-#include <ifaddrs.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 
 #define BOF_POLL_RDHUP POLLRDHUP
@@ -133,7 +133,8 @@ enum class BOF_NETWORK_INTERFACE_FLAG : uint32_t
   BOF_IFF_POINTOPOINT = 0x00000008, /*! Interface is a point - to - point link.*/
   BOF_IFF_MULTICAST = 0x00000010,   /*! Supports multicast*/
 };
-template <> struct IsItAnEnumBitFLag<BOF_NETWORK_INTERFACE_FLAG> : std::true_type
+template <>
+struct IsItAnEnumBitFLag<BOF_NETWORK_INTERFACE_FLAG> : std::true_type
 {
 };
 
@@ -394,7 +395,6 @@ struct BOF_SOCKET_ADDRESS
     }
   }
 
-
   void Parse(BOF_SOCK_TYPE &_rSocketType_E, uint32_t &_rIp1_U32, uint32_t &_rIp2_U32, uint32_t &_rIp3_U32, uint32_t &_rIp4_U32, uint16_t &_rPort_U16)
   {
     if (IpV6_B)
@@ -455,6 +455,21 @@ struct BOF_SOCKET_ADDRESS
   {
     return (Valid_B);
   }
+  bool IsNull() const
+  {
+    bool Rts_B;
+    BOF_SOCKET_ADDRESS Null_X;
+
+    if (IpV6_B)
+    {
+      Rts_B = ((IpV6Address_X.sin6_port == 0) && memcmp(&IpV6Address_X.sin6_addr, &Null_X.IpV6Address_X.sin6_addr, sizeof(BOF_SOCKADDR_IN6)) == 0);
+    }
+    else
+    {
+      Rts_B = ((IpV4Address_X.sin_port == 0) && (IpV4Address_X.sin_addr.s_addr == 0));
+    }
+    return (Rts_B);
+  }
 };
 
 // typedef struct ip_addr
@@ -465,14 +480,14 @@ struct BOF_SOCKET_ADDRESS
 // We want a memory footprint of 32 bit in network order
 struct BOF_IPV4_ADDR_U32
 {
-  uint32_t IpAddress_U32;   //byte in bigendian/network order: a.b.c.d ip gives ABCD in memory address order
+  uint32_t IpAddress_U32; // byte in bigendian/network order: a.b.c.d ip gives ABCD in memory address order
   BOF_IPV4_ADDR_U32()
   {
     Reset();
   }
-  BOF_IPV4_ADDR_U32(uint32_t _Ip_U32)   //byte in bigendian/network order => Coherent with ToBinary
+  BOF_IPV4_ADDR_U32(uint32_t _Ip_U32) // byte in bigendian/network order => Coherent with ToBinary
   {
-    IpAddress_U32 = _Ip_U32;     //BOF_CPU_TO_BE_32(_Ip_U32);
+    IpAddress_U32 = _Ip_U32; // BOF_CPU_TO_BE_32(_Ip_U32);
   }
   BOF_IPV4_ADDR_U32(uint8_t _Ip1_U8, uint8_t _Ip2_U8, uint8_t _Ip3_U8, uint32_t _Ip4_U8)
   {
@@ -505,7 +520,9 @@ struct BOF_IPV4_ADDR_U32
     }
     else
     {
-      IpAddress_U32 = ntohl(_rBofSocketAddress_X.ToBinary());
+      //      IpAddress_U32 = ntohl(_rBofSocketAddress_X.ToBinary());
+      IpAddress_U32 = htonl(_rBofSocketAddress_X.ToBinary());
+      printf("BOF_IPV4_ADDR_U32 from BOF_SOCKET_ADDRESS %08X->%08X->%s\r\n", _rBofSocketAddress_X.ToBinary(), htonl(_rBofSocketAddress_X.ToBinary()), ToString().c_str());
     }
   }
 
@@ -548,7 +565,6 @@ struct BOF_IPV4_ADDR_U32
     const uint8_t *pIp_U8 = (const uint8_t *)(&IpAddress_U32);
     return std::to_string(pIp_U8[0]) + '.' + std::to_string(pIp_U8[1]) + '.' + std::to_string(pIp_U8[2]) + '.' + std::to_string(pIp_U8[3]) + ':' + std::to_string(_Port_U16);
   }
-
 };
 
 struct BOF_SOCKET_ADDRESS_COMPONENT;

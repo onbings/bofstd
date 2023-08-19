@@ -196,6 +196,8 @@ public:
 
   BOFERR ShutdownSocket();
 
+  std::string ToString();
+
 private:
   BOFERR ComputeScatterGatherList(const std::vector<BOF_BUFFER> &_rBufferCollection, uint32_t _MaxNumberOfScatterGatherEntry_U32, SCATTER_GATHER_BUFFER *_pScatterGatherBuffer_X, uint32_t &_rNbBuffer_U32, uint64_t &_rTotal_U64);
 

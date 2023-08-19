@@ -1169,9 +1169,11 @@ TEST(SockIo_Test, CancelReadWrite)
       WriteParam_X.pSocket_O = nullptr;
       WriteParam_X.Nb_U32 = MAX_IO_SIZE;
       WriteParam_X.pBuffer_U8 = pTxBuffer_U8[j_U32];
-      EXPECT_EQ(puSocketThreadClientCollection[j_U32]->NumberOfOperationPending(), 0);
+      EXPECT_FALSE(puSocketThreadClientCollection[j_U32]->IsOperationPending());
+      EXPECT_EQ(puSocketThreadClientCollection[j_U32]->NumberOfOperationWaiting(), 0);
       EXPECT_EQ(puSocketThreadClientCollection[j_U32]->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, WriteParam_X, ClientOpTicket_U32), BOF_ERR_NO_ERROR);
-      EXPECT_EQ(puSocketThreadClientCollection[j_U32]->NumberOfOperationPending(), 1);
+      EXPECT_TRUE(puSocketThreadClientCollection[j_U32]->IsOperationPending());
+      EXPECT_EQ(puSocketThreadClientCollection[j_U32]->NumberOfOperationWaiting(), 1);
       EXPECT_EQ(puSocketThreadClientCollection[j_U32]->CancelSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT * 2), BOF_ERR_NO_ERROR);
       EXPECT_EQ(ClientOpTicket_U32, 2 + i_U32);
 
@@ -1180,14 +1182,18 @@ TEST(SockIo_Test, CancelReadWrite)
       ReadParam_X.pSocket_O = nullptr;
       ReadParam_X.Nb_U32 = MAX_IO_SIZE;
       ReadParam_X.pBuffer_U8 = pRxBuffer_U8[j_U32];
-      EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->NumberOfOperationPending(), 0);
+      EXPECT_FALSE(puSocketThreadSessionCollection[j_U32]->IsOperationPending());
+      EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->NumberOfOperationWaiting(), 0);
       EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->ProgramSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT, ReadParam_X, SessionOpTicket_U32), BOF_ERR_NO_ERROR);
-      EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->NumberOfOperationPending(), 1);
+      EXPECT_TRUE(puSocketThreadSessionCollection[j_U32]->IsOperationPending());
+      EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->NumberOfOperationWaiting(), 1);
       EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->CancelSocketOperation(DEFAULT_INTER_PROCESS_TIMEOUT * 2), BOF_ERR_NO_ERROR);
       EXPECT_EQ(SessionOpTicket_U32, 1 + i_U32);
 
-      EXPECT_EQ(puSocketThreadClientCollection[j_U32]->NumberOfOperationPending(), 0);
-      EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->NumberOfOperationPending(), 0);
+      EXPECT_FALSE(puSocketThreadClientCollection[j_U32]->IsOperationPending());
+      EXPECT_EQ(puSocketThreadClientCollection[j_U32]->NumberOfOperationWaiting(), 0);
+      EXPECT_FALSE(puSocketThreadSessionCollection[j_U32]->IsOperationPending());
+      EXPECT_EQ(puSocketThreadSessionCollection[j_U32]->NumberOfOperationWaiting(), 0);
 
       EXPECT_NE(puSocketThreadClientCollection[j_U32]->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, ClientOperationResult_X), BOF_ERR_NO_ERROR);
       EXPECT_NE(puSocketThreadSessionCollection[j_U32]->GetSocketOperationResult(DEFAULT_INTER_PROCESS_TIMEOUT, SessionOperationResult_X), BOF_ERR_NO_ERROR);

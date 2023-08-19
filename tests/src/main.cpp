@@ -139,11 +139,11 @@ int main(int argc, char *argv[])
 
   // Use these one
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
-  //::testing::GTEST_FLAG(filter) = "SockIo_Client_Server_Test.*";
+  //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
   //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
   //::testing::GTEST_FLAG(filter) = "Bit_Test.*";
-  //::testing::GTEST_FLAG(filter) = "Shell_Test.Shell";
+  //::testing::GTEST_FLAG(filter) = "String_Test.StrToBin";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
   // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
