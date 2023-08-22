@@ -600,7 +600,7 @@ BOFERR BofSocketThread::V_OnProcessing()
               KBPerS_U32 = Delta_U32 ? (Size_U32 * 1000) / (Delta_U32 * 1024) : 99999999;
               if ((Result_X.Sts_E) || (Size_U32 == Remain_U32))
               {
-                printf("BOF_SOCKET_OPERATION_READ LstIoBuf %d:%p Ticket %d Op %d END Sts %s Delta %d Sz %d KB/S %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, (Result_X.Sts_E), Delta_U32, Size_U32, KBPerS_U32, Remain_U32 - Size_U32);
+                printf("BOF_SOCKET_OPERATION_READ LstIoBuf %d:%p Ticket %d Op %d END Sts %s Delta %d Sz %d KB/S %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Delta_U32, Size_U32, KBPerS_U32, Remain_U32 - Size_U32);
               }
               if ((Result_X.Sts_E == BOF_ERR_ETIMEDOUT) && (Size_U32))
               {
