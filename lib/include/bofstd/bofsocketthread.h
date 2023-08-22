@@ -239,6 +239,7 @@ public:
 
   BofSocket *GetListeningSocket();
   BofSocket *GetSocket();
+  const BOF_SOCKET_OPERATION_PARAM &GetCurrentOpParam();
   BofSocket *CreateTcpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, uint32_t _NbMaxClient_U32); // 0 for normal socket !=0 for listening one _Listen_B)
   BofSocket *CreateUdpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, BOF::BOF_IPV4_ADDR_U32 &_rDstIpAddr_X, uint16_t _DstPort_U16);
 
@@ -253,6 +254,7 @@ private:
   std::atomic<bool> mCancel_B = false;
   std::atomic<bool> mOperationPending_B = false; // only cleared by ClearSocketOperation or CancelSocketOperation
   BOF_EVENT mCancelEvent_X;
+  BOF_SOCKET_OPERATION_PARAM mCurrentOpParam_X;
 };
 
 END_BOF_NAMESPACE()
