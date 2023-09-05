@@ -218,7 +218,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/vld.cmake)
 
 target_link_libraries(ut_bofstd
   PRIVATE
-	ONBINGS::bofstd-objects
+	ONBINGS::bofstd
 	GTest::GTest
 )
           
@@ -254,14 +254,13 @@ endif()
 
 message("Copy test files from " ${CMAKE_CURRENT_SOURCE_DIR} "/data to " ${CMAKE_CURRENT_BINARY_DIR} "/data")
 file(MAKE_DIRECTORY ${COMPILED_BINARIES_DIR}/data)  #Ut under linux from vscode
-file(MAKE_DIRECTORY ${COMPILED_BINARIES_DIR}/bin/data)  #Ut under linux from terminal
+#file(MAKE_DIRECTORY ${COMPILED_BINARIES_DIR}/bin/data)  #Ut under linux from terminal
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data)
 foreach(Filename ${DATA_FILES})
-  message("Copy " ${Filename} " to " ${COMPILED_BINARIES_DIR} "/data")
-  file(COPY ${Filename} DESTINATION ${COMPILED_BINARIES_DIR}/data)
+  message("Copy " ${Filename} " to " ${CMAKE_CURRENT_BINARY_DIR} "/data")
+  file(COPY ${Filename} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
   message("Copy " ${Filename} " to " ${COMPILED_BINARIES_DIR} "/bin/data")
   file(COPY ${Filename} DESTINATION ${COMPILED_BINARIES_DIR}/bin/data)
-  message("Copy " ${Filename} " to " ${CMAKE_BINARY_DIR} "/data")
-  file(COPY ${Filename} DESTINATION ${CMAKE_BINARY_DIR}/data)
-
+#  message("Copy " ${Filename} " to " ${CMAKE_BINARY_DIR} "/data")
+#  file(COPY ${Filename} DESTINATION ${CMAKE_BINARY_DIR}/data)
 endforeach() 

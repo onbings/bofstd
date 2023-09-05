@@ -369,6 +369,10 @@ const std::map<std::string, std::string> &BofUri::QueryParamCollection(std::stri
 
   return mQueryParamCollection;
 }
+const std::map<std::string, std::string> &BofUri::QueryParamCollection() const
+{
+  return mQueryParamCollection;
+}
 const std::string &BofUri::Fragment() const
 {
   return mFragment_S;

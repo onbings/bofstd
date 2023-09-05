@@ -66,7 +66,7 @@ BofThread::BofThread()
 
 BOFERR BofThread::InitializeThread(const std::string &_rName_S)
 {
-  mName_S = _rName_S;
+  mThreadParam_X.Name_S = _rName_S;
   mThreadMtx_X.Reset();
   mLockBalance.store(0);
   mpLastLocker_c[0] = 0;
@@ -141,15 +141,21 @@ BOFERR BofThread::InitThreadErrorCode()
 //!!! class A:public B
 //!!! class B:public C
 //!!! If you do that you will receive "pure virtual method called" abort message as when you are in an intermediate constructor the virtual table is not ready
+BOFERR BofThread::LaunchBofProcessingThread(const BOF_THREAD_PARAM &_rThreadParam_X)
+{
+  return LaunchBofProcessingThread(_rThreadParam_X.Name_S, _rThreadParam_X.SignalEvent_B, _rThreadParam_X.WakeUpIntervalInMs_U32, _rThreadParam_X.ThreadSchedulerPolicy_E,
+                                   _rThreadParam_X.ThreadPriority_E, _rThreadParam_X.ThreadCpuCoreAffinityMask_U64, _rThreadParam_X.StartStopTimeoutInMs_U32, _rThreadParam_X.StackSize_U32);
+}
 BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E,
-                                            uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t /*_StackSize_U32*/)
+                                            uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32)
 {
   BOFERR Rts_E;
   bool ThreadRunning_B;
   BOF_THREAD_PRIORITY Min_E, Max_E;
 
   Rts_E = BOF_ERR_INVALID_STATE;
-  mName_S = _rName_S;
+  mThreadParam_X.Name_S = _rName_S;
+  mThreadParam_X.StackSize_U32 = _StackSize_U32;
   if ((!Bof_IsEventSignaled(mThreadEnterEvent_X, 0)) && (!Bof_IsEventSignaled(mThreadExitEvent_X, 0)))
   {
     Rts_E = BOF_ERR_NO_ERROR;
@@ -161,43 +167,43 @@ BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _S
     if (Rts_E == BOF_ERR_NO_ERROR)
     */
     {
-      mWakeUpIntervalInMs_U32 = _WakeUpIntervalInMs_U32;
-      mCpuCoreAffinityMask_U64 = _ThreadCpuCoreAffinityMask_U64;
-      mPolicy_E = _ThreadSchedulerPolicy_E;
-      mPriority_E = _ThreadPriority_E;
-      mStartStopTimeoutInMs_U32 = _StartStopTimeoutInMs_U32;
+      mThreadParam_X.WakeUpIntervalInMs_U32 = _WakeUpIntervalInMs_U32;
+      mThreadParam_X.ThreadCpuCoreAffinityMask_U64 = _ThreadCpuCoreAffinityMask_U64;
+      mThreadParam_X.ThreadSchedulerPolicy_E = _ThreadSchedulerPolicy_E;
+      mThreadParam_X.ThreadPriority_E = _ThreadPriority_E;
+      mThreadParam_X.StartStopTimeoutInMs_U32 = _StartStopTimeoutInMs_U32;
       /*
-      if (mPriority_E == BOF_THREAD_DEFAULT_PRIORITY)
+      if (mThreadParam_X.ThreadPriority_E == BOF_THREAD_DEFAULT_PRIORITY)
       {
-        mPriority_E = (Bof_GetThreadPriorityRange(mPolicy_E, Min_E, Max_E) == BOF_ERR_NO_ERROR) ? (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2) : (BOF_THREAD_PRIORITY)(0);
+        mThreadParam_X.ThreadPriority_E = (Bof_GetThreadPriorityRange(mPolicy_E, Min_E, Max_E) == BOF_ERR_NO_ERROR) ? (BOF_THREAD_PRIORITY)((Max_E + Min_E) / 2) : (BOF_THREAD_PRIORITY)(0);
       }
       */
       mThread = std::thread(&BofThread::BofThread_Thread, this);
       mThreadHandle = mThread.native_handle(); // Its value disappear after a join or a detach http://www.bo-yang.net/2017/11/19/cpp-kill-detached-thread
 
-      if (!mStartStopTimeoutInMs_U32)
+      if (!mThreadParam_X.StartStopTimeoutInMs_U32)
       {
         ThreadRunning_B = true; // In this case we consider that the thread will start one day as the thread creation is ok but we do not want to wait
       }
       else
       {
-        ThreadRunning_B = (Bof_WaitForEvent(mThreadEnterEvent_X, mStartStopTimeoutInMs_U32, 0) == BOF_ERR_NO_ERROR);
+        ThreadRunning_B = (Bof_WaitForEvent(mThreadEnterEvent_X, mThreadParam_X.StartStopTimeoutInMs_U32, 0) == BOF_ERR_NO_ERROR);
       }
 
       if (ThreadRunning_B)
       {
         Rts_E = BOF_ERR_NO_ERROR;
-        if (mName_S != "")
+        if (mThreadParam_X.Name_S != "")
         {
           // Linux: the thread name is a meaningful C language string, whose length is restricted to 16 characters, including the terminating null byte ('\0').
-          if (mName_S.length() > 15)
+          if (mThreadParam_X.Name_S.length() > 15)
           {
-            mName_S = mName_S.substr(0, 15);
+            mThreadParam_X.Name_S = mThreadParam_X.Name_S.substr(0, 15);
           }
 #if defined(_WIN32)
           THREADNAME_INFO ThreadNameInfo_X;
           ThreadNameInfo_X.dwType = 0x1000;
-          ThreadNameInfo_X.szName = mName_S.c_str();
+          ThreadNameInfo_X.szName = mThreadParam_X.Name_S.c_str();
           ThreadNameInfo_X.dwThreadID = ::GetThreadId(static_cast<HANDLE>(mThread.native_handle()));
           ThreadNameInfo_X.dwFlags = 0;
 
@@ -247,7 +253,7 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
         // printf("%d: SignalThreadWakeUpEvent\n", BOF::Bof_GetMsTickCount());
         SignalThreadWakeUpEvent();
         // printf("%d: Bof_WaitForEvent start\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
-        ThreadStopTo_B = (Bof_WaitForEvent(mThreadExitEvent_X, mStartStopTimeoutInMs_U32, 0) != BOF_ERR_NO_ERROR);
+        ThreadStopTo_B = (Bof_WaitForEvent(mThreadExitEvent_X, mThreadParam_X.StartStopTimeoutInMs_U32, 0) != BOF_ERR_NO_ERROR);
         // printf("%d: Bof_WaitForEvent stop To %d\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
       }
 
@@ -351,7 +357,7 @@ BOFERR BofThread::WaitForThreadWakeUpEvent(uint32_t _TimeoutInMs_U32)
 
 BOFERR BofThread::SetThreadWakeUpInterval(uint32_t _WakeUpIntervalInMs_U32)
 {
-  mWakeUpIntervalInMs_U32 = _WakeUpIntervalInMs_U32;
+  mThreadParam_X.WakeUpIntervalInMs_U32 = _WakeUpIntervalInMs_U32;
   return BOF_ERR_NO_ERROR;
 }
 
@@ -370,8 +376,11 @@ void BofThread::SetThreadCallback(BOF_THREAD_CALLBACK _OnCreate, BOF_THREAD_CALL
   mOnStop = _OnStop;
   UnlockThreadCriticalSection();
 }
-
-std::string BofThread::S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool _ShowChosenCore_B)
+std::string BofThread::ThreadName() const
+{
+  return mThreadParam_X.Name_S;
+}
+std::string BofThread::S_ToString(const BOF_THREAD_PARSER_PARAM &_rThreadParserParam_X, bool _ShowChosenCore_B)
 {
   std::string Rts_S;
   uint32_t i_U32, pRange_U32[2];
@@ -380,19 +389,19 @@ std::string BofThread::S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool 
   bool AlreadyOne_B;
 
   p_c = pBuffer_c;
-  if (!_rThreadParam_X.AffinityCpuSet_U64)
+  if (!_rThreadParserParam_X.AffinityCpuSet_U64)
   {
-    p_c += sprintf(p_c, "n%d:%c%d", _rThreadParam_X.Node_U32, (_rThreadParam_X.SchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParam_X.SchedulerPolicy_E] : '?', _rThreadParam_X.Priority_E);
+    p_c += sprintf(p_c, "n%d:%c%d", _rThreadParserParam_X.Node_U32, (_rThreadParserParam_X.ThreadSchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParserParam_X.ThreadSchedulerPolicy_E] : '?', _rThreadParserParam_X.ThreadPriority_E);
   }
   else
   {
-    p_c += sprintf(p_c, "n%d:%c%d:c", _rThreadParam_X.Node_U32, (_rThreadParam_X.SchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParam_X.SchedulerPolicy_E] : '?', _rThreadParam_X.Priority_E);
+    p_c += sprintf(p_c, "n%d:%c%d:c", _rThreadParserParam_X.Node_U32, (_rThreadParserParam_X.ThreadSchedulerPolicy_E < BOF_THREAD_SCHEDULER_POLICY_MAX) ? pSchedulerPolicy_c[_rThreadParserParam_X.ThreadSchedulerPolicy_E] : '?', _rThreadParserParam_X.ThreadPriority_E);
     pRange_U32[0] = 0xFFFFFFFF;
     pRange_U32[1] = 0xFFFFFFFF;
     AlreadyOne_B = false;
-    for (Mask_U64 = 1, i_U32 = 0; i_U32 < (sizeof(_rThreadParam_X.AffinityCpuSet_U64) * 8); i_U32++, Mask_U64 <<= 1) // affinityMask.size(); i++)
+    for (Mask_U64 = 1, i_U32 = 0; i_U32 < (sizeof(_rThreadParserParam_X.AffinityCpuSet_U64) * 8); i_U32++, Mask_U64 <<= 1) // affinityMask.size(); i++)
     {
-      if (_rThreadParam_X.AffinityCpuSet_U64 & Mask_U64)
+      if (_rThreadParserParam_X.AffinityCpuSet_U64 & Mask_U64)
       {
         if (pRange_U32[0] == 0xFFFFFFFF)
         {
@@ -442,7 +451,7 @@ std::string BofThread::S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool 
           }
           else
           {
-            p_c += sprintf(p_c, "%d-%d", pRange_U32[0], i_U32 - 1); // _rThreadParam_X.NbActiveCore_U32);
+            p_c += sprintf(p_c, "%d-%d", pRange_U32[0], i_U32 - 1); // _rThreadParserParam_X.NbActiveCore_U32);
           }
           AlreadyOne_B = true;
         }
@@ -453,7 +462,7 @@ std::string BofThread::S_ToString(const BOF_THREAD_PARAM &_rThreadParam_X, bool 
   }
   if (_ShowChosenCore_B)
   {
-    p_c += sprintf(p_c, " A%d/%d", _rThreadParam_X.CoreChosen_U32, _rThreadParam_X.NbActiveCore_U32);
+    p_c += sprintf(p_c, " A%d/%d", _rThreadParserParam_X.CoreChosen_U32, _rThreadParserParam_X.NbActiveCore_U32);
   }
   Rts_S = pBuffer_c;
   return Rts_S;
@@ -547,7 +556,7 @@ BOFERR BofThread::S_AffinityMaskFromString(const char *_pAffinityOptionString_c,
   return Rts_E;
 }
 
-BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, BOF_THREAD_PARAM &_rThreadParam_X)
+BOFERR BofThread::S_ThreadParserParamFromString(const char *_pThreadParameter_c, BOF_THREAD_PARSER_PARAM &_rThreadParserParam_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   const char *pColon_c;
@@ -558,8 +567,8 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
 
   if (_pThreadParameter_c)
   {
-    memset(&_rThreadParam_X, 0, sizeof(BOF_THREAD_PARAM));
-    _rThreadParam_X.NbActiveCore_U32 = std::thread::hardware_concurrency(); // sysconf(_SC_NPROCESSORS_ONLN);
+    memset(&_rThreadParserParam_X, 0, sizeof(BOF_THREAD_PARSER_PARAM));
+    _rThreadParserParam_X.NbActiveCore_U32 = std::thread::hardware_concurrency(); // sysconf(_SC_NPROCESSORS_ONLN);
     //    printk("num_online_cpus %d num_possible_cpus() %d num_present_cpus() %d num_active_cpus %d\n",num_online_cpus()	,num_possible_cpus()	, num_present_cpus(),num_active_cpus());
     do
     {
@@ -577,7 +586,7 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
         switch (pOption_c[0])
         {
           case 'n':
-            if (!Bof_IsDecimal(pOption_c + 1, _rThreadParam_X.Node_U32))
+            if (!Bof_IsDecimal(pOption_c + 1, _rThreadParserParam_X.Node_U32))
             {
               Rts_E = BOF_ERR_FORMAT;
             }
@@ -585,12 +594,12 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
 
           case 'c':
             ConsiderVirtualCore_B = true;
-            // Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParam_X.NbActiveCore_U32, CoreAffinity_U64);
+            // Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParserParam_X.NbActiveCore_U32, CoreAffinity_U64);
             Rts_E = S_AffinityMaskFromString(pOption_c, 0xFFFFFFFF, CoreAffinity_U64);
             break;
 
           case 'C':
-            //            Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParam_X.NbActiveCore_U32 / 2, CoreAffinity_U64);
+            //            Rts_E = S_AffinityMaskFromString(pOption_c, _rThreadParserParam_X.NbActiveCore_U32 / 2, CoreAffinity_U64);
             Rts_E = S_AffinityMaskFromString(pOption_c, 0xFFFFFFFF, CoreAffinity_U64);
             break;
 
@@ -599,18 +608,18 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
           case 'r':
             if (Bof_IsDecimal(pOption_c + 1, Val_U32))
             {
-              _rThreadParam_X.Priority_E = static_cast<BOF_THREAD_PRIORITY>(Val_U32);
+              _rThreadParserParam_X.ThreadPriority_E = static_cast<BOF_THREAD_PRIORITY>(Val_U32);
               if (pOption_c[0] == 'o')
               {
-                _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+                _rThreadParserParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
               }
               else if (pOption_c[0] == 'f')
               {
-                _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO;
+                _rThreadParserParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO;
               }
               else
               {
-                _rThreadParam_X.SchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN;
+                _rThreadParserParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_ROUND_ROBIN;
               }
             }
             else
@@ -621,9 +630,9 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
 
           case 'a':
             // this is used if we want to adjust only the affinity (directly)
-            if (Bof_IsDecimal(pOption_c + 1, _rThreadParam_X.CoreChosen_U32))
+            if (Bof_IsDecimal(pOption_c + 1, _rThreadParserParam_X.CoreChosen_U32))
             {
-              _rThreadParam_X.AffinityCpuSet_U64 = ((uint64_t)1 << _rThreadParam_X.CoreChosen_U32);
+              _rThreadParserParam_X.AffinityCpuSet_U64 = ((uint64_t)1 << _rThreadParserParam_X.CoreChosen_U32);
             }
             else
             {
@@ -639,27 +648,27 @@ BOFERR BofThread::S_ThreadParameterFromString(const char *_pThreadParameter_c, B
 
         if ((Rts_E == BOF_ERR_NO_ERROR) && (CoreAffinity_U64))
         {
-          _rThreadParam_X.AffinityCpuSet_U64 = CoreAffinity_U64;
-          _rThreadParam_X.CoreChosen_U32 = 0xFFFFFFFF;
+          _rThreadParserParam_X.AffinityCpuSet_U64 = CoreAffinity_U64;
+          _rThreadParserParam_X.CoreChosen_U32 = 0xFFFFFFFF;
 
           // BHATODO          le /2 est un param= nb proc phys
 
-          for (Mask_U64 = 1, i_U32 = 0; i_U32 < sizeof(_rThreadParam_X.AffinityCpuSet_U64) * 8; i_U32++, Mask_U64 <<= 1) // affinityMask.size(); i++)
+          for (Mask_U64 = 1, i_U32 = 0; i_U32 < sizeof(_rThreadParserParam_X.AffinityCpuSet_U64) * 8; i_U32++, Mask_U64 <<= 1) // affinityMask.size(); i++)
           {
-            if (_rThreadParam_X.AffinityCpuSet_U64 & Mask_U64)
+            if (_rThreadParserParam_X.AffinityCpuSet_U64 & Mask_U64)
             {
               // just set affinity to the first enabled core
-              if (_rThreadParam_X.CoreChosen_U32 == 0xFFFFFFFF)
+              if (_rThreadParserParam_X.CoreChosen_U32 == 0xFFFFFFFF)
               {
-                _rThreadParam_X.CoreChosen_U32 = i_U32;
+                _rThreadParserParam_X.CoreChosen_U32 = i_U32;
               }
-              MidNbCore_U32 = (_rThreadParam_X.NbActiveCore_U32 / 2);
+              MidNbCore_U32 = (_rThreadParserParam_X.NbActiveCore_U32 / 2);
               if (ConsiderVirtualCore_B)
               {
-                Core_U32 = (_rThreadParam_X.Node_U32 * MidNbCore_U32);
+                Core_U32 = (_rThreadParserParam_X.Node_U32 * MidNbCore_U32);
                 if ((i_U32 % 2) != 0)
                 {
-                  Core_U32 = Core_U32 + (i_U32 / 2) + _rThreadParam_X.NbActiveCore_U32;
+                  Core_U32 = Core_U32 + (i_U32 / 2) + _rThreadParserParam_X.NbActiveCore_U32;
                 }
                 else
                 {
@@ -775,18 +784,18 @@ void BofThread::BofThread_Thread()
   uint32_t Delta_U32;
 
   S_mBofThreadBalance++;
-  printf("%d: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), mName_S.c_str(), S_mBofThreadBalance.load());
+  printf("%d: Start of thread '%s' BAL %d this %p\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(),this);
   Sts_E = Bof_SignalEvent(mThreadEnterEvent_X, 0);
   // printf("%d: ENTER THREAD SIGNAL MTHREADENTEREVENT_X %d\n", BOF::Bof_GetMsTickCount(), Sts_E);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
-    if (mCpuCoreAffinityMask_U64)
+    if (mThreadParam_X.ThreadCpuCoreAffinityMask_U64)
     {
 #if defined(_WIN32)
       // A DWORD_PTR is not a pointer.It is an unsigned integer that is the same size as a pointer.Thus, in Win32 a DWORD_PTR is the same as a DWORD(32 bits), and in Win64 it is the same as a ULONGLONG(64 bits).
       //    DWORD_PTR Val = (DWORD_PTR)(1 << mCpuCoreAffinity_U32);
-      DWORD_PTR Val = (DWORD_PTR)(mCpuCoreAffinityMask_U64);
+      DWORD_PTR Val = (DWORD_PTR)(mThreadParam_X.ThreadCpuCoreAffinityMask_U64);
       Sts_E = SetThreadAffinityMask(GetCurrentThread(), Val) ? BOF_ERR_NO_ERROR : BOF_ERR_ERANGE;
 #else
       cpu_set_t CpuSet_X;
@@ -796,7 +805,7 @@ void BofThread::BofThread_Thread()
       //    CPU_SET(mCpuCoreAffinity_U32 - 1, &CpuSet_X);
       for (Mask_U64 = 1, i_U32 = 0; i_U32 < 64; i_U32++, Mask_U64 = Mask_U64 << 1)
       {
-        if (Mask_U64 & mCpuCoreAffinityMask_U64)
+        if (Mask_U64 & mThreadParam_X.ThreadCpuCoreAffinityMask_U64)
         {
           CPU_SET(i_U32, &CpuSet_X);
         }
@@ -811,7 +820,7 @@ void BofThread::BofThread_Thread()
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
 #if defined(_WIN32)
-    int32_t WndPrio_S32 = Bof_PriorityValueFromThreadPriority(mPriority_E);
+    int32_t WndPrio_S32 = Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E);
     Sts_E = (SetThreadPriority(GetCurrentThread(), WndPrio_S32) == TRUE) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
     BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
     if (Sts_E == BOF_ERR_NO_ERROR)
@@ -827,7 +836,7 @@ void BofThread::BofThread_Thread()
     Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
     // printf("0: Sts %d Pol %d Prio %d\n", Status_i, Policy_i, Params_X.sched_priority);
 
-    Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(mPriority_E);
+    Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E);
     // Set the priority
     Status_i = pthread_setschedparam(pthread_self(), mPolicy_E, &Params_X);
     // Verify
@@ -835,10 +844,10 @@ void BofThread::BofThread_Thread()
     if (Status_i == 0)
     {
       Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
-      // printf("2: Sts %d Pol %d Prio %d (%d->%d)\n", Status_i, Policy_i, Params_X.sched_priority, mPriority_E, Bof_PriorityValueFromThreadPriority(mPriority_E));
+      // printf("2: Sts %d Pol %d Prio %d (%d->%d)\n", Status_i, Policy_i, Params_X.sched_priority, mThreadParam_X.ThreadPriority_E, Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E));
       if (Status_i == 0)
       {
-        Sts_E = ((Policy_i == mPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
+        Sts_E = ((Policy_i == mPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
       }
     }
 #endif
@@ -850,9 +859,9 @@ void BofThread::BofThread_Thread()
     V_OnCreate();
     while ((Sts_E == BOF_ERR_NO_ERROR) && (!mThreadMustStop_B))
     {
-      if (mWakeUpIntervalInMs_U32)
+      if (mThreadParam_X.WakeUpIntervalInMs_U32)
       {
-        Sts_E = Bof_WaitForEvent(mWakeUpEvent_X, mWakeUpIntervalInMs_U32, 0);
+        Sts_E = Bof_WaitForEvent(mWakeUpEvent_X, mThreadParam_X.WakeUpIntervalInMs_U32, 0);
         if (Sts_E == BOF_ERR_ETIMEDOUT)
         {
           Sts_E = BOF_ERR_NO_ERROR;
@@ -881,11 +890,289 @@ void BofThread::BofThread_Thread()
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
   S_mBofThreadBalance--;
   // Bof_ErrorCode can fail does to app shudown (static initializer)
-  printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mName_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
+  printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
   // BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()
 {
   return S_mBofThreadBalance.load();
 }
+
+
+class ThreadPoolExecutor
+{
+public:
+  ThreadPoolExecutor(BofThreadPool *_pThreadPool, BOF_THREAD_POOL_ENTRY *_pThreadPoolEntry_X)
+  {
+    BOF_ASSERT(_pThreadPool != nullptr);
+    BOF_ASSERT(_pThreadPoolEntry_X != nullptr);
+    BOF_ASSERT(_pThreadPoolEntry_X->FctToExec != nullptr);
+    mpThreadPool = _pThreadPool;
+    mpThreadPoolEntry_X = _pThreadPoolEntry_X;
+  }
+  ~ThreadPoolExecutor()
+  {
+  }
+
+  BOFERR V_OnCreate()
+  {
+    return BOF_ERR_NO_ERROR;
+  }
+  BOFERR V_OnProcessing()
+  {
+    BOFERR Rts_E = BOF_ERR_INTERNAL;
+
+    if (mpThreadPoolEntry_X->FctToExec != nullptr)
+    {
+      mSts_E = mpThreadPoolEntry_X->FctToExec();
+      //NO !! Rts_E = BOF_ERR_EXIT_THREAD;
+      mpThreadPool->ReleaseDispatch(mSts_E, mpThreadPoolEntry_X, this);
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    return Rts_E;
+  }
+  BOFERR V_OnStop()
+  {
+    BOFERR Rts_E = BOF_ERR_NO_ERROR;
+
+    return Rts_E;
+  }
+
+private:
+  BOF_THREAD_POOL_ENTRY *mpThreadPoolEntry_X = nullptr;
+  BofThreadPool *mpThreadPool = nullptr;
+  BOFERR mSts_E=BOF_ERR_NO_ERROR;
+};
+#define THREAD_POOL_ENTRY_MAGIC_NUMBER 0x251DFB65
+
+BofThreadPool::BofThreadPool(uint32_t _NbThreadInPool_U32, const BOF_THREAD_PARAM &_rThreadParam_X)
+{
+  uint32_t i_U32;
+  BofThread *pBofThread;
+  BOF::BOF_POT_PARAM BofPotParam_X;
+  BOF_THREAD_POOL_ENTRY *pThreadPoolEntry_X;
+
+  mThreadParam_X = _rThreadParam_X;
+  if (mThreadParam_X.WakeUpIntervalInMs_U32)
+  {
+    mThreadPoolErrorCode_E = BOF_ERR_EINVAL;
+  }
+  else
+  {
+    mThreadParam_X.WakeUpIntervalInMs_U32 = 0xFFFFFFFF;//Block all thread at startup
+    BofPotParam_X.Blocking_B = true;
+    BofPotParam_X.MultiThreadAware_B = true;
+    BofPotParam_X.GetOpPreserveContent_B = true;
+    BofPotParam_X.PotCapacity_U32 = _NbThreadInPool_U32;
+    BofPotParam_X.MagicNumber_U32 = THREAD_POOL_ENTRY_MAGIC_NUMBER;
+    mpThreadCollection = new BOF::BofPot<BOF_THREAD_POOL_ENTRY>(BofPotParam_X);
+    mThreadPoolErrorCode_E = mpThreadCollection ? mpThreadCollection->LastErrorCode() : BOF_ERR_ENOMEM;
+    if (mThreadPoolErrorCode_E == BOF_ERR_NO_ERROR)
+    {
+      for (i_U32 = 0; i_U32 < _NbThreadInPool_U32; i_U32++)
+      {
+        pThreadPoolEntry_X = mpThreadCollection->GetIndexedPotElement(i_U32);
+        if (pThreadPoolEntry_X)
+        {
+          mThreadPoolErrorCode_E = BOF_ERR_ENOMEM;
+          pBofThread = new BofThread();
+          if (pBofThread)
+          {
+            mThreadPoolErrorCode_E = pBofThread->InitThreadErrorCode();
+            if (mThreadPoolErrorCode_E != BOF_ERR_NO_ERROR)
+            {
+              break;
+            }
+            else
+            {
+              mThreadParam_X.Name_S = "Pool_" + std::to_string(i_U32) + '_' + _rThreadParam_X.Name_S;
+              mThreadPoolErrorCode_E = pBofThread->LaunchBofProcessingThread(mThreadParam_X);
+            }
+          }
+          if (mThreadPoolErrorCode_E != BOF_ERR_NO_ERROR)
+          {
+            break;
+          }
+          else
+          {
+            pThreadPoolEntry_X->pBofThread = pBofThread;
+          }
+        }
+        else
+        {
+          mThreadPoolErrorCode_E = BOF_ERR_INTERNAL;
+          break;
+        }
+      }
+    }
+  }
+}
+BofThreadPool::~BofThreadPool()
+{
+  uint32_t i_U32;
+  BOF_THREAD_POOL_ENTRY *pThreadPoolEntry_X;
+
+  if (mpThreadCollection)
+  {
+    //std::lock_guard<std::mutex> Lock(mMtxThreadCollection);
+    for (i_U32 = 0; i_U32 < mpThreadCollection->GetCapacity(); i_U32++)
+    {
+      pThreadPoolEntry_X = mpThreadCollection->GetIndexedPotElement(i_U32);
+      if (pThreadPoolEntry_X)
+      {
+        BOF_SAFE_DELETE(pThreadPoolEntry_X->pBofThread);
+        pThreadPoolEntry_X->pBofThread = nullptr;
+      }
+    }
+
+    BOF_SAFE_DELETE(mpThreadCollection);
+  }
+}
+BOFERR BofThreadPool::InitThreadPoolErrorCode()
+{
+  return mThreadPoolErrorCode_E;
+}
+
+BOFERR BofThreadPool::Dispatch(uint32_t TimeoutInMs_U32, BOF_THREAD_CALLBACK _FctToExec, void **_ppDispatchTicket)
+{
+  BOFERR Rts_E=BOF_ERR_EINVAL;
+  BOF_THREAD_POOL_ENTRY *pThreadPoolEntry_X;
+  ThreadPoolExecutor *pThreadPoolExecutor;
+
+  if (_ppDispatchTicket)
+  {
+    *_ppDispatchTicket = nullptr;
+    Rts_E = BOF_ERR_EBUSY;
+    pThreadPoolEntry_X = mpThreadCollection->Get(TimeoutInMs_U32);
+    if (pThreadPoolEntry_X)
+    {
+      Rts_E = BOF_ERR_ENOMEM;
+      pThreadPoolEntry_X->FctToExec = _FctToExec;
+      pThreadPoolExecutor = new ThreadPoolExecutor(this, pThreadPoolEntry_X);  //Deleted by ReleaseDispatch
+      if (pThreadPoolExecutor)
+      {
+        pThreadPoolEntry_X->pBofThread->SetThreadCallback(BOF_BIND_0_ARG_TO_METHOD(pThreadPoolExecutor, ThreadPoolExecutor::V_OnCreate), BOF_BIND_0_ARG_TO_METHOD(pThreadPoolExecutor, ThreadPoolExecutor::V_OnProcessing), BOF_BIND_0_ARG_TO_METHOD(pThreadPoolExecutor, ThreadPoolExecutor::V_OnStop));
+        Rts_E = pThreadPoolEntry_X->pBofThread->SignalThreadWakeUpEvent();
+      }
+      if (Rts_E == BOF_ERR_NO_ERROR)
+      {
+        pThreadPoolEntry_X->Running_B = true;
+        printf("Dispatch ptr %p running ...\n", pThreadPoolEntry_X);
+        *_ppDispatchTicket = pThreadPoolEntry_X;
+      }
+      else
+      {
+        BOF_SAFE_DELETE(pThreadPoolExecutor);
+      }
+    }
+  }
+  return Rts_E;
+}
+BOFERR BofThreadPool::AckPendingDispatch(uint32_t _TimeoutInMs_U32, const void *_pDispatchTicket)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  BOF_THREAD_POOL_ENTRY *pThreadPoolEntry_X=(BOF_THREAD_POOL_ENTRY *)_pDispatchTicket;
+  uint32_t Start_U32, Delta_U32;
+
+  if (pThreadPoolEntry_X)
+  {
+    Rts_E = mpThreadCollection->IsPotElementInUse(pThreadPoolEntry_X);
+    if (Rts_E == BOF_ERR_NO_ERROR)
+    {
+      Start_U32 = Bof_GetMsTickCount();
+      do
+      {
+        Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+        if (pThreadPoolEntry_X->Running_B)
+        {
+          if (_TimeoutInMs_U32)
+          {
+            Bof_MsSleep(10);
+            Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+            Rts_E = BOF_ERR_ETIMEDOUT;
+          }
+          else
+          {
+            Rts_E = BOF_ERR_BAD_STATUS;
+            break;
+          }
+        }
+        else
+        {
+          std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection);
+          {
+            auto It = std::find(mPendingDispatchCollection.begin(), mPendingDispatchCollection.end(), pThreadPoolEntry_X);
+            BOF_ASSERT(It != mPendingDispatchCollection.end());
+            if (It != mPendingDispatchCollection.end())
+            {
+              mPendingDispatchCollection.erase(It);
+            }
+          }
+          //Do not use any object var after this call because the object has been deleted by ->Release
+          Rts_E = mpThreadCollection->Release(pThreadPoolEntry_X);
+          BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
+          break;
+        }
+      }
+      while (Delta_U32 < _TimeoutInMs_U32);
+    }
+  }
+  return Rts_E;
+}
+std::string BofThreadPool::GetDispatchName(const void *_pDispatchTicket)
+{
+  std::string Rts_S;
+  BOF_THREAD_POOL_ENTRY *pThreadPoolEntry_X = (BOF_THREAD_POOL_ENTRY *)_pDispatchTicket;
+
+  if ((pThreadPoolEntry_X) && (pThreadPoolEntry_X->MagicNumber_U32 == THREAD_POOL_ENTRY_MAGIC_NUMBER))
+  {
+    if (pThreadPoolEntry_X->pBofThread)
+    {
+      Rts_S = pThreadPoolEntry_X->pBofThread->ThreadName();
+    }
+  }
+  return Rts_S;
+}
+
+uint32_t BofThreadPool::GetNumerOfPendingRunningDispatch()
+{
+  return mpThreadCollection ? mpThreadCollection->GetNbElementOutOfThePot():0;
+}
+uint32_t BofThreadPool::GetNumerOfPendingDispatchToAck()
+{
+  return mPendingDispatchCollection.size();
+}
+void *BofThreadPool::GetFirstPendingDispatch() //Next should call AckPendingDispatch if rts is not nullptr
+{
+  void *pRts=nullptr;
+  std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection);
+  {
+    if (mPendingDispatchCollection.size())
+    {
+      pRts = mPendingDispatchCollection[0];
+    }
+  }
+  return pRts;
+}
+BOFERR BofThreadPool::ReleaseDispatch(BOFERR _Sts_E, BOF_THREAD_POOL_ENTRY *_pThreadPoolEntry_X, ThreadPoolExecutor *_pThreadPoolExecutor)
+{
+  BOFERR Rts_E = _Sts_E;
+
+  //No done in AckPendingDispatch to avoid race condition  mpThreadCollection->Release(_pThreadPoolEntry_X);
+  BOF_ASSERT(_pThreadPoolEntry_X->Running_B);
+  _pThreadPoolEntry_X->Running_B = false;
+  std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection);
+  {
+    auto It = std::find(mPendingDispatchCollection.begin(), mPendingDispatchCollection.end(), _pThreadPoolEntry_X);
+    BOF_ASSERT(It == mPendingDispatchCollection.end());
+    if (It == mPendingDispatchCollection.end())
+    {
+      mPendingDispatchCollection.push_back(_pThreadPoolEntry_X);
+    }
+  }
+
+  BOF_SAFE_DELETE(_pThreadPoolExecutor);
+  return Rts_E;
+}
+
 END_BOF_NAMESPACE()

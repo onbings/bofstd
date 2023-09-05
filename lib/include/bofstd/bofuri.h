@@ -289,6 +289,7 @@ public:
   /// @return A map of string containing the query parameters.
   /// @remarks None
   const std::map<std::string, std::string> &QueryParamCollection(std::string &_rQueryParam_S) const;
+  const std::map<std::string, std::string> &QueryParamCollection() const;
 
   /// @brief Returns the fragment part of the uri.
   /// @return A string containing the fragment.

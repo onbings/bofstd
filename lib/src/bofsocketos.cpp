@@ -793,6 +793,9 @@ std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, b
 
   if (_ShowProtocol_B)
   {
+    Rts_S = _rIpAddress_X.Protocol_S + "://";
+    //Rts_S = std::string(_rIpAddress_X.pProtocol_c) + "://";
+    /*
     if (_rIpAddress_X.SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_TCP)
     {
       Rts_S += "tcp://";
@@ -805,6 +808,7 @@ std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, b
     {
       Rts_S += "???://";
     }
+    */
   }
   if (_rIpAddress_X.IpV6_B)
   {
@@ -937,12 +941,13 @@ BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string &_rIpOrUrlAddre
 BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  std::string::size_type PosColon, PosStartBracket, PosEndBracket;
+  std::string::size_type PosColon, PosStartBracket, PosEndBracket, PosProtocol;
   std::string IpAddress_S;
   uint16_t Port_U16;
   BOF_SOCKET_ADDRESS Ip_X;
   int Port_i;
   std::vector<BOF_SOCKET_ADDRESS> ListOfIpAddress_X;
+  //uint32_t ProtoNameSize_U32;
 
   IpAddress_S = Bof_StringTrim(_rIpAddress_S);
   if (IpAddress_S != "")
@@ -991,17 +996,34 @@ BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET
           IpAddress_S = IpAddress_S.substr(PosStartBracket + 1, PosEndBracket - PosStartBracket - 1);
         }
       }
-      if (!IpAddress_S.compare(0, 6, "tcp://"))
-      {
-        Ip_X.SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_TCP;
-        IpAddress_S = IpAddress_S.substr(6);
-      }
-      else if (!IpAddress_S.compare(0, 6, "udp://"))
-      {
-        Ip_X.SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UDP;
-        IpAddress_S = IpAddress_S.substr(6);
-      }
 
+      PosProtocol = IpAddress_S.find('://');
+      if (PosProtocol != std::string::npos)
+      {
+        if (!IpAddress_S.compare(0, 6, "tcp://"))
+        {
+          Ip_X.SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_TCP;
+          Ip_X.Protocol_S = "tcp";
+//          strcpy(Ip_X.pProtocol_c, "tcp");
+          IpAddress_S = IpAddress_S.substr(6);
+        }
+        else if (!IpAddress_S.compare(0, 6, "udp://"))
+        {
+          Ip_X.SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UDP;
+          Ip_X.Protocol_S = "udp";
+//          strcpy(Ip_X.pProtocol_c, "udp");
+          IpAddress_S = IpAddress_S.substr(6);
+        }
+        else
+        {
+          Ip_X.SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_TCP;
+          Ip_X.Protocol_S = IpAddress_S.substr(0, PosProtocol - 1);
+          //ProtoNameSize_U32 = ((PosProtocol - 1) < sizeof(Ip_X.pProtocol_c)) ? (PosProtocol - 1) : (sizeof(Ip_X.pProtocol_c)-1);
+          //memcpy(Ip_X.pProtocol_c, IpAddress_S.c_str(), ProtoNameSize_U32);
+          //Ip_X.pProtocol_c[ProtoNameSize_U32] = 0;
+          IpAddress_S = IpAddress_S.substr(PosProtocol+2);
+        }
+      }
       if (Ip_X.IpV6_B)
       {
         Ip_X.IpV6Address_X.sin6_port = htons(Port_U16);
@@ -1320,6 +1342,7 @@ var regexMailto = / ^ (mailto) : ((? : [a - z0 - 9 - ._~!$ & '()*+,;=:@]|%[0-9A-
 
 #endif
 // TODO: Implement IpV6 BofSocket support : is sep for port and :: is for ipv6
+
 BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_rUri_X, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S)
 {
   BOFERR Rts_E = BOF_ERR_FORMAT;
@@ -1390,6 +1413,42 @@ BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_r
     }
   }
 
+  return Rts_E;
+}
+//GET /forum/questions/?tag=networking&order=newest#top
+BOFERR Bof_SplitHttpRequest(const std::string &_rUri_S, std::string &_rMethod_S, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S)
+{
+  BOFERR Rts_E = BOF_ERR_FORMAT;
+  static const std::regex S_RegExHttpRequest("([A-Z]*)\\s+(/[^?#]+)?(\\?[^#]*)?(#.*)?");
+  std::smatch MatchString;
+  std::string::size_type PosColumn;
+
+  if (std::regex_search(_rUri_S, MatchString, S_RegExHttpRequest))
+  {
+    /*
+    printf("%ld result:\n", MatchString.size());
+    for (auto i = 0; i < MatchString.size(); i++)
+    {
+      printf("[%02d]='%s'\n", i, MatchString[i].str().c_str());
+    }
+    */
+    if (MatchString.size() == 5)
+    {
+      _rMethod_S = MatchString[1].str();
+      _rPath_S = MatchString[2].str();
+      _rQuery_S = MatchString[3].str();
+      if (_rQuery_S != "")
+      {
+        _rQuery_S = _rQuery_S.substr(1);//Remove ?
+      }
+      _rFragment_S = MatchString[4].str();
+      if (_rFragment_S != "")
+      {
+        _rFragment_S = _rFragment_S.substr(1);//Remove #
+      }
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+  }
   return Rts_E;
 }
 
@@ -1555,6 +1614,7 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
   BOFERR Rts_E = BOF_ERR_TOO_SMALL;
   std::string Protocol_S, Address_S, Interface_S, TheAddress_S;
   std::string::size_type PosEop, PosAfter, PosSeparator, PosColon, PosAt;
+  //uint32_t ProtoNameSize_U32;
 
   _rInterfaceIpAddress_X.Reset();
   _rIpAddress_X.Reset();
@@ -1600,6 +1660,14 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
       if (Interface_S != "")
       {
         Rts_E = ParseIpAddress(Interface_S, Protocol_S, _rInterfaceIpAddress_X);
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          _rInterfaceIpAddress_X.Protocol_S = Protocol_S;
+          _rInterfaceIpAddress_X.Ip_X.Protocol_S = Protocol_S;
+          //ProtoNameSize_U32 = (Protocol_S.size() < sizeof(_rInterfaceIpAddress_X.Ip_X.pProtocol_c)) ? Protocol_S.size() : (sizeof(_rInterfaceIpAddress_X.Ip_X.pProtocol_c)-1);
+          //memcpy(_rInterfaceIpAddress_X.Ip_X.pProtocol_c, Protocol_S.c_str(), ProtoNameSize_U32);
+          //_rInterfaceIpAddress_X.Ip_X.pProtocol_c[ProtoNameSize_U32] = 0;
+        }
       }
     }
 
@@ -1608,8 +1676,17 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
       if (Address_S != "")
       {
         Rts_E = ParseIpAddress(Address_S, Protocol_S, _rIpAddress_X);
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          _rIpAddress_X.Protocol_S = Protocol_S;
+          _rIpAddress_X.Ip_X.Protocol_S = Protocol_S;
+          //ProtoNameSize_U32 = (Protocol_S.size() < sizeof(_rIpAddress_X.Ip_X.pProtocol_c)) ? Protocol_S.size() : (sizeof(_rIpAddress_X.Ip_X.pProtocol_c)-1);
+          //memcpy(_rIpAddress_X.Ip_X.pProtocol_c, Protocol_S.c_str(), ProtoNameSize_U32);
+          //_rIpAddress_X.Ip_X.pProtocol_c[ProtoNameSize_U32] = 0;
+        }
       }
     }
+
   }
   return Rts_E;
 }

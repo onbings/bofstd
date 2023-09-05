@@ -228,6 +228,17 @@ struct BOF_BUFFER
     // Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
     return (Offset_U64 < Size_U64) ? Size_U64 - Offset_U64 : 0;
   }
+  uint8_t *Pos()
+  {
+    uint8_t *pRts_U8 = nullptr;
+
+    std::lock_guard<std::mutex> Lock(Mtx);
+    if (IsValid())
+    {
+      pRts_U8 = &pData_U8[Size_U64];
+    }
+    return pRts_U8;
+  }
   uint8_t *Seek(uint64_t _Offset_U64, uint64_t &_rRemain_U64)
   {
     uint8_t *pRts_U8 = nullptr;
@@ -280,6 +291,7 @@ struct BOF_BUFFER
     }
     return pRts_U8;
   }
+
   bool IsValid()
   {
     bool Rts_B = false;

@@ -137,6 +137,8 @@ set(FS_FILES
 	src/bofpath.cpp
 	include/bofstd/bofuri.h
 	src/bofuri.cpp
+	include/bofstd/bofhttprequest.h
+	src/bofhttprequest.cpp
 	include/bofstd/boffs.h
 	src/boffs.cpp
 )
@@ -293,6 +295,15 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/include/bofstd/bofversioninfo.h.in $
 # == BUILD ==
 # ===========
 
+# Create alias
+add_library(bofstd
+  ${PUBLIC_INCLUDES_FILES}
+  ${SOURCES_FILES}
+)
+
+# Alias with the namespaced version (consistency)
+add_library(ONBINGS::bofstd ALIAS bofstd)
+
 if (MSVC)
     # warning level 4 and all warnings as errors
 #    add_compile_options(/bigobj)
@@ -301,22 +312,9 @@ else()
 #    add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-# When creating shared library, we will want to control API visibility. This means, hide symbols that are
-# not part of the API. This is great for the end user but not for us as we can no longer test our non API code.
-#
-# The solution is thus to create an intermediate step which is an object library.
-# Object library compiles the files but does not link them.
-# Later on, this object library will be linked to our target library
-add_library(bofstd-objects OBJECT
-  ${PUBLIC_INCLUDES_FILES}
-  ${SOURCES_FILES}
-)
-
-# Alias with the namespaced version (consistency)
-add_library(ONBINGS::bofstd-objects ALIAS bofstd-objects)
 
 # Includes
-target_include_directories(bofstd-objects
+target_include_directories(bofstd
   PUBLIC
 	#Header path used at build time
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
@@ -333,7 +331,7 @@ target_include_directories(bofstd-objects
 )
 
 # Link
-target_link_libraries(bofstd-objects
+target_link_libraries(bofstd
   PUBLIC
     #ONBINGS::onbings-another-lib
 	date::date 
@@ -362,7 +360,7 @@ target_link_libraries(bofstd-objects
 #message("=FFMPEG_INCLUDE_DIRS==============>"${FFMPEG_INCLUDE_DIRS})
 #message("=FFMPEG_LIBRARIES==============>"${FFMPEG_LIBRARIES})	
 if(WIN32)
-target_link_libraries(bofstd-objects
+target_link_libraries(bofstd
   PUBLIC
 	Ws2_32
 	Iphlpapi
@@ -376,7 +374,7 @@ else()
   if( ANDROID )
   else()
     if(UNIX)
-       target_link_libraries(bofstd-objects
+       target_link_libraries(bofstd
          PRIVATE
 	       rt
        )
@@ -387,7 +385,7 @@ endif()
 # Defines
 #use external libfmt lib instead of the bundled one
 #disable exception in spd log and replace thme by assert(false) to avoid try around every sprintf
-target_compile_definitions(bofstd-objects
+target_compile_definitions(bofstd
   PUBLIC
 	#-DBOFSTD_BUILD_MEDIAINFO_AS_LIBRARY=1	#MediaInfo dll is a shame -> use only the static lib version
 
@@ -400,34 +398,12 @@ target_compile_definitions(bofstd-objects
 )
 
 # Features (We need at least C++11 support)
-target_compile_features(bofstd-objects
+target_compile_features(bofstd
   PUBLIC
     cxx_std_14
 )
 
-# ====================
-# == CREATE LIBRARY ==
-# ====================
 
-# Now create the "real" library
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Dummy.cpp)
-
-# Make sure we have at least one file
-add_library(bofstd
-  ${CMAKE_CURRENT_BINARY_DIR}/Dummy.cpp
-)
-
-# Link with object library
-target_link_libraries(bofstd
-  PUBLIC
-    ONBINGS::bofstd-objects
-#PRIVATE 
-#	fmt::fmt   # Or use the header-only version   target_link_libraries(main PRIVATE fmt::fmt-header-only)
-)
-
-
-# Create alias
-add_library(ONBINGS::bofstd ALIAS bofstd)
 
 # ================
 # == VERSIONING ==
@@ -478,23 +454,9 @@ if(NOT APPLE)
 endif()
 
 # Install the target runtime
-### message("====ANDROID_PLATFORM==LIB=2=================>" ${ANDROID_PLATFORM})
-### if(NOT "${ANDROID_PLATFORM}")
-### message("====ANDROID_PLATFORM==LIB=2=================>" ${ANDROID_PLATFORM})
-### install(
-###   TARGETS  bofstd bofstd-objects
-###   EXPORT   bofstd
-###   RUNTIME  DESTINATION        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}     # For binaries and dll
-###            COMPONENT          bofstd-runtime
-###   LIBRARY  DESTINATION        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}     # For shared libraries
-###            COMPONENT          bofstd-runtime
-###            NAMELINK_COMPONENT bofstd-devel
-###   ARCHIVE  DESTINATION        ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}     # For static libraries
-###            COMPONENT          bofstd-devel
-### )
-### else()		   
+	   
 install(
-  TARGETS  bofstd bofstd-objects
+  TARGETS  bofstd
   EXPORT   bofstd
   RUNTIME  DESTINATION        ${CMAKE_INSTALL_BINDIR}     # For binaries and dll
            COMPONENT          bofstd-runtime
@@ -504,7 +466,6 @@ install(
   ARCHIVE  DESTINATION        ${CMAKE_INSTALL_LIBDIR}     # For static libraries
            COMPONENT          bofstd-devel
 )
-### endif()		   
 
 # Install the public headers (don't forget the generated export directives)
 install(DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}/include/

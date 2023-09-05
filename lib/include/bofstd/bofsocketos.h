@@ -163,6 +163,8 @@ struct BOF_SOCKET_ADDRESS
 {
   bool Valid_B;
   bool IpV6_B;
+  std::string Protocol_S;
+  //char pProtocol_c[16];
   BOF_SOCK_TYPE SocketType_E;
   BOF_SOCKADDR_IN IpV4Address_X;
   BOF_SOCKADDR_IN6 IpV6Address_X;
@@ -439,6 +441,8 @@ struct BOF_SOCKET_ADDRESS
     Valid_B = true;
     IpV6_B = false;
     SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
+    Protocol_S = "";
+    //pProtocol_c[0] = 0;
     memset(&IpV4Address_X, 0, sizeof(IpV4Address_X));
     IpV4Address_X.sin_addr.s_addr = 0;
     IpV4Address_X.sin_family = AF_UNSPEC;
@@ -572,6 +576,7 @@ BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SO
 
 struct BOF_SOCKET_ADDRESS_COMPONENT
 {
+  //in BOF_SOCKET_ADDRESS Ip_X 
   std::string Protocol_S;  // Scheme  (cf BofUri)
   std::string IpAddress_S; // Authority (cf BofUri)
   uint16_t Port_U16;       // Authority (cf BofUri)
@@ -751,6 +756,7 @@ BOFSTD_EXPORT BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, 
 BOFSTD_EXPORT BOFERR Bof_IpAddressToBin(const std::string &_rIpAddress_S, bool &_rIsIpV6_B, std::vector<uint16_t> &_rIpBinDigitCollection);
 BOFSTD_EXPORT BOF_SOCK_TYPE Bof_SocketType(const std::string &_rIpAddress_S);
 BOFSTD_EXPORT BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_rUri_X, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S);
+BOFSTD_EXPORT BOFERR Bof_SplitHttpRequest(const std::string &_rUri_S, std::string &_rMethod_S, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S);
 BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
 // Defined above BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_COMPONENT &_rIpAddress_X);
 BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rInterfaceIpAddress_X, BOF_SOCKET_ADDRESS &_rIpAddress_X);

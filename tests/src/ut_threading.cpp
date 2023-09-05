@@ -26,6 +26,191 @@
 #include <atomic>
 
 USE_BOF_NAMESPACE()
+/*
+TEST(BofThreadPool_Test, Constructor)
+{
+  BOF_THREAD_PARAM ThreadParam_X;
+
+  ThreadParam_X.Name_S = "ThreadPoolErrUt";
+  ThreadParam_X.SignalEvent_B = false;
+  ThreadParam_X.StackSize_U32 = 0;
+  ThreadParam_X.StartStopTimeoutInMs_U32 = 2000;
+  ThreadParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
+  ThreadParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
+  ThreadParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+  ThreadParam_X.WakeUpIntervalInMs_U32 = 1000;//!!!! no, see below !!!!
+  BofThreadPool PoolErr(8, ThreadParam_X);
+  EXPECT_NE(PoolErr.InitThreadPoolErrorCode(), BOF_ERR_NO_ERROR);
+
+  ThreadParam_X.Name_S = "ThreadPoolUt";
+  ThreadParam_X.WakeUpIntervalInMs_U32 = 0;//!!!! important !!!!
+  BofThreadPool Pool(8, ThreadParam_X);
+  EXPECT_EQ(Pool.InitThreadPoolErrorCode(), BOF_ERR_NO_ERROR);
+}
+*/
+BOFERR PoolDispatch1()
+{
+  printf("%d: PoolDispatch1 starts for 1000 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(1000);
+  printf("%d: PoolDispatch1 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR PoolDispatch2()
+{
+  printf("%d: PoolDispatch2 starts for 800 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(800);
+  printf("%d: PoolDispatch2 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR PoolDispatch3()
+{
+  printf("%d: PoolDispatch3 starts for 600 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(600);
+  printf("%d: PoolDispatch3 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR PoolDispatch4()
+{
+  printf("%d: PoolDispatch4 starts for 400 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(400);
+  printf("%d: PoolDispatch4 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR PoolDispatch5()
+{
+  printf("%d: PoolDispatch5 starts for 200 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(200);
+  printf("%d: PoolDispatch5 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR PoolDispatch6()
+{
+  printf("%d: PoolDispatch6 starts for 400 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(400);
+  printf("%d: PoolDispatch6 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR PoolDispatch7()
+{
+  printf("%d: PoolDispatch7 starts for 600 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(600);
+  printf("%d: PoolDispatch7 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+BOFERR PoolDispatch8()
+{
+  printf("%d: PoolDispatch8 starts for 800 ms...\n", BOF::Bof_GetMsTickCount());
+  BOF::Bof_MsSleep(800);
+  printf("%d: PoolDispatch8 ends.\n", BOF::Bof_GetMsTickCount());
+  return BOF_ERR_NO_ERROR;
+}
+struct THREAD_POOL_CALLBACK
+{
+  void *pDispatchTicket;
+  BOF_THREAD_CALLBACK ThreadCallback;
+
+  THREAD_POOL_CALLBACK()
+  {
+    Reset();
+  }
+
+  void Reset()
+  {
+    pDispatchTicket = nullptr;
+    ThreadCallback = nullptr;
+  }
+};
+TEST(BofThreadPool_Test, Dispatch)
+{
+  BOF_THREAD_PARAM ThreadParam_X;
+  uint32_t i_U32, j_U32, PoolCapacity_U32, Start_U32, Nb_U32;
+  THREAD_POOL_CALLBACK pThreadPoolCallback_X[8];
+  void *pDispatchTicket;
+
+  PoolCapacity_U32 = 4;
+  ThreadParam_X.Name_S = "ThreadPoolUt";
+  ThreadParam_X.SignalEvent_B = false;
+  ThreadParam_X.StackSize_U32 = 0;
+  ThreadParam_X.StartStopTimeoutInMs_U32 = 2000;
+  ThreadParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
+  ThreadParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
+  ThreadParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+  ThreadParam_X.WakeUpIntervalInMs_U32 = 0;//!!!! important !!!!
+  BofThreadPool Pool(PoolCapacity_U32, ThreadParam_X);
+  EXPECT_EQ(Pool.InitThreadPoolErrorCode(), BOF_ERR_NO_ERROR);
+
+  pThreadPoolCallback_X[0].ThreadCallback = PoolDispatch1;
+  pThreadPoolCallback_X[1].ThreadCallback = PoolDispatch2;
+  pThreadPoolCallback_X[2].ThreadCallback = PoolDispatch3;
+  pThreadPoolCallback_X[3].ThreadCallback = PoolDispatch4;
+  pThreadPoolCallback_X[4].ThreadCallback = PoolDispatch5;
+  pThreadPoolCallback_X[5].ThreadCallback = PoolDispatch6;
+  pThreadPoolCallback_X[6].ThreadCallback = PoolDispatch7;
+  pThreadPoolCallback_X[7].ThreadCallback = PoolDispatch8;
+  for (i_U32 = 0; i_U32 < PoolCapacity_U32; i_U32++)
+  {
+    pThreadPoolCallback_X[i_U32].pDispatchTicket = nullptr;
+    EXPECT_EQ(Pool.Dispatch(100, pThreadPoolCallback_X[i_U32].ThreadCallback, &pThreadPoolCallback_X[i_U32].pDispatchTicket), BOF_ERR_NO_ERROR);
+    EXPECT_TRUE(pThreadPoolCallback_X[i_U32].pDispatchTicket != nullptr);
+    EXPECT_NE(Pool.AckPendingDispatch(100, pThreadPoolCallback_X[i_U32].pDispatchTicket), BOF_ERR_NO_ERROR);
+  }
+  for (i_U32 = PoolCapacity_U32; i_U32 < BOF_NB_ELEM_IN_ARRAY(pThreadPoolCallback_X); i_U32++)
+  {
+    Start_U32 = BOF::Bof_GetMsTickCount();
+    do
+    {
+      pDispatchTicket = Pool.GetFirstPendingDispatch();
+      if (pDispatchTicket)
+      {
+        printf("%d: Dispatch %p (%s) is finished\n", BOF::Bof_GetMsTickCount(), pDispatchTicket, Pool.GetDispatchName(pDispatchTicket).c_str());
+        EXPECT_EQ(Pool.AckPendingDispatch(0, pDispatchTicket), BOF_ERR_NO_ERROR);
+        pThreadPoolCallback_X[i_U32].pDispatchTicket = nullptr;
+        EXPECT_EQ(Pool.Dispatch(0, pThreadPoolCallback_X[i_U32].ThreadCallback, &pThreadPoolCallback_X[i_U32].pDispatchTicket), BOF_ERR_NO_ERROR);
+        printf("%d: Then post immediate dispatch %p (%s)\n", BOF::Bof_GetMsTickCount(), pThreadPoolCallback_X[i_U32].pDispatchTicket, Pool.GetDispatchName(pThreadPoolCallback_X[i_U32].pDispatchTicket).c_str());
+        EXPECT_TRUE(pThreadPoolCallback_X[i_U32].pDispatchTicket != nullptr);
+      }
+      else
+      {
+        if (BOF::Bof_ElapsedMsTime(Start_U32) > 2000)
+        {
+          EXPECT_TRUE(0);
+          break;
+        }
+      }
+    }
+    while (pDispatchTicket == nullptr);
+  }
+  Nb_U32 = Pool.GetNumerOfPendingRunningDispatch();
+  printf("%d: GetNumerOfPendingRunningDispatch %d\n", BOF::Bof_GetMsTickCount(), Nb_U32);
+  EXPECT_EQ(Nb_U32, PoolCapacity_U32);
+
+  Nb_U32 = Pool.GetNumerOfPendingDispatchToAck();
+  printf("%d: GetNumerOfPendingDispatchToAck %d\n", BOF::Bof_GetMsTickCount(), Nb_U32);
+  EXPECT_EQ(Nb_U32, 0);
+  //  BOF::Bof_MsSleep(1500);
+  for (i_U32 = PoolCapacity_U32; i_U32 < BOF_NB_ELEM_IN_ARRAY(pThreadPoolCallback_X); i_U32++)
+  {
+    Start_U32 = BOF::Bof_GetMsTickCount();
+    do
+    {
+      pDispatchTicket = Pool.GetFirstPendingDispatch();
+      if (pDispatchTicket)
+      {
+        printf("%d: Dispatch %p (%s) is finished\n", BOF::Bof_GetMsTickCount(), pDispatchTicket, Pool.GetDispatchName(pDispatchTicket).c_str());
+        EXPECT_EQ(Pool.AckPendingDispatch(0, pDispatchTicket), BOF_ERR_NO_ERROR);
+      }
+      else
+      {
+        if (BOF::Bof_ElapsedMsTime(Start_U32) > 2000)
+        {
+          EXPECT_TRUE(0);
+          break;
+        }
+      }
+    }
+    while (pDispatchTicket == nullptr);
+  }
+}
 
 class BofThread_Test : public ::testing::Test
 {
@@ -1168,66 +1353,66 @@ TEST(Threading_Test, Cv)
 
 TEST(Threading_Test, ThreadParameterFromString)
 {
-  BOF_THREAD_PARAM ThreadParam_X;
+  BOF_THREAD_PARSER_PARAM ThreadParserParam_X;
   std::string Str_S;
 
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("z", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("z2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("n", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("na", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString(":C1", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("n0:o50,c0-0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("n0:o50:c2-1", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("n0:o50:c0;0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("n0:g50:c0-0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_NE(BofThread::S_ThreadParameterFromString("n0:o:c0-0", ThreadParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("z", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("z2", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("n", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("na", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString(":C1", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("n0:o50,c0-0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("n0:o50:c2-1", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("n0:o50:c0;0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("n0:g50:c0-0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(BofThread::S_ThreadParserParamFromString("n0:o:c0-0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
 
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f30:c13,11,12,10,2-4,29,1-2,15,30-64", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_TRUE(ThreadParam_X.NbActiveCore_U32 != 0);
-  EXPECT_EQ(ThreadParam_X.Node_U32, 1);
-  EXPECT_EQ(ThreadParam_X.AffinityCpuSet_U64, 0xFFFFFFFFE000BC1E);
-  EXPECT_EQ(ThreadParam_X.CoreChosen_U32, 1);
-  EXPECT_EQ(ThreadParam_X.SchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f30:c13,11,12,10,2-4,29,1-2,15,30-64", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(ThreadParserParam_X.NbActiveCore_U32 != 0);
+  EXPECT_EQ(ThreadParserParam_X.Node_U32, 1);
+  EXPECT_EQ(ThreadParserParam_X.AffinityCpuSet_U64, 0xFFFFFFFFE000BC1E);
+  EXPECT_EQ(ThreadParserParam_X.CoreChosen_U32, 1);
+  EXPECT_EQ(ThreadParserParam_X.ThreadSchedulerPolicy_E, BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_FIFO);
 
-  Str_S = BofThread::S_ToString(ThreadParam_X, true);
+  Str_S = BofThread::S_ToString(ThreadParserParam_X, true);
   Str_S = Str_S.substr(0, Str_S.find('/', 0));
-  EXPECT_EQ(ThreadParam_X.Priority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_030);
+  EXPECT_EQ(ThreadParserParam_X.ThreadPriority_E, BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_030);
   EXPECT_STREQ(Str_S.c_str(), "n1:f30:c1-4,10-13,15,29-63 A1");
 
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f60:c0:f55:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:o-1:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c3", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:c0:o-1", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f60:c4", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f80:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f80:c4", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f80:c5", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c8", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c8", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c9", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f20:c7", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c6", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f69:c6", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f90:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f70:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c6", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f10:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f70:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f69:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f60:c0", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f80:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f5:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f65:c2", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c6", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f1:c8", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f73:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f72:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f70:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f0:c14-15", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f30:c10,11,12,13", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n1:f30:c10,11,12,13", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f92:c14", ThreadParam_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(BofThread::S_ThreadParameterFromString("n0:f91:c15", ThreadParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f60:c0:f55:c2", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:o-1:c2", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f70:c3", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:c0:o-1", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f60:c4", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f80:c0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f80:c4", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f80:c5", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f70:c8", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f70:c8", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f70:c9", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f20:c7", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f70:c6", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f69:c6", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f90:c0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f70:c0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f1:c6", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f10:c0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f70:c0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f69:c0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f60:c0", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f80:c2", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f5:c2", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f65:c2", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f1:c6", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f1:c8", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f73:c14", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f72:c14", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f70:c14", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f70:c14", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f0:c14-15", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f30:c10,11,12,13", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n1:f30:c10,11,12,13", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f92:c14", ThreadParserParam_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(BofThread::S_ThreadParserParamFromString("n0:f91:c15", ThreadParserParam_X), BOF_ERR_NO_ERROR);
 }

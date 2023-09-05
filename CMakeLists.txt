@@ -106,7 +106,6 @@ if(BOFSTD_GENERATE_HELP)
   endif()
 endif()
 
-
 #option(BUILD_SHARED_LIBS "If ON, all libraries will be built shared unless the library was explicitly added as a static library"          ON)
 
 SET(CMAKE_COLOR_MAKEFILE ON)
@@ -169,20 +168,6 @@ endif()
 # even if you don't have tests
 enable_testing()
 
-# ==================
-# == CONFIG FILES ==
-# ==================
-
-# Add configuration files to a dummy library to
-# make sure files are properly found
-add_library(bofstd-config-files INTERFACE
-  Config.cmake.in
-  Dependencies.cmake.in
-  Dependencies.private.cmake
-  vcpkg-configuration.json
-  vcpkg.json
-  lib/CMakeLists.txt
-)
 
 # ===========================
 # == EXTERNAL DEPENDENCIES ==
@@ -302,20 +287,4 @@ configure_package_config_file(
 
 unset(INTERNAL_NAMESPACE)
 
-# Generate the version file and indicates compatibility strategy
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/bofstd-version.cmake
-  VERSION "${PROJECT_VERSION}"
-  COMPATIBILITY SameMajorVersion
-)
-
-# Install them
-#message("=============================>" ${CMAKE_INSTALL_DATADIR})
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/bofstd-version.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/bofstd-dependencies.cmake
-  DESTINATION ${CMAKE_INSTALL_DATADIR}
-  COMPONENT   bofstd-devel
-)
 

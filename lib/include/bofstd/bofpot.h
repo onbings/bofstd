@@ -217,7 +217,6 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
           mErrorCode_E = BOF_ERR_ENOMEM;
-          mNumberOfElementOutOfThePot_U32 = 0;
 
           mpPotDataStorage_X = new DataType[mPotParam_X.PotCapacity_U32];
           mpFirstPotElementToTryForGet_X = mpPotDataStorage_X;
@@ -250,12 +249,13 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
                 {
                   mpInUseElementList_U8[i_U32] = 0x00;
                 }
-                if (mPotParam_X.Blocking_B)
-                {
-                  Bof_SignalEvent(mCanGetEvent_X, 0);
-                }
+
                 mErrorCode_E = BOF_ERR_NO_ERROR;
               }
+            }
+            if ((mErrorCode_E == BOF_ERR_NO_ERROR) && (mPotParam_X.Blocking_B))
+            {
+              Bof_SignalEvent(mCanGetEvent_X, 0);
             }
           }
         }
@@ -558,7 +558,6 @@ RetryGet:
 
           mNumberOfElementOutOfThePot_U32++;
           mpFirstPotElementToTryForGet_X = pRts_X + 1;
-
           if (mNumberOfElementOutOfThePot_U32 > mLevelMax_U32)
           {
             mLevelMax_U32 = mNumberOfElementOutOfThePot_U32;
@@ -576,7 +575,7 @@ RetryGet:
         Sts_E = BOF_ERR_EMPTY;
       }
       BOF_POT_UNLOCK()
-      if ((mPotParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32))
+      if (mPotParam_X.Blocking_B)
       {
         if (Sts_E == BOF_ERR_NO_ERROR)
         {
@@ -585,9 +584,12 @@ RetryGet:
             Bof_SignalEvent(mCanGetEvent_X, 0);
           }
         }
-        if (Sts_E == BOF_ERR_EMPTY)
+        if (_BlockingTimeouItInMs_U32)
         {
-          goto RetryGet;
+          if (Sts_E == BOF_ERR_EMPTY)
+          {
+            goto RetryGet;
+          }
         }
       }
     }
@@ -784,9 +786,9 @@ BOFERR BofPot<DataType>::Release(DataType *_pData_X)
     }
     BOF_POT_UNLOCK()
   }
-  if (mPotParam_X.Blocking_B)
+  if (Rts_E == BOF_ERR_NO_ERROR)
   {
-    if (Rts_E == BOF_ERR_NO_ERROR)
+    if (mPotParam_X.Blocking_B)
     {
       Bof_SignalEvent(mCanGetEvent_X, 0);
     }
@@ -846,6 +848,13 @@ BOFERR BofPot<DataType>::ClearPot(uint32_t _NbFirstEntryToKeep_U32)
         }
       }
       mNumberOfElementOutOfThePot_U32 = NbLockedKept_U32;
+      if (mPotParam_X.Blocking_B)
+      {
+        if (mNumberOfElementOutOfThePot_U32 < mPotParam_X.PotCapacity_U32)
+        {
+          Bof_SignalEvent(mCanGetEvent_X, 0);
+        }
+      }
 
       // mNbUsedReturnedUntilNow_U32    = 0;
       // mNbMaxUsedToReturn_U32         = 0;
