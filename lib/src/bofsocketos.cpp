@@ -997,7 +997,7 @@ BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET
         }
       }
 
-      PosProtocol = IpAddress_S.find('://');
+      PosProtocol = IpAddress_S.find("://");
       if (PosProtocol != std::string::npos)
       {
         if (!IpAddress_S.compare(0, 6, "tcp://"))

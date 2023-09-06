@@ -215,9 +215,9 @@ BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _S
           {
           }
 #else
-          //        pthread_setname_np(pthread_self(), mName_S.c_str());
+          //        pthread_setname_np(pthread_self(), mThreadParam_X.Name_S.c_str());
 
-          pthread_setname_np(static_cast<pthread_t>(mThread.native_handle()), mName_S.c_str());
+          pthread_setname_np(static_cast<pthread_t>(mThread.native_handle()), mThreadParam_X.Name_S.c_str());
 #endif
         }
         if (_SignalEvent_B)
@@ -830,15 +830,15 @@ void BofThread::BofThread_Thread()
 
 #else
     int Status_i = 0;
-    int Policy_i = mPolicy_E;
+    int Policy_i = mThreadParam_X.ThreadSchedulerPolicy_E;
     struct sched_param Params_X;
     Sts_E = BOF_ERR_SCHEDULER;
-    Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
+    //Status_i = pthread_getschedparam(pthread_self(), &Policy_i, &Params_X);
     // printf("0: Sts %d Pol %d Prio %d\n", Status_i, Policy_i, Params_X.sched_priority);
 
     Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E);
     // Set the priority
-    Status_i = pthread_setschedparam(pthread_self(), mPolicy_E, &Params_X);
+    Status_i = pthread_setschedparam(pthread_self(), mThreadParam_X.ThreadSchedulerPolicy_E, &Params_X);
     // Verify
     // printf("1: Sts %d Pol %d Prio %d errno %d\n", Status_i, mPolicy_E, Params_X.sched_priority, errno);
     if (Status_i == 0)
@@ -847,7 +847,7 @@ void BofThread::BofThread_Thread()
       // printf("2: Sts %d Pol %d Prio %d (%d->%d)\n", Status_i, Policy_i, Params_X.sched_priority, mThreadParam_X.ThreadPriority_E, Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E));
       if (Status_i == 0)
       {
-        Sts_E = ((Policy_i == mPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
+        Sts_E = ((Policy_i == mThreadParam_X.ThreadSchedulerPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
       }
     }
 #endif

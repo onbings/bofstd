@@ -164,7 +164,7 @@ struct BOF_SOCKET_ADDRESS
   bool Valid_B;
   bool IpV6_B;
   std::string Protocol_S;
-  //char pProtocol_c[16];
+  // char pProtocol_c[16];
   BOF_SOCK_TYPE SocketType_E;
   BOF_SOCKADDR_IN IpV4Address_X;
   BOF_SOCKADDR_IN6 IpV6Address_X;
@@ -442,7 +442,7 @@ struct BOF_SOCKET_ADDRESS
     IpV6_B = false;
     SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
     Protocol_S = "";
-    //pProtocol_c[0] = 0;
+    // pProtocol_c[0] = 0;
     memset(&IpV4Address_X, 0, sizeof(IpV4Address_X));
     IpV4Address_X.sin_addr.s_addr = 0;
     IpV4Address_X.sin_family = AF_UNSPEC;
@@ -462,11 +462,12 @@ struct BOF_SOCKET_ADDRESS
   bool IsNull() const
   {
     bool Rts_B;
-    BOF_SOCKET_ADDRESS Null_X;
+    BOF_SOCKADDR_IN6 Null_X;
 
     if (IpV6_B)
     {
-      Rts_B = ((IpV6Address_X.sin6_port == 0) && memcmp(&IpV6Address_X.sin6_addr, &Null_X.IpV6Address_X.sin6_addr, sizeof(BOF_SOCKADDR_IN6)) == 0);
+      memset(&Null_X, 0, sizeof(BOF_SOCKADDR_IN6));
+      Rts_B = ((IpV6Address_X.sin6_port == 0) && memcmp(&IpV6Address_X.sin6_addr, &Null_X.sin6_addr, sizeof(BOF_IN_ADDR6)) == 0);
     }
     else
     {
@@ -576,7 +577,7 @@ BOFSTD_EXPORT BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SO
 
 struct BOF_SOCKET_ADDRESS_COMPONENT
 {
-  //in BOF_SOCKET_ADDRESS Ip_X 
+  // in BOF_SOCKET_ADDRESS Ip_X
   std::string Protocol_S;  // Scheme  (cf BofUri)
   std::string IpAddress_S; // Authority (cf BofUri)
   uint16_t Port_U16;       // Authority (cf BofUri)
