@@ -48,7 +48,7 @@ template <typename T> struct BOF_STAT_VARIABLE
   T Max;                  /*! Maximum value */
   T Mean;                 /*! Mean value */
   T MeanAcc;              /*! Accumulator needed for computing the mean */
-  uint64_t LockCount_U64; /*! +1 for each call to V_EnterBench -1 for each V_LeaveBench */
+  uint64_t LockCount_U64; /*! +1 for each call to EnterBench -1 for each LeaveBench */
   uint64_t NbSample_U64;  /*! Number of items accumulated */
   BOF_STAT_VARIABLE()
   {

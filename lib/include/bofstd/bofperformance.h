@@ -33,14 +33,14 @@ BEGIN_BOF_NAMESPACE()
   {                                                                                                                                                                                                                                                            \
     if ((PROFILER) != nullptr)                                                                                                                                                                                                                                 \
     {                                                                                                                                                                                                                                                          \
-      (PROFILER)->V_EnterBench(ITEM);                                                                                                                                                                                                                          \
+      (PROFILER)->EnterBench(ITEM);                                                                                                                                                                                                                          \
     }                                                                                                                                                                                                                                                          \
   }
 #define BOF_LEAVE_BENCH(PROFILER, ITEM)                                                                                                                                                                                                                        \
   {                                                                                                                                                                                                                                                            \
     if ((PROFILER) != nullptr)                                                                                                                                                                                                                                 \
     {                                                                                                                                                                                                                                                          \
-      (PROFILER)->V_LeaveBench(ITEM);                                                                                                                                                                                                                          \
+      (PROFILER)->LeaveBench(ITEM);                                                                                                                                                                                                                          \
     }                                                                                                                                                                                                                                                          \
   }
 
@@ -60,7 +60,7 @@ typedef enum
 {
   BOF_PROFILER_TYPE_NORMAL = 0, // In this order !!!
   BOF_PROFILER_TYPE_OS_AWARE,
-  BOF_PROFILER_TYPE_LIGHT,
+  //BOF_PROFILER_TYPE_LIGHT,
   BOF_PROFILER_TYPE_MAX
 } BOF_PROFILER_TYPE;
 
@@ -243,7 +243,7 @@ public:
   Returns
     None
   */
-  void V_EnterBench(uint32_t _ItemId_U32)
+  void EnterBench(uint32_t _ItemId_U32)
   {
     if (_ItemId_U32 < this->pItems_O.size())
     {
@@ -264,7 +264,7 @@ public:
   Returns
    None
   */
-  void V_LeaveBench(uint32_t _ItemId_U32)
+  void LeaveBench(uint32_t _ItemId_U32)
   {
     if (_ItemId_U32 < this->pItems_O.size())
     {
@@ -376,8 +376,8 @@ public:
   BofProfiler(BOF_PROFILER_TYPE _ProfilerType_E, uint32_t _NbItems_U32);
   virtual ~BofProfiler();
 
-  virtual void V_EnterBench(uint32_t _ItemId_U32);
-  virtual void V_LeaveBench(uint32_t _ItemId_U32);
+  void EnterBench(uint32_t _ItemId_U32);
+  void LeaveBench(uint32_t _ItemId_U32);
 
   bool SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64);
   bool GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X);
@@ -391,8 +391,10 @@ public:
   uint64_t GetMax(uint32_t _ItemId_U32);
   uint64_t GetMean(uint32_t _ItemId_U32);
   uint64_t GetLast(uint32_t _ItemId_U32);
+  uint64_t GetLockCount(uint32_t _ItemId_U32);
+  uint64_t GetNbSample(uint32_t _ItemId_U32);
 
-  uint32_t GetCount();
+  uint32_t GetNbItemInProfiler();
 
 protected:
   using ExtendedProfiler = TheProfiler::BofExtendedProfiler<std::chrono::steady_clock, std::mutex>;

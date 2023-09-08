@@ -74,7 +74,11 @@ BofProfiler::BofProfiler(BOF_PROFILER_TYPE _ProfilerType_E, uint32_t _NbItems_U3
   mProfilerType_E = _ProfilerType_E;
   mNbItems_U32 = _NbItems_U32;
 
-  if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+  if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+  {
+    mpuExtendedProfiler = std::unique_ptr<ExtendedProfiler>(new ExtendedProfiler(_NbItems_U32));
+  }
+  else
   {
     mpStats_X = new BOF_STAT_VARIABLE<uint64_t>[mNbItems_U32];
     BOF_ASSERT(mpStats_X != nullptr);
@@ -84,10 +88,6 @@ BofProfiler::BofProfiler(BOF_PROFILER_TYPE _ProfilerType_E, uint32_t _NbItems_U3
       mpStats_X[i_U32].Reset();
       mpStats_X[i_U32].Min = (uint64_t)-1;
     }
-  }
-  else
-  {
-    mpuExtendedProfiler = std::unique_ptr<ExtendedProfiler>(new ExtendedProfiler(_NbItems_U32));
   }
 }
 
@@ -115,24 +115,23 @@ BofProfiler::~BofProfiler()
    See also
    Nothing
  */
-void BofProfiler::V_EnterBench(uint32_t _ItemId_U32)
+void BofProfiler::EnterBench(uint32_t _ItemId_U32)
 {
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      mpuExtendedProfiler->EnterBench(_ItemId_U32);
+    }
+    else
     {
       if (mpStats_X[_ItemId_U32].LockCount_U64++ == 0)
       {
         mpStats_X[_ItemId_U32].Crt = Bof_GetNsTickCount();
       }
     }
-    else
-    {
-      mpuExtendedProfiler->V_EnterBench(_ItemId_U32);
-    }
   }
 }
-
 /*!
    Description
    This function indicates that the specified item leave its processing zone
@@ -149,14 +148,18 @@ void BofProfiler::V_EnterBench(uint32_t _ItemId_U32)
    See also
    Nothing
  */
-void BofProfiler::V_LeaveBench(uint32_t _ItemId_U32)
+void BofProfiler::LeaveBench(uint32_t _ItemId_U32)
 {
   uint64_t Ticks1_U64;
   uint64_t Ticks2_U64;
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      mpuExtendedProfiler->LeaveBench(_ItemId_U32);
+    }
+    else
     {
       if (mpStats_X[_ItemId_U32].LockCount_U64)
       {
@@ -170,10 +173,6 @@ void BofProfiler::V_LeaveBench(uint32_t _ItemId_U32)
           Bof_UpdateStatVar(mpStats_X[_ItemId_U32], mpStats_X[_ItemId_U32].Crt);
         }
       }
-    }
-    else
-    {
-      mpuExtendedProfiler->V_LeaveBench(_ItemId_U32);
     }
   }
 }
@@ -204,11 +203,7 @@ bool BofProfiler::GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_p
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
-    {
-      memcpy(_pStats_X, &mpStats_X[_ItemId_U32], sizeof(BOF_STAT_VARIABLE<uint64_t>));
-    }
-    else
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
     {
       auto TheTiming = mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E));
 
@@ -219,6 +214,10 @@ bool BofProfiler::GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_p
       Stat_X.NbSample_U64 = static_cast<uint64_t>(TheTiming.GetCount());
 
       memcpy(_pStats_X, &Stat_X, sizeof(BOF_STAT_VARIABLE<uint64_t>));
+    }
+    else
+    {
+      memcpy(_pStats_X, &mpStats_X[_ItemId_U32], sizeof(BOF_STAT_VARIABLE<uint64_t>));
     }
     Rts_B = true;
   }
@@ -249,13 +248,13 @@ bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
     {
-      Bof_UpdateStatVar(mpStats_X[_ItemId_U32], _Value_U64);
+      mpuExtendedProfiler->AddValue(_ItemId_U32, TicksToUnits(_Value_U64, BOF_PERF_NANOSECOND));
     }
     else
     {
-      mpuExtendedProfiler->AddValue(_ItemId_U32, TicksToUnits(_Value_U64, BOF_PERF_NANOSECOND));
+      Bof_UpdateStatVar(mpStats_X[_ItemId_U32], _Value_U64);
     }
     Rts_B = true;
   }
@@ -286,7 +285,11 @@ void BofProfiler::ResetStats(uint32_t _ItemId_U32)
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      mpuExtendedProfiler->Reset(_ItemId_U32);
+    }
+    else
     {
       LockCount_U64 = mpStats_X[_ItemId_U32].LockCount_U64;
       Current_U64 = mpStats_X[_ItemId_U32].Crt;
@@ -296,10 +299,6 @@ void BofProfiler::ResetStats(uint32_t _ItemId_U32)
 
       mpStats_X[_ItemId_U32].LockCount_U64 = LockCount_U64;
       mpStats_X[_ItemId_U32].Crt = Current_U64;
-    }
-    else
-    {
-      mpuExtendedProfiler->Reset(_ItemId_U32);
     }
   }
 }
@@ -321,7 +320,7 @@ void BofProfiler::ResetStats(uint32_t _ItemId_U32)
    See also
    Nothing
  */
-uint32_t BofProfiler::GetCount()
+uint32_t BofProfiler::GetNbItemInProfiler()
 {
   return mNbItems_U32;
 }
@@ -333,16 +332,16 @@ uint64_t BofProfiler::GetMin(uint32_t _ItemId_U32)
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMin());
+    }
+    else
     {
       if (GetStats(_ItemId_U32, &Stats_X))
       {
         Rts_U64 = Stats_X.Min;
       }
-    }
-    else
-    {
-      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMin());
     }
   }
   return Rts_U64;
@@ -355,16 +354,16 @@ uint64_t BofProfiler::GetMax(uint32_t _ItemId_U32)
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMax());
+    }
+    else
     {
       if (GetStats(_ItemId_U32, &Stats_X))
       {
         Rts_U64 = Stats_X.Max;
       }
-    }
-    else
-    {
-      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMax());
     }
   }
 
@@ -378,16 +377,16 @@ uint64_t BofProfiler::GetMean(uint32_t _ItemId_U32)
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMean());
+    }
+    else
     {
       if (GetStats(_ItemId_U32, &Stats_X))
       {
         Rts_U64 = Stats_X.Mean;
       }
-    }
-    else
-    {
-      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetMean());
     }
   }
   return Rts_U64;
@@ -400,22 +399,65 @@ uint64_t BofProfiler::GetLast(uint32_t _ItemId_U32)
 
   if (_ItemId_U32 < mNbItems_U32)
   {
-    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_LIGHT)
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetLast());
+    }
+    else
     {
       if (GetStats(_ItemId_U32, &Stats_X))
       {
         Rts_U64 = Stats_X.Crt;
       }
     }
+  }
+
+  return Rts_U64;
+}
+uint64_t BofProfiler::GetLockCount(uint32_t _ItemId_U32)
+{
+  uint64_t Rts_U64 = 0;
+  BOF_STAT_VARIABLE<uint64_t> Stats_X;
+
+  if (_ItemId_U32 < mNbItems_U32)
+  {
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      Rts_U64 = 0;
+    }
     else
     {
-      Rts_U64 = ToProfileValue(mpuExtendedProfiler->GetItem(_ItemId_U32, static_cast<uint32_t>(mProfilerType_E)).GetLast());
+      if (GetStats(_ItemId_U32, &Stats_X))
+      {
+        Rts_U64 = Stats_X.LockCount_U64;
+      }
     }
   }
 
   return Rts_U64;
 }
+uint64_t BofProfiler::GetNbSample(uint32_t _ItemId_U32)
+{
+  uint64_t Rts_U64 = 0;
+  BOF_STAT_VARIABLE<uint64_t> Stats_X;
 
+  if (_ItemId_U32 < mNbItems_U32)
+  {
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+      Rts_U64 = 0;
+    }
+    else
+    {
+      if (GetStats(_ItemId_U32, &Stats_X))
+      {
+        Rts_U64 = Stats_X.NbSample_U64;
+      }
+    }
+  }
+
+  return Rts_U64;
+}
 /*!
    Description
    This function converts ticks to the specified unit value
