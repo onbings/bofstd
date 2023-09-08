@@ -2099,11 +2099,11 @@ void BofParameter::S_BuildHelpString(const std::vector<BOFPARAMETER> &_rListOfPa
   {
     if (_rListOfParam_X[i_U32].Name_S.size() == 1)
     {
-      p_c += std::sprintf(p_c, " -%s%.*s: %s%s", _rListOfParam_X[i_U32].Name_S.c_str(), MaxLen_U32 - 1, pPadding_c, _rListOfParam_X[i_U32].Description_S.c_str(), Bof_Eol());
+      p_c += std::sprintf(p_c, " -%s%.*s: %s\n", _rListOfParam_X[i_U32].Name_S.c_str(), MaxLen_U32 - 1, pPadding_c, _rListOfParam_X[i_U32].Description_S.c_str());
     }
     else
     {
-      p_c += std::sprintf(p_c, "--%s%.*s: %s%s", _rListOfParam_X[i_U32].Name_S.c_str(), MaxLen_U32 - static_cast<uint32_t>(_rListOfParam_X[i_U32].Name_S.size()), pPadding_c, _rListOfParam_X[i_U32].Description_S.c_str(), Bof_Eol());
+      p_c += std::sprintf(p_c, "--%s%.*s: %s", _rListOfParam_X[i_U32].Name_S.c_str(), MaxLen_U32 - static_cast<uint32_t>(_rListOfParam_X[i_U32].Name_S.size()), pPadding_c, _rListOfParam_X[i_U32].Description_S.c_str());
     }
     _rHelpString_S = _rHelpString_S + std::string(pStr_c);
     p_c = pStr_c;
@@ -2187,11 +2187,11 @@ void BofParameter::S_BuildHelpString(const std::vector<BOFPARAMETER> &_rListOfPa
       {
         std::sprintf(pEntry_c, "[%04d/%04d]", Index_U32, VectorCapacity_U32);
 
-        _rHelpString_S = _rHelpString_S + std::string(pEntry_c) + std::string(pStr_c + 12) + Bof_Eol(); //+12k to skip padding space used by pEntry_c
+        _rHelpString_S = _rHelpString_S + std::string(pEntry_c) + std::string(pStr_c + 12) + '\n'; //+12k to skip padding space used by pEntry_c
       }
       else
       {
-        _rHelpString_S = _rHelpString_S + std::string(pStr_c) + Bof_Eol();
+        _rHelpString_S = _rHelpString_S + std::string(pStr_c) + '\n';
       }
       p_c = pStr_c;
       Index_U32++;

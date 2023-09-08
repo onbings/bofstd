@@ -81,12 +81,12 @@ private:
 #if 0
 void OnSpdlogOpenAsync()
 {
-  // printf("OnSpdlogOpenAsync called: set thread affinity for example%s",Bof_Eol());
+  // printf("OnSpdlogOpenAsync called: set thread affinity for example\n");
 }
 
 void OnSpdlogCloseAsync()
 {
-  // printf("OnSpdlogCloseAsync called: %s",Bof_Eol());
+  // printf("OnSpdlogCloseAsync called: \n");
 }
 #endif
 

@@ -418,7 +418,7 @@ TEST(Fs_Test, FileLayout)
         Pos_U64 = 0;
         for (k_U32 = 0; k_U32 < 100; k_U32++)
         {
-          Line_S = Bof_Sprintf("This is line %06d%s", k_U32, Bof_Eol());
+          Line_S = Bof_Sprintf("This is line %06d\n", k_U32);
           Nb_U32 = static_cast<uint32_t>(Line_S.size());
           Sts_E = Bof_WriteFile(Io, Nb_U32, reinterpret_cast<const uint8_t *>(Line_S.c_str()));
           EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -454,7 +454,7 @@ TEST(Fs_Test, FileLayout)
         {
           NewPos_U64 = Bof_SetFileIoPosition(Io, Pos_U64, BOF_SEEK_METHOD::BOF_SEEK_BEGIN);
           EXPECT_EQ(NewPos_U64, Pos_U64);
-          Line_S = Bof_Sprintf("This is line %06d%s", k_U32, Bof_Eol());
+          Line_S = Bof_Sprintf("This is line %06d\n", k_U32);
           Nb_U32 = static_cast<uint32_t>(Line_S.size());
           Sts_E = Bof_ReadLine(Io, LineRead_S);
           EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -499,8 +499,7 @@ TEST(Fs_Test, DirEnum)
   {
     //		Sts_E = Bof_TimeInSecSince1970_To_BofDateTime(FileCollection[i_U32].LastAccess_X, DateTime_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(),
-    // Bof_Eol());
+    //		printf("Size %06lld Time %s Dir %s Path %s\n", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str());
   }
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, false, 0xFFFFFFFF, FileCollection);
@@ -510,8 +509,7 @@ TEST(Fs_Test, DirEnum)
   {
     //  Sts_E = Bof_TimeInSecSince1970_To_BofDateTime(FileCollection[i_U32].LastAccess_X, DateTime_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
-    //		printf("Size %06lld Time %s Dir %s Path %s%s", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str(),
-    // Bof_Eol());
+    //		printf("Size %06lld Time %s Dir %s Path %s\n", FileCollection[i_U32].Size_U64, Bof_FormatDateTime(DateTime_X).c_str(), FileCollection[i_U32].Path.IsDirectory() ? "true " : "false", FileCollection[i_U32].Path.FullPathName(false).c_str());
   }
   FileCollection.clear();
   Sts_E = Bof_FindFile(DirLayoutRoot, "*.1", BOF_FILE_TYPE::BOF_FILE_DIR, true, 0xFFFFFFFF, FileCollection);

@@ -64,7 +64,7 @@ BofLogger &BofLogger::S_Instance()
 
 void OnSpdlogError(const std::string & /*_rErr_S*/)
 {
-  // printf("OnSpdlogError called: %s%s", _rErr_S.c_str(), Bof_Eol() );
+  // printf("OnSpdlogError called: %s\n", _rErr_S.c_str());
 }
 
 BOFERR BofLogger::InitializeLogger(const BOF_LOGGER_PARAM &_rLoggerParam_X)
@@ -442,8 +442,8 @@ BOFERR BofLogger::S_FormatMaskLogMsg(const char *_pChannelName_c, uint32_t _Mask
 #else
           Bof_Now(DateTime);
           DateTime_S = DateTime.ToString("%d/%m/%y %H:%M:%S.") + std::to_string(Bof_GetMsTickCount() % 1000);
-          TextLen_i = snprintf(_pFormattedLogLine_c, Remain_i, "[%u] (%06u) %s  %s %d %s (%s)%s[%8.8s] ", Bof_GetMsTickCount(), It->second->EllapsedTimeInMsSinceLast(), DateTime_S.c_str(), pFile_c, _Line_U32, _pFunction_c ? _pFunction_c : "UNKNOWN",
-                               pErrorCodeString_c, Bof_Eol(), It->second->LogMaskName(Mask_U32).c_str());
+          TextLen_i = snprintf(_pFormattedLogLine_c, Remain_i, "[%u] (%06u) %s  %s %d %s (%s)\n[%8.8s] ", Bof_GetMsTickCount(), It->second->EllapsedTimeInMsSinceLast(), DateTime_S.c_str(), pFile_c, _Line_U32, _pFunction_c ? _pFunction_c : "UNKNOWN",
+                               pErrorCodeString_c, It->second->LogMaskName(Mask_U32).c_str());
           //   printf(">1>>>%s\n",_pFormattedLogLine_c);
           //   printf(">2>>>%s Mask %08X\n",It->second->LogMaskName(Mask_U32).c_str(),Mask_U32);
           if (TextLen_i > 0)

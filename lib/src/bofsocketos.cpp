@@ -1017,11 +1017,11 @@ BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET
         else
         {
           Ip_X.SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_TCP;
-          Ip_X.Protocol_S = IpAddress_S.substr(0, PosProtocol - 1);
+          Ip_X.Protocol_S = IpAddress_S.substr(0, PosProtocol);
           //ProtoNameSize_U32 = ((PosProtocol - 1) < sizeof(Ip_X.pProtocol_c)) ? (PosProtocol - 1) : (sizeof(Ip_X.pProtocol_c)-1);
           //memcpy(Ip_X.pProtocol_c, IpAddress_S.c_str(), ProtoNameSize_U32);
           //Ip_X.pProtocol_c[ProtoNameSize_U32] = 0;
-          IpAddress_S = IpAddress_S.substr(PosProtocol+2);
+          IpAddress_S = IpAddress_S.substr(PosProtocol+3);
         }
       }
       if (Ip_X.IpV6_B)

@@ -3166,7 +3166,7 @@ std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZon
             pAscii_c[NbItemBytePerLine_U32] = 0;
             Rts_S += pAscii_c;
           }
-          Rts_S += Bof_Eol();
+          Rts_S += '\n';// same for linux and windows Bof_Eol();
           VirtualOffset_S64 += NbItemBytePerLine_U32;
         } // while (Remain_S32 > 0)
       }
@@ -3290,25 +3290,6 @@ bool Bof_IsElapsedTimeInMs(uint32_t _Start_U32, uint32_t _TimeoutInMs_U32)
   return (Bof_ElapsedMsTime(_Start_U32) >= _TimeoutInMs_U32);
 }
 
-/*
-const char*Bof_Eol()
-{
-#if defined (_WIN32)
-  return "\r\n";
-#else
-  return "\n";
-#endif
-}
-
-char Bof_FilenameSeparator()
-{
-#if defined (_WIN32)
-  return '\\';
-#else
-  return '/';
-#endif
-}
-*/
 // Min and Max value are include
 int32_t Bof_Random(bool _Reset_B, int32_t _MinValue_S32, int32_t _MaxValue_S32)
 {

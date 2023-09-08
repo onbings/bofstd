@@ -99,7 +99,7 @@ static BOFERR ServerThread(const std::atomic<bool> &_rThreadMustStop_B, void *_p
         strcat(reinterpret_cast<char *>(pBuffer_U8), pId_c);
         Nb_U32 = strlen(reinterpret_cast<char *>(pBuffer_U8));
         Rts_E = pContext_X->pBofPipeServer->V_WriteData(PIPE_TIMEOUT, Nb_U32, pBuffer_U8);
-        //printf("Server send '%d:%s' data sts %d%s", Nb_U32, pBuffer_U8, Rts_E, Bof_Eol());
+        //printf("Server send '%d:%s' data sts %d\n", Nb_U32, pBuffer_U8, Rts_E);
         */
         EXPECT_EQ(Rts_E, BOF_ERR_NO_ERROR);
         EXPECT_GT(Nb_U32, static_cast<uint32_t>(0));
@@ -349,7 +349,7 @@ TEST(Pipe_Test, NativePipeSingleString)
   // std::atomic<bool> MustExit_B=false;
   // ServerThread(MustExit_B, &ServerContext_X);
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-  // printf("%d loop in %d ms%s", i_U32, Delta_U32, Bof_Eol());
+  // printf("%d loop in %d ms\n", i_U32, Delta_U32);
 
   Sts_E = Bof_StopThread(ServerThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
