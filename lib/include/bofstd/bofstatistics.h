@@ -23,6 +23,7 @@
 #include <bofstd/bofstd.h>
 
 #include <cstdint>
+#include <limits>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -58,8 +59,8 @@ template <typename T> struct BOF_STAT_VARIABLE
   void Reset()
   {
     Crt = 0;
-    Min = 0;
-    Max = 0;
+    Min = std::numeric_limits<T>::max();;
+    Max = std::numeric_limits<T>::min();;
     Mean = 0;
     MeanAcc = 0;
     LockCount_U64 = 0;
@@ -148,7 +149,7 @@ template <typename T> BOFERR Bof_UpdateStatMean(BOF_STAT_VARIABLE<T> &_rStatVar_
   bool RollOver_B;
 
   Rts_E = BOF_ERR_EMPTY;
-  if (_rStatVar_X.Crt != 0)
+  //if (_rStatVar_X.Crt != 0)
   {
     Rts_E = BOF_ERR_NO_ERROR;
 

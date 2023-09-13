@@ -177,14 +177,14 @@ uint32_t FillLog(uint32_t _Offset_U32, uint32_t _MaxLoop_U32, std::vector<BOF_LO
     EXPECT_EQ(ListOfLogLine_S.size(), _Offset_U32 + 1 + (MAXNUMBEROFLOGGERQUEUEENTRIES * 2));
     EXPECT_EQ(Nb_U32, _Offset_U32 + 1 + (MAXNUMBEROFLOGGERQUEUEENTRIES * 2));
     Val_S = ListOfLogLine_S[Index_U32++].substr(21);
-    EXPECT_STREQ(Bof_Sprintf(" C %s: %08X AAA\n", ChannelName_S.c_str(), Index_U32);
+    EXPECT_STREQ(Bof_Sprintf(" C %s: %08X AAA\n", ChannelName_S.c_str(), Index_U32).c_str(), Val_S.c_str());
 
     for (j_U32 = 0; j_U32 < MAXNUMBEROFLOGGERQUEUEENTRIES; j_U32++)
     {
       Val_S = ListOfLogLine_S[Index_U32++].substr(21);
-      EXPECT_STREQ(Bof_Sprintf(" C %s: %08X Fast Line %d\n", ChannelName_S.c_str(), Index_U32, j_U32);
+      EXPECT_STREQ(Bof_Sprintf(" C %s: %08X Fast Line %d\n", ChannelName_S.c_str(), Index_U32, j_U32).c_str(), Val_S.c_str());
       Val_S = ListOfLogLine_S[Index_U32++].substr(21);
-      EXPECT_STREQ(Bof_Sprintf(" C %s: %08X Slow Line %d\n", ChannelName_S.c_str(), Index_U32, j_U32);
+      EXPECT_STREQ(Bof_Sprintf(" C %s: %08X Slow Line %d\n", ChannelName_S.c_str(), Index_U32, j_U32).c_str(), Val_S.c_str());
     }
     Sts_E = psExtractLogChannel->V_CloseLogStorage();
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -490,7 +490,7 @@ TEST_F(TestLogger, LoggerMultiChannel)
   }
   Bof_MsSleep(500);
   // 24/03/23 10:59:15:664 C LogChannel7 00000774 Log 00000305
-  uint32_t OneLineSize_U32 = 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + 1);
+  uint32_t OneLineSize_U32 = 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + 1;
   uint32_t FileSize_U32 = (j_U32 * OneLineSize_U32);
   EXPECT_EQ(Bof_GetFileSize(S_LogChannelList[0].FileLogPath), FileSize_U32);
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[1].FileLogPath), MAXLOGSIZEINBYTE);
@@ -498,7 +498,7 @@ TEST_F(TestLogger, LoggerMultiChannel)
   uint32_t LinePerFile_U32 = MAXLOGSIZEINBYTE / OneLineSize_U32;
   uint32_t NbLineInCurrentFile_U32 = j_U32 % LinePerFile_U32;
   // 24/03/23 11:02:33:065 C LogChannel3 00000628 Log 00000273
-  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * (8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + 1));
+  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * (8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + 1);
   // printf("%d %d %d\n", Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32, RotatingSize_U32 + 1);
   EXPECT_LE(RotatingSize_U32, Bof_GetFileSize(S_LogChannelList[2].FileLogPath));
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32 + 2);
