@@ -364,4 +364,100 @@ BOFERR BofJsonWriter::FromByte(bool _ShortFormat_B, bool _AllTypeInString_B, con
   return mpuJsonWriterImplementation->FromByte(_ShortFormat_B, _AllTypeInString_B, _rJsonSchema_X, _rJsonOutput_S);
 }
 
+std::string BofJsonWriter::S_EscapeJsonSpecialChar(const char *_pInput_c)
+{
+  std::string Rts_S;
+  char Ch_c;
+
+  if (_pInput_c)
+  {
+    while (*_pInput_c)
+    {
+      Ch_c = *_pInput_c++;
+      switch (Ch_c)
+      {
+        case '"':
+          Rts_S += "\\\"";
+          break;
+        case '\\':
+          Rts_S += "\\\\";
+          break;
+        case '\b':
+          Rts_S += "\\b";
+          break;
+        case '\f':
+          Rts_S += "\\f";
+          break;
+        case '\n':
+          Rts_S += "\\n";
+          break;
+        case '\r':
+          Rts_S += "\\r";
+          break;
+        case '\t':
+          Rts_S += "\\t";
+          break;
+        default:
+          Rts_S += Ch_c;
+          break;
+      }
+    }
+  }
+  return Rts_S;
+}
+
+const char *BofJsonWriter::S_EscapeJsonSpecialChar(const char *_pInput_c, char *_pOutput_c)
+{
+  char Ch_c;
+  char *pRts_c = _pOutput_c;
+
+  if ((_pInput_c) && (_pOutput_c))
+  {
+    while (*_pInput_c)
+    {
+      Ch_c = *_pInput_c++;
+      switch (Ch_c)
+      {
+        case '"':
+          *_pOutput_c++ = '\\';
+          *_pOutput_c++ = '"';
+          break;
+        case '\\':
+          *_pOutput_c++ = '\\';
+          *_pOutput_c++ = '\\';
+          break;
+        case '\b':
+          *_pOutput_c++ = '\\';
+          *_pOutput_c++ = 'b';
+          break;
+        case '\f':
+          *_pOutput_c++ = '\\';
+          *_pOutput_c++ = 'f';
+          break;
+        case '\n':
+          *_pOutput_c++ = '\\';
+          *_pOutput_c++ = 'n';
+          break;
+        case '\r':
+          *_pOutput_c++ = '\\';
+          *_pOutput_c++ = 'r';
+          break;
+        case '\t':
+          *_pOutput_c++ = '\\';
+          *_pOutput_c++ = 't';
+          break;
+        default:
+          *_pOutput_c++ = Ch_c;
+          break;
+      }
+    }
+    *_pOutput_c++ = 0;
+  }
+  else
+  {
+    pRts_c = nullptr;
+  }
+  return pRts_c;
+}
+
 END_BOF_NAMESPACE()

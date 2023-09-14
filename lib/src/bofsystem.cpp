@@ -3150,7 +3150,7 @@ std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZon
                 for (j_U32 = 0; j_U32 < NbBytePerRead_U32; j_U32++)
                 {
                   Data_U8 = pMemoryZone_U8[IndexInMemoryZone_U32 + j_U32];
-                  pAscii_c[i_U32 + j_U32] = (Data_U8 < 32) ? '?' : Data_U8;
+                  pAscii_c[i_U32 + j_U32] = ((Data_U8 < 32) || (Data_U8 > 127)) ? '?' : Data_U8;
                 }
               }
               IndexInMemoryZone_U32 += NbBytePerRead_U32;

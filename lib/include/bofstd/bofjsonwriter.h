@@ -41,6 +41,8 @@ public:
   BofJsonWriter(const BofJsonWriter &) = delete;
 
   BOFERR FromByte(bool _ShortFormat_B, bool _AllTypeInString_B, const std::vector<BOFPARAMETER> &_rJsonSchema_X, std::string &_rJsonOutput_S);
+  static std::string S_EscapeJsonSpecialChar(const char *_pInput_c);
+  static const char *S_EscapeJsonSpecialChar(const char *_pInput_c, char *_pOutput_c); //Faster
 
   bool IsValid();
 
