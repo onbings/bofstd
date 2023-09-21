@@ -642,7 +642,7 @@ int64_t Bof_StrToBin(uint8_t _Base_U8, const char *_pStr_c)
   //   An optional sign character(+or -)
   //     An optional prefix indicating octal or hexadecimal base("0" or "0x" / "0X" respectively)
   //     A sequence of decimal digits(if no base prefix was specified) or either octal or hexadecimal digits if a specific prefix is present
-  Rts_S64 = strtol(_pStr_c, &p_c, _Base_U8);
+  Rts_S64 = strtoll(_pStr_c, &p_c, _Base_U8);
 
   return (Rts_S64);
 }
