@@ -51,6 +51,7 @@ private:
   bool mValid_B = false;                        /*! true if the pathname has a good synthax */
   std::vector<std::string> mSubdirCollection;
   std::string mCurrentDirectoryName_S = ""; /*! Contains the current directory name used to compute relative path */
+  std::string mForbiddenCharacter_S;        /*Contains the list of forbidden character in a path (default <>:\"\\|?*\a\f\n\r\t\v*/
 
 public:
   /// @brief Initializes a new instance of the Path class.
@@ -59,9 +60,10 @@ public:
 
   /// @brief Initializes a new instance of the Path class.
   /// @param _pPath_c A pointer to a char array containing the path
+  /// @param _pForbiddenChar_c Specifies or not (nullptr) if the default list of forbidden char must be adapted (used by gbio)
   /// @param _PureFilename_B True if we have only the file part of a path name. If false and only the file part is provided the current working dir is automatically pre-appended to the filename.
   /// @remarks None.
-  BofPath(const char *_pPath_c, bool _PureFilename_B = false);
+  BofPath(const char *_pPath_c, const char *_pForbiddenChar_c=nullptr, bool _PureFilename_B = false);
 
   /// @brief Initializes a new instance of the Path class.
   /// @param _rPath_S A string containing the path
@@ -235,16 +237,18 @@ public:
   /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
   /// @remarks None
   BOFERR CurrentDirectoryName(const std::string &_rNewCurrentDirectoryName_S);
+  std::string ForbiddenChar() const;
 
 private:
   /// @cond
 
   /// @brief Initializes the class instance members.
+  /// @param _pForbiddenChar_c Specifies or not (nullptr) if the default list of forbidden char must be adapted (used by gbio)
   /// @param _PureFilename_B True if we have only the file part of a path name. If false and only the file part is provided the current working dir is automatically pre-appended to the filename.
   /// @param _rPath_S A string containing the path
   /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
   /// @remarks None
-  BOFERR InitPathField(bool _PureFilename_B, const std::string &_rPath_S);
+  BOFERR InitPathField(const char *_pForbiddenChar_c, bool _PureFilename_B, const std::string &_rPath_S);
 
   /// @brief Transform the raw path input string into a normalized one. Normalization includes:
   /// - Normalization of directory separator

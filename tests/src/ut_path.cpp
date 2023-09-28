@@ -34,6 +34,7 @@ TEST(Path_Test, PathConstructorDestructorWindows)
   std::string Pwd_S, PwdWithoutDisk_S, PrevPwd_S, PrevPwdWithoutDisk_S;
   std::string::size_type SlashPrevDelimiterPos;
 
+
   EXPECT_EQ(Bof_GetCurrentDirectory(Pwd_S), BOF_ERR_NO_ERROR);
   Pwd_S = Bof_StringReplace(Pwd_S, "\\", '/');
   PrevPwd_S = "";
@@ -65,6 +66,19 @@ TEST(Path_Test, PathConstructorDestructorWindows)
 	  }
     }
   }
+  BofPath Gbio("X:\\Id\\Lsm\\000111?");
+  std::string ForbiddenCharacter_S;
+
+  ForbiddenCharacter_S = Gbio.ForbiddenChar();
+  EXPECT_STREQ(ForbiddenCharacter_S.c_str(), "<>:\"\\|?*\a\f\n\r\t\v");
+  EXPECT_FALSE(Gbio.IsValid());
+  EXPECT_STREQ(Gbio.FullPathName(true).c_str(), "X:");
+  Gbio = BofPath("X:\\Id\\Lsm\\000111?", "<>:\"\\|*\a\f\n\r\t\v");
+  ForbiddenCharacter_S = Gbio.ForbiddenChar();
+  EXPECT_STREQ(ForbiddenCharacter_S.c_str(), "<>:\"\\|*\a\f\n\r\t\v");
+  EXPECT_TRUE(Gbio.IsValid());
+  EXPECT_STREQ(Gbio.FullPathName(true).c_str(), "X:\\Id\\Lsm\\000111?");
+
   BofPath Empty("");
   EXPECT_EQ(Empty.IsDirectory(), false);
   EXPECT_EQ(Empty.IsFile(), true);

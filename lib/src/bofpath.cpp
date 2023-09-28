@@ -33,17 +33,17 @@ BEGIN_BOF_NAMESPACE()
 
 BofPath::BofPath(bool _PureFilename_B)
 {
-  InitPathField(_PureFilename_B, "");
+  InitPathField(nullptr, _PureFilename_B, "");
 }
 
-BofPath::BofPath(const char *_pPath_c, bool _PureFilename_B)
+BofPath::BofPath(const char *_pPath_c, const char *_pForbiddenChar_c, bool _PureFilename_B)
 {
   std::string Path_S;
 
   if (_pPath_c)
   {
     Path_S = _pPath_c;
-    InitPathField(_PureFilename_B, Path_S);
+    InitPathField(_pForbiddenChar_c, _PureFilename_B,  Path_S);
   }
   else
   {
@@ -54,30 +54,28 @@ BofPath::BofPath(const char *_pPath_c, bool _PureFilename_B)
 
 BofPath::BofPath(const std::string &_rPath_S, bool _PureFilename_B)
 {
-  InitPathField(_PureFilename_B, _rPath_S);
+  InitPathField(nullptr, _PureFilename_B, _rPath_S);
 }
 
 BofPath::BofPath(const std::string &_rDirectory_S, const std::string &_rFile_S)
 {
-  InitPathField(false, _rDirectory_S + _rFile_S);
+  InitPathField(nullptr, false, _rDirectory_S + _rFile_S);
 }
 
 BofPath::BofPath(const BofPath &_rOther_O)
 {
-  InitPathField((_rOther_O.DirectoryName(false, false) == ""), _rOther_O.ToString());
+  InitPathField(_rOther_O.ForbiddenChar().c_str(), (_rOther_O.DirectoryName(false, false) == ""), _rOther_O.ToString());
 }
 
 BofPath::BofPath(BofPath &&_rrOther_O)
 {
-  // Pilfer others resource
-  InitPathField((_rrOther_O.DirectoryName(false, false) == ""), _rrOther_O.ToString());
-  // Reset other
-  _rrOther_O.InitPathField(false, "");
+  InitPathField(_rrOther_O.ForbiddenChar().c_str(), (_rrOther_O.DirectoryName(false, false) == ""), _rrOther_O.ToString());
+  _rrOther_O.InitPathField(nullptr, false, "");
 }
 
 BofPath &BofPath::operator=(const BofPath &_rOther_O)
 {
-  InitPathField((_rOther_O.DirectoryName(false, false) == ""), _rOther_O.ToString());
+  InitPathField(_rOther_O.ForbiddenChar().c_str(), (_rOther_O.DirectoryName(false, false) == ""), _rOther_O.ToString());
   return *this;
 }
 
@@ -85,11 +83,10 @@ BofPath &BofPath::operator=(BofPath &&_rrOther_O)
 {
   if (this != &_rrOther_O)
   {
-    // Release the current object�s resources
-    // Pilfer others resource
-    InitPathField((_rrOther_O.DirectoryName(false, false) == ""), _rrOther_O.ToString());
+    // Release the current objects resources
+    InitPathField(_rrOther_O.ForbiddenChar().c_str(), (_rrOther_O.DirectoryName(false, false) == ""), _rrOther_O.ToString());
     // Reset other
-    _rrOther_O.InitPathField(false, "");
+    _rrOther_O.InitPathField(nullptr, false, "");
   }
   return *this;
 }
@@ -102,11 +99,10 @@ BofPath &BofPath::operator=(const char *_pNewPath_c)
   if (_pNewPath_c)
   {
     Path_S = _pNewPath_c;
-    InitPathField(!IsDirectoryDelimiterPresent(Path_S), Path_S);
+    InitPathField(nullptr, !IsDirectoryDelimiterPresent(Path_S), Path_S);
   }
   else
   {
-    // InitPathField("");
     mValid_B = false;
   }
   return *this;
@@ -114,7 +110,7 @@ BofPath &BofPath::operator=(const char *_pNewPath_c)
 
 BofPath &BofPath::operator=(const std::string &_rNewPath_S)
 {
-  InitPathField(!IsDirectoryDelimiterPresent(_rNewPath_S), _rNewPath_S);
+  InitPathField(nullptr, !IsDirectoryDelimiterPresent(_rNewPath_S), _rNewPath_S);
   return *this;
 }
 
@@ -281,7 +277,7 @@ BOFERR BofPath::Combine(const std::string &_rRelativePath_S)
 
   // no as we want to be able to Combine file with '\' to get a directory if (IsDirectory())
   {
-    Rts_E = InitPathField(false, ToString() + _rRelativePath_S);
+    Rts_E = InitPathField(nullptr, false, ToString() + _rRelativePath_S);
   }
   return Rts_E;
 }
@@ -326,6 +322,10 @@ std::string BofPath::CurrentDirectoryName() const
 {
   return mCurrentDirectoryName_S;
 }
+std::string BofPath::ForbiddenChar() const
+{
+  return mForbiddenCharacter_S;
+}
 
 BOFERR BofPath::CurrentDirectoryName(const std::string &_rNewCurrentDirectoryName_S)
 {
@@ -351,13 +351,14 @@ BOFERR BofPath::CurrentDirectoryName(const std::string &_rNewCurrentDirectoryNam
   return Rts_E;
 }
 
-BOFERR BofPath::InitPathField(bool _PureFilename_B, const std::string &_rPath_S)
+BOFERR BofPath::InitPathField(const char *_pForbiddenChar_c, bool _PureFilename_B,const std::string &_rPath_S)
 {
   BOFERR Rts_E;
   char LastChar_c;
   std::string ThePath_S;
   std::string::size_type ExtensionPos, FilenamePos;
 
+  mForbiddenCharacter_S = _pForbiddenChar_c ? _pForbiddenChar_c:"<>:\"\\|?*\a\f\n\r\t\v";
   mFileNameWithExtension_S = "";
   mFileNameWithoutExtension_S = "";
   mExtension_S = "";
@@ -461,7 +462,7 @@ bool BofPath::IsWindowsDiskPath(const std::string &_rPath_S)
 
 bool BofPath::IsForbiddenChar(const std::string &_rPath_S)
 {
-  return (Bof_StringIsPresent(_rPath_S, "<>:\"\\|?*\a\f\n\r\t\v"));
+  return (Bof_StringIsPresent(_rPath_S, mForbiddenCharacter_S));
 }
 
 BOFERR BofPath::Normalize(bool _PureFilename_B, const std::string &_rRawPath_S, std::string &_rNormalizedPath_S, std::string &_rDiskName_S)
