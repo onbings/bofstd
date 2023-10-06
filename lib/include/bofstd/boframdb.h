@@ -100,7 +100,8 @@ struct BOF_RAM_DB_CURSOR
   }
 };
 
-template <typename KeyType> class BofRamDb
+template <typename KeyType>
+class BofRamDb
 {
 private:
   BOF_MUTEX mMtx_X;
@@ -201,12 +202,13 @@ public:
  * V 1.00  Wed Sep 6 2006  BHA : Initial release
  *
  */
-template <typename KeyType> BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U32, uint32_t _NbIndex_U32, BOFERR &_rErrorCode_E)
+template <typename KeyType>
+BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U32, uint32_t _NbIndex_U32, BOFERR &_rErrorCode_E)
 {
   uint32_t i_U32;
   BOFERR Rts_E = BOF_ERR_EINVAL;
 
-  Bof_CreateMutex("BofRamDb", false, false, mMtx_X);
+  Bof_CreateMutex("BofRamDb", true, false, mMtx_X); // TODO: change reccursive value (now update elem takes mutex and can call DeleteElement which takes also the mutex...)
   mNbMaxElement_U32 = _NbMaxElement_U32;
   mNbIndex_U32 = _NbIndex_U32;
   mNbRecord_U32 = 0;
@@ -274,7 +276,8 @@ template <typename KeyType> BofRamDb<KeyType>::BofRamDb(uint32_t _NbMaxElement_U
   _rErrorCode_E = Rts_E;
 }
 
-template <typename KeyType> BofRamDb<KeyType>::~BofRamDb()
+template <typename KeyType>
+BofRamDb<KeyType>::~BofRamDb()
 {
   uint32_t i_U32;
 
@@ -293,7 +296,8 @@ template <typename KeyType> BofRamDb<KeyType>::~BofRamDb()
   Bof_DestroyMutex(mMtx_X);
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::ClearDbAndReleaseCursor()
+template <typename KeyType>
+uint32_t BofRamDb<KeyType>::ClearDbAndReleaseCursor()
 {
   uint32_t i_U32;
 
@@ -322,7 +326,8 @@ template <typename KeyType> uint32_t BofRamDb<KeyType>::ClearDbAndReleaseCursor(
   return BOF_ERR_NO_ERROR;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::GetCursor(uint32_t _Index_U32, BOF_HANDLE *_pCursor_h)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::GetCursor(uint32_t _Index_U32, BOF_HANDLE *_pCursor_h)
 {
   BOFERR Rts_E = BOF_ERR_INDEX;
 
@@ -365,7 +370,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetCursor(uint32_t _Index_
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::FreeCursor(BOF_HANDLE *_pCursor_h)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::FreeCursor(BOF_HANDLE *_pCursor_h)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -387,7 +393,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::FreeCursor(BOF_HANDLE *_pC
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::GetFirstElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::GetFirstElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -424,7 +431,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetFirstElement(BOF_HANDLE
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::GetLastElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::GetLastElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -460,7 +468,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetLastElement(BOF_HANDLE 
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::GetCurrentElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::GetCurrentElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -495,7 +504,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetCurrentElement(BOF_HAND
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::GetNextElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::GetNextElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -531,7 +541,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetNextElement(BOF_HANDLE 
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::GetPreviousElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::GetPreviousElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -567,7 +578,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::GetPreviousElement(BOF_HAN
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::InsertElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::InsertElement(BOF_HANDLE _Cursor_h, KeyType *_pElement)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   uint32_t Tree_U32, i_U32;
@@ -626,7 +638,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::InsertElement(BOF_HANDLE _
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::SearchElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pFoundElement, BOFCMP _Cmp_E)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::SearchElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pFoundElement, BOFCMP _Cmp_E)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   BOF_RAM_DB_CURSOR *pCursor_X;
@@ -665,7 +678,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::SearchElement(BOF_HANDLE _
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::DeleteElement(KeyType *_pElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::DeleteElement(KeyType *_pElement)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t i_U32, Position_U32; // ,NbNext_U32,NbPrev_U32;
@@ -778,7 +792,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::DeleteElement(KeyType *_pE
   return Rts_E;
 }
 
-template <typename KeyType> BOFERR BofRamDb<KeyType>::UpdateElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pNewElement)
+template <typename KeyType>
+BOFERR BofRamDb<KeyType>::UpdateElement(BOF_HANDLE _Cursor_h, KeyType *_pSearchElement, KeyType *_pNewElement)
 {
   BOFERR Rts_E = BOF_ERR_CURSOR;
   uint32_t Position_U32;
@@ -953,7 +968,8 @@ template <typename KeyType> BOFERR BofRamDb<KeyType>::UpdateElement(BOF_HANDLE _
   return Rts_E;
 }
 
-template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTest_B)
+template <typename KeyType>
+int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTest_B)
 {
   uint32_t i_U32;
 
@@ -1212,7 +1228,8 @@ template <typename KeyType> int32_t BofRamDb<KeyType>::CheckDb(bool _ExtendedTes
   return Rts_S32;
 }
 
-template <typename KeyType> uint32_t BofRamDb<KeyType>::DumpDatabase(const char *_pTitle_c, uint32_t _Flag_U32, uint32_t *_pNbMaxChar_U32, char *_pBuffer_c)
+template <typename KeyType>
+uint32_t BofRamDb<KeyType>::DumpDatabase(const char *_pTitle_c, uint32_t _Flag_U32, uint32_t *_pNbMaxChar_U32, char *_pBuffer_c)
 {
   uint32_t i_U32, Rts_U32, Remain_U32, Mask_U32, Sts_U32;
   bool AtLeastOne_B;
