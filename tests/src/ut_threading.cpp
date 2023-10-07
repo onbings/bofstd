@@ -135,7 +135,7 @@ TEST(BofThreadPool_Test, Dispatch)
   ThreadParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
   ThreadParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
   ThreadParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  ThreadParam_X.WakeUpIntervalInMs_U32 = 0;//!!!! important !!!!
+  ThreadParam_X.WakeUpIntervalInMs_U32 = 0; //!!!! important !!!!
   BofThreadPool Pool(PoolCapacity_U32, ThreadParam_X);
   EXPECT_EQ(Pool.InitThreadPoolErrorCode(), BOF_ERR_NO_ERROR);
 
@@ -177,8 +177,7 @@ TEST(BofThreadPool_Test, Dispatch)
           break;
         }
       }
-    }
-    while (pDispatchTicket == nullptr);
+    } while (pDispatchTicket == nullptr);
   }
   Nb_U32 = Pool.GetNumerOfPendingRunningDispatch();
   printf("%d: GetNumerOfPendingRunningDispatch %d\n", BOF::Bof_GetMsTickCount(), Nb_U32);
@@ -207,8 +206,7 @@ TEST(BofThreadPool_Test, Dispatch)
           break;
         }
       }
-    }
-    while (pDispatchTicket == nullptr);
+    } while (pDispatchTicket == nullptr);
   }
 }
 
@@ -527,13 +525,13 @@ TEST(Threading_Test, Event)
   Sts_E = Bof_DestroyEvent(Event_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, Event_X);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, false, Event_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
   EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
   EXPECT_EQ(Event_X.SignaledBitmask_U64, 0);
 
-  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, Event_X);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, false, Event_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
   EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
@@ -643,7 +641,7 @@ TEST(Threading_Test, SingleThread)
   ThreadContext_X.Inc_S32 = 1;
   ThreadContext_X.SleepInMs_U32 = 10000;
   ThreadContext_X.NbLoop_U32 = 0;
-  Sts_E = Bof_CreateEvent("MyEvent", false, 2, false, ThreadContext_X.Event_X);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 2, false, false, ThreadContext_X.Event_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(ThreadContext_X.Event_X.Magic_U32, BOF_EVENT_MAGIC);
   EXPECT_STREQ(ThreadContext_X.Event_X.Name_S.c_str(), "MyEvent");
@@ -752,7 +750,7 @@ TEST(Threading_Test, MultiThread)
     pThreadContext_X[i_U32].SleepInMs_U32 = 1000;
     pThreadContext_X[i_U32].NbLoop_U32 = 0;
     Name_S = "MyEvent_" + std::to_string(i_U32);
-    Sts_E = Bof_CreateEvent(Name_S, false, 1, false, pThreadContext_X[i_U32].Event_X);
+    Sts_E = Bof_CreateEvent(Name_S, false, 1, false, false, pThreadContext_X[i_U32].Event_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(pThreadContext_X[i_U32].Event_X.Magic_U32, BOF_EVENT_MAGIC);
     EXPECT_STREQ(pThreadContext_X[i_U32].Event_X.Name_S.c_str(), Name_S.c_str());

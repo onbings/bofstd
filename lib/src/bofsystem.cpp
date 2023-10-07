@@ -955,7 +955,7 @@ BOFERR Bof_DestroyConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X)
   return Rts_E;
 }
 
-BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool _NotifyAll_B*/ uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, BOF_EVENT &_rEvent_X)
+BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, bool _NotifyAll_B, BOF_EVENT &_rEvent_X)
 {
   BOFERR Rts_E = BOF_ERR_EEXIST;
 
@@ -966,11 +966,10 @@ BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool
     {
       _rEvent_X.Reset();
       _rEvent_X.Name_S = _rName_S;
-
-      //		_rEvent_X.Canceled_B = false;
       _rEvent_X.SignaledBitmask_U64 = _InitialState_B ? (1 << (_MaxNumberToNotify_U32 - 1)) - 1 : 0;
       _rEvent_X.MaxNumberToNotify_U32 = _MaxNumberToNotify_U32;
       _rEvent_X.WaitKeepSignaled_B = _WaitKeepSignaled_B;
+      _rEvent_X.NotifyAll_B = _NotifyAll_B;
       _rEvent_X.Magic_U32 = BOF_EVENT_MAGIC;
       Rts_E = BOF_ERR_NO_ERROR;
     }
@@ -984,7 +983,7 @@ bool Bof_IsEventValid(BOF_EVENT &_rEvent_X)
   return (_rEvent_X.Magic_U32 == BOF_EVENT_MAGIC);
 }
 
-BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, /*bool _CancelIt_B*/ uint32_t _Instance_U32)
+BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
 
@@ -994,27 +993,22 @@ BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, /*bool _CancelIt_B*/ uint32_t _Inst
     if (_Instance_U32 < _rEvent_X.MaxNumberToNotify_U32)
     {
       std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
-      /*
-      if (_CancelIt_B)
+      _rEvent_X.SignaledBitmask_U64 |= (static_cast<uint64_t>(1) << _Instance_U32);
+      if (_rEvent_X.NotifyAll_B)
       {
-        _rEvent_X.Canceled_B = true;
+        _rEvent_X.Cv.notify_all();
       }
       else
       {
-        _rEvent_X.Signaled_B = true;
+        _rEvent_X.Cv.notify_one();
       }
-       */
-      _rEvent_X.SignaledBitmask_U64 |= (static_cast<uint64_t>(1) << _Instance_U32);
-      // NotifyAll_B will wake up all thread but in my implemenation only one will see the signaled event. Only Canceled event are seen by all thread
-      (_rEvent_X.MaxNumberToNotify_U32 == 1) ? _rEvent_X.Cv.notify_one() : _rEvent_X.Cv.notify_all();
       Rts_E = BOF_ERR_NO_ERROR;
     }
   }
 
   return Rts_E;
 }
-
-// Done in WaitForEvent but if it is not called we can need to reset it. It is also used to reset the canceled state
+/*
 BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
@@ -1026,7 +1020,6 @@ BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32)
     {
       std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
       _rEvent_X.SignaledBitmask_U64 &= ~(1 << _Instance_U32);
-      //_rEvent_X.Canceled_B = false;
       Rts_E = BOF_ERR_NO_ERROR;
     }
   }
@@ -1034,6 +1027,19 @@ BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32)
   return Rts_E;
 }
 
+BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+
+  if (_rEvent_X.Magic_U32 == BOF_EVENT_MAGIC)
+  {
+    std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
+    _rEvent_X.SignaledBitmask_U64 = 0;
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  return Rts_E;
+}
+*/
 bool Bof_IsEventSignaled(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32)
 {
   bool Rts_B = false;
@@ -1050,19 +1056,34 @@ bool Bof_IsEventSignaled(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32)
   return Rts_B;
 }
 
-/*
-bool Bof_IsEventCanceled(BOF_EVENT &_rEvent_X)
+BOFERR Bof_SetEventMask(BOF_EVENT &_rEvent_X, uint64_t _EventVal_U64)
 {
-  bool Rts_B = false;
+  BOFERR Rts_E = BOF_ERR_INIT;
 
   if (_rEvent_X.Magic_U32 == BOF_EVENT_MAGIC)
   {
     std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
-    Rts_B = _rEvent_X.Canceled_B;
+    _rEvent_X.SignaledBitmask_U64 = _EventVal_U64;
+    Rts_E = BOF_ERR_NO_ERROR;
   }
-  return Rts_B;
+  return Rts_E;
 }
-*/
+BOFERR Bof_GetEventMask(BOF_EVENT &_rEvent_X, uint64_t &_rEventVal_U64)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+
+  if (_rEvent_X.Magic_U32 == BOF_EVENT_MAGIC)
+  {
+    std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
+    _rEventVal_U64 = _rEvent_X.SignaledBitmask_U64;
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  else
+  {
+    _rEventVal_U64 = 0;
+  }
+  return Rts_E;
+}
 BOFERR Bof_WaitForEvent(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint32_t _Instance_U32)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
@@ -1072,14 +1093,8 @@ BOFERR Bof_WaitForEvent(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint32_
     if (_Instance_U32 < _rEvent_X.MaxNumberToNotify_U32)
     {
       std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
-      if (_rEvent_X.Cv.wait_for(WaitLock_O, std::chrono::milliseconds(_TimeoutInMs_U32), [&]() { return (_rEvent_X.SignaledBitmask_U64 & (static_cast<uint64_t>(1) << _Instance_U32) ? true : false /*|| _rEvent_X.Canceled_B*/); }))
+      if (_rEvent_X.Cv.wait_for(WaitLock_O, std::chrono::milliseconds(_TimeoutInMs_U32), [&]() { bool Rts_B = (_rEvent_X.SignaledBitmask_U64 & (static_cast<uint64_t>(1) << _Instance_U32)); if ((Rts_B) && (!_rEvent_X.WaitKeepSignaled_B)) _rEvent_X.SignaledBitmask_U64 &= ~(1 << _Instance_U32); return Rts_B; }))
       {
-        if (!_rEvent_X.WaitKeepSignaled_B)
-        {
-          _rEvent_X.SignaledBitmask_U64 &= ~(1 << _Instance_U32); // Bof_ResetEvent
-        }
-        // Do not reset Canceled state-> all running thread waiting for it will see it->Only Bof_ResetEvent can reset canceled state
-        //			Rts_E = _rEvent_X.Canceled_B ? BOF_ERR_CANCEL : BOF_ERR_NO_ERROR;
         Rts_E = BOF_ERR_NO_ERROR;
       }
       else
@@ -1088,7 +1103,43 @@ BOFERR Bof_WaitForEvent(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint32_
       }
     }
   }
+  return Rts_E;
+}
 
+BOFERR Bof_WaitForEventMaskAnd(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint64_t _EventMask_U64)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+  if (_rEvent_X.Magic_U32 == BOF_EVENT_MAGIC)
+  {
+    std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
+    if (_rEvent_X.Cv.wait_for(WaitLock_O, std::chrono::milliseconds(_TimeoutInMs_U32), [&]() {bool Rts_B=((_rEvent_X.SignaledBitmask_U64 & _EventMask_U64) == _EventMask_U64); if ((Rts_B) && (!_rEvent_X.WaitKeepSignaled_B)) _rEvent_X.SignaledBitmask_U64 &= ~_EventMask_U64; return Rts_B; }))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    else
+    {
+      Rts_E = BOF_ERR_ETIMEDOUT;
+    }
+  }
+  return Rts_E;
+}
+BOFERR Bof_WaitForEventMaskOr(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint64_t _EventMask_U64, uint64_t &_rEventGot_U64)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+  _rEventGot_U64 = 0;
+  if (_rEvent_X.Magic_U32 == BOF_EVENT_MAGIC)
+  {
+    std::unique_lock<std::mutex> WaitLock_O(_rEvent_X.Mtx);
+    if (_rEvent_X.Cv.wait_for(WaitLock_O, std::chrono::milliseconds(_TimeoutInMs_U32), [&]() { _rEventGot_U64 = (_rEvent_X.SignaledBitmask_U64 & _EventMask_U64);
+        bool Rts_B = (_rEventGot_U64 != 0); if ((Rts_B) && (!_rEvent_X.WaitKeepSignaled_B)) _rEvent_X.SignaledBitmask_U64 &= ~_rEventGot_U64; return Rts_B; }))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    else
+    {
+      Rts_E = BOF_ERR_ETIMEDOUT;
+    }
+  }
   return Rts_E;
 }
 
@@ -1829,7 +1880,10 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
         }
 #endif
   }
-
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    _rThread_X.Reset();
+  }
   return Rts_E;
 }
 
@@ -3166,7 +3220,7 @@ std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZon
             pAscii_c[NbItemBytePerLine_U32] = 0;
             Rts_S += pAscii_c;
           }
-          Rts_S += '\n';// same for linux and windows Bof_Eol();
+          Rts_S += '\n'; // same for linux and windows Bof_Eol();
           VirtualOffset_S64 += NbItemBytePerLine_U32;
         } // while (Remain_S32 > 0)
       }

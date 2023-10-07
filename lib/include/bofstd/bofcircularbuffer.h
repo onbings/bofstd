@@ -158,10 +158,10 @@ BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &
     }
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
-      mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canread_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, mCanReadEvent_X) : BOF_ERR_NO_ERROR;
+      mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canread_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, false, mCanReadEvent_X) : BOF_ERR_NO_ERROR;
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
-        mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canwrite_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
+        mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canwrite_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
           mErrorCode_E = _rCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mCircularBufferMtx_X) : BOF_ERR_NO_ERROR;

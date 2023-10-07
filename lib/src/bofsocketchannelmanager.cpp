@@ -89,7 +89,7 @@ BofSocketChannelManager::~BofSocketChannelManager()
   // The SendAsyncReleaseResource with nullptr as _rpsBofSocketChannel is used to send a uv_walk/uv_close on all handle->the libuv loop will exit.
 
   BOF_NAMESPACE::BOF_EVENT NotifyEvent_X;
-  BOF_NAMESPACE::Bof_CreateEvent("RelMgrResEvnt_" + mBofSocketChannelManagerParam_X.Name_S, false, 1, false, NotifyEvent_X);
+  BOF_NAMESPACE::Bof_CreateEvent("RelMgrResEvnt_" + mBofSocketChannelManagerParam_X.Name_S, false, 1, false, false, NotifyEvent_X);
   Sts_E = SendAsyncReleaseResourceCmd(mBofSocketChannelManagerParam_X.StartStopTimeoutInMs_U32, nullptr, nullptr, &NotifyEvent_X);
   BOF_ASSERT(Sts_E == BOFERR_NO_ERROR);
   if (Sts_E == BOFERR_NO_ERROR)

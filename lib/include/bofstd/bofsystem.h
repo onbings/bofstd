@@ -445,11 +445,10 @@ struct BOF_EVENT
   std::string Name_S;
   std::mutex Mtx;
   std::condition_variable Cv;
-  //		bool Canceled_B;
   uint32_t MaxNumberToNotify_U32;
   uint64_t SignaledBitmask_U64;
-  //		bool NotifyAll_B;
   bool WaitKeepSignaled_B;
+  bool NotifyAll_B;
 
   BOF_EVENT()
   {
@@ -460,11 +459,10 @@ struct BOF_EVENT
   {
     Magic_U32 = 0;
     Name_S = "";
-    //			Canceled_B = false;
     MaxNumberToNotify_U32 = 0;
     SignaledBitmask_U64 = 0;
-    //			NotifyAll_B = false;
     WaitKeepSignaled_B = false;
+    NotifyAll_B = false;
   }
   bool IsValid()
   {
@@ -877,12 +875,17 @@ BOFSTD_EXPORT BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
   }                             \
   }
 
-BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, /*bool _NotifyAll_B*/ uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, BOF_EVENT &_rEvent_X);
+BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, bool _NotifyAll_B, BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT bool Bof_IsEventValid(BOF_EVENT &_rEvent_X);
-BOFSTD_EXPORT BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, /*bool _CancelIt_B*/ uint32_t _Instance_U32);
-BOFSTD_EXPORT BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
+BOFSTD_EXPORT BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
+// BOFSTD_EXPORT BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
+// BOFSTD_EXPORT BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT bool Bof_IsEventSignaled(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
+BOFSTD_EXPORT BOFERR Bof_SetEventMask(BOF_EVENT &_rEvent_X, uint64_t _EventVal_U64);
+BOFSTD_EXPORT BOFERR Bof_GetEventMask(BOF_EVENT &_rEvent_X, uint64_t &_rEventVal_U64);
 BOFSTD_EXPORT BOFERR Bof_WaitForEvent(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint32_t _Instance_U32);
+BOFSTD_EXPORT BOFERR Bof_WaitForEventMaskAnd(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint64_t _EventMask_U64);
+BOFSTD_EXPORT BOFERR Bof_WaitForEventMaskOr(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint64_t _EventMask_U64, uint64_t &_rEventGot_U64);
 BOFSTD_EXPORT BOFERR Bof_DestroyEvent(BOF_EVENT &_rEvent_X);
 
 BOFSTD_EXPORT int32_t Bof_PriorityValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E);

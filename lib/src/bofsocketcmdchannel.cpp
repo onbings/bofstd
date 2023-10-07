@@ -20,7 +20,8 @@ BEGIN_BOF_NAMESPACE()
 class BofSocketCmdChannelFactory : public BofSocketCmdChannel
 {
 public:
-  BofSocketCmdChannelFactory(const std::shared_ptr<BofSocketChannelManager> &_rpsBofSocketChannelManager, const BOF_SOCKET_CMD_CHANNEL_PARAM &_rBofSocketCmdChannelParam_X) : BofSocketCmdChannel(_rpsBofSocketChannelManager, _rBofSocketCmdChannelParam_X)
+  BofSocketCmdChannelFactory(const std::shared_ptr<BofSocketChannelManager> &_rpsBofSocketChannelManager, const BOF_SOCKET_CMD_CHANNEL_PARAM &_rBofSocketCmdChannelParam_X)
+      : BofSocketCmdChannel(_rpsBofSocketChannelManager, _rBofSocketCmdChannelParam_X)
   {
   }
 
@@ -109,7 +110,7 @@ BOFERR BofSocketCmdChannel::Connect(uint32_t _TimeoutInMs_U32, const std::string
       Rts_E = BOFERR_ALREADY_OPENED;
       if (!IsConnected())
       {
-        Rts_E = Bof_CreateEvent("ConEvnt_" + mBofSocketChannelParam_X.Name_S, false, 1, false, NotifyEvent_X);
+        Rts_E = Bof_CreateEvent("ConEvnt_" + mBofSocketChannelParam_X.Name_S, false, 1, false, false, NotifyEvent_X);
         if (Rts_E == BOFERR_NO_ERROR)
         {
           TimeoutInMs_S32 = _TimeoutInMs_U32;
@@ -172,7 +173,7 @@ BOFERR BofSocketCmdChannel::Disconnect(uint32_t _TimeoutInMs_U32)
       Rts_E = BOFERR_NOT_OPENED;
       if (IsConnected())
       {
-        Rts_E = Bof_CreateEvent("DisEvnt_" + mBofSocketChannelParam_X.Name_S, false, 1, false, NotifyEvent_X);
+        Rts_E = Bof_CreateEvent("DisEvnt_" + mBofSocketChannelParam_X.Name_S, false, 1, false, false, NotifyEvent_X);
         if (Rts_E == BOFERR_NO_ERROR)
         {
           TimeoutInMs_S32 = _TimeoutInMs_U32;

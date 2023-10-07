@@ -38,10 +38,10 @@ BEGIN_BOF_NAMESPACE()
 
 struct BOF_POT_PARAM
 {
-  uint32_t MagicNumber_U32;       /*! If not zero, specify the magic number to use to tag in use pot element (first uint32_t var of pot element) */
-  bool MultiThreadAware_B;        /*! true if the object is used in a multi threaded application (use mCs)*/
+  uint32_t MagicNumber_U32;    /*! If not zero, specify the magic number to use to tag in use pot element (first uint32_t var of pot element) */
+  bool MultiThreadAware_B;     /*! true if the object is used in a multi threaded application (use mCs)*/
   bool GetOpPreserveContent_B; /*! false if the pot element is memsetted to 0 before returning it to the caller (exept magic number of course) */
-  uint32_t PotCapacity_U32;       /*! Specifies the maximum number of element inside the pot*/
+  uint32_t PotCapacity_U32;    /*! Specifies the maximum number of element inside the pot*/
   bool Blocking_B;
 
   BOF_POT_PARAM()
@@ -123,8 +123,8 @@ public:
   DataType *Get(uint32_t _BlockingTimeouItInMs_U32);  // As soon as get is called another thread will see it in GetFirstUsed call but its content can be invalid if the thread which has called Get has been preempted
   DataType *Lock(uint32_t _BlockingTimeouItInMs_U32); // Same as get but the other thread can't see it until unlock is called
   BOFERR Unlock(DataType *_pData_X);                  // Used with lock just above
-  BOFERR IsPotElementLocked(DataType *_pData_X);  //Lock is not taken to avoid recursive mutex
-  BOFERR IsPotElementInUse(DataType *_pData_X);   //Lock is not taken to avoid recursive mutex
+  BOFERR IsPotElementLocked(DataType *_pData_X);      // Lock is not taken to avoid recursive mutex
+  BOFERR IsPotElementInUse(DataType *_pData_X);       // Lock is not taken to avoid recursive mutex
   uint32_t GetIndexOfEntry(DataType *_pData_X);
   DataType *GetIndexedPotElement(uint32_t _Index_U32);
   DataType *LookForPotElementInUseStartingFromIndex(uint32_t _Index_U32);
@@ -210,7 +210,7 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
     }
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
-      mErrorCode_E = mPotParam_X.Blocking_B ? Bof_CreateEvent("pot_canget_" + std::to_string(mPotParam_X.PotCapacity_U32) + "_evt", false, 1, false, mCanGetEvent_X) : BOF_ERR_NO_ERROR;
+      mErrorCode_E = mPotParam_X.Blocking_B ? Bof_CreateEvent("pot_canget_" + std::to_string(mPotParam_X.PotCapacity_U32) + "_evt", false, 1, false, false, mCanGetEvent_X) : BOF_ERR_NO_ERROR;
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
         mErrorCode_E = mPotParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofPot", false, false, mPotMtx_X) : BOF_ERR_NO_ERROR;
@@ -623,9 +623,9 @@ BOFERR BofPot<DataType>::IsPotElementInUse(DataType *_pData_X)
 
   if ((_pData_X) && (_pData_X >= mpPotDataStorage_X) && (_pData_X <= mpLastPotElement_X))
   {
-    //Lock is not taken to avoid recursive mutex BOF_POT_LOCK(Rts_E);
+    // Lock is not taken to avoid recursive mutex BOF_POT_LOCK(Rts_E);
     Rts_E = BOF_ERR_NO_ERROR;
-    //if (Rts_E == BOF_ERR_NO_ERROR)
+    // if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (mPotParam_X.MagicNumber_U32)
       {
@@ -641,7 +641,7 @@ BOFERR BofPot<DataType>::IsPotElementInUse(DataType *_pData_X)
       {
         Rts_E = BOF_ERR_EBUSY;
       }
-      //BOF_POT_UNLOCK()
+      // BOF_POT_UNLOCK()
     }
   }
   return Rts_E;
@@ -673,9 +673,9 @@ BOFERR BofPot<DataType>::IsPotElementLocked(DataType *_pData_X)
 
   if ((_pData_X) && (_pData_X >= mpPotDataStorage_X) && (_pData_X <= mpLastPotElement_X))
   {
-    //Lock is not taken to avoid recursive mutex BOF_POT_LOCK(Rts_E);
+    // Lock is not taken to avoid recursive mutex BOF_POT_LOCK(Rts_E);
     Rts_E = BOF_ERR_NO_ERROR;
-    //if (Rts_E == BOF_ERR_NO_ERROR)
+    // if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (mPotParam_X.MagicNumber_U32)
       {
@@ -688,7 +688,7 @@ BOFERR BofPot<DataType>::IsPotElementLocked(DataType *_pData_X)
       }
 
       Rts_E = Locked_B ? BOF_ERR_NO_ERROR : BOF_ERR_UNLOCK;
-      //BOF_POT_UNLOCK()
+      // BOF_POT_UNLOCK()
     }
   }
   return Rts_E;

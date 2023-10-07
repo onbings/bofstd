@@ -35,6 +35,7 @@ enum BOF_SOCKET_OPERATION
   BOF_SOCKET_OPERATION_MAX
 };
 
+using BofSocketThreadCallback = std::function<BOFERR(uint32_t _Ticket_U32, BOFERR Sts_E)>;
 struct BOF_SOCKET_THREAD_PARAM
 {
   std::string Name_S;
@@ -43,7 +44,8 @@ struct BOF_SOCKET_THREAD_PARAM
   BOF_THREAD_PRIORITY ThreadPriority_E;
   BofSocket *pListeningSocket_O; // Can be null if you make listen/connect call
   BofSocket *pSocket_O;          // Can be null if you make listen/connect call used when deining BofSocketThread for Session thread
-
+  uint32_t SubPacketTimeout_U32; // All I/O (read/write) use this standard To value but the WHOLE I/O process is controlled by the Param_X.Timeout_U32
+  BofSocketThreadCallback Callback;
   BOF_SOCKET_THREAD_PARAM()
   {
     Reset();
@@ -56,6 +58,8 @@ struct BOF_SOCKET_THREAD_PARAM
     ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
     pListeningSocket_O = nullptr;
     pSocket_O = nullptr;
+    SubPacketTimeout_U32 = 0;
+    Callback = nullptr;
   }
 };
 

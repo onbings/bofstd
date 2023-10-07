@@ -16,7 +16,7 @@
 
 BEGIN_BOF_NAMESPACE()
 constexpr uint32_t PUSH_POP_TIMEOUT = 150; // Global To for getting command out of incoming queue, in ListeningMode_B it is half of the To specified for listen
-constexpr uint32_t IO_TIMEOUT = 250;       // All I/O (read/write) use this standard To value but the WHOLE I/O process is controlled by the Param_X.Timeout_U32
+constexpr uint32_t DEF_IO_TIMEOUT = 2000;
 
 BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadParam_X)
     : BofThread()
@@ -24,8 +24,11 @@ BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadPa
   BOF_CIRCULAR_BUFFER_PARAM CircularBufferParam_X;
 
   mSocketThreadParam_X = _rSocketThreadParam_X;
-
-  BOF_ASSERT(Bof_CreateEvent(_rSocketThreadParam_X.Name_S, false, 1, false, mCancelEvent_X) == BOF_ERR_NO_ERROR);
+  if (mSocketThreadParam_X.SubPacketTimeout_U32 == 0)
+  {
+    mSocketThreadParam_X.SubPacketTimeout_U32 = DEF_IO_TIMEOUT;
+  }
+  BOF_ASSERT(Bof_CreateEvent(_rSocketThreadParam_X.Name_S, false, 1, false, false, mCancelEvent_X) == BOF_ERR_NO_ERROR);
 
   CircularBufferParam_X.Blocking_B = true;
   CircularBufferParam_X.MultiThreadAware_B = true;
@@ -262,7 +265,7 @@ BOFERR BofSocketThread::ClearSocketOperation()
 
   mOperationPending_B = false;
   mCancel_B = false;
-  Bof_ResetEvent(mCancelEvent_X, 0);
+  Bof_SetEventMask(mCancelEvent_X, 0);
   return Rts_E;
 }
 
@@ -594,7 +597,7 @@ BOFERR BofSocketThread::V_OnProcessing()
 
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_READ:
               Size_U32 = Remain_U32;
-              Result_X.Sts_E = pIoSocket_O->V_ReadData(IO_TIMEOUT, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max IO_TIMEOUT ms
+              Result_X.Sts_E = pIoSocket_O->V_ReadData(mSocketThreadParam_X.SubPacketTimeout_U32, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max mSocketThreadParam_X.SubPacketTimeout_U32 ms
               // printf("%d: Read: Total %d Size %d Remain %d Sts %d\n", Bof_GetMsTickCount(), Total_U32, Size_U32, Remain_U32, Result_X.Sts_E);
               Delta_U32 = Bof_ElapsedMsTime(Start_U32);
               KBPerS_U32 = Delta_U32 ? (Size_U32 * 1000) / (Delta_U32 * 1024) : 99999999;
@@ -611,7 +614,7 @@ BOFERR BofSocketThread::V_OnProcessing()
 
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_WRITE:
               Size_U32 = Remain_U32;
-              Result_X.Sts_E = pIoSocket_O->V_WriteData(IO_TIMEOUT, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max IO_TIMEOUT ms
+              Result_X.Sts_E = pIoSocket_O->V_WriteData(mSocketThreadParam_X.SubPacketTimeout_U32, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max mSocketThreadParam_X.SubPacketTimeout_U32 ms
               Delta_U32 = Bof_ElapsedMsTime(Start_U32);
               KBPerS_U32 = Delta_U32 ? (Size_U32 * 1000) / (Delta_U32 * 1024) : 99999999;
               if ((Result_X.Sts_E) || (Size_U32 == Remain_U32))
@@ -671,6 +674,10 @@ BOFERR BofSocketThread::V_OnProcessing()
         Result_X.pBuffer_U8 = pBuffer_U8;
         Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOpParam_X.Timer_U32);
         Sts_E = mpuSocketOperationResultCollection->Push(&Result_X, PUSH_POP_TIMEOUT, nullptr);
+        if (mSocketThreadParam_X.Callback)
+        {
+          Sts_E = mSocketThreadParam_X.Callback(mCurrentOpParam_X.Ticket_U32, Sts_E);
+        }
         // printf("%d: %s Alive Push Op %d Sts %s/%s Bal %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), Result_X.Operation_E, BOF::Bof_ErrorCode(Sts_E), BOF::Bof_ErrorCode(Result_X.Sts_E), BofThread::S_BofThreadBalance());
       }
     } // if ((NewCommandRcv_B) || (ListeningMode_B))
