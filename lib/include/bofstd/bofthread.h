@@ -30,6 +30,7 @@
 #include <bofstd/bofpot.h>
 
 #include <thread>
+#include <vector>
 
 BEGIN_BOF_NAMESPACE()
 struct BOF_THREAD_PARAM
