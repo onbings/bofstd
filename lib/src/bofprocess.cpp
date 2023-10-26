@@ -1186,7 +1186,7 @@ BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArgumen
       Bof_StrNCpy(pArgZero_c, _pProgram_c, sizeof(pArgZero_c));
       ppArgs_c[0] = pArgZero_c;
 
-      while ((pPtr_c != nullptr) && (NbArgs_i < static_cast<int>((sizeof(ppArgs_c) / sizeof(ppArgs_c[0])))))
+      while ((pPtr_c != nullptr) && (NbArgs_i < (static_cast<int>((sizeof(ppArgs_c) / sizeof(ppArgs_c[0]))) - 1)))
       {
         ppArgs_c[NbArgs_i++] = pPtr_c;
         pPtr_c = strchr(pPtr_c, ' ');
@@ -1198,7 +1198,7 @@ BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArgumen
         }
       }
 
-      ppArgs_c[NbArgs_i - 1] = nullptr;
+      ppArgs_c[NbArgs_i] = nullptr;
       // printf("in child _DbgPort_U16 %d\n", _DbgPort_U16);
       if (_DbgPort_U16)
       {
@@ -1215,11 +1215,14 @@ BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArgumen
       }
       else
       {
-        // printf("execv %s %s\n", _pProgram_c, ppArgs_c[0]);
+        /// printf("execv %s %s\n", _pProgram_c, ppArgs_c[0]);
         _rExitCode_i = 0;
         Rts_E = BOF_ERR_NO_ERROR;
         // printf("Before execv pid is %d Sts %d errno %d Exit %d Rts %d\n", _rPid_X.Pid, Sts_i, errno, _rExitCode_i, Rts_E);
-
+        // for (i = 0; i < NbArgs_i; i++)
+        //{
+        //  printf("arg[%d]=%s\n", i, ppArgs_c[i]);
+        //}
         Sts_i = execv(_pProgram_c, ppArgs_c);
         // Should never come back in this code except if error
         BOF_ASSERT(Sts_i < 0);
