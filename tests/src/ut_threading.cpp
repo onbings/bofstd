@@ -1273,12 +1273,16 @@ private:
 public:
   Channel()
   {
-    BOF_ASSERT(BOF::Bof_CreateConditionalVariable("ChannelName", true, mChannelOpenedCv_X) == BOF_ERR_NO_ERROR);
+    BOFERR Sts_E;
+    Sts_E = BOF::Bof_CreateConditionalVariable("ChannelName", true, mChannelOpenedCv_X);
+    BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   }
 
   ~Channel()
   {
-    BOF_ASSERT(BOF::Bof_DestroyConditionalVariable(mChannelOpenedCv_X) == BOF_ERR_NO_ERROR);
+    BOFERR Sts_E;
+    Sts_E = BOF::Bof_DestroyConditionalVariable(mChannelOpenedCv_X);
+    BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   }
 
   BOFERR OpenChannel()

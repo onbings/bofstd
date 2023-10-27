@@ -22,13 +22,16 @@ BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadPa
     : BofThread()
 {
   BOF_CIRCULAR_BUFFER_PARAM CircularBufferParam_X;
+  BOFERR Sts_E;
+  bool Sts_B;
 
   mSocketThreadParam_X = _rSocketThreadParam_X;
   if (mSocketThreadParam_X.SubPacketTimeout_U32 == 0)
   {
     mSocketThreadParam_X.SubPacketTimeout_U32 = DEF_IO_TIMEOUT;
   }
-  BOF_ASSERT(Bof_CreateEvent(_rSocketThreadParam_X.Name_S, false, 1, false, false, mCancelEvent_X) == BOF_ERR_NO_ERROR);
+  Sts_E = Bof_CreateEvent(_rSocketThreadParam_X.Name_S, false, 1, false, false, mCancelEvent_X);
+  BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 
   CircularBufferParam_X.Blocking_B = true;
   CircularBufferParam_X.MultiThreadAware_B = true;
@@ -42,8 +45,10 @@ BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadPa
     if ((mpuSocketOperationResultCollection) && (mpuSocketOperationParamCollection->LastErrorCode() == BOF_ERR_NO_ERROR))
     {
       // printf("%d: Launch\n", BOF::Bof_GetMsTickCount());
-      BOF_ASSERT(LaunchBofProcessingThread(mSocketThreadParam_X.Name_S, false, 0, mSocketThreadParam_X.ThreadSchedulerPolicy_E, mSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0) == BOF_ERR_NO_ERROR);
-      BOF_ASSERT(IsThreadRunning(100));
+      Sts_E = LaunchBofProcessingThread(mSocketThreadParam_X.Name_S, false, 0, mSocketThreadParam_X.ThreadSchedulerPolicy_E, mSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0);
+      BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
+      Sts_B = IsThreadRunning(100);
+      BOF_ASSERT(Sts_B);
     }
   }
 }

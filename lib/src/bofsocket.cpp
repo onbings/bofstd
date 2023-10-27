@@ -613,7 +613,7 @@ BOFERR BofSocket::SetupSocket(bool _IpV6_B, bool _Bind_B)
           {
             int32_t NativeErrorCode_S32;
             Rts_E = Bof_GetLastError(true, &NativeErrorCode_S32);
-            //						printf("bind to %s err %d\n", Bof_SocketAddressToString(mSrcIpAddress_X, true, true).c_str(), NativeErrorCode_S32);
+            printf("bind to %s err %d\n", Bof_SocketAddressToString(mSrcIpAddress_X, true, true).c_str(), NativeErrorCode_S32);
             //						mSrcIpAddress_X.Set(false, mSrcIpAddress_X.Port()+1);
             Rts_E = BOF_ERR_BIND;
           }

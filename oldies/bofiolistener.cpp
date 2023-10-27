@@ -25,13 +25,17 @@ BEGIN_BOF_NAMESPACE()
 
 BofIoListener::BofIoListener()
 {
-  BOF_ASSERT(BOF_NAMESPACE::Bof_CreateConditionalVariable("ListenerRunning", true, mListenRunningCv_X) == BOFERR_NO_ERROR);
+  BOFERR Sts_E;
+  Sts_E = BOF_NAMESPACE::Bof_CreateConditionalVariable("ListenerRunning", true, mListenRunningCv_X);
+  BOF_ASSERT(Sts_E == BOFERR_NO_ERROR);
 }
 
 BofIoListener::~BofIoListener()
 {
+  BOFERR Sts_E;
   CancelListen();
-  BOF_ASSERT(BOF_NAMESPACE::Bof_DestroyConditionalVariable(mListenRunningCv_X) == BOFERR_NO_ERROR);
+  Sts_E = BOF_NAMESPACE::Bof_DestroyConditionalVariable(mListenRunningCv_X);
+  BOF_ASSERT(Sts_E == BOFERR_NO_ERROR);
 }
 
 BOFERR BofIoListener::Listen(uint32_t _TimeoutInMs_U32, BofComChannel &_rIoChannel)
@@ -39,7 +43,7 @@ BOFERR BofIoListener::Listen(uint32_t _TimeoutInMs_U32, BofComChannel &_rIoChann
   BOFERR Rts_E = BOFERR_BAD_TYPE;
 
   if (_rIoChannel.BaseChannelParam()->ListenBackLog_U32)
-  {  
+  {
     mListenTimeoutInMs_U32 = _TimeoutInMs_U32;
     Rts_E = Bof_SignalConditionalVariable(mListenRunningCv_X, mListenRunningCvSetter, true);
     BOF_ASSERT(Rts_E == BOFERR_NO_ERROR);
@@ -53,9 +57,9 @@ BOFERR BofIoListener::CancelListen()
 {
   BOFERR Rts_E = BOFERR_BAD_TYPE;
 
-    Rts_E = Bof_WaitForConditionalVariable(mListenRunningCv_X, mListenTimeoutInMs_U32, mListenRunningCvPredicateAndReset);
-    BOF_ASSERT(Rts_E == BOFERR_NO_ERROR);
-  
+  Rts_E = Bof_WaitForConditionalVariable(mListenRunningCv_X, mListenTimeoutInMs_U32, mListenRunningCvPredicateAndReset);
+  BOF_ASSERT(Rts_E == BOFERR_NO_ERROR);
+
   return Rts_E;
 }
 

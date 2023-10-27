@@ -417,7 +417,7 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
               // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
             }
           }
-          BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
+          // BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
 
           if ((Rts_E == BOF_ERR_NO_ERROR) && (_RemoveIt_B))
           {
