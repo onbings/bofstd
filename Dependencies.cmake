@@ -16,23 +16,17 @@ macro(find_package_dependency)
 
 endmacro()
 
-# =========================
-# == PUBLIC DEPENDENCIES ==
-# =========================
+# ===========================
+# == OPTIONAL DEPENDENCIES ==
+# ===========================
 
-# if(NOT TARGET ONBINGS::onbings-somelib)
-#   find_package_dependency(onbings-somelib REQUIRED)
-# endif()
+if(BOFSTD_BUILD_TESTS)
+  find_package(GTest REQUIRED)
+endif()
 
-# ==========================
-# == PRIVATE DEPENDENCIES ==
-# ==========================
-
-#find_package_dependency(Qt5 REQUIRED Core Gui Widgets)
-
-# if(NOT TARGET ONBINGS::onbings-anotherlib)
-#   find_package_dependency(onbings-anotherlib REQUIRED)
-# endif()
+# ===========================
+# == REQUIRED DEPENDENCIES ==
+# ===========================
 
 if(NOT TARGET jsoncpp_object)
   find_package_dependency(jsoncpp REQUIRED)
@@ -51,4 +45,5 @@ endif()
 find_package_dependency(spdlog REQUIRED)
 find_package_dependency(fmt REQUIRED)
 find_package_dependency(date REQUIRED)
+
 
