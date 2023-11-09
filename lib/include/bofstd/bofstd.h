@@ -134,6 +134,7 @@ struct BOF_SIZE
   }
 };
 
+#define BOF_PI 3.14159265358979323846
 #define BOF_HANDLE uintptr_t
 // typedef void *BOF_HANDLE;
 // #define BOF_INVALID_HANDLE_VALUE    ((BOF_HANDLE)-1)

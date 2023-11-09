@@ -37,7 +37,7 @@ TEST(Fs_Test, DirectoryManagement)
   BOF_FILE_TYPE FileType_E;
   uint64_t Size_U64;
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #else
   EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
 #endif
@@ -199,7 +199,7 @@ TEST(Fs_Test, FileManagement)
   uint64_t Size_U64;
   BOF_FILE_TYPE FileType_E;
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #else
   EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
 #endif
@@ -350,7 +350,7 @@ TEST(Fs_Test, EntireFile)
   Permission_E = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
   Line_S = "Hello World";
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #else
   EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
 #endif
