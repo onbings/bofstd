@@ -240,7 +240,7 @@ public:
   BOFERR CancelSocketOperation(uint32_t _TimeOut_U32);
   BOFERR ClearSocketOperation();
   BOFERR ResetSocketOperation();
-
+  uint32_t GetIoDefaultTimeout() const;
   BofSocket *GetListeningSocket();
   BofSocket *GetSocket();
   const BOF_SOCKET_OPERATION_PARAM &GetCurrentOpParam();

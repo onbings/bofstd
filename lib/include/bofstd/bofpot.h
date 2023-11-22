@@ -1022,11 +1022,34 @@ template <typename DataType>
 void BofPot<DataType>::Reset()
 {
   BOFERR Sts_E;
+  uint32_t i_U32;
+  DataType *pData_X;
 
   BOF_POT_LOCK(Sts_E);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
     mLevelMax_U32 = 0;
+    mpFirstPotElementToTryForGet_X = mpPotDataStorage_X;
+    mNumberOfElementOutOfThePot_U32=0;
+    pData_X = mpPotDataStorage_X;
+
+    if (mPotParam_X.MagicNumber_U32)
+    {
+      for (i_U32 = 0; i_U32 < mPotParam_X.PotCapacity_U32; i_U32++, pData_X++)
+      {
+        *(uint32_t *)pData_X = 0;
+      }
+    }
+    else
+    {
+      if (mpInUseElementList_U8)
+      {
+        for (i_U32 = 0; i_U32 < mPotParam_X.PotCapacity_U32; i_U32++)
+        {
+          mpInUseElementList_U8[i_U32] = 0x00;
+        }
+      }
+    }
     BOF_POT_UNLOCK()
   }
 }

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <bofstd/bofsystem.h>
+#include <bofstd/bofcircularbuffer.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -29,8 +30,12 @@ struct BOF_RAW_CIRCULAR_BUFFER_PARAM
 {
   bool MultiThreadAware_B;       /*! true if the object is used in a multi threaded application (use mCs)*/
   uint32_t BufferSizeInByte_U32; /*!	Specifies the maximum number of byte inside inside the queue*/
-  uint32_t NbMaxSlot_U32;        /*! Specifies the maximum number of buffer inside the queue (if 0 the whole BufferSizeInByte_U32 can be used)*/
+  bool     SlotMode_B;           /* If true, the mpData_U8 buffer of BufferSizeInByte_U32 will be divided by NbMaxBufferEntry_U32 and each slot will be BufferSizeInByte_U32/NbMaxBufferEntry_U32 */
+  uint32_t NbMaxBufferEntry_U32; /*! Specifies the maximum number of buffer which will be tracked inside the mpData_U8 buffer of BufferSizeInByte_U32*/
   uint8_t *pData_U8;             /*! Pointer to queue storage buffer used to record queue element*/
+  bool Overwrite_B;          /*! true if new data overwritte the oldest one when the queue is full. */
+  bool Blocking_B;
+
   BOF_RAW_CIRCULAR_BUFFER_PARAM()
   {
     Reset();
@@ -40,8 +45,11 @@ struct BOF_RAW_CIRCULAR_BUFFER_PARAM
   {
     MultiThreadAware_B = false;
     BufferSizeInByte_U32 = 0;
-    NbMaxSlot_U32 = 0;
+    SlotMode_B = false;
+    NbMaxBufferEntry_U32 = 0;
     pData_U8 = nullptr;
+    Overwrite_B = false;
+    Blocking_B = false;
   }
 };
 
@@ -50,54 +58,70 @@ struct BOF_RAW_CIRCULAR_BUFFER_PARAM
  * Raw Circular buffer class
  *
  * Description
- * This class manages a circular byte buffer instance. Each entry in the circular buffer is
- * preceded by a 32 bits value containing the length of the payload:
+ * This class manages a circular byte buffer instance. For each entry in the circular buffer, there is an entry in 
+ * in std::unique_ptr<BofCircularBuffer<BOF_RAW_BUFFER>> mpuSlotCollection.
+ * BOF_RAW_BUFFER describes a buffer portion inside the global mpData_U8 buffer
  *
- *	L1: <L1 databyte> | L2: <L2 databyte> | ... | Ln: <Ln databyte>
+ *	mpData_U8: <L1 databyte> |  <L2 databyte> | ... |  <Ln databyte>
  *
- * The effective range of this value is [1,0x7FFFFFFF]. When bit 31 is set, this location has been
- * reserved (locked) by LockBuffer and it will be filled by UnlockLockBuffer which will clear the bit 31
- * When this bit is set PopBuffer will fail even if the state of the buffer seems to be ready for pop
- * operation. PushBuffer can continue to work
+ * The filling of the buffer is controlled by SlotMode_B, NbMaxBufferEntry_U32 and BufferSizeInByte_U32
  *
- * The filling of the buffer is controlled by BufferCapacity_U32 and NbMaxBuffer_U32
+ * BufferSizeInByte_U32 gives the number of byte allocated to store the list of buffers
  *
- * BufferCapacity_U32 gives the number of byte allocated to store the list of buffers
+ * Each pushed buffer is stored one after each other if SlotMode_B is false up to a maximum of NbMaxBufferEntry_U32
+ * pending entries which must be Poped out to be able to use the rest of the buffer. 
  *
- * Each pushed buffer is stored one after each other if NbMaxBuffer_U32 is 0. In this case
- * the buffer capacity is optimized used in term of memory
- *	L1:<L1 databyte>L2:<L2 databyte>...Ln:<Ln databyte>
- *
- * If NbMaxBuffer_U32 is different from 0, each buffer will be stored in a slot of
- * BufferCapacity_U32/NbMaxBuffer_U32 bytes. This will gives slot of equal size inside the
+ * If SlotMode_B is true, each buffer will be stored in a slot of
+ * BufferSizeInByte_U32/NbMaxBufferEntry_U32 bytes. This will gives slot of equal size inside the
  * circular buffer which contains variable size buffer array from 1 to
- * (BufferCapacity_U32/NbMaxBuffer_U32) bytes length. In this cas the BufferCapacity_U32 is
- * increased by (NbMaxBuffer_U32*sizeof(uint32_t)) to be able to store the extra buffer 32 bits value
- * containing the length of the payload
- *	L1:<L1 databyte>          L2:<L2 databyte>          ...Ln:<Ln databyte>
+ * (BufferSizeInByte_U32/NbMaxBufferEntry_U32) bytes length. 
+ * 
+ *	<L1 databyte>             <L2 databyte>          ...Ln:<Ln databyte>
  *  <--------SlotSize--------><--------SlotSize-------->...<--------SlotSize-------->
- *
- * See Also
- * None
+ * 
+ * Each entry in the buffer list can be read partially byte per byte up to the size of the length of this entry.
+ * Data can also be appended part by part if you call SetAppendMode(true), do not forget to call SetAppendMode(false)
+ * when the data is considered as completly full
  */
-
+struct BOF_RAW_BUFFER
+{
+  uint32_t IndexInBuffer_U32;         //Index of the first data byte (pData_U8[0]) inside the global mpData_U8 buffer.
+  uint32_t SlotEmpySpace_U32;         //Number of not used byte in slot when pushed
+  uint32_t Size1_U32;                 //Number of byte from pData1_U8 to the end op the buffer (no Size2_U32 for slotmode)
+  uint8_t *pData1_U8;                 //Pointer to data corresponding to Size1_U32  (no pData2_U8 for SlotMode_B)
+  uint32_t Size2_U32;                 //In non slot mode, data may be spreaded accross the end of the buffer, this one contains the number of byte from mpData_U8[0] to the end of the buffer
+  uint8_t *pData2_U8;                 //Pointer to data corresponding to Size1_U32  (no Size2_U32 for SlotMode_B)
+  BOF_RAW_BUFFER()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    IndexInBuffer_U32 = 0;
+    SlotEmpySpace_U32 = 0;
+    Size1_U32 = 0;
+    pData1_U8 = nullptr;
+    Size2_U32 = 0;
+    pData2_U8 = nullptr;
+  }
+};
 class BOFSTD_EXPORT BofRawCircularBuffer
 {
 private:
   BOF_RAW_CIRCULAR_BUFFER_PARAM mRawCircularBufferParam_X;
-  uint32_t mNbSlot_U32; /*! Current number of buffer stored inside the raw queue */
-  // uint32_t                      mNbMaxSlot_U32;                            /*! Maximum number of buffer which can be stored inside the queue. If it is 0, the whole buffer size is used to store a maximum number of buffer otherwise of constant slot size
-  // is used to store variable buffer length (see class comment) */
-  uint32_t mSlotSize_U32;   /*! if mNbMaxSlot_U32 != 0 this is the slot size which is used to store variable buffer length (adjusted mNbElementInBuffer_U32/mNbMaxBuffer_U32 (see class comment) otherwize 0 */
-  bool mDataPreAllocated_B; /*! true if mpData_U8 is provided by the caller (!! if mNbMaxBuffer_U32 is different from zero, extra storage is needed to record lenth of each slot (see class comment) */
-  uint8_t *mpData_U8;       /*! Pointer to queue storage buffer used to record queue element*/
-  uint32_t mPushIndex_U32;  /*! Current position of the write index inside the queue*/
-  uint32_t mPopIndex_U32;   /*! Current position of the read index inside the queue*/
-  // uint32_t                      mBufferCapacity_U32;                       /*! The maximum number of element inside the queue*/
-  uint32_t mNbElementInBuffer_U32;   /*! Current number of element inside the queue*/
-  uint32_t mLevelMax_U32;            /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
-  BOF_MUTEX mRawCircularBufferMtx_X; /*! Provide a serialized access to shared resources in a multi threaded environment*/
-  BOFERR mErrorCode_E;
+  uint32_t mSlotSize_U32 = 0;           /*! if SlotMode_B this is the slot size which is used to store variable buffer length (adjusted BufferSizeInByte_U32/mNbElementInBuffer_U32 */
+  bool mDataPreAllocated_B=false;       /*! true if mpData_U8 is provided by the caller  */
+  uint8_t *mpData_U8=nullptr;           /*! Pointer to queue storage buffer used to record queue element*/
+  uint32_t mLevelMax_U32=0;             /*! Contains the maximum buffer fill level. This one is reset by the GetMaxLevel method*/
+  BOF_MUTEX mRawCircularBufferMtx_X;    /*! Provide a serialized access to shared resources in a multi threaded environment*/
+  BOFERR mErrorCode_E=BOF_ERR_NO_ERROR;
+  bool mOverflow_B=false;               /*! true if data overflow has occured. Reset to false by IsBufferOverflow*/
+  bool mAppendMode_B=false;             /*! true if we are in append mode */
+  std::unique_ptr<BofCircularBuffer<BOF_RAW_BUFFER>> mpuBufferCollection = nullptr;
+  BOF_RAW_BUFFER mRawBufferToPush_X;
+  uint32_t mCrtBufferRemain_U32 = 0;
+  uint8_t *mpCrtBufferHead_U8 = nullptr;
+  uint8_t *mpCrtBufferEnd_U8 = nullptr;
 
 public:
   BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &_rRawCircularBufferParam_X);
@@ -112,23 +136,26 @@ public:
   bool IsEmpty();
   bool IsFull();
   uint32_t GetSlotSize();
-  uint32_t GetNbElement();
-  uint32_t GetCapacity();
+  uint32_t GetNbElement(uint32_t *_pSizeOfFirst_U32);
+  uint32_t GetCapacity(uint32_t *_pTotalSize_U32);
   uint32_t GetMaxLevel();
   void Reset();
-  uint32_t GetNbFreeElement();
-  BOFERR PushBuffer(uint32_t _Nb_U32, const uint8_t *_pData_U8);
-  BOFERR PopBuffer(uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
-  BOFERR Peek(uint32_t _Index_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
-  BOFERR Skip();
-  BOFERR LockBuffer(uint32_t _Nb_U32, uint32_t *_pNb1_U32, uint8_t **_ppData1_U8, uint32_t *_pNb2_U32, uint8_t **_ppData2_U8);
-  BOFERR UnlockBuffer(const uint8_t *_pLockedBuffer_U8, uint32_t _Nb_U32);
+  uint32_t GetNbFreeElement(uint32_t *_pRemainingSize_U32);
+  BOFERR SetOverWriteMode(bool _Overwrite_B);
+  BOFERR SetAppendMode(uint32_t _BlockingTimeouItInMs_U32, bool _Append_B);
+  bool IsBufferOverflow();
+  BOFERR PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8);
+  BOFERR PopBuffer(uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
+  BOFERR Peek(uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
+  //Need to call Skip after GetBufferPtr
+  BOFERR GetBufferPtr(uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pNb1_U32, uint8_t **_ppData1_U8, uint32_t *_pNb2_U32, uint8_t **_ppData2_U8);
+  //_SignalIfNeeded_B:: sometime you skip just to process OverWrite mode, in this case do not signal free space
+  BOFERR Skip(bool _SignalIfNeeded_B, bool *_pLocked_B);
 
 private:
-  uint32_t ReadNbHeader(uint32_t *_pPopIndex_U32);  //Lock is not taken to avoid recursive mutex
-  BOFERR WriteNbHeader(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32);  //Lock is not taken to avoid recursive mutex
-  BOFERR ReadPayload(uint32_t *_pPopIndex_U32, uint32_t _Nb_U32, uint8_t *_pData_U8); //Lock is not taken to avoid recursive mutex
-  BOFERR WritePayload(uint32_t *_pPushIndex_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8); //Lock is not taken to avoid recursive mutex
+  BOFERR PushRawBuffer(uint32_t _BlockingTimeouItInMs_U32);
+  BOFERR UpdatePushRawBuffer(uint32_t _Size_U32, const uint8_t *_pData_U8);
+  BOFERR PopOrPeekBuffer(bool _Pop_B, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
 };
 
 END_BOF_NAMESPACE()

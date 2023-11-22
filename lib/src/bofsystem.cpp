@@ -1719,7 +1719,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
     pThread_X->ThreadRunning_B = false;
     S_BofThreadBalance--;
     // Bof_ErrorCode can fail does to app shudown (static initializer)
-    printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
+    printf("%d: S_ThreadLauncher End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
   }
 
   return pRts;
@@ -1883,6 +1883,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rThread_X.Reset();
+    _rThread_X.ThreadMustStop_B = true;
   }
   return Rts_E;
 }

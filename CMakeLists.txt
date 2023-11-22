@@ -157,10 +157,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${COMPILED_BINARIES_DIR}/lib)
 # == PACKAGING ==
 # ===============
 
-if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  # make package only if BofStd is the main project (not a submodule)
-  include(packaging.cmake)
-endif()
+include(packaging.cmake)
+
 # =======================
 # == POPULATE PROJECTS ==
 # =======================

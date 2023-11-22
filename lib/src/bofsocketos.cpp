@@ -1822,10 +1822,11 @@ BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS
     _rIpAddress_X.IpV4Address_X.sin_family = 0;
     Rts_E = BOF_ERR_FORMAT;
     PosEop = _rIpAddress_S.find("://");
-
+    Protocol_S = "";
     if (PosEop != std::string::npos)
     {
       Protocol_S = _rIpAddress_S.substr(0, PosEop);
+      _rIpAddress_X.Protocol_S = Protocol_S;
       if (Protocol_S == "tcp")
       {
         Type_E = BOF_SOCK_TYPE::BOF_SOCK_TCP;
@@ -1876,6 +1877,7 @@ BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS
       {
         Rts_E = Bof_IpAddressToSocketAddress(Interface_S, _rInterfaceIpAddress_X);
         _rInterfaceIpAddress_X.SocketType_E = Type_E;
+        _rInterfaceIpAddress_X.Protocol_S = Protocol_S;
       }
     }
 
@@ -1885,6 +1887,7 @@ BOFERR Bof_ResolveIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS
       {
         Rts_E = Bof_IpAddressToSocketAddress(Address_S, _rIpAddress_X);
         _rIpAddress_X.SocketType_E = Type_E;
+        _rIpAddress_X.Protocol_S = Protocol_S;
       }
     }
   }

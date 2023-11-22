@@ -57,6 +57,9 @@ enum BOF_HTTP_REQUEST_TYPE
   BOF_HTTP_REQUEST_OPTIONS,
   BOF_HTTP_REQUEST_CONNECT,
   BOF_HTTP_REQUEST_TRACE,
+  BOF_HTTP_REQUEST_DBG_ECHO,  //For user Debug Echo function
+  BOF_HTTP_REQUEST_MAX,
+
 };
 /// @brief This class implements an http request parser. 
 /// Cf BofHttpRequest
@@ -155,6 +158,8 @@ public:
   /// @remarks Different operator.
   bool operator!=(const BofHttpRequest &_rOther_O) const;
 
+  static BOF_HTTP_REQUEST_TYPE S_RequestType(const char *_pRequest_c);
+  static std::string S_RequestString(BOF_HTTP_REQUEST_TYPE _Method_E);
   /// @brief Check if the http request instance is well formed.
   /// @return true if the http request is valid.
   /// @remarks None

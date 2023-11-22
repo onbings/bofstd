@@ -309,6 +309,14 @@ struct BOF_SOCKET_ADDRESS
       *pIp_U8++ = static_cast<uint8_t>(_Ip4_U32);
     }
     SocketType_E = _SocketType_E;
+    if (SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_TCP)
+    {
+      Protocol_S = "tcp";
+    }
+    if (SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_UDP)
+    {
+      Protocol_S = "udp";
+    }
   }
 
   void Inc(int32_t _Inc_S32)
