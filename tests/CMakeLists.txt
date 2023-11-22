@@ -252,12 +252,12 @@ if(MEMORYCHECK_SUPPRESSIONS_FILE)
   file(APPEND ${MEMORYCHECK_SUPPRESSIONS_FILE} ${CONTENT})
 endif()
 
-# message("ut_bofstd: Create data dir " ${COMPILED_BINARIES_DIR} "/bin/data")
-# file(MAKE_DIRECTORY ${COMPILED_BINARIES_DIR}/bin/data)  #Ut under linux from vscode
-# foreach(Filename ${DATA_FILES})
-#   message("ut_bofstd: Copy " ${Filename} " to " ${COMPILED_BINARIES_DIR} "/bin/data")
-#   file(COPY ${Filename} DESTINATION ${COMPILED_BINARIES_DIR}/bin/data)
-# endforeach() 
+message("ut_bofstd: Create data dir " ${COMPILED_BINARIES_DIR} "/bin/data")
+file(MAKE_DIRECTORY ${COMPILED_BINARIES_DIR}/bin/data)  #Ut under linux from vscode
+foreach(Filename ${DATA_FILES})
+  message("ut_bofstd: Copy " ${Filename} " to " ${COMPILED_BINARIES_DIR} "/bin/data")
+  file(COPY ${Filename} DESTINATION ${COMPILED_BINARIES_DIR}/bin/data)
+endforeach() 
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION  ${COMPILED_BINARIES_DIR}/bin FILES_MATCHING PATTERN "*")
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION  ${CMAKE_INSTALL_BINDIR}      COMPONENT bofstd-runtime FILES_MATCHING PATTERN "*")

@@ -1115,7 +1115,7 @@ BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const B
     if (CreateOut_B)
     {
       Rts_E = BOF_ERR_CREATE;
-      std::ofstream Ofs(_rDstPath.FullPathName(false).c_str(), std::ios::trunc);
+      std::ofstream Ofs(_rDstPath.FullPathName(false).c_str(), std::ios::trunc| std::ios_base::binary);
       if (Ofs)
       {
         Ofs << Ifs.rdbuf();

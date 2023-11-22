@@ -28,7 +28,7 @@
 #include "gtestrunner.h"
 
 // To use a test fixture, derive from testing::Test class
-class TestLogger : public testing::Test
+class Logger_Test : public testing::Test
 {
 public:
   // Per-test-case set-up. Called before the first test in this test case.
@@ -45,21 +45,21 @@ protected:
 
 /*** Factory functions called at the beginning/end of each test case **********/
 
-void TestLogger::SetUpTestCase()
+void Logger_Test::SetUpTestCase()
 {
 }
 
-void TestLogger::TearDownTestCase()
+void Logger_Test::TearDownTestCase()
 {
 }
 
 /*** Factory functions called at the beginning/end of each test *****************/
 
-void TestLogger::SetUp()
+void Logger_Test::SetUp()
 {
 }
 
-void TestLogger::TearDown()
+void Logger_Test::TearDown()
 {
 }
 
@@ -227,7 +227,7 @@ enum DBG_FLAG_MASK : uint32_t
   BOF_DBG_ERROR = 0x40000000   /*! Display error */
 };
 
-TEST_F(TestLogger, LoggerInit)
+TEST_F(Logger_Test, LoggerInit)
 {
   uint32_t i_U32, Mask_U32;
   std::vector<std::string> LogMaskNames_S{/*0*/ "INIT", "INFO", "", "", "", "", "", "", /*8*/ "", "", "", "", "", "", "", "", /*16*/ "", "", "", "", "", "", "", "", /*24*/ "", "", "", "", "", "", "ALWAYS", "ERROR"};
@@ -387,7 +387,7 @@ TEST_F(Logger_Test, LoggerMultiSink)
 }
 #endif
 
-TEST_F(TestLogger, LogAlways)
+TEST_F(Logger_Test, LogAlways)
 {
   constexpr const char *MFS_LOGGER_MAINCHANNEL = "Mfs";
   uint32_t Mask_U32, i_U32;
@@ -433,7 +433,7 @@ TEST_F(TestLogger, LogAlways)
 
   Bof_MsSleep(100);
 }
-TEST_F(TestLogger, LoggerMultiChannel)
+TEST_F(Logger_Test, LoggerMultiChannel)
 {
   BOFERR Sts_E;
   BofLogger &rBofLog = BofLogger::S_Instance();
@@ -491,6 +491,9 @@ TEST_F(TestLogger, LoggerMultiChannel)
   Bof_MsSleep(500);
   // 24/03/23 10:59:15:664 C LogChannel7 00000774 Log 00000305
   uint32_t OneLineSize_U32 = 8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[0].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + 1;
+#if defined(_WIN32)
+  OneLineSize_U32++;  //\r\n instead of \n
+#endif
   uint32_t FileSize_U32 = (j_U32 * OneLineSize_U32);
   EXPECT_EQ(Bof_GetFileSize(S_LogChannelList[0].FileLogPath), FileSize_U32);
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[1].FileLogPath), MAXLOGSIZEINBYTE);
@@ -498,7 +501,12 @@ TEST_F(TestLogger, LoggerMultiChannel)
   uint32_t LinePerFile_U32 = MAXLOGSIZEINBYTE / OneLineSize_U32;
   uint32_t NbLineInCurrentFile_U32 = j_U32 % LinePerFile_U32;
   // 24/03/23 11:02:33:065 C LogChannel3 00000628 Log 00000273
-  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * (8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + 1);
+  OneLineSize_U32 = (8 + 1 + 12 + 1 + 1 + 1 + static_cast<uint32_t>(strlen(S_LogChannelList[2].ChannelName_S.c_str())) + 1 + 8 + 1 + 3 + 1 + 8 + 1);
+#if defined(_WIN32)
+  OneLineSize_U32++;  //\r\n instead of \n
+#endif
+  uint32_t RotatingSize_U32 = NbLineInCurrentFile_U32 * OneLineSize_U32;
+
   // printf("%d %d %d\n", Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32, RotatingSize_U32 + 1);
   EXPECT_LE(RotatingSize_U32, Bof_GetFileSize(S_LogChannelList[2].FileLogPath));
   EXPECT_LE(Bof_GetFileSize(S_LogChannelList[2].FileLogPath), RotatingSize_U32 + 2);

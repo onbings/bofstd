@@ -114,7 +114,7 @@ TEST(JsonParser_Test, JsonTypeNative)
   Json::CharReaderBuilder JsonReader;
   JSONCPP_STRING JsonErr;
 
-  Ifs.open("./data/jsonparser.json");
+  Ifs.open("../../binaries/bin/data/jsonparser.json");
   JsonReader["collectComments"] = true;
   if (!parseFromStream(JsonReader, Ifs, &Root, &JsonErr))
   {
@@ -184,7 +184,7 @@ TEST(JsonParser_Test, JsonType)
   S_JsonType_X.Reset();
 
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "../data/jsonparser.json";
+  Path = CrtDir + "../../binaries/bin/data/jsonparser.json";
   // printf("crtdir %s Jsonpath is %s\n", CrtDir.FullPathName(false).c_str(), Path.FullPathName(false).c_str());
 
   EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
@@ -425,7 +425,8 @@ TEST(JsonParser_Test, Json)
 
   S_AppParamJson_X.Reset();
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "../data/jsonparser.json";
+  Path = CrtDir + "../../binaries/bin/data/jsonparser.json";
+
   EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
 
   pBofJsonParser_O = new BofJsonParser(JsonData_S);
@@ -525,7 +526,7 @@ TEST(JsonWriter_Test, Json)
 
   // memset(&S_AppParam_X, 0, sizeof(S_AppParam_X) );
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "../data/jsonparser.json";
+  Path = CrtDir + "../../binaries/bin/data/jsonparser.json";
   EXPECT_EQ(Bof_ReadFile(Path, JsonData_S), BOF_ERR_NO_ERROR);
 
   pBofJsonParser_O = new BofJsonParser(JsonData_S);

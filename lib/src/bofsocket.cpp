@@ -1321,8 +1321,7 @@ BOFERR BofSocket::V_ReadData(uint32_t _TimeoutInMs_U32, uint32_t &_rNb_U32, uint
               Nb_U32 = static_cast<uint32_t>(recvfrom(mSocket, reinterpret_cast<char *>(_pBuffer_U8), static_cast<int>(Size), 0, reinterpret_cast<BOF_SOCKADDR *>(&mDstIpAddress_X.IpV4Address_X), &Len_i));
             }
           }
-          if (static_cast<int>(Nb_U32) >
-              0) // https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
+          if (static_cast<int>(Nb_U32) > 0) // https://stackoverflow.com/questions/2416944/can-read-function-on-a-connected-socket-return-zero-bytes: No, you should consider -1 as an error and 0 as a normal disconnect, and close the socket in either case. �
           {
             _rNb_U32 = Nb_U32;
             Rts_E = BOF_ERR_NO_ERROR;
@@ -2067,7 +2066,7 @@ BOFERR BofSocket::SetReadTimeout(uint32_t _TimeoutInMs_U32)
 #if defined(_WIN32)
     PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {
@@ -2155,7 +2154,7 @@ BOFERR BofSocket::SetReadOrWriteTimeout(uint32_t _TimeoutInMs_U32, bool &_ReadDa
 #if defined(_WIN32)
     PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {

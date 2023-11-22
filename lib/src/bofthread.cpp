@@ -868,19 +868,22 @@ void BofThread::BofThread_Thread()
         }
       }
 
-      if (Sts_E == BOF_ERR_NO_ERROR)
+      if (!mThreadMustStop_B)
       {
-        LockThreadCriticalSection(" BofThread::BofThread_Thread");
-        // printf("%d: V_ONPROCESSING START mThreadLoopMustExit_B %d %s BAL %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), mName_S.c_str(), S_BofThreadBalance());
-        // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
-        // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
-        // Thread will be stopped if someone calls  DestroyBofProcessingThread or destroy the object
-        Sts_E = V_OnProcessing();
-        UnlockThreadCriticalSection();
-        if (Sts_E == BOF_ERR_EXIT_THREAD)
+        if (Sts_E == BOF_ERR_NO_ERROR)
         {
-          Sts_E = BOF_ERR_NO_ERROR;
-          break;
+          LockThreadCriticalSection(" BofThread::BofThread_Thread");
+          // printf("%d: V_ONPROCESSING START mThreadLoopMustExit_B %d %s BAL %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), mName_S.c_str(), S_BofThreadBalance());
+          // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
+          // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
+          // Thread will be stopped if someone calls  DestroyBofProcessingThread or destroy the object
+          Sts_E = V_OnProcessing();
+          UnlockThreadCriticalSection();
+          if (Sts_E == BOF_ERR_EXIT_THREAD)
+          {
+            Sts_E = BOF_ERR_NO_ERROR;
+            break;
+          }
         }
       }
       // printf("%d: V_ONPROCESSING WHILE mThreadLoopMustExit_B %d Sts %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), Sts_E);
@@ -890,7 +893,7 @@ void BofThread::BofThread_Thread()
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
   S_mBofThreadBalance--;
   // Bof_ErrorCode can fail does to app shudown (static initializer)
-  printf("%d: End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
+  printf("%d: BofThread_Thread End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
   // BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()

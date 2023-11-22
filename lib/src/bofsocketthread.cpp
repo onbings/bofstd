@@ -18,6 +18,8 @@ BEGIN_BOF_NAMESPACE()
 constexpr uint32_t PUSH_POP_TIMEOUT = 150; // Global To for getting command out of incoming queue, in ListeningMode_B it is half of the To specified for listen
 constexpr uint32_t DEF_IO_TIMEOUT = 2000;
 
+#define SOCK_IO_DBG(pFormat,...) {printf("%d: " pFormat,Bof_GetMsTickCount(), __VA_ARGS__);}
+
 BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadParam_X)
     : BofThread()
 {
@@ -44,7 +46,7 @@ BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadPa
     mpuSocketOperationResultCollection = std::make_unique<BofCircularBuffer<BOF_SOCKET_OPERATION_RESULT>>(CircularBufferParam_X);
     if ((mpuSocketOperationResultCollection) && (mpuSocketOperationParamCollection->LastErrorCode() == BOF_ERR_NO_ERROR))
     {
-      // printf("%d: Launch\n", BOF::Bof_GetMsTickCount());
+      // SOCK_IO_DBG("Launch\n");
       Sts_E = LaunchBofProcessingThread(mSocketThreadParam_X.Name_S, false, 0, mSocketThreadParam_X.ThreadSchedulerPolicy_E, mSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0);
       BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
       Sts_B = IsThreadRunning(100);
@@ -58,11 +60,11 @@ BofSocketThread::~BofSocketThread()
   BOF_SOCKET_EXIT_PARAM Param_X;
   uint32_t OpTicket_U32;
   // First this and after destructor of BofThread
-  // printf("%d: ProgramSocketOperation exit cmd\n", BOF::Bof_GetMsTickCount());
+  // SOCK_IO_DBG("ProgramSocketOperation exit cmd\n");
   BOFERR e = ProgramSocketOperation(PUSH_POP_TIMEOUT, Param_X, OpTicket_U32);
   if (e != BOF_ERR_NO_ERROR)
   {
-    // printf("%d: ProgramSocketOperation rts %d\n", BOF::Bof_GetMsTickCount(), e);
+    // SOCK_IO_DBG("ProgramSocketOperation rts %d\n", e);
   }
   // Must kill the thread from here and not in the BofThread destructor because between both destructor, all mem var of BofSocketThread will disappear (unique pointer)
   DestroyBofProcessingThread("~BofSocketThread");
@@ -80,7 +82,7 @@ BOFERR BofSocketThread::ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET
   Param_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_EXIT;
   Param_X.Exit_X = _rParam_X;
   Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr);
-  // printf("BOF_SOCKET_OPERATION_EXIT %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
+  // SOCK_IO_DBG("BOF_SOCKET_OPERATION_EXIT %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rOpTicket_U32 = Param_X.Ticket_U32;
@@ -105,7 +107,7 @@ BOFERR BofSocketThread::ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET
   Param_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_LISTEN;
   Param_X.Listen_X = _rParam_X;
   Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr);
-  // printf("BOF_SOCKET_OPERATION_LISTEN %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
+  // SOCK_IO_DBG("BOF_SOCKET_OPERATION_LISTEN %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rOpTicket_U32 = Param_X.Ticket_U32;
@@ -129,7 +131,7 @@ BOFERR BofSocketThread::ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET
   Param_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_CONNECT;
   Param_X.Connect_X = _rParam_X;
   Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr);
-  // printf("BOF_SOCKET_OPERATION_CONNECT %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
+  // SOCK_IO_DBG("BOF_SOCKET_OPERATION_CONNECT %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rOpTicket_U32 = Param_X.Ticket_U32;
@@ -153,7 +155,7 @@ BOFERR BofSocketThread::ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET
   Param_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_READ;
   Param_X.Read_X = _rParam_X;
   Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr);
-  printf("BOF_SOCKET_OPERATION_READ %s PushErr %s Ticket %d Op %d Buf %d:%p NbElem %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E, _rParam_X.Nb_U32, _rParam_X.pBuffer_U8, mpuSocketOperationParamCollection->GetNbElement());
+  SOCK_IO_DBG("BOF_SOCKET_OPERATION_READ %s PushErr %s Ticket %d Op %d Buf %d:%p NbElem %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E, _rParam_X.Nb_U32, _rParam_X.pBuffer_U8, mpuSocketOperationParamCollection->GetNbElement());
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rOpTicket_U32 = Param_X.Ticket_U32;
@@ -177,7 +179,7 @@ BOFERR BofSocketThread::ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET
   Param_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_WRITE;
   Param_X.Write_X = _rParam_X;
   Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr);
-  printf("BOF_SOCKET_OPERATION_WRITE %s PushErr %s Ticket %d Op %d Buf %d:%p Soc %p NbElem %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E, _rParam_X.Nb_U32, _rParam_X.pBuffer_U8, Param_X.Write_X.pSocket_O, mpuSocketOperationParamCollection->GetNbElement());
+  SOCK_IO_DBG("BOF_SOCKET_OPERATION_WRITE %s PushErr %s Ticket %d Op %d Buf %d:%p Soc %p NbElem %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E, _rParam_X.Nb_U32, _rParam_X.pBuffer_U8, Param_X.Write_X.pSocket_O, mpuSocketOperationParamCollection->GetNbElement());
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rOpTicket_U32 = Param_X.Ticket_U32;
@@ -199,11 +201,11 @@ BOFERR BofSocketThread::ProgramSocketOperation(uint32_t _TimeOut_U32, BOF_SOCKET
   BOF_INC_TICKET_NUMBER(mTicket_U32);
   Param_X.TimeOut_U32 = _TimeOut_U32;
   Param_X.Timer_U32 = BOF::Bof_GetMsTickCount();
-  // printf("================> Tim %d\n", Param_X.Timer_U32);
+  // SOCK_IO_DBG("================> Tim %d\n", Param_X.Timer_U32);
   Param_X.Operation_E = BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT;
   Param_X.Disconnect_X = _rParam_X;
   Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr);
-  // printf("BOF_SOCKET_OPERATION_DISCONNECT %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
+  // SOCK_IO_DBG("BOF_SOCKET_OPERATION_DISCONNECT %s Err %s Ticket %d Op %d\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), Param_X.Ticket_U32, Param_X.Operation_E);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     _rOpTicket_U32 = Param_X.Ticket_U32;
@@ -222,23 +224,23 @@ BOFERR BofSocketThread::GetSocketOperationResult(uint32_t _TimeOut_U32, BOF_SOCK
 
   _rOperationResult_X.Reset();
   Rts_E = mpuSocketOperationResultCollection->Pop(&_rOperationResult_X, _TimeOut_U32, nullptr, nullptr);
-  printf("BOF_SOCKET_OPERATION_GET_RESULT %s Err %s Ticket %d Op %d Sts %s\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), _rOperationResult_X.OpTicket_U32, _rOperationResult_X.Operation_E, BOF::Bof_ErrorCode(_rOperationResult_X.Sts_E));
+  SOCK_IO_DBG("BOF_SOCKET_OPERATION_GET_RESULT %s Err %s Ticket %d Op %d Sts %s\n", mSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), _rOperationResult_X.OpTicket_U32, _rOperationResult_X.Operation_E, BOF::Bof_ErrorCode(_rOperationResult_X.Sts_E));
   return Rts_E;
 }
 
 uint32_t BofSocketThread::NumberOfOperationWaiting()
 {
-  // printf("NumberOfOperationPending %d\n", mpuSocketOperationParamCollection->GetNbElement());
+  // SOCK_IO_DBG("NumberOfOperationPending %d\n", mpuSocketOperationParamCollection->GetNbElement());
   return mpuSocketOperationParamCollection->GetNbElement();
 }
 bool BofSocketThread::IsOperationPending()
 {
-  // printf("NumberOfOperationPending %d\n", mpuSocketOperationParamCollection->GetNbElement());
+  // SOCK_IO_DBG("NumberOfOperationPending %d\n", mpuSocketOperationParamCollection->GetNbElement());
   return mOperationPending_B; // only cleared by ClearSocketOperation or CancelSocketOperation
 }
 uint32_t BofSocketThread::NumberOfResultPending()
 {
-  // printf("NumberOfResultPending %d\n", mpuSocketOperationResultCollection->GetNbElement());
+  // SOCK_IO_DBG("NumberOfResultPending %d\n", mpuSocketOperationResultCollection->GetNbElement());
   return mpuSocketOperationResultCollection->GetNbElement();
 }
 BOFERR BofSocketThread::CancelSocketOperation(uint32_t _TimeOut_U32)
@@ -283,6 +285,11 @@ BOFERR BofSocketThread::ResetSocketOperation()
   ClearSocketOperation();
 
   return Rts_E;
+}
+
+uint32_t BofSocketThread::GetIoDefaultTimeout() const
+{
+  return DEF_IO_TIMEOUT;
 }
 
 BofSocket *BofSocketThread::CreateTcpSocket(BOF::BOF_IPV4_ADDR_U32 &_rSrcIpAddr_X, uint16_t _SrcPort_U16, uint32_t _NbMaxClient_U32) // 0 for normal socket !=0 for listening one _Listen_B)
@@ -376,25 +383,25 @@ BOFERR BofSocketThread::V_OnProcessing()
   PollTimeout_U32 = PUSH_POP_TIMEOUT; // Will be changed if we goes in ListeningMode_B
   do
   {
-    // printf("%d: Alive Wait %s for %d Bal %d ListenMode %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), PollTimeout_U32, BofThread::S_BofThreadBalance(), ListeningMode_B);
+    // SOCK_IO_DBG("Alive Wait %s for %d Bal %d ListenMode %d\n", mSocketThreadParam_X.Name_S.c_str(), PollTimeout_U32, BofThread::S_BofThreadBalance(), ListeningMode_B);
     // Use Peek instead of Pop to use the queue length as an io pending flag (pop is made at the end of the command exec)
     Rts_E = mpuSocketOperationParamCollection->Peek(&mCurrentOpParam_X, PollTimeout_U32, nullptr, nullptr);
     if ((Rts_E != BOF_ERR_ETIMEDOUT) && (Rts_E != BOF_ERR_NO_ERROR))
     {
-      // printf("%d: End of Wait rts %d cmd %d\n", BOF::Bof_GetMsTickCount(), Rts_E, mCurrentOpParam_X.Operation_E);
+      // SOCK_IO_DBG("End of Wait rts %d cmd %d\n", Rts_E, mCurrentOpParam_X.Operation_E);
     }
     // Check if a new cmd has been received or just command timeout on the queue
     NewCommandRcv_B = (Rts_E == BOF_ERR_NO_ERROR);
     if ((NewCommandRcv_B) || (ListeningMode_B))
     {
-      // printf("%d: %s Alive Wait err %d ListenMode %d NewCmd %d Op %d Ticket %d To %d NbP %d NbR %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), Rts_E, ListeningMode_B, NewCommandRcv_B, mCurrentOpParam_X.Operation_E, mCurrentOpParam_X.Ticket_U32,
+      // SOCK_IO_DBG("%s Alive Wait err %d ListenMode %d NewCmd %d Op %d Ticket %d To %d NbP %d NbR %d\n", mSocketThreadParam_X.Name_S.c_str(), Rts_E, ListeningMode_B, NewCommandRcv_B, mCurrentOpParam_X.Operation_E, mCurrentOpParam_X.Ticket_U32,
       // mCurrentOpParam_X.TimeOut_U32, mpuSocketOperationParamCollection->GetNbElement(), mpuSocketOperationResultCollection->GetNbElement()); First init of operation param
       Result_X.Reset();
       Result_X.Sts_E = BOF_ERR_NO_ERROR;
       Result_X.Operation_E = mCurrentOpParam_X.Operation_E;
       Result_X.OpTicket_U32 = mCurrentOpParam_X.Ticket_U32;
-      Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOpParam_X.Timer_U32);
-
+      Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOpParam_X.Timer_U32);  //Time to get the command in processing thread
+      mCurrentOpParam_X.Timer_U32 = BOF::Bof_GetMsTickCount();  //Restart op timer to have the time to execute this one
       // So ListeningMode_B is perhaps true, but nevertheless a new command must be processed
       SendResult_B = false;
       if (NewCommandRcv_B)
@@ -408,7 +415,7 @@ BOFERR BofSocketThread::V_OnProcessing()
         switch (mCurrentOpParam_X.Operation_E)
         {
           case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_EXIT:
-            // printf("%d: BOF_SOCKET_OPERATION_EXIT\n", BOF::Bof_GetMsTickCount());
+            // SOCK_IO_DBG("BOF_SOCKET_OPERATION_EXIT\n");
             Result_X.Sts_E = BOF_ERR_CANCEL; // To skip if below
             Rts_E = BOF_ERR_CANCEL;          // To exit loop here and in BofThread:
             break;
@@ -424,7 +431,7 @@ BOFERR BofSocketThread::V_OnProcessing()
             }
             if ((pIoSocket_O) && (mCurrentOpParam_X.Read_X.pBuffer_U8))
             {
-              printf("BOF_SOCKET_OPERATION_READ IoBuf %d:%p Ticket %d Op %d START on %s\n", mCurrentOpParam_X.Read_X.Nb_U32, mCurrentOpParam_X.Read_X.pBuffer_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, pIoSocket_O->ToString().c_str());
+              SOCK_IO_DBG("BOF_SOCKET_OPERATION_READ IoBuf %d:%p Ticket %d Op %d START on %s\n", mCurrentOpParam_X.Read_X.Nb_U32, mCurrentOpParam_X.Read_X.pBuffer_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, pIoSocket_O->ToString().c_str());
               Total_U32 = mCurrentOpParam_X.Read_X.Nb_U32;
               pBuffer_U8 = mCurrentOpParam_X.Read_X.pBuffer_U8;
               Result_X.pSocket_O = pIoSocket_O;
@@ -446,7 +453,7 @@ BOFERR BofSocketThread::V_OnProcessing()
             }
             if ((pIoSocket_O) && (mCurrentOpParam_X.Write_X.pBuffer_U8))
             {
-              printf("BOF_SOCKET_OPERATION_WRITE IoBuf %d:%p Ticket %d Op %d START on %s\n", mCurrentOpParam_X.Write_X.Nb_U32, mCurrentOpParam_X.Write_X.pBuffer_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, pIoSocket_O->ToString().c_str());
+              SOCK_IO_DBG("BOF_SOCKET_OPERATION_WRITE IoBuf %d:%p Ticket %d Op %d START on %s\n", mCurrentOpParam_X.Write_X.Nb_U32, mCurrentOpParam_X.Write_X.pBuffer_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, pIoSocket_O->ToString().c_str());
               Total_U32 = mCurrentOpParam_X.Write_X.Nb_U32;
               pBuffer_U8 = mCurrentOpParam_X.Write_X.pBuffer_U8;
               Result_X.pSocket_O = pIoSocket_O;
@@ -543,7 +550,7 @@ BOFERR BofSocketThread::V_OnProcessing()
                 Result_X.Sts_E = BOF_ERR_NO_CLIENT;
               }
               // Just to detect DISCONNECT extra command on listening for ever thread
-              // printf("%d: Alive Listen Wait %s for %d Bal %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), ListenTimeout_U32, BofThread::S_BofThreadBalance());
+              // SOCK_IO_DBG("%d: Alive Listen Wait %s for %d Bal %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), ListenTimeout_U32, BofThread::S_BofThreadBalance());
               pClient = mSocketThreadParam_X.pListeningSocket_O->V_Listen(ListenTimeout_U32, "");
               if (pClient)
               {
@@ -565,8 +572,8 @@ BOFERR BofSocketThread::V_OnProcessing()
                   }
                 }
               }
-              // printf("----listen------------------------------------->id=%d\n", ListenTicketId_U32);
-              // printf("%d: Alive Listen Wait end %p SndRes %d\n", BOF::Bof_GetMsTickCount(), pClient, SendResult_B);
+              // SOCK_IO_DBG("----listen------------------------------------->id=%d\n", ListenTicketId_U32);
+              // SOCK_IO_DBG("%d: Alive Listen Wait end %p SndRes %d\n", BOF::Bof_GetMsTickCount(), pClient, SendResult_B);
               break;
 
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_CONNECT:
@@ -603,34 +610,17 @@ BOFERR BofSocketThread::V_OnProcessing()
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_READ:
               Size_U32 = Remain_U32;
               Result_X.Sts_E = pIoSocket_O->V_ReadData(mSocketThreadParam_X.SubPacketTimeout_U32, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max mSocketThreadParam_X.SubPacketTimeout_U32 ms
-              // printf("%d: Read: Total %d Size %d Remain %d Sts %d\n", Bof_GetMsTickCount(), Total_U32, Size_U32, Remain_U32, Result_X.Sts_E);
+              //SOCK_IO_DBG("BOF_SOCKET_OPERATION_READ LstIoBuf %d:%p Ticket %d Op %d END Sts %s Sz %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Size_U32, Remain_U32 - Size_U32);
               Delta_U32 = Bof_ElapsedMsTime(Start_U32);
               KBPerS_U32 = Delta_U32 ? (Size_U32 * 1000) / (Delta_U32 * 1024) : 99999999;
-              if ((Result_X.Sts_E) || (Size_U32 == Remain_U32))
-              {
-                printf("BOF_SOCKET_OPERATION_READ LstIoBuf %d:%p Ticket %d Op %d END Sts %s Delta %d Sz %d KB/S %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Delta_U32, Size_U32, KBPerS_U32, Remain_U32 - Size_U32);
-              }
-              if ((Result_X.Sts_E == BOF_ERR_ETIMEDOUT) && (Size_U32))
-              {
-                printf("BOF_SOCKET_OPERATION_READ Timeout cancelled as we rx some byte (%d)\n", Size_U32);
-                Result_X.Sts_E = BOF_ERR_NO_ERROR;
-              }
               break;
 
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_WRITE:
               Size_U32 = Remain_U32;
               Result_X.Sts_E = pIoSocket_O->V_WriteData(mSocketThreadParam_X.SubPacketTimeout_U32, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max mSocketThreadParam_X.SubPacketTimeout_U32 ms
+              //SOCK_IO_DBG("BOF_SOCKET_OPERATION_WRITE LstIoBuf %d:%p Ticket %d Op %d END Sts %s Sz %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Size_U32, Remain_U32 - Size_U32);
               Delta_U32 = Bof_ElapsedMsTime(Start_U32);
               KBPerS_U32 = Delta_U32 ? (Size_U32 * 1000) / (Delta_U32 * 1024) : 99999999;
-              if ((Result_X.Sts_E) || (Size_U32 == Remain_U32))
-              {
-                printf("BOF_SOCKET_OPERATION_WRITE LstIoBuf %d:%p Ticket %d Op %d END Sts %s Delta %d Sz %d KB/S %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Delta_U32, Size_U32, KBPerS_U32, Remain_U32 - Size_U32);
-              }
-              if ((Result_X.Sts_E == BOF_ERR_ETIMEDOUT) && (Size_U32))
-              {
-                printf("BOF_SOCKET_OPERATION_WRITE Timeout cancelled as we tx some byte (%d)\n", Size_U32);
-                Result_X.Sts_E = BOF_ERR_NO_ERROR;
-              }
               break;
 
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_DISCONNECT:
@@ -647,7 +637,7 @@ BOFERR BofSocketThread::V_OnProcessing()
                 Result_X.pSocket_O = mSocketThreadParam_X.pSocket_O;
                 BOF_SAFE_DELETE(mSocketThreadParam_X.pSocket_O);
               }
-              // printf("B==>S_BofSocketBalance %d S_BofThreadBalance %d\n", BOF::BofSocket::S_BofSocketBalance(), BOF::BofThread::S_BofThreadBalance());
+              // SOCK_IO_DBG("B==>S_BofSocketBalance %d S_BofThreadBalance %d\n", BOF::BofSocket::S_BofSocketBalance(), BOF::BofThread::S_BofThreadBalance());
               break;
 
             default:
@@ -656,16 +646,28 @@ BOFERR BofSocketThread::V_OnProcessing()
 
           Remain_U32 -= Size_U32;
           pCrtBuf_U8 += Size_U32;
-
           Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOpParam_X.Timer_U32);
           if (Result_X.Time_U32 > mCurrentOpParam_X.TimeOut_U32)
           {
-            printf("Op %d TIMEOUT %d > %d\n !!!", mCurrentOpParam_X.Operation_E, Result_X.Time_U32, mCurrentOpParam_X.TimeOut_U32);
-            Result_X.Sts_E = BOF_ERR_ETIMEDOUT;
+            SendResult_B = true;
+            SOCK_IO_DBG("BofSocketThread: Op %d Ticket %d TIMEOUT %d > %d Sts %d !!!\n", mCurrentOpParam_X.Operation_E, mCurrentOpParam_X.Ticket_U32, Result_X.Time_U32, mCurrentOpParam_X.TimeOut_U32, Result_X.Sts_E);
+            if ((mCurrentOpParam_X.Operation_E == BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_READ) || (mCurrentOpParam_X.Operation_E == BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_WRITE))
+            {
+              if ((Result_X.Sts_E == BOF_ERR_ETIMEDOUT) && (Remain_U32 != Total_U32))
+              {
+                SOCK_IO_DBG("BOF_SOCKET_OPERATION_READ/BOF_SOCKET_OPERATION_WRITE Timeout cancelled as we rx or tx some byte (%d/%d)\n", Remain_U32, Total_U32);
+                Result_X.Sts_E = BOF_ERR_NO_ERROR;
+                break;
+              }
+            }
+            else
+            {
+              Result_X.Sts_E = BOF_ERR_ETIMEDOUT;
+            }
           }
           if (mCancel_B)
           {
-            // printf("inner loop exit %d snd %d rem %d sts %d cancel %d op %d tck %d\n", IsThreadLoopMustExit(), SendResult_B, Remain_U32, Result_X.Sts_E, mCancel_B.load(), Result_X.Operation_E, Result_X.OpTicket_U32);
+            // SOCK_IO_DBG("inner loop exit %d snd %d rem %d sts %d cancel %d op %d tck %d\n", IsThreadLoopMustExit(), SendResult_B, Remain_U32, Result_X.Sts_E, mCancel_B.load(), Result_X.Operation_E, Result_X.OpTicket_U32);
           }
         } while ((!IsThreadLoopMustExit()) && (!mCancel_B) && (Remain_U32) && (Result_X.Sts_E == BOF_ERR_NO_ERROR));
         if (mCancel_B)
@@ -683,7 +685,7 @@ BOFERR BofSocketThread::V_OnProcessing()
         {
           Sts_E = mSocketThreadParam_X.Callback(mCurrentOpParam_X.Ticket_U32, Sts_E);
         }
-        // printf("%d: %s Alive Push Op %d Sts %s/%s Bal %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), Result_X.Operation_E, BOF::Bof_ErrorCode(Sts_E), BOF::Bof_ErrorCode(Result_X.Sts_E), BofThread::S_BofThreadBalance());
+        // SOCK_IO_DBG("%d: %s Alive Push Op %d Sts %s/%s Bal %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), Result_X.Operation_E, BOF::Bof_ErrorCode(Sts_E), BOF::Bof_ErrorCode(Result_X.Sts_E), BofThread::S_BofThreadBalance());
       }
     } // if ((NewCommandRcv_B) || (ListeningMode_B))
     if (NewCommandRcv_B)
@@ -696,26 +698,18 @@ BOFERR BofSocketThread::V_OnProcessing()
     }
     if (mCancel_B)
     {
-      // printf("%d: %s Alive Cancel nb op %d res %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), IsThreadLoopMustExit(), mpuSocketOperationParamCollection->GetNbElement(), mpuSocketOperationResultCollection->GetNbElement());
-
+      // SOCK_IO_DBG("%d: %s Alive Cancel nb op %d res %d\n", BOF::Bof_GetMsTickCount(), mSocketThreadParam_X.Name_S.c_str(), IsThreadLoopMustExit(), mpuSocketOperationParamCollection->GetNbElement(), mpuSocketOperationResultCollection->GetNbElement());
       mpuSocketOperationParamCollection->Reset();
       mpuSocketOperationResultCollection->Reset();
       mCancel_B = false;
       Bof_SignalEvent(mCancelEvent_X, 0);
     }
   } while ((!IsThreadLoopMustExit()) && ((Rts_E == BOF_ERR_NO_ERROR) || (!NewCommandRcv_B)));
-  /*
-  if (mSocketThreadParam_X.pListeningSocket_O == mSocketThreadParam_X.pSocket_O)
-  {
-    if (mSocketThreadParam_X.pSocket_O)
-    {
-    }
-  }
-  */
+
   BOF_SAFE_DELETE(mSocketThreadParam_X.pListeningSocket_O);
   BOF_SAFE_DELETE(mSocketThreadParam_X.pSocket_O);
 
-  // printf("%d: Exit with Rts %d sts %d Name %s Bal %d\n", BOF::Bof_GetMsTickCount(), Rts_E, Result_X.Sts_E, mSocketThreadParam_X.Name_S.c_str(), BofThread::S_BofThreadBalance());
+  // SOCK_IO_DBG("%d: Exit with Rts %d sts %d Name %s Bal %d\n", BOF::Bof_GetMsTickCount(), Rts_E, Result_X.Sts_E, mSocketThreadParam_X.Name_S.c_str(), BofThread::S_BofThreadBalance());
   return Rts_E;
 }
 END_BOF_NAMESPACE()

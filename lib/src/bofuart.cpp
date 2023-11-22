@@ -166,7 +166,8 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
                 BofRawCircularBufferParam_X.Reset();
                 BofRawCircularBufferParam_X.MultiThreadAware_B = true;
                 BofRawCircularBufferParam_X.BufferSizeInByte_U32 = mUartParam_X.BaseChannelParam_X.SndBufferSize_U32;
-                BofRawCircularBufferParam_X.NbMaxSlot_U32 = 0;
+                BofRawCircularBufferParam_X.SlotMode_B = false;
+                BofRawCircularBufferParam_X.NbMaxBufferEntry_U32 = 128;
                 BofRawCircularBufferParam_X.pData_U8 = nullptr;
                 mpTxData_O = new BofRawCircularBuffer(BofRawCircularBufferParam_X);
 
@@ -690,7 +691,7 @@ BOFERR BofUart::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
     if (ClearCommError(mId_h, &Error_DW, &Status_X))
     {
       _rStatus_X.NbIn_U32 = Status_X.cbInQue;
-      Nb_U32 = mpTxData_O ? mpTxData_O->GetNbElement() : 0;
+      Nb_U32 = mpTxData_O ? mpTxData_O->GetNbElement(nullptr) : 0;
       _rStatus_X.NbOut_U32 = (Nb_U32 > Status_X.cbOutQue) ? Nb_U32 : Status_X.cbOutQue;
       Rts_E = BOF_ERR_NO_ERROR;
     }
@@ -993,7 +994,7 @@ BOFERR BofUart::ReadUntilString(uint32_t _TimeOut_U32, uint32_t &_rNb_U32, uint8
 BOFERR BofUart::V_WriteData(uint32_t /*_TimeOut_U32*/, uint32_t &_rNb_U32, const uint8_t *pBuffer_U8)
 {
   BOFERR Rts_E = BOF_ERR_WRITE;
-  uint32_t Nb_U32;
+  uint32_t Nb_U32, RemainingSize_U32;
 
   if ((mOpen_B) && (pBuffer_U8))
   {
@@ -1008,9 +1009,9 @@ BOFERR BofUart::V_WriteData(uint32_t /*_TimeOut_U32*/, uint32_t &_rNb_U32, const
     }
     else
     {
-      if (mpTxData_O->GetNbFreeElement() >= Nb_U32)
+      if ((mpTxData_O->GetNbFreeElement(&RemainingSize_U32)) && (RemainingSize_U32 >= Nb_U32))
       {
-        if (mpTxData_O->PushBuffer(Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR)
+        if (mpTxData_O->PushBuffer(false, Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR)
         {
 #if defined(_WIN32)
           if (SignalThreadWakeUpEvent())
@@ -1104,7 +1105,7 @@ BOFERR BofUart::V_OnProcessing()
       Finish_B = true;
       NbMax_U32 = sizeof(pData_U8);
 
-      if ((mpTxData_O) && (mpTxData_O->PopBuffer(&NbMax_U32, pData_U8) == BOF_ERR_NO_ERROR))
+      if ((mpTxData_O) && (mpTxData_O->PopBuffer(0,&NbMax_U32, pData_U8) == BOF_ERR_NO_ERROR))
       {
         Rts_E = BOF_ERR_WRITE;
 

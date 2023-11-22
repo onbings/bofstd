@@ -24,12 +24,77 @@
 
 USE_BOF_NAMESPACE()
 
-#define NBPUSHSAMESIZE 16
+constexpr uint32_t RAW_BUF_SIZE = 0x1000;
+constexpr uint32_t RAW_MAX_BUFFER_ENTRY = 16;
 
-class RawCircularBufferNoSlotsize_Test : public testing::Test
+bool FillBuffer(uint8_t *_pData_U8, uint32_t _Offset_U32, uint32_t _Len_U32, int8_t _Step_S8, uint32_t _Tag_U32)
+{
+  bool Rts_B = false;
+  uint32_t i_U32;
+  uint8_t Val_U8;
+
+  if ((_pData_U8) && (_Offset_U32 <= RAW_BUF_SIZE) && (_Len_U32 <= RAW_BUF_SIZE) && (_Len_U32 >= 4) && ((_Len_U32 + _Offset_U32) <= RAW_BUF_SIZE))
+  {
+    Rts_B = true;
+    _pData_U8 = &_pData_U8[_Offset_U32];
+    *(uint32_t *)_pData_U8 = _Tag_U32;
+    _pData_U8 += 4;
+    _Len_U32 -= 4;
+    Val_U8 = _Step_S8;
+
+    for (i_U32 = 0; i_U32 < _Len_U32; i_U32++)
+    {
+      *_pData_U8++ = Val_U8;
+      Val_U8 += _Step_S8;
+    }
+  }
+  return Rts_B;
+}
+bool ClearBuffer(uint8_t *_pData_U8, uint32_t _Offset_U32, uint32_t _Len_U32, uint8_t _Val_U8)
+{
+  bool Rts_B = false;
+  uint32_t i_U32;
+
+  if ((_pData_U8) && (_Offset_U32 <= RAW_BUF_SIZE) && (_Len_U32 <= RAW_BUF_SIZE) && (_Len_U32 >= 4) && ((_Len_U32 + _Offset_U32) <= RAW_BUF_SIZE))
+  {
+    Rts_B = true;
+    _pData_U8 = &_pData_U8[_Offset_U32];
+    memset(_pData_U8, _Val_U8, _Len_U32);
+  }
+  return Rts_B;
+}
+bool CheckBuffer(uint8_t *_pData_U8, uint32_t _Offset_U32, uint32_t _Len_U32, int8_t _Step_S8, uint32_t _Tag_U32)
+{
+  bool Rts_B = false;
+  uint32_t i_U32;
+  uint8_t Val_U8;
+
+  if ((_pData_U8) && (_Offset_U32 <= RAW_BUF_SIZE) && (_Len_U32 <= RAW_BUF_SIZE) && (_Len_U32 >= 4) && ((_Len_U32 + _Offset_U32) <= RAW_BUF_SIZE))
+  {
+    _pData_U8 = &_pData_U8[_Offset_U32];
+    if (*(uint32_t *)_pData_U8 == _Tag_U32)
+    {
+      _pData_U8 += 4;
+      _Len_U32 -= 4;
+      Val_U8 = _Step_S8;
+
+      for (i_U32 = 0; i_U32 < _Len_U32; i_U32++)
+      {
+        if (*_pData_U8++ != Val_U8)
+        {
+          break;
+        }
+        Val_U8 += _Step_S8;
+      }
+      Rts_B = (i_U32 == _Len_U32);
+    }
+  }
+  return Rts_B;
+}
+class RawCircularBuffer_Test : public testing::Test
 {
 public:
-  RawCircularBufferNoSlotsize_Test()
+  RawCircularBuffer_Test()
       : mpBofRawCircularBuffer_O(nullptr)
   {
   }
@@ -47,416 +112,398 @@ protected:
 
   BofRawCircularBuffer *mpBofRawCircularBuffer_O;
   BOF_RAW_CIRCULAR_BUFFER_PARAM mBofRawCircularBufferParam_X;
+  uint8_t *mpData_U8 = nullptr;
 
 private:
 };
 
 /*** Factory functions called at the beginning/end of each test case **********/
 
-void RawCircularBufferNoSlotsize_Test::SetUpTestCase()
+void RawCircularBuffer_Test::SetUpTestCase()
 {
 }
 
-void RawCircularBufferNoSlotsize_Test::TearDownTestCase()
+void RawCircularBuffer_Test::TearDownTestCase()
 {
 }
 
-void RawCircularBufferNoSlotsize_Test::SetUp()
+void RawCircularBuffer_Test::SetUp()
 {
   mBofRawCircularBufferParam_X.Reset();
   mBofRawCircularBufferParam_X.MultiThreadAware_B = true;
-  mBofRawCircularBufferParam_X.BufferSizeInByte_U32 = 0x1000;
-  mBofRawCircularBufferParam_X.NbMaxSlot_U32 = 0;
+  mBofRawCircularBufferParam_X.BufferSizeInByte_U32 = RAW_BUF_SIZE;
+  mBofRawCircularBufferParam_X.SlotMode_B = false;
+  mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 = RAW_MAX_BUFFER_ENTRY;
   mBofRawCircularBufferParam_X.pData_U8 = nullptr;
   mpBofRawCircularBuffer_O = new BofRawCircularBuffer(mBofRawCircularBufferParam_X);
 
   EXPECT_TRUE(mpBofRawCircularBuffer_O != nullptr);
   EXPECT_TRUE(mpBofRawCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
+  mpData_U8 = new uint8_t[RAW_BUF_SIZE];
+  ASSERT_TRUE(mpBofRawCircularBuffer_O != nullptr);
 }
 
-void RawCircularBufferNoSlotsize_Test::TearDown()
+void RawCircularBuffer_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofRawCircularBuffer_O);
   EXPECT_TRUE(mpBofRawCircularBuffer_O == nullptr);
 }
 
-TEST_F(RawCircularBufferNoSlotsize_Test, ByteBuffer)
+TEST_F(RawCircularBuffer_Test, BasicPushPop)
 {
-  uint32_t Nb_U32, i_U32, Index_U32, Size_U32;
-  BOFERR Sts_E;
-  bool Sts_B;
-  uint8_t pData_U8[0x1000];
-  uint32_t pNb1_U32[8], pNb2_U32[8];
-  uint8_t *ppData1_U8[8], *ppData2_U8[8];
+  uint32_t SizeOfFirst_U32, Size_U32, TotalSize_U32, RemainingSize_U32, WriteSize_U32, Tag_U32 = 0xDEADAA55;
 
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(0, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.BufferSizeInByte_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.BufferSizeInByte_U32 - sizeof(uint32_t), Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(0, Nb_U32);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(RAW_MAX_BUFFER_ENTRY, mpBofRawCircularBuffer_O->GetCapacity(&TotalSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, TotalSize_U32);
+  EXPECT_EQ(RAW_MAX_BUFFER_ENTRY, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetMaxLevel());
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetSlotSize(), 0);
+  WriteSize_U32 = (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY);
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32));
 
-  for (i_U32 = 0; i_U32 < sizeof(pData_U8); i_U32++)
-  {
-    pData_U8[i_U32] = (uint8_t)i_U32;
-  }
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, mpData_U8));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, nullptr));
+  EXPECT_EQ(0, Size_U32);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, nullptr));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(0, Size_U32);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32));
 
-  Size_U32 = 10;
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(nullptr, pData_U8);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(nullptr, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, pData_U8);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, 0, mpData_U8));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, 10, nullptr));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, 0, nullptr));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32, mpData_U8));
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(WriteSize_U32, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 1, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - WriteSize_U32, RemainingSize_U32);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, mpData_U8));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, nullptr));
+  EXPECT_EQ(0, Size_U32);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, nullptr));
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
+  Size_U32 = RAW_BUF_SIZE;
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(WriteSize_U32, Size_U32);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
   EXPECT_EQ(0, Size_U32);
 
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(0, pData_U8);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(10, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(0, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32));
 
-  Index_U32 = 0;
-  Size_U32 = 10;
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), WriteSize_U32);
 
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_FALSE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(Nb_U32, Size_U32 + sizeof(uint32_t));
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.BufferSizeInByte_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.BufferSizeInByte_U32 - Size_U32 - sizeof(uint32_t) - sizeof(uint32_t)); // 1 uint32_t for size and another one for next push
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(Nb_U32, Size_U32 + sizeof(uint32_t));
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32));
 
-  Index_U32 = 0;
-  Size_U32 = 9;
-  memset(&pData_U8[Index_U32], 0, Size_U32);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(10, Size_U32);
-
-  Index_U32 = 0;
-  Size_U32 = 10;
-  memset(&pData_U8[Index_U32], 0, Size_U32);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(10, Size_U32);
-
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(Nb_U32, 0);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.BufferSizeInByte_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.BufferSizeInByte_U32 - sizeof(uint32_t));
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(Nb_U32, Size_U32 + sizeof(uint32_t));
-
-  for (i_U32 = 0; i_U32 < Size_U32; i_U32++)
-  {
-    EXPECT_EQ(pData_U8[i_U32], (uint8_t)i_U32);
-  }
-
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE) - sizeof(uint32_t);
-
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
-  {
-    Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-    Index_U32 += Size_U32;
-  }
-  Index_U32 = 0;
-
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_FALSE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_TRUE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(Nb_U32, sizeof(pData_U8));
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(Nb_U32, 0);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(Nb_U32, sizeof(pData_U8));
-
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32, mpData_U8));
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(WriteSize_U32, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetCapacity(&TotalSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, TotalSize_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 1, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - WriteSize_U32, RemainingSize_U32);
 
   mpBofRawCircularBuffer_O->Reset();
-
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(0, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.BufferSizeInByte_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.BufferSizeInByte_U32 - sizeof(uint32_t), Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(0, Nb_U32);
-
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Nb_U32 = Size_U32 * 2;
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32);
-
-  mpBofRawCircularBuffer_O->Reset();
-
-  // push
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE) - sizeof(uint32_t);
-
-  Nb_U32 = Size_U32; // 1
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 2; // 2-3
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 4; // 4-7
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32; // 8
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-  EXPECT_NE((int)Index_U32, 0);
-
-  memset(pData_U8, 0, sizeof(pData_U8));
-  Index_U32 = 0;
-  // pop
-  Nb_U32 = Size_U32 * 8; // 1
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 1);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 8; // 2-3
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 2);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 8; // 4-7
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 4);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 8; // 8
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 1);
-  Index_U32 += Nb_U32;
-
-  for (i_U32 = 0; i_U32 < Size_U32; i_U32++)
-  {
-    EXPECT_EQ(pData_U8[i_U32], (uint8_t)i_U32);
-  }
-
-  // Skip
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE) - sizeof(uint32_t);
-
-  Nb_U32 = Size_U32; // 1
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 2; // 2-3
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 4; // 4-7
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32; // 8
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-  EXPECT_NE((int)Index_U32, 0);
-
-  Sts_E = mpBofRawCircularBuffer_O->Skip();
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->Skip();
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->Skip();
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->Skip();
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->Skip();
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-
-  // Peek
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE) - sizeof(uint32_t);
-
-  Nb_U32 = Size_U32; // 1
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 2; // 2-3
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32 * 4; // 4-7
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Nb_U32 = Size_U32; // 8
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  Index_U32 += Nb_U32;
-
-  Index_U32 = 0;
-  Nb_U32 = Size_U32 * 8;
-  Sts_E = mpBofRawCircularBuffer_O->Peek(0, &Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 1);
-
-  Nb_U32 = Size_U32 * 8;
-  Sts_E = mpBofRawCircularBuffer_O->Peek(1, &Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 2);
-
-  Nb_U32 = Size_U32 * 8;
-  Sts_E = mpBofRawCircularBuffer_O->Peek(2, &Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 4);
-
-  Nb_U32 = Size_U32 * 8;
-  Sts_E = mpBofRawCircularBuffer_O->Peek(3, &Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32 * 1);
-
-  Nb_U32 = Size_U32 * 8;
-  Sts_E = mpBofRawCircularBuffer_O->Peek(4, &Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(0, Nb_U32);
-
-  // Lock/Unlock
-  mpBofRawCircularBuffer_O->Reset();
-
-  Index_U32 = 0;
-  Sts_E = mpBofRawCircularBuffer_O->LockBuffer(Size_U32, &pNb1_U32[0], &ppData1_U8[0], &pNb2_U32[0], &ppData2_U8[0]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Size_U32, pNb1_U32[0]);
-  EXPECT_EQ(0, pNb2_U32[0]);
-  EXPECT_TRUE(ppData1_U8[0] != nullptr);
-  EXPECT_TRUE(ppData2_U8[0] == nullptr);
-
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, pData_U8);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->LockBuffer(Size_U32, &pNb1_U32[1], &ppData1_U8[1], &pNb2_U32[1], &ppData2_U8[1]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Size_U32, pNb1_U32[1]);
-  EXPECT_EQ(0, pNb2_U32[1]);
-  EXPECT_TRUE(ppData1_U8[1] != nullptr);
-  EXPECT_TRUE(ppData2_U8[1] == nullptr);
-
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ((Size_U32 + sizeof(uint32_t)) * 3, Nb_U32);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(0, Nb_U32);
-
-  Nb_U32 = Size_U32;
-  Sts_E = mpBofRawCircularBuffer_O->UnlockBuffer(ppData1_U8[0], Nb_U32);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(0, Nb_U32);
-
-  Sts_E = mpBofRawCircularBuffer_O->UnlockBuffer(ppData1_U8[0], Size_U32);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->UnlockBuffer(ppData1_U8[1], Size_U32);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(0, Nb_U32);
-
-  mpBofRawCircularBuffer_O->Reset();
-
-  Nb_U32 = Size_U32;
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, pData_U8);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Nb_U32 = mBofRawCircularBufferParam_X.BufferSizeInByte_U32 - Size_U32 - static_cast<uint32_t>(sizeof(uint32_t)) - static_cast<uint32_t>(sizeof(uint32_t)) - 16;
-  Sts_E = mpBofRawCircularBuffer_O->LockBuffer(Nb_U32, &pNb1_U32[0], &ppData1_U8[0], &pNb2_U32[0], &ppData2_U8[0]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, pNb1_U32[0]);
-  EXPECT_EQ(0, pNb2_U32[0]);
-  EXPECT_TRUE(ppData1_U8[0] != nullptr);
-  EXPECT_TRUE(ppData2_U8[0] == nullptr);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Nb_U32 = Size_U32 + 16;
-  Sts_E = mpBofRawCircularBuffer_O->LockBuffer(Nb_U32, &pNb1_U32[1], &ppData1_U8[1], &pNb2_U32[1], &ppData2_U8[1]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(16 - sizeof(uint32_t), pNb1_U32[1]);
-  EXPECT_EQ(Size_U32 + sizeof(uint32_t), pNb2_U32[1]);
-  EXPECT_TRUE(ppData1_U8[1] != nullptr);
-  EXPECT_TRUE(ppData2_U8[1] != nullptr);
-
-  Nb_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
-  EXPECT_EQ(0, Nb_U32);
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 0);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetCapacity(&TotalSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, TotalSize_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
 }
 
-class RawCircularBufferWithSlotsize_Test : public testing::Test
+TEST_F(RawCircularBuffer_Test, PartialPop)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, Size_U32, RemainingSize_U32, WriteSize_U32, Tag_U32 = 0xDEADAA55;
+
+  WriteSize_U32 = (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY);
+
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32++));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32 / 4, mpData_U8));
+
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32++));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32 / 2, mpData_U8));
+
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32++));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32, mpData_U8));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(3, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(WriteSize_U32 / 4, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 3, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - (WriteSize_U32 / 4) - (WriteSize_U32 / 2) - WriteSize_U32, RemainingSize_U32);
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
+  Size_U32 = WriteSize_U32 * 2;
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(WriteSize_U32 / 4, Size_U32);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32 / 4, 1, Tag_U32 - 3));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(2, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(WriteSize_U32 / 2, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 2, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - (WriteSize_U32 / 2) - WriteSize_U32, RemainingSize_U32);
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
+  {
+    Size_U32 = WriteSize_U32 / 2 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(WriteSize_U32 / 2 / 8, Size_U32);
+    Index_U32 += Size_U32;
+  }
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32 / 2, 1, Tag_U32 - 2));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(WriteSize_U32, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 1, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - WriteSize_U32, RemainingSize_U32);
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
+  {
+    Size_U32 = WriteSize_U32 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(WriteSize_U32 / 8, Size_U32);
+    Index_U32 += Size_U32;
+  }
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32 - 1));
+
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), WriteSize_U32);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
+}
+
+TEST_F(RawCircularBuffer_Test, PushAppend)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, Size_U32, WriteSize_U32, Tag_U32 = 0xDEADAA55;
+
+  WriteSize_U32 = (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY);
+
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->SetAppendMode(0, false));
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32++));
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
+  {
+    Size_U32 = WriteSize_U32 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(Size_U32, (WriteSize_U32 / 8));
+    Index_U32 += Size_U32;
+    EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), Size_U32);
+    EXPECT_EQ((i_U32 + 1), mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+    EXPECT_EQ(SizeOfFirst_U32, Size_U32);
+  }
+  mpBofRawCircularBuffer_O->Reset();
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->SetAppendMode(0, true));
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1,  Tag_U32++));
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
+  {
+    Size_U32 = WriteSize_U32 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(Size_U32, (WriteSize_U32 / 8));
+    Index_U32 += Size_U32;
+    EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 0);
+    EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+    EXPECT_EQ(SizeOfFirst_U32, 0);
+  }
+  Size_U32 = WriteSize_U32 / 8;
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, Size_U32, &mpData_U8[Index_U32]));
+
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->SetAppendMode(0, false));
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), WriteSize_U32 + (WriteSize_U32 / 8));
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(SizeOfFirst_U32, WriteSize_U32 + (WriteSize_U32 / 8));
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
+  Size_U32 = WriteSize_U32;
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(WriteSize_U32, Size_U32);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32 - 1));
+}
+
+TEST_F(RawCircularBuffer_Test, Fill)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, Size_U32, WriteSize_U32, Tag_U32 = 0xDEADAA55;
+
+  WriteSize_U32 = (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY);
+  mpBofRawCircularBuffer_O->SetOverWriteMode(false);
+  for (i_U32 = 0; i_U32 < (RAW_MAX_BUFFER_ENTRY * 2); i_U32++)
+  {
+    ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32++));
+    if (i_U32 >= RAW_MAX_BUFFER_ENTRY)
+    {
+      EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(RAW_MAX_BUFFER_ENTRY, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, WriteSize_U32 / 2);
+    }
+    else
+    {
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(i_U32 + 1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, WriteSize_U32 / 2);
+    }
+  }
+  mpBofRawCircularBuffer_O->Reset();
+  mpBofRawCircularBuffer_O->SetOverWriteMode(true);
+  for (i_U32 = 0; i_U32 < (RAW_MAX_BUFFER_ENTRY * 2); i_U32++)
+  {
+    ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32++));
+    if (i_U32 >= RAW_MAX_BUFFER_ENTRY)
+    {
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(RAW_MAX_BUFFER_ENTRY, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, WriteSize_U32 / 2);
+      EXPECT_TRUE(mpBofRawCircularBuffer_O->IsFull());
+      EXPECT_TRUE(mpBofRawCircularBuffer_O->IsBufferOverflow());
+    }
+    else
+    {
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(i_U32 + 1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, WriteSize_U32 / 2);
+      if (i_U32 == (RAW_MAX_BUFFER_ENTRY - 1))
+      {
+        EXPECT_TRUE(mpBofRawCircularBuffer_O->IsFull());
+      }
+      else
+      {
+        EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+      }
+      EXPECT_FALSE(mpBofRawCircularBuffer_O->IsBufferOverflow());
+    }
+  }
+}
+
+TEST_F(RawCircularBuffer_Test, FillWrapOverwrite)
+{
+  uint32_t i_U32, j_U32,Index_U32, SizeOfFirst_U32, Size_U32, Nb_U32, Nb1_U32, Nb2_U32, WriteSize_U32, WrapAt_U32, LastLen_U32, Tag_U32 = 0xDEADAA55;
+  uint8_t *pBaseData_U8, *pData1_U8, *pData2_U8;
+  bool IsLocked;
+
+  WriteSize_U32 = ((RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY)/2);
+  mpBofRawCircularBuffer_O->SetOverWriteMode(true);
+  for (i_U32 = WriteSize_U32; i_U32 < (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY); i_U32++)
+  {
+    mpBofRawCircularBuffer_O->Reset();
+    Nb_U32 = (RAW_BUF_SIZE / WriteSize_U32) + 1;
+    LastLen_U32 = (RAW_BUF_SIZE % WriteSize_U32);
+    WrapAt_U32 = LastLen_U32 ? (RAW_BUF_SIZE/ WriteSize_U32):0;
+    for (j_U32 = 0; j_U32 < Nb_U32; j_U32++)
+    {
+      ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, (int8_t)(j_U32+1), Tag_U32++));
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32, mpData_U8));
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->GetBufferPtr(0, &Nb1_U32, &pData1_U8, &Nb2_U32, &pData2_U8));
+      EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      //printf("i %d/%d j %02d/%02d szof %d ws %d b1 %03d:%p b2 %03d:%p\n", i_U32, (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY), j_U32, Nb_U32, SizeOfFirst_U32, WriteSize_U32, Nb1_U32, pData1_U8, Nb2_U32, pData2_U8);
+      ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
+      Size_U32 = WriteSize_U32;
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+      EXPECT_EQ(WriteSize_U32, Size_U32);
+      ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, (int8_t)(j_U32 + 1), Tag_U32 - 1));
+      EXPECT_EQ(WriteSize_U32, (Nb1_U32 + Nb2_U32));
+      EXPECT_TRUE(pData1_U8 != nullptr);
+      if (WrapAt_U32)
+      {
+        if (j_U32 == WrapAt_U32)
+        {
+          EXPECT_EQ(LastLen_U32, Nb1_U32);
+          EXPECT_EQ(WriteSize_U32 -LastLen_U32, Nb2_U32);
+          EXPECT_TRUE(pData2_U8 != nullptr);
+        }
+        else
+        {
+          EXPECT_EQ(WriteSize_U32, Nb1_U32);
+          EXPECT_EQ(0, Nb2_U32);
+          EXPECT_TRUE(pData2_U8 == nullptr);
+        }
+      }
+      else
+      {
+        EXPECT_EQ(WriteSize_U32, Nb1_U32);
+        EXPECT_EQ(0, Nb2_U32);
+        EXPECT_TRUE(pData2_U8 == nullptr);
+      }
+    } //for (j_U32 = 0; j_U32 < (RAW_MAX_BUFFER_ENTRY * 2); j_U32++)
+    WriteSize_U32++;
+  } // for (i_U32 = 0; i_U32 < (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY); i_U32++)
+}
+
+TEST_F(RawCircularBuffer_Test, GetPtrSkip)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, Size_U32, Nb1_U32, Nb2_U32, WriteSize_U32, Tag_U32 = 0xDEADAA55;
+  uint8_t *pBaseData_U8, *pData1_U8, *pData2_U8;
+  bool IsLocked;
+
+  WriteSize_U32 = (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->GetBufferPtr(0, &Nb1_U32, &pBaseData_U8, &Nb2_U32, &pData2_U8));
+  EXPECT_EQ(Nb1_U32, 0);
+  EXPECT_TRUE(pBaseData_U8 != nullptr);
+  EXPECT_EQ(Nb2_U32, 0);
+  EXPECT_TRUE(pData2_U8 == nullptr);
+
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < RAW_MAX_BUFFER_ENTRY; i_U32++)
+  {
+    ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, 1, Tag_U32++));
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32 / 2, mpData_U8));
+    EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+    EXPECT_EQ(SizeOfFirst_U32, WriteSize_U32 / 2);
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->GetBufferPtr(0, &Nb1_U32, &pData1_U8, &Nb2_U32, &pData2_U8));
+
+    EXPECT_EQ(Nb1_U32, WriteSize_U32 / 2);
+    EXPECT_TRUE(pData1_U8 == &pBaseData_U8[Index_U32]);
+    EXPECT_EQ(Nb2_U32, 0);
+    EXPECT_TRUE(pData2_U8 == nullptr);
+    ASSERT_TRUE(CheckBuffer(pData1_U8, 0, Nb1_U32, 1, Tag_U32 - 1));
+
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->Skip(true, &IsLocked));
+    EXPECT_FALSE(IsLocked);
+
+    Index_U32 += Nb1_U32;
+  }
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), WriteSize_U32 / 2);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+}
+
+
+class RawCircularBufferInSlotMode_Test : public testing::Test
 {
 public:
-  RawCircularBufferWithSlotsize_Test()
+  RawCircularBufferInSlotMode_Test()
       : mpBofRawCircularBuffer_O(nullptr)
   {
   }
@@ -474,314 +521,342 @@ protected:
 
   BofRawCircularBuffer *mpBofRawCircularBuffer_O;
   BOF_RAW_CIRCULAR_BUFFER_PARAM mBofRawCircularBufferParam_X;
+  uint8_t *mpData_U8 = nullptr;
 
 private:
 };
 
-/*** Factory functions called at the beginning/end of each test case **********/
-
-void RawCircularBufferWithSlotsize_Test::SetUpTestCase()
-{
-}
-
-void RawCircularBufferWithSlotsize_Test::TearDownTestCase()
-{
-}
-
-void RawCircularBufferWithSlotsize_Test::SetUp()
+void RawCircularBufferInSlotMode_Test::SetUp()
 {
   mBofRawCircularBufferParam_X.Reset();
   mBofRawCircularBufferParam_X.MultiThreadAware_B = true;
-  mBofRawCircularBufferParam_X.BufferSizeInByte_U32 = 0x1000;
-  mBofRawCircularBufferParam_X.NbMaxSlot_U32 = NBPUSHSAMESIZE;
+  mBofRawCircularBufferParam_X.BufferSizeInByte_U32 = RAW_BUF_SIZE; // 0x1000;
+  mBofRawCircularBufferParam_X.SlotMode_B = true;
+  mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 = RAW_MAX_BUFFER_ENTRY;
+
   mBofRawCircularBufferParam_X.pData_U8 = nullptr;
   mpBofRawCircularBuffer_O = new BofRawCircularBuffer(mBofRawCircularBufferParam_X);
 
-  EXPECT_TRUE(mpBofRawCircularBuffer_O != nullptr);
-  EXPECT_TRUE(mpBofRawCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
+  ASSERT_TRUE(mpBofRawCircularBuffer_O != nullptr);
+  ASSERT_TRUE(mpBofRawCircularBuffer_O->LastErrorCode() == BOF_ERR_NO_ERROR);
+  mpData_U8 = new uint8_t[RAW_BUF_SIZE];
+  ASSERT_TRUE(mpBofRawCircularBuffer_O != nullptr);
 }
 
-void RawCircularBufferWithSlotsize_Test::TearDown()
+void RawCircularBufferInSlotMode_Test::TearDown()
 {
   BOF_SAFE_DELETE(mpBofRawCircularBuffer_O);
-  EXPECT_TRUE(mpBofRawCircularBuffer_O == nullptr);
+  ASSERT_TRUE(mpBofRawCircularBuffer_O == nullptr);
+  BOF_SAFE_DELETE_ARRAY(mpData_U8);
+  ASSERT_TRUE(mpData_U8 == nullptr);
 }
 
-TEST_F(RawCircularBufferWithSlotsize_Test, CheckByteBuffer)
+/*** Factory functions called at the beginning/end of each test case **********/
+void RawCircularBufferInSlotMode_Test::SetUpTestCase()
 {
-  uint32_t Nb_U32, i_U32, Index_U32, Size_U32;
-  BOFERR Sts_E;
-  bool Sts_B;
-  uint8_t pData_U8[0x1000];
-  uint32_t pNb1_U32[8], pNb2_U32[8];
-  uint8_t *ppData1_U8[8], *ppData2_U8[8];
+}
 
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(0, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxSlot_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxSlot_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(0, Nb_U32);
+void RawCircularBufferInSlotMode_Test::TearDownTestCase()
+{
+}
 
-  for (i_U32 = 0; i_U32 < sizeof(pData_U8); i_U32++)
-  {
-    pData_U8[i_U32] = (uint8_t)i_U32;
-  }
+TEST_F(RawCircularBufferInSlotMode_Test, BasicPushPop)
+{
+  uint32_t SizeOfFirst_U32, SlotSize_U32, Size_U32, TotalSize_U32, RemainingSize_U32, Tag_U32 = 0xDEADAA55;
 
-  Size_U32 = 10;
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(nullptr, pData_U8);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(nullptr, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, pData_U8);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetCapacity(&TotalSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, TotalSize_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetMaxLevel());
+  SlotSize_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
+  EXPECT_EQ(SlotSize_U32, (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY));
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32));
+
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, mpData_U8));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, nullptr));
+  EXPECT_EQ(0, Size_U32);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, nullptr));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(0, Size_U32);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32));
+
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, 0, mpData_U8));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, 10, nullptr));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, 0, nullptr));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32, mpData_U8));
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(SlotSize_U32, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 1, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - SlotSize_U32, RemainingSize_U32);
+
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, mpData_U8));
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, nullptr));
+  EXPECT_EQ(0, Size_U32);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, nullptr, nullptr));
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, SlotSize_U32, 0));
+  Size_U32 = RAW_BUF_SIZE;
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(SlotSize_U32, Size_U32);
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
   EXPECT_EQ(0, Size_U32);
 
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(0, pData_U8);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(10, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(0, nullptr);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32));
 
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
+
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 1);
+
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32));
+
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32, mpData_U8));
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(SlotSize_U32, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetCapacity(&TotalSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, TotalSize_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 1, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - SlotSize_U32, RemainingSize_U32);
+
+  mpBofRawCircularBuffer_O->Reset();
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 0);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetCapacity(&TotalSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, TotalSize_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
+}
+
+TEST_F(RawCircularBufferInSlotMode_Test, PartialPop)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, SlotSize_U32, Size_U32, RemainingSize_U32, Tag_U32 = 0xDEADAA55;
+
+  SlotSize_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
+  EXPECT_EQ(SlotSize_U32, (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY));
+
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32 / 4, mpData_U8));
+
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32 / 2, mpData_U8));
+
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32, mpData_U8));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(3, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(SlotSize_U32 / 4, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 3, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - SlotSize_U32 - SlotSize_U32 - SlotSize_U32, RemainingSize_U32);
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, SlotSize_U32, 0));
+  Size_U32 = SlotSize_U32 * 2;
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(SlotSize_U32 / 4, Size_U32);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32 / 4, 1, Tag_U32 - 3));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(2, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(SlotSize_U32 / 2, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 2, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - SlotSize_U32 - SlotSize_U32, RemainingSize_U32);
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, SlotSize_U32, 0));
   Index_U32 = 0;
-  Size_U32 = 10;
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_FALSE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(Nb_U32, 1);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxSlot_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.NbMaxSlot_U32 - 1);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(Nb_U32, 1);
-
-  Index_U32 = 0;
-  Size_U32 = 9;
-  memset(&pData_U8[Index_U32], 0, Size_U32);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(10, Size_U32);
-
-  Index_U32 = 0;
-  Size_U32 = 10;
-  memset(&pData_U8[Index_U32], 0, Size_U32);
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(10, Size_U32);
-
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(Nb_U32, 0);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxSlot_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.NbMaxSlot_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(Nb_U32, 1);
-
-  for (i_U32 = 0; i_U32 < Size_U32; i_U32++)
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
   {
-    EXPECT_EQ(pData_U8[i_U32], (uint8_t)i_U32);
-  }
-
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE);
-
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
-  {
-    Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
+    Size_U32 = SlotSize_U32 / 2 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(SlotSize_U32 / 2 / 8, Size_U32);
     Index_U32 += Size_U32;
   }
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32 / 2, 1, Tag_U32 - 2));
+
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(SlotSize_U32, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32 - 1, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE - SlotSize_U32, RemainingSize_U32);
+
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, SlotSize_U32, 0));
   Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
+  {
+    Size_U32 = SlotSize_U32 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(SlotSize_U32 / 8, Size_U32);
+    Index_U32 += Size_U32;
+  }
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32 - 1));
 
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_FALSE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_TRUE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.NbMaxSlot_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(Nb_U32, 0);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(Nb_U32, mBofRawCircularBufferParam_X.NbMaxSlot_U32);
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 3);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
+  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxBufferEntry_U32, mpBofRawCircularBuffer_O->GetNbFreeElement(&RemainingSize_U32));
+  EXPECT_EQ(RAW_BUF_SIZE, RemainingSize_U32);
+}
 
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
+TEST_F(RawCircularBufferInSlotMode_Test, PushAppend)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, SlotSize_U32, Size_U32, Tag_U32 = 0xDEADAA55;
 
+  SlotSize_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
+  EXPECT_EQ(SlotSize_U32, (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY));
+
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->SetAppendMode(0, false));
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
+  {
+    Size_U32 = SlotSize_U32 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(Size_U32, (SlotSize_U32 / 8));
+    Index_U32 += Size_U32;
+    EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), i_U32 + 1);
+    EXPECT_EQ(i_U32 + 1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+    EXPECT_EQ(SizeOfFirst_U32, Size_U32);
+  }
   mpBofRawCircularBuffer_O->Reset();
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->SetAppendMode(0, true));
+  ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < 8; i_U32++)
+  {
+    Size_U32 = SlotSize_U32 / 8;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, Size_U32, &mpData_U8[Index_U32]));
+    EXPECT_EQ(Size_U32, (SlotSize_U32 / 8));
+    Index_U32 += Size_U32;
+    EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 0);
+    EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+    EXPECT_EQ(SizeOfFirst_U32, 0);
+  }
+  Size_U32 = SlotSize_U32 / 8;
+  EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, Size_U32, &mpData_U8[Index_U32]));
 
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-  Sts_B = mpBofRawCircularBuffer_O->IsFull();
-  EXPECT_FALSE(Sts_B);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(0, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetCapacity();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxSlot_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbFreeElement();
-  EXPECT_EQ(mBofRawCircularBufferParam_X.NbMaxSlot_U32, Nb_U32);
-  Nb_U32 = mpBofRawCircularBuffer_O->GetMaxLevel();
-  EXPECT_EQ(0, Nb_U32);
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->SetAppendMode(0, false));
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 1);
+  EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(SizeOfFirst_U32, SlotSize_U32);
+  ASSERT_TRUE(ClearBuffer(mpData_U8, 0, SlotSize_U32, 0));
+  Size_U32 = SlotSize_U32;
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+  EXPECT_EQ(SlotSize_U32, Size_U32);
+  ASSERT_TRUE(CheckBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32 - 1));
+}
 
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
+TEST_F(RawCircularBufferInSlotMode_Test, Fill)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, SlotSize_U32, Size_U32, Tag_U32 = 0xDEADAA55;
 
-  Nb_U32 = Size_U32 * 2;
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Nb_U32, Size_U32);
-
+  SlotSize_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
+  EXPECT_EQ(SlotSize_U32, (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY));
+  mpBofRawCircularBuffer_O->SetOverWriteMode(false);
+  for (i_U32 = 0; i_U32 < (RAW_MAX_BUFFER_ENTRY * 2); i_U32++)
+  {
+    ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+    if (i_U32 >= RAW_MAX_BUFFER_ENTRY)
+    {
+      EXPECT_NE(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(RAW_MAX_BUFFER_ENTRY, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, SlotSize_U32 / 2);
+    }
+    else
+    {
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(i_U32 + 1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, SlotSize_U32 / 2);
+    }
+  }
   mpBofRawCircularBuffer_O->Reset();
-
-  // push
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE);
-
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
+  mpBofRawCircularBuffer_O->SetOverWriteMode(true);
+  for (i_U32 = 0; i_U32 < (RAW_MAX_BUFFER_ENTRY * 2); i_U32++)
   {
-    Nb_U32 = Size_U32;
-    Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-    Index_U32 += Nb_U32;
+    ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+    if (i_U32 >= RAW_MAX_BUFFER_ENTRY)
+    {
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(RAW_MAX_BUFFER_ENTRY, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, SlotSize_U32 / 2);
+      EXPECT_TRUE(mpBofRawCircularBuffer_O->IsFull());
+      EXPECT_TRUE(mpBofRawCircularBuffer_O->IsBufferOverflow());
+    }
+    else
+    {
+      EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32 / 2, mpData_U8));
+      EXPECT_EQ(i_U32 + 1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+      EXPECT_EQ(SizeOfFirst_U32, SlotSize_U32 / 2);
+      if (i_U32 == (RAW_MAX_BUFFER_ENTRY - 1))
+      {
+        EXPECT_TRUE(mpBofRawCircularBuffer_O->IsFull());
+      }
+      else
+      {
+        EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+      }
+      EXPECT_FALSE(mpBofRawCircularBuffer_O->IsBufferOverflow());
+    }
   }
-  memset(pData_U8, 0, sizeof(pData_U8));
-  Index_U32 = 0;
-  // pop
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
-  {
-    Nb_U32 = Size_U32;
-    Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-    EXPECT_EQ(Nb_U32, Size_U32 * 1);
-    Index_U32 += Nb_U32;
-  }
-  for (i_U32 = 0; i_U32 < Size_U32; i_U32++)
-  {
-    EXPECT_EQ(pData_U8[i_U32], (uint8_t)i_U32);
-  }
+}
 
-  // Skip
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE);
+TEST_F(RawCircularBufferInSlotMode_Test, GetPtrSkip)
+{
+  uint32_t i_U32, Index_U32, SizeOfFirst_U32, SlotSize_U32, Size_U32, Nb1_U32, Nb2_U32, Tag_U32 = 0xDEADAA55;
+  uint8_t *pBaseData_U8, *pData1_U8, *pData2_U8;
+  bool IsLocked;
 
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
-  {
-    Nb_U32 = Size_U32;
-    Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-    Index_U32 += Nb_U32;
-  }
-
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
-  {
-    Sts_E = mpBofRawCircularBuffer_O->Skip();
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  }
-  Sts_E = mpBofRawCircularBuffer_O->Skip();
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  Sts_B = mpBofRawCircularBuffer_O->IsEmpty();
-  EXPECT_TRUE(Sts_B);
-
-  // Peek
-  Index_U32 = 0;
-  Size_U32 = (sizeof(pData_U8) / NBPUSHSAMESIZE);
-
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
-  {
-    Nb_U32 = Size_U32;
-    Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Nb_U32, &pData_U8[Index_U32]);
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-    Index_U32 += Nb_U32;
-  }
+  SlotSize_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
+  EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->GetBufferPtr(0, &Nb1_U32, &pBaseData_U8, &Nb2_U32, &pData2_U8));
+  EXPECT_EQ(Nb1_U32, 0);
+  EXPECT_TRUE(pBaseData_U8 != nullptr);
+  EXPECT_EQ(Nb2_U32, 0);
+  EXPECT_TRUE(pData2_U8 == nullptr);
 
   Index_U32 = 0;
-  for (i_U32 = 0; i_U32 < NBPUSHSAMESIZE; i_U32++)
+  for (i_U32 = 0; i_U32 < RAW_MAX_BUFFER_ENTRY; i_U32++)
   {
-    Nb_U32 = Size_U32;
-    Sts_E = mpBofRawCircularBuffer_O->Peek(i_U32, &Nb_U32, &pData_U8[Index_U32]);
-    EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-    EXPECT_EQ(Nb_U32, Size_U32);
+    ASSERT_TRUE(FillBuffer(mpData_U8, 0, SlotSize_U32, 1, Tag_U32++));
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, SlotSize_U32 / 2, mpData_U8));
+    EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+    EXPECT_EQ(SizeOfFirst_U32, SlotSize_U32 / 2);
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->GetBufferPtr(0, &Nb1_U32, &pData1_U8, &Nb2_U32, &pData2_U8));
+
+    EXPECT_EQ(Nb1_U32, SlotSize_U32 / 2);
+    EXPECT_TRUE(pData1_U8 == &pBaseData_U8[Index_U32]);
+    EXPECT_EQ(Nb2_U32, 0);
+    EXPECT_TRUE(pData2_U8 == nullptr);
+    ASSERT_TRUE(CheckBuffer(pData1_U8, 0, Nb1_U32, 1, Tag_U32 - 1));
+
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->Skip(true, &IsLocked));
+    EXPECT_FALSE(IsLocked);
+
+    Index_U32 += SlotSize_U32;
   }
-
-  Nb_U32 = Size_U32;
-  Sts_E = mpBofRawCircularBuffer_O->Peek(i_U32, &Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(0, Nb_U32);
-
-  // Lock/Unlock
-  mpBofRawCircularBuffer_O->Reset();
-
-  Index_U32 = 0;
-  Sts_E = mpBofRawCircularBuffer_O->LockBuffer(Size_U32, &pNb1_U32[0], &ppData1_U8[0], &pNb2_U32[0], &ppData2_U8[0]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Size_U32, pNb1_U32[0]);
-  EXPECT_EQ(0, pNb2_U32[0]);
-  EXPECT_TRUE(ppData1_U8[0] != nullptr);
-  EXPECT_TRUE(ppData2_U8[0] == nullptr);
-
-  Sts_E = mpBofRawCircularBuffer_O->PushBuffer(Size_U32, pData_U8);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->LockBuffer(Size_U32, &pNb1_U32[1], &ppData1_U8[1], &pNb2_U32[1], &ppData2_U8[1]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(Size_U32, pNb1_U32[1]);
-  EXPECT_EQ(0, pNb2_U32[1]);
-  EXPECT_TRUE(ppData1_U8[1] != nullptr);
-  EXPECT_TRUE(ppData2_U8[1] == nullptr);
-
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(3, Nb_U32);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(0, Nb_U32);
-
-  Nb_U32 = Size_U32;
-  Sts_E = mpBofRawCircularBuffer_O->UnlockBuffer(ppData1_U8[0], Nb_U32);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-  EXPECT_EQ(0, Nb_U32);
-
-  Sts_E = mpBofRawCircularBuffer_O->UnlockBuffer(ppData1_U8[0], Size_U32);
-  EXPECT_NE(BOF_ERR_NO_ERROR, Sts_E);
-
-  Sts_E = mpBofRawCircularBuffer_O->UnlockBuffer(ppData1_U8[1], Size_U32);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Nb_U32 = Size_U32;
-  Sts_E = mpBofRawCircularBuffer_O->PopBuffer(&Nb_U32, &pData_U8[Index_U32]);
-  EXPECT_EQ(BOF_ERR_NO_ERROR, Sts_E);
-
-  Nb_U32 = mpBofRawCircularBuffer_O->GetNbElement();
-  EXPECT_EQ(0, Nb_U32);
-
-  Nb_U32 = mpBofRawCircularBuffer_O->GetSlotSize();
-  EXPECT_EQ(Size_U32, Nb_U32);
+  EXPECT_EQ(mpBofRawCircularBuffer_O->GetMaxLevel(), 1);
+  EXPECT_TRUE(mpBofRawCircularBuffer_O->IsEmpty());
+  EXPECT_FALSE(mpBofRawCircularBuffer_O->IsFull());
+  EXPECT_EQ(0, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+  EXPECT_EQ(0, SizeOfFirst_U32);
 }
