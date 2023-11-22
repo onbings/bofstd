@@ -40,6 +40,7 @@ static BOF::BofEnum<BOF_HTTP_REQUEST_TYPE> S_BofHttpRequestTypeEnumConverter(
   {BOF_HTTP_REQUEST_OPTIONS,"OPTIONS"},
   {BOF_HTTP_REQUEST_CONNECT,"CONNECT"},
   {BOF_HTTP_REQUEST_TRACE,  "TRACE"},
+  {BOF_HTTP_REQUEST_DBG_ECHO,  "DBGECHO89ABCDEF"},   //No _ and must be (LWS_PRE-1) long for lws optim
   },
   BOF_HTTP_REQUEST_UNKNOWN);
 
@@ -150,6 +151,31 @@ bool BofHttpRequest::operator==(const BofHttpRequest &_rOther_O) const
 bool BofHttpRequest::operator!=(const BofHttpRequest &_rOther_O) const
 {
   return !(*this == _rOther_O);
+}
+BOF_HTTP_REQUEST_TYPE BofHttpRequest::S_RequestType(const char *_pRequest_c)
+{
+  BOF_HTTP_REQUEST_TYPE Rts_E = BOF_HTTP_REQUEST_TYPE::BOF_HTTP_REQUEST_UNKNOWN;
+  uint32_t i_U32;
+  const char *pRequestEnum_c;
+
+  if (_pRequest_c)
+  {
+    for (i_U32 = BOF_HTTP_REQUEST_TYPE::BOF_HTTP_REQUEST_GET; i_U32 < BOF_HTTP_REQUEST_TYPE::BOF_HTTP_REQUEST_MAX; i_U32++)
+    {
+      pRequestEnum_c = S_BofHttpRequestTypeEnumConverter.ToString((BOF_HTTP_REQUEST_TYPE)i_U32).c_str();
+      if (!strncmp(pRequestEnum_c, _pRequest_c, strlen(pRequestEnum_c)))
+      {
+        Rts_E= (BOF_HTTP_REQUEST_TYPE)i_U32;
+          break;
+      }
+    }
+  }
+  return Rts_E;
+}
+
+std::string BofHttpRequest::S_RequestString(BOF_HTTP_REQUEST_TYPE _Method_E) 
+{
+  return S_BofHttpRequestTypeEnumConverter.ToString(_Method_E);
 }
 
 bool BofHttpRequest::IsValid() const

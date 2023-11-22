@@ -79,10 +79,10 @@ TEST(System_Test, Buffer)
     EXPECT_EQ(pAllocData_U8[BUFFER_SIZE + i_U32], static_cast<uint8_t>(255 - i_U32));
   }
 
-  pIo_U8 = OtherBuffer_X.Seek(BUFFER_SIZE * 4, RemainToRead_U64);
+  pIo_U8 = OtherBuffer_X.SeekAbs(BUFFER_SIZE * 4, RemainToRead_U64);
   EXPECT_EQ(pIo_U8, nullptr);
 
-  pIo_U8 = OtherBuffer_X.Seek(BUFFER_SIZE * 2, RemainToRead_U64);
+  pIo_U8 = OtherBuffer_X.SeekAbs(BUFFER_SIZE * 2, RemainToRead_U64);
   EXPECT_NE(pIo_U8, nullptr);
   EXPECT_EQ(RemainToRead_U64, 32);
   EXPECT_EQ(OtherBuffer_X.RemainToRead(), 32);
@@ -317,8 +317,8 @@ TEST(System_Test, DumpMemoryZone)
   DumpMemoryZoneParam_X.pMemoryZone = &pMemoryZone_U8[23];
   DumpMemoryZoneParam_X.VirtualOffset_S64 = 0xABCDEF01;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
-  Out_S = Bof_Sprintf("ABCDEF01   17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 ????????? !\"#$%%&%sABCDEF11   27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 '()*+,-./0123456%sABCDEF21   37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 "
-                      "789:;<=>?@ABCDEF%sABCDEF31   47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 GHIJKLMNOPQRSTUV\n");
+  Out_S = Bof_Sprintf("ABCDEF01   17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 ????????? !\"#$%%&\nABCDEF11   27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 '()*+,-./0123456\nABCDEF21   37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 "
+                      "789:;<=>?@ABCDEF\nABCDEF31   47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 GHIJKLMNOPQRSTUV\n");
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 18;
@@ -349,7 +349,7 @@ TEST(System_Test, DumpMemoryZone)
   DumpMemoryZoneParam_X.GenerateVirtualOffset = false;
   DumpMemoryZoneParam_X.GenerateAsciiData_B = false;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
-  Out_S = Bof_Sprintf("0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,%s0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,0x10,0x11,          \n");
+  Out_S = Bof_Sprintf("0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,\n0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,0x10,0x11,          \n");
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.pMemoryZone = &pMemoryZone_U8[64];
@@ -377,7 +377,7 @@ TEST(System_Test, DumpMemoryZone)
   DumpMemoryZoneParam_X.ReverseEndianness_B = true;
   DumpMemoryZoneParam_X.AccessSize_E = BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
-  Out_S = Bof_Sprintf("0x%016llX   0x0001 0x0203 0x0405 0x0607 0x0809 0x0A0B 0x0C0D 0x0E0F ????????????????%s0x%016llX   0x1011 0x1213                                           ????            \n", reinterpret_cast<uint64_t>(pMemoryZone_U8), reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16));
+  Out_S = Bof_Sprintf("0x%016llX   0x0001 0x0203 0x0405 0x0607 0x0809 0x0A0B 0x0C0D 0x0E0F ????????????????\n0x%016llX   0x1011 0x1213                                           ????            \n", reinterpret_cast<uint64_t>(pMemoryZone_U8), reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16));
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 5;

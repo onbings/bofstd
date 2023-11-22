@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Fs_Test.*";
   //::testing::GTEST_FLAG(filter) = "Guid_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
+  //::testing::GTEST_FLAG(filter) = "JsonWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "Logger_Test.*";
   //::testing::GTEST_FLAG(filter) = "NaryTreeKv_Test.*";
   //::testing::GTEST_FLAG(filter) = "Path_Test.*";
@@ -119,10 +120,10 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Process_Test.*";
   //::testing::GTEST_FLAG(filter) = "Queue_Test.*";
   //::testing::GTEST_FLAG(filter) = "RamDb_Test.*";
-  //::testing::GTEST_FLAG(filter) = "RawCircularBufferNoSlotsize_Test.*";
-  //::testing::GTEST_FLAG(filter) = "RawCircularBufferWithSlotsize_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "Shell_Test.*";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.ListAndSetupInterface"; //*";
+  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";  
   //::testing::GTEST_FLAG(filter) = "SocketTcp_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*";
   //::testing::GTEST_FLAG(filter) = "SockIo_Client_Server_Test.*";
@@ -132,18 +133,22 @@ int main(int argc, char *argv[])
   ////::testing::GTEST_FLAG(filter) = "stringformatter a fixer.*";
   //::testing::GTEST_FLAG(filter) = "System_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.*";
+  //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*";
   //::testing::GTEST_FLAG(filter) = "Timecode_Test.*";
   //::testing::GTEST_FLAG(filter) = "Uart_Test.*";
   //::testing::GTEST_FLAG(filter) = "Uri_Test.*";
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
 
   // Use these one
+  //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
-  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:Uri_Test.*";
+  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:U7ri_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
   //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
-  //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*";
-  //::testing::GTEST_FLAG(filter) = "Path_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBufferNoSlotsize_Test.LoopByteBuffer";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
   // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
@@ -165,10 +170,10 @@ int main(int argc, char *argv[])
 
 /*
 * WINDOWS
-[==========] 174 tests from 46 test suites ran. (82449 ms total)
-[  PASSED  ] 174 tests.
+[==========] 189 tests from 48 test suites ran. (108823 ms total)
+[  PASSED  ] 189 tests.
 
-  YOU HAVE 7 DISABLED TESTS
+  YOU HAVE 3 DISABLED TESTS
 
   LINUX:
 

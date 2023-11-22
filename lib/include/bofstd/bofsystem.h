@@ -239,7 +239,7 @@ struct BOF_BUFFER
     }
     return pRts_U8;
   }
-  uint8_t *Seek(uint64_t _Offset_U64, uint64_t &_rRemain_U64)
+  uint8_t *SeekAbs(uint64_t _Offset_U64, uint64_t &_rRemain_U64)
   {
     uint8_t *pRts_U8 = nullptr;
 
@@ -247,7 +247,22 @@ struct BOF_BUFFER
     if (_Offset_U64 <= Size_U64)
     {
       Offset_U64 = _Offset_U64;
-      _rRemain_U64 = Size_U64 - _Offset_U64;
+      _rRemain_U64 = Size_U64 - Offset_U64;
+      pRts_U8 = &pData_U8[Offset_U64];
+    }
+    return pRts_U8;
+  }
+  uint8_t *SeekRel(int64_t _Amount_S64, uint64_t &_rRemain_U64)
+  {
+    uint8_t *pRts_U8 = nullptr;
+    uint64_t NewOffset_U64;
+
+    std::lock_guard<std::mutex> Lock(Mtx);
+    NewOffset_U64 = Offset_U64 + _Amount_S64;
+    if (NewOffset_U64 <= Size_U64)
+    {
+      Offset_U64 = NewOffset_U64;
+      _rRemain_U64 = Size_U64 - Offset_U64;
       pRts_U8 = &pData_U8[Offset_U64];
     }
     return pRts_U8;

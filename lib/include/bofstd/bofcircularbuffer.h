@@ -114,6 +114,7 @@ public:
   uint32_t GetNbElementLocked() const;
   uint32_t GetCapacity() const;
   uint32_t GetNbFreeElement();
+  BOFERR SetOverWriteMode(bool _Overwrite_B);
   uint32_t GetMaxLevel() const;
   bool IsBufferOverflow();
   void Reset();
@@ -125,7 +126,8 @@ public:
   BOFERR Peek(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
   BOFERR PeekFromPop(uint32_t _RelativeIndexFromPop_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
   BOFERR PeekByIndex(uint32_t _AbsoluteIndex_U32, DataType *_pData, bool *_pLocked_B, DataType **_ppStorage);        //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell);
-  BOFERR Skip(bool *_pLocked_B);
+  //_SignalIfNeeded_B:: sometime you skip just to process OverWrite mode, in this case do not signal free space
+  BOFERR Skip(DataType *_pData, bool _SignalIfNeeded_B, uint32_t *_pIndexOf_U32, DataType **_ppStorage, bool *_pLocked_B);
   BOFERR UnlockPop(uint32_t _AbsoluteIndex_U32);
   bool IsLocked(uint32_t _AbsoluteIndex_U32);
   bool IsEntryFree(uint32_t _AbsoluteIndex_U32, bool *_pIsLocked_B, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
@@ -299,6 +301,12 @@ uint32_t BofCircularBuffer<DataType>::GetNbFreeElement()
 }
 
 template <typename DataType>
+BOFERR BofCircularBuffer<DataType>::SetOverWriteMode(bool _Overwrite_B)
+{
+  mCircularBufferParam_X.Overwrite_B = _Overwrite_B;
+  return BOF_ERR_NO_ERROR;
+}
+template <typename DataType>
 uint32_t BofCircularBuffer<DataType>::GetMaxLevel() const
 {
   uint32_t Rts_U32 = mLevelMax_U32;
@@ -380,6 +388,12 @@ BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _Block
               if (mNbElementInBuffer_U32 > mCircularBufferParam_X.NbMaxElement_U32)
               {
                 mNbElementInBuffer_U32 = mCircularBufferParam_X.NbMaxElement_U32; // mCircularBufferParam_X.Overwrite_B
+                BOF_ASSERT(mPushIndex_U32 == mPopIndex_U32)
+                mPopIndex_U32++;
+                if (mPopIndex_U32 >= mCircularBufferParam_X.NbMaxElement_U32)
+                {
+                  mPopIndex_U32 = 0;
+                }
                 mOverflow_B = true;
               }
             }
@@ -487,6 +501,12 @@ BOFERR BofCircularBuffer<DataType>::PushForNextPop(const DataType *_pData, bool 
             if (mNbElementInBuffer_U32 > mCircularBufferParam_X.NbMaxElement_U32)
             {
               mNbElementInBuffer_U32 = mCircularBufferParam_X.NbMaxElement_U32; // mCircularBufferParam_X.Overwrite_B
+              BOF_ASSERT(mPushIndex_U32 == mPopIndex_U32)
+              mPopIndex_U32++;
+              if (mPopIndex_U32 >= mCircularBufferParam_X.NbMaxElement_U32)
+              {
+                mPopIndex_U32 = 0;
+              }
               mOverflow_B = true;
             }
           }
@@ -822,8 +842,9 @@ BOFERR BofCircularBuffer<DataType>::PeekByIndex(uint32_t _AbsoluteIndex_U32, Dat
   return Rts_E;
 }
 
+//_SignalIfNeeded_B:: sometime you skip just to process OverWrite mode, in this case do not signal free space
 template <typename DataType>
-BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
+BOFERR BofCircularBuffer<DataType>::Skip(DataType *_pData, bool _SignalIfNeeded_B, uint32_t *_pIndexOf_U32, DataType **_ppStorage, bool *_pLocked_B)
 {
   BOFERR Rts_E;
 
@@ -835,9 +856,9 @@ BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
     BOF_ASSERT(mNbElementLockedInBuffer_U32 <= mNbElementInBuffer_U32);
     if (mNbElementInBuffer_U32 - mNbElementLockedInBuffer_U32)
     {
-      if (_pIsLocked_B)
+      if (_pLocked_B)
       {
-        *_pIsLocked_B = mpLock_U8[mPopIndex_U32] ? true : false;
+        *_pLocked_B = mpLock_U8[mPopIndex_U32] ? true : false;
       }
       if (mpLock_U8[mPopIndex_U32] == 0)
       {
@@ -846,6 +867,18 @@ BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
         mNbElementInBuffer_U32--;
 
         BOF_ASSERT(mPopIndex_U32 < mCircularBufferParam_X.NbMaxElement_U32);
+        if (_pIndexOf_U32)
+        {
+          *_pIndexOf_U32 = mPopIndex_U32;
+        }
+        if (_pData)
+        {
+          *_pData = mpData_T[mPopIndex_U32];
+        }
+        if (_ppStorage)
+        {
+          *_ppStorage = &mpData_T[mPopIndex_U32];
+        }
         mPopIndex_U32++;
         if (mPopIndex_U32 >= mCircularBufferParam_X.NbMaxElement_U32)
         {
@@ -853,7 +886,10 @@ BOFERR BofCircularBuffer<DataType>::Skip(bool *_pIsLocked_B)
         }
         if (mCircularBufferParam_X.Blocking_B) //&& (_BlockingTimeouItInMs_U32))
         {
-          Rts_E = SignalReadWrite();
+          if (_SignalIfNeeded_B)
+          {
+            Rts_E = SignalReadWrite();
+          }
         }
       }
       else

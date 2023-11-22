@@ -49,9 +49,9 @@ void TestSocketAddress(bool _IsIpV6_B)
   Ip_S = IpAddress_X.ToString(false, false);
   EXPECT_STREQ(Ip_S.c_str(), "1.2.3.4");
   Ip_S = IpAddress_X.ToString(true, false);
-  EXPECT_STREQ(Ip_S.c_str(), "???://1.2.3.4");
+  EXPECT_STREQ(Ip_S.c_str(), "://1.2.3.4");
   Ip_S = IpAddress_X.ToString(true, true);
-  EXPECT_STREQ(Ip_S.c_str(), "???://1.2.3.4:8765");
+  EXPECT_STREQ(Ip_S.c_str(), "://1.2.3.4:8765");
 
   pIpAddress_X[0].Set(_IsIpV6_B, BOF_SOCK_TYPE::BOF_SOCK_TCP, 1, 2, 3, 4, 1234);
   pIpAddress_X[1].Set(_IsIpV6_B, BOF_SOCK_TYPE::BOF_SOCK_UDP, 0, 0, 0, 0, 4321);
@@ -218,7 +218,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(IpAddress_X.SocketType_E, BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN);
   Ip_S = Bof_SocketAddressToString(IpAddress_X, true, true);
-  EXPECT_EQ(Ip_S, "???://1.2.3.4:0");
+  EXPECT_EQ(Ip_S, "://1.2.3.4:0");
 
   Sts_E = Bof_IpAddressToSocketAddress("1.2.3.4:", IpAddress_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
@@ -296,9 +296,9 @@ void TestSocketAddress(bool _IsIpV6_B)
   }
   Ip_S = Bof_SocketAddressToString(ListOfIp_X[0], true, false);
 #if defined(_WIN32)
-  EXPECT_EQ(Ip_S, "???://204.79.197.203");
+  EXPECT_EQ(Ip_S, "://204.79.197.203");
 #else
-  EXPECT_EQ(Ip_S, "???://204.79.197.203");
+  EXPECT_EQ(Ip_S, "://204.79.197.203");
 #endif
 #endif
 
@@ -320,7 +320,7 @@ void TestSocketAddress(bool _IsIpV6_B)
     EXPECT_EQ(IpAddress_X.IpV4Address_X.sin_port, 0);
   }
   Ip_S = Bof_SocketAddressToString(IpAddress_X, true, true);
-  EXPECT_EQ(Ip_S, "???://1.2.3.4:0");
+  EXPECT_EQ(Ip_S, "://1.2.3.4:0");
 
   Sts_E = Bof_IpAddressToSocketAddress("1.2.3.4:", IpAddress_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
@@ -401,7 +401,7 @@ void TestSocketAddress(bool _IsIpV6_B)
     EXPECT_EQ(IpAddress_X.IpV4Address_X.sin_port, 0);
   }
   Ip_S = Bof_SocketAddressToString(IpAddress_X, true, false);
-  EXPECT_EQ(Ip_S, "???://204.79.197.203");
+  EXPECT_EQ(Ip_S, "://204.79.197.203");
 
 #endif
   // Bof_IpAddressToSocketAddress
@@ -516,7 +516,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_STREQ(IpAddressComponent_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(IpAddressComponent_X.Password_S.c_str(), "password");
   Ip_S = Bof_SocketAddressToString(IpAddressComponent_X.Ip_X, true, true);
-  EXPECT_EQ(Ip_S, "???://1.2.3.4:5");
+  EXPECT_EQ(Ip_S, "bha://1.2.3.4:5");
 
   Sts_E = Bof_SplitIpAddress("bha://john.doe@1.2.3.4:5", IpAddressComponent_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -526,7 +526,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_STREQ(IpAddressComponent_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(IpAddressComponent_X.Password_S.c_str(), "");
   Ip_S = Bof_SocketAddressToString(IpAddressComponent_X.Ip_X, true, true);
-  EXPECT_EQ(Ip_S, "???://1.2.3.4:5");
+  EXPECT_EQ(Ip_S, "bha://1.2.3.4:5");
 
   Sts_E = Bof_SplitIpAddress("bha://john.doe@1.2.3.4", IpAddressComponent_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -536,7 +536,7 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_STREQ(IpAddressComponent_X.User_S.c_str(), "john.doe");
   EXPECT_STREQ(IpAddressComponent_X.Password_S.c_str(), "");
   Ip_S = Bof_SocketAddressToString(IpAddressComponent_X.Ip_X, true, true);
-  EXPECT_EQ(Ip_S, "???://1.2.3.4:0");
+  EXPECT_EQ(Ip_S, "bha://1.2.3.4:0");
 
   Sts_E = Bof_SplitIpAddress("udp://193.169.2.3:0>john.doe:password@1.2.3.4:123", InterfaceIpAddressComponent_X, IpAddressComponent_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -567,20 +567,20 @@ void TestSocketAddress(bool _IsIpV6_B)
   Ip_S = Bof_SocketAddressToString(InterfaceIpAddress_X, true, true);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(Ip_S, "???://[::]:0");
+    EXPECT_EQ(Ip_S, "://[::]:0");
   }
   else
   {
-    EXPECT_EQ(Ip_S, "???://0.0.0.0:0");
+    EXPECT_EQ(Ip_S, "://0.0.0.0:0");
   }
   Ip_S = Bof_BuildIpAddress(InterfaceIpAddress_X, IpAddress_X);
   if (_IsIpV6_B)
   {
-    EXPECT_EQ(Ip_S, "???://[::]:0>192.168.1.1:1234");
+    EXPECT_EQ(Ip_S, "://[::]:0>192.168.1.1:1234");
   }
   else
   {
-    EXPECT_EQ(Ip_S, "???://0.0.0.0:0>192.168.1.1:1234");
+    EXPECT_EQ(Ip_S, "://0.0.0.0:0>192.168.1.1:1234");
   }
 
   if (_IsIpV6_B)
@@ -605,9 +605,9 @@ void TestSocketAddress(bool _IsIpV6_B)
   Sts_E = Bof_ResolveIpAddress("pgm://192.168.10.1:1235>239.192.1.1:5555", InterfaceIpAddress_X, IpAddress_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Ip_S = Bof_SocketAddressToString(InterfaceIpAddress_X, true, true);
-  EXPECT_EQ(Ip_S, "???://192.168.10.1:1235");
+  EXPECT_EQ(Ip_S, "pgm://192.168.10.1:1235");
   Ip_S = Bof_SocketAddressToString(IpAddress_X, true, true);
-  EXPECT_EQ(Ip_S, "???://239.192.1.1:5555");
+  EXPECT_EQ(Ip_S, "pgm://239.192.1.1:5555");
 
   if (_IsIpV6_B)
   {

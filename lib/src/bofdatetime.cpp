@@ -98,7 +98,7 @@ void BofDateTime::ClearDate()
   mYear_U16 = 0;
   mMonth_U8 = 0;
   mDay_U8 = 0;
-  mIsValid_B = false;
+  //No it is a Datetime with no valid data for example mIsValid_B = false; 
 }
 void BofDateTime::ClearTime()
 {
