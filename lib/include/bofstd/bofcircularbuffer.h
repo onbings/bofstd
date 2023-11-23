@@ -388,12 +388,7 @@ BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _Block
               if (mNbElementInBuffer_U32 > mCircularBufferParam_X.NbMaxElement_U32)
               {
                 mNbElementInBuffer_U32 = mCircularBufferParam_X.NbMaxElement_U32; // mCircularBufferParam_X.Overwrite_B
-                BOF_ASSERT(mPushIndex_U32 == mPopIndex_U32)
-                mPopIndex_U32++;
-                if (mPopIndex_U32 >= mCircularBufferParam_X.NbMaxElement_U32)
-                {
-                  mPopIndex_U32 = 0;
-                }
+                mPopIndex_U32 = mPushIndex_U32;
                 mOverflow_B = true;
               }
             }

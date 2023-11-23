@@ -203,7 +203,7 @@ BOFERR BofShell::ShellEcho(void *_pArg, std::string &_rShellResult_S)
   return Rts_E;
 }
 
-// spawn(/opt/evs/AppFs/evs-gbio/bin/gbio_irq_listen,hello)
+// spawn(/opt/evs/evs-gbio/bin/gbio_irq_listen,hello)
 BOFERR BofShell::ShellSpawn(void *_pArg, std::string &_rShellResult_S)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
