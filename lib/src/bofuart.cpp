@@ -711,7 +711,7 @@ BOFERR BofUart::V_GetStatus(BOF_COM_CHANNEL_STATUS &_rStatus_X)
       NbOut_U32 = 0;
     }
     _rStatus_X.NbIn_U32 = NbIn_U32;
-    Nb_U32 = mpTxData_O ? mpTxData_O->GetNbElement() : 0;
+    Nb_U32 = mpTxData_O ? mpTxData_O->GetNbElement(nullptr) : 0;
     _rStatus_X.NbOut_U32 = (Nb_U32 > NbOut_U32) ? Nb_U32 : NbOut_U32;
     Rts_E = BOF_ERR_NO_ERROR;
 
