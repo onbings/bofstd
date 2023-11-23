@@ -110,7 +110,7 @@ TEST(Async_Test, OverloadCommandQueue)
   Command_X.Name_S = "Cmd";
   Command_X.Cmd = a;
   Start_U32 = Bof_GetMsTickCount();
-  for (i_U32 = 0; i_U32 < 10; i_U32++)
+  for (i_U32 = 0; i_U32 < 100; i_U32++)
   {
     CmdQ.PostCommand(false, Command_X);
   }

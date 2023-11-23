@@ -39,6 +39,8 @@ TEST(Fs_Test, DirectoryManagement)
 
 #if defined(_WIN32)
 #else
+  std::string Cwd_S;
+  BOF::Bof_GetCurrentDirectory(Cwd_S);
   EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
 #endif
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
@@ -186,6 +188,10 @@ TEST(Fs_Test, DirectoryManagement)
 
   Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+#if defined(_WIN32)
+#else
+  EXPECT_EQ(BOF::Bof_SetCurrentDirectory(Cwd_S), BOF_ERR_NO_ERROR);
+#endif  
 }
 
 TEST(Fs_Test, FileManagement)
@@ -201,6 +207,8 @@ TEST(Fs_Test, FileManagement)
 
 #if defined(_WIN32)
 #else
+  std::string Cwd_S;
+  BOF::Bof_GetCurrentDirectory(Cwd_S);
   EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
 #endif
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
@@ -338,6 +346,10 @@ TEST(Fs_Test, FileManagement)
 
   Sts_E = Bof_CleanupDirectory(true, NewPath, true);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+#if defined(_WIN32)
+#else
+  EXPECT_EQ(BOF::Bof_SetCurrentDirectory(Cwd_S), BOF_ERR_NO_ERROR);
+#endif    
 }
 
 TEST(Fs_Test, EntireFile)
@@ -352,6 +364,8 @@ TEST(Fs_Test, EntireFile)
 
 #if defined(_WIN32)
 #else
+  std::string Cwd_S;
+  BOF::Bof_GetCurrentDirectory(Cwd_S);
   EXPECT_EQ(Bof_SetCurrentDirectory("/tmp/"), BOF_ERR_NO_ERROR);
 #endif
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
@@ -367,6 +381,10 @@ TEST(Fs_Test, EntireFile)
   EXPECT_EQ(Bof_ReadLine(Path, LineRead_S), BOF_ERR_NO_ERROR);
   Line_S = Line_S + Line_S;
   EXPECT_STREQ(LineRead_S.c_str(), Line_S.c_str());
+#if defined(_WIN32)
+#else
+  EXPECT_EQ(BOF::Bof_SetCurrentDirectory(Cwd_S), BOF_ERR_NO_ERROR);
+#endif    
 }
 TEST(Fs_Test, FileLayout)
 {

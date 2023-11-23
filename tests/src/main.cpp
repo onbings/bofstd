@@ -19,7 +19,7 @@
 #else
 #include <malloc.h>
 #endif
-
+  
 #if 0
 //#include "asio.hpp"
 #include <bofstd/bofsocketio.h>
@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
 
   // Use these one
   //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
+  //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:U7ri_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
@@ -176,11 +177,11 @@ int main(int argc, char *argv[])
   YOU HAVE 3 DISABLED TESTS
 
   LINUX:
+[==========] 189 tests from 48 test suites ran. (60706 ms total)
+[  PASSED  ] 189 tests.
 
-[==========] 170 tests from 43 test suites ran. (45271 ms total)
-[  PASSED  ] 170 tests.
+  YOU HAVE 3 DISABLED TESTS
 
-  YOU HAVE 6 DISABLED TESTS
 
 need to launch test with
 su
