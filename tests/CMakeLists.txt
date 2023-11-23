@@ -214,7 +214,7 @@ configure_file(
   @ONLY
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/vld.cmake)
-### VLD ###########################################
+### VLD ########################################
 
 target_link_libraries(ut_bofstd
   PRIVATE

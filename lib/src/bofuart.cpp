@@ -400,7 +400,8 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
                 BofRawCircularBufferParam_X.Reset();
                 BofRawCircularBufferParam_X.MultiThreadAware_B = true;
                 BofRawCircularBufferParam_X.BufferSizeInByte_U32 = mUartParam_X.BaseChannelParam_X.SndBufferSize_U32;
-                BofRawCircularBufferParam_X.NbMaxSlot_U32 = 0;
+                BofRawCircularBufferParam_X.SlotMode_B = false;
+                BofRawCircularBufferParam_X.NbMaxBufferEntry_U32 = 128;
                 BofRawCircularBufferParam_X.pData_U8 = nullptr;
                 mpTxData_O = new BofRawCircularBuffer(BofRawCircularBufferParam_X);
 
