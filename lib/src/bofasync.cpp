@@ -152,7 +152,7 @@ BOFERR BofCommandQueue::PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENT
     }
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
-      Rts_E = mpuCommandEntryCollection->Push(&_rCommand_X, 0, nullptr);
+      Rts_E = mpuCommandEntryCollection->Push(&_rCommand_X, 0, nullptr, nullptr);
     }
   }
   return Rts_E;

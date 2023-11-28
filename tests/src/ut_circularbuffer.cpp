@@ -155,7 +155,7 @@ BOFERR PushValue(uint32_t _Id_U32, uint32_t _NbLoop_U32, BofCircularBuffer<uint6
     Val_U64++;
     //    NbElem_U32 = _pBofCollection->GetNbElement();
     //  sprintf(GL_pDbgPush_c, "%03d:Push[%d] %d\n", _Id_U32, i_U32, BOF::Bof_GetMsTickCount());
-    Rts_E = _pBofCollection->Push(&Val_U64, 2000, nullptr);
+    Rts_E = _pBofCollection->Push(&Val_U64, 2000, nullptr, nullptr);
     //  printf("%03d:Push[%d]=%lld n=%d Rts %X\n", _Id_U32, i_U32, Val_U64, NbElem_U32, Rts_E);
     if (Rts_E)
     {
@@ -207,7 +207,7 @@ TEST(CircularBuffer_Test, PopExternalStorage)
   for (i_U32 = 0; i_U32 < BofCircularBufferParam_X.NbMaxElement_U32; i_U32++)
   {
     pData_U32[i_U32] = i_U32 + 1;
-    EXPECT_EQ(pBofCircularBuffer->Push(&pData_U32[i_U32], 0, &IndexOf_U32), BOF_ERR_NO_ERROR);
+    EXPECT_EQ(pBofCircularBuffer->Push(&pData_U32[i_U32], 0, &IndexOf_U32, nullptr), BOF_ERR_NO_ERROR);
     EXPECT_EQ(IndexOf_U32, i_U32);
   }
   for (i_U32 = 0; i_U32 < BofCircularBufferParam_X.NbMaxElement_U32; i_U32++)
@@ -250,7 +250,7 @@ TEST(CircularBuffer_Test, IsEntryFree)
   memset(pPosBusy_B, 0, sizeof(pPosBusy_B));
   for (i_U32 = 0; i_U32 < BofCircularBufferParam_X.NbMaxElement_U32; i_U32++)
   {
-    Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32);
+    Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32, nullptr);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(IndexOf_U32, i_U32);
     pPosBusy_B[IndexOf_U32] = true;
@@ -301,7 +301,7 @@ TEST(CircularBuffer_Test, IsEntryFree)
     {
       Dbg_U32++;
       Index_U32 = i_U32 % BofCircularBufferParam_X.NbMaxElement_U32;
-      Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32);
+      Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32, nullptr);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(IndexOf_U32, Index_U32);
       pPosBusy_B[IndexOf_U32] = true;
@@ -310,7 +310,7 @@ TEST(CircularBuffer_Test, IsEntryFree)
     {
       Dbg_U32++;
       Index_U32 = (i_U32 + k_U32) % BofCircularBufferParam_X.NbMaxElement_U32;
-      Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32);
+      Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32, nullptr);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(IndexOf_U32, Index_U32);
       pPosBusy_B[IndexOf_U32] = true;
@@ -366,14 +366,14 @@ TEST(CircularBuffer_Test, LockUnlock)
   Val_U32 = 10;
   for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
   {
-    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32);
+    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32, nullptr);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(IndexOf_U32, j_U32);
     Nb_U32 = pBofCollection->GetNbElement();
     EXPECT_EQ(Nb_U32, j_U32 + 1);
     Val_U32++;
   }
-  Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32);
+  Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32, nullptr);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   Val_U32 = 10;
@@ -387,7 +387,7 @@ TEST(CircularBuffer_Test, LockUnlock)
     EXPECT_EQ(Nb_U32, BofCircularBufferParam_X.NbMaxElement_U32);
     Val_U32++;
   }
-  Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32);
+  Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32, nullptr);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   Val_U32 = 10;
@@ -398,7 +398,7 @@ TEST(CircularBuffer_Test, LockUnlock)
     Nb_U32 = pBofCollection->GetNbElement();
     EXPECT_EQ(Nb_U32, BofCircularBufferParam_X.NbMaxElement_U32);
   }
-  Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32);
+  Sts_E = pBofCollection->Push(&i_U32, 0, &IndexOf_U32, nullptr);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
   Val_U32 = 10;
@@ -408,7 +408,7 @@ TEST(CircularBuffer_Test, LockUnlock)
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     Nb_U32 = pBofCollection->GetNbElement();
     EXPECT_EQ(Nb_U32, BofCircularBufferParam_X.NbMaxElement_U32 - 1);
-    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32);
+    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32, nullptr);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     Val_U32++;
   }
@@ -417,7 +417,7 @@ TEST(CircularBuffer_Test, LockUnlock)
   Val_U32 = 10;
   for (j_U32 = 0; j_U32 < BofCircularBufferParam_X.NbMaxElement_U32; j_U32++)
   {
-    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32);
+    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32, nullptr);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(IndexOf_U32, j_U32);
     Nb_U32 = pBofCollection->GetNbElement();
@@ -446,7 +446,7 @@ TEST(CircularBuffer_Test, LockUnlock)
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     Nb_U32 = pBofCollection->GetNbElement();
     EXPECT_EQ(Nb_U32, BofCircularBufferParam_X.NbMaxElement_U32 - j_U32 - 1);
-    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32);
+    Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32, nullptr);
     if (j_U32 == BofCircularBufferParam_X.NbMaxElement_U32 - 1)
     {
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
@@ -466,7 +466,7 @@ TEST(CircularBuffer_Test, LockUnlock)
     for (i_U32 = 0; i_U32 < k_U32; i_U32++)
     {
       Index_U32 = i_U32 % BofCircularBufferParam_X.NbMaxElement_U32;
-      Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32);
+      Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32, nullptr);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(IndexOf_U32, Index_U32);
       Sts_E = pBofCollection->Pop(&j_U32, 0, &IndexOfLock_U32, nullptr);
@@ -479,7 +479,7 @@ TEST(CircularBuffer_Test, LockUnlock)
     for (i_U32 = 0; i_U32 < BofCircularBufferParam_X.NbMaxElement_U32 * 3; i_U32++)
     {
       Index_U32 = (i_U32 + k_U32) % BofCircularBufferParam_X.NbMaxElement_U32;
-      Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32);
+      Sts_E = pBofCollection->Push(&Val_U32, 0, &IndexOf_U32, nullptr);
       EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
       EXPECT_EQ(IndexOf_U32, Index_U32);
       Sts_E = pBofCollection->Pop(&j_U32, 0, &IndexOfLock_U32, nullptr);
@@ -584,7 +584,7 @@ TEST(CircularBuffer_Test, StdString)
   {
     Reply_S = Bof_Random(false, 0x10000, 'A', 'Z');
     StrCollection.push_back(Reply_S);
-    ASSERT_EQ(pReplyCollection->Push(&Reply_S, 0, nullptr), BOF_ERR_NO_ERROR);
+    ASSERT_EQ(pReplyCollection->Push(&Reply_S, 0, nullptr, nullptr), BOF_ERR_NO_ERROR);
     if (pReplyCollection->GetNbElement() == pReplyCollection->GetCapacity())
     {
       ASSERT_EQ(pReplyCollection->Pop(&Read_S, 0, nullptr, nullptr), BOF_ERR_NO_ERROR);

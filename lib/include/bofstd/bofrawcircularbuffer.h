@@ -31,6 +31,10 @@ struct BOF_RAW_CIRCULAR_BUFFER_PARAM
   bool MultiThreadAware_B;       /*! true if the object is used in a multi threaded application (use mCs)*/
   uint32_t BufferSizeInByte_U32; /*!	Specifies the maximum number of byte inside inside the queue*/
   bool     SlotMode_B;           /* If true, the mpData_U8 buffer of BufferSizeInByte_U32 will be divided by NbMaxBufferEntry_U32 and each slot will be BufferSizeInByte_U32/NbMaxBufferEntry_U32 */
+  bool     AlwaysContiguous_B;   /*! No sens for SlotMode_B (data are always contiguous in SlotMode_B). With non SlotMode_B buffer, if this parameter is true all data element stored in the buffer 
+                                  will always be contiguous, so an element at the end of the buffer will never be splitted between the end and the beginning of the buffer. If this case is detected 
+                                  an empy zone will be created to align the buffer to the start and if you call GetBufferPtr(..., uint32_t *_pNb1_U32, uint8_t **_ppData1_U8, uint32_t *_pNb2_U32, uint8_t **_ppData2_U8) 
+                                  *_pNb2_U32 will ALWAYS BE 0 */
   uint32_t NbMaxBufferEntry_U32; /*! Specifies the maximum number of buffer which will be tracked inside the mpData_U8 buffer of BufferSizeInByte_U32*/
   uint8_t *pData_U8;             /*! Pointer to queue storage buffer used to record queue element*/
   bool Overwrite_B;          /*! true if new data overwritte the oldest one when the queue is full. */
@@ -142,9 +146,9 @@ public:
   void Reset();
   uint32_t GetNbFreeElement(uint32_t *_pRemainingSize_U32);
   BOFERR SetOverWriteMode(bool _Overwrite_B);
-  BOFERR SetAppendMode(uint32_t _BlockingTimeouItInMs_U32, bool _Append_B);
+  BOFERR SetAppendMode(uint32_t _BlockingTimeouItInMs_U32, bool _Append_B, BOF_RAW_BUFFER **_ppStorage_X);
   bool IsBufferOverflow();
-  BOFERR PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8);
+  BOFERR PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8, BOF_RAW_BUFFER **_ppStorage_X);
   BOFERR PopBuffer(uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
   BOFERR Peek(uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
   //Need to call Skip after GetBufferPtr
@@ -153,8 +157,8 @@ public:
   BOFERR Skip(bool _SignalIfNeeded_B, bool *_pLocked_B);
 
 private:
-  BOFERR PushRawBuffer(uint32_t _BlockingTimeouItInMs_U32);
-  BOFERR UpdatePushRawBuffer(uint32_t _Size_U32, const uint8_t *_pData_U8);
+  BOFERR PushRawBuffer(uint32_t _BlockingTimeouItInMs_U32, BOF_RAW_BUFFER **_ppStorage_X);
+  BOFERR UpdatePushRawBuffer(uint32_t _SizeUpToTheEnd_U32, uint32_t _Size_U32, const uint8_t *_pData_U8);
   BOFERR PopOrPeekBuffer(bool _Pop_B, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pNbMax_U32, uint8_t *_pData_U8);
 };
 

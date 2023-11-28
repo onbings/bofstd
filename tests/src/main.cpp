@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Queue_Test.*";
   //::testing::GTEST_FLAG(filter) = "RamDb_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "Shell_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";  
@@ -140,7 +141,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
 
   // Use these one
-  //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.GetPtrSkip";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:U7ri_Test.*";
@@ -149,7 +150,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferNoSlotsize_Test.LoopByteBuffer";
-  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
   // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());

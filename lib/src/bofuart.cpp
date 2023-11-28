@@ -167,6 +167,7 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
                 BofRawCircularBufferParam_X.MultiThreadAware_B = true;
                 BofRawCircularBufferParam_X.BufferSizeInByte_U32 = mUartParam_X.BaseChannelParam_X.SndBufferSize_U32;
                 BofRawCircularBufferParam_X.SlotMode_B = false;
+                BofRawCircularBufferParam_X.AlwaysContiguous_B = true;
                 BofRawCircularBufferParam_X.NbMaxBufferEntry_U32 = 128;
                 BofRawCircularBufferParam_X.pData_U8 = nullptr;
                 mpTxData_O = new BofRawCircularBuffer(BofRawCircularBufferParam_X);
@@ -401,6 +402,7 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
                 BofRawCircularBufferParam_X.MultiThreadAware_B = true;
                 BofRawCircularBufferParam_X.BufferSizeInByte_U32 = mUartParam_X.BaseChannelParam_X.SndBufferSize_U32;
                 BofRawCircularBufferParam_X.SlotMode_B = false;
+                BofRawCircularBufferParam_X.AlwaysContiguous_B = true;
                 BofRawCircularBufferParam_X.NbMaxBufferEntry_U32 = 128;
                 BofRawCircularBufferParam_X.pData_U8 = nullptr;
                 mpTxData_O = new BofRawCircularBuffer(BofRawCircularBufferParam_X);
@@ -1012,7 +1014,7 @@ BOFERR BofUart::V_WriteData(uint32_t /*_TimeOut_U32*/, uint32_t &_rNb_U32, const
     {
       if ((mpTxData_O->GetNbFreeElement(&RemainingSize_U32)) && (RemainingSize_U32 >= Nb_U32))
       {
-        if (mpTxData_O->PushBuffer(false, Nb_U32, pBuffer_U8) == BOF_ERR_NO_ERROR)
+        if (mpTxData_O->PushBuffer(false, Nb_U32, pBuffer_U8, nullptr) == BOF_ERR_NO_ERROR)
         {
 #if defined(_WIN32)
           if (SignalThreadWakeUpEvent())

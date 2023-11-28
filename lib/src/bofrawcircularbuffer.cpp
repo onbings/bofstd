@@ -90,6 +90,10 @@ BofRawCircularBuffer::BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &
       }
     }
   }
+  if (mpCrtBufferEnd_U8 == nullptr)
+  {
+    printf("jj");
+  }
 }
 
 BofRawCircularBuffer::~BofRawCircularBuffer()
@@ -150,22 +154,29 @@ uint32_t BofRawCircularBuffer::GetNbElement(uint32_t *_pSizeOfFirst_U32)
 {
   uint32_t Rts_U32, PopIndex_U32;
   BOF_RAW_BUFFER RawBuffer_X;
+  BOFERR Sts_E;
 
-  if (_pSizeOfFirst_U32)
+  BOF_RAW_CIRCULAR_BUFFER_LOCK(Sts_E);
+  if (Sts_E == BOF_ERR_NO_ERROR)
   {
-    if (IsEmpty())
+    if (_pSizeOfFirst_U32)
     {
-      *_pSizeOfFirst_U32 = 0;
-    }
-    else
-    {
-      if (mpuBufferCollection->Peek(&RawBuffer_X, 0, nullptr, nullptr) == BOF_ERR_NO_ERROR)
+      if (IsEmpty())
       {
-        *_pSizeOfFirst_U32 = RawBuffer_X.Size1_U32 + RawBuffer_X.Size2_U32;
+        *_pSizeOfFirst_U32 = 0;
+      }
+      else
+      {
+        if (mpuBufferCollection->Peek(&RawBuffer_X, 0, nullptr, nullptr) == BOF_ERR_NO_ERROR)
+        {
+          *_pSizeOfFirst_U32 = RawBuffer_X.Size1_U32 + RawBuffer_X.Size2_U32;
+        }
       }
     }
+    Rts_U32 = mpuBufferCollection->GetNbElement();
+    //printf("GetNbElement %p nb %d\n", this, mpuBufferCollection->GetNbElement());
+    BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
   }
-  Rts_U32 = mpuBufferCollection->GetNbElement();
   return Rts_U32;
 }
 
@@ -182,6 +193,7 @@ uint32_t BofRawCircularBuffer::GetNbFreeElement(uint32_t *_pRemainingSize_U32)
     {
       *_pRemainingSize_U32 = mCrtBufferRemain_U32;
     }
+    //printf("GetNbFreeElement %p nb %d\n", this, mpuBufferCollection->GetNbElement());
     BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
   }
   return Rts_U32;
@@ -190,11 +202,17 @@ uint32_t BofRawCircularBuffer::GetNbFreeElement(uint32_t *_pRemainingSize_U32)
 uint32_t BofRawCircularBuffer::GetCapacity(uint32_t *_pTotalSize_U32)
 {
   uint32_t Rts_U32;
+  BOFERR Sts_E;
 
-  Rts_U32 = mpuBufferCollection->GetCapacity();
-  if (_pTotalSize_U32)
+  BOF_RAW_CIRCULAR_BUFFER_LOCK(Sts_E);
+  if (Sts_E == BOF_ERR_NO_ERROR)
   {
-    *_pTotalSize_U32 = mRawCircularBufferParam_X.BufferSizeInByte_U32;
+    Rts_U32 = mpuBufferCollection->GetCapacity();
+    if (_pTotalSize_U32)
+    {
+      *_pTotalSize_U32 = mRawCircularBufferParam_X.BufferSizeInByte_U32;
+    }
+    BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
   }
   return Rts_U32;
 }
@@ -209,11 +227,19 @@ uint32_t BofRawCircularBuffer::GetMaxLevel()
 
 BOFERR BofRawCircularBuffer::SetOverWriteMode(bool _Overwrite_B)
 {
-  mRawCircularBufferParam_X.Overwrite_B = _Overwrite_B;
-  return BOF_ERR_NO_ERROR;
+  BOFERR Rts_E;
+
+  BOF_RAW_CIRCULAR_BUFFER_LOCK(Rts_E);
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    mRawCircularBufferParam_X.Overwrite_B = _Overwrite_B;
+    mpuBufferCollection->SetOverWriteMode(_Overwrite_B);
+    BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
+  }
+  return Rts_E;
 }
 
-BOFERR BofRawCircularBuffer::SetAppendMode(uint32_t _BlockingTimeouItInMs_U32, bool _Append_B)
+BOFERR BofRawCircularBuffer::SetAppendMode(uint32_t _BlockingTimeouItInMs_U32, bool _Append_B, BOF_RAW_BUFFER **_ppStorage_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   // uint8_t pData_U8[8];
@@ -223,7 +249,7 @@ BOFERR BofRawCircularBuffer::SetAppendMode(uint32_t _BlockingTimeouItInMs_U32, b
     // Rts_E = UpdatePushRawBuffer(0, pData_U8);
     // if (Rts_E == BOF_ERR_NO_ERROR)
     {
-      Rts_E = PushRawBuffer(_BlockingTimeouItInMs_U32);
+      Rts_E = PushRawBuffer(_BlockingTimeouItInMs_U32, _ppStorage_X);
     }
   }
   mAppendMode_B = _Append_B;
@@ -260,7 +286,7 @@ BOFERR BofRawCircularBuffer::UnlockRawCircularBuffer()
 }
 
 // Buffer is protected and all param are checked by caller
-BOFERR BofRawCircularBuffer::UpdatePushRawBuffer(uint32_t _Size_U32, const uint8_t *_pData_U8)
+BOFERR BofRawCircularBuffer::UpdatePushRawBuffer(uint32_t _SizeUpToTheEnd_U32, uint32_t _Size_U32, const uint8_t *_pData_U8)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t Nb1_U32, Nb2_U32, Index_U32;
@@ -269,8 +295,26 @@ BOFERR BofRawCircularBuffer::UpdatePushRawBuffer(uint32_t _Size_U32, const uint8
   BOF_ASSERT(mpCrtBufferHead_U8 >= mpData_U8);
   BOF_ASSERT(mpCrtBufferHead_U8 < mpCrtBufferEnd_U8);
   BOF_ASSERT(_Size_U32 <= mCrtBufferRemain_U32);
+
+  if (mRawCircularBufferParam_X.AlwaysContiguous_B)
+  {
+    BOF_ASSERT(mRawBufferToPush_X.Size2_U32 == 0);
+  }
+
   if ((_pData_U8) && (_Size_U32 <= mCrtBufferRemain_U32))
   {
+    if (_SizeUpToTheEnd_U32)
+    {
+      BOF_ASSERT(mRawCircularBufferParam_X.AlwaysContiguous_B);
+      BOF_ASSERT(mRawBufferToPush_X.Size2_U32 == 0);
+      BOF_ASSERT(mRawBufferToPush_X.pData2_U8 == nullptr)
+
+      mRawBufferToPush_X.Reset();
+      // NO mCrtBufferRemain_U32 = mRawCircularBufferParam_X.BufferSizeInByte_U32;
+      mpCrtBufferHead_U8 = mpData_U8;
+      mRawBufferToPush_X.pData1_U8 = mpCrtBufferHead_U8;
+      // printf("UpdatePushRawBuffer CrtBufferRemain %d b1 %03d:%p \n", mCrtBufferRemain_U32, mRawBufferToPush_X.Size1_U32, mRawBufferToPush_X.pData1_U8);
+    }
     if (mRawBufferToPush_X.Size2_U32)
     {
       BOF_ASSERT(mRawBufferToPush_X.IndexInBuffer_U32 + mRawBufferToPush_X.Size2_U32 + _Size_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
@@ -328,11 +372,15 @@ BOFERR BofRawCircularBuffer::UpdatePushRawBuffer(uint32_t _Size_U32, const uint8
     BOF_ASSERT(mpCrtBufferHead_U8 >= mpData_U8);
     BOF_ASSERT(mpCrtBufferHead_U8 < mpCrtBufferEnd_U8);
   }
+  if (mRawCircularBufferParam_X.AlwaysContiguous_B)
+  {
+    BOF_ASSERT(mRawBufferToPush_X.Size2_U32 == 0);
+  }
   return Rts_E;
 }
 
 // Buffer is protected and all param are checked by caller
-BOFERR BofRawCircularBuffer::PushRawBuffer(uint32_t _BlockingTimeouItInMs_U32)
+BOFERR BofRawCircularBuffer::PushRawBuffer(uint32_t _BlockingTimeouItInMs_U32, BOF_RAW_BUFFER **_ppStorage_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t Nb_U32;
@@ -347,7 +395,8 @@ BOFERR BofRawCircularBuffer::PushRawBuffer(uint32_t _BlockingTimeouItInMs_U32)
     mRawBufferToPush_X.SlotEmpySpace_U32 = mSlotSize_U32 - Nb_U32; // For partial read of slot
     BOF_ASSERT(mRawBufferToPush_X.SlotEmpySpace_U32 <= mSlotSize_U32);
   }
-  Rts_E = mpuBufferCollection->Push(&mRawBufferToPush_X, _BlockingTimeouItInMs_U32, nullptr);
+  Rts_E = mpuBufferCollection->Push(&mRawBufferToPush_X, _BlockingTimeouItInMs_U32, nullptr, _ppStorage_X);
+
   BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
@@ -380,12 +429,12 @@ BOFERR BofRawCircularBuffer::PushRawBuffer(uint32_t _BlockingTimeouItInMs_U32)
   return Rts_E;
 }
 
-BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8)
+BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint32_t _Nb_U32, const uint8_t *_pData_U8, BOF_RAW_BUFFER **_ppStorage_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   bool EnoughSpace_B;
-  uint32_t Nb_U32, IndexOf_U32;
-  //char pHeader_c[128];
+  uint32_t Nb_U32, IndexOf_U32, SizeUpToTheEnd_U32, SizeToRecover_U32;
+  // char pHeader_c[128];
   bool IsLocked_B;
   BOF_RAW_BUFFER RawBuffer_X, *pRawBuffer_X;
 
@@ -394,13 +443,15 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint
     BOF_RAW_CIRCULAR_BUFFER_LOCK(Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
-      //sprintf(pHeader_c, "PushBuffer Start: Nb %d ", _Nb_U32);
-      //DBG_RAW_BUFFER_INFO(pHeader_c, &mRawBufferToPush_X);
+      // sprintf(pHeader_c, "PushBuffer Start: Nb %d ", _Nb_U32);
+      // DBG_RAW_BUFFER_INFO(pHeader_c, &mRawBufferToPush_X);
       BOF_ASSERT(mCrtBufferRemain_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
       BOF_ASSERT(mpCrtBufferHead_U8 >= mpData_U8);
       BOF_ASSERT(mpCrtBufferHead_U8 < mpCrtBufferEnd_U8);
 
       EnoughSpace_B = (_Nb_U32 <= mCrtBufferRemain_U32);
+      SizeUpToTheEnd_U32 = 0;
+      pRawBuffer_X = nullptr;
       if (EnoughSpace_B)
       {
         if (mSlotSize_U32)
@@ -416,12 +467,22 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint
         }
         else
         {
-          if (IsFull())  //we have only a limitted amound of entries
+          if (mRawCircularBufferParam_X.AlwaysContiguous_B)
           {
-            EnoughSpace_B = false;
+            SizeUpToTheEnd_U32 = mpCrtBufferEnd_U8 - mpCrtBufferHead_U8;
+            EnoughSpace_B = (_Nb_U32 <= SizeUpToTheEnd_U32);
+            SizeUpToTheEnd_U32 = 0;
+          }
+          else
+          {
+            if (IsFull()) // we have only a limitted amound of entries
+            {
+              EnoughSpace_B = false;
+            }
           }
         }
       }
+
       if ((!EnoughSpace_B) && (!mAppendMode_B) && (mRawCircularBufferParam_X.Overwrite_B))
       {
         if (mSlotSize_U32)
@@ -430,14 +491,24 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint
         }
         else
         {
-          EnoughSpace_B = (_Nb_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
+          if (mRawCircularBufferParam_X.AlwaysContiguous_B)
+          {
+            SizeUpToTheEnd_U32 = mpCrtBufferEnd_U8 - mpCrtBufferHead_U8;
+            EnoughSpace_B = (_Nb_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
+          }
+          else
+          {
+            EnoughSpace_B = (_Nb_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
+          }
         }
         if (EnoughSpace_B)
         {
+          mOverflow_B = true;
           if (mSlotSize_U32)
           {
             // Not BofRawCircularBuffer::Skip
             Rts_E = mpuBufferCollection->Skip(&RawBuffer_X, false, &IndexOf_U32, &pRawBuffer_X, &IsLocked_B); // Remove oldest buffer so we have new storage space
+            BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
             if (Rts_E == BOF_ERR_NO_ERROR)
             {
               mCrtBufferRemain_U32 = mSlotSize_U32;
@@ -445,18 +516,54 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint
           }
           else
           {
-            do
+            // if pop>=push the remaining size to pop cannot be used by push of this one in
+            if (SizeUpToTheEnd_U32)
             {
-              // Not BofRawCircularBuffer::Skip
-              Rts_E = mpuBufferCollection->Skip(&RawBuffer_X, false, &IndexOf_U32, &pRawBuffer_X, &IsLocked_B); // Remove oldest bufferS so we have new storage space
-              if (Rts_E == BOF_ERR_NO_ERROR)
+              if (mpuBufferCollection->IsEmpty())
               {
-                mCrtBufferRemain_U32 += (RawBuffer_X.Size1_U32 + RawBuffer_X.Size2_U32);
+                SizeToRecover_U32 = 0;
+                mOverflow_B = false;
               }
-            } while ((Rts_E == BOF_ERR_NO_ERROR) && (mCrtBufferRemain_U32 < _Nb_U32));
+              // else if (mpuBufferCollection->IsFull())
+              //{
+              //   SizeToRecover_U32 = _Nb_U32;
+              //   SizeUpToTheEnd_U32 = 0;
+              // }
+              else
+              {
+                if (mpCrtBufferHead_U8 == mpData_U8)
+                {
+                  SizeToRecover_U32 = _Nb_U32;
+                }
+                else
+                {
+                  SizeToRecover_U32 = _Nb_U32 + SizeUpToTheEnd_U32;
+                }
+              }
+              // printf("PushBuffer align %d CrtBufferRemain %d SizeToRecover %d nb %d pop %d push %d\n", SizeUpToTheEnd_U32, mCrtBufferRemain_U32, SizeToRecover_U32, _Nb_U32, mpuBufferCollection->GetPopIndex(), mpuBufferCollection->GetPushIndex());
+            }
+            else
+            {
+              SizeToRecover_U32 = _Nb_U32;
+            }
+            BOF_ASSERT(SizeUpToTheEnd_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
+            BOF_ASSERT(SizeToRecover_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
+
+            if (SizeToRecover_U32)
+            {
+              do
+              {
+                // Not BofRawCircularBuffer::Skip
+                Rts_E = mpuBufferCollection->Skip(&RawBuffer_X, false, &IndexOf_U32, &pRawBuffer_X, &IsLocked_B); // Remove oldest bufferS so we have new storage space
+                BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
+                if (Rts_E == BOF_ERR_NO_ERROR)
+                {
+                  mCrtBufferRemain_U32 += (RawBuffer_X.Size1_U32 + RawBuffer_X.Size2_U32);
+                }
+              } while ((Rts_E == BOF_ERR_NO_ERROR) && (mCrtBufferRemain_U32 < SizeToRecover_U32));
+            }
           }
           BOF_ASSERT(mCrtBufferRemain_U32 >= _Nb_U32);
-          mOverflow_B = true;
         }
       }
 
@@ -464,11 +571,11 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint
       {
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
-          Rts_E = UpdatePushRawBuffer(_Nb_U32, _pData_U8);
+          Rts_E = UpdatePushRawBuffer(SizeUpToTheEnd_U32, _Nb_U32, _pData_U8);
           BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
           if (!mAppendMode_B)
           {
-            Rts_E = PushRawBuffer(_BlockingTimeouItInMs_U32);
+            Rts_E = PushRawBuffer(_BlockingTimeouItInMs_U32,&pRawBuffer_X);
           }
         }
       }
@@ -477,11 +584,15 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint
         Rts_E = BOF_ERR_TOO_BIG;
       }
     }
-    //DBG_RAW_BUFFER_INFO("PushBuffer End:", &mRawBufferToPush_X);
+    // DBG_RAW_BUFFER_INFO("PushBuffer End:", &mRawBufferToPush_X);
+    if (_ppStorage_X)
+    {
+      *_ppStorage_X = pRawBuffer_X;
+    }
     BOF_ASSERT(mCrtBufferRemain_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
     BOF_ASSERT(mpCrtBufferHead_U8 >= mpData_U8);
     BOF_ASSERT(mpCrtBufferHead_U8 < mpCrtBufferEnd_U8);
-
+    //printf("PushBuffer %p nb %d\n", this, mpuBufferCollection->GetNbElement());
     BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
   }
   return Rts_E;
@@ -493,7 +604,7 @@ BOFERR BofRawCircularBuffer::PopOrPeekBuffer(bool _Pop_B, uint32_t _BlockingTime
   uint32_t Size_U32, NbToRead_U32, NbRead_U32, IndexOf_U32;
   BOF_RAW_BUFFER RawBuffer_X, *pRawBuffer_X;
   bool IsLocked_B, PartialRead_B;
-  //char pHeader_c[128];
+  // char pHeader_c[128];
 
   if (_pNbMax_U32)
   {
@@ -507,14 +618,14 @@ BOFERR BofRawCircularBuffer::PopOrPeekBuffer(bool _Pop_B, uint32_t _BlockingTime
         BOF_ASSERT(mpCrtBufferHead_U8 >= mpData_U8);
         BOF_ASSERT(mpCrtBufferHead_U8 < mpCrtBufferEnd_U8);
 
-        if (!IsEmpty())
+        //if (!IsEmpty())
         {
           Rts_E = mpuBufferCollection->Peek(&RawBuffer_X, _BlockingTimeouItInMs_U32, nullptr, &pRawBuffer_X);
-          BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
+          //BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
-            //sprintf(pHeader_c, _Pop_B ? "PopBuffer  Start: Nb %d " : "PeekBuffer Start: Nb %d ", *_pNbMax_U32);
-            //DBG_RAW_BUFFER_INFO(pHeader_c, pRawBuffer_X);
+            // sprintf(pHeader_c, _Pop_B ? "PopBuffer  Start: Nb %d " : "PeekBuffer Start: Nb %d ", *_pNbMax_U32);
+            // DBG_RAW_BUFFER_INFO(pHeader_c, pRawBuffer_X);
 
             NbToRead_U32 = RawBuffer_X.Size1_U32 + RawBuffer_X.Size2_U32;
             PartialRead_B = false;
@@ -572,17 +683,19 @@ BOFERR BofRawCircularBuffer::PopOrPeekBuffer(bool _Pop_B, uint32_t _BlockingTime
                 // NO !!                  mpCrtBufferHead_U8 += NbRead_U32;
               }
             }
-            //DBG_RAW_BUFFER_INFO(_Pop_B ? "PopBuffer  End:" : "PeekBuffer End:", pRawBuffer_X);
+            // DBG_RAW_BUFFER_INFO(_Pop_B ? "PopBuffer  End:" : "PeekBuffer End:", pRawBuffer_X);
           }
         }
+        /*
         else
         {
           Rts_E = BOF_ERR_EMPTY;
         }
+        */
         BOF_ASSERT(mCrtBufferRemain_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
         BOF_ASSERT(mpCrtBufferHead_U8 >= mpData_U8);
         BOF_ASSERT(mpCrtBufferHead_U8 < mpCrtBufferEnd_U8);
-
+        //printf("PopOrPeekBuffer %p nb %d\n", this, mpuBufferCollection->GetNbElement());
         BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
       } // if (Rts_E == BOF_ERR_NO_ERROR)
     }   // if (_pData_U8)
@@ -618,10 +731,10 @@ BOFERR BofRawCircularBuffer::GetBufferPtr(uint32_t _BlockingTimeouItInMs_U32, ui
     BOF_RAW_CIRCULAR_BUFFER_LOCK(Rts_E);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
-      if (!IsEmpty())
+      //if (!IsEmpty())
       {
         Rts_E = mpuBufferCollection->Peek(&RawBuffer_X, _BlockingTimeouItInMs_U32, nullptr, &pRawBuffer_X);
-        BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
+        //BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
           *_pNb1_U32 = RawBuffer_X.Size1_U32;
@@ -630,10 +743,11 @@ BOFERR BofRawCircularBuffer::GetBufferPtr(uint32_t _BlockingTimeouItInMs_U32, ui
           *_ppData2_U8 = RawBuffer_X.pData2_U8;
         }
       }
-      else
-      {
-        //no as we want to return mpData_U8 as container's base pointer Rts_E = BOF_ERR_EMPTY;
-      }
+      //else
+      //{
+      // no as we want to return mpData_U8 as container's base pointer Rts_E = BOF_ERR_EMPTY;
+      //}
+      //printf("GetBufferPtr %p nb %d\n", this, mpuBufferCollection->GetNbElement());
       BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
     }
   }
@@ -643,13 +757,17 @@ BOFERR BofRawCircularBuffer::GetBufferPtr(uint32_t _BlockingTimeouItInMs_U32, ui
 BOFERR BofRawCircularBuffer::Skip(bool _SignalIfNeeded_B, bool *_pLocked_B)
 {
   BOFERR Rts_E;
-  uint32_t IndexOf_U32;
+  uint32_t IndexOf_U32; // , Nb_U32, SizeOfFirst_U32;
   BOF_RAW_BUFFER RawBuffer_X, *pRawBuffer_X;
 
   BOF_RAW_CIRCULAR_BUFFER_LOCK(Rts_E);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
+    // Nb_U32 = mpuBufferCollection->GetNbElement();
+    // printf("skip nb before %d\n", Nb_U32);
     Rts_E = mpuBufferCollection->Skip(&RawBuffer_X, _SignalIfNeeded_B, &IndexOf_U32, &pRawBuffer_X, _pLocked_B);
+    // Nb_U32 = mpuBufferCollection->GetNbElement();
+    // printf("skip rts %d ptr %p nb %d\n", Rts_E, mpuBufferCollection.get(), Nb_U32);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       mCrtBufferRemain_U32 += (RawBuffer_X.Size1_U32 + RawBuffer_X.Size2_U32);
@@ -659,6 +777,7 @@ BOFERR BofRawCircularBuffer::Skip(bool _SignalIfNeeded_B, bool *_pLocked_B)
       }
       BOF_ASSERT(mCrtBufferRemain_U32 <= mRawCircularBufferParam_X.BufferSizeInByte_U32);
     }
+    //printf("Skip %p nb %d\n", this, mpuBufferCollection->GetNbElement());
     BOF_RAW_CIRCULAR_BUFFER_UNLOCK();
   }
   return Rts_E;

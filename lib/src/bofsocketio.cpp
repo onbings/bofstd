@@ -344,7 +344,7 @@ BOFERR BofSocketIo::Write(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, uint32_t
         SocketWriteParam_X.Nb_U32 = _rNb_U32;
         SocketWriteParam_X.pBuffer_U8 = _pBuffer_U8;
         SocketWriteParam_X.pWriteContext = _pWriteContext;
-        Rts_E = mpAsyncWriteRequestCollection->Push(&SocketWriteParam_X, 0, nullptr);
+        Rts_E = mpAsyncWriteRequestCollection->Push(&SocketWriteParam_X, 0, nullptr, nullptr);
       }
     }
     else
@@ -426,7 +426,7 @@ BOFERR BofSocketIo::ParseAndDispatchIncomingData(uint32_t _IoTimeoutInMs_U32)
                     NbByteInDelimitedPacket_U32 = i_U32 - mDelimiterStartIndex_U32 + 1;
                     BOF_ASSERT(NbByteInDelimitedPacket_U32 <= mSocketIoParam_X.NotifyRcvBufferSize_U32);
                     Reply_S = std::string(reinterpret_cast<char *>(&mpDataBuffer_U8[mDelimiterStartIndex_U32]), NbByteInDelimitedPacket_U32);
-                    mpReplyCollection->Push(&Reply_S, 0, nullptr);
+                    mpReplyCollection->Push(&Reply_S, 0, nullptr, nullptr);
 
                     /*Sts_E =*/V_SignalDataRead(NbByteInDelimitedPacket_U32, &mpDataBuffer_U8[mDelimiterStartIndex_U32]);
                     StartIndex_U32 = i_U32 + 1;
@@ -445,7 +445,7 @@ BOFERR BofSocketIo::ParseAndDispatchIncomingData(uint32_t _IoTimeoutInMs_U32)
                 if (mDelimiterStartIndex_U32 == 0)
                 {
                   Reply_S = std::string(reinterpret_cast<char *>(mpDataBuffer_U8), mSocketIoParam_X.NotifyRcvBufferSize_U32);
-                  mpReplyCollection->Push(&Reply_S, 0, nullptr);
+                  mpReplyCollection->Push(&Reply_S, 0, nullptr, nullptr);
                   /*Sts_E =*/NotifyPendingData();
                 }
                 else

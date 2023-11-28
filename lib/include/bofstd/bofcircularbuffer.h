@@ -118,8 +118,10 @@ public:
   uint32_t GetMaxLevel() const;
   bool IsBufferOverflow();
   void Reset();
+  uint32_t GetPushIndex();
+  uint32_t GetPopIndex();
   DataType *GetInternalDataBuffer() const;
-  BOFERR Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32);
+  BOFERR Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage_X);
   BOFERR PushForNextPop(const DataType *_pData, bool _ForceIfFull_B, uint32_t _BlockingTimeouItInMs_U32);           // Old InsertAsFirst
   BOFERR Pop(DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage); //_ppStorage is mainly used in mCircularBufferParam_X.PopLockMode_B to provide write access to the locked storage cell
   BOFERR PopLastPush(DataType *_pData, uint32_t *_pIndexOf_U32, DataType **_ppStorage);
@@ -150,11 +152,11 @@ BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &
 
   if (mCircularBufferParam_X.NbMaxElement_U32)
   {
-    if (mCircularBufferParam_X.Blocking_B)
-    {
-      mErrorCode_E = (_rCircularBufferParam_X.MultiThreadAware_B) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_MODE;
-    }
-    else
+    //if (mCircularBufferParam_X.Blocking_B)
+    //{
+    //  mErrorCode_E = (_rCircularBufferParam_X.MultiThreadAware_B) ? BOF_ERR_NO_ERROR : BOF_ERR_WRONG_MODE;
+    //}
+    //else
     {
       mErrorCode_E = BOF_ERR_NO_ERROR;
     }
@@ -209,6 +211,10 @@ BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &
   else
   {
     mErrorCode_E = BOF_ERR_EINVAL;
+  }
+  if (mpLock_U8 == nullptr)
+  {
+    printf("jj");
   }
 }
 
@@ -320,7 +326,16 @@ bool BofCircularBuffer<DataType>::IsBufferOverflow()
   mOverflow_B = false;
   return Rts_B;
 }
-
+template <typename DataType>
+uint32_t BofCircularBuffer<DataType>::GetPushIndex()
+{
+  return mPushIndex_U32;
+}
+template <typename DataType>
+uint32_t BofCircularBuffer<DataType>::GetPopIndex()
+{
+  return mPopIndex_U32;
+}
 template <typename DataType>
 void BofCircularBuffer<DataType>::Reset()
 {
@@ -349,9 +364,13 @@ DataType *BofCircularBuffer<DataType>::GetInternalDataBuffer() const
 }
 
 template <typename DataType>
-BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32)
+BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
+  if (mpLock_U8 == nullptr)
+  {
+    printf("jj");
+  }
 
   if (_pData)
   {
@@ -373,6 +392,10 @@ BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _Block
             if (_pIndexOf_U32)
             {
               *_pIndexOf_U32 = mPushIndex_U32;
+            }
+            if (_ppStorage_X)
+            {
+              *_ppStorage_X = &mpData_T[mPushIndex_U32];
             }
             mpData_T[mPushIndex_U32] = *_pData;
             BOF_ASSERT(mPushIndex_U32 < mCircularBufferParam_X.NbMaxElement_U32);
@@ -739,7 +762,6 @@ BOFERR BofCircularBuffer<DataType>::Peek(DataType *_pData, uint32_t _BlockingTim
         else
         {
           Rts_E = BOF_ERR_LOCK;
-          ;
         }
       }
       else

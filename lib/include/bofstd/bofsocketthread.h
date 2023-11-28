@@ -194,14 +194,16 @@ struct BOF_SOCKET_OPERATION_PARAM
   uint32_t Ticket_U32;
   uint32_t TimeOut_U32;
   uint32_t Timer_U32; /*! The associated timer */
-                      // Using an union create problem: warning C4624: 'onbings::bof::BOF_SOCKET_OPERATION_PARAM': destructor was implicitly defined as deleted
-  // So I inline them
-  BOF_SOCKET_EXIT_PARAM Exit_X;       /*! The exit operation params */
-  BOF_SOCKET_LISTEN_PARAM Listen_X;   /*! The listen operation params */
-  BOF_SOCKET_CONNECT_PARAM Connect_X; /*! The connect operation params */
-  BOF_SOCKET_READ_PARAM Read_X;       /*! The read operation params */
-  BOF_SOCKET_WRITE_PARAM Write_X;     /*! The write operation params */
-  BOF_SOCKET_DISCONNECT_PARAM Disconnect_X;
+  union _OpParam
+  {
+    _OpParam()    {}
+    BOF_SOCKET_EXIT_PARAM Exit_X;       /*! The exit operation params */
+    BOF_SOCKET_LISTEN_PARAM Listen_X;   /*! The listen operation params */
+    BOF_SOCKET_CONNECT_PARAM Connect_X; /*! The connect operation params */
+    BOF_SOCKET_READ_PARAM Read_X;       /*! The read operation params */
+    BOF_SOCKET_WRITE_PARAM Write_X;     /*! The write operation params */
+    BOF_SOCKET_DISCONNECT_PARAM Disconnect_X;
+  } OpParam;
   BOF_SOCKET_OPERATION_PARAM()
   {
     Reset();
@@ -212,11 +214,6 @@ struct BOF_SOCKET_OPERATION_PARAM
     Ticket_U32 = 0;
     TimeOut_U32 = 0;
     Timer_U32 = 0;
-    Listen_X.Reset();
-    Connect_X.Reset();
-    Read_X.Reset();
-    Write_X.Reset();
-    Disconnect_X.Reset();
   }
 };
 
