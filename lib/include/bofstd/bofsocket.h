@@ -184,7 +184,8 @@ public:
 
   BOFERR DisableNagle();
 
-  BOFERR SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _SndBufferSize_U32);
+  static BOFERR S_SetSocketBufferSize(BOFSOCKET _Socket, uint32_t &_rRcvBufferSize_U32, uint32_t &_rSndBufferSize_U32);
+  BOFERR SetSocketBufferSize(uint32_t &_rRcvBufferSize_U32, uint32_t &_rSndBufferSize_U32);
 
   BOFERR SetDstIpAddress(BOF_SOCKET_ADDRESS &_rDstIpAddress_X);
 

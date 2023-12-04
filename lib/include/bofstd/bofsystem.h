@@ -173,6 +173,10 @@ struct BOF_BUFFER
   }
   void Reset()
   {
+    if (pData_U8)
+    {
+      //printf("WARNING: Resetting an 'active' BOF_BUFFER\n");
+    }
     ReleaseStorage();
     std::lock_guard<std::mutex> Lock(Mtx);
     Deleter_E = BOF_BUFFER_DELETER_NONE;
@@ -306,7 +310,21 @@ struct BOF_BUFFER
     }
     return pRts_U8;
   }
+  bool Memset(const uint8_t _Val_U8, uint64_t _Size_U64, uint64_t _Offset_U64)
+  {
+    bool Rts_B = false;
 
+    std::lock_guard<std::mutex> Lock(Mtx);
+    if (IsValid()) 
+    {
+      if ((_Offset_U64 < Capacity_U64) && ((_Size_U64 + _Offset_U64) < Capacity_U64))
+      {
+        memset(&pData_U8[_Offset_U64], _Val_U8, _Size_U64);
+        Rts_B = true;
+      }
+    }
+    return Rts_B;
+  }
   bool IsValid()
   {
     bool Rts_B = false;

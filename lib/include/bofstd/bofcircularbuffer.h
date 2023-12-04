@@ -212,10 +212,6 @@ BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &
   {
     mErrorCode_E = BOF_ERR_EINVAL;
   }
-  if (mpLock_U8 == nullptr)
-  {
-    printf("jj");
-  }
 }
 
 template <typename DataType>
@@ -367,10 +363,6 @@ template <typename DataType>
 BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  if (mpLock_U8 == nullptr)
-  {
-    printf("jj");
-  }
 
   if (_pData)
   {

@@ -90,10 +90,6 @@ BofRawCircularBuffer::BofRawCircularBuffer(const BOF_RAW_CIRCULAR_BUFFER_PARAM &
       }
     }
   }
-  if (mpCrtBufferEnd_U8 == nullptr)
-  {
-    printf("jj");
-  }
 }
 
 BofRawCircularBuffer::~BofRawCircularBuffer()

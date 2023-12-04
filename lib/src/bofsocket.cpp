@@ -742,64 +742,96 @@ bool BofSocket::IsBlocking()
  * Remarks
  * By default Udp socket are limitted to 8 KB
  */
-BOFERR BofSocket::SetSocketBufferSize(uint32_t _RcvBufferSize_U32, uint32_t _SndBufferSize_U32)
+BOFERR BofSocket::S_SetSocketBufferSize(BOFSOCKET _Socket, uint32_t &_rRcvBufferSize_U32, uint32_t &_rSndBufferSize_U32)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   uint32_t Val_U32;
   socklen_t Len_i;
   int Sts_i;
 
-  if (_RcvBufferSize_U32)
+  if (_rRcvBufferSize_U32)
   {
     Len_i = sizeof(uint32_t);
-    Val_U32 = _RcvBufferSize_U32;
+    Val_U32 = _rRcvBufferSize_U32;
 
     // Sets the maximum socket receive buffer in bytes. The kernel double this
     // value when it is set using setsockopt(2), and this doubled value is
     // returned by the /proc/sys/net/core/rmem_default file, and the maximum
     // allowed value is set by the /proc/sys/net/core/rmem_max file. The minimum
     // (doubled) value for this option is 256.
-    Sts_i = setsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, Len_i);
+    Sts_i = setsockopt(_Socket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, Len_i);
     if (Sts_i)
     {
       Rts_E = BOF_ERR_TOO_BIG;
     }
     else
     {
-      Sts_i = getsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, &Len_i);
-      if ((Sts_i) || (Val_U32 < _RcvBufferSize_U32))
+      Sts_i = getsockopt(_Socket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, &Len_i);
+      if ((Sts_i) || (Val_U32 < _rRcvBufferSize_U32))
       {
         Rts_E = BOF_ERR_OUT_OF_RANGE;
       }
     }
   }
-
-  if ((Rts_E == BOF_ERR_NO_ERROR) && (_SndBufferSize_U32))
+  else
   {
     Len_i = sizeof(uint32_t);
-    Val_U32 = _SndBufferSize_U32;
-
-    // Sets the maximum socket send buffer in bytes. The kernel double this
-    // value when it is set using setsockopt(2), and this doubled value is
-    // returned by the /proc/sys/net/core/wmem_default file, and the maximum
-    // allowed value is set by the /proc/sys/net/core/wmem_max file. The minimum
-    // (doubled) value for this option is 2048.
-    Sts_i = setsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, Len_i);
+    Sts_i = getsockopt(_Socket, SOL_SOCKET, SO_RCVBUF, (char *)&Val_U32, &Len_i);
     if (Sts_i)
     {
-      Rts_E = BOF_ERR_TOO_BIG;
+      Rts_E = BOF_ERR_OPERATION_FAILED;
     }
     else
     {
-      Sts_i = getsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, &Len_i);
-      if ((Sts_i) || (Val_U32 < _SndBufferSize_U32))
+      _rRcvBufferSize_U32 = Val_U32;
+    }
+  }
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    if (_rSndBufferSize_U32)
+    {
+      Len_i = sizeof(uint32_t);
+      Val_U32 = _rSndBufferSize_U32;
+
+      // Sets the maximum socket send buffer in bytes. The kernel double this
+      // value when it is set using setsockopt(2), and this doubled value is
+      // returned by the /proc/sys/net/core/wmem_default file, and the maximum
+      // allowed value is set by the /proc/sys/net/core/wmem_max file. The minimum
+      // (doubled) value for this option is 2048.
+      Sts_i = setsockopt(_Socket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, Len_i);
+      if (Sts_i)
       {
-        Rts_E = BOF_ERR_OUT_OF_RANGE;
+        Rts_E = BOF_ERR_TOO_BIG;
+      }
+      else
+      {
+        Sts_i = getsockopt(_Socket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, &Len_i);
+        if ((Sts_i) || (Val_U32 < _rSndBufferSize_U32))
+        {
+          Rts_E = BOF_ERR_OUT_OF_RANGE;
+        }
+      }
+    }
+    else
+    {
+      Len_i = sizeof(uint32_t);
+      Sts_i = getsockopt(_Socket, SOL_SOCKET, SO_SNDBUF, (char *)&Val_U32, &Len_i);
+      if (Sts_i)
+      {
+        Rts_E = BOF_ERR_OPERATION_FAILED;
+      }
+      else
+      {
+        _rSndBufferSize_U32 = Val_U32;
       }
     }
   }
 
   return Rts_E;
+}
+BOFERR BofSocket::SetSocketBufferSize(uint32_t &_rRcvBufferSize_U32, uint32_t &_rSndBufferSize_U32)
+{
+  return BofSocket::S_SetSocketBufferSize(mSocket, _rRcvBufferSize_U32, _rSndBufferSize_U32);
 }
 
 BOFERR BofSocket::DisableNagle()
