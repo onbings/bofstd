@@ -249,7 +249,7 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
   bool InsertInStdVector_B = false, ShortOpt_B, LastArrayArg_B, ContinueIfError_B;
   void *pValue;
   // BOF_PROTOCOL_TYPE ProtocolType_E = BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UNKNOWN;
-  BOF_SIZE Size_X;
+  BOF_SIZE<uint32_t> Size_X;
   int Width_i, Height_i;
   BofGuid Guid;
   BofPath Path;
@@ -590,8 +590,8 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
           case BOFPARAMETER_ARG_TYPE::SIZE2D:
             if (sscanf(pTheOptVal_c, "%dx%d", &Width_i, &Height_i) == 2)
             {
-              Size_X.Width_U32 = static_cast<uint32_t>(Width_i);
-              Size_X.Height_U32 = static_cast<uint32_t>(Height_i);
+              Size_X.Width = static_cast<uint32_t>(Width_i);
+              Size_X.Height = static_cast<uint32_t>(Height_i);
               Rts_E = BOF_ERR_NO_ERROR;
             }
             break;
@@ -1008,13 +1008,13 @@ BOFERR BofParameter::S_Parse(uint32_t _Index_U32, const BOFPARAMETER _rBofParame
               case BOFPARAMETER_ARG_TYPE::SIZE2D:
                 if (InsertInStdVector_B)
                 {
-                  std::vector<BOF_SIZE> *pVectorSize;
-                  pVectorSize = reinterpret_cast<std::vector<BOF_SIZE> *>(pValue);
+                  std::vector<BOF_SIZE<uint32_t>> *pVectorSize;
+                  pVectorSize = reinterpret_cast<std::vector<BOF_SIZE<uint32_t>> *>(pValue);
                   pVectorSize->push_back(Size_X);
                 }
                 else
                 {
-                  *static_cast<BOF_SIZE *>(pValue) = Size_X;
+                  *static_cast<BOF_SIZE<uint32_t> *>(pValue) = Size_X;
                 }
                 break;
               default:
@@ -2032,11 +2032,11 @@ const char *BofParameter::S_ParameterToString(uint32_t _Index_U32, const BOFPARA
 
         case BOFPARAMETER_ARG_TYPE::SIZE2D:
           {
-            BOF_SIZE Size_X;
+            BOF_SIZE<uint32_t> Size_X;
             if (GetFromStdVector_B)
             {
-              std::vector<BOF_SIZE> *pVectorSize;
-              pVectorSize = reinterpret_cast<std::vector<BOF_SIZE> *>(pValue);
+              std::vector<BOF_SIZE<uint32_t>> *pVectorSize;
+              pVectorSize = reinterpret_cast<std::vector<BOF_SIZE<uint32_t>> *>(pValue);
               _rVectorCapacity_U32 = static_cast<uint32_t>(pVectorSize->size());
               if (_Index_U32 < _rVectorCapacity_U32)
               {
@@ -2049,11 +2049,11 @@ const char *BofParameter::S_ParameterToString(uint32_t _Index_U32, const BOFPARA
             }
             else
             {
-              Size_X = *static_cast<BOF_SIZE *>(pValue);
+              Size_X = *static_cast<BOF_SIZE<uint32_t> *>(pValue);
             }
             if (pRts_c)
             {
-              snprintf(_pToString_c, _MaxSize_U32, "%dx%d", Size_X.Width_U32, Size_X.Height_U32);
+              snprintf(_pToString_c, _MaxSize_U32, "%dx%d", Size_X.Width, Size_X.Height);
             }
             break;
           }

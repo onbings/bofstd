@@ -842,21 +842,21 @@ BOFERR BofConio::SetBackgroundTextColor(CONIO_TEXT_COLOR _BackgroundColor_E)
   return Rts_E;
 }
 
-BOFERR BofConio::SetForegroundTextColor(BOF_RGBA _ForegroundColor_X)
+BOFERR BofConio::SetForegroundTextColor(BOF_RGBA<uint8_t> _ForegroundColor_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   char pAttribute_c[64];
 
-  sprintf(pAttribute_c, "\x1b[38;2;%d;%d;%dm", _ForegroundColor_X.r_U8, _ForegroundColor_X.g_U8, _ForegroundColor_X.b_U8);
+  sprintf(pAttribute_c, "\x1b[38;2;%d;%d;%dm", _ForegroundColor_X.r, _ForegroundColor_X.g, _ForegroundColor_X.b);
   printf("%s", pAttribute_c);
   return Rts_E;
 }
-BOFERR BofConio::SetBackgroundTextColor(BOF_RGBA _BackgroundColor_X)
+BOFERR BofConio::SetBackgroundTextColor(BOF_RGBA<uint8_t> _BackgroundColor_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   char pAttribute_c[64];
 
-  sprintf(pAttribute_c, "\x1b[48;2;%d;%d;%dm", _BackgroundColor_X.r_U8, _BackgroundColor_X.g_U8, _BackgroundColor_X.b_U8);
+  sprintf(pAttribute_c, "\x1b[48;2;%d;%d;%dm", _BackgroundColor_X.r, _BackgroundColor_X.g, _BackgroundColor_X.b);
   printf("%s", pAttribute_c);
   return Rts_E;
 }

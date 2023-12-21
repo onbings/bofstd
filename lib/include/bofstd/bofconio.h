@@ -183,8 +183,8 @@ public:
   BOFERR SetTextAttribute(uint32_t _TextAttributeFlag_U32); // Use CONIO_TEXT_ATTRIBUTE_FLAG enum ored value
   BOFERR SetForegroundTextColor(CONIO_TEXT_COLOR _ForegroundColor_E);
   BOFERR SetBackgroundTextColor(CONIO_TEXT_COLOR _BackgroundColor_E);
-  BOFERR SetForegroundTextColor(BOF_RGBA _ForegroundColor_E);
-  BOFERR SetBackgroundTextColor(BOF_RGBA _BackgroundColor_X);
+  BOFERR SetForegroundTextColor(BOF_RGBA<uint8_t> _ForegroundColor_E);
+  BOFERR SetBackgroundTextColor(BOF_RGBA<uint8_t> _BackgroundColor_X);
 
   BOFERR SetTextCursorState(CONIO_TEXT_CURSOR_STATE _CursorState_E);
   BOFERR SetTextCursorPosition(uint32_t _x_U32, uint32_t _y_U32);

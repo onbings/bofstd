@@ -34,7 +34,7 @@ TEST(ConIo_Test, Output)
 {
   int i, j;
   uint32_t Color_U32, X_U32, Y_U32;
-  BOF_RGBA ForeColor_X, BackColor_X;
+  BOF_RGBA<uint8_t> ForeColor_X, BackColor_X;
 
   BOF_CONIO_PARAM BofConioParam_X;
   std::unique_ptr<BofConio> puBofConio;
@@ -99,16 +99,16 @@ TEST(ConIo_Test, Output)
   }
 
   puBofConio->SetTextAttribute(CONIO_TEXT_ATTRIBUTE_FLAG_NORMAL);
-  for (ForeColor_X.r_U8 = 0; ForeColor_X.r_U8 < 250; ForeColor_X.r_U8 = static_cast<uint8_t>(ForeColor_X.r_U8 + 50))
+  for (ForeColor_X.r = 0; ForeColor_X.r < 250; ForeColor_X.r = static_cast<uint8_t>(ForeColor_X.r + 50))
   {
-    BackColor_X.r_U8 = static_cast<uint8_t>(255 - ForeColor_X.r_U8);
-    for (ForeColor_X.g_U8 = 0; ForeColor_X.g_U8 < 250; ForeColor_X.g_U8 = static_cast<uint8_t>(ForeColor_X.g_U8 + 50))
+    BackColor_X.r = static_cast<uint8_t>(255 - ForeColor_X.r);
+    for (ForeColor_X.g = 0; ForeColor_X.g < 250; ForeColor_X.g = static_cast<uint8_t>(ForeColor_X.g + 50))
     {
-      BackColor_X.g_U8 = static_cast<uint8_t>(255 - ForeColor_X.g_U8);
-      for (ForeColor_X.b_U8 = 0; ForeColor_X.b_U8 < 250; ForeColor_X.b_U8 = static_cast<uint8_t>(ForeColor_X.b_U8 + 50))
+      BackColor_X.g = static_cast<uint8_t>(255 - ForeColor_X.g);
+      for (ForeColor_X.b = 0; ForeColor_X.b < 250; ForeColor_X.b = static_cast<uint8_t>(ForeColor_X.b + 50))
       {
-        BackColor_X.b_U8 = static_cast<uint8_t>(255 - ForeColor_X.b_U8);
-        Color_U32 = (static_cast<uint32_t>(ForeColor_X.b_U8) + (static_cast<uint32_t>(ForeColor_X.g_U8) << 8) + (static_cast<uint32_t>(ForeColor_X.r_U8) << 16));
+        BackColor_X.b = static_cast<uint8_t>(255 - ForeColor_X.b);
+        Color_U32 = (static_cast<uint32_t>(ForeColor_X.b) + (static_cast<uint32_t>(ForeColor_X.g) << 8) + (static_cast<uint32_t>(ForeColor_X.r) << 16));
         puBofConio->SetForegroundTextColor(ForeColor_X);
         puBofConio->SetBackgroundTextColor(BackColor_X);
         puBofConio->Printf("%08X ", Color_U32);

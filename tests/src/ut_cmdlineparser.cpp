@@ -120,7 +120,7 @@ struct CLI_APPPARAM
   BofVideoStandard Vs;
   BofAudioStandard As;
   BofTimecode Tc;
-  BOF_SIZE Size_X;
+  BOF_SIZE<uint32_t> Size_X;
 
   CLI_APPPARAM()
   {
@@ -591,8 +591,8 @@ TEST_F(CmdLineParser_Test, CmdLine)
   EXPECT_STREQ(S_AppParam_X.Vs.ToString().c_str(), "1920x1080@59.94i");
   EXPECT_STREQ(S_AppParam_X.As.ToString().c_str(), "16xS24L32@48000");
   EXPECT_STREQ(S_AppParam_X.Tc.ToString(true).c_str(), "1977-07-16 01:02:03:04  @1001/60");
-  EXPECT_EQ(S_AppParam_X.Size_X.Width_U32, 123);
-  EXPECT_EQ(S_AppParam_X.Size_X.Height_U32, 456);
+  EXPECT_EQ(S_AppParam_X.Size_X.Width, 123);
+  EXPECT_EQ(S_AppParam_X.Size_X.Height, 456);
 
   /*
 

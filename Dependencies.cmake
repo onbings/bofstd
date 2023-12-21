@@ -27,7 +27,6 @@ endif()
 # ===========================
 # == REQUIRED DEPENDENCIES ==
 # ===========================
-
 if(NOT TARGET jsoncpp_object)
   find_package_dependency(jsoncpp REQUIRED)
 
@@ -45,5 +44,4 @@ endif()
 find_package_dependency(spdlog REQUIRED)
 find_package_dependency(fmt REQUIRED)
 find_package_dependency(date REQUIRED)
-
 

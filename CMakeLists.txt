@@ -10,8 +10,10 @@
 # Revision:		5.0
 # 
 # History:		05 June 2004: BHA: Initial version 
+#compile with emscripten: https://thatonegamedev.com/cpp/programming-a-c-game-for-the-web-emscripten/
+#emcmake cmake -S C:/pro/github/bofstd -D__EMSCRIPTEN__=1 -B C:/bld/bofstd-web -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten
 
-#cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-md -DVCPKG_HOST_TRIPLET=x64-windows-static-md -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=C:/pro/github/onbings-vcpkg-registry/ports -DCMAKE_INSTALL_PREFIX=C:\tmp\bofstd -B C:/bld/bofstd -S C:/pro/github/bofstd
+#cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_HOST_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=C:/pro/github/onbings-vcpkg-registry/ports -DCMAKE_INSTALL_PREFIX=C:\tmp\bofstd -B C:/bld/bofstd -S C:/pro/github/bofstd
 #cmake --build .  --config Release -- -j 16
 #cmake --install . --config Debug
 cmake_minimum_required(VERSION 3.25)

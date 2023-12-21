@@ -76,61 +76,224 @@ struct BOFSTDPARAM
     Version_S = "";
   }
 };
-
-/*!
- * Summary
- * Definition of a color in the RGBA color space
- */
+template <typename T> // Can be uint8_t or float
 struct BOF_RGBA
 {
-  uint8_t r_U8; /*! Color R component(Red)*/
-  uint8_t g_U8; /*! Color G component(Greeen)*/
-  uint8_t b_U8; /*! Color B component(Blue)*/
-  uint8_t a_U8; /*! Color alpha component(Opacity)*/
+  T r; /*! Color R component(Red)*/
+  T g; /*! Color G component(Greeen)*/
+  T b; /*! Color B component(Blue)*/
+  T a; /*! Color alpha component(Opacity)*/
   BOF_RGBA()
   {
     Reset();
   }
 
-  BOF_RGBA(uint8_t _r_U8, uint8_t _g_U8, uint8_t _b_U8, uint8_t _a_U8)
+  BOF_RGBA(T _r, T _g, T _b, T _a)
   {
-    r_U8 = _r_U8;
-    g_U8 = _g_U8;
-    b_U8 = _b_U8;
-    a_U8 = _a_U8;
+    r = _r;
+    g = _g;
+    b = _b;
+    a = _a;
   }
 
   void Reset()
   {
-    r_U8 = 0;
-    g_U8 = 0;
-    b_U8 = 0;
-    a_U8 = 0;
+    r = 0;
+    g = 0;
+    b = 0;
+    a = 0;
   }
 };
-/*!
- * Summary
- * Definition of a size entity
- */
+template <typename T>
+struct BOF_YUVA
+{
+  T y; /*! Color Y component(Luminance)*/
+  T u; /*! Color U component(Chrominance)*/
+  T v; /*! Color V component(Chrominance)*/
+  T a; /*! Color alpha component(Opacity)*/
+  BOF_YUVA()
+  {
+    Reset();
+  }
+
+  BOF_YUVA(T _y, T _u, T _v, T _a)
+  {
+    y = _y;
+    u = _u;
+    v = _v;
+    a = _a;
+  }
+
+  void Reset()
+  {
+    y = 0;
+    u = 0;
+    v = 0;
+    a = 0;
+  }
+};
+
+template <typename T>
 struct BOF_SIZE
 {
-  uint32_t Width_U32;  /*! Width value*/
-  uint32_t Height_U32; /*! Height value*/
+  T Width;  /*! Width value*/
+  T Height; /*! Height value*/
   BOF_SIZE()
   {
     Reset();
   }
 
-  BOF_SIZE(uint32_t _Width_U32, uint32_t _Height_U32)
+  BOF_SIZE(T _Width, T _Height)
   {
-    Width_U32 = _Width_U32;
-    Height_U32 = _Height_U32;
+    Width = _Width;
+    Height = _Height;
   }
 
   void Reset()
   {
-    Width_U32 = 0;
-    Height_U32 = 0;
+    Width = 0;
+    Height = 0;
+  }
+};
+template <typename T>
+struct BOF_RECT;
+
+template <typename T>
+struct BOF_POINT_2D
+{
+  T x; /*! Point x coordinate*/
+  T y; /*! Point y coordinate*/
+  BOF_POINT_2D()
+  {
+    Reset();
+  }
+
+  BOF_POINT_2D(T _x, T _y)
+  {
+    x = _x;
+    y = _y;
+  }
+
+  void Reset()
+  {
+    x = 0;
+    y = 0;
+  }
+
+  bool IsInside(const BOF_RECT<T> &_rBox) const
+  {
+    return ((x >= _rBox.Left) && (x <= _rBox.Right) && (y >= _rBox.Top) && (y <= _rBox.Bottom));
+  }
+};
+
+template <typename T>
+struct BOF_RECT
+{
+  T Left;   /*! Rectangle zone left x position*/
+  T Right;  /*! Rectangle zone right x position outside of rect: Width_U32  = (_rRect_X.Right_S32 - _rRect_X.Left_S32)*/
+  T Top;    /*! Rectangle zone top y position*/
+  T Bottom; /*! Rectangle zone bottom y position outside of rect: Height_U32 = (_rRect_X.Bottom_S32 - _rRect_X.Top_S32);*/
+  BOF_RECT()
+  {
+    Reset();
+  }
+
+  BOF_RECT(BOF_POINT_2D<T> _TopLeft_X, BOF_POINT_2D<T> _BottomRight_X)
+  {
+    Top = _TopLeft_X.y;
+    Left = _TopLeft_X.x;
+    Bottom = _BottomRight_X.y;
+    Right = _BottomRight_X.x;
+  }
+
+  BOF_RECT(T _x, T _y, T _Width, T _Height)
+  {
+    Left = _x;
+    Right = _x + _Width;
+    Top = _y;
+    Bottom = _y + _Height;
+  }
+
+  void Reset()
+  {
+    Left = 0;
+    Right = 0;
+    Top = 0;
+    Bottom = 0;
+  }
+
+  bool IsInside(const BOF_RECT<T> &_rBox) const
+  {
+    return ((_rBox.Left <= Left) && (_rBox.Right >= Right)  && (_rBox.Top <= Top) && (_rBox.Bottom >= Bottom));
+  }
+
+  T Width() const
+  {
+    return Right - Left;
+  }
+
+  T Height() const
+  {
+    return Bottom - Top;
+  }
+
+  BOF_SIZE<T> Size() const
+  {
+    return BOF_SIZE<T>(Width(), Height());
+  }
+};
+template <typename T>
+struct BOF_POINT_3D
+{
+  T x; /*! Point x coordinate*/
+  T y; /*! Point y coordinate*/
+  T z; /*! Point z coordinate*/
+  BOF_POINT_3D()
+  {
+    Reset();
+  }
+
+  BOF_POINT_3D(T _x, T _y, T _z)
+  {
+    x = _x;
+    y = _y;
+    z = _z;
+  }
+
+  void Reset()
+  {
+    x = 0;
+    y = 0;
+    z = 0;
+  }
+};
+
+template <typename T>
+struct BOF_POINT_4D
+{
+  T x; /*! Point x coordinate*/
+  T y; /*! Point y coordinate*/
+  T z; /*! Point z coordinate*/
+  T w; /*! Point w coordinate*/
+  BOF_POINT_4D()
+  {
+    Reset();
+  }
+
+  BOF_POINT_4D(T _x, T _y, T _z, T _w)
+  {
+    x = _x;
+    y = _y;
+    z = _z;
+    w = _w;
+  }
+
+  void Reset()
+  {
+    x = 0;
+    y = 0;
+    z = 0;
+    w = 0;
   }
 };
 

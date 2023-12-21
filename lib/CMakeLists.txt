@@ -1,4 +1,3 @@
-
 include(GNUInstallDirs)
 # get_cmake_property(_variableNames VARIABLES)
 # list (SORT _variableNames)
@@ -340,25 +339,7 @@ target_link_libraries(bofstd
   PRIVATE
 	jsoncpp::jsoncpp 
     spdlog::spdlog
-#    Qt5::Widgets
-#	mediainfo
-#	yuv
-#	asio::asio
-#	czmq
-#	libzmq
-#	libzmq-static
-#	czmq-static
-#	ZLIB::ZLIB
-#	zen
-#	OpenSSL::SSL 
-#	OpenSSL::Crypto
-#	${Boost_LIBRARIES}
-#	${FFMPEG_LIBRARIES}
 )
-#message("=Boost_INCLUDE_DIRS==============>"${Boost_INCLUDE_DIRS})
-#message("=Boost_LIBRARIES==============>"${Boost_LIBRARIES})
-#message("=FFMPEG_INCLUDE_DIRS==============>"${FFMPEG_INCLUDE_DIRS})
-#message("=FFMPEG_LIBRARIES==============>"${FFMPEG_LIBRARIES})	
 if(WIN32)
 target_link_libraries(bofstd
   PUBLIC
@@ -366,9 +347,6 @@ target_link_libraries(bofstd
 	Iphlpapi
 	Winmm
 	Rpcrt4
-
-  PRIVATE
-#    Qt5::Widgets
 )
 else()
   if( ANDROID )
@@ -402,8 +380,6 @@ target_compile_features(bofstd
   PUBLIC
     cxx_std_14
 )
-
-
 
 # ================
 # == VERSIONING ==
