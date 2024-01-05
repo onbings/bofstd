@@ -28,9 +28,41 @@
 #if defined(_WIN32)
 #include <windows.h>
 #else
-
+#if defined(__EMSCRIPTEN__)
+#include <sys/ioctl.h>
+struct serial_struct 
+{
+       int type;
+       int line;
+       unsigned int    port;
+       int irq;
+       int flags;
+       int xmit_fifo_size;
+       int custom_divisor;
+       int baud_base;
+       unsigned short  close_delay;
+       char    io_type;
+       char    reserved_char[1];
+       int hub6;
+       unsigned short  closing_wait; /* time to wait before closing */
+       unsigned short  closing_wait2; /* no longer used... */
+       unsigned char   *iomem_base;
+       unsigned short  iomem_reg_shift;
+       unsigned int    port_high;
+       unsigned long   iomap_base; /* cookie passed into ioremap */
+};
+#define ASYNCB_SPD_HI		 4 /* Use 56000 instead of 38400 bps */
+#define ASYNCB_SPD_VHI   5 /* Use 115200 instead of 38400 bps */
+#define ASYNCB_SPD_SHI	12 /* Use 230400 instead of 38400 bps */
+#define ASYNC_SPD_HI		(1U << ASYNCB_SPD_HI)
+#define ASYNC_SPD_VHI		(1U << ASYNCB_SPD_VHI)
+#define ASYNC_SPD_SHI		(1U << ASYNCB_SPD_SHI)
+#define ASYNC_SPD_CUST		(ASYNC_SPD_HI|ASYNC_SPD_VHI)
+#define ASYNC_SPD_MASK		(ASYNC_SPD_HI|ASYNC_SPD_VHI|ASYNC_SPD_SHI)
+#else
 #include <linux/serial.h>
 #include <termio.h>
+#endif
 #include <unistd.h>
 
 #endif

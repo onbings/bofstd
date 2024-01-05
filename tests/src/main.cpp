@@ -139,14 +139,26 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Uart_Test.*";
   //::testing::GTEST_FLAG(filter) = "Uri_Test.*";
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
+ //::testing::GTEST_FLAG(filter) =  "Api_Test.*:Async_Test.*:AsyncMuticastDelegate_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:"
+ //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:JsonParser_Test.*:"
+ //                                 "JsonWriter_Test.*:Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
+ //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*"
+ //                                 "SocketTcp_Test.*:SocketUdp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
+ //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*:XmlParser_Test.*";
+ //Async_Test.*:SocketUdp_Test.*:AsyncMuticastDelegate_Test.*:XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:
+ //::testing::GTEST_FLAG(filter) =  "Api_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:-Path_Test.PathConstructorDestructorWindows:-Path_Test.PathParsing:"
+ //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:"
+ //                                 "Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
+ //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*:"
+ //                                 "SocketTcp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
+ //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*";
 
-  // Use these one
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.GetPtrSkip";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:U7ri_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
-  //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
+  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferNoSlotsize_Test.LoopByteBuffer";

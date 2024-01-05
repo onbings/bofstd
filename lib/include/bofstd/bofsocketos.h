@@ -38,7 +38,10 @@
 #define SOCKET_ERROR -1
 
 #include <ifaddrs.h>
+#if defined(__EMSCRIPTEN__)
+#else
 #include <linux/sockios.h>
+#endif
 #include <net/if.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h> //TCP_MAXSEG

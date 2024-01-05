@@ -26,7 +26,7 @@
 #include <memory>
 #include <stdarg.h>
 #include <string.h>
-#if defined(__linux__)
+#if defined(__EMSCRIPTEN__) || defined(__linux__)
 #else
 #include <Windows.h>
 #endif
@@ -40,7 +40,7 @@ Description
 */
 TheProfiler::PerThreadClock::time_point TheProfiler::PerThreadClock::now() noexcept
 {
-#if defined(__linux__)
+#if defined(__EMSCRIPTEN__) || defined(__linux__)
   struct timespec Time_X;
   // Get the per thread timestamp
   clock_gettime(CLOCK_THREAD_CPUTIME_ID, &Time_X);

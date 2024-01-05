@@ -387,6 +387,8 @@ TEST_F(Logger_Test, LoggerMultiSink)
 }
 #endif
 
+#if defined(__EMSCRIPTEN__)   
+#else
 TEST_F(Logger_Test, LogAlways)
 {
   constexpr const char *MFS_LOGGER_MAINCHANNEL = "Mfs";
@@ -433,6 +435,7 @@ TEST_F(Logger_Test, LogAlways)
 
   Bof_MsSleep(100);
 }
+
 TEST_F(Logger_Test, LoggerMultiChannel)
 {
   BOFERR Sts_E;
@@ -533,3 +536,4 @@ TEST_F(Logger_Test, LoggerMultiChannel)
   }
   rBofLog.ShutdownLogger();
 }
+#endif

@@ -252,7 +252,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       else
       {
         PipeState_S = S_GetGlobalPipeState();
-        printf("!!WARNING!! pipe '%s' has the same access type than its endpoint (%d)\nPipeState:\n%s\n", It->second.PipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), It->second.PipeParam_X.PipeAccess_E, PipeState_S.c_str());
+        printf("!!WARNING!! pipe '%s' has the same access type than its endpoint (%d)\nPipeState:\n%s\n", It->second.PipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (int)It->second.PipeParam_X.PipeAccess_E, PipeState_S.c_str());
         BOF_ASSERT(0);
       }
     }
@@ -265,7 +265,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
       S_mPipeCollection[mPipeParam_X.BaseChannelParam_X.ChannelName_S] = PipeEntry_X;
     }
   }
-  printf("Pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), mPipeParam_X.PipeAccess_E);
+  printf("Pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), (int)mPipeParam_X.PipeAccess_E);
 }
 
 BofPipe::~BofPipe()
@@ -310,7 +310,7 @@ BofPipe::~BofPipe()
     printf("!!WARNING!! Cannot find pipe '%s'\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
     BOF_ASSERT(0);
   }
-  printf("End of pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), mPipeParam_X.PipeAccess_E);
+  printf("End of pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), (int)mPipeParam_X.PipeAccess_E);
 }
 BOFPIPE BofPipe::GetNativeHandle()
 {

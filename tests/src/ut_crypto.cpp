@@ -93,8 +93,6 @@ void Crypto_Test::TearDown()
 }
 
 INSTANTIATE_TEST_CASE_P(Md5TestPattern, Crypto_Test, ::testing::ValuesIn(S_pMd5TestPatternTable_X));
-// INSTANTIATE_TEST_SUITE_P(Md5TestPattern, Crypto_Test, ::testing::ValuesIn(S_pMd5TestPatternTable_X));
-
 TEST_P(Crypto_Test, HashOk)
 {
   char pIn_c[256];

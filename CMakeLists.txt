@@ -10,9 +10,15 @@
 # Revision:		5.0
 # 
 # History:		05 June 2004: BHA: Initial version 
-#compile with emscripten: https://thatonegamedev.com/cpp/programming-a-c-game-for-the-web-emscripten/
-#emcmake cmake -S C:/pro/github/bofstd -D__EMSCRIPTEN__=1 -B C:/bld/bofstd-web -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten
-
+#compile with emscripten: 
+#cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=C:/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/emscripten.cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten -DBUILD_SHARED_LIBS=OFF -DCMAKE_GENERATOR=Ninja -DCMAKE_BUILD_TYPE=Debug -SC:/pro/github/bofstd -BC:/bld/bofstd-web -DCMAKE_CROSSCOMPILING_EMULATOR=C:/pro/emsdk/node/16.20.0_64bit/bin/node.exe -G Ninja  
+#run
+#cd C:\bld\bofstd-web\binaries\bin
+#node AppBofStd.js
+#RUN: launch http server
+#emrun --browser chrome --port 8080 --serve_after_close --serve_after_exit C:\bld\bofstd-web\binaries\bin
+#select .html file 
+#compil windows:
 #cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_HOST_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=C:/pro/github/onbings-vcpkg-registry/ports -DCMAKE_INSTALL_PREFIX=C:\tmp\bofstd -B C:/bld/bofstd -S C:/pro/github/bofstd
 #cmake --build .  --config Release -- -j 16
 #cmake --install . --config Debug
@@ -40,7 +46,13 @@ string(REPLACE "-" "_" PROJECT_NAME_UNDERSCORE       ${PROJECT_NAME})
 string(REPLACE "-" "_" PROJECT_NAME_LOWER_UNDERSCORE ${PROJECT_NAME_LOWER})
 string(REPLACE "-" "_" PROJECT_NAME_UPPER_UNDERSCORE ${PROJECT_NAME_UPPER})
 
+option(BOFSTD_BUILD_EXAMPLES    "Build example of BofStd project"                                      ON)
+if (EMSCRIPTEN)
+option(BOFSTD_BUILD_TESTS       "Build units tests of BofStd project"                                  OFF)
+else()
 option(BOFSTD_BUILD_TESTS       "Build units tests of BofStd project"                                  ON)
+endif()
+option(BOFSTD_BUILD_TOOLS       "Build tools of BofStd project"                                        OFF)
 option(BOFSTD_ENABLE_VERSIONING "Enable library versioning naming scheme for BofStd libraries"         ON)
 option(BOFSTD_FORCE_EXPORT_ALL  "Force exporting all symbols of BofStd libraries (for shared library)" OFF)
 
@@ -61,6 +73,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_DEBUG_POSTFIX _d)
+if (EMSCRIPTEN)
+   message("===EMSCRIPTEN==============")
+#comment the following if you just use node to test as the html gen takes time   
+#  set(CMAKE_EXECUTABLE_SUFFIX ".html")   #to generate .html in addition to .js and .wasm
+  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -s NO_DISABLE_EXCEPTION_CATCHING -s ALLOW_MEMORY_GROWTH -s TOTAL_STACK=8388608")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s NO_DISABLE_EXCEPTION_CATCHING -s ALLOW_MEMORY_GROWTH -s TOTAL_STACK=8388608")
+ 
+#  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -pthread -sPTHREAD_POOL_SIZE=4") #-sPTHREAD_POOL_SIZE=4") # -sPROXY_TO_PTHREAD -sASYNCIFY")  # -sUSE_PTHREADS=1) # -sSHARED_MEMORY=1")
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -sPTHREAD_POOL_SIZE=4") #-sUSE_PTHREADS=1") #-sPTHREAD_POOL_SIZE=4") # -sPROXY_TO_PTHREAD -sASYNCIFY") # -sUSE_PTHREADS=1) # -sSHARED_MEMORY=1")
+#ici ca bloque qq part dans imgui car je pense qu'on est dans un autre thread entre imgui et le main...
+#  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -pthread -sPROXY_TO_PTHREAD") #-sPTHREAD_POOL_SIZE=4") # -sPROXY_TO_PTHREAD -sASYNCIFY")  # -sUSE_PTHREADS=1) # -sSHARED_MEMORY=1")
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -sPROXY_TO_PTHREAD") #-sUSE_PTHREADS=1") #-sPTHREAD_POOL_SIZE=4") # -sPROXY_TO_PTHREAD -sASYNCIFY") # -sUSE_PTHREADS=1) # -sSHARED_MEMORY=1")
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+  endif ()
+endif()
 
 # For shared libraries we need to compile with "-fPIC"
 # But for static libraries user can choose

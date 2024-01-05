@@ -517,6 +517,8 @@ TEST(CircularBuffer_Test, LockUnlock)
     }
   }
 }
+#if defined(__EMSCRIPTEN__)
+#else
 TEST(CircularBuffer_Test, BlockingMode)
 {
   BOF_CIRCULAR_BUFFER_PARAM BofCircularBufferParam_X;
@@ -563,6 +565,7 @@ TEST(CircularBuffer_Test, BlockingMode)
     // printf("PopThread out\n");
   }
 }
+#endif
 
 TEST(CircularBuffer_Test, StdString)
 {

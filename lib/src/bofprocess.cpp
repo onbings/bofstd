@@ -47,7 +47,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(__EMSCRIPTEN__)
+#else
 #include <sys/ptrace.h>
+#endif
 #include <sys/types.h>
 #include <sys/wait.h>
 extern char **environ;

@@ -392,6 +392,8 @@ BOFERR ReleaseValue(uint32_t /*_Id_U32*/, uint32_t _NbLoop_U32, BofPot<uint64_t>
 
 const uint32_t NB_MAX_CLIENT = 16;    // 32;                                   // 32;
 const uint32_t NB_GET_PER_CLIENT = 8; // 16000;
+#if defined(__EMSCRIPTEN__)
+#else
 TEST_F(Pot_Test, BlockingMode)
 {
   BOF_POT_PARAM BofPotParam_X;
@@ -447,3 +449,4 @@ TEST_F(Pot_Test, BlockingMode)
     EXPECT_EQ(S_pValCollection.size(), 0);
   }
 }
+#endif

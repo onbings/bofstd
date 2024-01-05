@@ -18,6 +18,12 @@
  *
  * V 1.00  Jan 19 2017  BHA : Initial release
  */
+//https://codingtidbit.com/2020/02/09/c17-codecvt_utf8-is-deprecated/
+//not working #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 
+#if defined(__EMSCRIPTEN__) || defined(__linux__)
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include <bofstd/bofstring.h>
 
 #include <algorithm>

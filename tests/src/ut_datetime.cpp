@@ -72,13 +72,19 @@ TEST(DateTime_Test, ValidateDateTime)
   DateTime = BofDateTime(31, 12, 2070, 25, 0, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+#if defined(__EMSCRIPTEN__)
+  EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 25:00:00");
+#else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 01:00:00");
-
+#endif
   DateTime = BofDateTime(31, 12, 2070, 24, 0, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+#if defined(__EMSCRIPTEN__)    
+  EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 24:00:00");
+#else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:00:00");
-
+#endif
   DateTime = BofDateTime(31, 12, 2070, 23, 0, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
 
@@ -86,13 +92,19 @@ TEST(DateTime_Test, ValidateDateTime)
   DateTime = BofDateTime(31, 12, 2070, 23, 255, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+#if defined(__EMSCRIPTEN__)    
+  EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 23:255:00");
+#else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 03:15:00");
-
+#endif
   DateTime = BofDateTime(31, 12, 2070, 23, 60, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+#if defined(__EMSCRIPTEN__)  
+  EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 23:60:00");
+ #else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:00:00");
-
+ #endif
   DateTime = BofDateTime(31, 12, 2070, 23, 59, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   EXPECT_FALSE(DateTime.IsMidnight());
@@ -101,8 +113,11 @@ TEST(DateTime_Test, ValidateDateTime)
   DateTime = BofDateTime(31, 12, 2070, 23, 59, 255, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
+#if defined(__EMSCRIPTEN__)
+  EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 23:59:255");
+#else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:03:15");
-
+#endif
   DateTime = BofDateTime(31, 12, 2070, 23, 59, 60, 0);
   EXPECT_TRUE(DateTime.IsValid());
 

@@ -47,7 +47,10 @@ Unit test:
 #include <conio.h>
 #else
 #include <linenoise.hpp>
+#if defined(__EMSCRIPTEN__)
+#else
 #include <linux/kd.h>
+#endif
 #include <poll.h>
 #include <stdio.h>
 #include <sys/ioctl.h>

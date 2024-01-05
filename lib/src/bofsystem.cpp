@@ -33,6 +33,77 @@
 #include <sys/types.h>
 #include <thread>
 
+#if defined(__EMSCRIPTEN__)
+/*
+The following function seems to be included in .h emscripten file but not found during link
+wasm-ld: error: binaries/lib/libbofstd.a(bofthread.cpp.o): undefined symbol: pthread_setname_np
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: ftok
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: shmget
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: shmat
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: shmdt
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: shmctl
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: sysinfo
+wasm-ld: error: binaries/lib/libbofstd.a(bofprocess.cpp.o): undefined symbol: posix_spawnp
+wasm-ld: error: binaries/lib/libbofstd.a(bofthread.cpp.o): undefined symbol: pthread_setschedparam
+wasm-ld: error: binaries/lib/libbofstd.a(bofthread.cpp.o): undefined symbol: pthread_getschedparam
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: sched_get_priority_min
+wasm-ld: error: binaries/lib/libbofstd.a(bofsystem.cpp.o): undefined symbol: sched_get_priority_max
+so we provide a fake dumy impl for the linker
+TODO: remove one after each when implemented for real...
+*/
+#include <spawn.h>
+extern "C" {
+  int pthread_setname_np(pthread_t thread, const char *name)
+  {
+    return -1;
+  }
+  key_t ftok(const char *pathname, int proj_id)
+  {
+    return -1;
+  }
+  int shmget(key_t key, size_t size, int shmflg)
+  {
+    return -1;
+  }
+  void  *shmat(int shmid, const void *shmaddr, int shmflg)
+  {
+    return NULL;
+  }
+  void *shmat(int shmid, const void *shmaddr,int shmflg);int shmdt(const void *shmaddr)
+  {
+    return NULL;
+  }
+  int shmctl(int shmid, int cmd, struct shmid_ds *buf)
+  {
+    return -1;
+  }
+  int sysinfo(struct sysinfo *info)
+  {
+    return -1;
+  }
+  int posix_spawnp(pid_t *pid, const char *file,const posix_spawn_file_actions_t *file_actions,const posix_spawnattr_t *attrp,char *const argv[], char * const envp[])
+  {
+    return -1;
+  }
+  int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *param)
+  {
+    return -1;
+  }
+  int pthread_getschedparam(pthread_t thread, int *policy, struct sched_param *param)
+  {
+    return -1;
+  }
+  int sched_get_priority_max(int policy)
+  {
+    return 0;
+  }
+  int sched_get_priority_min(int policy)
+  {
+    return 0;
+  }
+}
+#endif
+
 #if defined(_WIN32)
 #include <Sddl.h>
 #include <Winsock2.h>
@@ -1644,7 +1715,11 @@ static void *S_ThreadLauncher(void *_pThreadContext)
             CPU_ZERO(&CpuSet_X);
             CPU_SET(pThread_X->ThreadCpuCoreAffinity_U32 - 1, &CpuSet_X);
             /* set affinity */
+#if defined(__EMSCRIPTEN__)
+            Sts_E=BOF_ERR_NO_ERROR;
+#else            
             Sts_E = (sched_setaffinity(static_cast<__pid_t>(syscall(SYS_gettid)), sizeof(CpuSet_X), &CpuSet_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+#endif            
 #endif
       }
     }
@@ -1902,7 +1977,7 @@ BOFERR Bof_SetCurrentThreadPriorityLevel(BOF_THREAD_SCHEDULER_POLICY _Policy_E, 
 {
   BOFERR Rts_E = BOF_ERR_PRIORITY;
   int32_t Priority_i = Bof_PriorityValueFromThreadPriority(_Priority_E);
-#if defined(__linux__)
+#if defined(__EMSCRIPTEN__) || defined(__linux__)
   int Status_i = 0;
   int Policy_i = 0;
   pthread_t Thread_h = pthread_self();

@@ -359,7 +359,16 @@ else()
     endif()
   endif()
 endif()	
-
+if (EMSCRIPTEN)
+  target_include_directories(bofstd 
+    PUBLIC
+      $<BUILD_INTERFACE:${EMSCRIPTEN_SYSROOT}>
+  )
+  target_link_libraries(bofstd 
+    PRIVATE
+      "-lwebsocket.js"
+  )
+endif()  
 # Defines
 #use external libfmt lib instead of the bundled one
 #disable exception in spd log and replace thme by assert(false) to avoid try around every sprintf

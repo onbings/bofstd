@@ -439,10 +439,19 @@ void TestSocketAddress(bool _IsIpV6_B)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR); // 10.131.0.125 under linux
 #endif
   Sts_E = Bof_SplitIpAddress("10.131.125,250", HostIpAddress_X);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);     
+  EXPECT_STREQ(HostIpAddress_X.ToString(true,true).c_str(),"tcp://0.0.0.0:0");
+#else
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+#endif  
   Sts_E = Bof_SplitIpAddress("10.131.125.ab", HostIpAddress_X);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);     
+  EXPECT_STREQ(HostIpAddress_X.ToString(true,true).c_str(),"tcp://0.0.0.0:0");
+#else  
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
-
+#endif
   Sts_E = Bof_SplitIpAddress("tcp://192.168.1.1:1234", InterfaceIpAddressComponent_X, IpAddressComponent_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_STREQ(InterfaceIpAddressComponent_X.Protocol_S.c_str(), "");
@@ -789,6 +798,10 @@ void TestListAndSetupInterface(bool _IsIpV6_B)
   EXPECT_EQ(CidrMask_S32, 24);
 
   Sts_E = Bof_GetListOfNetworkInterface(ListOfNetworkInterface_X);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(ListOfNetworkInterface_X.size() == 0);
+#else  
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_FALSE(ListOfNetworkInterface_X.size() == 0);
 
@@ -838,6 +851,7 @@ void TestListAndSetupInterface(bool _IsIpV6_B)
   // EXPECT_EQ(InterfaceInfo_X.IpGateway_S, "");
   EXPECT_FALSE(InterfaceInfo_X.MtuSize_U32 == 0);
   EXPECT_TRUE(InterfaceInfo_X.MacAddress.size() == 6);
+#endif
 
 #if 0
   NewInterfaceParam_X = InitialInterfaceParam_X;

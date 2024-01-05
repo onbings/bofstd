@@ -44,12 +44,17 @@ set(CLI_FILES
 )
 
 set(COM_FILES
-	src/ut_pipe.cpp
-	src/ut_uart.cpp
 	src/ut_socketos.cpp
 	src/ut_sockettcp.cpp
 	src/ut_socketudp.cpp
 )
+if (EMSCRIPTEN)
+else()
+	list(APPEND COM_FILES
+		src/ut_pipe.cpp
+		src/ut_uart.cpp
+	)
+endif()
 
 set(CONIO_SHELL_FILES
 	src/ut_shell.cpp

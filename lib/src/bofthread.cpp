@@ -810,8 +810,11 @@ void BofThread::BofThread_Thread()
           CPU_SET(i_U32, &CpuSet_X);
         }
       }
+#if defined(__EMSCRIPTEN__)
+      Sts_E = BOF_ERR_NO_ERROR;
+#else      
       Sts_E = (sched_setaffinity(static_cast<__pid_t>(syscall(SYS_gettid)), sizeof(CpuSet_X), &CpuSet_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
-
+#endif
 #endif
     }
   }

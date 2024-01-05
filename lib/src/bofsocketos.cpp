@@ -24,7 +24,6 @@
 
 #include <map>
 #include <regex>
-
 #if defined(_WIN32)
 // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365915(v=vs.85).aspx
 #include <WS2tcpip.h>
@@ -35,7 +34,10 @@
 #else
 #include <arpa/inet.h>
 #include <ifaddrs.h>
+#if defined(__EMSCRIPTEN__)
+#else
 #include <linux/rtnetlink.h>
+#endif
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -267,6 +269,16 @@ bool IsFlagValid(uint16_t _Flag_U16, bool _IpV6_B)
          && !(_Flag_U16 & IFF_POINTOPOINT); //  Ignore point to point interfaces.
 }
 
+#if defined(__EMSCRIPTEN__)
+int readNlSock(int sockFd, char *bufPtr, size_t buf_size, int seqNum, int pId)
+{
+  return -1;
+}
+int parseRoutes(struct nlmsghdr *nlHdr, struct route_info *rtInfo, int _Family_i)
+{
+  return -1;
+}  
+#else
 int readNlSock(int sockFd, char *bufPtr, size_t buf_size, int seqNum, int pId)
 {
   struct nlmsghdr *nlHdr;
@@ -312,7 +324,6 @@ int readNlSock(int sockFd, char *bufPtr, size_t buf_size, int seqNum, int pId)
 
   return msgLen;
 }
-
 /* parse the route info returned */
 int parseRoutes(struct nlmsghdr *nlHdr, struct route_info *rtInfo, int _Family_i)
 {
@@ -367,6 +378,7 @@ int parseRoutes(struct nlmsghdr *nlHdr, struct route_info *rtInfo, int _Family_i
 
   return Ret_i;
 }
+#endif
 
 BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X)
 {
@@ -421,6 +433,8 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
   _rInterfaceInfo_X.IpGateway_S = "";
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
+#if defined(__EMSCRIPTEN__)
+#else    
     if ((Socket_i = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) >= 0)
     {
       /* Initialize the buffer */
@@ -475,6 +489,7 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
       // For gw, in all case returns BOF_ERR_NO_ERROR (if previous op was good)
       Rts_E = BOF_ERR_NO_ERROR;
     }
+#endif  
   }
   return Rts_E;
 }

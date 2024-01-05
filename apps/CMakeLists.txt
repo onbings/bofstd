@@ -29,6 +29,9 @@ target_link_libraries(AppBofStd
 #    Qt5::Gui
 #    Qt5::Widgets
 )
+# Set the output files
+message("================CMAKE_CURRENT_BINARY_DIR==========>" ${CMAKE_CURRENT_BINARY_DIR})
+message("================COMPILED_BINARIES_DIR==========>" ${COMPILED_BINARIES_DIR})
 
 # Defines
 target_compile_definitions(AppBofStd
