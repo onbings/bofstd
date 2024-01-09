@@ -3,11 +3,17 @@
   "version": "5.3.4.7",
   "description": "The onbings general purpose C++ Multiplatform library",
   "dependencies": [
-    { "name": "date" },
-    { "name": "fmt" },
-    { "name": "gtest" },
-    { "name": "jsoncpp" },
-    { "name": "linenoise-ng" },
-    { "name": "spdlog" }
+    {
+      "name": "date"
+    },
+    {
+      "name": "fmt"
+    },
+    {
+      "name": "jsoncpp"
+    },
+    {
+      "name": "linenoise-ng"
+    }
   ]
 }

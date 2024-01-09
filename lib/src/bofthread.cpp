@@ -210,7 +210,7 @@ BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _S
           // This stop google test from running in command console as it detect the exception... but it works inside the vs ide
           //	__try
           {
-              //	RaiseException(MS_VC_EXCEPTION, 0, sizeof(ThreadNameInfo_X) / sizeof(ULONG_PTR), (ULONG_PTR*)&ThreadNameInfo_X);
+            //	RaiseException(MS_VC_EXCEPTION, 0, sizeof(ThreadNameInfo_X) / sizeof(ULONG_PTR), (ULONG_PTR*)&ThreadNameInfo_X);
           } //__except (EXCEPTION_EXECUTE_HANDLER)
           {
           }
@@ -812,7 +812,7 @@ void BofThread::BofThread_Thread()
       }
 #if defined(__EMSCRIPTEN__)
       Sts_E = BOF_ERR_NO_ERROR;
-#else      
+#else
       Sts_E = (sched_setaffinity(static_cast<__pid_t>(syscall(SYS_gettid)), sizeof(CpuSet_X), &CpuSet_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
 #endif
 #endif
@@ -831,6 +831,8 @@ void BofThread::BofThread_Thread()
       Sts_E = (WndPrio_S32 == GetThreadPriority(GetCurrentThread())) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
     }
 
+#else
+#if defined(__EMSCRIPTEN__)
 #else
     int Status_i = 0;
     int Policy_i = mThreadParam_X.ThreadSchedulerPolicy_E;
@@ -853,6 +855,7 @@ void BofThread::BofThread_Thread()
         Sts_E = ((Policy_i == mThreadParam_X.ThreadSchedulerPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(mThreadParam_X.ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
       }
     }
+#endif
 #endif
   }
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);

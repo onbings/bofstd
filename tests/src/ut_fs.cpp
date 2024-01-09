@@ -23,6 +23,7 @@
 #include <bofstd/boffs.h>
 
 #include "gtestrunner.h"
+#include <filesystem>
 
 USE_BOF_NAMESPACE()
 
@@ -191,7 +192,7 @@ TEST(Fs_Test, DirectoryManagement)
 #if defined(_WIN32)
 #else
   EXPECT_EQ(BOF::Bof_SetCurrentDirectory(Cwd_S), BOF_ERR_NO_ERROR);
-#endif  
+#endif
 }
 
 TEST(Fs_Test, FileManagement)
@@ -349,7 +350,7 @@ TEST(Fs_Test, FileManagement)
 #if defined(_WIN32)
 #else
   EXPECT_EQ(BOF::Bof_SetCurrentDirectory(Cwd_S), BOF_ERR_NO_ERROR);
-#endif    
+#endif
 }
 
 TEST(Fs_Test, EntireFile)
@@ -384,12 +385,14 @@ TEST(Fs_Test, EntireFile)
 #if defined(_WIN32)
 #else
   EXPECT_EQ(BOF::Bof_SetCurrentDirectory(Cwd_S), BOF_ERR_NO_ERROR);
-#endif    
+#endif
 }
+
 TEST(Fs_Test, FileLayout)
 {
   BOFERR Sts_E;
   BOF_FILE_PERMISSION Permission_E;
+  std::vector<BOF_FILE_FOUND> FileCollection;
   // Permission_E  = BOF_FILE_PERMISSION_READ_FOR_ALL | BOF_FILE_PERMISSION_WRITE_FOR_ALL;
   BofPath CrtDir, DirLayoutRoot, Dir, File, NewFile;
   uint32_t i_U32, j_U32, k_U32, Nb_U32;
@@ -397,8 +400,53 @@ TEST(Fs_Test, FileLayout)
   std::string Line_S, LineRead_S;
   uint64_t Pos_U64, GetPos_U64, NewPos_U64, Size_U64, Size2_U64;
 
-  Sts_E = Bof_GetCurrentDirectory(CrtDir);
+#if 0
+  const std::filesystem::directory_iterator end;
+  for (std::filesystem::directory_iterator it("/"); it != end; ++it)
+  {
+    const std::filesystem::path &entry = it->path();
+    printf("Root: %s\n", entry.c_str());
+  }
+  FileCollection.clear();
+  Sts_E = Bof_FindFile("/tmp/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  for (const auto &rIt : FileCollection)
+  {
+    printf("tmp: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
+  }
+  FileCollection.clear();
+  Sts_E = Bof_FindFile("/home/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  for (const auto &rIt : FileCollection)
+  {
+    printf("home: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
+  }
+  FileCollection.clear();
+  Sts_E = Bof_FindFile("/dev/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  for (const auto &rIt : FileCollection)
+  {
+    printf("dev: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
+  }
+  FileCollection.clear();
+  Sts_E = Bof_FindFile("/proc/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  for (const auto &rIt : FileCollection)
+  {
+    printf("proc: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
+  }
+  Sts_E = Bof_FindFile("/C:/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  for (const auto &rIt : FileCollection)
+  {
+    printf("file: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
+  }
+#endif
+  Sts_E = Bof_GetCurrentDirectory(CrtDir);
+  printf("CrtDir '%s'\n", CrtDir.ToString().c_str());
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+
+  // EXPECT_EQ(FileCollection.size(), 94);
 
   DirLayoutRoot = CrtDir;
   Sts_E = DirLayoutRoot.Combine("TstRoot/");
@@ -461,6 +509,15 @@ TEST(Fs_Test, FileLayout)
         Size2_U64 = Bof_GetFileSize(NewFile);
         EXPECT_EQ(Size_U64, Size2_U64);
 
+        std::string k;
+        Sts_E = Bof_GetCurrentDirectory(k);
+        printf("pwd is %s\n", k.c_str());
+        Sts_E = Bof_FindFile("/TstRoot/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
+        EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+        for (const auto &rIt : FileCollection)
+        {
+          printf("file: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
+        }
         Sts_E = Bof_DeleteFile(NewFile);
         EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 

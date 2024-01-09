@@ -34,6 +34,7 @@
 #include <thread>
 
 #if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
 /*
 The following function seems to be included in .h emscripten file but not found during link
 wasm-ld: error: binaries/lib/libbofstd.a(bofthread.cpp.o): undefined symbol: pthread_setname_np
@@ -52,7 +53,8 @@ so we provide a fake dumy impl for the linker
 TODO: remove one after each when implemented for real...
 */
 #include <spawn.h>
-extern "C" {
+extern "C"
+{
   int pthread_setname_np(pthread_t thread, const char *name)
   {
     return -1;
@@ -65,11 +67,12 @@ extern "C" {
   {
     return -1;
   }
-  void  *shmat(int shmid, const void *shmaddr, int shmflg)
+  void *shmat(int shmid, const void *shmaddr, int shmflg)
   {
     return NULL;
   }
-  void *shmat(int shmid, const void *shmaddr,int shmflg);int shmdt(const void *shmaddr)
+  void *shmat(int shmid, const void *shmaddr, int shmflg);
+  int shmdt(const void *shmaddr)
   {
     return NULL;
   }
@@ -81,7 +84,7 @@ extern "C" {
   {
     return -1;
   }
-  int posix_spawnp(pid_t *pid, const char *file,const posix_spawn_file_actions_t *file_actions,const posix_spawnattr_t *attrp,char *const argv[], char * const envp[])
+  int posix_spawnp(pid_t *pid, const char *file, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[])
   {
     return -1;
   }
@@ -93,6 +96,7 @@ extern "C" {
   {
     return -1;
   }
+  /*
   int sched_get_priority_max(int policy)
   {
     return 0;
@@ -101,6 +105,7 @@ extern "C" {
   {
     return 0;
   }
+  */
 }
 #endif
 
@@ -1716,10 +1721,10 @@ static void *S_ThreadLauncher(void *_pThreadContext)
             CPU_SET(pThread_X->ThreadCpuCoreAffinity_U32 - 1, &CpuSet_X);
             /* set affinity */
 #if defined(__EMSCRIPTEN__)
-            Sts_E=BOF_ERR_NO_ERROR;
-#else            
-            Sts_E = (sched_setaffinity(static_cast<__pid_t>(syscall(SYS_gettid)), sizeof(CpuSet_X), &CpuSet_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
-#endif            
+            Sts_E = BOF_ERR_NO_ERROR;
+#else
+        Sts_E = (sched_setaffinity(static_cast<__pid_t>(syscall(SYS_gettid)), sizeof(CpuSet_X), &CpuSet_X) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+#endif
 #endif
       }
     }
@@ -3317,12 +3322,10 @@ void Bof_MsSleep(uint32_t _Ms_U32)
 #if defined(_WIN32)
     // same as Sleep for windows zclock_sleep (_Ms_U32);
     timeBeginPeriod(1);
-#else
 #endif
     std::this_thread::sleep_for(std::chrono::milliseconds(_Ms_U32));
 #if defined(_WIN32)
     timeEndPeriod(1);
-#else
 #endif
   }
 }
@@ -3337,12 +3340,10 @@ void Bof_UsSleep(uint32_t _Us_U32)
 #if defined(_WIN32)
     // same as Sleep for windows zclock_sleep (_Ms_U32);
     timeBeginPeriod(1);
-#else
 #endif
     std::this_thread::sleep_for(std::chrono::microseconds(_Us_U32));
 #if defined(_WIN32)
     timeEndPeriod(1);
-#else
 #endif
   }
 }

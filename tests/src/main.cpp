@@ -19,7 +19,7 @@
 #else
 #include <malloc.h>
 #endif
-  
+
 #if 0
 //#include "asio.hpp"
 #include <bofstd/bofsocketio.h>
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "Shell_Test.*";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";  
+  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketTcp_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*";
   //::testing::GTEST_FLAG(filter) = "SockIo_Client_Server_Test.*";
@@ -139,19 +139,19 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Uart_Test.*";
   //::testing::GTEST_FLAG(filter) = "Uri_Test.*";
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
- //::testing::GTEST_FLAG(filter) =  "Api_Test.*:Async_Test.*:AsyncMuticastDelegate_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:"
- //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:JsonParser_Test.*:"
- //                                 "JsonWriter_Test.*:Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
- //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*"
- //                                 "SocketTcp_Test.*:SocketUdp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
- //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*:XmlParser_Test.*";
- //Async_Test.*:SocketUdp_Test.*:AsyncMuticastDelegate_Test.*:XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:
- //::testing::GTEST_FLAG(filter) =  "Api_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:-Path_Test.PathConstructorDestructorWindows:-Path_Test.PathParsing:"
- //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:"
- //                                 "Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
- //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*:"
- //                                 "SocketTcp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
- //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*";
+  //::testing::GTEST_FLAG(filter) =  "Api_Test.*:Async_Test.*:AsyncMuticastDelegate_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:"
+  //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:JsonParser_Test.*:"
+  //                                 "JsonWriter_Test.*:Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
+  //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*"
+  //                                 "SocketTcp_Test.*:SocketUdp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
+  //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*:XmlParser_Test.*";
+  // Async_Test.*:SocketUdp_Test.*:AsyncMuticastDelegate_Test.*:XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:
+  //::testing::GTEST_FLAG(filter) =  "Api_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:-Path_Test.PathConstructorDestructorWindows:-Path_Test.PathParsing:"
+  //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:"
+  //                                 "Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
+  //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*:"
+  //                                 "SocketTcp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
+  //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*";
 
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.GetPtrSkip";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
@@ -161,7 +161,8 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
-  //::testing::GTEST_FLAG(filter) = "RawCircularBufferNoSlotsize_Test.LoopByteBuffer";
+  //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Fs_Test.FileLayout";
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);

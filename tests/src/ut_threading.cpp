@@ -24,7 +24,6 @@
 #include "gtestrunner.h"
 
 #include <atomic>
-
 USE_BOF_NAMESPACE()
 /*
 TEST(BofThreadPool_Test, Constructor)
@@ -50,58 +49,58 @@ TEST(BofThreadPool_Test, Constructor)
 */
 BOFERR PoolDispatch1()
 {
-  printf("%d: PoolDispatch1 starts for 1000 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch1 starts for 1000 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(1000);
-  printf("%d: PoolDispatch1 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch1 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 BOFERR PoolDispatch2()
 {
-  printf("%d: PoolDispatch2 starts for 800 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch2 starts for 800 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(800);
-  printf("%d: PoolDispatch2 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch2 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 BOFERR PoolDispatch3()
 {
-  printf("%d: PoolDispatch3 starts for 600 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch3 starts for 600 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(600);
-  printf("%d: PoolDispatch3 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch3 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 BOFERR PoolDispatch4()
 {
-  printf("%d: PoolDispatch4 starts for 400 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch4 starts for 400 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(400);
-  printf("%d: PoolDispatch4 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch4 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 BOFERR PoolDispatch5()
 {
-  printf("%d: PoolDispatch5 starts for 200 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch5 starts for 200 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(200);
-  printf("%d: PoolDispatch5 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch5 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 BOFERR PoolDispatch6()
 {
-  printf("%d: PoolDispatch6 starts for 400 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch6 starts for 400 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(400);
-  printf("%d: PoolDispatch6 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch6 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 BOFERR PoolDispatch7()
 {
-  printf("%d: PoolDispatch7 starts for 600 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch7 starts for 600 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(600);
-  printf("%d: PoolDispatch7 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch7 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 BOFERR PoolDispatch8()
 {
-  printf("%d: PoolDispatch8 starts for 800 ms...\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch8 starts for 800 ms...\n", BOF::Bof_GetMsTickCount());
   BOF::Bof_MsSleep(800);
-  printf("%d: PoolDispatch8 ends.\n", BOF::Bof_GetMsTickCount());
+  printf("%u: PoolDispatch8 ends.\n", BOF::Bof_GetMsTickCount());
   return BOF_ERR_NO_ERROR;
 }
 struct THREAD_POOL_CALLBACK
@@ -123,7 +122,7 @@ struct THREAD_POOL_CALLBACK
 TEST(BofThreadPool_Test, Dispatch)
 {
   BOF_THREAD_PARAM ThreadParam_X;
-  uint32_t i_U32, j_U32, PoolCapacity_U32, Start_U32, Nb_U32;
+  uint32_t i_U32, j_U32, PoolCapacity_U32, Start_U32, Nb_U32, Delta_U32;
   THREAD_POOL_CALLBACK pThreadPoolCallback_X[8];
   void *pDispatchTicket;
 
@@ -162,16 +161,20 @@ TEST(BofThreadPool_Test, Dispatch)
       pDispatchTicket = Pool.GetFirstPendingDispatch();
       if (pDispatchTicket)
       {
-        printf("%d: Dispatch %p (%s) is finished\n", BOF::Bof_GetMsTickCount(), pDispatchTicket, Pool.GetDispatchName(pDispatchTicket).c_str());
+        printf("%u: Dispatch %p (%s) is finished\n", BOF::Bof_GetMsTickCount(), pDispatchTicket, Pool.GetDispatchName(pDispatchTicket).c_str());
         EXPECT_EQ(Pool.AckPendingDispatch(0, pDispatchTicket), BOF_ERR_NO_ERROR);
         pThreadPoolCallback_X[i_U32].pDispatchTicket = nullptr;
         EXPECT_EQ(Pool.Dispatch(0, pThreadPoolCallback_X[i_U32].ThreadCallback, &pThreadPoolCallback_X[i_U32].pDispatchTicket), BOF_ERR_NO_ERROR);
-        printf("%d: Then post immediate dispatch %p (%s)\n", BOF::Bof_GetMsTickCount(), pThreadPoolCallback_X[i_U32].pDispatchTicket, Pool.GetDispatchName(pThreadPoolCallback_X[i_U32].pDispatchTicket).c_str());
+        printf("%u: Then post immediate dispatch %p (%s)\n", BOF::Bof_GetMsTickCount(), pThreadPoolCallback_X[i_U32].pDispatchTicket, Pool.GetDispatchName(pThreadPoolCallback_X[i_U32].pDispatchTicket).c_str());
         EXPECT_TRUE(pThreadPoolCallback_X[i_U32].pDispatchTicket != nullptr);
       }
       else
       {
-        if (BOF::Bof_ElapsedMsTime(Start_U32) > 2000)
+        BOF::Bof_MsSleep(0); // Give time to system and EMSCRIPTEN
+        // emscripten_sleep(0);
+        Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
+        // printf("Delta1 %d ms\n", Delta_U32);
+        if (Delta_U32 > 2000)
         {
           EXPECT_TRUE(0);
           break;
@@ -180,11 +183,10 @@ TEST(BofThreadPool_Test, Dispatch)
     } while (pDispatchTicket == nullptr);
   }
   Nb_U32 = Pool.GetNumerOfPendingRunningDispatch();
-  printf("%d: GetNumerOfPendingRunningDispatch %d\n", BOF::Bof_GetMsTickCount(), Nb_U32);
+  printf("%u: GetNumerOfPendingRunningDispatch %d\n", BOF::Bof_GetMsTickCount(), Nb_U32);
   EXPECT_EQ(Nb_U32, PoolCapacity_U32);
-
   Nb_U32 = Pool.GetNumerOfPendingDispatchToAck();
-  printf("%d: GetNumerOfPendingDispatchToAck %d\n", BOF::Bof_GetMsTickCount(), Nb_U32);
+  printf("%u: GetNumerOfPendingDispatchToAck %d\n", BOF::Bof_GetMsTickCount(), Nb_U32);
   EXPECT_EQ(Nb_U32, 0);
   //  BOF::Bof_MsSleep(1500);
   for (i_U32 = PoolCapacity_U32; i_U32 < BOF_NB_ELEM_IN_ARRAY(pThreadPoolCallback_X); i_U32++)
@@ -195,12 +197,16 @@ TEST(BofThreadPool_Test, Dispatch)
       pDispatchTicket = Pool.GetFirstPendingDispatch();
       if (pDispatchTicket)
       {
-        printf("%d: Dispatch %p (%s) is finished\n", BOF::Bof_GetMsTickCount(), pDispatchTicket, Pool.GetDispatchName(pDispatchTicket).c_str());
+        printf("%u: Dispatch %p (%s) is finished\n", BOF::Bof_GetMsTickCount(), pDispatchTicket, Pool.GetDispatchName(pDispatchTicket).c_str());
         EXPECT_EQ(Pool.AckPendingDispatch(0, pDispatchTicket), BOF_ERR_NO_ERROR);
       }
       else
       {
-        if (BOF::Bof_ElapsedMsTime(Start_U32) > 2000)
+        BOF::Bof_MsSleep(0); // Give time to system and EMSCRIPTEN
+        // emscripten_sleep(0);
+        Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
+        // printf("Delta2 %d ms\n", Delta_U32);
+        if (Delta_U32 > 2000)
         {
           EXPECT_TRUE(0);
           break;

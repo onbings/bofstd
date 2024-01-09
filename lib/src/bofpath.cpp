@@ -462,7 +462,22 @@ bool BofPath::IsWindowsDiskPath(const std::string &_rPath_S)
 
 bool BofPath::IsForbiddenChar(const std::string &_rPath_S)
 {
-  return (Bof_StringIsPresent(_rPath_S, mForbiddenCharacter_S));
+  bool Rts_B;
+
+#if defined(__EMSCRIPTEN__)
+//During file packaging under emscripten windows we can have path like /C:/pro/...
+  if ((_rPath_S[0] == '/') && (_rPath_S[2] == ':') && (_rPath_S[3] == '/'))
+  {
+    Rts_B = Bof_StringIsPresent(_rPath_S.substr(3), mForbiddenCharacter_S);
+  }
+  else
+  {
+    Rts_B = Bof_StringIsPresent(_rPath_S, mForbiddenCharacter_S);
+  }
+#else
+  Rts_B=Bof_StringIsPresent(_rPath_S, mForbiddenCharacter_S);
+#endif
+  return Rts_B;
 }
 
 BOFERR BofPath::Normalize(bool _PureFilename_B, const std::string &_rRawPath_S, std::string &_rNormalizedPath_S, std::string &_rDiskName_S)

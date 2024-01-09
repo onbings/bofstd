@@ -21,7 +21,7 @@ endmacro()
 # ===========================
 
 if(BOFSTD_BUILD_TESTS)
-  find_package(GTest REQUIRED)
+####  find_package(GTest REQUIRED)
 endif()
 
 # ===========================
@@ -41,7 +41,7 @@ endif()
 
 #just above find_package_dependency(jsoncpp REQUIRED)
 
-find_package_dependency(spdlog REQUIRED)
+####find_package_dependency(spdlog REQUIRED)
 find_package_dependency(fmt REQUIRED)
 find_package_dependency(date REQUIRED)
 

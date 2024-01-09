@@ -331,7 +331,6 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
 #endif
 
   // printf("==>Enter %s\n", _rPath.FullPathName(true).c_str());
-
   if (_rPath.IsDirectory())
   {
 #if defined(_WIN32)
@@ -473,8 +472,7 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
                 }
                 else
                 {
-                  // printf("--> %s\n", FileFound_X.Path.FullPathName(true).c_str());
-
+                  // printf("-FS-> %s\n", FileFound_X.Path.FullPathName(true).c_str());
                   if (!_rDirectoryParserCallback(FileFound_X))
                   {
                     Finish_B = true;
@@ -1115,7 +1113,7 @@ BOFERR Bof_CopyFile(bool _OverwriteIfExists_B, const BofPath &_rSrcPath, const B
     if (CreateOut_B)
     {
       Rts_E = BOF_ERR_CREATE;
-      std::ofstream Ofs(_rDstPath.FullPathName(false).c_str(), std::ios::trunc| std::ios_base::binary);
+      std::ofstream Ofs(_rDstPath.FullPathName(false).c_str(), std::ios::trunc | std::ios_base::binary);
       if (Ofs)
       {
         Ofs << Ifs.rdbuf();

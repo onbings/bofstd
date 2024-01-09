@@ -224,7 +224,8 @@ include(${CMAKE_CURRENT_BINARY_DIR}/vld.cmake)
 target_link_libraries(ut_bofstd
   PRIVATE
 	ONBINGS::bofstd
-	GTest::GTest
+	#vcpkg GTest::GTest
+	GTest::gtest_main
 )
           
 # Object library is not a shared library

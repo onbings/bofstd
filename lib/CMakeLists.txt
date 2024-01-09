@@ -338,7 +338,8 @@ target_link_libraries(bofstd
 
   PRIVATE
 	jsoncpp::jsoncpp 
-    spdlog::spdlog
+	#spdlog::spdlog
+    $<BUILD_INTERFACE:spdlog::spdlog> #https://discourse.cmake.org/t/using-a-header-only-library-with-fetchcontents-while-build-a-static-lib/2711/2
 )
 if(WIN32)
 target_link_libraries(bofstd
@@ -485,4 +486,7 @@ install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/incl
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/help/html/. DESTINATION doc COMPONENT doc OPTIONAL)
 
 #set_target_properties(bofstd PROPERTIES FOLDER Lib)
+
+
+
 
