@@ -80,7 +80,9 @@ cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/github/vcpkg/scripts/buildsystems/vcp
 #include <bofversioninfo.h>
 #include <locale.h>
 #include <map>
-
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
 // Just to check: see std::string Bof_GetVersion()
 // #include <libavutil/avutil.h>
 // #include <openssl/crypto.h>
@@ -356,6 +358,36 @@ std::string Bof_GetVersion()
   return std::to_string(BOFSTD_VERSION_MAJOR) + "." + std::to_string(BOFSTD_VERSION_MINOR) + "." + std::to_string(BOFSTD_VERSION_PATCH) + "." + std::to_string(BOFSTD_VERSION_BUILD);
 }
 
+// Emscripten only accept this kind of callback
+#if defined(__EMSCRIPTEN__)
+static void S_BofEmscriptenCallback(void *_pArg)
+{
+  BOFERR Sts_E;
+
+  // if (!EM_ASM_INT({ return Module.fs_is_ready; }))
+  //  if ((GL_BofStdParam_X.pPersistentRootDir_c) && (!EM_ASM_INT({ return Module.fs_is_ready; })))
+  if ((GL_BofStdParam_X.pPersistentRootDir_c) &&
+      (!EM_ASM_INT({ return Module.fs_is_ready; })))
+  {
+    printf("wait\n");
+  }
+  else
+  {
+    if (GL_BofStdParam_X.EmscriptenCallback)
+    {
+      Sts_E = GL_BofStdParam_X.EmscriptenCallback(_pArg); // GL_BofStdParam_X.pEmscriptenCallbackArg);
+      // Don't forget to sync with false to make sure you store it to IndexedDB
+      EM_ASM(FS.syncfs(
+          false, function(err) {if (err) {} }););
+      if (Sts_E != BOF_ERR_NO_ERROR)
+      {
+        emscripten_cancel_main_loop();
+      }
+    }
+  }
+}
+#endif
+
 BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
 {
   BOFERR Rts_E;
@@ -449,6 +481,35 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
     }
     */
 #endif
+
+#if defined(__EMSCRIPTEN__)
+  /*
+  0 lets the browser decide how often to call your callback, like v-sync. You can pass a positive integer to set a specific frame rate.
+  true stops execution at this point, your next code that runs will be the loop callback.
+  */
+  if (GL_BofStdParam_X.EmscriptenCallback)
+  {
+    // EM_ASM is a macro to call in-line JavaScript code.
+    if (GL_BofStdParam_X.pPersistentRootDir_c)
+    {
+      EM_ASM({
+        Module.fs_is_ready = 0;                // flag to check when data are synchronized
+        FS.mkdir(UTF8ToString($0));            // Make a directory other than '/'
+        FS.mount(IDBFS, {}, UTF8ToString($0)); // Then mount with IDBFS type
+
+        FS.syncfs( // Then sync with true
+            true, function(err) {
+              Module.print("End persistent file sync..");
+              assert(!err);
+              Module.fs_is_ready = 1;
+            });
+      },
+             GL_BofStdParam_X.pPersistentRootDir_c);
+    }
+    emscripten_set_main_loop_arg(S_BofEmscriptenCallback, GL_BofStdParam_X.pEmscriptenCallbackArg, GL_BofStdParam_X.EmscriptenCallbackFps_U32, false);
+  }
+#endif
+
   _rStdParam_X.Version_S = Bof_GetVersion();
   return Rts_E;
 }
@@ -509,9 +570,15 @@ BOFERR Bof_Shutdown()
     tcsetattr(STDIN_FILENO, TCSANOW, &S_SavedTermIos_X);
     */
 #endif
+
   // Give some time to thread/logger to shutdown
   BOF::Bof_MsSleep(1000);
-
+#if defined(__EMSCRIPTEN__)
+  if (GL_BofStdParam_X.ExitOnBofShutdown_B)
+  {
+    emscripten_exit_with_live_runtime();
+  }
+#endif
   return Rts_E;
 }
 

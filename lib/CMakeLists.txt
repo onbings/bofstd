@@ -368,6 +368,7 @@ if (EMSCRIPTEN)
   target_link_libraries(bofstd 
     PRIVATE
       "-lwebsocket.js"
+	  "-lidbfs.js"
   )
 endif()  
 # Defines

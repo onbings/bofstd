@@ -84,7 +84,7 @@ SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_DEBUG_POSTFIX _d)
 if (EMSCRIPTEN)
-#FS layout:
+#FS layout (Memory)
 #Root: /tmp
 #Root: /home
 #Root: /dev
@@ -115,6 +115,8 @@ if (EMSCRIPTEN)
 #  file: '/TstRoot/SubDir_0/Level1/Level2/' Sz 4096 Ft 2
 #  file: '/TstRoot/SubDir_0/Level1/' Sz 4096 Ft 2
 #  file: '/TstRoot/SubDir_0/' Sz 4096 Ft 2
+#
+#FS Layout (persisten): stored at C:\Users\bha\AppData\Local\Google\Chrome\User Data\Default\IndexedDB
 #
 #sometime it cannot find pthread. If i force it in C:\Program Files\CMake\share\cmake-3.28\Modules\FindThreads.cmake it works...
 #macro(_threads_check_libc)
