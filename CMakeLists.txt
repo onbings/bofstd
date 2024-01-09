@@ -53,16 +53,18 @@ option(BOFSTD_BUILD_TOOLS       "Build tools of BofStd project"                 
 option(BOFSTD_ENABLE_VERSIONING "Enable library versioning naming scheme for BofStd libraries"         ON)
 option(BOFSTD_FORCE_EXPORT_ALL  "Force exporting all symbols of BofStd libraries (for shared library)" OFF)
 #EMSCRIPTEN
-option(BOFSTD_EMSCRIPTEN_HTML "EMSCRIPTEN generateq .wasm and .js file. If you set this option to ON we also generate an html container" OFF)
+option(EMSCRIPTEN_GEN_HTML "EMSCRIPTEN generateq .wasm and .js file. If you set this option to ON we also generate an html container" OFF)
 set(BOFSTD_EMSCRIPTEN_MEMORY 256MB CACHE STRING "Specify emscripten default memory size")
 message("emscripten default memory size: ${BOFSTD_EMSCRIPTEN_MEMORY}")
 set(BOFSTD_EMSCRIPTEN_STACK 8MB CACHE STRING "Specify emscripten default stack size")
 message("emscripten default stack size: ${BOFSTD_EMSCRIPTEN_STACK}")
 set(BOFSTD_EMSCRIPTEN_THREAD_POOL 4 CACHE STRING "Specify emscripten default thread pool size")
 message("emscripten default thread pool size: ${BOFSTD_EMSCRIPTEN_THREAD_POOL}")
-set(BOFSTD_EMSCRIPTEN_FS_ROOT_DIR ${CMAKE_BINARY_DIR}/binaries/bin/data CACHE STRING "Specify emscripten preload file dir")
-#set(BOFSTD_EMSCRIPTEN_FS_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/tests/data CACHE STRING "Specify emscripten preload file dir")
-message("emscripten preload file directory: ${BOFSTD_EMSCRIPTEN_FS_ROOT_DIR}")
+set(BOFSTD_EMSCRIPTEN_FS_SRC_ROOT_DIR ${CMAKE_BINARY_DIR}/binaries/bin/data CACHE STRING "Specify emscripten fs source dir")
+message("emscripten fs source file directory: ${BOFSTD_EMSCRIPTEN_FS_SRC_ROOT_DIR}")
+set(BOFSTD_EMSCRIPTEN_FS_DST_ROOT_DIR data CACHE STRING "Specify emscripten fs destination dir")
+message("emscripten fs destination file directory: ${BOFSTD_EMSCRIPTEN_FS_DST_ROOT_DIR}")
+#set(BOFSTD_EMSCRIPTEN_FS_SRC_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/tests/data CACHE STRING "Specify emscripten preload file dir")
 #em++: error: 'C:\pro\emsdk\upstream\emscripten\tools\file_packager.bat binaries\bin\app_bofstd.data --from-emcc --preload C:/bld/bofstd-web/binaries/bin/data' failed (returned 1)
 # ===============================
 # == NON TRANSITIVE PROPERTIES ==
@@ -92,6 +94,7 @@ if (EMSCRIPTEN)
 #dev: '/dev/shm/tmp/' Sz 4096 Ft 2
 #dev: '/dev/shm/' Sz 4096 Ft 2
 #proc: '/proc/self/' Sz 4096 Ft 2
+#--embed-file ${BOFSTD_EMSCRIPTEN_FS_SRC_ROOT_DIR}
 #file: '/C:/bld/bofstd-web/binaries/bin/data/colorbar.jpg' Sz 9830 Ft 1
 #file: '/C:/bld/bofstd-web/binaries/bin/data/colorbar.png' Sz 1483 Ft 1
 #...
@@ -101,6 +104,10 @@ if (EMSCRIPTEN)
 #file: '/C:/bld/bofstd-web/' Sz 4096 Ft 2
 #file: '/C:/bld/' Sz 4096 Ft 2
 #
+#OR --embed-file ${BOFSTD_EMSCRIPTEN_FS_SRC_ROOT_DIR}@${BOFSTD_EMSCRIPTEN_FS_DST_ROOT_DIR}
+#data: '/data/colorbar.jpg' Sz 9830 Ft 1
+#data: '/data/colorbar.png' Sz 1483 Ft 1
+#data: '/data/colorbar_1920x1080p59_8bit_captured_by_sdk.422' Sz 2073600 Ft 1
 # with TEST(Fs_Test, FileLayout)
 #  pwd is /TstRoot/
 #  file: '/TstRoot/SubDir_0/Level1/Level2/File_000000.2.ren' Sz 2000 Ft 1
@@ -113,7 +120,7 @@ if (EMSCRIPTEN)
 #macro(_threads_check_libc)
 #      set(CMAKE_THREAD_LIBS_INIT "")
 #      set(Threads_FOUND TRUE)
-  if(BOFSTD_BUILD_TOOLS)
+  if (EMSCRIPTEN_GEN_HTML)
     message("===EMSCRIPTEN=== Add .html to .wasm and .js files")
     set(CMAKE_EXECUTABLE_SUFFIX ".html")   #to generate .html in addition to .js and .wasm
   else()
@@ -122,14 +129,12 @@ if (EMSCRIPTEN)
 
   set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -pthread -s NO_DISABLE_EXCEPTION_CATCHING")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -s NO_DISABLE_EXCEPTION_CATCHING")
-  #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_STACK=${BOFSTD_EMSCRIPTEN_STACK} -s TOTAL_MEMORY=${BOFSTD_EMSCRIPTEN_MEMORY} -s PTHREAD_POOL_SIZE=${BOFSTD_EMSCRIPTEN_THREAD_POOL} -s PROXY_TO_PTHREAD --preload-file ${BOFSTD_EMSCRIPTEN_FS_ROOT_DIR}")  
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_STACK=${BOFSTD_EMSCRIPTEN_STACK} -s TOTAL_MEMORY=${BOFSTD_EMSCRIPTEN_MEMORY} -s PTHREAD_POOL_SIZE=${BOFSTD_EMSCRIPTEN_THREAD_POOL} --embed-file ${BOFSTD_EMSCRIPTEN_FS_ROOT_DIR}")    
-  #-sPROXY_TO_PTHREAD  -s ASYNCIFY
-  #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_STACK=${BOFSTD_EMSCRIPTEN_STACK} -s TOTAL_MEMORY=${BOFSTD_EMSCRIPTEN_MEMORY} -s PTHREAD_POOL_SIZE=${BOFSTD_EMSCRIPTEN_THREAD_POOL} -s ASYNCIFY --preload-file ${BOFSTD_EMSCRIPTEN_FS_ROOT_DIR}")  
+
+  #The @ symbol is needed because sometimes it is useful to package files that are not nested below the compile-time directory, and for which #there is therefore no default mapping to a location in the virtual file system.
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_STACK=${BOFSTD_EMSCRIPTEN_STACK} -s TOTAL_MEMORY=${BOFSTD_EMSCRIPTEN_MEMORY} -s PTHREAD_POOL_SIZE=${BOFSTD_EMSCRIPTEN_THREAD_POOL} --embed-file ${BOFSTD_EMSCRIPTEN_FS_SRC_ROOT_DIR}@${BOFSTD_EMSCRIPTEN_FS_DST_ROOT_DIR}")    
+  #-sPROXY_TO_PTHREAD  not good for  imgui car je pense qu'on est dans un autre thread entre imgui et le main...
+  #-s ASYNCIFY (very long and sometime forever)
   message("===EMSCRIPTEN=== CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}")
-#ici ca bloque qq part dans imgui car je pense qu'on est dans un autre thread entre imgui et le main...
-#  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -pthread -sPROXY_TO_PTHREAD") #-sPTHREAD_POOL_SIZE=4") # -sPROXY_TO_PTHREAD -sASYNCIFY")  # -sUSE_PTHREADS=1) # -sSHARED_MEMORY=1")
-#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -sPROXY_TO_PTHREAD") #-sUSE_PTHREADS=1") #-sPTHREAD_POOL_SIZE=4") # -sPROXY_TO_PTHREAD -sASYNCIFY") # -sUSE_PTHREADS=1) # -sSHARED_MEMORY=1")
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")

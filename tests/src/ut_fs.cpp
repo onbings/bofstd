@@ -435,11 +435,19 @@ TEST(Fs_Test, FileLayout)
   {
     printf("proc: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
   }
+  FileCollection.clear();
   Sts_E = Bof_FindFile("/C:/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   for (const auto &rIt : FileCollection)
   {
     printf("file: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
+  }
+  FileCollection.clear();
+  Sts_E = Bof_FindFile("/data/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  for (const auto &rIt : FileCollection)
+  {
+    printf("data: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
   }
 #endif
   Sts_E = Bof_GetCurrentDirectory(CrtDir);
@@ -464,6 +472,15 @@ TEST(Fs_Test, FileLayout)
   Sts_E = Bof_GetCurrentDirectory(Dir);
   EXPECT_TRUE(DirLayoutRoot == Dir);
 
+  /*
+  with emscripten:
+  pwd is /TstRoot/
+  file: '/TstRoot/SubDir_0/Level1/Level2/File_000000.2.ren' Sz 2000 Ft 1
+  file: '/TstRoot/SubDir_0/Level1/Level2/File_000000.2' Sz 2000 Ft 1
+  file: '/TstRoot/SubDir_0/Level1/Level2/' Sz 4096 Ft 2
+  file: '/TstRoot/SubDir_0/Level1/' Sz 4096 Ft 2
+  file: '/TstRoot/SubDir_0/' Sz 4096 Ft 2
+  */
   for (i_U32 = 0; i_U32 < 10; i_U32++)
   {
     Dir = DirLayoutRoot;
@@ -508,16 +525,23 @@ TEST(Fs_Test, FileLayout)
 
         Size2_U64 = Bof_GetFileSize(NewFile);
         EXPECT_EQ(Size_U64, Size2_U64);
-
+#if 0
+        for (std::filesystem::directory_iterator it("/"); it != end; ++it)
+        {
+          const std::filesystem::path &entry = it->path();
+          printf("ut: %s\n", entry.c_str());
+        }
         std::string k;
         Sts_E = Bof_GetCurrentDirectory(k);
         printf("pwd is %s\n", k.c_str());
+        FileCollection.clear();
         Sts_E = Bof_FindFile("/TstRoot/", "*.*", BOF_FILE_TYPE::BOF_FILE_ALL, true, 0xFFFFFFFF, FileCollection);
         EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
         for (const auto &rIt : FileCollection)
         {
           printf("file: '%s' Sz %lld Ft %x\n", rIt.Path.ToString().c_str(), rIt.Size_U64, (int)rIt.FileType_E);
         }
+#endif
         Sts_E = Bof_DeleteFile(NewFile);
         EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
