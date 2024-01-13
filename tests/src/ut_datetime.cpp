@@ -21,12 +21,26 @@ USE_BOF_NAMESPACE()
 TEST(DateTime_Test, ValidateDateTime)
 {
   BofDateTime DateTime;
-  std::string DateTime_S;
+  std::string DateTimeFormat_S, DateTimeVal_S, DateTime_S;
 
   DateTime.Reset();
   EXPECT_TRUE(DateTime.IsValid());
   EXPECT_TRUE(DateTime.IsUnixEpoch());
   EXPECT_TRUE(DateTime.IsMidnight());
+
+  DateTimeFormat_S = "%d/%m/%Y %H:%M:%S.%q";
+  DateTimeVal_S = "26/05/1974 01:02:03.123";
+  DateTime = BofDateTime(DateTimeVal_S, DateTimeFormat_S);
+  EXPECT_TRUE(DateTime.IsValid());
+  DateTime_S = DateTime.ToString(DateTimeFormat_S);
+  EXPECT_STREQ(DateTime_S.c_str(), DateTimeVal_S.c_str());
+
+  DateTimeFormat_S = "%Y-%m-%d %H:%M:%S";
+  DateTimeVal_S = "1974-05-26 04:05:06";
+  DateTime = BofDateTime(DateTimeVal_S);
+  EXPECT_TRUE(DateTime.IsValid());
+  DateTime_S = DateTime.ToString(DateTimeFormat_S);
+  EXPECT_STREQ(DateTime_S.c_str(), DateTimeVal_S.c_str());
 
   DateTime = BofDateTime(1, 1, 1970, 0, 0, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
@@ -80,7 +94,7 @@ TEST(DateTime_Test, ValidateDateTime)
   DateTime = BofDateTime(31, 12, 2070, 24, 0, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
-#if defined(__EMSCRIPTEN__)    
+#if defined(__EMSCRIPTEN__)
   EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 24:00:00");
 #else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:00:00");
@@ -92,7 +106,7 @@ TEST(DateTime_Test, ValidateDateTime)
   DateTime = BofDateTime(31, 12, 2070, 23, 255, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
-#if defined(__EMSCRIPTEN__)    
+#if defined(__EMSCRIPTEN__)
   EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 23:255:00");
 #else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 03:15:00");
@@ -100,11 +114,11 @@ TEST(DateTime_Test, ValidateDateTime)
   DateTime = BofDateTime(31, 12, 2070, 23, 60, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   DateTime_S = DateTime.ToString("%Y-%m-%d %H:%M:%S");
-#if defined(__EMSCRIPTEN__)  
+#if defined(__EMSCRIPTEN__)
   EXPECT_STREQ(DateTime_S.c_str(), "2070-12-31 23:60:00");
- #else
+#else
   EXPECT_STREQ(DateTime_S.c_str(), "2071-01-01 00:00:00");
- #endif
+#endif
   DateTime = BofDateTime(31, 12, 2070, 23, 59, 0, 0);
   EXPECT_TRUE(DateTime.IsValid());
   EXPECT_FALSE(DateTime.IsMidnight());
@@ -387,7 +401,7 @@ TEST(DateTime_Test, NbDaySinceUnixEpoch)
 
 TEST(DateTime_Test, StringDateTime)
 {
-  BofDateTime DateTime, DateTimeFromString;
+  BofDateTime DateTime;
   std::string DateTime_S;
 
   EXPECT_EQ(Bof_NbDaySinceUnixEpoch_To_BofDateTime(365 + 31 + 7, DateTime), BOF_ERR_NO_ERROR);
@@ -395,19 +409,18 @@ TEST(DateTime_Test, StringDateTime)
   EXPECT_STREQ(DateTime_S.c_str(), "1971-02-08 00:00:00.0 us=0");
 
   DateTime = BofDateTime(12, 34, 56, 0);
-  ;
+  
   DateTime_S = DateTime.ToString();
-  DateTimeFromString = DateTimeFromString.FromString(DateTime_S);
-  EXPECT_TRUE(DateTime == DateTimeFromString);
+  BofDateTime DateTimeFromString1(DateTime_S);
+  EXPECT_TRUE(DateTime == DateTimeFromString1);
   EXPECT_STREQ(DateTime_S.c_str(), "1970-01-01 12:34:56");
 
   DateTime_S = DateTime.ToString("%b %d %H:%M:%S");
-  DateTimeFromString.Reset();
-  DateTimeFromString = DateTimeFromString.FromString(DateTime_S, "%b %d %H:%M:%S");
+  BofDateTime DateTimeFromString2(DateTime_S, "%b %d %H:%M:%S");
   // DateTimeFromString.Year() = DateTime.Year();  //Not in format string
   // DateTimeFromString.Second() = 56;//Not in format string
   // DateTimeFromString.DayOfWeek_U8 = 1;//Bad as Year_U16/Second_U8 are not in format string
-  EXPECT_TRUE(DateTime == DateTimeFromString);
+  EXPECT_TRUE(DateTime == DateTimeFromString2);
   EXPECT_STREQ(DateTime_S.c_str(), "Jan 01 12:34:56");
 
   DateTime = BofDateTime(2, 1, 1970, 1, 2, 3, 123456);

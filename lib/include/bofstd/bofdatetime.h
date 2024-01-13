@@ -38,11 +38,12 @@ class BOFSTD_EXPORT BofDateTime
 {
 public:
   BofDateTime();
-  ~BofDateTime();
+  BofDateTime(const std::string &_rDateTime_S, const std::string &_rFormat_S = "%Y-%m-%d %H:%M:%S");
   BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32);
   BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16);
   BofDateTime(uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32);
   BofDateTime(const std::tm &_rTm_X, uint32_t _MicroSecond_U32);
+  ~BofDateTime();
 
   void ClearDate();
   void ClearTime();

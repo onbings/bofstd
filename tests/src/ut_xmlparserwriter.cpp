@@ -100,7 +100,7 @@ TEST(XmlParser_Test, Xml)
 
   S_AppParamXml_X.Reset();
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "../../binaries/bin/data/xmlparser.xml";
+  Path = CrtDir + "../binaries/bin/data/xmlparser.xml";
   printf("-->%s\n", Path.ToString(false).c_str());
   EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
@@ -149,7 +149,7 @@ TEST(XmlParser_Test, XmlVector)
   S_AppParamVector_X.Reset();
   // Should be /home/bha/bld/Tge2-Debug/bofstd/tests/data/xmlvectorparser.xml
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "../../binaries/bin/data/xmlvectorparser.xml";
+  Path = CrtDir + "../binaries/bin/data/xmlvectorparser.xml";
   EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
   pBofXmlParser_O = new BofXmlParser(XmlData_S);
@@ -177,7 +177,7 @@ TEST(XmlWriter_Test, XmlVector)
 
   S_AppParamVector_X.Reset();
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "../../binaries/bin/data/xmlvectorparser.xml";
+  Path = CrtDir + "../binaries/bin/data/xmlvectorparser.xml";
   // printf("Crtdir %s path %s\n", CrtDir.FullPathName(false).c_str(), Path.FullPathName(false).c_str());
   ASSERT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 
@@ -282,7 +282,7 @@ TEST(XmlWriter_Test, Xml)
   S_AppParamXml_X.Reset();
   // Should be /home/bha/bld/Tge2-Debug/bofstd/tests/data/xmlparser.xml
   Bof_GetCurrentDirectory(CrtDir);
-  Path = CrtDir + "../../binaries/bin/data/xmlparser.xml";
+  Path = CrtDir + "../binaries/bin/data/xmlparser.xml";
   printf("-->%s\n", Path.ToString(false).c_str());
   EXPECT_EQ(Bof_ReadFile(Path, XmlData_S), BOF_ERR_NO_ERROR);
 

@@ -137,7 +137,6 @@ int main(int argc, char *argv[])
   StdParam_X.AssertCallback = nullptr;
 #if defined(__EMSCRIPTEN__)
   StdParam_X.EmscriptenCallback = EmscriptenCallback;
-  StdParam_X.EmscriptenCallback = EmscriptenCallback;
   StdParam_X.EmscriptenCallbackFps_U32 = 0;
   StdParam_X.pEmscriptenCallbackArg = (void *)0x12345678;
   StdParam_X.pPersistentRootDir_c = "/offline";

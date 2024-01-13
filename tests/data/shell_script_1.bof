@@ -4,5 +4,5 @@
 ?
 si(0, false, true)
 ls(false,false,false)
-exec(../../binaries/bin/data/shell_script_2.bof)
+exec(../binaries/bin/data/shell_script_2.bof)
 q

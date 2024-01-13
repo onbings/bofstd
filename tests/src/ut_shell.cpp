@@ -253,8 +253,8 @@ TEST(Shell_Test, Shell)
             BOF_ERR_NO_ERROR);
 #if defined(__EMSCRIPTEN__)
 #else
-  EXPECT_NE(Shell.ExecScript("../../binaries/bin/data/shell_script_1.dontexist"), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(Shell.ExecScript("../../binaries/bin/data/shell_script_1.bof"), BOF_ERR_NO_ERROR);
+  EXPECT_NE(Shell.ExecScript("../binaries/bin/data/shell_script_1.dontexist"), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Shell.ExecScript("../binaries/bin/data/shell_script_1.bof"), BOF_ERR_NO_ERROR);
   Shell.Execute("si(0, false, true)");
   // Shell.Interpreter("?");
 #endif  

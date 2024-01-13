@@ -189,8 +189,8 @@ TEST(Pipe_Test, UdpPipeSingle)
   PipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 4096;
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 4096;
 
-  PipeParam_X.SrcPortBase_U16 = 55000;
-  PipeParam_X.DstPortBase_U16 = 55010;
+  PipeParam_X.SrcPortBase_U16 = 56000;
+  PipeParam_X.DstPortBase_U16 = 56010;
   PipeParam_X.PipeUser_S = "Ut1";
 
   pBofPipeServer = new BofPipe(PipeParam_X); // first the server
@@ -206,8 +206,8 @@ TEST(Pipe_Test, UdpPipeSingle)
   PipeParam_X.BaseChannelParam_X.RcvBufferSize_U32 = 0x2000;
   PipeParam_X.BaseChannelParam_X.SndBufferSize_U32 = 0x2000;
 
-  PipeParam_X.SrcPortBase_U16 = 55010;
-  PipeParam_X.DstPortBase_U16 = 55000;
+  PipeParam_X.SrcPortBase_U16 = 56010;
+  PipeParam_X.DstPortBase_U16 = 56000;
   PipeParam_X.PipeUser_S = "Ut2";
 
   pBofPipeClient = new BofPipe(PipeParam_X);

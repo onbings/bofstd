@@ -153,12 +153,13 @@ int main(int argc, char *argv[])
   //                                 "SocketTcp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
   //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*";
 
-  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.GetPtrSkip";
-  //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
+  //::testing::GTEST_FLAG(filter) = "DateTime_Test.StringDateTime:SocketTcp_Test.TcpClientTest:DateTime_Test.ValidateDateTime:SocketOs_Test.SocketAddress";
+  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.SocketAddress";
+  //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:Pipe_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
-  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:U7ri_Test.*";
+  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:Uri_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Shell_Test.Shell";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";
@@ -185,8 +186,9 @@ int main(int argc, char *argv[])
 
 /*
 * WINDOWS
-[==========] 189 tests from 48 test suites ran. (108823 ms total)
-[  PASSED  ] 189 tests.
+V 5.4.0.0
+[==========] 190 tests from 49 test suites ran. (106869 ms total)
+[  PASSED  ] 190 tests.
 
   YOU HAVE 3 DISABLED TESTS
 

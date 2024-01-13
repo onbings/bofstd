@@ -1701,8 +1701,20 @@ BOFERR Bof_SplitIpAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS_C
         }
       }
     }
-
   }
+  /*
+  if (Rts_E == BOF_ERR_NO_ERROR)
+  {
+    if ((_rIpAddress_X.Protocol_S == "") || (_rIpAddress_X.IpAddress_S == ""))
+    {
+      printf("jj");
+    }
+    else
+    {
+      printf("A %s P %s I %s\n", _rIpAddress_S.c_str(), _rIpAddress_X.Protocol_S.c_str(), _rIpAddress_X.IpAddress_S.c_str());
+    }
+  }
+  */
   return Rts_E;
 }
 

@@ -42,7 +42,10 @@ BofDateTime::BofDateTime()
 {
   Reset();
 }
-
+BofDateTime::BofDateTime(const std::string &_rDateTime_S, const std::string &_rFormat_S)
+{
+  FromString(_rDateTime_S, _rFormat_S);
+}
 BofDateTime::BofDateTime(uint8_t _Day_U8, uint8_t _Month_U8, uint16_t _Year_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, uint32_t _MicroSecond_U32)
 {
   mYear_U16 = _Year_U16;
@@ -98,7 +101,7 @@ void BofDateTime::ClearDate()
   mYear_U16 = 0;
   mMonth_U8 = 0;
   mDay_U8 = 0;
-  //No it is a Datetime with no valid data for example mIsValid_B = false; 
+  // No it is a Datetime with no valid data for example mIsValid_B = false;
 }
 void BofDateTime::ClearTime()
 {
@@ -175,7 +178,6 @@ std::string BofDateTime::ToString(const std::string &_rFormat_S)
   }
   return ToString_S;
 }
-
 BofDateTime BofDateTime::FromString(const std::string &_rDateTime_S, const std::string &_rFormat_S)
 {
   char *p_c;
