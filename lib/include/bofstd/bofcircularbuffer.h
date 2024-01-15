@@ -27,7 +27,111 @@
 #include <cstring>
 
 BEGIN_BOF_NAMESPACE()
+//TODO one day:
+/*
+#include <iostream>
+#include <deque>
+#include <mutex>
+#include <condition_variable>
 
+template <typename T>
+class CircularBuffer {
+public:
+    explicit CircularBuffer(size_t capacity, bool overwrite = false, bool useLock = false)
+        : capacity_(capacity), overwrite_(overwrite), useLock_(useLock) {}
+
+    void push(const T& value) {
+        if (useLock_) {
+            std::lock_guard<std::mutex> lock(mutex_);
+            pushInternal(value);
+        } else {
+            pushInternal(value);
+        }
+    }
+
+    T pop() {
+        if (useLock_) {
+            std::lock_guard<std::mutex> lock(mutex_);
+            return popInternal();
+        } else {
+            return popInternal();
+        }
+    }
+
+    void reset() {
+        if (useLock_) {
+            std::lock_guard<std::mutex> lock(mutex_);
+            resetInternal();
+        } else {
+            resetInternal();
+        }
+    }
+
+private:
+    size_t capacity_;
+    bool overwrite_;
+    bool useLock_;
+    std::deque<T> buffer_;
+    std::mutex mutex_;
+    std::condition_variable notEmpty_;
+
+    void pushInternal(const T& value) {
+        if (buffer_.size() == capacity_) {
+            if (overwrite_) {
+                buffer_.pop_front();
+            } else {
+                // Wait until there is space in the buffer
+                while (buffer_.size() == capacity_) {
+                    notEmpty_.wait(lock);
+                }
+            }
+        }
+
+        buffer_.push_back(value);
+        notEmpty_.notify_one();
+    }
+
+    T popInternal() {
+        // Wait until there is an element in the buffer
+        while (buffer_.empty()) {
+            notEmpty_.wait(lock);
+        }
+
+        T frontValue = buffer_.front();
+        buffer_.pop_front();
+        notEmpty_.notify_one();
+
+        return frontValue;
+    }
+
+    void resetInternal() {
+        buffer_.clear();
+    }
+};
+
+int main() {
+    CircularBuffer<int> circularBuffer(5, true, true);
+
+    // Example usage with lock protection
+    circularBuffer.push(1);
+    circularBuffer.push(2);
+
+    std::cout << "Pop: " << circularBuffer.pop() << std::endl;
+
+    circularBuffer.push(3);
+    circularBuffer.push(4);
+    circularBuffer.push(5);
+    circularBuffer.push(6);  // Overwriting oldest element
+
+    // Without lock protection
+    CircularBuffer<int> bufferWithoutLock(3, false, false);
+    bufferWithoutLock.push(10);
+    std::cout << "Pop: " << bufferWithoutLock.pop() << std::endl;
+
+    return 0;
+}
+
+*/
 #define BOF_CIRCULAR_BUFFER_LOCK(Sts)                                                                         \
   {                                                                                                           \
     Sts = mCircularBufferParam_X.MultiThreadAware_B ? Bof_LockMutex(mCircularBufferMtx_X) : BOF_ERR_NO_ERROR; \

@@ -33,6 +33,28 @@ BofTimecode::BofTimecode(bool _Ntsc_B, uint64_t _Ms_U64)
   FromMs(_Ntsc_B, _Ms_U64);
   mTcValid_B = true;
 }
+BofTimecode::BofTimecode(bool _Is50Hz, bool _Drop_B, uint16_t _NbDay_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8, 
+                         uint8_t _Frame_U8, uint8_t _UserBit0_U8, uint8_t _UserBit1_U8, uint8_t _UserBit2_U8, uint8_t _UserBit3_U8)
+{
+  BOFERR Rts_E;
+  BOF_TIMECODE Tc_X;
+
+  Tc_X.TcFlag_U8 = 0;
+  if (!_Is50Hz) Tc_X.TcFlag_U8 |= BOF_TIMECODE_FLAG_NTSC;
+  if (_Drop_B) Tc_X.TcFlag_U8 |= BOF_TIMECODE_FLAG_DROP;
+  Tc_X.NbDay_U16 = _NbDay_U16;
+  Tc_X.Hour_U8 = _Hour_U8;
+  Tc_X.Minute_U8 = _Minute_U8;
+  Tc_X.Second_U8 = _Second_U8;
+  Tc_X.Frame_U8 = _Frame_U8;
+  Tc_X.pUserBit_U8[0] = _UserBit0_U8;
+  Tc_X.pUserBit_U8[1] = _UserBit1_U8;
+  Tc_X.pUserBit_U8[2] = _UserBit2_U8;
+  Tc_X.pUserBit_U8[3] = _UserBit3_U8;
+  Tc_X.NbDay_U16 = _NbDay_U16;
+  mTcValid_B = (FromByteStruct(Tc_X) == BOF_ERR_NO_ERROR);
+}
+
 
 BofTimecode::BofTimecode(const BOF_TIMECODE &_rBofTimeCodeStruct_X)
 {
@@ -100,6 +122,20 @@ BofTimecode::BofTimecode(const char *_pTc_c)
       }
     }
   }
+}
+void BofTimecode::GetUserBit(uint8_t &_rUserBit0_U8, uint8_t &_rUserBit1_U8, uint8_t &_rUserBit2_U8, uint8_t &_rUserBit3_U8)
+{
+  _rUserBit0_U8 = mTc_X.pUserBit_U8[0];
+  _rUserBit1_U8 = mTc_X.pUserBit_U8[1];
+  _rUserBit2_U8 = mTc_X.pUserBit_U8[2];
+  _rUserBit3_U8 = mTc_X.pUserBit_U8[3];
+}
+void BofTimecode::SetUserBit(uint8_t _UserBit0_U8, uint8_t _UserBit1_U8, uint8_t _UserBit2_U8, uint8_t _UserBit3_U8)
+{
+  mTc_X.pUserBit_U8[0]=_UserBit0_U8;
+  mTc_X.pUserBit_U8[1]=_UserBit1_U8;
+  mTc_X.pUserBit_U8[2]=_UserBit2_U8;
+  mTc_X.pUserBit_U8[3]=_UserBit3_U8;
 }
 /*
  DROP FRAME TIMECODE

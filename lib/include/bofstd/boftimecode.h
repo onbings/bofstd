@@ -91,6 +91,8 @@ private:
 
 public:
   BofTimecode();
+  BofTimecode(bool _Is50Hz, bool _Drop_B, uint16_t _NbDay_U16, uint8_t _Hour_U8, uint8_t _Minute_U8, uint8_t _Second_U8,
+              uint8_t _Frame_U8, uint8_t _UserBit0_U8, uint8_t _UserBit1_U8, uint8_t _UserBit2_U8, uint8_t _UserBit3_U8);
   BofTimecode(const BofTimecode &) = default;            // Copy constructor
   BofTimecode(BofTimecode &&) = default;                 // Move constructor
   BofTimecode &operator=(const BofTimecode &) = default; // Copy assignment operator
@@ -121,7 +123,8 @@ public:
   BofTimecode operator+(int32_t _NbField_S32);
   BOF_TIMECODE ToByteStruct() const;
   BOFERR FromByteStruct(const BOF_TIMECODE &_rBofTimeCodeStruct_X);
-
+  void GetUserBit(uint8_t &_rUserBit0_U8, uint8_t &_rUserBit1_U8, uint8_t &_rUserBit2_U8, uint8_t &_rUserBit3_U8);
+  void SetUserBit(uint8_t _UserBit0_U8, uint8_t _UserBit1_U8, uint8_t _UserBit2_U8, uint8_t _UserBit3_U8);
   static BOFERR S_ValidateTimecode(const BOF_TIMECODE &_rBofTimeCodeStruct_X);
   static BOFERR S_BinToTimeCode(uint64_t _Tc_U64, BOF_TIMECODE &_rTc_X);
   static BOFERR S_TimeCodeToBin(const BOF_TIMECODE &_rTc_X, uint64_t &_rTc_U64);

@@ -78,6 +78,7 @@ TEST(Timecode_Test, Construct)
   int64_t DifMs_S64;
   BofDateTime DateTime(26, 5, 2018, 8, 16, 32, 47 * 1000);
   BofTimecode Tc1;
+  uint8_t UserBit0_U8, UserBit1_U8, UserBit2_U8, UserBit3_U8;
 
   EXPECT_FALSE(Tc1.IsNtsc());
   EXPECT_FALSE(Tc1.IsOddField());
@@ -122,6 +123,27 @@ TEST(Timecode_Test, Construct)
   EXPECT_TRUE(Tc1.IsNtsc());
   EXPECT_TRUE(Tc1.IsOddField());
   EXPECT_EQ(Tc1.FrameTime(), 1000.0f / 30.0f);
+
+
+  TcInMs_U64 = (static_cast<uint64_t>(367) * static_cast<uint64_t>(24 * 60 * 60 * 1000)) + static_cast<uint64_t>(1 * 60 * 60 * 1000) + static_cast<uint64_t>(2 * 60 * 1000) + static_cast<uint64_t>(3 * 1000) + static_cast<uint64_t>(16.6667f * 9);
+  BofTimecode Tc4(true, false, 145, 8, 16, 32, 2,1,2,3,4);
+  EXPECT_FALSE(Tc4.IsNtsc());
+  EXPECT_EQ(Tc4.FrameTime(), 1000.0f / 25.0f);
+  EXPECT_EQ(Tc4.FieldTime(), 1000.0f / 50.0f);
+  EXPECT_STREQ(Tc4.ToString(true, "", true, "", true).c_str(), "1970-05-26 08:16:32:02  @1000/25");
+  Tc4.GetUserBit(UserBit0_U8, UserBit1_U8, UserBit2_U8, UserBit3_U8);
+  EXPECT_EQ(UserBit0_U8, 1);
+  EXPECT_EQ(UserBit1_U8, 2);
+  EXPECT_EQ(UserBit2_U8, 3);
+  EXPECT_EQ(UserBit3_U8, 4);
+
+  Tc4.SetUserBit(255,254,253,252);
+  Tc4.GetUserBit(UserBit0_U8, UserBit1_U8, UserBit2_U8, UserBit3_U8);
+  EXPECT_EQ(UserBit0_U8, 255);
+  EXPECT_EQ(UserBit1_U8, 254);
+  EXPECT_EQ(UserBit2_U8, 253);
+  EXPECT_EQ(UserBit3_U8, 252);
+
 }
 TEST(Timecode_Test, Operator)
 {

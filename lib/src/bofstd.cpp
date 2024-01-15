@@ -483,29 +483,29 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
 #endif
 
 #if defined(__EMSCRIPTEN__)
+    // EM_ASM is a macro to call in-line JavaScript code.
+  if (GL_BofStdParam_X.pPersistentRootDir_c)
+  {
+    EM_ASM({
+      Module.fs_is_ready = 0;                // flag to check when data are synchronized
+      FS.mkdir(UTF8ToString($0));            // Make a directory other than '/'
+      FS.mount(IDBFS, {}, UTF8ToString($0)); // Then mount with IDBFS type
+
+      FS.syncfs( // Then sync with true
+          true, function(err) {
+            Module.print("End persistent file sync..");
+            assert(!err);
+            Module.fs_is_ready = 1;
+          });
+           },
+           GL_BofStdParam_X.pPersistentRootDir_c);
+  }
   /*
   0 lets the browser decide how often to call your callback, like v-sync. You can pass a positive integer to set a specific frame rate.
   true stops execution at this point, your next code that runs will be the loop callback.
   */
   if (GL_BofStdParam_X.EmscriptenCallback)
   {
-    // EM_ASM is a macro to call in-line JavaScript code.
-    if (GL_BofStdParam_X.pPersistentRootDir_c)
-    {
-      EM_ASM({
-        Module.fs_is_ready = 0;                // flag to check when data are synchronized
-        FS.mkdir(UTF8ToString($0));            // Make a directory other than '/'
-        FS.mount(IDBFS, {}, UTF8ToString($0)); // Then mount with IDBFS type
-
-        FS.syncfs( // Then sync with true
-            true, function(err) {
-              Module.print("End persistent file sync..");
-              assert(!err);
-              Module.fs_is_ready = 1;
-            });
-      },
-             GL_BofStdParam_X.pPersistentRootDir_c);
-    }
     emscripten_set_main_loop_arg(S_BofEmscriptenCallback, GL_BofStdParam_X.pEmscriptenCallbackArg, GL_BofStdParam_X.EmscriptenCallbackFps_U32, false);
   }
 #endif
