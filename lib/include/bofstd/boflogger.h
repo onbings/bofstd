@@ -33,7 +33,11 @@ BEGIN_BOF_NAMESPACE()
 const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ALWAYS = 0x80000000; /*! Always display */
 const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ERROR = 0x40000000;  /*! Display error */
 const uint32_t BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE = 0x8000;
-
+#if defined(_WIN32)
+#define BOF_LOG_TO_DBG(pFormat,...)  {std::string Dbg;BOF::Bof_Sprintf(pFormat, __VA_ARGS__);OutputDebugString(Dbg.c_str());}
+#else
+#define BOF_LOG_TO_DBG(pFormat,...)  {printf(pFormat, __VA_ARGS__);}
+#endif
 // #define BOF_LOGGER_DEBUG_ON            // To avoid extra cost when we want no log and no fct call at all
 // The ##__VA_ARGS__ syntax is non-standard. It is a "swallow comma if the __VA_ARGS__ is empty" extension implemented by GCC, and seems to have been adopted by other compilers.
 #ifdef BOF_LOGGER_DEBUG_OFF
@@ -122,7 +126,7 @@ const uint32_t BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE = 0x8000;
 typedef std::map<std::string, std::shared_ptr<IBofLogChannel>>::iterator LogFctLookupIterator;
 
 // Singleton http://stackoverflow.com/questions/11711920/how-to-implement-multithread-safe-singleton-in-c11-without-using-mutex
-class BOFSTD_EXPORT BofLogger final
+class BOFSTD_EXPORT BofLogger
 {
 private:
   BOF_LOGGER_PARAM mLoggerParam_X;
@@ -135,7 +139,6 @@ protected:
 
 public:
   static std::map<std::string, std::shared_ptr<IBofLogChannel>> S_mLogChannelList;
-
   // delete copy and move constructors and assign operators
   BofLogger(BofLogger const &) = delete;            // Copy construct
   BofLogger(BofLogger &&) = delete;                 // Move construct

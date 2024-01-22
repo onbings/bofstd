@@ -1,5 +1,6 @@
 #include <bofstd/boffs.h>
 #include <bofstd/bofsystem.h>
+#include <bofstd/boflogger.h>
 
 #include "../include/gtestrunner.h"
 
@@ -18,45 +19,6 @@
 
 #else
 #include <malloc.h>
-#endif
-
-#if 0
-//#include "asio.hpp"
-#include <bofstd/bofsocketio.h>
-//Bof_GetNetworkInterfaceInfo
-void f()
-{
-  BOFSTDPARAM StdParam_X;
-  BOF::Bof_Initialize(StdParam_X);
-  std::vector<BOF::BOF_NETWORK_INTERFACE_PARAM> NetworkInterfaceCollection;
-  BOFERR e = BOF::Bof_GetListOfNetworkInterface(NetworkInterfaceCollection);
-  printf("Bof_GetListOfNetworkInterface found %zd Network board (%s)\n", NetworkInterfaceCollection.size(), BOF::Bof_ErrorCode(e));
-  for (auto &rIt : NetworkInterfaceCollection)
-  {
-    printf("name %s ip %s msk %s brd %s %s\n", rIt.Name_S.c_str(), rIt.IpAddress_S.c_str(), rIt.IpMask_S.c_str(), rIt.IpBroadcast_S.c_str(), rIt.IpV6_B ? "IpV6":"IpV4");
-    printf("Info: flg %X Gw %s Mtu %d Mac %02X:%02X:%02X:%02X:%02X:%02X\n", rIt.Info_X.InterfaceFlag_E, rIt.Info_X.IpGateway_S.c_str(), rIt.Info_X.MtuSize_U32, 
-      rIt.Info_X.MacAddress[0], rIt.Info_X.MacAddress[1], rIt.Info_X.MacAddress[2], rIt.Info_X.MacAddress[3], rIt.Info_X.MacAddress[4], rIt.Info_X.MacAddress[5]);
-  }
-/*
-  asio::io_context io;
-  asio::ip::tcp::resolver resolver(io);
-  asio::ip::tcp::resolver::query query(asio::ip::host_name(), "");
-  asio::ip::tcp::resolver::iterator it = resolver.resolve(query);
-  while (it != asio::ip::tcp::resolver::iterator())
-  {
-    asio::ip::address addr = (it++)->endpoint().address();
-    if (addr.is_v6())
-    {
-      std::cout << "ipv6 address: ";
-    }
-    else
-      std::cout << "ipv4 address: ";
-
-    std::cout << addr.to_string() << std::endl;
-
-  }
-  */
-}
 #endif
 
 USE_BOF_NAMESPACE()
@@ -84,12 +46,22 @@ int main(int argc, char *argv[])
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   Bof_GetCurrentDirectory(Cwd_S);
   printf("\nPwd %s\nRunning BofStd V %s on %s under %s\n", Cwd_S.c_str(), StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str(), StdParam_X.OsName_S.c_str());
-  // for (int i = 0; i < 7; i++)
-  //{
-  //   printf("hello world %d\n", i);
-  // }
-  //  const char *pp = StdParam_X.ComputerName_S.c_str();
 
+  /*
+  BOF::BofLogger &rBofLog = BOF::BofLogger::S_Instance();
+  BOF::BOF_LOGGER_PARAM LoggerParam_X;
+  BOF::BOF_LOG_CHANNEL_PARAM LogParam_X;
+  LoggerParam_X.Name_S = "Xt Ftp Diag";
+  //			LoggerParam_X.LogPattern_S = "%i %L %^%v%$";
+  LoggerParam_X.MaxNumberOfAsyncLogQueueEntry_U32 = 0x800;
+  LoggerParam_X.AsyncAutoFushIntervalInMs_U32 = 0;
+  LoggerParam_X.FastFormat_B = true;
+  LoggerParam_X.OverflowPolicy_E = BOF::BOF_LOGGER_OVERFLOW_POLICY::DISCARD;
+  LoggerParam_X.OnError = nullptr;
+  LoggerParam_X.OnErrorCodeToString = nullptr;
+  Sts_E = rBofLog.InitializeLogger(LoggerParam_X);
+  Sts_E = rBofLog.ShutdownLogger();
+  */
 #if defined(_WIN32)
 #else
   // Ok on tge2, there is an uart  ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
@@ -154,7 +126,7 @@ int main(int argc, char *argv[])
   //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*";
 
   //::testing::GTEST_FLAG(filter) = "DateTime_Test.StringDateTime:SocketTcp_Test.TcpClientTest:DateTime_Test.ValidateDateTime:SocketOs_Test.SocketAddress";
-  //::testing::GTEST_FLAG(filter) = "Timecode_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Logger_Test.*";
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:Pipe_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:Uri_Test.*";

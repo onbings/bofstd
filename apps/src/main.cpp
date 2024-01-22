@@ -146,36 +146,6 @@ int main(int argc, char *argv[])
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
     printf("\nPwd %s\nRunning BofStd V %s on %s under %s\n", Cwd_S.c_str(), StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str(), StdParam_X.OsName_S.c_str());
-
-#if 0
-#if defined(__EMSCRIPTEN__)
-    // EM_ASM is a macro to call in-line JavaScript code.
-    EM_ASM(
-        Module.fs_is_ready = 0;          // flag to check when data are synchronized
-        FS.mkdir('/offline');            // Make a directory other than '/'
-        FS.mount(IDBFS, {}, '/offline'); // Then mount with IDBFS type
-
-        FS.syncfs( // Then sync
-            true, function(err) {
-              Module.print("end file sync..");
-              assert(!err);
-              Module.fs_is_ready = 1;
-            }););
-    /*
-    0 lets the browser decide how often to call your callback, like v-sync. You can pass a positive integer to set a specific frame rate.
-    true stops execution at this point, your next code that runs will be the loop callback.
-    */
-    emscripten_set_main_loop(game_loop_callback, 0, true);
-
-#endif
-#endif
-    const std::filesystem::directory_iterator end;
-    for (std::filesystem::directory_iterator it("/"); it != end; ++it)
-    {
-      const std::filesystem::path &entry = it->path();
-      printf("root: %s\n", entry.c_str());
-    }
-
     BOF::Bof_Shutdown();
   }
   // emscripten_exit_with_live_runtime();

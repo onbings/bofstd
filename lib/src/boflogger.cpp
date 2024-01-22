@@ -24,6 +24,7 @@
 
 #include <spdlog/async.h>
 #include <spdlog/spdlog.h>
+//#include <spdlog/spdlog-inl.h>
 
 BEGIN_BOF_NAMESPACE()
 

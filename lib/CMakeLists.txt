@@ -340,6 +340,7 @@ target_link_libraries(bofstd
 	jsoncpp::jsoncpp 
 	#spdlog::spdlog
     $<BUILD_INTERFACE:spdlog::spdlog> #https://discourse.cmake.org/t/using-a-header-only-library-with-fetchcontents-while-build-a-static-lib/2711/2
+#    spdlog::spdlog
 )
 if(WIN32)
 target_link_libraries(bofstd
@@ -384,6 +385,7 @@ target_compile_definitions(bofstd
 	-DCRT_NONSTDC_NO_DEPRECATE
 	-DWINSOCK_DEPRECATED_NO_WARNINGS
 	-DIXML_STATIC_LIB
+	-DSPDLOG_HEADER_ONLY
 )
 
 # Features (We need at least C++11 support)
@@ -453,7 +455,6 @@ install(
   ARCHIVE  DESTINATION        ${CMAKE_INSTALL_LIBDIR}     # For static libraries
            COMPONENT          bofstd-devel
 )
-
 # Install the public headers (don't forget the generated export directives)
 install(DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
