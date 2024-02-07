@@ -209,6 +209,8 @@ set(SOCKIO_FILES
 )
 
 set(SYSTEM_FILES
+	include/bofstd/bofscopeguard.h
+	include/bofstd/bofgraph.h
 	include/bofstd/bofstring.h
 	src/bofstring.cpp
 	include/bofstd/bofperformance.h

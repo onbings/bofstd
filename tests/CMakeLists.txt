@@ -125,6 +125,8 @@ set(SOCKIO_FILES
 )
 
 set(SYSTEM_FILES
+        src/ut_graph.cpp
+        src/ut_scopeguard.cpp
         src/ut_string.cpp
         src/ut_timecode.cpp
         src/ut_guid.cpp

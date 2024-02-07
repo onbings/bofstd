@@ -66,6 +66,25 @@ void initJni(JNIEnv *env)
 }
 #endif
 // create empty guid
+/*
+Version 1 (Time-based): Combines the current timestamp with the MAC address of the machine generating the UUID. 
+This version has a 60-bit timestamp and a clock sequence that helps manage cases where multiple UUIDs are generated 
+in the same timestamp.
+
+Version 4 (Random): Generated using random or pseudo-random numbers. It doesn't rely on the current time or a 
+unique identifier from the machine. This version is suitable when a UUID needs to be generated without access to a unique identifier 
+or when you want to avoid any potential predictability.
+
+Windows:
+GUID guid; wchar_t guidString[40];
+Generate a new GUID  if (CoCreateGuid(&guid) == S_OK) {StringFromGUID2(guid, guidString, sizeof(guidString) / sizeof(guidString[0]));
+
+Linux:
+uuid_t uuid;char uuidString[37]; // UUIDs are 36 characters long plus null-terminator
+uuid_generate(uuid); uuid_unparse(uuid, uuidString);
+
+
+*/
 BofGuid::BofGuid()
 {
   std::string Guid_S = Bof_RandomHexa(true, mGuidByteCollection.size(), false);
