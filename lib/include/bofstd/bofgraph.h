@@ -124,7 +124,7 @@ struct Span
 
   template <typename Container>
   Span(Container &_Container)
-      : mBegin(_Container.data()), mEnd(mBegin + _Container.size())
+    : mBegin(_Container.data()), mEnd(mBegin + _Container.size())
   {
   }
   iterator begin() const
@@ -135,7 +135,7 @@ struct Span
   {
     return mEnd;
   }
-  bool Contain(ElementType id);
+  bool Contain(ElementType _ElementType);
 
 private:
   iterator mBegin;
@@ -154,7 +154,7 @@ class IdMap
 public:
   using iterator = typename std::vector<ElementType>::iterator;
   using const_iterator = typename std::vector<ElementType>::const_iterator;
-
+  /*
   const_iterator begin() const
   {
     return mElementCollection.begin();
@@ -165,6 +165,21 @@ public:
   }
 
   Span<const ElementType> Element() const
+  {
+    return mElementCollection;
+  }
+  */
+
+  iterator begin()
+  {
+    return mElementCollection.begin();
+  }
+  iterator end()
+  {
+    return mElementCollection.end();
+  }
+
+  Span<ElementType> &Element() const
   {
     return mElementCollection;
   }
@@ -186,6 +201,7 @@ public:
   iterator Find(uint32_t _Id_U32);
   const_iterator Find(uint32_t _Id_U32) const;
   bool Contain(uint32_t _Id_U32) const;
+  ElementType *GetStorage(const uint32_t _Id_U32);
 
 private:
   std::vector<ElementType> mElementCollection;
@@ -198,7 +214,7 @@ std::pair<typename IdMap<ElementType>::iterator, bool> IdMap<ElementType>::Inser
   std::pair<typename IdMap<ElementType>::iterator, bool> Rts;
 
   auto LowerBound = std::lower_bound(mSortedIdCollection.begin(), mSortedIdCollection.end(), _Id_U32);
-  if (LowerBound != mSortedIdCollection.end() && _Id_U32 == *LowerBound)
+  if ((LowerBound != mSortedIdCollection.end()) && (_Id_U32 == *LowerBound))
   {
     Rts = std::make_pair(std::next(mElementCollection.begin(), std::distance(mSortedIdCollection.begin(), LowerBound)), false);
   }
@@ -217,7 +233,7 @@ std::pair<typename IdMap<ElementType>::iterator, bool> IdMap<ElementType>::Inser
   std::pair<typename IdMap<ElementType>::iterator, bool> Rts;
   auto LowerBound = std::lower_bound(mSortedIdCollection.begin(), mSortedIdCollection.end(), _Id_U32);
 
-  if (LowerBound != mSortedIdCollection.end() && _Id_U32 == *LowerBound)
+  if ((LowerBound != mSortedIdCollection.end()) && (_Id_U32 == *LowerBound))
   {
     Rts = std::make_pair(std::next(mElementCollection.begin(), std::distance(mSortedIdCollection.begin(), LowerBound)), false);
   }
@@ -279,7 +295,7 @@ bool IdMap<ElementType>::Contain(const uint32_t _Id_U32) const
   const auto LowerBound = std::lower_bound(mSortedIdCollection.cbegin(), mSortedIdCollection.cend(), _Id_U32);
   if (LowerBound == mSortedIdCollection.cend())
   {
-    Rts_B= false;
+    Rts_B = false;
   }
   else
   {
@@ -288,12 +304,28 @@ bool IdMap<ElementType>::Contain(const uint32_t _Id_U32) const
   return Rts_B;
 }
 
+template <typename ElementType>
+ElementType *IdMap<ElementType>::GetStorage(const uint32_t _Id_U32)
+{
+  ElementType *pRts = nullptr;
+  const auto LowerBound = std::lower_bound(mSortedIdCollection.cbegin(), mSortedIdCollection.cend(), _Id_U32);
+  if (LowerBound != mSortedIdCollection.cend())
+  {
+    if (*LowerBound == _Id_U32)
+    {
+      auto ElementAt = std::distance(mSortedIdCollection.cbegin(), LowerBound);
+      pRts = &mElementCollection[ElementAt];
+    }
+  }
+  return pRts;
+}
+
 // a very simple directional graph
 template <typename NodeType>
 class BofDirGraph
 {
 public:
-  BofDirGraph(const BOF_DIR_GRAPH_PARAM &_rBofDirGraphParam_X): mCrtId(0), mNodeCollection(), mEdgeFromNodeCollection(), mNodeNeighborCollection(), mEdgeCollection()
+  BofDirGraph(const BOF_DIR_GRAPH_PARAM &_rBofDirGraphParam_X) : mCrtId(1), mNodeCollection(), mEdgeFromNodeCollection(), mNodeNeighborCollection(), mEdgeCollection()
   {
     mBofDirGraphParam_X = _rBofDirGraphParam_X;
   }
@@ -306,7 +338,7 @@ public:
 
     Edge() = default;
     Edge(const uint32_t _Id_U32, const uint32_t _From_U32, const uint32_t _To_U32)
-        : Id_U32(_Id_U32), From_U32(_From_U32), To_U32(_To_U32)
+      : Id_U32(_Id_U32), From_U32(_From_U32), To_U32(_To_U32)
     {
     }
     inline uint32_t Opposite(const uint32_t _Id_U32) const
@@ -404,7 +436,8 @@ template <typename NodeType>
 uint32_t BofDirGraph<NodeType>::InsertNode(const NodeType &_rNode)
 {
   std::lock_guard<std::mutex> Lock(mMtx);
-  const uint32_t Rts_U32 = mCrtId++;
+  const uint32_t Rts_U32 = mCrtId;
+  BOF_INC_TICKET_NUMBER(mCrtId);
   BOF_ASSERT(!mNodeCollection.Contain(Rts_U32));
   mNodeCollection.Insert(Rts_U32, _rNode);
   mEdgeFromNodeCollection.Insert(Rts_U32, 0);
@@ -445,11 +478,12 @@ template <typename NodeType>
 uint32_t BofDirGraph<NodeType>::InsertEdge(const uint32_t _From_U32, const uint32_t _To_U32)
 {
   std::lock_guard<std::mutex> Lock(mMtx);
-  const uint32_t Id_U32 = mCrtId++;
-  BOF_ASSERT(!mEdgeCollection.Contain(Id_U32));
+  const uint32_t Rts_U32 = mCrtId;
+  BOF_INC_TICKET_NUMBER(mCrtId);
+  BOF_ASSERT(!mEdgeCollection.Contain(Rts_U32));
   BOF_ASSERT(mNodeCollection.Contain(_From_U32));
   BOF_ASSERT(mNodeCollection.Contain(_To_U32));
-  mEdgeCollection.Insert(Id_U32, Edge(Id_U32, _From_U32, _To_U32));
+  mEdgeCollection.Insert(Rts_U32, Edge(Rts_U32, _From_U32, _To_U32));
 
   // update neighbor count
   BOF_ASSERT(mEdgeFromNodeCollection.Contain(_From_U32));
@@ -458,7 +492,7 @@ uint32_t BofDirGraph<NodeType>::InsertEdge(const uint32_t _From_U32, const uint3
   BOF_ASSERT(mNodeNeighborCollection.Contain(_From_U32));
   mNodeNeighborCollection.Find(_From_U32)->push_back(_To_U32);
 
-  return Id_U32;
+  return Rts_U32;
 }
 
 template <typename NodeType>

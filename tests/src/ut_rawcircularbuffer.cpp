@@ -49,7 +49,7 @@ bool FillBuffer(uint8_t *_pData_U8, uint32_t _Offset_U32, uint32_t _Len_U32, int
       *_pData_U8++ = Val_U8;
       Val_U8 += _Step_S8;
     }
-    //printf("FillBuffer  tag %08X %08X data %02X %02X %02X %02X Val %02X\n", *(uint32_t *)pData_U8, _Tag_U32, pData_U8[4], pData_U8[5], pData_U8[6], pData_U8[7], _Step_S8);
+    // printf("FillBuffer  tag %08X %08X data %02X %02X %02X %02X Val %02X\n", *(uint32_t *)pData_U8, _Tag_U32, pData_U8[4], pData_U8[5], pData_U8[6], pData_U8[7], _Step_S8);
   }
   return Rts_B;
 }
@@ -75,7 +75,7 @@ bool CheckBuffer(uint8_t *_pData_U8, uint32_t _Offset_U32, uint32_t _Len_U32, in
   if ((_pData_U8) && (_Offset_U32 <= RAW_BUF_SIZE) && (_Len_U32 <= RAW_BUF_SIZE) && (_Len_U32 >= 4) && ((_Len_U32 + _Offset_U32) <= RAW_BUF_SIZE))
   {
     _pData_U8 = &_pData_U8[_Offset_U32];
-    //printf("CheckBuffer tag %08X %08X data %02X %02X %02X %02X Val %02X\n", *(uint32_t *)_pData_U8, _Tag_U32, _pData_U8[4], _pData_U8[5], _pData_U8[6], _pData_U8[7], _Step_S8);
+    // printf("CheckBuffer tag %08X %08X data %02X %02X %02X %02X Val %02X\n", *(uint32_t *)_pData_U8, _Tag_U32, _pData_U8[4], _pData_U8[5], _pData_U8[6], _pData_U8[7], _Step_S8);
 
     if (*(uint32_t *)_pData_U8 == _Tag_U32)
     {
@@ -87,7 +87,7 @@ bool CheckBuffer(uint8_t *_pData_U8, uint32_t _Offset_U32, uint32_t _Len_U32, in
       {
         if (*_pData_U8++ != Val_U8)
         {
-          printf("Val %x Expected %x\n", *(_pData_U8-1),Val_U8);
+          printf("Val %x Expected %x\n", *(_pData_U8 - 1), Val_U8);
           break;
         }
         Val_U8 += _Step_S8;
@@ -569,6 +569,58 @@ void RawCircularBufferAlwaysContiguous_Test::TearDown()
   EXPECT_TRUE(mpBofRawCircularBuffer_O == nullptr);
 }
 
+TEST_F(RawCircularBufferAlwaysContiguous_Test, Basic)
+{
+  uint32_t i_U32, Tag_U32, WriteSize_U32, Nb1_U32, Nb2_U32, SizeOfFirst_U32, Size_U32, NbEasyOp_U32, Op_U32;
+  uint8_t *pData1_U8, *pData2_U8, *pStartOfBuff_U8;
+
+  mpBofRawCircularBuffer_O->SetOverWriteMode(false);
+  WriteSize_U32 = (RAW_BUF_SIZE / 16) - 8;
+/*
+Number of buffers which can be stored in the buffer before getting a not enoudh space error:
+|B01|B02|B03|...|B0n|empty space up to the end which is smaller than WriteSize_U32|
+<---NbEasyOp_U32---->
+<------------------------------RAW_BUF_SIZE--------------------------------------->
+*/
+  NbEasyOp_U32 = RAW_BUF_SIZE / WriteSize_U32;  
+  Op_U32 = 0;
+  for (i_U32 = 0; i_U32 < 123; i_U32++, Op_U32++)
+  {
+    Tag_U32 = 0xDEADAA55;
+    ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, (int8_t)(i_U32 + 1), Tag_U32++));
+
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32, mpData_U8, nullptr));
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->GetBufferPtr(0, &Nb1_U32, &pData1_U8, &Nb2_U32, &pData2_U8));
+    EXPECT_EQ(1, mpBofRawCircularBuffer_O->GetNbElement(&SizeOfFirst_U32));
+    printf("PUSH %d/%d Sz %x B1 %x:%p B2 %x:%p\n", i_U32, NbEasyOp_U32, SizeOfFirst_U32, Nb1_U32, pData1_U8, Nb2_U32, pData2_U8);
+    if (i_U32 == 0)
+    {
+      pStartOfBuff_U8 = pData1_U8;
+    }
+
+    if (Op_U32 == NbEasyOp_U32)
+    {
+      Op_U32 = 0;
+      EXPECT_TRUE(pData1_U8 == pStartOfBuff_U8);
+    }
+    else
+    {
+      EXPECT_TRUE(pData1_U8 == (pStartOfBuff_U8 + (Op_U32 * WriteSize_U32)));
+    }
+    ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
+    Size_U32 = WriteSize_U32;
+    EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
+    printf(" POP B %x:%p\n", Size_U32, mpData_U8);
+    EXPECT_EQ(WriteSize_U32, Size_U32);
+    ASSERT_TRUE(CheckBuffer(mpData_U8, 0, WriteSize_U32, (int8_t)(i_U32 + 1), Tag_U32 - 1));
+    EXPECT_EQ(WriteSize_U32, (Nb1_U32 + Nb2_U32));
+    EXPECT_TRUE(pData1_U8 != nullptr);
+
+    EXPECT_EQ(WriteSize_U32, Nb1_U32);
+    EXPECT_EQ(0, Nb2_U32);
+    EXPECT_TRUE(pData2_U8 == nullptr);
+  } // for (i_U32 = 0; i_U32 < (RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY); i_U32++)
+}
 TEST_F(RawCircularBufferAlwaysContiguous_Test, FillWrapOverwrite)
 {
   uint32_t i_U32, j_U32, Index_U32, SizeOfFirst_U32, Size_U32, Nb_U32, Nb1_U32, Nb2_U32, WriteSize_U32, WrapAt_U32, LastLen_U32, RemainingSize_U32, Tag_U32 = 0xDEADAA55;
@@ -621,7 +673,7 @@ TEST_F(RawCircularBufferAlwaysContiguous_Test, FillWrapOverwrite)
       ASSERT_TRUE(FillBuffer(mpData_U8, 0, WriteSize_U32, Val_U8++, Tag_U32++));
       EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PushBuffer(0, WriteSize_U32, mpData_U8, nullptr));
       EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->GetBufferPtr(0, &Nb1_U32, &pData1_U8, &Nb2_U32, &pData2_U8));
-      //printf("%03d,%02d/%02d: push tag %08X data %02X %02X %02X %02X Val %02X\n", i_U32, j_U32, Nb_U32, Tag_U32 - 1, mpData_U8[4], mpData_U8[5], mpData_U8[6], mpData_U8[7], Val_U8 - 1);
+      // printf("%03d,%02d/%02d: push tag %08X data %02X %02X %02X %02X Val %02X\n", i_U32, j_U32, Nb_U32, Tag_U32 - 1, mpData_U8[4], mpData_U8[5], mpData_U8[6], mpData_U8[7], Val_U8 - 1);
 
       if (j_U32 < RAW_MAX_BUFFER_ENTRY)
       {
@@ -642,7 +694,7 @@ TEST_F(RawCircularBufferAlwaysContiguous_Test, FillWrapOverwrite)
     } // for (j_U32 = 0; j_U32 < (RAW_MAX_BUFFER_ENTRY * 2); j_U32++)
 
     Tag_U32 -= RAW_MAX_BUFFER_ENTRY;
-    //Val_U8 = RAW_MAX_BUFFER_ENTRY + 1 - (i_U32 - ((RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY) / 2));
+    // Val_U8 = RAW_MAX_BUFFER_ENTRY + 1 - (i_U32 - ((RAW_BUF_SIZE / RAW_MAX_BUFFER_ENTRY) / 2));
     for (j_U32 = 0; j_U32 < Nb_U32; j_U32++)
     {
       if (j_U32 < RAW_MAX_BUFFER_ENTRY)
@@ -654,7 +706,7 @@ TEST_F(RawCircularBufferAlwaysContiguous_Test, FillWrapOverwrite)
         Size_U32 = WriteSize_U32;
         ASSERT_TRUE(ClearBuffer(mpData_U8, 0, WriteSize_U32, 0));
         EXPECT_EQ(BOF_ERR_NO_ERROR, mpBofRawCircularBuffer_O->PopBuffer(0, &Size_U32, mpData_U8));
-        //printf("%03d,%02d/%02d: pop  tag %08X data %02X %02X %02X %02X Val %02X\n", i_U32, j_U32, Nb_U32, Tag_U32, mpData_U8[4], mpData_U8[5], mpData_U8[6], mpData_U8[7], Val_U8);
+        // printf("%03d,%02d/%02d: pop  tag %08X data %02X %02X %02X %02X Val %02X\n", i_U32, j_U32, Nb_U32, Tag_U32, mpData_U8[4], mpData_U8[5], mpData_U8[6], mpData_U8[7], Val_U8);
         if (j_U32 == 0)
         {
           Val_U8 = mpData_U8[4];

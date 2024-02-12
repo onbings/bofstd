@@ -467,7 +467,23 @@ BOFERR BofRawCircularBuffer::PushBuffer(uint32_t _BlockingTimeouItInMs_U32, uint
           {
             SizeUpToTheEnd_U32 = mpCrtBufferEnd_U8 - mpCrtBufferHead_U8;
             EnoughSpace_B = (_Nb_U32 <= SizeUpToTheEnd_U32);
-            SizeUpToTheEnd_U32 = 0;
+            if (!EnoughSpace_B)
+            {
+              /*
+              There should be enought space to store _Nb_U32 bytes but we are at the end of the buffer:
+              Number of buffers which can be stored in the buffer before getting a not enoudh space error:
+              |B01|B02|B03|...|B0n|empty space up to the end which is smaller than _Nb_U32|
+              <-Nb Full Buffer---->
+              <------------------------------BufferSizeInByte_U32------------------------->
+              */
+
+              //We have  buffer hole at the end, so do we have still enought space to store the data ?
+              EnoughSpace_B = (_Nb_U32 <= (mCrtBufferRemain_U32 - SizeUpToTheEnd_U32));
+            }
+            else
+            {
+              SizeUpToTheEnd_U32 = 0;  //Must be there !!! UpdatePushRawBuffer(SizeUpToTheEnd_U32, _Nb_U32, _pData_U8); below
+            }
           }
           else
           {
