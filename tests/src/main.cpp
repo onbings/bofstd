@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";
-  //::testing::GTEST_FLAG(filter) = "Graph_Test.*:ScopedGuard_Test.*";
+  ::testing::GTEST_FLAG(filter) = "Graph_Test.*:ScopedGuard_Test.*";
 //  ::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
