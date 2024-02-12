@@ -154,16 +154,16 @@ class IdMap
 public:
   using iterator = typename std::vector<ElementType>::iterator;
   using const_iterator = typename std::vector<ElementType>::const_iterator;
-  /*
-  const_iterator begin() const
+
+  const_iterator cbegin() const
   {
     return mElementCollection.begin();
   }
-  const_iterator end() const
+  const_iterator cend() const
   {
     return mElementCollection.end();
   }
-
+  /*
   Span<const ElementType> Element() const
   {
     return mElementCollection;
@@ -179,7 +179,8 @@ public:
     return mElementCollection.end();
   }
 
-  Span<ElementType> &Element() const
+  //Span<ElementType> &Element() const
+  std::vector<ElementType> &Element()
   {
     return mElementCollection;
   }
@@ -355,7 +356,8 @@ public:
   NodeType &Node(uint32_t _Id_U32);
   const NodeType &Node(uint32_t _Id_U32) const;
   Span<const uint32_t> Neighbor(uint32_t _Id_U32) const;
-  Span<const Edge> Edges() const;
+  //  std::vector<typename BofDirGraph<NodeType>::Edge> &Edges();
+
   IdMap<NodeType> &NodeMap();
   IdMap<Edge> &EdgeMap();
 
@@ -407,28 +409,29 @@ IdMap<typename BofDirGraph<NodeType>::Edge> &BofDirGraph<NodeType>::EdgeMap()
 {
   return mEdgeCollection;
 }
-
+/*
+template <typename NodeType>
+std::vector<typename BofDirGraph<NodeType>::Edge> &BofDirGraph<NodeType>::Edges()
+{
+  return mEdgeCollection.Element();
+}
+*/
 template <typename NodeType>
 Span<const uint32_t> BofDirGraph<NodeType>::Neighbor(uint32_t _Id_U32) const
 {
   std::lock_guard<std::mutex> Lock(mMtx);
   const auto iter = mNodeNeighborCollection.Find(_Id_U32);
-  BOF_ASSERT(iter != mNodeNeighborCollection.end());
+  BOF_ASSERT(iter != mNodeNeighborCollection.cend());
   return *iter;
 }
 
-template <typename NodeType>
-Span<const typename BofDirGraph<NodeType>::Edge> BofDirGraph<NodeType>::Edges() const
-{
-  return mEdgeCollection.Element();
-}
 
 template <typename NodeType>
 size_t BofDirGraph<NodeType>::NbEdgeFromNode(const uint32_t _Id_U32) const
 {
   std::lock_guard<std::mutex> Lock(mMtx);
   auto Rts = mEdgeFromNodeCollection.Find(_Id_U32);
-  BOF_ASSERT(Rts != mEdgeFromNodeCollection.end());
+  BOF_ASSERT(Rts != mEdgeFromNodeCollection.cend());
   return *Rts;
 }
 
