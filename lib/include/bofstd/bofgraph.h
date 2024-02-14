@@ -387,15 +387,15 @@ private:
 template <typename NodeType>
 NodeType &BofDirGraph<NodeType>::Node(const uint32_t _Id_U32)
 {
-  return const_cast<NodeType &>(static_cast<const BofDirGraph *>(this)->node(_Id_U32));
+  return const_cast<NodeType &>(static_cast<const BofDirGraph *>(this)->Node(_Id_U32));
 }
 
 template <typename NodeType>
 const NodeType &BofDirGraph<NodeType>::Node(const uint32_t _Id_U32) const
 {
   std::lock_guard<std::mutex> Lock(mMtx);
-  const auto iter = mNodeCollection.find(id);
-  BOF_ASSERT(iter != mNodeCollection.end());
+  const auto iter = mNodeCollection.Find(_Id_U32);
+  BOF_ASSERT(iter != mNodeCollection.cend());
   return *iter;
 }
 
