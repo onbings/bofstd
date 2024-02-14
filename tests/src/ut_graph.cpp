@@ -94,18 +94,19 @@ This example demonstrates the basic structure of a directed graph with nodes and
 #include <bofstd/bofstd.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <iterator>
+#include <mutex>
 #include <stack>
 #include <stddef.h>
 #include <utility>
 #include <vector>
-#include <mutex>
 
 BEGIN_BOF_NAMESPACE()
 struct BOF_DIR_GRAPH_PARAM
 {
-  bool MultiThreadAware_B;   /*! true if the object is used in a multi threaded application (use mCircularBufferMtx_X)*/
+  bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mCircularBufferMtx_X)*/
 
   BOF_DIR_GRAPH_PARAM()
   {
@@ -124,7 +125,7 @@ struct Span
 
   template <typename Container>
   Span(Container &_Container)
-    : mBegin(_Container.data()), mEnd(mBegin + _Container.size())
+      : mBegin(_Container.data()), mEnd(mBegin + _Container.size())
   {
   }
   iterator begin() const
@@ -179,7 +180,7 @@ public:
     return mElementCollection.end();
   }
 
-  //Span<ElementType> &Element() const
+  // Span<ElementType> &Element() const
   std::vector<ElementType> &Element()
   {
     return mElementCollection;
@@ -326,7 +327,8 @@ template <typename NodeType>
 class BofDirGraph
 {
 public:
-  BofDirGraph(const BOF_DIR_GRAPH_PARAM &_rBofDirGraphParam_X) : mCrtId(1), mNodeCollection(), mEdgeFromNodeCollection(), mNodeNeighborCollection(), mEdgeCollection()
+  BofDirGraph(const BOF_DIR_GRAPH_PARAM &_rBofDirGraphParam_X)
+      : mCrtId(1), mNodeCollection(), mEdgeFromNodeCollection(), mNodeNeighborCollection(), mEdgeCollection()
   {
     mBofDirGraphParam_X = _rBofDirGraphParam_X;
   }
@@ -339,7 +341,7 @@ public:
 
     Edge() = default;
     Edge(const uint32_t _Id_U32, const uint32_t _From_U32, const uint32_t _To_U32)
-      : Id_U32(_Id_U32), From_U32(_From_U32), To_U32(_To_U32)
+        : Id_U32(_Id_U32), From_U32(_From_U32), To_U32(_To_U32)
     {
     }
     inline uint32_t Opposite(const uint32_t _Id_U32) const
@@ -394,7 +396,7 @@ template <typename NodeType>
 const NodeType &BofDirGraph<NodeType>::Node(const uint32_t _Id_U32) const
 {
   std::lock_guard<std::mutex> Lock(mMtx);
-  const auto iter = mNodeCollection.find(id);
+  const auto iter = mNodeCollection.find(_Id_U32);
   BOF_ASSERT(iter != mNodeCollection.end());
   return *iter;
 }
@@ -425,13 +427,12 @@ Span<const uint32_t> BofDirGraph<NodeType>::Neighbor(uint32_t _Id_U32) const
   return *iter;
 }
 
-
 template <typename NodeType>
 size_t BofDirGraph<NodeType>::NbEdgeFromNode(const uint32_t _Id_U32) const
 {
   std::lock_guard<std::mutex> Lock(mMtx);
   auto Rts = mEdgeFromNodeCollection.Find(_Id_U32);
-  BOF_ASSERT(Rts != mEdgeFromNodeCollection.end());
+  BOF_ASSERT(Rts != mEdgeFromNodeCollection.cend());
   return *Rts;
 }
 

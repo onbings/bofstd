@@ -67,11 +67,13 @@ public:
   BofScopeGuard() = delete;
   BofScopeGuard(const BofScopeGuard &) = delete;
   BofScopeGuard &operator=(const BofScopeGuard &) = delete;
-  BofScopeGuard(BofScopeGuard &&_rrhs) : mF(std::move(_rrhs.mOutOfScopeCallback)), mActive_B(_rrhs.mActive_B)
+  BofScopeGuard(BofScopeGuard &&_rrhs)
+      : mOutOfScopeCallback(std::move(_rrhs.mOutOfScopeCallback)), mActive_B(_rrhs.mActive_B)
   {
     _rrhs.dismiss();
   }
-  BofScopeGuard(OutOfScopeCallback _OutOfScopeCallback) : mOutOfScopeCallback(std::move(_OutOfScopeCallback)), mActive_B(true)
+  BofScopeGuard(OutOfScopeCallback _OutOfScopeCallback)
+      : mOutOfScopeCallback(_OutOfScopeCallback), mActive_B(true)
   {
   }
   ~BofScopeGuard()
