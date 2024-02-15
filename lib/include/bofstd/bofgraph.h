@@ -159,7 +159,7 @@ public:
   iterator Find(uint32_t _Id_U32);
   const_iterator Find(uint32_t _Id_U32) const;
   bool Contain(uint32_t _Id_U32) const;
-  ElementType *GetStorage(uint32_t _Id_U32);
+  //Use Node() fct and not ElementType *GetStorage(uint32_t _Id_U32);
 
 private:
   std::vector<ElementType> mElementCollection;
@@ -261,7 +261,8 @@ bool IdMap<ElementType>::Contain(uint32_t _Id_U32) const
   }
   return Rts_B;
 }
-
+//Use Node() fct and not 
+/*
 template <typename ElementType>
 ElementType *IdMap<ElementType>::GetStorage(uint32_t _Id_U32)
 {
@@ -277,7 +278,7 @@ ElementType *IdMap<ElementType>::GetStorage(uint32_t _Id_U32)
   }
   return pRts;
 }
-
+*/
 // a very simple directional graph
 template <typename NodeType>
 class BofDirGraph
