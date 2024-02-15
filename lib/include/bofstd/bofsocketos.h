@@ -753,7 +753,7 @@ struct BOF_NETWORK_INTERFACE_PARAM
 };
 
 constexpr char BOF_INTERFACE_ADDRESS_SEPARATOR = '>';
-
+BOFSTD_EXPORT std::string Bof_GetHostName();
 BOFSTD_EXPORT BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTERFACE_INFO &_rInterfaceInfo_X);
 BOFSTD_EXPORT BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceName_S, BOF_NETWORK_INTERFACE_PARAM &_rNewInterfaceParam_X); // TODO IpV6 version
 BOFSTD_EXPORT BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X);                   // TODO IpV6 version

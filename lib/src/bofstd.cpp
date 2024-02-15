@@ -75,6 +75,7 @@ cmake -DEVS_MUSE_STORAGE_GENERATE_HELP=ON -DCMAKE_TOOLCHAIN_FILE=C:\pro\vcpkg\sc
 cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/github/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=ON -DVCPKG_TARGET_TRIPLET=evs-x64-linux-dynamic -DVCPKG_OVERLAY_PORTS=/home/bha/pro/github/onbings-vcpkg-registry/ports/
 /home/bha/pro/github/bofstd
 */
+#include <bofstd/bofsocketos.h>
 #include <bofstd/boffs.h>
 #include <bofstd/bofsocket.h>
 #include <bofversioninfo.h>
@@ -391,7 +392,7 @@ static void S_BofEmscriptenCallback(void *_pArg)
 BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
 {
   BOFERR Rts_E;
-  char pComputerName_c[1024];
+  char pName_c[1024];
 
   GL_BofStdParam_X = _rStdParam_X;
   GL_BofDbgPrintfStartTime_U32 = Bof_GetMsTickCount();
@@ -399,6 +400,8 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   Rts_E = BofSocket::S_InitializeStack();
   /* Set the locale to the POSIX C environment */
   setlocale(LC_ALL, "C");
+  _rStdParam_X.ComputerName_S = Bof_GetHostName();;
+
 #if defined(_WIN32)
   OSVERSIONINFOEX osVersionInfo;
   ZeroMemory(&osVersionInfo, sizeof(OSVERSIONINFOEX));
@@ -406,13 +409,8 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   _rStdParam_X.OsName_S = "Windows";
   if (GetVersionEx((OSVERSIONINFO *)&osVersionInfo))
   {
-    sprintf(pComputerName_c, "Windows %d.%d.%d", osVersionInfo.dwMajorVersion, osVersionInfo.dwMinorVersion, osVersionInfo.dwBuildNumber);
-    _rStdParam_X.OsName_S = pComputerName_c;
-  }
-  DWORD Nb_DW = sizeof(pComputerName_c);
-  if (GetComputerNameA(pComputerName_c, &Nb_DW))
-  {
-    _rStdParam_X.ComputerName_S = pComputerName_c;
+    sprintf(pName_c, "Windows %d.%d.%d", osVersionInfo.dwMajorVersion, osVersionInfo.dwMinorVersion, osVersionInfo.dwBuildNumber);
+    _rStdParam_X.OsName_S = pName_c;
   }
   SetConsoleOutputCP(65001);
 
@@ -451,12 +449,8 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   _rStdParam_X.OsName_S = "Linux";
   if (uname(&Si_X) != -1)
   {
-    sprintf(pComputerName_c, "%s %s %s Cpu %s", Si_X.sysname, Si_X.release, Si_X.version, Si_X.machine);
-    _rStdParam_X.OsName_S = pComputerName_c;
-  }
-  if (gethostname(pComputerName_c, sizeof(pComputerName_c)) == 0)
-  {
-    _rStdParam_X.ComputerName_S = pComputerName_c;
+    sprintf(pName_c, "%s %s %s Cpu %s", Si_X.sysname, Si_X.release, Si_X.version, Si_X.machine);
+    _rStdParam_X.OsName_S = pName_c;
   }
   signal(SIGPIPE, SIG_IGN);
   /*

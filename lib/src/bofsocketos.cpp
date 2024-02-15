@@ -59,7 +59,24 @@ struct route_info
 #endif
 
 BEGIN_BOF_NAMESPACE()
-
+std::string Bof_GetHostName()
+{
+  std::string Rts_S;
+  char pName_c[1024];
+#if defined(_WIN32)
+  DWORD Nb_DW = sizeof(pName_c);
+  if (GetComputerNameA(pName_c, &Nb_DW))
+  {
+    Rts_S = pName_c;
+  }
+#else
+  if (gethostname(pName_c, sizeof(pName_c)) == 0)
+  {
+    Rts_S = pName_c;
+  }
+#endif
+  return Rts_S;
+}
 BOFERR Bof_GetIpMaskGw(const char *_pName_c, BOF_SOCKADDR *_pIpAddress_X, BOF_SOCKADDR *_pNetMask_X, BOF_SOCKADDR *_pBroadcast_X, BOF_NETWORK_INTERFACE_PARAM &_rNetworkInterfaceParam_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
