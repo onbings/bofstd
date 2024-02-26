@@ -148,7 +148,7 @@ void BofProfiler::EnterBench(uint32_t _ItemId_U32)
    See also
    Nothing
  */
-void BofProfiler::LeaveBench(uint32_t _ItemId_U32)
+void BofProfiler::LeaveBench(bool _IgnoreFirstSample_B, uint32_t _ItemId_U32)
 {
   uint64_t Ticks1_U64;
   uint64_t Ticks2_U64;
@@ -170,7 +170,7 @@ void BofProfiler::LeaveBench(uint32_t _ItemId_U32)
 
           mpStats_X[_ItemId_U32].Crt = (uint64_t)(Ticks2_U64 < Ticks1_U64 ? (uint64_t)-1 : 0) + Ticks2_U64 - Ticks1_U64;
 
-          Bof_UpdateStatVar(mpStats_X[_ItemId_U32], mpStats_X[_ItemId_U32].Crt);
+          Bof_UpdateStatVar(_IgnoreFirstSample_B, mpStats_X[_ItemId_U32], mpStats_X[_ItemId_U32].Crt);
         }
       }
     }
@@ -242,7 +242,7 @@ bool BofProfiler::GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_p
    See also
    Nothing
  */
-bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
+bool BofProfiler::SetStats(bool _IgnoreFirstSample_B, uint32_t _ItemId_U32, uint64_t _Value_U64)
 {
   bool Rts_B = false;
 
@@ -254,7 +254,7 @@ bool BofProfiler::SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64)
     }
     else
     {
-      Bof_UpdateStatVar(mpStats_X[_ItemId_U32], _Value_U64);
+      Bof_UpdateStatVar(_IgnoreFirstSample_B, mpStats_X[_ItemId_U32], _Value_U64);
     }
     Rts_B = true;
   }
@@ -457,6 +457,35 @@ uint64_t BofProfiler::GetNbSample(uint32_t _ItemId_U32)
   }
 
   return Rts_U64;
+}
+uint32_t BofProfiler::GetLastMax(uint32_t _ItemId_U32, BOF_STAT_MAX<uint64_t> *_pLastMax_X)
+{
+  uint32_t Rts_U32 = 0, i_U32;
+  BOF_STAT_VARIABLE<uint64_t> Stats_X;
+
+  if (_ItemId_U32 < mNbItems_U32)
+  {
+    if (mProfilerType_E == BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_OS_AWARE)
+    {
+    }
+    else
+    {
+      if (GetStats(_ItemId_U32, &Stats_X))
+      {
+        Rts_U32 = Stats_X.NbMax_U32;
+        if (_pLastMax_X)
+        {
+          for (i_U32 = 0; i_U32 < Rts_U32; i_U32++)
+          {
+            _pLastMax_X[i_U32].Max = Stats_X.pMax_X[i_U32].Max;
+            _pLastMax_X[i_U32].MaxIndex_U64 = Stats_X.pMax_X[i_U32].MaxIndex_U64;
+          }
+        }
+      }
+    }
+  }
+
+  return Rts_U32;
 }
 /*!
    Description

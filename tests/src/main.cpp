@@ -1,6 +1,7 @@
 #include <bofstd/boffs.h>
-#include <bofstd/bofsystem.h>
 #include <bofstd/boflogger.h>
+#include <bofstd/bofsystem.h>
+//#include <bofstd/ibofloggerfactory.h>
 
 #include "../include/gtestrunner.h"
 
@@ -21,8 +22,6 @@
 #include <malloc.h>
 #endif
 
-USE_BOF_NAMESPACE()
-
 BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rMasg_S)
 {
   printf("Assert in %s line %d Msg %s\n", _rFile_S.c_str(), _Line_U32, _rMasg_S.c_str());
@@ -37,16 +36,15 @@ int main(int argc, char *argv[])
 #else
   int Rts_i;
   BOFERR Sts_E;
-  BOFSTDPARAM StdParam_X;
+  BOF::BOFSTDPARAM StdParam_X;
   std::string HelpString_S, Cwd_S;
 
   StdParam_X.AssertInRelease_B = true;
   StdParam_X.AssertCallback = AppBofAssertCallback;
   Sts_E = Bof_Initialize(StdParam_X);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-  Bof_GetCurrentDirectory(Cwd_S);
+  BOF::Bof_GetCurrentDirectory(Cwd_S);
   printf("\nPwd %s\nRunning BofStd V %s on %s under %s\n", Cwd_S.c_str(), StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str(), StdParam_X.OsName_S.c_str());
-
   /*
   BOF::BofLogger &rBofLog = BOF::BofLogger::S_Instance();
   BOF::BOF_LOGGER_PARAM LoggerParam_X;
@@ -126,7 +124,11 @@ int main(int argc, char *argv[])
   //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*";
 
   //::testing::GTEST_FLAG(filter) = "DateTime_Test.StringDateTime:SocketTcp_Test.TcpClientTest:DateTime_Test.ValidateDateTime:SocketOs_Test.SocketAddress";
-  //::testing::GTEST_FLAG(filter) = "Logger_Test.*";
+  //  ::testing::GTEST_FLAG(filter) = "Logger_Test.*:ut_logger_ibofloggerfactory.*";
+//  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
+//  ::testing::GTEST_FLAG(filter) = "ut_spsc.*:ut_mpmc.*:CircularBuffer_Test.Perf";
+  //::testing::GTEST_FLAG(filter) = "CircularBuffer_Test.PerfThread";
+  
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:Pipe_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:Uri_Test.*";
@@ -136,13 +138,20 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";
   //::testing::GTEST_FLAG(filter) = "Graph_Test.*:ScopedGuard_Test.*";
-//  ::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
+  //  ::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
   // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
+
+  // BHALOG("! Rts_i=%d nb %d p %p !\n", 0, 7, nullptr);
+
+  //  LOG_INFO(MY_LOGGER, 0, "! Rts_i=%d nb %d p %p !\n", Rts_i, _Argc_i, _pArgv_c);
+  //  LOG_WARNING(MY_LOGGER, 0, "! This will not be logged !\n");
+  //  LOG_ERROR(MY_LOGGER, 0, "! This will not be logged !\n");
+
   Rts_i = RUN_ALL_TESTS();
 
-  Sts_E = Bof_Shutdown();
+  Sts_E = BOF::Bof_Shutdown();
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 
 #if defined(NDEBUG) // We are in Release compil

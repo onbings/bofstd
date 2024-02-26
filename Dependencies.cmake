@@ -45,3 +45,13 @@ endif()
 find_package_dependency(fmt REQUIRED)
 find_package_dependency(date REQUIRED)
 
+#if you want to use readerwriterqueue or concurrentqueue add the following to vcpkg.json
+#    {"name": "readerwriterqueue"},
+#    {"name": "concurrentqueue"}
+#and activate 
+#	include/bofstd/bofspscqueue.h
+#	include/bofstd/bofmpmcqueue.h
+#in lib CMakeLists.txt
+#	src/ut_spscqueue.cpp
+#	src/ut_mpmcqueue.cpp
+#in tests CMakeLists.txt

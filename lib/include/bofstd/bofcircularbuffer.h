@@ -164,6 +164,7 @@ struct BOF_CIRCULAR_BUFFER_PARAM
     MultiThreadAware_B = false;
     NbMaxElement_U32 = 0;
     pData = nullptr;
+    Overwrite_B = false;
     Blocking_B = false;
     PopLockMode_B = false;
   }
@@ -463,21 +464,29 @@ DataType *BofCircularBuffer<DataType>::GetInternalDataBuffer() const
   return mpData_T;
 }
 
+
 template <typename DataType>
 BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _BlockingTimeouItInMs_U32, uint32_t *_pIndexOf_U32, DataType **_ppStorage_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-
+  //First call is slower ???
+  //static uint32_t S_Test_U32 = 0;
+  //static uint32_t S_Index_U32 = 0;
+  //static uint64_t S_pTiming_U64[2][16];
   if (_pData)
   {
   RetryPush:
+    //S_Index_U32 = 0;
+    //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount();
     Rts_E = ((mCircularBufferParam_X.Blocking_B) && (_BlockingTimeouItInMs_U32)) ? Bof_WaitForEvent(mCanWriteEvent_X, _BlockingTimeouItInMs_U32, 0) : BOF_ERR_NO_ERROR;
     //		printf("@@%d@--->PushIn %s nb %d/%d pop %d push %d islock %d block %d blockto %d err %s\n", BOF::Bof_GetMsTickCount(),mCanReadEvent_X.Name_S.c_str(),	mNbElementInBuffer_U32, mNbElementLockedInBuffer_U32, mPopIndex_U32, mPushIndex_U32,
     // mpLock_U8[mPushIndex_U32], mCircularBufferParam_X.Blocking_B, _BlockingTimeouItInMs_U32, Bof_ErrorCode(Rts_E));
-
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
+      //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
       BOF_CIRCULAR_BUFFER_LOCK(Rts_E);
+      //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
+
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         // Buffer is dimensioned to contains a an integer number of "_pData"->there is no  read/write pointer clipping during an "atomic" push or pop
@@ -493,6 +502,8 @@ BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _Block
             {
               *_ppStorage_X = &mpData_T[mPushIndex_U32];
             }
+            //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
+
             mpData_T[mPushIndex_U32] = *_pData;
             BOF_ASSERT(mPushIndex_U32 < mCircularBufferParam_X.NbMaxElement_U32);
             mPushIndex_U32++;
@@ -519,6 +530,7 @@ BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _Block
             {
               mLevelMax_U32 = mNbElementInBuffer_U32;
             }
+            //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
 
             Rts_E = BOF_ERR_NO_ERROR;
           }
@@ -538,6 +550,7 @@ BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _Block
         {
           if (Rts_E == BOF_ERR_NO_ERROR)
           {
+            //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
             Rts_E = SignalReadWrite();
           }
           else
@@ -552,11 +565,20 @@ BOFERR BofCircularBuffer<DataType>::Push(const DataType *_pData, uint32_t _Block
             }
           }
         }
+        //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
         BOF_CIRCULAR_BUFFER_UNLOCK();
+        //S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
       }
     }
   }
-
+  /*
+  S_pTiming_U64[S_Test_U32][S_Index_U32++] = BOF::Bof_GetNsTickCount() - S_pTiming_U64[S_Test_U32][0];
+  S_Test_U32++;
+  if (S_Test_U32 > 1)
+  {
+    S_Test_U32 = 1;
+  }
+  */
   return Rts_E;
 }
 

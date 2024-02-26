@@ -849,13 +849,12 @@ BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _Pri
         {
           // https://sakhnik.com/2017/07/16/custom-mutex.html
 
+          pthread_mutexattr_t Attributes_X;
           // Destroy the underlying mutex
-          // NO ::pthread_mutex_destroy(_rMtx_X.Mtx.native_handle());
-          // NO ::pthread_mutex_destroy(_rMtx_X.RecursiveMtx.native_handle());
+          ::pthread_mutex_destroy(_rMtx_X.Mtx.native_handle());
+          ::pthread_mutex_destroy(_rMtx_X.RecursiveMtx.native_handle());
 
           // Create mutex attribute with desired protocol
-          pthread_mutexattr_t Attributes_X;
-
           pthread_mutexattr_init(&Attributes_X);
           pthread_mutexattr_setprotocol(&Attributes_X, PTHREAD_PRIO_INHERIT);
           ::pthread_mutex_init(_rMtx_X.Mtx.native_handle(), &Attributes_X);

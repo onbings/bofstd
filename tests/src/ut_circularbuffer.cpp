@@ -18,10 +18,10 @@
  *
  * V 1.00  vendredi 30 mai 2014 16:51:15  b.harmel : Initial release
  */
+#include "gtestrunner.h"
 #include <bofstd/bofcircularbuffer.h>
 #include <bofstd/bofdatetime.h>
-
-#include "gtestrunner.h"
+#include <bofstd/bofperformance.h>
 
 #include <list>
 #include <thread>
@@ -599,4 +599,188 @@ TEST(CircularBuffer_Test, StdString)
   }
 
   BOF_SAFE_DELETE(pReplyCollection);
+}
+struct QUEUE_ITEM
+{
+  uint32_t Val_U32;
+  uint8_t *pData_U8;
+  float pFloat_f[8];
+  std::string Val_S;
+
+  QUEUE_ITEM()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    uint32_t i_U32;
+
+    Val_U32 = 0;
+    pData_U8 = nullptr;
+    for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pFloat_f); i_U32++)
+    {
+      pFloat_f[i_U32] = 0;
+    }
+    Val_S = "";
+  }
+};
+TEST(CircularBuffer_Test, Perf)
+{
+  uint32_t i_U32, j_U32, Index_U32;
+  uint8_t pData_U8[0x1000];
+  BOF::BOF_CIRCULAR_BUFFER_PARAM CbParam_X;
+  QUEUE_ITEM Item_X;
+  constexpr bool IGNORE_FIRST_SAMPLE = true;
+  constexpr uint32_t NB_QUEUE_OP = 100;
+  CbParam_X.Blocking_B = true;
+  CbParam_X.MultiThreadAware_B = true;
+  CbParam_X.NbMaxElement_U32 = NB_QUEUE_OP;
+  BOF::BofCircularBuffer<QUEUE_ITEM> Cb(CbParam_X);
+  BOF::BofProfiler Profiler(BOF::BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_NORMAL, 2);
+
+  memset(pData_U8, 0, sizeof(pData_U8));
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < NB_QUEUE_OP; i_U32++)
+  {
+    Item_X.Val_U32 = i_U32;
+    Item_X.pData_U8 = &pData_U8[Index_U32];
+    pData_U8[Index_U32] = 'A' + (i_U32 % 26);
+    for (j_U32 = 0; j_U32 < BOF_NB_ELEM_IN_ARRAY(Item_X.pFloat_f); j_U32++)
+    {
+      Item_X.pFloat_f[j_U32] = i_U32 * j_U32;
+    }
+    Item_X.Val_S = BOF::Bof_Random(false, (i_U32 * 16) + j_U32, 'A', 'Z');
+    Profiler.EnterBench(0);
+    EXPECT_EQ(Cb.Push(&Item_X, 1000, nullptr, nullptr), BOF_ERR_NO_ERROR);
+    Profiler.LeaveBench(IGNORE_FIRST_SAMPLE, 0);
+    Index_U32++;
+    if (Index_U32 > sizeof(pData_U8))
+    {
+      Index_U32 = 0;
+    }
+  }
+  printf("%zd Push Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(0), Profiler.GetMin(0), Profiler.GetMean(0), Profiler.GetMax(0), Profiler.GetLockCount(0));
+
+  Index_U32 = 0;
+  for (i_U32 = 0; i_U32 < NB_QUEUE_OP; i_U32++)
+  {
+    Item_X.Reset();
+    Profiler.EnterBench(1);
+    EXPECT_EQ(Cb.Pop(&Item_X, 1000, nullptr, nullptr), BOF_ERR_NO_ERROR);
+    Profiler.LeaveBench(IGNORE_FIRST_SAMPLE, 1);
+
+    Index_U32++;
+    if (Index_U32 > sizeof(pData_U8))
+    {
+      Index_U32 = 0;
+    }
+  }
+  EXPECT_NE(Cb.Pop(&Item_X, 1000, nullptr, nullptr), BOF_ERR_NO_ERROR);
+  printf("%zd Pop Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(1), Profiler.GetMin(1), Profiler.GetMean(1), Profiler.GetMax(1), Profiler.GetLockCount(1));
+}
+
+TEST(CircularBuffer_Test, PerfThread)
+{
+  constexpr bool IGNORE_FIRST_SAMPLE = true;
+  constexpr uint32_t NB_QUEUE_OP = 100;
+  constexpr uint32_t NB_QUEUE_PRODUCER_CONSUMER = 8;
+  uint8_t pData_U8[0x1000];
+  BOF::BOF_CIRCULAR_BUFFER_PARAM CbParam_X;
+  CbParam_X.Blocking_B = true;
+  CbParam_X.MultiThreadAware_B = true;
+  CbParam_X.NbMaxElement_U32 = (NB_QUEUE_PRODUCER_CONSUMER * NB_QUEUE_OP);
+  BOF::BofCircularBuffer<QUEUE_ITEM> Cb(CbParam_X);
+  BOF::BofProfiler Profiler(BOF::BOF_PROFILER_TYPE::BOF_PROFILER_TYPE_NORMAL, NB_QUEUE_PRODUCER_CONSUMER + NB_QUEUE_PRODUCER_CONSUMER);
+  std::thread pThread[NB_QUEUE_PRODUCER_CONSUMER + NB_QUEUE_PRODUCER_CONSUMER];
+  uint32_t i_U32, j_U32, Index_U32, pDequeued_U32[NB_QUEUE_PRODUCER_CONSUMER * NB_QUEUE_OP], NbLastMax_U32;
+  BOF_STAT_MAX<uint64_t> pLastMax_X[BOF_STAT_KEEP_LAST_NB_MAX_VAL];
+  static bool S_AllThreadReady_B = false;
+
+  memset(pDequeued_U32, 0, sizeof(pDequeued_U32));
+  // Producers
+  for (i_U32 = 0; i_U32 < NB_QUEUE_PRODUCER_CONSUMER; i_U32++)
+  {
+    pThread[i_U32] = std::thread([&](uint32_t _Id_U32) {
+      QUEUE_ITEM Item_X;
+      uint32_t j_U32=0;
+
+      while (!S_AllThreadReady_B)
+      {
+        BOF::Bof_MsSleep(1);
+      }
+      for (j_U32 = 0; j_U32 < NB_QUEUE_OP; j_U32++)
+      {
+        Item_X.Val_U32 = (_Id_U32 * NB_QUEUE_OP) + j_U32;
+        // printf("Thread %d push %d\n", _Id_U32, Item_X.Val_U32);
+        Profiler.EnterBench(_Id_U32);
+        EXPECT_EQ(Cb.Push(&Item_X, 1000, nullptr, nullptr), BOF_ERR_NO_ERROR);
+        Profiler.LeaveBench(IGNORE_FIRST_SAMPLE, _Id_U32);
+      }
+    },
+                                 i_U32);
+  }
+  // Consumers
+  for (i_U32 = NB_QUEUE_PRODUCER_CONSUMER; i_U32 < (NB_QUEUE_PRODUCER_CONSUMER + NB_QUEUE_PRODUCER_CONSUMER); i_U32++)
+  {
+    pThread[i_U32] = std::thread([&](uint32_t _Id_U32) {
+      QUEUE_ITEM Item_X;
+      uint32_t j_U32 = 0;
+
+      while (!S_AllThreadReady_B)
+      {
+        BOF::Bof_MsSleep(1);
+      }
+      for (j_U32 = NB_QUEUE_OP; j_U32 < (NB_QUEUE_OP + NB_QUEUE_OP); j_U32++)
+      {
+        Profiler.EnterBench(_Id_U32);
+        EXPECT_EQ(Cb.Pop(&Item_X, 1000, nullptr, nullptr), BOF_ERR_NO_ERROR);
+        Profiler.LeaveBench(IGNORE_FIRST_SAMPLE, _Id_U32);
+        // printf("Thread %d pop %d\n", _Id_U32, Item_X.Val_U32);
+
+        ++pDequeued_U32[Item_X.Val_U32];
+      }
+    },
+                                 i_U32);
+  }
+  S_AllThreadReady_B = true;
+  // Wait for all pThread
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pThread); i_U32++)
+  {
+    pThread[i_U32].join();
+  }
+
+  // Collect any leftovers (could be some if e.g. consumers finish before producers)
+  QUEUE_ITEM Item_X;
+  while (Cb.Pop(&Item_X, 1000, nullptr, nullptr) == BOF_ERR_NO_ERROR)
+  {
+    ++pDequeued_U32[Item_X.Val_U32];
+  }
+
+  // Make sure everything went in and came back out!
+  for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(pDequeued_U32); i_U32++)
+  {
+    EXPECT_EQ(pDequeued_U32[i_U32], 1);
+  }
+  printf("---PUSH--------------------------\n");
+  for (i_U32 = 0; i_U32 < NB_QUEUE_PRODUCER_CONSUMER; i_U32++)
+  {
+    NbLastMax_U32 = Profiler.GetLastMax(i_U32, pLastMax_X);
+    printf("NbOp %zd NbMax %d Push[%d] Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(i_U32), NbLastMax_U32, i_U32, Profiler.GetMin(i_U32), Profiler.GetMean(i_U32), Profiler.GetMax(i_U32), Profiler.GetLockCount(i_U32));
+    EXPECT_EQ(Profiler.GetNbSample(i_U32), NB_QUEUE_OP);
+    for (j_U32 = 0; j_U32 < NbLastMax_U32; j_U32++)
+    {
+      printf("  Index %zd Max %zd\n", pLastMax_X[j_U32].MaxIndex_U64, pLastMax_X[j_U32].Max);
+    }
+  }
+  printf("---POP---------------------------\n");
+  for (i_U32 = NB_QUEUE_PRODUCER_CONSUMER; i_U32 < (NB_QUEUE_PRODUCER_CONSUMER + NB_QUEUE_PRODUCER_CONSUMER); i_U32++)
+  {
+    NbLastMax_U32 = Profiler.GetLastMax(i_U32, pLastMax_X);
+    printf("NbOp %zd NbMax %d Pop[%d] Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(i_U32), NbLastMax_U32, i_U32, Profiler.GetMin(i_U32), Profiler.GetMean(i_U32), Profiler.GetMax(i_U32), Profiler.GetLockCount(i_U32));
+    EXPECT_EQ(Profiler.GetNbSample(i_U32), NB_QUEUE_OP);
+    for (j_U32 = 0; j_U32 < NbLastMax_U32; j_U32++)
+    {
+      printf("  Index %zd Max %zd\n", pLastMax_X[j_U32].MaxIndex_U64, pLastMax_X[j_U32].Max);
+    }
+  }
 }

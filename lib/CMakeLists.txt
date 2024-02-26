@@ -59,6 +59,8 @@ set(CONIO_SHELL_FILES
 )
 
 set(CONTAINER_FILES
+#	include/bofstd/bofspscqueue.h
+#	include/bofstd/bofmpmcqueue.h
 	include/bofstd/bofcircularbuffer.h
 	include/bofstd/bofstringcircularbuffer.h
 	src/bofstringcircularbuffer.cpp
@@ -166,6 +168,7 @@ set(LOG_FILES
 	src/boflogchannel_spdlog.cpp	
 	include/bofstd/boflogsink_spdlog.h
 	src/boflogsink_spdlog.cpp
+	include/bofstd/ibofloggerfactory.h
 	include/bofstd/boflogger.h
 	src/boflogger.cpp	
 )
@@ -209,6 +212,8 @@ set(SOCKIO_FILES
 )
 
 set(SYSTEM_FILES
+	include/bofstd/bofsystem.h
+	src/bofsystem.cpp
 	include/bofstd/bofscopeguard.h
 	include/bofstd/bofgraph.h
 	include/bofstd/bofstring.h
@@ -233,8 +238,6 @@ set(SYSTEM_FILES
 set(THREADING_FILES
 	include/bofstd/bofthread.h
 	src/bofthread.cpp
-	include/bofstd/bofsystem.h
-	src/bofsystem.cpp
 	include/bofstd/bofprocess.h
 	src/bofprocess.cpp
 

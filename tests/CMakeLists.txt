@@ -63,6 +63,8 @@ set(CONIO_SHELL_FILES
 
 set(CONTAINER_FILES
 	src/ut_narytreekv.cpp
+#	src/ut_spscqueue.cpp
+#	src/ut_mpmcqueue.cpp
 	src/ut_circularbuffer.cpp
 	src/ut_rawcircularbuffer.cpp
 	src/ut_stringcircularbuffer.cpp

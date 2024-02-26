@@ -81,6 +81,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/github/vcpkg/scripts/buildsystems/vcp
 #include <bofversioninfo.h>
 #include <locale.h>
 #include <map>
+ 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #endif

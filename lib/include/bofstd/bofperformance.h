@@ -377,9 +377,9 @@ public:
   virtual ~BofProfiler();
 
   void EnterBench(uint32_t _ItemId_U32);
-  void LeaveBench(uint32_t _ItemId_U32);
+  void LeaveBench(bool _IgnoreFirstSample_B, uint32_t _ItemId_U32);
 
-  bool SetStats(uint32_t _ItemId_U32, uint64_t _Value_U64);
+  bool SetStats(bool _IgnoreFirstSample_B, uint32_t _ItemId_U32, uint64_t _Value_U64);
   bool GetStats(uint32_t _ItemId_U32, BOF_STAT_VARIABLE<uint64_t> *_pStats_X);
   void ResetStats(uint32_t _ItemId_U32);
 
@@ -393,7 +393,7 @@ public:
   uint64_t GetLast(uint32_t _ItemId_U32);
   uint64_t GetLockCount(uint32_t _ItemId_U32);
   uint64_t GetNbSample(uint32_t _ItemId_U32);
-
+  uint32_t GetLastMax(uint32_t _ItemId_U32, BOF_STAT_MAX<uint64_t> *_pLastMax_X);
   uint32_t GetNbItemInProfiler();
 
 protected:

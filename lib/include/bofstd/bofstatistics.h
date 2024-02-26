@@ -27,22 +27,25 @@
 
 BEGIN_BOF_NAMESPACE()
 
-#define BOF_SET_NEW_STAT_MIN(newval, themin)                                                                                                                                                                                                                   \
-  {                                                                                                                                                                                                                                                            \
-    if ((newval) < (themin))                                                                                                                                                                                                                                   \
-    {                                                                                                                                                                                                                                                          \
-      (themin) = (newval);                                                                                                                                                                                                                                     \
-    }                                                                                                                                                                                                                                                          \
+template <typename T>
+struct BOF_STAT_MAX
+{
+  uint64_t MaxIndex_U64;
+  T Max;
+  BOF_STAT_MAX()
+  {
+    Reset();
   }
-#define BOF_SET_NEW_STAT_MAX(newval, themax)                                                                                                                                                                                                                   \
-  {                                                                                                                                                                                                                                                            \
-    if ((newval) > (themax))                                                                                                                                                                                                                                   \
-    {                                                                                                                                                                                                                                                          \
-      (themax) = (newval);                                                                                                                                                                                                                                     \
-    }                                                                                                                                                                                                                                                          \
+  void Reset()
+  {
+    MaxIndex_U64 = 0xFFFFFFFF;
+    Max = std::numeric_limits<T>::min();
   }
+};
 
-template <typename T> struct BOF_STAT_VARIABLE
+constexpr uint32_t BOF_STAT_KEEP_LAST_NB_MAX_VAL = 16;
+template <typename T>
+struct BOF_STAT_VARIABLE
 {
   T Crt;                  /*! Crt value */
   T Min;                  /*! Minimum value */
@@ -51,6 +54,8 @@ template <typename T> struct BOF_STAT_VARIABLE
   T MeanAcc;              /*! Accumulator needed for computing the mean */
   uint64_t LockCount_U64; /*! +1 for each call to EnterBench -1 for each LeaveBench */
   uint64_t NbSample_U64;  /*! Number of items accumulated */
+  uint32_t NbMax_U32;
+  BOF_STAT_MAX<T> pMax_X[BOF_STAT_KEEP_LAST_NB_MAX_VAL];
   BOF_STAT_VARIABLE()
   {
     Reset();
@@ -58,13 +63,19 @@ template <typename T> struct BOF_STAT_VARIABLE
 
   void Reset()
   {
+    uint32_t i_U32;
     Crt = 0;
-    Min = std::numeric_limits<T>::max();;
-    Max = std::numeric_limits<T>::min();;
+    Min = std::numeric_limits<T>::max();
+    Max = std::numeric_limits<T>::min();
     Mean = 0;
     MeanAcc = 0;
     LockCount_U64 = 0;
     NbSample_U64 = 0;
+    NbMax_U32 = 0;
+    for (i_U32 = 0; i_U32 < BOF_STAT_KEEP_LAST_NB_MAX_VAL; i_U32++)
+    {
+      pMax_X[i_U32].Reset();
+    }
   }
 };
 
@@ -81,7 +92,8 @@ Nothing
 Remarks
 Aucune
 */
-template <typename T> BOFERR Bof_ResetStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X)
+template <typename T>
+BOFERR Bof_ResetStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X)
 {
   BOFERR Rts_E;
 
@@ -108,7 +120,8 @@ Nothing
 Remarks
 Aucune
 */
-template <typename T> BOFERR Bof_UpdateStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X, T _Val)
+template <typename T>
+BOFERR Bof_UpdateStatVar(bool _IgnoreFirstSample_B, BOF_STAT_VARIABLE<T> &_rStatVar_X, T _Val)
 {
   BOFERR Rts_E;
 
@@ -117,15 +130,33 @@ template <typename T> BOFERR Bof_UpdateStatVar(BOF_STAT_VARIABLE<T> &_rStatVar_X
   _rStatVar_X.Crt = _Val;
   if (_rStatVar_X.NbSample_U64 == 0)
   {
-    _rStatVar_X.Min = _Val;
-    _rStatVar_X.Max = _Val;
+    if (!_IgnoreFirstSample_B)
+    {
+      _rStatVar_X.Min = _Val;
+      _rStatVar_X.Max = _Val;
+      _rStatVar_X.pMax_X[0].MaxIndex_U64 = 0;
+      _rStatVar_X.pMax_X[0].Max = _Val;
+      _rStatVar_X.NbMax_U32 = 1;
+    }
   }
   else
   {
-    BOF_SET_NEW_STAT_MIN(_rStatVar_X.Crt, _rStatVar_X.Min);
-    BOF_SET_NEW_STAT_MAX(_rStatVar_X.Crt, _rStatVar_X.Max);
+    if (_rStatVar_X.Crt < _rStatVar_X.Min)
+    {
+      _rStatVar_X.Min = _rStatVar_X.Crt;
+    }
+    if (_rStatVar_X.Crt > _rStatVar_X.Max)
+    {
+      _rStatVar_X.Max = _rStatVar_X.Crt;
+      if (_rStatVar_X.NbMax_U32 < BOF_STAT_KEEP_LAST_NB_MAX_VAL)
+      {
+        _rStatVar_X.pMax_X[_rStatVar_X.NbMax_U32].MaxIndex_U64 = _rStatVar_X.NbSample_U64;
+        _rStatVar_X.pMax_X[_rStatVar_X.NbMax_U32].Max = _rStatVar_X.Crt;
+        _rStatVar_X.NbMax_U32++;
+      }
+    }
   }
-  Bof_UpdateStatMean(_rStatVar_X);
+  Bof_UpdateStatMean(_IgnoreFirstSample_B, _rStatVar_X);
 
   return Rts_E;
 }
@@ -142,40 +173,51 @@ Nothing
 Remarks
 Aucune
 */
-template <typename T> BOFERR Bof_UpdateStatMean(BOF_STAT_VARIABLE<T> &_rStatVar_X)
+template <typename T>
+BOFERR Bof_UpdateStatMean(bool _IgnoreFirstSample_B, BOF_STAT_VARIABLE<T> &_rStatVar_X)
 {
-  BOFERR Rts_E;
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
   T TempAccumulator;
   bool RollOver_B;
 
-  Rts_E = BOF_ERR_EMPTY;
-  //if (_rStatVar_X.Crt != 0)
+  // printf("InNb %zd Crt %zd Mean %zd MeanAcc %zd\n", _rStatVar_X.NbSample_U64, _rStatVar_X.Crt, _rStatVar_X.Mean, _rStatVar_X.MeanAcc);
+  if (_IgnoreFirstSample_B)
   {
-    Rts_E = BOF_ERR_NO_ERROR;
-
-    // On accumule la valeur dans une variable temporaire
-    TempAccumulator = _rStatVar_X.MeanAcc + _rStatVar_X.Crt;
-    // Il n'y aura pas de "roll-over"
-    RollOver_B = (TempAccumulator < _rStatVar_X.MeanAcc);
-    if (!RollOver_B)
+    if (_rStatVar_X.NbSample_U64 == 0)
     {
-      _rStatVar_X.MeanAcc = TempAccumulator;
-      _rStatVar_X.NbSample_U64++;
-      RollOver_B = (_rStatVar_X.NbSample_U64 == 0);
-    }
-    if (RollOver_B)
-    {
-      // Si on ajoute cette valeur on va provoquer
-      // un "roll-over" de notre accumulateur
-      // On relance l'accumulateur a la valeur de la moyenne actuelle
-      _rStatVar_X.MeanAcc = _rStatVar_X.Mean;
       _rStatVar_X.NbSample_U64 = 1;
+      _rStatVar_X.MeanAcc = 0;
+      return Rts_E;
     }
-
-    BOF_ASSERT(_rStatVar_X.NbSample_U64 != 0);
-    // On met a jour la moyenne
-    _rStatVar_X.Mean = static_cast<T>((_rStatVar_X.MeanAcc / _rStatVar_X.NbSample_U64));
+    if (_rStatVar_X.NbSample_U64 == 1)
+    {
+      _rStatVar_X.MeanAcc = _rStatVar_X.Crt;
+    }
   }
+  // On accumule la valeur dans une variable temporaire
+  TempAccumulator = _rStatVar_X.MeanAcc + _rStatVar_X.Crt;
+  // Il n'y aura pas de "roll-over"
+  RollOver_B = (TempAccumulator < _rStatVar_X.MeanAcc);
+  if (!RollOver_B)
+  {
+    _rStatVar_X.MeanAcc = TempAccumulator;
+    _rStatVar_X.NbSample_U64++;
+    RollOver_B = (_rStatVar_X.NbSample_U64 == 0);
+  }
+  if (RollOver_B)
+  {
+    // Si on ajoute cette valeur on va provoquer
+    // un "roll-over" de notre accumulateur
+    // On relance l'accumulateur a la valeur de la moyenne actuelle
+    _rStatVar_X.MeanAcc = _rStatVar_X.Mean;
+    _rStatVar_X.NbSample_U64 = 1;
+  }
+
+  BOF_ASSERT(_rStatVar_X.NbSample_U64 != 0);
+  // On met a jour la moyenne
+  _rStatVar_X.Mean = static_cast<T>((_rStatVar_X.MeanAcc / _rStatVar_X.NbSample_U64));
+
+  // printf("OutNb %zd Crt %zd Mean %zd MeanAcc %zd\n", _rStatVar_X.NbSample_U64, _rStatVar_X.Crt, _rStatVar_X.Mean, _rStatVar_X.MeanAcc);
   return Rts_E;
 }
 END_BOF_NAMESPACE()
