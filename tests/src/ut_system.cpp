@@ -457,8 +457,8 @@ TEST(System_Test, NanoTickCount)
   Start_U64 = Bof_GetNsTickCount();
   Bof_MsSleep(BOF_S_TO_MS(1));
   Delta_U64 = Bof_ElapsedNsTime(Start_U64);
-  EXPECT_GE(Delta_U64, BOF_S_TO_NANO(1));
-  EXPECT_LT(Delta_U64, BOF_S_TO_NANO(1) * 1.1);
+  EXPECT_GE(Delta_U64, BOF_S_TO_NS(1));
+  EXPECT_LT(Delta_U64, BOF_S_TO_NS(1) * 1.1);
 }
 
 TEST(System_Test, MsTickCount)

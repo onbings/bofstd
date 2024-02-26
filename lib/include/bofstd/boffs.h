@@ -29,6 +29,12 @@
 #include <vector>
 
 BEGIN_BOF_NAMESPACE()
+enum class BOF_SEEK_METHOD : uint32_t
+{
+  BOF_SEEK_BEGIN = 0, /*! The starting point is zero or the beginning of the file.*/
+  BOF_SEEK_CURRENT,   /*! The starting point is the current value of the file pointer.*/
+  BOF_SEEK_END        /*! The starting point is the current end-of-file position*/
+};
 
 enum class BOF_FILE_PERMISSION : uint32_t
 {

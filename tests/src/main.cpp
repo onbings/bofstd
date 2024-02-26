@@ -126,6 +126,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "DateTime_Test.StringDateTime:SocketTcp_Test.TcpClientTest:DateTime_Test.ValidateDateTime:SocketOs_Test.SocketAddress";
   //  ::testing::GTEST_FLAG(filter) = "Logger_Test.*:ut_logger_ibofloggerfactory.*";
 //  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
+  //::testing::GTEST_FLAG(filter) = "BofThread_Test.*:Threading_Test.*";
 //  ::testing::GTEST_FLAG(filter) = "ut_spsc.*:ut_mpmc.*:CircularBuffer_Test.Perf";
   //::testing::GTEST_FLAG(filter) = "CircularBuffer_Test.PerfThread";
   
