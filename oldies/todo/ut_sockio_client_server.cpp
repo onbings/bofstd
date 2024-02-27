@@ -406,7 +406,8 @@ public:
         {
           // Transfert Ownership
           // psParentSocketSession->DataBuffer(DataBuffer());
-          Rts_E = TransferDataBufferOwnershipTo(psParentSocketSession);
+          Rts_E = BOF_ERR_NO_ERROR;
+          //TODO: Rts_E = TransferDataBufferOwnershipTo(psParentSocketSession);
         }
       }
     }

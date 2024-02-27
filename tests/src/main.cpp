@@ -168,11 +168,11 @@ int main(int argc, char *argv[])
 
 /*
 * WINDOWS
-V 5.4.0.0
-[==========] 190 tests from 49 test suites ran. (106869 ms total)
-[  PASSED  ] 190 tests.
+V 5.5.0.0
+[==========] 200 tests from 51 test suites ran. (107274 ms total)
+[  PASSED  ] 200 tests.
 
-  YOU HAVE 3 DISABLED TESTS
+  YOU HAVE 2 DISABLED TESTS
 
   LINUX:
 [==========] 189 tests from 48 test suites ran. (60706 ms total)

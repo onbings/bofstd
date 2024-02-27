@@ -49,6 +49,7 @@ constexpr uint32_t BOF_NARY_TREE_KV_NODE_MAGIC_NUMBER = 0xBA1CD158;
 struct BOF_NARY_TREE_KV_PARAM
 {
   bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mNaryTreeKvMtx_X)*/
+  bool PriorityInversionAware_B;
 
   BOF_NARY_TREE_KV_PARAM()
   {
@@ -58,6 +59,7 @@ struct BOF_NARY_TREE_KV_PARAM
   void Reset()
   {
     MultiThreadAware_B = false;
+    PriorityInversionAware_B = false;
   }
 };
 
@@ -292,7 +294,7 @@ BofNaryTreeKv<KeyType, DataType>::BofNaryTreeKv(const BOF_NARY_TREE_KV_PARAM &_r
 {
   mNaryTreeKvParam_X = _rNaryTreeKvParam_X;
   mpRoot = nullptr;
-  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", false, false, mNaryTreeKvMtx_X) : BOF_ERR_NO_ERROR;
+  mErrorCode_E = _rNaryTreeKvParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofNaryTreeKv", false, _rNaryTreeKvParam_X.PriorityInversionAware_B, mNaryTreeKvMtx_X) : BOF_ERR_NO_ERROR;
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
   }

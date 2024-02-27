@@ -23,6 +23,7 @@
 #include <bofstd/bofcomchannel.h>
 #include <bofstd/bofsocketos.h>
 #include <bofstd/bofsystem.h>
+#include <bofstd/bofbuffer.h>
 #include <bofstd/bofthread.h>
 
 BEGIN_BOF_NAMESPACE()

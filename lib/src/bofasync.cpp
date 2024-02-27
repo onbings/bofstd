@@ -26,7 +26,7 @@
 BEGIN_BOF_NAMESPACE()
 
 BofCommandQueue::BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueueParam_X)
-    : BofThread()
+    : BofThread(_rCommandQueueParam_X.PriorityInversionAware_B)
 {
   BOFERR Sts_E;
   BOF_CIRCULAR_BUFFER_PARAM CircularBufferParam_X;
@@ -39,7 +39,8 @@ BofCommandQueue::BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueuePa
   mCommandPending_X.Name_S = "";
   Sts_E = BOF_ERR_ENOMEM;
   CircularBufferParam_X.Blocking_B = true;
-  CircularBufferParam_X.MultiThreadAware_B = true;
+  CircularBufferParam_X.MultiThreadAware_B = _rCommandQueueParam_X.MultiThreadAware_B;
+  CircularBufferParam_X.PriorityInversionAware_B = _rCommandQueueParam_X.PriorityInversionAware_B;
   CircularBufferParam_X.NbMaxElement_U32 = mCommandQueueParam_X.MaxPendingRequest_U32;
   CircularBufferParam_X.Overwrite_B = false;
   CircularBufferParam_X.pData = nullptr;

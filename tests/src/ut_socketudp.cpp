@@ -215,7 +215,7 @@ TEST_F(SocketUdp_Test, ScatterGatherIo)
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
   BofSocket *pUdp;
-  BOF_BUFFER Buffer_X;
+  BOF_BUFFER Buffer_X(true, true);
   std::vector<BOF_BUFFER> BufferCollection;
   uint8_t pHeader_U8[32], pData_U8[1024];
   BOF_SOCKET_ADDRESS DstIpAddress_X;

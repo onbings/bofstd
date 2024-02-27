@@ -41,7 +41,7 @@ constexpr uint32_t DEF_IO_TIMEOUT = 2000;
   return Rts_E;
 
 BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadParam_X)
-    : BofThread()
+    : BofThread(_rSocketThreadParam_X.PriorityInversionAware_B)
 {
   BOF_CIRCULAR_BUFFER_PARAM CircularBufferParam_X;
   BOFERR Sts_E;
@@ -52,7 +52,7 @@ BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadPa
   {
     mSocketThreadParam_X.SubPacketTimeout_U32 = DEF_IO_TIMEOUT;
   }
-  Sts_E = Bof_CreateEvent(_rSocketThreadParam_X.Name_S, false, 1, false, false, mCancelEvent_X);
+  Sts_E = Bof_CreateEvent(_rSocketThreadParam_X.Name_S, false, 1, false, false, _rSocketThreadParam_X.PriorityInversionAware_B, mCancelEvent_X);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 
   CircularBufferParam_X.Blocking_B = true;

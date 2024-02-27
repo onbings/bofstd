@@ -52,7 +52,7 @@ BEGIN_BOF_NAMESPACE()
 BofStack::BofStack(const BOF_STACK_PARAM &_rStackParam_X)
 {
   mStackParam_X = _rStackParam_X;
-  mErrorCode_E = mStackParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mStackMtx_X) : BOF_ERR_NO_ERROR;
+  mErrorCode_E = mStackParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, mStackParam_X.PriorityInversionAware_B, mStackMtx_X) : BOF_ERR_NO_ERROR;
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
     if (_rStackParam_X.pData)

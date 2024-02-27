@@ -38,6 +38,7 @@ struct BOF_SOCKET_SERVER_PARAM
   BOF_SOCKET_SERVER_MODE ServerMode_E;
   std::string Name_S;
   uint64_t ThreadCpuCoreAffinityMask_U64;
+  bool PriorityInversionAware_B;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY ThreadPriority_E;
   std::string Address_S;
@@ -56,6 +57,7 @@ struct BOF_SOCKET_SERVER_PARAM
     ServerMode_E = BOF_SOCKET_SERVER_MODE::BOF_SOCKET_SERVER_SESSION;
     Name_S = "";
     ThreadCpuCoreAffinityMask_U64 = 0;
+    PriorityInversionAware_B = false;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
     ThreadPriority_E = BOF_THREAD_PRIORITY_000;
     Address_S = "";

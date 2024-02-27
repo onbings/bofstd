@@ -36,6 +36,7 @@ BEGIN_BOF_NAMESPACE()
 struct BOF_THREAD_PARAM
 {
   std::string Name_S;
+  bool PriorityInversionAware_B;
   bool SignalEvent_B;
   uint32_t WakeUpIntervalInMs_U32;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
@@ -52,6 +53,7 @@ struct BOF_THREAD_PARAM
   void Reset()
   {
     Name_S="";
+    PriorityInversionAware_B = false;
     SignalEvent_B=false;
     WakeUpIntervalInMs_U32=0;
     ThreadSchedulerPolicy_E= BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
@@ -142,7 +144,7 @@ public:
 #endif
 #endif
 
-  BofThread();
+  BofThread(bool _PriorityInversionAware_B);
 
   //	BofThread(const std::string &_rName_S);
 
@@ -182,7 +184,7 @@ private:
   static std::atomic<int32_t> S_mBofThreadBalance;
   void BofThread_Thread();
 
-  BOFERR InitializeThread(const std::string &_rName_S);
+  BOFERR InitializeThread(const std::string &_rName_S, bool _PriorityInversionAware_B);
   static BOFERR S_AffinityMaskFromString(const char *_pAffinityOptionString_c, uint32_t _NbCore_U32, uint64_t &_rAffinityMask_U32);
 };
 
@@ -212,7 +214,7 @@ private:
   BOF_THREAD_PARAM mThreadParam_X;
   BOFERR mThreadPoolErrorCode_E = BOF_ERR_NO_ERROR;
   BOF::BofPot<BOF_THREAD_POOL_ENTRY> *mpThreadCollection = nullptr;
-  std::mutex mMtxPendingDispatchCollection;
+  BOF_MUTEX mMtxPendingDispatchCollection_X;
   std::vector<BOF_THREAD_POOL_ENTRY *> mPendingDispatchCollection;
 
 public:

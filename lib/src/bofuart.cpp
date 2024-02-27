@@ -90,7 +90,7 @@ uint32_t GetBaudRateConstantValue(uint32_t _BaudRate_U32);
  * ~BofCircularBuffer
  */
 BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
-    : BofComChannel(BOF_COM_CHANNEL_TYPE::TUART, mUartParam_X.BaseChannelParam_X), BofThread() // , 0, _rUartParam_X.SynchronousWritePriority_U32, 1000, (uint32_t)-1)
+    : BofComChannel(BOF_COM_CHANNEL_TYPE::TUART, mUartParam_X.BaseChannelParam_X), BofThread(false) // , 0, _rUartParam_X.SynchronousWritePriority_U32, 1000, (uint32_t)-1)
 // Set startStopTimeout to 0 to prevent time loss when closing port
 // BofThread("BofUart", _rUartParam_X.SynchronousWritePriority_U32 ? SCHED_FIFO:SCHED_OTHER, _rUartParam_X.SynchronousWritePriority_U32, 0, -1)
 {

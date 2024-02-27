@@ -13,9 +13,10 @@
 //----------------------------------------------------------------------------
 // BofMsgThread
 //----------------------------------------------------------------------------
-BofMsgThread::BofMsgThread()
-    : BOF::BofThread()
+BofMsgThread::BofMsgThread(bool _PriorityInversionAware_B)
+    : BOF::BofThread(_PriorityInversionAware_B)
 {
+  BOF::Bof_CreateMutex("BofMsgThread", false, _PriorityInversionAware_B, mMutex_X);
 }
 
 //----------------------------------------------------------------------------
@@ -25,6 +26,7 @@ BofMsgThread::~BofMsgThread()
 {
   //???   DestroyBofProcessingThread("~BofMsgThread");
   ExitThread(10, 1000);
+  BOF::Bof_DestroyMutex(mMutex_X);
 }
 
 //----------------------------------------------------------------------------
@@ -36,7 +38,7 @@ bool BofMsgThread::LaunchThread(const char *threadName, BOF::BOF_THREAD_SCHEDULE
 }
 uint32_t BofMsgThread::GetNbPendingRequest()
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
+  std::lock_guard<std::mutex> lock(mMutex_X.Mtx);
   return static_cast<uint32_t>(m_queue.size());
 }
 
@@ -52,7 +54,7 @@ void BofMsgThread::ExitThread(uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_
 
   // Put exit thread message into the queue
   {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(mMutex_X.Mtx);
     m_queue.push(threadMsg);
     m_cv.notify_one();
   }
@@ -82,7 +84,7 @@ void BofMsgThread::DispatchDelegate(DelegateLib::DelegateMsgBase *msg)
   ThreadMsg *threadMsg = new ThreadMsg(MSG_DISPATCH_DELEGATE, msg);
 
   // Add dispatch delegate msg to queue and notify worker thread
-  std::unique_lock<std::mutex> lk(m_mutex);
+  std::unique_lock<std::mutex> lk(mMutex_X.Mtx);
   m_queue.push(threadMsg);
   // printf("qs %d\n",m_queue.size());
   m_cv.notify_one();
@@ -102,7 +104,7 @@ BOFERR BofMsgThread::V_OnProcessing()
     ThreadMsg *msg = 0;
     {
       // Wait for a message to be added to the queue
-      std::unique_lock<std::mutex> lk(m_mutex);
+      std::unique_lock<std::mutex> lk(mMutex_X.Mtx);
       while (m_queue.empty())
       {
         // printf("wait\n");
@@ -142,7 +144,7 @@ BOFERR BofMsgThread::V_OnProcessing()
         {
           // printf("BofMsgThread purge\n");
           delete msg;
-          std::unique_lock<std::mutex> lk(m_mutex);
+          std::unique_lock<std::mutex> lk(mMutex_X.Mtx);
           while (!m_queue.empty())
           {
             msg = m_queue.front();

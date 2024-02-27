@@ -55,7 +55,7 @@ static BofEnum<BOF_SOCKET_SESSION_TYPE> S_BofSocketSessionTypeEnumConverter({{BO
                                                                             BOF_SOCKET_SESSION_TYPE::UNKNOWN);
 
 BofSocketSessionManager::BofSocketSessionManager(IBofSocketSessionFactory *_pIBofSocketSessionFactory, BofSocketServer *_pBofSocketServer, const BOF_SOCKET_SERVER_PARAM &_rBofSocketServerParam_X)
-    : BofThread()
+    : BofThread(_rBofSocketServerParam_X.PriorityInversionAware_B)
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
   uint32_t i_U32, PollControllSocketBufferSize_U32, Start_U32, Delta_U32, TimeoutInMs_U32;

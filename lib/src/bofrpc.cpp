@@ -363,6 +363,7 @@ BofRpc::BofRpc(BOF_RPC_PARAM *_pBofRpcParam_X)
       BofStackParam_X.MaxStackSize_U32 = mBofRpcParam_X.MaxStackSize_U32;
       BofStackParam_X.pData = nullptr;
       BofStackParam_X.MultiThreadAware_B = mBofRpcParam_X.MultiThreadAware_B;
+      BofStackParam_X.PriorityInversionAware_B = mBofRpcParam_X.PriorityInversionAware_B;
       BofStackParam_X.SwapByte_B = false;
       mpRpcReqStack_O = new BofStack(BofStackParam_X);
 

@@ -40,6 +40,7 @@ struct BOF_POT_PARAM
 {
   uint32_t MagicNumber_U32;    /*! If not zero, specify the magic number to use to tag in use pot element (first uint32_t var of pot element) */
   bool MultiThreadAware_B;     /*! true if the object is used in a multi threaded application (use mCs)*/
+  bool PriorityInversionAware_B;
   bool GetOpPreserveContent_B; /*! false if the pot element is memsetted to 0 before returning it to the caller (exept magic number of course) */
   uint32_t PotCapacity_U32;    /*! Specifies the maximum number of element inside the pot*/
   bool Blocking_B;
@@ -53,6 +54,7 @@ struct BOF_POT_PARAM
   {
     MagicNumber_U32 = 0;
     MultiThreadAware_B = false;
+    PriorityInversionAware_B = false;
     GetOpPreserveContent_B = false;
     PotCapacity_U32 = 0;
     Blocking_B = false;
@@ -210,10 +212,10 @@ BofPot<DataType>::BofPot(const BOF_POT_PARAM &_rPotParam_X)
     }
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
-      mErrorCode_E = mPotParam_X.Blocking_B ? Bof_CreateEvent("pot_canget_" + std::to_string(mPotParam_X.PotCapacity_U32) + "_evt", false, 1, false, false, mCanGetEvent_X) : BOF_ERR_NO_ERROR;
+      mErrorCode_E = mPotParam_X.Blocking_B ? Bof_CreateEvent("pot_canget_" + std::to_string(mPotParam_X.PotCapacity_U32) + "_evt", false, 1, false, false, mPotParam_X.PriorityInversionAware_B, mCanGetEvent_X) : BOF_ERR_NO_ERROR;
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
-        mErrorCode_E = mPotParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofPot", false, false, mPotMtx_X) : BOF_ERR_NO_ERROR;
+        mErrorCode_E = mPotParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofPot", false, mPotParam_X.PriorityInversionAware_B, mPotMtx_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
           mErrorCode_E = BOF_ERR_ENOMEM;

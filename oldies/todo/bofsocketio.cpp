@@ -37,7 +37,7 @@ BofSocketIo::BofSocketIo(BofSocketServer *_pBofSocketServer, std::unique_ptr<Bof
   mLastIoTime_U32 = Bof_GetMsTickCount();
   mSocketIoParam_X = _rBofSocketIoParam_X;
   mpuSocket = std::move(_puSocket);
-
+  mpuDataBuffer_X = std::make_unique< BOF::BOF_BUFFER>(false, false);
   BOF_ASSERT(mpuSocket != nullptr);
   // Done in caller BOF_ASSERT(mpuSocket->LastErrorCode() == BOF_ERR_NO_ERROR);
   BOF_ASSERT(mSocketIoParam_X.NotifyRcvBufferSize_U32 >= BOF_SOCKETIO_MIN_NOTIFY_RCV_BUFFER_SIZE);
@@ -118,7 +118,7 @@ BofSocketIo::~BofSocketIo()
   }
   BOF_SAFE_DELETE(mpAsyncWriteRequestCollection);
   BOF_SAFE_DELETE(mpReplyCollection);
-  mDataBuffer_X.ReleaseStorage();
+  mpuDataBuffer_X->ReleaseStorage();
   //	Bof_DestroyMutex(mMtx_X);
 
   Bof_DestroyConditionalVariable(mChannelConnectedCv_X);
@@ -126,22 +126,23 @@ BofSocketIo::~BofSocketIo()
 
 BOFERR BofSocketIo::AllocateDataBuffer(uint64_t _BufferSize_U64)
 {
-  if (mDataBuffer_X.pData_U8)
+  if (mpuDataBuffer_X->pData_U8)
   {
-    mDataBuffer_X.ReleaseStorage();
+    mpuDataBuffer_X->ReleaseStorage();
   }
-  return (mDataBuffer_X.AllocStorage(_BufferSize_U64) != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_ENOMEM;
+  return (mpuDataBuffer_X->AllocStorage(_BufferSize_U64) != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_ENOMEM;
 }
 BOFERR BofSocketIo::ReleaseDataBuffer()
 {
-  mDataBuffer_X.ReleaseStorage();
+  mpuDataBuffer_X->ReleaseStorage();
 
   return BOF_ERR_NO_ERROR;
 }
 void BofSocketIo::ClearDataBuffer()
 {
-  mDataBuffer_X.Clear();
+  mpuDataBuffer_X->Clear();
 }
+/*
 BOFERR BofSocketIo::TransferDataBufferOwnershipTo(
     std::shared_ptr<BofSocketIo> _psSocketSession) // After passing mDataBuffer_X from closing data session to cmd session to avoid 2 delete op->!! leak if called without releasing buffer except if you transfert ownership
 {
@@ -150,24 +151,27 @@ BOFERR BofSocketIo::TransferDataBufferOwnershipTo(
   if ((_psSocketSession) && (_psSocketSession.get() != this))
   {
     _psSocketSession->DataBuffer(DataBuffer());
-    mDataBuffer_X.Reset();
+    mpuDataBuffer_X->Reset();
     Rts_E = BOF_ERR_NO_ERROR;
   }
   return Rts_E;
 }
-BOFERR BofSocketIo::MemCpyInDataBuffer(uint64_t _BufferSize_U64, const uint8_t *_pData_U8)
-{
-  uint64_t NbWritten_U64;
-  return (mDataBuffer_X.Write(_BufferSize_U64, _pData_U8, NbWritten_U64) != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_TOO_BIG;
-}
+
 BOF::BOF_BUFFER &BofSocketIo::DataBuffer()
 {
-  return mDataBuffer_X;
+  return *mpuDataBuffer_X.get();
 }
 void BofSocketIo::DataBuffer(const BOF_BUFFER &_rDataBuffer_X)
 {
   mDataBuffer_X = _rDataBuffer_X;
 }
+*/
+BOFERR BofSocketIo::MemCpyInDataBuffer(uint64_t _BufferSize_U64, const uint8_t *_pData_U8)
+{
+  uint64_t NbWritten_U64;
+  return (mpuDataBuffer_X->Write(_BufferSize_U64, _pData_U8, NbWritten_U64) != nullptr) ? BOF_ERR_NO_ERROR : BOF_ERR_TOO_BIG;
+}
+
 void BofSocketIo::Connected(bool _IsConnected_B)
 {
   if (_IsConnected_B)

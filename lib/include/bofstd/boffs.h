@@ -26,6 +26,7 @@
 #include <bofstd/bofpath.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/bofsystem.h>
+#include <bofstd/bofbuffer.h>
 #include <vector>
 
 BEGIN_BOF_NAMESPACE()
@@ -167,40 +168,6 @@ struct BOF_FILE_FOUND
     FileType_E = BOF_FILE_TYPE::BOF_FILE_UNK;
   }
 };
-#if 0
-#define FA_DIRECTORY 0
-
-#define _A_NORMAL 0x00 /*! Normal file - No read/write restrictions */
-#define _A_RDONLY 0x01 /*! Read only file */
-#define _A_HIDDEN 0x02 /*! Hidden file */
-#define _A_SYSTEM 0x04 /*! System file */
-#define _A_SUBDIR 0x10 /*! Subdirectory */
-#define _A_ARCH 0x20   /*! Archive file */
-
-#define BOFFILEENUMINTERNALSTATE_MAGICNUMBER 0xFDBDC564
-typedef struct
-{
-  U32   MagicNumber_U32;
-  void *pHandle;        //DIR *
-  bool  FindFileAndDirectory_B;
-  char  pPath_c[256];
-  char  pPattern_c[128];
-}
-BOFFILEENUMINTERNALSTATE;
-
-typedef struct
-{
-  BOFDATETIME              CreationTime_X;
-  BOFDATETIME              LastAccessTime_X;
-  BOFDATETIME              LastWriteTime_X;
-  U8                       Attrib_U8;
-  U32                      Size_U32;
-  char                     pName_c[256];
-
-  BOFFILEENUMINTERNALSTATE Internal_X;
-}
-BOFFILEFOUND;
-#endif
 
 using BOF_DIRECTORY_PARSER_CALLBACK = std::function<bool(const BOF_FILE_FOUND &_rFileFound_X)>;
 BOFSTD_EXPORT BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S, const BOF_FILE_TYPE _FileTypeToFind_E, bool _Recursive_B, BOF_DIRECTORY_PARSER_CALLBACK &_rDirectoryParserCallback);

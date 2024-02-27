@@ -126,6 +126,7 @@ template <typename Mutex> ramcircularbuffer_sink<Mutex>::ramcircularbuffer_sink(
   BOF_STRING_CIRCULAR_BUFFER_PARAM Param_X;
 
   Param_X.MultiThreadAware_B = false; // We do not want to stop app logging as we 'snapshot' the buffer which can be long
+  Param_X.PriorityInversionAware_B = false;
   Param_X.SnapshotMode_B = true;
   Param_X.BufferSizeInByte_U32 = _BufferSizeInByte_U32;
   Param_X.pData_c = nullptr;

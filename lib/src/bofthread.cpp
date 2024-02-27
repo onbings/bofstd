@@ -57,14 +57,14 @@ typedef struct tagTHREADNAME_INFO
 BEGIN_BOF_NAMESPACE()
 std::atomic<int32_t> BofThread::S_mBofThreadBalance = 0;
 
-BofThread::BofThread()
+BofThread::BofThread(bool _PriorityInversionAware_B)
 {
   // printf("%d: CREATE THREAD\n", BOF::Bof_GetMsTickCount());
-  mThreadErrorCode_E = InitializeThread("?");
+  mThreadErrorCode_E = InitializeThread("?", _PriorityInversionAware_B);
   BOF_ASSERT(mThreadErrorCode_E == BOF_ERR_NO_ERROR);
 }
 
-BOFERR BofThread::InitializeThread(const std::string &_rName_S)
+BOFERR BofThread::InitializeThread(const std::string &_rName_S, bool _PriorityInversionAware_B)
 {
   mThreadParam_X.Name_S = _rName_S;
   mThreadMtx_X.Reset();
@@ -75,13 +75,13 @@ BOFERR BofThread::InitializeThread(const std::string &_rName_S)
   mThreadErrorCode_E = Bof_CreateMutex(_rName_S + "_mtx", false, false, mThreadMtx_X);
   if (mThreadErrorCode_E == BOF_ERR_NO_ERROR)
   {
-    mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_wakeup_evt", false, 1, false, false, mWakeUpEvent_X);
+    mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_wakeup_evt", false, 1, false, false, _PriorityInversionAware_B,mWakeUpEvent_X);
     if (mThreadErrorCode_E == BOF_ERR_NO_ERROR)
     {
-      mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_enter_evt", false, 1, true, false, mThreadEnterEvent_X);
+      mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_enter_evt", false, 1, true, false, _PriorityInversionAware_B, mThreadEnterEvent_X);
       if (mThreadErrorCode_E == BOF_ERR_NO_ERROR)
       {
-        mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_exit_evt", false, 1, true, false, mThreadExitEvent_X);
+        mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_exit_evt", false, 1, true, false, _PriorityInversionAware_B, mThreadExitEvent_X);
         if (mThreadErrorCode_E == BOF_ERR_NO_ERROR)
         {
         }
@@ -961,6 +961,7 @@ BofThreadPool::BofThreadPool(uint32_t _NbThreadInPool_U32, const BOF_THREAD_PARA
   BOF_THREAD_POOL_ENTRY *pThreadPoolEntry_X;
 
   mThreadParam_X = _rThreadParam_X;
+  Bof_CreateMutex(mThreadParam_X.Name_S, false, mThreadParam_X.PriorityInversionAware_B, mMtxPendingDispatchCollection_X);
   if (mThreadParam_X.WakeUpIntervalInMs_U32)
   {
     mThreadPoolErrorCode_E = BOF_ERR_EINVAL;
@@ -983,7 +984,7 @@ BofThreadPool::BofThreadPool(uint32_t _NbThreadInPool_U32, const BOF_THREAD_PARA
         if (pThreadPoolEntry_X)
         {
           mThreadPoolErrorCode_E = BOF_ERR_ENOMEM;
-          pBofThread = new BofThread();
+          pBofThread = new BofThread(mThreadParam_X.PriorityInversionAware_B);
           if (pBofThread)
           {
             mThreadPoolErrorCode_E = pBofThread->InitThreadErrorCode();
@@ -1022,7 +1023,7 @@ BofThreadPool::~BofThreadPool()
 
   if (mpThreadCollection)
   {
-    // std::lock_guard<std::mutex> Lock(mMtxThreadCollection);
+    // std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection_X.Mtx);
     for (i_U32 = 0; i_U32 < mpThreadCollection->GetCapacity(); i_U32++)
     {
       pThreadPoolEntry_X = mpThreadCollection->GetIndexedPotElement(i_U32);
@@ -1032,9 +1033,9 @@ BofThreadPool::~BofThreadPool()
         pThreadPoolEntry_X->pBofThread = nullptr;
       }
     }
-
     BOF_SAFE_DELETE(mpThreadCollection);
   }
+  Bof_DestroyMutex(mMtxPendingDispatchCollection_X);
 }
 BOFERR BofThreadPool::InitThreadPoolErrorCode()
 {
@@ -1107,7 +1108,7 @@ BOFERR BofThreadPool::AckPendingDispatch(uint32_t _TimeoutInMs_U32, const void *
         }
         else
         {
-          std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection);
+          std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection_X.Mtx);
           {
             auto It = std::find(mPendingDispatchCollection.begin(), mPendingDispatchCollection.end(), pThreadPoolEntry_X);
             BOF_ASSERT(It != mPendingDispatchCollection.end());
@@ -1152,7 +1153,7 @@ uint32_t BofThreadPool::GetNumerOfPendingDispatchToAck()
 void *BofThreadPool::GetFirstPendingDispatch() // Next should call AckPendingDispatch if rts is not nullptr
 {
   void *pRts = nullptr;
-  std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection);
+  std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection_X.Mtx);
   {
     if (mPendingDispatchCollection.size())
     {
@@ -1168,7 +1169,7 @@ BOFERR BofThreadPool::ReleaseDispatch(BOFERR _Sts_E, BOF_THREAD_POOL_ENTRY *_pTh
   // No done in AckPendingDispatch to avoid race condition  mpThreadCollection->Release(_pThreadPoolEntry_X);
   BOF_ASSERT(_pThreadPoolEntry_X->Running_B);
   _pThreadPoolEntry_X->Running_B = false;
-  std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection);
+  std::lock_guard<std::mutex> Lock(mMtxPendingDispatchCollection_X.Mtx);
   {
     auto It = std::find(mPendingDispatchCollection.begin(), mPendingDispatchCollection.end(), _pThreadPoolEntry_X);
     BOF_ASSERT(It == mPendingDispatchCollection.end());

@@ -257,7 +257,7 @@ public:
   std::atomic<uint32_t> mCpt;
 
   TestBofThread()
-      : BofThread()
+      : BofThread(true)
   {
     mCpt = 0;
     mExit_B = false;
@@ -531,13 +531,13 @@ TEST(Threading_Test, Event)
   Sts_E = Bof_DestroyEvent(Event_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
 
-  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, false, Event_X);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, false, true,Event_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
   EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
   EXPECT_EQ(Event_X.SignaledBitmask_U64, 0);
 
-  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, false, Event_X);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 1, false, false, true,Event_X);
   EXPECT_NE(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Event_X.Magic_U32, BOF_EVENT_MAGIC);
   EXPECT_STREQ(Event_X.Name_S.c_str(), "MyEvent");
@@ -647,7 +647,7 @@ TEST(Threading_Test, SingleThread)
   ThreadContext_X.Inc_S32 = 1;
   ThreadContext_X.SleepInMs_U32 = 10000;
   ThreadContext_X.NbLoop_U32 = 0;
-  Sts_E = Bof_CreateEvent("MyEvent", false, 2, false, false, ThreadContext_X.Event_X);
+  Sts_E = Bof_CreateEvent("MyEvent", false, 2, false, false, true, ThreadContext_X.Event_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(ThreadContext_X.Event_X.Magic_U32, BOF_EVENT_MAGIC);
   EXPECT_STREQ(ThreadContext_X.Event_X.Name_S.c_str(), "MyEvent");
@@ -756,7 +756,7 @@ TEST(Threading_Test, MultiThread)
     pThreadContext_X[i_U32].SleepInMs_U32 = 1000;
     pThreadContext_X[i_U32].NbLoop_U32 = 0;
     Name_S = "MyEvent_" + std::to_string(i_U32);
-    Sts_E = Bof_CreateEvent(Name_S, false, 1, false, false, pThreadContext_X[i_U32].Event_X);
+    Sts_E = Bof_CreateEvent(Name_S, false, 1, false, false, true, pThreadContext_X[i_U32].Event_X);
     EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
     EXPECT_EQ(pThreadContext_X[i_U32].Event_X.Magic_U32, BOF_EVENT_MAGIC);
     EXPECT_STREQ(pThreadContext_X[i_U32].Event_X.Name_S.c_str(), Name_S.c_str());
@@ -1056,7 +1056,7 @@ TEST(Threading_Test, Semaphore)
   EXPECT_EQ(Sem_X.Cpt_S32, 0);
   EXPECT_EQ(Sem_X.Max_S32, 0);
 
-  Sts_E = Bof_CreateSemaphore("MySem", SEMMAXVAL, Sem_X);
+  Sts_E = Bof_CreateSemaphore("MySem", SEMMAXVAL, true, Sem_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_EQ(Sem_X.Magic_U32, BOF_SEMAPHORE_MAGIC);
   EXPECT_EQ(Sem_X.Name_S, "MySem");

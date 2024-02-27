@@ -123,7 +123,7 @@ set(SERDER_FILES
 
 set(SOCKIO_FILES
 	src/ut_sockio.cpp
-	src/ut_sockio_client_server.cpp
+#	src/ut_sockio_client_server.cpp
 )
 
 set(SYSTEM_FILES

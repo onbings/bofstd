@@ -34,8 +34,10 @@
 #endif
 
 BEGIN_BOF_NAMESPACE()
+#if defined(DBGBOFPIPE)
 std::mutex BofPipe::S_mPipeCollectionMtx;
 std::map<std::string, BOF_PIPE_ENTRY> BofPipe::S_mPipeCollection;
+#endif
 
 BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
     : BofComChannel(BOF_COM_CHANNEL_TYPE::TPIPE, mPipeParam_X.BaseChannelParam_X)
@@ -226,6 +228,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
   }
   // printf(">DBGBOF< srv/clt pipe %s final state %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), mErrorCode_E);
 
+#if defined(DBGBOFPIPE)
   if (mErrorCode_E == BOF_ERR_NO_ERROR)
   {
     BOF_PIPE_ENTRY PipeEntry_X;
@@ -266,6 +269,7 @@ BofPipe::BofPipe(const BOF_PIPE_PARAM &_rPipeParam_X)
     }
   }
   printf("Pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), (int)mPipeParam_X.PipeAccess_E);
+#endif
 }
 
 BofPipe::~BofPipe()
@@ -280,6 +284,8 @@ BofPipe::~BofPipe()
     unlink(mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str());
   }
 #endif
+
+#if defined(DBGBOFPIPE)
   std::lock_guard<std::mutex> Lock(S_mPipeCollectionMtx);
   auto It = S_mPipeCollection.find(mPipeParam_X.BaseChannelParam_X.ChannelName_S);
   if (It != S_mPipeCollection.end())
@@ -311,11 +317,13 @@ BofPipe::~BofPipe()
     BOF_ASSERT(0);
   }
   printf("End of pipe '%s' BAL %zd Access %d\n", mPipeParam_X.BaseChannelParam_X.ChannelName_S.c_str(), S_mPipeCollection.size(), (int)mPipeParam_X.PipeAccess_E);
+#endif
 }
 BOFPIPE BofPipe::GetNativeHandle()
 {
   return mPipe;
 }
+#if defined(DBGBOFPIPE)
 std::string BofPipe::S_GetGlobalPipeState()
 {
   std::string Rts_S;
@@ -355,6 +363,8 @@ int BofPipe::S_BofPipeBalance()
 {
   return S_mPipeCollection.size();
 }
+#endif
+
 
 // TODO: BOF_PIPE_ACCESS_READ_WRITE not finished...
 BOFERR BofPipe::SelectPipeChannel(bool _Master_B) // Used by  BOF_PIPE_ACCESS::BOF_PIPE_ACCESS_READ_WRITE

@@ -29,6 +29,8 @@ BEGIN_BOF_NAMESPACE()
 struct BOF_COMMAND_QUEUE_PARAM
 {
   uint64_t ThreadCpuCoreAffinityMask_U64;
+  bool MultiThreadAware_B;
+  bool PriorityInversionAware_B;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY ThreadPriority_E;
   uint32_t MaxPendingRequest_U32;
@@ -41,6 +43,8 @@ struct BOF_COMMAND_QUEUE_PARAM
   void Reset()
   {
     ThreadCpuCoreAffinityMask_U64 = 0;
+    MultiThreadAware_B=false;
+    PriorityInversionAware_B=false;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
     ThreadPriority_E = BOF_THREAD_PRIORITY_000;
     MaxPendingRequest_U32 = 0;
@@ -89,6 +93,7 @@ using BOF_MULTICAST_ASYNC_NOTIFY_FCT = void (*)(const T *_pNotifyArg);
 
 struct BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
 {
+  bool PriorityInversionAware_B;
   uint64_t ThreadCpuCoreAffinityMask_U64;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY ThreadPriority_E;
@@ -100,6 +105,7 @@ struct BOF_MULTICAST_ASYNC_NOTIFIER_PARAM
   }
   void Reset()
   {
+    PriorityInversionAware_B = false;
     ThreadCpuCoreAffinityMask_U64 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY_OTHER;
     ThreadPriority_E = BOF_THREAD_PRIORITY_000;
@@ -123,7 +129,7 @@ public:
   BOFERR WaitForNoMoreNotificationPending(uint32_t _PollTimeInMs_U32, uint32_t _TimeoutInMs_U32);
 
 private:
-  BofMsgThread mMsgThread;
+  std::unique_ptr<BofMsgThread> mpuMsgThread=nullptr;
   DelegateLib::MulticastDelegateSafe1<const T *> mMulticastDelegate;
 };
 
@@ -132,7 +138,8 @@ BofMulticastAsyncNotifier<T>::BofMulticastAsyncNotifier(const BOF_MULTICAST_ASYN
 {
   BOFERR Sts_E;
 
-  Sts_E = mMsgThread.LaunchBofProcessingThread("BofAsyncNotif", false, 0, _rAsyncNotifierParam_X.ThreadSchedulerPolicy_E, _rAsyncNotifierParam_X.ThreadPriority_E, _rAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
+  mpuMsgThread = std::make_unique<BofMsgThread>(_rAsyncNotifierParam_X.PriorityInversionAware_B);
+  Sts_E = mpuMsgThread->LaunchBofProcessingThread("BofAsyncNotif", false, 0, _rAsyncNotifierParam_X.ThreadSchedulerPolicy_E, _rAsyncNotifierParam_X.ThreadPriority_E, _rAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 template <class T>
@@ -143,7 +150,7 @@ BofMulticastAsyncNotifier<T>::~BofMulticastAsyncNotifier()
 template <class T>
 uint32_t BofMulticastAsyncNotifier<T>::NbPendingNotification()
 {
-  return mMsgThread.GetNbPendingRequest();
+  return mpuMsgThread->GetNbPendingRequest();
 }
 
 template <class T>
@@ -154,8 +161,7 @@ BOFERR BofMulticastAsyncNotifier<T>::Register(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T> 
   if (_pNotifyFct)
   {
     Rts_E = BOF_ERR_NO_ERROR;
-    auto Delegate = MakeDelegate(_pNotifyFct, &mMsgThread);
-    ;
+    auto Delegate = MakeDelegate(_pNotifyFct, mpuMsgThread.get());
     Delegate.UserContext(_pUserContext);
     mMulticastDelegate += Delegate;
   }
@@ -169,7 +175,7 @@ BOFERR BofMulticastAsyncNotifier<T>::Unregister(BOF_MULTICAST_ASYNC_NOTIFY_FCT<T
   if (_pNotifyFct)
   {
     Rts_E = BOF_ERR_NO_ERROR;
-    mMulticastDelegate -= MakeDelegate(_pNotifyFct, &mMsgThread);
+    mMulticastDelegate -= MakeDelegate(_pNotifyFct, mpuMsgThread.get());
   }
   return Rts_E;
 }
@@ -202,7 +208,7 @@ BOFERR BofMulticastAsyncNotifier<T>::WaitForNoMoreNotificationPending(uint32_t _
     Rts_E = BOF_ERR_FULL;
     do
     {
-      if (mMsgThread.GetNbPendingRequest() == 0)
+      if (mpuMsgThread->GetNbPendingRequest() == 0)
       {
         Rts_E = BOF_ERR_NO_ERROR;
         break;

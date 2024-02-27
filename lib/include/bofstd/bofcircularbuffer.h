@@ -147,6 +147,7 @@ constexpr uint32_t BOF_CIRCULAR_BUFFER_DBG_MAX_ITEM = 32;
 struct BOF_CIRCULAR_BUFFER_PARAM
 {
   bool MultiThreadAware_B;   /*! true if the object is used in a multi threaded application (use mCircularBufferMtx_X)*/
+  bool PriorityInversionAware_B;
   uint32_t NbMaxElement_U32; /*! Specifies the maximum number of element inside the queue*/
   void *pData;               /*! Specifies a pointer to the circular buffer zone (pre-allocated buffer). Set to nullptr if the memory
                               * must be allocated by the function*/
@@ -162,6 +163,7 @@ struct BOF_CIRCULAR_BUFFER_PARAM
   void Reset()
   {
     MultiThreadAware_B = false;
+    PriorityInversionAware_B = false;
     NbMaxElement_U32 = 0;
     pData = nullptr;
     Overwrite_B = false;
@@ -267,10 +269,10 @@ BofCircularBuffer<DataType>::BofCircularBuffer(const BOF_CIRCULAR_BUFFER_PARAM &
     }
     if (mErrorCode_E == BOF_ERR_NO_ERROR)
     {
-      mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canread_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, false, mCanReadEvent_X) : BOF_ERR_NO_ERROR;
+      mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canread_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, false, _rCircularBufferParam_X.PriorityInversionAware_B, mCanReadEvent_X) : BOF_ERR_NO_ERROR;
       if (mErrorCode_E == BOF_ERR_NO_ERROR)
       {
-        mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canwrite_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, false, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
+        mErrorCode_E = mCircularBufferParam_X.Blocking_B ? Bof_CreateEvent("cb_canwrite_" + std::to_string(reinterpret_cast<uint64_t>(this)) + "_evt", false, 1, false, false, _rCircularBufferParam_X.PriorityInversionAware_B, mCanWriteEvent_X) : BOF_ERR_NO_ERROR;
         if (mErrorCode_E == BOF_ERR_NO_ERROR)
         {
           mErrorCode_E = _rCircularBufferParam_X.MultiThreadAware_B ? Bof_CreateMutex("BofCircularBuffer", false, false, mCircularBufferMtx_X) : BOF_ERR_NO_ERROR;

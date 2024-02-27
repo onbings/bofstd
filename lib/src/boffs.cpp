@@ -962,7 +962,7 @@ BOFERR Bof_ReadFile(const BofPath &_rPath, std::string &_rRawData_S)
   }
 #else
   // 200 ms
-  BOF_BUFFER BufferToDeleteAfterUsage_X;
+  BOF_BUFFER BufferToDeleteAfterUsage_X(false,false);
   Rts_E = Bof_ReadFile(_rPath, BufferToDeleteAfterUsage_X);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
@@ -990,7 +990,7 @@ BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rP
 BOFERR Bof_WriteFile(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath, const std::string &_rRawData_S)
 {
   BOFERR Rts_E;
-  BOF_BUFFER Buffer_X;
+  BOF_BUFFER Buffer_X(false,false);
 
   Buffer_X.SetStorage(_rRawData_S.size(), _rRawData_S.size(), (uint8_t *)(_rRawData_S.c_str()));
   Rts_E = Bof_WriteFile(_Permission_E, _rPath, Buffer_X);

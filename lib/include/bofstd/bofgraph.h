@@ -86,7 +86,7 @@ int main() {
 This example demonstrates the basic structure of a directed graph with nodes and edges, and it performs a depth-first traversal starting from a specific node.
 */
 #pragma once
-#include <bofstd/bofstd.h>
+#include <bofstd/bofsystem.h>
 
 #include <algorithm>
 #include <iterator>
@@ -100,7 +100,7 @@ BEGIN_BOF_NAMESPACE()
 struct BOF_DIR_GRAPH_PARAM
 {
   bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mCircularBufferMtx_X)*/
-
+  bool PriorityInversionAware_B;
   BOF_DIR_GRAPH_PARAM()
   {
     Reset();
@@ -109,6 +109,7 @@ struct BOF_DIR_GRAPH_PARAM
   void Reset()
   {
     MultiThreadAware_B = false;
+    PriorityInversionAware_B = false;
   }
 };
 
@@ -288,8 +289,15 @@ public:
       : mCrtId(1), mNodeCollection(), mEdgeFromNodeCollection(), mNodeNeighbourCollection(), mEdgeCollection()
   {
     mBofDirGraphParam_X = _rBofDirGraphParam_X;
+    if (mBofDirGraphParam_X.MultiThreadAware_B)
+    {
+      Bof_CreateMutex("BofDirGraph", false, mBofDirGraphParam_X.PriorityInversionAware_B, mMtx_X);
+    }
   }
-
+  ~BofDirGraph()
+  {
+    Bof_DestroyMutex(mMtx_X);
+  }
   struct Edge
   {
     uint32_t Id_U32;
@@ -312,14 +320,14 @@ public:
   };
 
   // Element access
-  NodeType *Node(uint32_t _Id_U32);
-  const NodeType *Node(uint32_t _Id_U32) const;
-  std::vector<uint32_t> const *Neighbour(uint32_t _Id_U32) const;
+//  NodeType *Node(uint32_t _Id_U32);
+  const NodeType *Node(uint32_t _Id_U32);
+  std::vector<uint32_t> *Neighbour(uint32_t _Id_U32);
 
   IdMap<NodeType> &NodeMap();
   IdMap<Edge> &EdgeMap();
 
-  size_t NbEdgeFromNode(uint32_t _Id_U32) const;
+  size_t NbEdgeFromNode(uint32_t _Id_U32);
 
   uint32_t InsertNode(const NodeType &node);
   bool EraseNode(uint32_t _Id_U32);
@@ -331,7 +339,7 @@ private:
   bool InternalEraseEdge(uint32_t EdgeId_U32);
 
   BOF_DIR_GRAPH_PARAM mBofDirGraphParam_X;
-  mutable std::mutex mMtx;
+  BOF_MUTEX mMtx_X;
   std::atomic<uint32_t> mCrtId;
   // These contains map to the node id
   IdMap<NodeType> mNodeCollection;
@@ -342,22 +350,29 @@ private:
   IdMap<Edge> mEdgeCollection;
 };
 
-template <typename NodeType>
-NodeType *BofDirGraph<NodeType>::Node(uint32_t _Id_U32)
-{
-  return const_cast<NodeType *>(static_cast<const BofDirGraph *>(this)->Node(_Id_U32));
-}
+//template <typename NodeType>
+//NodeType *BofDirGraph<NodeType>::Node(uint32_t _Id_U32)
+//{
+//  return const_cast<NodeType *>(static_cast<const BofDirGraph *>(this)->Node(_Id_U32));
+//}
 
 template <typename NodeType>
-const NodeType *BofDirGraph<NodeType>::Node(uint32_t _Id_U32) const
+const NodeType *BofDirGraph<NodeType>::Node(uint32_t _Id_U32)
 {
   const NodeType *pRts = nullptr;
 
-  std::lock_guard<std::mutex> Lock(mMtx);
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_LockMutex(mMtx_X);
+  }
   const auto Iter = mNodeCollection.Find(_Id_U32);
   if (Iter != mNodeCollection.cend())
   {
     pRts = &(*Iter);
+  }
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_UnlockMutex(mMtx_X);
   }
   return pRts;
 }
@@ -380,29 +395,43 @@ std::vector<typename BofDirGraph<NodeType>::Edge> &BofDirGraph<NodeType>::Edges(
 }
 */
 template <typename NodeType>
-std::vector<uint32_t> const *BofDirGraph<NodeType>::Neighbour(uint32_t _Id_U32) const
+std::vector<uint32_t> *BofDirGraph<NodeType>::Neighbour(uint32_t _Id_U32)
 {
-  std::vector<uint32_t> const *pRts = nullptr;
+  std::vector<uint32_t> *pRts = nullptr;
 
-  std::lock_guard<std::mutex> Lock(mMtx);
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_LockMutex(mMtx_X);
+  }
   const auto Iter = mNodeNeighbourCollection.Find(_Id_U32);
   if (Iter != mNodeNeighbourCollection.cend())
   {
     pRts = &(*Iter);
   }
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_UnlockMutex(mMtx_X);
+  }
   return pRts;
 }
 
 template <typename NodeType>
-size_t BofDirGraph<NodeType>::NbEdgeFromNode(uint32_t _Id_U32) const
+size_t BofDirGraph<NodeType>::NbEdgeFromNode(uint32_t _Id_U32)
 {
   size_t Rts = 0;
 
-  std::lock_guard<std::mutex> Lock(mMtx);
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_LockMutex(mMtx_X);
+  }
   auto Iter = mEdgeFromNodeCollection.Find(_Id_U32);
   if (Iter != mEdgeFromNodeCollection.cend())
   {
     Rts = *Iter;
+  }
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_UnlockMutex(mMtx_X);
   }
   return Rts;
 }
@@ -410,13 +439,20 @@ size_t BofDirGraph<NodeType>::NbEdgeFromNode(uint32_t _Id_U32) const
 template <typename NodeType>
 uint32_t BofDirGraph<NodeType>::InsertNode(const NodeType &_rNode)
 {
-  std::lock_guard<std::mutex> Lock(mMtx);
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_LockMutex(mMtx_X);
+  }
   uint32_t Rts_U32 = mCrtId;
   BOF_INC_TICKET_NUMBER(mCrtId);
   BOF_ASSERT(!mNodeCollection.Contain(Rts_U32));
   mNodeCollection.Insert(Rts_U32, _rNode);
   mEdgeFromNodeCollection.Insert(Rts_U32, 0);
   mNodeNeighbourCollection.Insert(Rts_U32, std::vector<uint32_t>());
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_UnlockMutex(mMtx_X);
+  }
   return Rts_U32;
 }
 
@@ -426,7 +462,10 @@ bool BofDirGraph<NodeType>::EraseNode(uint32_t _Id_U32)
   bool Rts_B = true;
   std::vector<uint32_t> EdgeToEraseCollection;
 
-  std::lock_guard<std::mutex> Lock(mMtx);
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_LockMutex(mMtx_X);
+  }
   // first, remove any potential dangling edges
   {
     for (const Edge &rEdge : mEdgeCollection.Element())
@@ -468,6 +507,10 @@ bool BofDirGraph<NodeType>::EraseNode(uint32_t _Id_U32)
       BOF_ASSERT(Rts_B); //Something is corrupted
     }
   }
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_UnlockMutex(mMtx_X);
+  }
   return Rts_B;
 }
 
@@ -475,8 +518,10 @@ template <typename NodeType>
 uint32_t BofDirGraph<NodeType>::InsertEdge(uint32_t _From_U32, uint32_t _To_U32)
 {
   uint32_t Rts_U32 = 0;
-  std::lock_guard<std::mutex> Lock(mMtx);
-
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_LockMutex(mMtx_X);
+  }
   if ((mNodeCollection.Contain(_From_U32)) && (mNodeCollection.Contain(_To_U32)))
   {
     Rts_U32 = mCrtId;
@@ -491,21 +536,35 @@ uint32_t BofDirGraph<NodeType>::InsertEdge(uint32_t _From_U32, uint32_t _To_U32)
     // update neighbor list
     mNodeNeighbourCollection.Find(_From_U32)->push_back(_To_U32);
   }
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_UnlockMutex(mMtx_X);
+  }
   return Rts_U32;
 }
 
 template <typename NodeType>
 bool BofDirGraph<NodeType>::EraseEdge(uint32_t _EdgeId_U32)
 {
-  std::lock_guard<std::mutex> Lock(mMtx);
-  return InternalEraseEdge(_EdgeId_U32);
+  bool Rts_B;
+
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_LockMutex(mMtx_X);
+  }
+  Rts_B = InternalEraseEdge(_EdgeId_U32);
+  if (mBofDirGraphParam_X.MultiThreadAware_B)
+  {
+    Bof_UnlockMutex(mMtx_X);
+  }
+  return Rts_B;
 }
 
 template <typename NodeType, typename Visitor>
-void DfsTraverse(const BofDirGraph<NodeType> &_rGraph, uint32_t _StartNode_U32, Visitor _Visitor)
+void DfsTraverse(BofDirGraph<NodeType> &_rGraph, uint32_t _StartNode_U32, Visitor _Visitor)
 {
   std::stack<uint32_t> Stack;
-  std::vector<uint32_t> const *pNeighbourCollection;
+  std::vector<uint32_t> *pNeighbourCollection;
   uint32_t CrtNodeId_U32;
 
   Stack.push(_StartNode_U32);

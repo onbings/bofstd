@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include <bofstd/bofstd.h>
+#include <bofstd/bofsystem.h>
 
 #include <atomic>
 #include <functional>
@@ -56,27 +56,24 @@ private:
 
   std::atomic<uint32_t> mCallbackId = 0;
   std::map<uint32_t, CB_ITEM> mCallbackCollection;
-  std::mutex mMtxCallbackCollection;
+  bool mMultiThreadAware_B = false;
+  BOF_MUTEX mMtxCallbackCollection_X;
   bool mUnregisterIfFail_B = false;
+public:
 
-  BofCallbackCollection()
+  BofCallbackCollection(bool _MultiThreadAware_B, bool _PriorityInversionAware_B)
   {
+    mMultiThreadAware_B = _MultiThreadAware_B;
+    if (mMultiThreadAware_B)
+    {
+      Bof_CreateMutex("BofCallbackCollection", false, _PriorityInversionAware_B, mMtxCallbackCollection_X);
+    }
     mCallbackId.store(0);
   }
 
-public:
   virtual ~BofCallbackCollection()
   {
-  }
-
-  static BofCallbackCollection<T> &S_Instance()
-  {
-    // Since it's a static variable, if the class has already been created,
-    // It won't be created again.
-    // And it **is** thread-safe in C++11.
-    static BofCallbackCollection<T> mTheInstance;
-
-    return mTheInstance;
+    Bof_DestroyMutex(mMtxCallbackCollection_X);
   }
 
   BofCallbackCollection(BofCallbackCollection const &) = delete;            // Copy construct
@@ -88,7 +85,10 @@ public:
     BOFERR Rts_E = BOF_ERR_NO_ERROR;
     CB_ITEM Cb_X;
 
-    std::lock_guard<std::mutex> Lock(mMtxCallbackCollection);
+    if (mMultiThreadAware_B)
+    {
+      Bof_LockMutex(mMtxCallbackCollection_X);
+    }
     _rId_U32 = ++mCallbackId;
     if (_rId_U32 == 0)
     {
@@ -97,13 +97,20 @@ public:
     //			Cb_X.EraseIt_B=false;
     Cb_X.Callback = _rCallback;
     mCallbackCollection[_rId_U32] = Cb_X;
+    if (mMultiThreadAware_B)
+    {
+      Bof_UnlockMutex(mMtxCallbackCollection_X);
+    }
     return Rts_E;
   }
 
   BOFERR Unregister(uint32_t _Id_U32)
   {
-    std::lock_guard<std::mutex> Lock(mMtxCallbackCollection);
     BOFERR Rts_E = BOF_ERR_NOT_FOUND;
+    if (mMultiThreadAware_B)
+    {
+      Bof_LockMutex(mMtxCallbackCollection_X);
+    }
     if (_Id_U32 == 0)
     {
       mCallbackCollection.clear();
@@ -119,6 +126,10 @@ public:
         //					It->second.EraseIt_B=true;
       }
     }
+    if (mMultiThreadAware_B)
+    {
+      Bof_UnlockMutex(mMtxCallbackCollection_X);
+    }
     return Rts_E;
   }
 
@@ -127,7 +138,10 @@ public:
     bool HasFailed_B;
     BOFERR Rts_E = BOF_ERR_NOT_FOUND;
 
-    std::lock_guard<std::mutex> Lock(mMtxCallbackCollection);
+    if (mMultiThreadAware_B)
+    {
+      Bof_LockMutex(mMtxCallbackCollection_X);
+    }
     if (_Id_U32 == 0)
     {
       auto It = mCallbackCollection.begin();
@@ -160,6 +174,10 @@ public:
           Rts_E = BOF_ERR_CANCEL;
         }
       }
+    }
+    if (mMultiThreadAware_B)
+    {
+      Bof_UnlockMutex(mMtxCallbackCollection_X);
     }
     return Rts_E;
   }

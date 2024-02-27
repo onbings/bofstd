@@ -262,6 +262,7 @@ struct BOF_RPC_PARAM
 {
   BOFERR ErrorCode_E; /*! Return an optional error code */
   bool MultiThreadAware_B;
+  bool PriorityInversionAware_B;
   uint32_t MaxStackSize_U32; /*! Specify the rpc stack max size*/
   uint32_t UseChecksum_B;    /*! True if checksum computaion, insertion and control must be used during transfert: Not bool to be sure of structure size and aligment on different cpu*/
   uint32_t NbRpcFunction_U32;
@@ -278,6 +279,7 @@ struct BOF_RPC_PARAM
 
     ErrorCode_E = BOF_ERR_NO_ERROR;
     MultiThreadAware_B = false;
+    PriorityInversionAware_B = false;
     MaxStackSize_U32 = 0;
     UseChecksum_B = false;
     NbRpcFunction_U32 = 0;

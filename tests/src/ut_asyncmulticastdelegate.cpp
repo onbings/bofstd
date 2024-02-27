@@ -3013,7 +3013,7 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
 
 TEST(AsyncMuticastDelegate_Test, AsyncMulticastDelegateLib)
 {
-  BofMsgThread testThread;
+  BofMsgThread testThread(true);
 
   testThread.LaunchThread("DelegateUnitTestsThread", BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000, 0);
 
@@ -3037,7 +3037,7 @@ TEST(AsyncMuticastDelegate_Test, AsyncMulticastDelegateLib)
 
 TEST(AsyncMuticastDelegate_Test, MulticastDelegatePerf)
 {
-  BofMsgThread testThread;
+  BofMsgThread testThread(false);
   TestClass1 testClass1;
   struct StructParam structParam;
   uint32_t StartInMs_U32, i_U32;
@@ -3103,7 +3103,7 @@ TEST(AsyncMuticastDelegate_Test, AsyncNotifier)
 
   //  std::cout << std::is_pointer<StructParam>::value << '\n';
   /*
-    BofMsgThread       testThread;
+    BofMsgThread       testThread(true);
     testThread.LaunchThread("DelegateUnitTestsThread", 0, BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000);
     StructParam structParam;
     MulticastDelegateSafe1<StructParam &> FreeFuncStructRef1MulticastDelegate;

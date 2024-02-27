@@ -30,6 +30,7 @@ BEGIN_BOF_NAMESPACE()
 struct BOF_STACK_PARAM
 {
   bool MultiThreadAware_B; /*! true if the object is used in a multi threaded application (use mCs)*/
+  bool PriorityInversionAware_B;
   uint32_t MaxStackSize_U32;
   bool SwapByte_B;
   void *pData; /*! Specifies a pointer to the stack buffer zone (pre-allocated buffer). Set to nullptr if the memory must be allocated/deleted by the object */
@@ -42,6 +43,7 @@ struct BOF_STACK_PARAM
   void Reset()
   {
     MultiThreadAware_B = false;
+    PriorityInversionAware_B = false;
     MaxStackSize_U32 = 0;
     SwapByte_B = false;
   }

@@ -29,6 +29,7 @@ BEGIN_BOF_NAMESPACE()
 struct BOF_RAW_CIRCULAR_BUFFER_PARAM
 {
   bool MultiThreadAware_B;       /*! true if the object is used in a multi threaded application (use mCs)*/
+  bool PriorityInversionAware_B;
   uint32_t BufferSizeInByte_U32; /*!	Specifies the maximum number of byte inside inside the queue*/
   bool     SlotMode_B;           /* If true, the mpData_U8 buffer of BufferSizeInByte_U32 will be divided by NbMaxBufferEntry_U32 and each slot will be BufferSizeInByte_U32/NbMaxBufferEntry_U32 */
   bool     AlwaysContiguous_B;   /*! No sens for SlotMode_B (data are always contiguous in SlotMode_B). With non SlotMode_B buffer, if this parameter is true all data element stored in the buffer 
@@ -48,6 +49,7 @@ struct BOF_RAW_CIRCULAR_BUFFER_PARAM
   void Reset()
   {
     MultiThreadAware_B = false;
+    PriorityInversionAware_B = false;
     BufferSizeInByte_U32 = 0;
     SlotMode_B = false;
     NbMaxBufferEntry_U32 = 0;

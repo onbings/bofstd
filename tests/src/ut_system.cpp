@@ -33,7 +33,7 @@ USE_BOF_NAMESPACE()
 
 TEST(System_Test, Buffer)
 {
-  BOF_BUFFER Buffer_X, OtherBuffer_X;
+  BOF_BUFFER Buffer_X(true, true), OtherBuffer_X(true, true);
   constexpr uint32_t BUFFER_SIZE = 0x1000;
   uint8_t pData_U8[BUFFER_SIZE + 32], pNewData_U8[BUFFER_SIZE + 32], *pAllocData_U8, *pIo_U8;
   uint32_t i_U32;
@@ -417,7 +417,7 @@ TEST(System_Test, Util_Sprintf)
 
 TEST(System_Test, Util_AlignedAlloc)
 {
-  BOF_BUFFER Buffer_X;
+  BOF_BUFFER Buffer_X(true, true);
   void *pData;
 
   EXPECT_EQ(Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE::BOF_BUFFER_ALLOCATE_ZONE_RAM, 32, 128, false, 0, false, Buffer_X), BOF_ERR_NO_ERROR);

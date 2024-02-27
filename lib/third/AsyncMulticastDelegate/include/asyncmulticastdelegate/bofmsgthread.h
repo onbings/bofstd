@@ -15,7 +15,7 @@ class BofMsgThread : public BOF::BofThread, public DelegateLib::DelegateThread
 {
 public:
   /// Constructor
-  BofMsgThread();
+  BofMsgThread(bool _PriorityInversionAware_B);
 
   /// Destructor
   ~BofMsgThread();
@@ -40,7 +40,7 @@ private:
 
   // std::thread* m_thread;
   std::queue<ThreadMsg *> m_queue;
-  std::mutex m_mutex;
+  BOF::BOF_MUTEX mMutex_X;
   std::condition_variable m_cv;
   // const char* THREAD_NAME;
 };

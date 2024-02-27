@@ -42,6 +42,7 @@ private:
   std::queue<T> mQueue;
   BOF_MUTEX mQueueMtx_X;
   bool mMultiThreadAware_B;
+  bool mPriorityInversionAware_B;
   std::condition_variable mCvNotEmpty;
   std::condition_variable mCvNotFull;
   uint32_t mMaxSize_U32;
@@ -50,7 +51,7 @@ public:
   /*
    * Max size 0 for ever growing queue
    */
-  BofQueue(uint32_t _MaxSize_U32, bool _ThreadSafe_B)
+  BofQueue(uint32_t _MaxSize_U32, bool _MultiThreadAware_B, bool _PriorityInversionAware_B)
       : mMaxSize_U32(_MaxSize_U32)
   {
     // Pre allocate memory
@@ -58,11 +59,12 @@ public:
     {
       //		mQueue.resize(_MaxSize_U32);
     }
-    mMultiThreadAware_B = _ThreadSafe_B;
+    mMultiThreadAware_B = _MultiThreadAware_B;
+    mPriorityInversionAware_B = _PriorityInversionAware_B;
     if (mMultiThreadAware_B)
     {
       // BOFERR Sts_E=
-      Bof_CreateMutex("BofQueue", false, false, mQueueMtx_X);
+      Bof_CreateMutex("BofQueue", false, mPriorityInversionAware_B, mQueueMtx_X);
     }
   }
 

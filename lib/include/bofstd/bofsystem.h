@@ -20,7 +20,6 @@
  */
 #pragma once
 #include <bofstd/bofflag.h>
-#include <bofstd/bofbuffer.h>
 
 #include <algorithm>
 #include <atomic>
@@ -85,7 +84,7 @@ struct BOF_EVENT
 {
   uint32_t Magic_U32;
   std::string Name_S;
-  std::mutex Mtx;
+  BOF_MUTEX Mtx_X;
   std::condition_variable Cv;
   uint32_t MaxNumberToNotify_U32;
   uint64_t SignaledBitmask_U64;
@@ -101,6 +100,7 @@ struct BOF_EVENT
   {
     Magic_U32 = 0;
     Name_S = "";
+    Mtx_X.Reset();
     MaxNumberToNotify_U32 = 0;
     SignaledBitmask_U64 = 0;
     WaitKeepSignaled_B = false;
@@ -117,7 +117,7 @@ struct BOF_SEMAPHORE
 {
   uint32_t Magic_U32;
   std::string Name_S;
-  std::mutex Mtx;
+  BOF_MUTEX Mtx_X;
   std::condition_variable Cv;
   std::atomic<int32_t> Cpt_S32;
   int32_t Max_S32;
@@ -131,6 +131,7 @@ struct BOF_SEMAPHORE
   {
     Magic_U32 = 0;
     Name_S = "";
+    Mtx_X.Reset();
     Cpt_S32 = 0;
     Max_S32 = 0;
   }
@@ -145,7 +146,7 @@ struct BOF_CONDITIONAL_VARIABLE
 {
   uint32_t Magic_U32;
   std::string Name_S;
-  std::mutex Mtx;
+  BOF_MUTEX Mtx_X;
   std::condition_variable Cv;
   bool NotifyAll_B;
 
@@ -485,7 +486,7 @@ BOFSTD_EXPORT BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
 
-BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, bool _NotifyAll_B, BOF_EVENT &_rEvent_X);
+BOFSTD_EXPORT BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, bool _NotifyAll_B, bool _PriorityInversionAware_B, BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT bool Bof_IsEventValid(BOF_EVENT &_rEvent_X);
 BOFSTD_EXPORT BOFERR Bof_SignalEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
 // BOFSTD_EXPORT BOFERR Bof_ResetEvent(BOF_EVENT &_rEvent_X, uint32_t _Instance_U32);
@@ -498,7 +499,7 @@ BOFSTD_EXPORT BOFERR Bof_WaitForEventMaskAnd(BOF_EVENT &_rEvent_X, uint32_t _Tim
 BOFSTD_EXPORT BOFERR Bof_WaitForEventMaskOr(BOF_EVENT &_rEvent_X, uint32_t _TimeoutInMs_U32, uint64_t _EventMask_U64, uint64_t &_rEventGot_U64);
 BOFSTD_EXPORT BOFERR Bof_DestroyEvent(BOF_EVENT &_rEvent_X);
 
-BOFSTD_EXPORT BOFERR Bof_CreateSemaphore(const std::string &_rName_S, int32_t _InitialCount_S32, BOF_SEMAPHORE &_rSem_X);
+BOFSTD_EXPORT BOFERR Bof_CreateSemaphore(const std::string &_rName_S, int32_t _InitialCount_S32, bool _PriorityInversionAware_B, BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT bool Bof_IsSemaphoreValid(BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT BOFERR Bof_SignalSemaphore(BOF_SEMAPHORE &_rSem_X);
 BOFSTD_EXPORT BOFERR Bof_WaitForSemaphore(BOF_SEMAPHORE &_rSem_X, uint32_t _TimeoutInMs_U32);
@@ -522,7 +523,7 @@ BOFERR Bof_SignalConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, BofCvSett
 
   if (_rCv_X.Magic_U32 == BOF_CONDITIONAL_VARIABLE_MAGIC)
   {
-    std::unique_lock<std::mutex> WaitLock_O(_rCv_X.Mtx);
+    std::unique_lock<std::mutex> WaitLock_O(_rCv_X.Mtx_X.Mtx);
     _CvSetter(_Args...);
     _rCv_X.NotifyAll_B ? _rCv_X.Cv.notify_all() : _rCv_X.Cv.notify_one();
     Rts_E = BOF_ERR_NO_ERROR;
@@ -536,7 +537,7 @@ BOFERR Bof_WaitForConditionalVariable(BOF_CONDITIONAL_VARIABLE &_rCv_X, uint32_t
 
   if (_rCv_X.Magic_U32 == BOF_CONDITIONAL_VARIABLE_MAGIC)
   {
-    std::unique_lock<std::mutex> WaitLock_O(_rCv_X.Mtx);
+    std::unique_lock<std::mutex> WaitLock_O(_rCv_X.Mtx_X.Mtx);
     // if (_rCv_X.Cv.wait_for(WaitLock_O, std::chrono::milliseconds(_TimeoutInMs_U32), _CvPredicate(_Args...)))
     Rts_E = BOF_ERR_NO_ERROR;
     std::chrono::system_clock::time_point End = std::chrono::system_clock::now() + std::chrono::milliseconds(_TimeoutInMs_U32);
@@ -560,8 +561,6 @@ BOFSTD_EXPORT BOFERR Bof_UnlockMem(uint64_t _SizeInByte_U64, void *_pData);
 BOFSTD_EXPORT bool Bof_AlignedMemCpy8(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
 BOFSTD_EXPORT bool Bof_AlignedMemCpy16(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
 BOFSTD_EXPORT bool Bof_AlignedMemCpy32(volatile void *_pDst, const volatile void *_pSrc, uint32_t _SizeInByte_U32);
-BOFSTD_EXPORT BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, int _OsAdvice_i, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X);
-BOFSTD_EXPORT BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
 BOFSTD_EXPORT std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZoneParam_X);
 
 BOFSTD_EXPORT int32_t Bof_PriorityValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E);

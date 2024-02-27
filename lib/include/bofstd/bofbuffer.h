@@ -19,7 +19,7 @@
  * V 1.00  Jan 19 2017  BHA : Initial release
  */
 #pragma once
-#include <bofstd/bofstd.h>
+#include <bofstd/bofsystem.h>
 #include <mutex>
 
 BEGIN_BOF_NAMESPACE()
@@ -68,9 +68,10 @@ struct BOF_BUFFER
   uint64_t Capacity_U64;
   void *pUser; // Used by Bof_AlignedMemAlloc for example
   uint8_t *pData_U8;
-  mutable std::mutex Mtx;
+  bool MultiThreadAware_B;
+  BOF_MUTEX Mtx_X;
 
-  BOF_BUFFER()
+  BOF_BUFFER(bool _MultiThreadAware_B, bool _PriorityInversionAware_B)
   {
     // for ReleaseStorage in Reset
     Deleter_E = BOF_BUFFER_DELETER_NONE;
@@ -79,6 +80,11 @@ struct BOF_BUFFER
     Size_U64 = 0;
     Capacity_U64 = 0;
     pData_U8 = nullptr;
+    MultiThreadAware_B = _MultiThreadAware_B;
+    if (MultiThreadAware_B)
+    {
+      Bof_CreateMutex("BOF_BUFFER", false, _PriorityInversionAware_B, Mtx_X);
+    }
     // Reset();
   }
   /* Use SetStorage
@@ -91,39 +97,61 @@ struct BOF_BUFFER
     */
   ~BOF_BUFFER()
   {
+    Bof_DestroyMutex(Mtx_X);
     Reset();
   }
-  // Copy constructor as we use mutable std::mutex https://stackoverflow.com/questions/30340029/copy-class-with-stdmutex
   BOF_BUFFER(const BOF_BUFFER &_rOther_X)
   {
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     Deleter_E = BOF_BUFFER_DELETER_NONE; // Only one deleter  _rOther_X.MustBeDeleted_B;
     pUser = _rOther_X.pUser;
     Offset_U64 = _rOther_X.Offset_U64;
     Size_U64 = _rOther_X.Size_U64;
     Capacity_U64 = _rOther_X.Capacity_U64;
     pData_U8 = _rOther_X.pData_U8;
+    //Mtx_X = _rOther_X.Mtx_X;
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
   }
   BOF_BUFFER &operator=(const BOF_BUFFER &_rOther_X)
   {
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     Deleter_E = BOF_BUFFER_DELETER_NONE; // Only one deleter  _rOther_X.MustBeDeleted_B;
     pUser = _rOther_X.pUser;
     Offset_U64 = _rOther_X.Offset_U64;
     Size_U64 = _rOther_X.Size_U64;
     Capacity_U64 = _rOther_X.Capacity_U64;
     pData_U8 = _rOther_X.pData_U8;
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
     return *this;
   }
   BOF_BUFFER &operator=(const BOF_BUFFER &&_rrOther_X) noexcept
   {
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     Deleter_E = BOF_BUFFER_DELETER_NONE; // Only one deleter  _rOther_X.MustBeDeleted_B;
     pUser = _rrOther_X.pUser;
     Offset_U64 = _rrOther_X.Offset_U64;
     Size_U64 = _rrOther_X.Size_U64;
     Capacity_U64 = _rrOther_X.Capacity_U64;
     pData_U8 = _rrOther_X.pData_U8;
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
     return *this;
   }
   void Reset()
@@ -133,20 +161,34 @@ struct BOF_BUFFER
       //printf("WARNING: Resetting an 'active' BOF_BUFFER\n");
     }
     ReleaseStorage();
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     Deleter_E = BOF_BUFFER_DELETER_NONE;
     pUser = nullptr;
     Offset_U64 = 0;
     Size_U64 = 0;
     Capacity_U64 = 0;
     pData_U8 = nullptr;
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
   }
 
   void Clear()
   {
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     Offset_U64 = 0;
     Size_U64 = 0;
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
   }
   uint8_t *SetStorage(uint64_t _Capacity_U64, uint64_t _Size_U64, uint8_t *_pData_U8)
   {
@@ -162,7 +204,10 @@ struct BOF_BUFFER
     {
       pData_U8 = AllocStorage(_Capacity_U64); // Will set MustBeDeleted_B to true
     }
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     Capacity_U64 = _Capacity_U64;
 
     Offset_U64 = 0;
@@ -174,27 +219,38 @@ struct BOF_BUFFER
     {
       Size_U64 = 0;
     }
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
     return pData_U8;
   }
 
   uint64_t RemainToWrite()
   {
-    // Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    // Called by read/write under Bof_LockMutex;
     return (Size_U64 <= Capacity_U64) ? Capacity_U64 - Size_U64 : 0;
   }
   uint64_t RemainToRead()
   {
-    // Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    // Called by read/write under Bof_LockMutex;
     return (Offset_U64 < Size_U64) ? Size_U64 - Offset_U64 : 0;
   }
   uint8_t *Pos()
   {
     uint8_t *pRts_U8 = nullptr;
 
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     if (IsValid())
     {
       pRts_U8 = &pData_U8[Size_U64];
+    }
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
     }
     return pRts_U8;
   }
@@ -202,12 +258,19 @@ struct BOF_BUFFER
   {
     uint8_t *pRts_U8 = nullptr;
 
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     if (_Offset_U64 <= Size_U64)
     {
       Offset_U64 = _Offset_U64;
       _rRemain_U64 = Size_U64 - Offset_U64;
       pRts_U8 = &pData_U8[Offset_U64];
+    }
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
     }
     return pRts_U8;
   }
@@ -216,13 +279,20 @@ struct BOF_BUFFER
     uint8_t *pRts_U8 = nullptr;
     uint64_t NewOffset_U64;
 
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     NewOffset_U64 = Offset_U64 + _Amount_S64;
     if (NewOffset_U64 <= Size_U64)
     {
       Offset_U64 = NewOffset_U64;
       _rRemain_U64 = Size_U64 - Offset_U64;
       pRts_U8 = &pData_U8[Offset_U64];
+    }
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
     }
     return pRts_U8;
   }
@@ -231,7 +301,10 @@ struct BOF_BUFFER
     uint8_t *pRts_U8 = nullptr;
     uint64_t Remain_U64;
 
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     _rNbRead_U64 = 0;
     if (IsValid())
     {
@@ -243,6 +316,10 @@ struct BOF_BUFFER
         Offset_U64 += _rNbRead_U64;
       }
     }
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
     return pRts_U8;
   }
   uint8_t *Write(uint64_t _Size_U64, const uint8_t *_pData_U8, uint64_t &_rNbWritten_U64)
@@ -250,7 +327,10 @@ struct BOF_BUFFER
     uint8_t *pRts_U8 = nullptr;
     uint64_t Free_U64;
 
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     _rNbWritten_U64 = 0;
     if ((IsValid()) && (_pData_U8))
     {
@@ -263,14 +343,21 @@ struct BOF_BUFFER
         pRts_U8 = &pData_U8[Size_U64];
       }
     }
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
     return pRts_U8;
   }
   bool Memset(const uint8_t _Val_U8, uint64_t _Size_U64, uint64_t _Offset_U64)
   {
     bool Rts_B = false;
 
-    std::lock_guard<std::mutex> Lock(Mtx);
-    if (IsValid()) 
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
+    if (IsValid())
     {
       if ((_Offset_U64 < Capacity_U64) && ((_Size_U64 + _Offset_U64) < Capacity_U64))
       {
@@ -278,13 +365,17 @@ struct BOF_BUFFER
         Rts_B = true;
       }
     }
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
     return Rts_B;
   }
   bool IsValid()
   {
     bool Rts_B = false;
 
-    // Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    // Called by read/write under Bof_LockMutex;
     if ((pData_U8) && (Capacity_U64))
     {
       if ((Size_U64 <= Capacity_U64) && (Offset_U64 <= Size_U64))
@@ -299,7 +390,7 @@ struct BOF_BUFFER
   {
     bool Rts_B = true;
 
-    // Called by read/write std::lock_guard<std::mutex> Lock(Mtx);
+    // Called by read/write under Bof_LockMutex;
     if ((pData_U8) && (Capacity_U64))
     {
       Rts_B = false;
@@ -316,18 +407,28 @@ struct BOF_BUFFER
 
     if (pRts)
     {
-      std::lock_guard<std::mutex> Lock(Mtx);
+      if (MultiThreadAware_B)
+      {
+        Bof_LockMutex(Mtx_X);
+      }
       Deleter_E = BOF_BUFFER_DELETER_DELETE;
       Capacity_U64 = _Capacity_U64;
       Offset_U64 = 0;
       Size_U64 = 0;
       pData_U8 = pRts;
+      if (MultiThreadAware_B)
+      {
+        Bof_UnlockMutex(Mtx_X);
+      }
     }
     return pRts;
   }
   void ReleaseStorage()
   {
-    std::lock_guard<std::mutex> Lock(Mtx);
+    if (MultiThreadAware_B)
+    {
+      Bof_LockMutex(Mtx_X);
+    }
     switch (Deleter_E)
     {
       default:
@@ -348,7 +449,13 @@ struct BOF_BUFFER
     Capacity_U64 = 0;
     Offset_U64 = 0;
     Size_U64 = 0;
+    if (MultiThreadAware_B)
+    {
+      Bof_UnlockMutex(Mtx_X);
+    }
   }
 };
+BOFSTD_EXPORT BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, int _OsAdvice_i, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X);
+BOFSTD_EXPORT BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
 
 END_BOF_NAMESPACE()

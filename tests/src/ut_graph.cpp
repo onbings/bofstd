@@ -37,7 +37,8 @@ protected:
 
 TEST_F(Graph_Test, CreateDestroy)
 {
-  uint32_t NodeId1_U32, NodeId2_U32, NodeId3_U32 , *pVal_U32, EdgeId_U32;
+  uint32_t NodeId1_U32, NodeId2_U32, NodeId3_U32, EdgeId_U32;
+  const uint32_t *pVal_U32;
   const std::vector<uint32_t> *pNeighbourCollection;
     
   pNeighbourCollection =mpuDirGraph->Neighbour(0);

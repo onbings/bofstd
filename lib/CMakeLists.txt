@@ -61,6 +61,8 @@ set(CONIO_SHELL_FILES
 set(CONTAINER_FILES
 #	include/bofstd/bofspscqueue.h
 #	include/bofstd/bofmpmcqueue.h
+	include/bofstd/bofbuffer.h
+	src/bofbuffer.cpp
 	include/bofstd/bofcircularbuffer.h
 	include/bofstd/bofstringcircularbuffer.h
 	src/bofstringcircularbuffer.cpp
@@ -173,10 +175,10 @@ set(LOG_FILES
 	src/boflogger.cpp	
 )
 
-set(OBSERVER_FILES
-	include/bofstd/bofobserver.h
-	src/bofobserver.cpp
-)
+#set(OBSERVER_FILES
+#	include/bofstd/bofobserver.h
+#	src/bofobserver.cpp
+#)
 
 set(PROTOCOL_FILES
 	include/bofstd/bofrpc.h
@@ -201,18 +203,17 @@ set(SERDER_FILES
 set(SOCKIO_FILES
 	include/bofstd/bofsocketthread.h
 	src/bofsocketthread.cpp
-	include/bofstd/bofsocketserver.h
-	src/bofsocketserver.cpp
-	include/bofstd/bofsocketio.h
-	src/bofsocketio.cpp
-	include/bofstd/bofsocketsessionmanager.h
-	src/bofsocketsessionmanager.cpp
-	include/bofstd/ibofsocketio.h
-	include/bofstd/ibofsocketsessionfactory.h
+#	include/bofstd/bofsocketserver.h
+#	src/bofsocketserver.cpp
+#	include/bofstd/bofsocketio.h
+#	src/bofsocketio.cpp
+#	include/bofstd/bofsocketsessionmanager.h
+#	src/bofsocketsessionmanager.cpp
+#	include/bofstd/ibofsocketio.h
+#	include/bofstd/ibofsocketsessionfactory.h
 )
 
 set(SYSTEM_FILES
-	include/bofstd/bofbuffer.h
 	include/bofstd/bofsystem.h
 	src/bofsystem.cpp
 	include/bofstd/bofscopeguard.h
@@ -260,7 +261,7 @@ set(SOURCES_FILES
 	${FS_FILES}
 	${IXML_FILES}
 	${LOG_FILES}
-	${OBSERVER_FILES}
+#	${OBSERVER_FILES}
 	${PROTOCOL_FILES}
 	${SERDER_FILES}
 	${SOCKIO_FILES}
@@ -287,7 +288,7 @@ source_group("EnumFlag"	 FILES ${ENUM_FLAG_FILES})
 source_group("Fs"		 FILES ${FS_FILES})
 source_group("Xml"		 FILES ${IXML_FILES})
 source_group("Log"		 FILES ${LOG_FILES})
-source_group("Observer"	 FILES ${OBSERVER_FILES})
+#source_group("Observer"	 FILES ${OBSERVER_FILES})
 source_group("Protocol"	 FILES ${PROTOCOL_FILES})
 source_group("SerDeser"	 FILES ${SERDER_FILES})
 source_group("SockIo"	 FILES ${SOCKIO_FILES})

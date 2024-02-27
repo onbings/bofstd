@@ -138,7 +138,7 @@ template <typename Element>
 class BofList
 {
 public:
-  BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B = true, class BofList<Element> *_pNodePool_O = nullptr);
+  BofList(uint32_t _NbMaxElements_U32, bool _MultiThreadAware_B = true, bool _PriorityInversionAware_B = false, class BofList<Element> *_pNodePool_O = nullptr);
 
   virtual ~BofList();
 
@@ -217,6 +217,7 @@ private:
   BofListNode<Element> *mpFreeNodesHead_O;
   BofListNode<Element> *mpFreeNodesQueue_O;
   bool mMultiThreadAware_B;
+  bool mPriorityInversionAware_B;
   BOF_MUTEX mListMtx_X; // *mpCriticalSection_O;
   class BofList<Element> *mpNodePoolMgr_O;
 
@@ -251,19 +252,20 @@ See also
   Nothing
 */
 template <typename Element>
-BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _ThreadSafe_B /* = true */, class BofList<Element> *_pNodePool_O /* = nullptr */)
+BofList<Element>::BofList(uint32_t _NbMaxElements_U32, bool _MultiThreadAware_B /* = true */, bool _PriorityInversionAware_B, class BofList<Element> *_pNodePool_O /* = nullptr */)
 {
   uint32_t I_U32 = 0;
 
 #if defined(CHECK_LIST_INTEGRITY)
   BOF_ASSERT(_NbMaxElements_U32 > 0);
 #endif
-  mMultiThreadAware_B = _ThreadSafe_B;
+  mMultiThreadAware_B = _MultiThreadAware_B;
+  mPriorityInversionAware_B = _PriorityInversionAware_B;
   // Create a critical section if needed
   if (mMultiThreadAware_B)
   {
     // BOFERR Sts_E=
-    Bof_CreateMutex("BofList", true, false, mListMtx_X);
+    Bof_CreateMutex("BofList", true, mPriorityInversionAware_B, mListMtx_X);
   }
 
   // Allocate the memory

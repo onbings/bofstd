@@ -39,6 +39,7 @@ using BofSocketThreadCallback = std::function<BOFERR(uint32_t _Ticket_U32, BOFER
 struct BOF_SOCKET_THREAD_PARAM
 {
   std::string Name_S;
+  bool PriorityInversionAware_B;
   uint32_t NbMaxOperationPending_U32;
   BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
   BOF_THREAD_PRIORITY ThreadPriority_E;
@@ -53,6 +54,7 @@ struct BOF_SOCKET_THREAD_PARAM
   void Reset()
   {
     Name_S = "";
+    PriorityInversionAware_B = false;
     NbMaxOperationPending_U32 = 0;
     ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
     ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;

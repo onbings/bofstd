@@ -132,8 +132,10 @@ public:
   BofPipe &operator=(const BofPipe &) = delete; // Disallow copying
   BofPipe(const BofPipe &) = delete;
   BOFPIPE GetNativeHandle();
+#if defined(DBGBOFPIPE)
   static std::string S_GetGlobalPipeState();
   int S_BofPipeBalance();
+#endif
 
 private:
   BOF_PIPE_PARAM mPipeParam_X;
@@ -148,7 +150,9 @@ private:
 #else
   int mOpenFlag_i = 0;
 #endif
-  static std::mutex S_mPipeCollectionMtx;
+#if defined(DBGBOFPIPE)
+  static std::mutex S_mPipeCollectionMtx;  
   static std::map<std::string, BOF_PIPE_ENTRY> S_mPipeCollection;
+#endif
 };
 END_BOF_NAMESPACE()

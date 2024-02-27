@@ -214,7 +214,7 @@ private:
   std::shared_ptr<BofSocketIo> mpsChildDataChannel = nullptr;
   std::weak_ptr<BofSocketIo> mpwParentCmdChannel;
   BofSocketServer *mpBofSocketServer = nullptr;
-  BOF::BOF_BUFFER mDataBuffer_X;
+  std::unique_ptr<BOF::BOF_BUFFER> mpuDataBuffer_X=nullptr;
 
   // use mConnected_B bool											mChannelConnected_B = false;
   BofCvSetter<bool> mChannelConnectedCvSetter = [&](bool _ChannelConnected_B) { mConnected_B = _ChannelConnected_B; };
@@ -237,10 +237,10 @@ public:
   BOFERR AllocateDataBuffer(uint64_t _BufferSize_U64);
   BOFERR ReleaseDataBuffer();
   void ClearDataBuffer();
-  BOFERR TransferDataBufferOwnershipTo(std::shared_ptr<BofSocketIo> _psSocketSession);
   BOFERR MemCpyInDataBuffer(uint64_t _BufferSize_U64, const uint8_t *_pData_U8);
-  BOF_BUFFER &DataBuffer();
-  void DataBuffer(const BOF_BUFFER &_rDataBuffer_X);
+  //TODO: BOFERR TransferDataBufferOwnershipTo(std::shared_ptr<BofSocketIo> _psSocketSession);
+  //TODO: BOF_BUFFER &DataBuffer();
+  //TODO: void DataBuffer(const BOF_BUFFER &_rDataBuffer_X);
   BOFERR Write(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, const std::string &_rBuffer_S, void *_pWriteContext);
   BOFERR Write(uint32_t _TimeoutInMs_U32, bool _AsyncMode_B, uint32_t &_rNb_U32, const uint8_t *_pBuffer_U8, void *_pWriteContext);
   BOFERR LastErrorCode() const;
