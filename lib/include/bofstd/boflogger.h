@@ -34,9 +34,9 @@ const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ALWAYS = 0x80000000; /*! Always 
 const uint32_t BOF_LOGGER_CHANNEL_FLAG_MASK_DBG_ERROR = 0x40000000;  /*! Display error */
 const uint32_t BOF_LOGGER_MAX_FAST_FORMAT_BUFFER_SIZE = 0x8000;
 #if defined(_WIN32)
-#define BOF_LOG_TO_DBG(pFormat,...)  {std::string Dbg;BOF::Bof_Sprintf(pFormat, __VA_ARGS__);OutputDebugString(Dbg.c_str());}
+#define BOF_LOG_TO_DBG(pFormat,...)  {std::string Dbg;BOF::Bof_Sprintf(pFormat, ##__VA_ARGS__);OutputDebugString(Dbg.c_str());}
 #else
-#define BOF_LOG_TO_DBG(pFormat,...)  {printf(pFormat, __VA_ARGS__);}
+#define BOF_LOG_TO_DBG(pFormat,...)  {printf(pFormat, ##__VA_ARGS__);}
 #endif
 // #define BOF_LOGGER_DEBUG_ON            // To avoid extra cost when we want no log and no fct call at all
 // The ##__VA_ARGS__ syntax is non-standard. It is a "swallow comma if the __VA_ARGS__ is empty" extension implemented by GCC, and seems to have been adopted by other compilers.

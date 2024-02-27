@@ -18,7 +18,7 @@ BEGIN_BOF_NAMESPACE()
 constexpr uint32_t PUSH_POP_TIMEOUT = 150; // Global To for getting command out of incoming queue, in ListeningMode_B it is half of the To specified for listen
 constexpr uint32_t DEF_IO_TIMEOUT = 2000;
 
-#define SOCK_IO_DBG(pFormat,...) {printf("%d: " pFormat,Bof_GetMsTickCount(), __VA_ARGS__);}
+#define SOCK_IO_DBG(pFormat,...) {printf("%d: " pFormat,Bof_GetMsTickCount(), ##__VA_ARGS__);}
 #define SOCK_THREAD_PROGRAM_OPERATION(Field, Operation)                                              \
   BOFERR Rts_E;                                                                                  \
   BOF_SOCKET_OPERATION_PARAM Param_X;                                                        \

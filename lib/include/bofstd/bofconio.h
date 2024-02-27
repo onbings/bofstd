@@ -24,8 +24,8 @@
 #include <bofstd/bofpath.h>
 
 BEGIN_BOF_NAMESPACE()
-#define PrintfAt(x, y, pFormat, ...) PrintfAtColor(mForeColor_E, x, y, pFormat, __VA_ARGS__)
-#define PrintfColor(Color, pFormat, ...) PrintfAtColor(Color, 0, 0, pFormat, __VA_ARGS__)
+#define PrintfAt(x, y, pFormat, ...) PrintfAtColor(mForeColor_E, x, y, pFormat, ##__VA_ARGS__)
+#define PrintfColor(Color, pFormat, ...) PrintfAtColor(Color, 0, 0, pFormat, ##__VA_ARGS__)
 
 enum CONIO_MODIFIER_KEY_FLAG : uint32_t
 {

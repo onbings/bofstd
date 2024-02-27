@@ -332,12 +332,12 @@ void MyExternalSingleChannelLibCode(std::shared_ptr<BOF::IBofLoggerFactory> _psL
   EXPECT_EQ(NbLogRejected_U32, 1);
 }
 /*
-#define WLOG(channel, ...) BOF_LOG_WARNING(MY_LOGGER, channel, __VA_ARGS__);
+#define WLOG(channel, ...) BOF_LOG_WARNING(MY_LOGGER, channel, ##__VA_ARGS__);
 #define MY_LOGGER TheBhaLogger
 BOF_LOGGER_DEFINE_STORAGE(MY_LOGGER, LOGGER_CHANNEL_MAX);
 */
 constexpr uint32_t MAX_MULTI_CHANNEL = 3;
-#define WLOG(channel, ...) BOF_LOG_WARNING(MY_UT_LOGGER, channel, __VA_ARGS__);
+#define WLOG(channel, ...) BOF_LOG_WARNING(MY_UT_LOGGER, channel, ##__VA_ARGS__);
 #define MY_UT_LOGGER TheUtLogger
 BOF_LOGGER_DEFINE_STORAGE(MyExternalMultipleChannelLibLogger, MAX_MULTI_CHANNEL);
 void MyExternalMultipleChannelLibInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
