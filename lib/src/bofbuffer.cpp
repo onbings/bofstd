@@ -1,6 +1,13 @@
 #include <bofstd/bofbuffer.h>
 #include <bofstd/bofbit.h>
 
+#include <fcntl.h>
+#if defined(_WIN32)
+#else
+#include <sys/mman.h>
+#include <unistd.h>
+#endif
+
 BEGIN_BOF_NAMESPACE()
 // https://stackoverflow.com/questions/32652833/how-to-allocate-huge-pages-for-c-application-on-linux
 // constexpr char MMGW_HUGE_PAGE_PATH[]="/sys/kernel/mm/hugepages/hugepages-2048kB/page_%08X";  //"/var/lib/hugetlbfs/global/pagesize-2MB/page_%08X";

@@ -118,7 +118,7 @@ struct BOF_LOGGER_FACTORY_STORAGE
     {                                                                                               \
       if (level <= BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->GetLogSeverityLevel())  \
       {                                                                                             \
-        BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->V_Log(level, format, __VA_ARGS__); \
+        BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->V_Log(level, format, ##__VA_ARGS__); \
         BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->mNbLogOut_U32++;                   \
       }                                                                                             \
       else                                                                                          \
@@ -136,12 +136,12 @@ struct BOF_LOGGER_FACTORY_STORAGE
 #define BOF_LOG_VERBOSE(name, channel, format, ...)
 #define BOF_LOG_DEBUG(name, channel, format, ...)
 #else
-#define BOF_LOG_FORCE(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_FORCE, format, __VA_ARGS__)
-#define BOF_LOG_ERROR(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_ERROR, format, __VA_ARGS__)
-#define BOF_LOG_WARNING(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_WARNING, format, __VA_ARGS__)
-#define BOF_LOG_INFO(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_INFO, format, __VA_ARGS__)
-#define BOF_LOG_VERBOSE(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_VERBOSE, format, __VA_ARGS__)
-#define BOF_LOG_DEBUG(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_DEBUG, format, __VA_ARGS__)
+#define BOF_LOG_FORCE(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_FORCE, format, ##__VA_ARGS__)
+#define BOF_LOG_ERROR(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_ERROR, format, ##__VA_ARGS__)
+#define BOF_LOG_WARNING(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_WARNING, format, ##__VA_ARGS__)
+#define BOF_LOG_INFO(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_INFO, format, ##__VA_ARGS__)
+#define BOF_LOG_VERBOSE(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_VERBOSE, format, ##__VA_ARGS__)
+#define BOF_LOG_DEBUG(name, channel, format, ...) BOF_LOGGER_LOG(name, channel, BOF::IBofLogger::LOG_SEVERITY_DEBUG, format, ##__VA_ARGS__)
 #endif
 END_BOF_NAMESPACE()
 
@@ -269,7 +269,7 @@ private:
   std::vector<std::shared_ptr<Logger>> mLoggerCollection;
 };
 
-#define WLOG(channel, ...) BOF_LOG_WARNING(MY_LOGGER, channel, __VA_ARGS__);
+#define WLOG(channel, ...) BOF_LOG_WARNING(MY_LOGGER, channel, ##__VA_ARGS__);
 #define MY_LOGGER TheBhaLogger
 BOF_LOGGER_DEFINE_STORAGE(MY_LOGGER, LOGGER_CHANNEL_MAX);
 bool LoggerInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
