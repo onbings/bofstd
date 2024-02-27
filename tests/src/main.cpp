@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:Uri_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
-  //::testing::GTEST_FLAG(filter) = "Shell_Test.Shell";
+//  ::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";
@@ -167,19 +167,19 @@ int main(int argc, char *argv[])
 }
 
 /*
-* WINDOWS
-V 5.5.0.0
-[==========] 200 tests from 51 test suites ran. (107274 ms total)
-[  PASSED  ] 200 tests.
+V 5.5.0.0:
+
+WINDOWS
+[==========] 198 tests from 51 test suites ran. (108369 ms total)
+[  PASSED  ] 198 tests.
 
   YOU HAVE 2 DISABLED TESTS
 
-  LINUX:
-[==========] 189 tests from 48 test suites ran. (60706 ms total)
-[  PASSED  ] 189 tests.
+LINUX:
+[==========] 198 tests from 51 test suites ran. (60329 ms total)
+[  PASSED  ] 198 tests.
 
-  YOU HAVE 3 DISABLED TESTS
-
+  YOU HAVE 2 DISABLED TESTS
 
 need to launch test with
 su

@@ -1,0 +1,8 @@
+#
+#Gbio general script file (a) b.harmel@evs.com
+#
+?
+si(0, false, true)
+ls(false,false,false)
+exec(./data/shell_script_2.bof)
+q

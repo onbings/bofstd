@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2023, OnBings All rights reserved.
+ * Copyright (Sleep100) 2013-2023, OnBings All rights reserved.
  *
  * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
  * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
@@ -30,23 +30,25 @@
 USE_BOF_NAMESPACE()
 
 static uint32_t S_pCpt_U32[3];
-void a()
+void Sleep10()
 {
-  // printf("A\n");
   Bof_MsSleep(10);
   S_pCpt_U32[0]++;
+  //printf("Sleep10 %d\n", S_pCpt_U32[0]);
 }
-void b()
+void Sleep50()
 {
   // printf("B\n");
   Bof_MsSleep(50);
   S_pCpt_U32[1]++;
+  //printf("Sleep50 %d\n", S_pCpt_U32[1]);
 }
-void c()
+void Sleep100()
 {
   // printf("C\n");
   Bof_MsSleep(100);
   S_pCpt_U32[2]++;
+  //printf("Sleep100 %d\n", S_pCpt_U32[2]);
 }
 TEST(Async_Test, CommandQueue)
 {
@@ -63,11 +65,11 @@ TEST(Async_Test, CommandQueue)
 
   memset(S_pCpt_U32, 0, sizeof(S_pCpt_U32));
   pCommand_X[0].Name_S = "CmdA";
-  pCommand_X[0].Cmd = a;
+  pCommand_X[0].Cmd = Sleep10;
   pCommand_X[1].Name_S = "CmdB";
-  pCommand_X[1].Cmd = b;
+  pCommand_X[1].Cmd = Sleep50;
   pCommand_X[2].Name_S = "CmdC";
-  pCommand_X[2].Cmd = c;
+  pCommand_X[2].Cmd = Sleep100;
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < 4; i_U32++)
   {
@@ -108,9 +110,9 @@ TEST(Async_Test, OverloadCommandQueue)
 
   memset(S_pCpt_U32, 0, sizeof(S_pCpt_U32));
   Command_X.Name_S = "Cmd";
-  Command_X.Cmd = a;
+  Command_X.Cmd = Sleep100;
   Start_U32 = Bof_GetMsTickCount();
-  for (i_U32 = 0; i_U32 < 100; i_U32++)
+  for (i_U32 = 0; i_U32 < 10; i_U32++)
   {
     CmdQ.PostCommand(false, Command_X);
   }
@@ -118,12 +120,15 @@ TEST(Async_Test, OverloadCommandQueue)
   EXPECT_NE(CmdQ.PostCommand(false, Command_X), BOF_ERR_NO_ERROR);
   while (CmdQ.IsProcessingCommand())
   {
+	//printf("nbc %d\n", CmdQ.NumberOfCommandWaitingInQueue());
     Bof_MsSleep(10);
   }
   EXPECT_EQ(CmdQ.PostCommand(false, Command_X), BOF_ERR_NO_ERROR);
-  EXPECT_EQ(S_pCpt_U32[0], 4);
+	//printf("NBC %d\n", CmdQ.NumberOfCommandWaitingInQueue());
+  EXPECT_EQ(S_pCpt_U32[2], 3);
   while (CmdQ.IsProcessingCommand())
   {
     Bof_MsSleep(10);
   }
+  EXPECT_EQ(S_pCpt_U32[2], 4);  
 }

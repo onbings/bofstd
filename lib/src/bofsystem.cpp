@@ -626,9 +626,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
     // bool k=CreateMyDACL(&SecurityAttribute_X);
     pSecurityDescriptor_X = CreateWinSecurityDescriptor(&SecurityAttribute_X);
 
-    if ((pSecurityDescriptor_X)
-        //			&& (Bof_MultiByteToWideChar(_rSharedMemory_X.Name_S.c_str(), sizeof(pName_wc) / sizeof(WCHAR), pName_wc)>=0)
-        )
+    if (pSecurityDescriptor_X)
     {
       Rts_E = BOF_ERR_EINVAL;
       // Name must start with Global\\->Responsabilities of the caller ! sinon			Rts_h = BOF_INVALID_HANDLE_VALUE;
@@ -667,7 +665,6 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
         }
       }
     }
-
 #else
     // std::string Name_S;
     int Handle_i, Access_i;
@@ -716,10 +713,11 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
         if (BOF_IS_HANDLE_VALID(_DriverHandle))
         {
           _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, _DriverHandle, 0);
+				printf("========>Map1 %p\n", _rSharedMemory_X.pBaseAddress);
           if (_rSharedMemory_X.pBaseAddress != MAP_FAILED)
           {
-            printf("Bof_OpenSharedMemory '%s'     0: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
             Rts_E = BOF_ERR_NO_ERROR;
+            printf("Bof_OpenSharedMemory '%s'     0: pMap %x:%p Rts %d\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress, Rts_E);
           }
         }
         else
@@ -746,7 +744,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
             _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, Handle_i, 0);
             if (_rSharedMemory_X.pBaseAddress != MAP_FAILED)
             {
-              printf("Bof_OpenSharedMemory '%s'     3: pMap %x:%p\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
+              printf("Bof_OpenSharedMemory '%s'     3: pMap %x:%p Rts_E %d\n", Name_S.c_str(), _SizeInByte_U32, _rSharedMemory_X.pBaseAddress, Rts_E);
               if (Rts_E != BOF_ERR_EEXIST)
               {
                 Rts_E = BOF_ERR_NO_ERROR;
@@ -756,7 +754,7 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
           }
           else
           {
-            // Posix interface failed (tge2 docket), fallback on System V api
+            // Posix interface failed (tge2 docker), fallback on System V api
             _rSharedMemory_X.PathNameSystemV_S = _rFallbackSystemVKeySubDir_S + Name_S;
             ShmKey = Bof_GenerateSystemVKey(true, _rSharedMemory_X.PathNameSystemV_S.c_str(), 1);
             // ShmKey = Bof_GenerateSystemVKey(true, nullptr, 1);
@@ -823,7 +821,7 @@ bool Bof_IsSharedMemoryValid(BOF_SHARED_MEMORY &_rSharedMemory_X)
 
 BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt_B)
 {
-  BOFERR Rts_E = BOF_ERR_NOT_OPENED;
+  BOFERR Rts_E = BOF_ERR_NOT_OPENED, Sts_E;
 
   if (_rSharedMemory_X.Magic_U32 == BOF_FILEMAPPING_MAGIC)
   {
@@ -850,8 +848,13 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
       if (_rSharedMemory_X.HandleSystemV_i >= 0)
       {
         Rts_E = (shmdt(_rSharedMemory_X.pBaseAddress) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_UNMAP;
-        printf("shmdt errno %d Rts_E %d\n", errno, Rts_E);
-        if ((Rts_E == BOF_ERR_NO_ERROR) || (Rts_E == BOF_ERR_ENOTDIR))
+//printf("==shmdt=======> %p rts %d errno %d\n",_rSharedMemory_X.pBaseAddress, Rts_E, errno);
+		Sts_E = BOF_ERR_NO_ERROR;
+		if (Rts_E != BOF_ERR_NO_ERROR)
+		{
+			Sts_E=Bof_GetLastError(false, &Sts_i);
+		}
+        if ((Rts_E == BOF_ERR_NO_ERROR) || (Sts_E == BOF_ERR_EINVAL))
         {
           // NO !! Sts_i = close(_rSharedMemory_X.HandleSystemV_i);
           //  Can fail if already _RemoveIt_B by someone else  Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
