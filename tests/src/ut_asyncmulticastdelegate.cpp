@@ -3010,7 +3010,8 @@ void DelegateMemberAsyncWaitTests(BofMsgThread *_pTestThread)
     int ret = MemberFuncIntWithReturn5Delegate(TEST_INT, TEST_INT, TEST_INT, TEST_INT, TEST_INT);
   }
 }
-
+#if defined(__EMSCRIPTEN__)
+#else
 TEST(AsyncMuticastDelegate_Test, AsyncMulticastDelegateLib)
 {
   BofMsgThread testThread(true);
@@ -3091,6 +3092,7 @@ static int b = 0x90ABCDEF;
 static int c = 0x87654321;
 
 // #include <type_traits>
+
 TEST(AsyncMuticastDelegate_Test, AsyncNotifier)
 {
   BOF::BOF_MULTICAST_ASYNC_NOTIFIER_PARAM MulticastAsyncNotifierParam_X;
@@ -3158,3 +3160,4 @@ TEST(AsyncMuticastDelegate_Test, SyncNotifier)
   ASSERT_NE(MulticastSyncNotifier.Notify(&MulticastNotifyArg_X), BOF_ERR_NO_ERROR);
   ASSERT_NE(MulticastSyncNotifier.Notify(&MulticastNotifyArg_X), BOF_ERR_NO_ERROR);
 }
+#endif // #if defined(__EMSCRIPTEN__)

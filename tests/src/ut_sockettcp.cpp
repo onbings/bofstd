@@ -170,7 +170,8 @@ void SocketTcp_Test::TearDown()
 
 const uint32_t SERVER_NB_CLIENT = 8; // 50;
 const uint32_t CLIENT_NB_LOOP = 100; // 500;
-
+#if defined(__EMSCRIPTEN__)
+#else
 TEST_F(SocketTcp_Test, TcpClientTest)
 {
   std::vector<std::unique_ptr<BofSocket>> ClientCollection;
@@ -676,4 +677,5 @@ TEST(SocketTcp_Test, BasicTcpBlockingSocket)
   //BOF_SET_SOCKET_ADDRESS(TargetAddress_X, BOF_SOCK_TYPE::BOF_SOCK_STREAM, BOF_PROTOCOL_TYPE::BOF_PROTOCOL_UDP, 127, 0, 0, 1, 5555);
 }
 
-#endif
+#endif // #if 0
+#endif // #if defined(__EMSCRIPTEN__)

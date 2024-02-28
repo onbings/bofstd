@@ -1,7 +1,7 @@
 #include <bofstd/boffs.h>
 #include <bofstd/boflogger.h>
 #include <bofstd/bofsystem.h>
-//#include <bofstd/ibofloggerfactory.h>
+// #include <bofstd/ibofloggerfactory.h>
 
 #include "../include/gtestrunner.h"
 
@@ -125,16 +125,16 @@ int main(int argc, char *argv[])
 
   //::testing::GTEST_FLAG(filter) = "DateTime_Test.StringDateTime:SocketTcp_Test.TcpClientTest:DateTime_Test.ValidateDateTime:SocketOs_Test.SocketAddress";
   //  ::testing::GTEST_FLAG(filter) = "Logger_Test.*:ut_logger_ibofloggerfactory.*";
-//  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
+  //  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
   //::testing::GTEST_FLAG(filter) = "BofThread_Test.*:Threading_Test.*";
-//  ::testing::GTEST_FLAG(filter) = "ut_spsc.*:ut_mpmc.*:CircularBuffer_Test.Perf";
+  //  ::testing::GTEST_FLAG(filter) = "ut_spsc.*:ut_mpmc.*:CircularBuffer_Test.Perf";
   //::testing::GTEST_FLAG(filter) = "Async_Test.OverloadCommandQueue";
-  
+
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:Pipe_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
-  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:Uri_Test.*";
+  //::testing::GTEST_FLAG(filter) = "System_Test.Exec";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
-//  ::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
+  //  ::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";
@@ -180,6 +180,15 @@ LINUX:
 [  PASSED  ] 198 tests.
 
   YOU HAVE 2 DISABLED TESTS
+
+EMSCRIPTEN:
+[==========] 171 tests from 45 test suites ran. (127177 ms total)
+[  PASSED  ] 171 tests.
+
+  YOU HAVE 1 DISABLED TEST
+
+
+
 
 need to launch test with
 su

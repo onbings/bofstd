@@ -19,7 +19,7 @@
 #else
 #include <malloc.h>
 #endif
-  
+
 #if 0
 //#include "asio.hpp"
 #include <bofstd/bofsocketio.h>
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "Shell_Test.*";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";  
+  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketTcp_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketUdp_Test.*";
   //::testing::GTEST_FLAG(filter) = "SockIo_Client_Server_Test.*";
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
 
   // Use these one
-  //::testing::GTEST_FLAG(filter) = "SockIo_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Path_Test.PathConstructorDestructorWindows";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:U7ri_Test.*";

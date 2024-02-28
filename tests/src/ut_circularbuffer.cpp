@@ -659,7 +659,7 @@ TEST(CircularBuffer_Test, Perf)
       Index_U32 = 0;
     }
   }
-  printf("%zd Push Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(0), Profiler.GetMin(0), Profiler.GetMean(0), Profiler.GetMax(0), Profiler.GetLockCount(0));
+  printf("%llu Push Min %llu Mean %llu Max %llu Lck %llu\n", Profiler.GetNbSample(0), Profiler.GetMin(0), Profiler.GetMean(0), Profiler.GetMax(0), Profiler.GetLockCount(0));
 
   Index_U32 = 0;
   for (i_U32 = 0; i_U32 < NB_QUEUE_OP; i_U32++)
@@ -676,7 +676,7 @@ TEST(CircularBuffer_Test, Perf)
     }
   }
   EXPECT_NE(Cb.Pop(&Item_X, 1000, nullptr, nullptr), BOF_ERR_NO_ERROR);
-  printf("%zd Pop Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(1), Profiler.GetMin(1), Profiler.GetMean(1), Profiler.GetMax(1), Profiler.GetLockCount(1));
+  printf("%llu Pop Min %llu Mean %llu Max %llu Lck %llu\n", Profiler.GetNbSample(1), Profiler.GetMin(1), Profiler.GetMean(1), Profiler.GetMax(1), Profiler.GetLockCount(1));
 }
 
 TEST(CircularBuffer_Test, PerfThread)
@@ -765,22 +765,22 @@ TEST(CircularBuffer_Test, PerfThread)
   for (i_U32 = 0; i_U32 < NB_QUEUE_PRODUCER_CONSUMER; i_U32++)
   {
     NbLastMax_U32 = Profiler.GetLastMax(i_U32, pLastMax_X);
-    printf("NbOp %zd NbMax %d Push[%d] Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(i_U32), NbLastMax_U32, i_U32, Profiler.GetMin(i_U32), Profiler.GetMean(i_U32), Profiler.GetMax(i_U32), Profiler.GetLockCount(i_U32));
+    printf("NbOp %llu NbMax %d Push[%d] Min %llu Mean %llu Max %llu Lck %llu\n", Profiler.GetNbSample(i_U32), NbLastMax_U32, i_U32, Profiler.GetMin(i_U32), Profiler.GetMean(i_U32), Profiler.GetMax(i_U32), Profiler.GetLockCount(i_U32));
     EXPECT_EQ(Profiler.GetNbSample(i_U32), NB_QUEUE_OP);
     for (j_U32 = 0; j_U32 < NbLastMax_U32; j_U32++)
     {
-      printf("  Index %zd Max %zd\n", pLastMax_X[j_U32].MaxIndex_U64, pLastMax_X[j_U32].Max);
+      printf("  Index %llu Max %llu\n", pLastMax_X[j_U32].MaxIndex_U64, pLastMax_X[j_U32].Max);
     }
   }
   printf("---POP---------------------------\n");
   for (i_U32 = NB_QUEUE_PRODUCER_CONSUMER; i_U32 < (NB_QUEUE_PRODUCER_CONSUMER + NB_QUEUE_PRODUCER_CONSUMER); i_U32++)
   {
     NbLastMax_U32 = Profiler.GetLastMax(i_U32, pLastMax_X);
-    printf("NbOp %zd NbMax %d Pop[%d] Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(i_U32), NbLastMax_U32, i_U32, Profiler.GetMin(i_U32), Profiler.GetMean(i_U32), Profiler.GetMax(i_U32), Profiler.GetLockCount(i_U32));
+    printf("NbOp %llu NbMax %d Pop[%d] Min %llu Mean %llu Max %llu Lck %llu\n", Profiler.GetNbSample(i_U32), NbLastMax_U32, i_U32, Profiler.GetMin(i_U32), Profiler.GetMean(i_U32), Profiler.GetMax(i_U32), Profiler.GetLockCount(i_U32));
     EXPECT_EQ(Profiler.GetNbSample(i_U32), NB_QUEUE_OP);
     for (j_U32 = 0; j_U32 < NbLastMax_U32; j_U32++)
     {
-      printf("  Index %zd Max %zd\n", pLastMax_X[j_U32].MaxIndex_U64, pLastMax_X[j_U32].Max);
+      printf("  Index %llu Max %llu\n", pLastMax_X[j_U32].MaxIndex_U64, pLastMax_X[j_U32].Max);
     }
   }
 }
