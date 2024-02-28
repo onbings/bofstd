@@ -68,39 +68,27 @@ BofCommandQueue::~BofCommandQueue()
 BOFERR BofCommandQueue::V_OnProcessing()
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR, Sts_E;
-  uint32_t NbCmd_U32 = 0;
 
   while (!IsThreadLoopMustExit())
   {
     if (mpuCommandEntryCollection)
     {
-      // printf("Wait for cmd for %d ms\n", mCommandQueueParam_X.PollTimeoutInMs_U32);
+      //printf("%u: Wait for cmd for %d ms empty %d nb %d\n", Bof_GetMsTickCount(), mCommandQueueParam_X.PollTimeoutInMs_U32, mpuCommandEntryCollection->IsEmpty(), mpuCommandEntryCollection->GetNbElement());
       Sts_E = mpuCommandEntryCollection->Pop(&mCommandPending_X, mCommandQueueParam_X.PollTimeoutInMs_U32, nullptr, nullptr);
-      // printf("Sts %d ptr %p\n", Sts_E, mpuCommandEntryCollection.get());
+      // printf("%u Sts %d ptr %p remain %d\n", Bof_GetMsTickCount(), Sts_E, mpuCommandEntryCollection.get(), mpuCommandEntryCollection->GetNbElement());
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
-        NbCmd_U32++;
         if (mpuCommandEntryCollection)
         {
-          // printf("[%d] Got cmd '%s'->Call it'\n", NbCmd_U32, mCommandPending_X.Name_S.c_str());
+          // printf("%u Got cmd '%s'->Call it'\n", Bof_GetMsTickCount(), mCommandPending_X.Name_S.c_str());
           mCommandPending_X.Cmd();
-          // printf("End of exec\n");
-          //  Sts_E = mpuCommandEntryCollection->LockCircularBuffer();
-          if (Sts_E == BOF_ERR_NO_ERROR)
-          {
-            if (mpuCommandEntryCollection->IsEmpty())
-            {
-              mCommandPending_X.Name_S = "";
-            }
-            else
-            {
-              mpuCommandEntryCollection->Peek(&mCommandPending_X, 0, nullptr, nullptr);
-            }
-            // printf("Unlock\n");
-            //  mpuCommandEntryCollection->UnlockCircularBuffer();
-          }
+          // printf("%u End of exec Empty %d Sts %d Still %d\n", Bof_GetMsTickCount(), mpuCommandEntryCollection->IsEmpty(),Sts_E, mpuCommandEntryCollection->GetNbElement());
         }
       }
+	  else
+	  {
+	    mCommandPending_X.Name_S = "";
+	  }
     }
     else
     {
@@ -128,7 +116,7 @@ BOFERR BofCommandQueue::PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENT
       }
       else
       {
-        Rts_E = mpuCommandEntryCollection->LockCircularBuffer();
+        //Rts_E = mpuCommandEntryCollection->LockCircularBuffer();
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
           for (i_U32 = 0; i_U32 < mpuCommandEntryCollection->GetNbElement(); i_U32++)
@@ -147,10 +135,11 @@ BOFERR BofCommandQueue::PostCommand(bool _OnlyOne_B, const BOF_COMMAND_QUEUE_ENT
               break;
             }
           }
-          mpuCommandEntryCollection->UnlockCircularBuffer();
+          //mpuCommandEntryCollection->UnlockCircularBuffer();
         }
       }
     }
+	
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       Rts_E = mpuCommandEntryCollection->Push(&_rCommand_X, 0, nullptr, nullptr);

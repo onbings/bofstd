@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 //  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
   //::testing::GTEST_FLAG(filter) = "BofThread_Test.*:Threading_Test.*";
 //  ::testing::GTEST_FLAG(filter) = "ut_spsc.*:ut_mpmc.*:CircularBuffer_Test.Perf";
-  //::testing::GTEST_FLAG(filter) = "CircularBuffer_Test.PerfThread";
+  //::testing::GTEST_FLAG(filter) = "Async_Test.OverloadCommandQueue";
   
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:Pipe_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";

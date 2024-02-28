@@ -34,21 +34,20 @@ void Sleep10()
 {
   Bof_MsSleep(10);
   S_pCpt_U32[0]++;
-  //printf("Sleep10 %d\n", S_pCpt_U32[0]);
+//  printf("%u Sleep10 %d\n",  Bof_GetMsTickCount(), S_pCpt_U32[0]);
 }
 void Sleep50()
 {
-  // printf("B\n");
   Bof_MsSleep(50);
   S_pCpt_U32[1]++;
-  //printf("Sleep50 %d\n", S_pCpt_U32[1]);
+//  printf("%u Sleep50 %d\n",  Bof_GetMsTickCount(), S_pCpt_U32[1]);
 }
 void Sleep100()
 {
-  // printf("C\n");
+  printf("%u Enter Sleep100 %d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
   Bof_MsSleep(100);
   S_pCpt_U32[2]++;
-  //printf("Sleep100 %d\n", S_pCpt_U32[2]);
+  printf("%u Leave Sleep100 %d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
 }
 TEST(Async_Test, CommandQueue)
 {
@@ -56,6 +55,9 @@ TEST(Async_Test, CommandQueue)
   BOF_COMMAND_QUEUE_ENTRY pCommand_X[3];
   uint32_t i_U32, Start_U32, DeltaInMs_U32;
 
+  CommandQueueParam_X.ThreadCpuCoreAffinityMask_U64=0;
+  CommandQueueParam_X.MultiThreadAware_B=true;
+  CommandQueueParam_X.PriorityInversionAware_B=true;
   CommandQueueParam_X.PollTimeoutInMs_U32 = 200;
   CommandQueueParam_X.MaxPendingRequest_U32 = 4 * 3;
   CommandQueueParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
@@ -97,10 +99,14 @@ TEST(Async_Test, CommandQueue)
 
 TEST(Async_Test, OverloadCommandQueue)
 {
+  BOFERR Sts_E;
   BOF_COMMAND_QUEUE_PARAM CommandQueueParam_X;
   BOF_COMMAND_QUEUE_ENTRY Command_X;
   uint32_t i_U32, Start_U32, DeltaInMs_U32;
 
+  CommandQueueParam_X.ThreadCpuCoreAffinityMask_U64=0;
+  CommandQueueParam_X.MultiThreadAware_B=true;
+  CommandQueueParam_X.PriorityInversionAware_B=true;
   CommandQueueParam_X.PollTimeoutInMs_U32 = 200;
   CommandQueueParam_X.MaxPendingRequest_U32 = 3;
   CommandQueueParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
@@ -112,23 +118,37 @@ TEST(Async_Test, OverloadCommandQueue)
   Command_X.Name_S = "Cmd";
   Command_X.Cmd = Sleep100;
   Start_U32 = Bof_GetMsTickCount();
+  printf("%u Start of post Cpt=%d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
   for (i_U32 = 0; i_U32 < 10; i_U32++)
   {
-    CmdQ.PostCommand(false, Command_X);
+/* 
+i_U32=0 Push->                    exec->Cpt=1
+i_U32=1 Push->wait in queue->n=1->exec->Cpt=2
+i_U32=2 Push->wait in queue->n=2->exec->Cpt=3
+i_U32=3 Push->wait in queue->n=3->exec->Cpt=4
+i_U32=4 Push->FULL
+*/
+    Sts_E = CmdQ.PostCommand(false, Command_X);
+    printf("%u Post%d err %d nb %d Cpt=%d\n",  Bof_GetMsTickCount(), i_U32, Sts_E, CmdQ.NumberOfCommandWaitingInQueue(), S_pCpt_U32[2]);
   }
   // should be full
+  printf("%u End of post Cpt=%d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
   EXPECT_NE(CmdQ.PostCommand(false, Command_X), BOF_ERR_NO_ERROR);
+  printf("%u Wait for end of processing Cpt=%d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
   while (CmdQ.IsProcessingCommand())
   {
 	//printf("nbc %d\n", CmdQ.NumberOfCommandWaitingInQueue());
     Bof_MsSleep(10);
   }
+  printf("%u End of processing Cpt=%d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
+  EXPECT_EQ(S_pCpt_U32[2], 4); 
+  
+  printf("%u Post another one Cpt=%d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
   EXPECT_EQ(CmdQ.PostCommand(false, Command_X), BOF_ERR_NO_ERROR);
-	//printf("NBC %d\n", CmdQ.NumberOfCommandWaitingInQueue());
-  EXPECT_EQ(S_pCpt_U32[2], 3);
   while (CmdQ.IsProcessingCommand())
   {
     Bof_MsSleep(10);
   }
-  EXPECT_EQ(S_pCpt_U32[2], 4);  
+  printf("%u End of processing Cpt=%d\n",  Bof_GetMsTickCount(), S_pCpt_U32[2]);
+  EXPECT_EQ(S_pCpt_U32[2], 5);  
 }

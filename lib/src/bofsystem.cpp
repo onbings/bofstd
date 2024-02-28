@@ -713,7 +713,6 @@ BOFERR Bof_OpenSharedMemory(const std::string &_rName_S, uint32_t _SizeInByte_U3
         if (BOF_IS_HANDLE_VALID(_DriverHandle))
         {
           _rSharedMemory_X.pBaseAddress = mmap(nullptr, _SizeInByte_U32, PROT_READ | PROT_WRITE, MAP_SHARED, _DriverHandle, 0);
-				printf("========>Map1 %p\n", _rSharedMemory_X.pBaseAddress);
           if (_rSharedMemory_X.pBaseAddress != MAP_FAILED)
           {
             Rts_E = BOF_ERR_NO_ERROR;
@@ -876,7 +875,7 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
         if (_rSharedMemory_X.HandleSystemV_i >= 0)
         {
           Rts_E = (shmctl(_rSharedMemory_X.HandleSystemV_i, IPC_RMID, nullptr) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
-          printf("shmctl errno %d Rts_E %d %s\n", errno, Rts_E, _rSharedMemory_X.PathNameSystemV_S.c_str());
+          printf("Bof_CloseSharedMemory HandleSystemV shmctl errno %d Rts_E %d %s\n", errno, Rts_E, _rSharedMemory_X.PathNameSystemV_S.c_str());
           Bof_DeleteFile(_rSharedMemory_X.PathNameSystemV_S);
           if (Rts_E == BOF_ERR_EMLINK)
           {
@@ -888,12 +887,12 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
         else
         {
           Rts_E = (shm_unlink(_rSharedMemory_X.Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
-          printf("Bof_CloseSharedMemory--> '%s' RemoveIt %d Rts %d err %d %x:%p\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E, errno, _rSharedMemory_X.SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
+
           // Can fail if already _RemoveIt_B by someone else
           Rts_E = BOF_ERR_NO_ERROR;
           // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
         }
-      }
+        printf("Bof_CloseSharedMemory--> '%s' RemoveIt %d Rts %d err %d %x:%p\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E, errno, _rSharedMemory_X.SizeInByte_U32, _rSharedMemory_X.pBaseAddress);      }
     }
 #endif
 
@@ -1781,7 +1780,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
   if (pThread_X)
   {
     S_BofThreadBalance++;
-    printf("%d: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
+    printf("%u: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
 
     Sts_E = BOF_ERR_NO_ERROR;
 #if defined(_WIN32)
@@ -1855,12 +1854,12 @@ static void *S_ThreadLauncher(void *_pThreadContext)
             }
           }
 #endif
-      // printf("%d: DBG S_ThreadLauncher8 val %d ptr %p sts %d\n", Bof_GetMsTickCount(), pThread_X->ThreadRunning_B.load(), &pThread_X->ThreadRunning_B, Sts_E);
+      // printf("%u: DBG S_ThreadLauncher8 val %d ptr %p sts %d\n", Bof_GetMsTickCount(), pThread_X->ThreadRunning_B.load(), &pThread_X->ThreadRunning_B, Sts_E);
       BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
       if (Sts_E == BOF_ERR_NO_ERROR)
       {
         pThread_X->ThreadRunning_B = true;
-        // printf("%d: DBG S_ThreadLauncher9\n", Bof_GetMsTickCount());
+        // printf("%u: DBG S_ThreadLauncher9\n", Bof_GetMsTickCount());
 
         do
         {
@@ -1868,9 +1867,9 @@ static void *S_ThreadLauncher(void *_pThreadContext)
           // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
           // Thread will be stopped if someone calls Bof_StopThread
 
-          // printf("%d ----->DBG call '%s' stop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load());
+          // printf("%u ----->DBG call '%s' stop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load());
           pThread_X->ThreadExitCode_E = pThread_X->ThreadFunction(pThread_X->ThreadMustStop_B, pThread_X->pUserContext); // Returns BOF_ERR_EXIT_THREAD to exit with BOF_ERR_NO_ERROR
-          // printf("%d ----->DBG rts '%s' must stop %d exit %d ptr %p\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load(), pThread_X->ThreadExitCode_E, pThread_X);
+          // printf("%u ----->DBG rts '%s' must stop %d exit %d ptr %p\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), pThread_X->ThreadMustStop_B.load(), pThread_X->ThreadExitCode_E, pThread_X);
           if (pThread_X->ThreadExitCode_E == BOF_ERR_EXIT_THREAD)
           {
             pThread_X->ThreadExitCode_E = BOF_ERR_NO_ERROR;
@@ -1889,7 +1888,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
     pThread_X->ThreadRunning_B = false;
     S_BofThreadBalance--;
     // Bof_ErrorCode can fail does to app shudown (static initializer)
-    printf("%d: S_ThreadLauncher End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
+    printf("%u: S_ThreadLauncher End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
   }
 
   return pRts;
@@ -1968,7 +1967,7 @@ BOFERR Bof_StartThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t
         {
           Bof_MsSleep(1); // Yield scheduler
           Delta_U32 = Bof_ElapsedMsTime(Start_U32);
-          // printf("%d: DBG check %d\n", Bof_GetMsTickCount(), _rThread_X.ThreadRunning_B);
+          // printf("%u: DBG check %d\n", Bof_GetMsTickCount(), _rThread_X.ThreadRunning_B);
 
           if (Delta_U32 > _rThread_X.StartStopTimeoutInMs_U32)
           {
@@ -1976,7 +1975,7 @@ BOFERR Bof_StartThread(BOF_THREAD &_rThread_X, uint32_t _StackSize_U32, uint32_t
           }
         }
       }
-      // printf("%d: DBG end with %d\n", Bof_GetMsTickCount(), _rThread_X.ThreadRunning_B);
+      // printf("%u: DBG end with %d\n", Bof_GetMsTickCount(), _rThread_X.ThreadRunning_B);
 
       if (_rThread_X.ThreadRunning_B)
       {
@@ -2004,7 +2003,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
     _rThread_X.Magic_U32 = 0; // Cannot make _rThread_X.Reset() at the end of the funct as for example BofThread will clean up this memory zone on thread exit->we just cancel th Magic number to signal closure
     if (_rThread_X.ThreadRunning_B)
     {
-      printf("%d: Bof_StopThread: Begin '%s' ThreadRunning %d StartStopTimeoutInMs %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), _rThread_X.ThreadRunning_B.load(), _rThread_X.StartStopTimeoutInMs_U32);
+      printf("%u: Bof_StopThread: Begin '%s' ThreadRunning %d StartStopTimeoutInMs %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), _rThread_X.ThreadRunning_B.load(), _rThread_X.StartStopTimeoutInMs_U32);
       _rThread_X.ThreadMustStop_B = true;
       if (!_rThread_X.StartStopTimeoutInMs_U32)
       {
@@ -2024,7 +2023,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
           }
         }
       }
-      printf("%d: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(), Delta_U32, ThreadStopTo_B);
+      printf("%u: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(), Delta_U32, ThreadStopTo_B);
     }
 #if defined(_WIN32)
     bool Sts_B;
@@ -2037,7 +2036,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
       }
 #if defined(NDEBUG) // We are in Release compil
 #else
-      printf("%d: Bof_StopThread: !!WARNING!! Kill thread '%s' Status %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
+      printf("%u: Bof_StopThread: !!WARNING!! Kill thread '%s' Status %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), Sts_B);
 #endif
     }
 #else
@@ -2045,7 +2044,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
         {
 #if defined(NDEBUG) // We are in Release compil
 #else
-      printf("%d: Bof_StopThread: !!WARNING!! Should Kill thread '%s'\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
+      printf("%u: Bof_StopThread: !!WARNING!! Should Kill thread '%s'\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str());
 #endif
         }
 #endif

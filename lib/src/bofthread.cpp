@@ -59,7 +59,7 @@ std::atomic<int32_t> BofThread::S_mBofThreadBalance = 0;
 
 BofThread::BofThread(bool _PriorityInversionAware_B)
 {
-  // printf("%d: CREATE THREAD\n", BOF::Bof_GetMsTickCount());
+  // printf("%u: CREATE THREAD\n", BOF::Bof_GetMsTickCount());
   mThreadErrorCode_E = InitializeThread("?", _PriorityInversionAware_B);
   BOF_ASSERT(mThreadErrorCode_E == BOF_ERR_NO_ERROR);
 }
@@ -108,7 +108,7 @@ BOFERR BofThread::InitializeThread(const std::string &_rName_S, bool _PriorityIn
 
 BofThread::~BofThread()
 {
-  // printf("%d: DELETE THREAD\n", BOF::Bof_GetMsTickCount());
+  // printf("%u: DELETE THREAD\n", BOF::Bof_GetMsTickCount());
   DestroyBofProcessingThread("~BofThread");
   Bof_DestroyEvent(mWakeUpEvent_X);
   Bof_DestroyEvent(mThreadEnterEvent_X);
@@ -243,25 +243,25 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
   {
     mThreadMustStop_B = true;
     Rts_E = BOF_ERR_NOT_STARTED;
-    // printf("%d: DESTROYBOFPROCESSINGTHREAD: CHECK IF MTHREADENTEREVENT_X SIGNALED %d\n", BOF::Bof_GetMsTickCount(), Bof_IsEventSignaled(mThreadEnterEvent_X, 0));
+    // printf("%u: DESTROYBOFPROCESSINGTHREAD: CHECK IF MTHREADENTEREVENT_X SIGNALED %d\n", BOF::Bof_GetMsTickCount(), Bof_IsEventSignaled(mThreadEnterEvent_X, 0));
     if (Bof_IsEventSignaled(mThreadEnterEvent_X, 0)) // LaunchBofProcessingThread has called Bof_WaitForEvent(mThreadEnterEvent_X with success in
     {
       Rts_E = BOF_ERR_NO_ERROR;
-      // printf("%d: DESTROYBOFPROCESSINGTHREAD MTHREADENTEREVENT_X SIGNALED, CHECK IF MTHREADEXITEVENT_X SIGNALED %d\n", BOF::Bof_GetMsTickCount(), Bof_IsEventSignaled(mThreadExitEvent_X, 0));
+      // printf("%u: DESTROYBOFPROCESSINGTHREAD MTHREADENTEREVENT_X SIGNALED, CHECK IF MTHREADEXITEVENT_X SIGNALED %d\n", BOF::Bof_GetMsTickCount(), Bof_IsEventSignaled(mThreadExitEvent_X, 0));
       if (!Bof_IsEventSignaled(mThreadExitEvent_X, 0))
       {
-        // printf("%d: SignalThreadWakeUpEvent\n", BOF::Bof_GetMsTickCount());
+        // printf("%u: SignalThreadWakeUpEvent\n", BOF::Bof_GetMsTickCount());
         SignalThreadWakeUpEvent();
-        // printf("%d: Bof_WaitForEvent start\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
+        // printf("%u: Bof_WaitForEvent start\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
         ThreadStopTo_B = (Bof_WaitForEvent(mThreadExitEvent_X, mThreadParam_X.StartStopTimeoutInMs_U32, 0) != BOF_ERR_NO_ERROR);
-        // printf("%d: Bof_WaitForEvent stop To %d\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
+        // printf("%u: Bof_WaitForEvent stop To %d\n", BOF::Bof_GetMsTickCount(), ThreadStopTo_B);
       }
 
-      // printf("%d: THREADSTOPTO %d ?\n", Bof_GetMsTickCount(), ThreadStopTo_B);
+      // printf("%u: THREADSTOPTO %d ?\n", Bof_GetMsTickCount(), ThreadStopTo_B);
       if (ThreadStopTo_B)
       {
 #if defined(_WIN32)
-        // printf("%d: TerminateThread !!!!\n", BOF::Bof_GetMsTickCount());
+        // printf("%u: TerminateThread !!!!\n", BOF::Bof_GetMsTickCount());
         TerminateThread(static_cast<HANDLE>(mThreadHandle), 0x69696969);
 #else
 #if defined(__ANDROID__)
@@ -273,22 +273,22 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
     }
     else
     {
-      printf("%d: THREAD NEVER BEEN STARTED\n", BOF::Bof_GetMsTickCount());
+      printf("%u: THREAD NEVER BEEN STARTED\n", BOF::Bof_GetMsTickCount());
     }
   }
   else
   {
-    printf("%d: DESTROYBOFPROCESSINGTHREAD: DELETE ALREADY DONE\n", BOF::Bof_GetMsTickCount());
+    printf("%u: DESTROYBOFPROCESSINGTHREAD: DELETE ALREADY DONE\n", BOF::Bof_GetMsTickCount());
   }
-  // printf("%d: JOINABLE ? %d\n", Bof_GetMsTickCount(), mThread.joinable());
+  // printf("%u: JOINABLE ? %d\n", Bof_GetMsTickCount(), mThread.joinable());
   if (mThread.joinable()) // Needed to clanup std::thread if launch failed
   {
-    // printf("%d: START JOINING\n", Bof_GetMsTickCount());
+    // printf("%u: START JOINING\n", Bof_GetMsTickCount());
     mThread.join();
-    // printf("%d: END OF JOIN\n", Bof_GetMsTickCount());
+    // printf("%u: END OF JOIN\n", Bof_GetMsTickCount());
   }
 
-  // printf("%d: %s DESTROYTHREAD FINISHED WITH RTS %d\n", Bof_GetMsTickCount(), mName_S.c_str(), Rts_E);
+  // printf("%u: %s DESTROYTHREAD FINISHED WITH RTS %d\n", Bof_GetMsTickCount(), mName_S.c_str(), Rts_E);
   return Rts_E;
 }
 
@@ -715,7 +715,7 @@ BOFERR BofThread::S_ThreadParserParamFromString(const char *_pThreadParameter_c,
 BOFERR BofThread::V_OnProcessing()
 {
   BOFERR Rts_E = mOnProcessing ? mOnProcessing() : BOF_ERR_NO_ERROR;
-  // printf("%d: BOFTHREAD::V_ONPROCESSING mOnProcessing\n", BOF::Bof_GetMsTickCount());
+  // printf("%u: BOFTHREAD::V_ONPROCESSING mOnProcessing\n", BOF::Bof_GetMsTickCount());
   return Rts_E;
 }
 
@@ -784,9 +784,9 @@ void BofThread::BofThread_Thread()
   uint32_t Delta_U32;
 
   S_mBofThreadBalance++;
-  printf("%d: Start of thread '%s' BAL %d this %p\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), this);
+  printf("%u: Start of thread '%s' BAL %d this %p\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), this);
   Sts_E = Bof_SignalEvent(mThreadEnterEvent_X, 0);
-  // printf("%d: ENTER THREAD SIGNAL MTHREADENTEREVENT_X %d\n", BOF::Bof_GetMsTickCount(), Sts_E);
+  // printf("%u: ENTER THREAD SIGNAL MTHREADENTEREVENT_X %d\n", BOF::Bof_GetMsTickCount(), Sts_E);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
   if (Sts_E == BOF_ERR_NO_ERROR)
   {
@@ -879,7 +879,7 @@ void BofThread::BofThread_Thread()
         if (Sts_E == BOF_ERR_NO_ERROR)
         {
           LockThreadCriticalSection(" BofThread::BofThread_Thread");
-          // printf("%d: V_ONPROCESSING START mThreadLoopMustExit_B %d %s BAL %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), mName_S.c_str(), S_BofThreadBalance());
+          // printf("%u: V_ONPROCESSING START mThreadLoopMustExit_B %d %s BAL %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), mName_S.c_str(), S_BofThreadBalance());
           // Any other error code different from BOF_ERR_NO_ERROR will exit the tread loop
           // Returning BOF_ERR_EXIT_THREAD will exit the thread loop with an exit code of BOF_ERR_NO_ERROR
           // Thread will be stopped if someone calls  DestroyBofProcessingThread or destroy the object
@@ -892,14 +892,14 @@ void BofThread::BofThread_Thread()
           }
         }
       }
-      // printf("%d: V_ONPROCESSING WHILE mThreadLoopMustExit_B %d Sts %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), Sts_E);
+      // printf("%u: V_ONPROCESSING WHILE mThreadLoopMustExit_B %d Sts %d\n", BOF::Bof_GetMsTickCount(), mThreadLoopMustExit_B.load(), Sts_E);
     } // while
     V_OnStop();
   }
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
   S_mBofThreadBalance--;
   // Bof_ErrorCode can fail does to app shudown (static initializer)
-  printf("%d: BofThread_Thread End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
+  printf("%u: BofThread_Thread End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
   // BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()
