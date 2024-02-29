@@ -71,6 +71,10 @@ struct BOF_BUFFER
   bool MultiThreadAware_B;
   BOF_MUTEX Mtx_X;
 
+  BOF_BUFFER()
+  {
+    BOF_BUFFER(true, false);
+  }
   BOF_BUFFER(bool _MultiThreadAware_B, bool _PriorityInversionAware_B)
   {
     // for ReleaseStorage in Reset
