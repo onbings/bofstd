@@ -40,7 +40,7 @@ BEGIN_BOF_NAMESPACE()
   {                                                                                                                                                                                                                                                            \
     if ((PROFILER) != nullptr)                                                                                                                                                                                                                                 \
     {                                                                                                                                                                                                                                                          \
-      (PROFILER)->LeaveBench(ITEM);                                                                                                                                                                                                                          \
+      (PROFILER)->LeaveBench(false, ITEM);                                                                                                                                                                                                                          \
     }                                                                                                                                                                                                                                                          \
   }
 
