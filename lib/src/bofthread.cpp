@@ -57,9 +57,9 @@ typedef struct tagTHREADNAME_INFO
 BEGIN_BOF_NAMESPACE()
 std::atomic<int32_t> BofThread::S_mBofThreadBalance = 0;
 
-BofThread::BofThread()
+BofThread::BofThread(): BofThread(false)
 {
-  BofThread(false);
+ 
 }
 BofThread::BofThread(bool _PriorityInversionAware_B)
 {
