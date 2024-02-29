@@ -40,7 +40,7 @@ include(cmake/fetch_content.cmake)
 # in code coverage computation as they are test programs themselves.
 set(EXTRA_COVERAGE_EXCLUSION "\'${CMAKE_CURRENT_SOURCE_DIR}/integration/*\'")
 
-project(bofstd VERSION 5.5.1.0)
+project(bofstd VERSION 5.5.1.1)
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.
 # So already prepare all those variables
