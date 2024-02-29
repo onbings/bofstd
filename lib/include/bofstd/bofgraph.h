@@ -321,7 +321,7 @@ public:
 
   // Element access
 //  NodeType *Node(uint32_t _Id_U32);
-  const NodeType *Node(uint32_t _Id_U32);
+  NodeType *Node(uint32_t _Id_U32);
   std::vector<uint32_t> *Neighbour(uint32_t _Id_U32);
 
   IdMap<NodeType> &NodeMap();
@@ -357,9 +357,9 @@ private:
 //}
 
 template <typename NodeType>
-const NodeType *BofDirGraph<NodeType>::Node(uint32_t _Id_U32)
+NodeType *BofDirGraph<NodeType>::Node(uint32_t _Id_U32)
 {
-  const NodeType *pRts = nullptr;
+  NodeType *pRts = nullptr;
 
   if (mBofDirGraphParam_X.MultiThreadAware_B)
   {
