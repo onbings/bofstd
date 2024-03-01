@@ -166,8 +166,9 @@ public:
   //!!! class B:public C
   //!!! If you do that you will receive "pure virtual method called" abort message as when you are in an intermediate constructor the virtual table is not ready
   BOFERR LaunchBofProcessingThread(const BOF_THREAD_PARAM &_rThreadParam_X);
-  BOFERR LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreAffinityMask_U64,
-                                   uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32);
+  BOFERR LaunchBofProcessingThread(const std::string &_rName_S, bool _PriorityInversionAware_B, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, 
+                                   BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E, 
+                                   uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32);
 
   BOFERR DestroyBofProcessingThread(const char *_pUser_c);
   bool IsThreadRunning(uint32_t _Timeout_U32);

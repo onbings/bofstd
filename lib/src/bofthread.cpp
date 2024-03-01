@@ -147,10 +147,10 @@ BOFERR BofThread::InitThreadErrorCode()
 //!!! If you do that you will receive "pure virtual method called" abort message as when you are in an intermediate constructor the virtual table is not ready
 BOFERR BofThread::LaunchBofProcessingThread(const BOF_THREAD_PARAM &_rThreadParam_X)
 {
-  return LaunchBofProcessingThread(_rThreadParam_X.Name_S, _rThreadParam_X.SignalEvent_B, _rThreadParam_X.WakeUpIntervalInMs_U32, _rThreadParam_X.ThreadSchedulerPolicy_E,
+  return LaunchBofProcessingThread(_rThreadParam_X.Name_S, _rThreadParam_X.PriorityInversionAware_B, _rThreadParam_X.SignalEvent_B, _rThreadParam_X.WakeUpIntervalInMs_U32, _rThreadParam_X.ThreadSchedulerPolicy_E,
                                    _rThreadParam_X.ThreadPriority_E, _rThreadParam_X.ThreadCpuCoreAffinityMask_U64, _rThreadParam_X.StartStopTimeoutInMs_U32, _rThreadParam_X.StackSize_U32);
 }
-BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E,
+BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _PriorityInversionAware_B, bool _SignalEvent_B, uint32_t _WakeUpIntervalInMs_U32, BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF_THREAD_PRIORITY _ThreadPriority_E,
                                             uint64_t _ThreadCpuCoreAffinityMask_U64, uint32_t _StartStopTimeoutInMs_U32, uint32_t _StackSize_U32)
 {
   BOFERR Rts_E;
@@ -159,6 +159,7 @@ BOFERR BofThread::LaunchBofProcessingThread(const std::string &_rName_S, bool _S
 
   Rts_E = BOF_ERR_INVALID_STATE;
   mThreadParam_X.Name_S = _rName_S;
+  mThreadParam_X.PriorityInversionAware_B = _PriorityInversionAware_B;
   mThreadParam_X.StackSize_U32 = _StackSize_U32;
   if ((!Bof_IsEventSignaled(mThreadEnterEvent_X, 0)) && (!Bof_IsEventSignaled(mThreadExitEvent_X, 0)))
   {

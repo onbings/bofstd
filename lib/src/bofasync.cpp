@@ -57,7 +57,7 @@ BofCommandQueue::BofCommandQueue(const BOF_COMMAND_QUEUE_PARAM &_rCommandQueuePa
   }
   else
   {
-    Sts_E = LaunchBofProcessingThread("BofCommandQueue", false, 0, _rCommandQueueParam_X.ThreadSchedulerPolicy_E, _rCommandQueueParam_X.ThreadPriority_E, _rCommandQueueParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
+    Sts_E = LaunchBofProcessingThread("BofCommandQueue", _rCommandQueueParam_X.PriorityInversionAware_B, false, 0, _rCommandQueueParam_X.ThreadSchedulerPolicy_E, _rCommandQueueParam_X.ThreadPriority_E, _rCommandQueueParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
   }
 }
 BofCommandQueue::~BofCommandQueue()

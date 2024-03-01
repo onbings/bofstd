@@ -208,7 +208,7 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
                 {
                   // LaunchThread(false, 0, 0x40000, _rUartParam_X.ThreadCpuCoreAffinity_U32, _rUartParam_X.SynchronousWritePriority_U32 ? BOF_THREAD_SCHEDULER_POLICY_FIFO : BOF_THREAD_SCHEDULER_POLICY_OTHER, _rUartParam_X.SynchronousWritePriority_U32,
                   // 1000);
-                  LaunchBofProcessingThread("BofUart", false, 0, _rUartParam_X.ThreadSchedulerPolicy_E, _rUartParam_X.ThreadPriority_E, _rUartParam_X.ThreadCpuCoreAffinity_U64, 1000, 0x1000);
+                  LaunchBofProcessingThread("BofUart", false, false, 0, _rUartParam_X.ThreadSchedulerPolicy_E, _rUartParam_X.ThreadPriority_E, _rUartParam_X.ThreadCpuCoreAffinity_U64, 1000, 0x1000);
                   mOpen_B = true;
                 }
               }

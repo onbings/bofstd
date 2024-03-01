@@ -139,7 +139,7 @@ BofMulticastAsyncNotifier<T>::BofMulticastAsyncNotifier(const BOF_MULTICAST_ASYN
   BOFERR Sts_E;
 
   mpuMsgThread = std::make_unique<BofMsgThread>(_rAsyncNotifierParam_X.PriorityInversionAware_B);
-  Sts_E = mpuMsgThread->LaunchBofProcessingThread("BofAsyncNotif", false, 0, _rAsyncNotifierParam_X.ThreadSchedulerPolicy_E, _rAsyncNotifierParam_X.ThreadPriority_E, _rAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
+  Sts_E = mpuMsgThread->LaunchBofProcessingThread("BofAsyncNotif", _rAsyncNotifierParam_X.PriorityInversionAware_B, false, 0, _rAsyncNotifierParam_X.ThreadSchedulerPolicy_E, _rAsyncNotifierParam_X.ThreadPriority_E, _rAsyncNotifierParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 template <class T>

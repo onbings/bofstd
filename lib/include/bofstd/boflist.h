@@ -138,7 +138,7 @@ template <typename Element>
 class BofList
 {
 public:
-  BofList(uint32_t _NbMaxElements_U32, bool _MultiThreadAware_B = true, bool _PriorityInversionAware_B = false, class BofList<Element> *_pNodePool_O = nullptr);
+  BofList(uint32_t _NbMaxElements_U32, bool _MultiThreadAware_B, bool _PriorityInversionAware_B, class BofList<Element> *_pNodePool_O);
 
   virtual ~BofList();
 

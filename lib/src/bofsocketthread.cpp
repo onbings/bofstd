@@ -67,7 +67,7 @@ BofSocketThread::BofSocketThread(const BOF_SOCKET_THREAD_PARAM &_rSocketThreadPa
     if ((mpuSocketOperationResultCollection) && (mpuSocketOperationParamCollection->LastErrorCode() == BOF_ERR_NO_ERROR))
     {
       // SOCK_IO_DBG("Launch\n");
-      Sts_E = LaunchBofProcessingThread(mSocketThreadParam_X.Name_S, false, 0, mSocketThreadParam_X.ThreadSchedulerPolicy_E, mSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0);
+      Sts_E = LaunchBofProcessingThread(mSocketThreadParam_X.Name_S, mSocketThreadParam_X.PriorityInversionAware_B, false, 0, mSocketThreadParam_X.ThreadSchedulerPolicy_E, mSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0);
       BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
       Sts_B = IsThreadRunning(100);
       BOF_ASSERT(Sts_B);

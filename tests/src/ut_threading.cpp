@@ -319,7 +319,7 @@ TEST_F(BofThread_Test, VirtualThreadTrue)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   TestBofThread_O.mCpt = 0;
-  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1, 1000, 0);
+  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", true, true, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1, 1000, 0);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Start_U32 = Bof_GetMsTickCount();
   do
@@ -342,7 +342,7 @@ TEST_F(BofThread_Test, VirtualThreadFalse)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
   TestBofThread_O.mCpt = 0;
-  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1, 1000, 0);
+  Sts_E = TestBofThread_O.LaunchBofProcessingThread("V_Thrd_True", false, false, 100, BOF_THREAD_SCHEDULER_POLICY_OTHER, BOF_THREAD_PRIORITY_000, 1, 1000, 0);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   Start_U32 = Bof_GetMsTickCount();
   do

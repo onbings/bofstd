@@ -34,7 +34,7 @@ BofMsgThread::~BofMsgThread()
 //----------------------------------------------------------------------------
 bool BofMsgThread::LaunchThread(const char *threadName, BOF::BOF_THREAD_SCHEDULER_POLICY _ThreadSchedulerPolicy_E, BOF::BOF_THREAD_PRIORITY _ThreadPriority_E, uint64_t _ThreadCpuCoreMaskAffinity_U64)
 {
-  return (LaunchBofProcessingThread(threadName, false, 2000, _ThreadSchedulerPolicy_E, _ThreadPriority_E, _ThreadCpuCoreMaskAffinity_U64, 1000, 0) == BOF_ERR_NO_ERROR);
+  return (LaunchBofProcessingThread(threadName, false, false, 2000, _ThreadSchedulerPolicy_E, _ThreadPriority_E, _ThreadCpuCoreMaskAffinity_U64, 1000, 0) == BOF_ERR_NO_ERROR);
 }
 uint32_t BofMsgThread::GetNbPendingRequest()
 {

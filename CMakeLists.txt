@@ -132,6 +132,7 @@ if (EMSCRIPTEN)
     message("===EMSCRIPTEN=== Generate .wasm and .js files")
   endif()
 
+  #her we can kee -fwasm-exceptions but not on dear imgui app
   set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -pthread -fwasm-exceptions")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -fwasm-exceptions")
 
