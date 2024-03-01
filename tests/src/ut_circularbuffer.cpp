@@ -659,7 +659,7 @@ TEST(CircularBuffer_Test, Perf)
       Index_U32 = 0;
     }
   }
-  printf("%zd Push Min %zd Mean %zd Max %zd Lck %zd\n", Profiler.GetNbSample(0), Profiler.GetMin(0), Profiler.GetMean(0), Profiler.GetMax(0), Profiler.GetLockCount(0));
+  printf("%ld Push Min %ld Mean %ld Max %ld Lck %ld\n", Profiler.GetNbSample(0), Profiler.GetMin(0), Profiler.GetMean(0), Profiler.GetMax(0), Profiler.GetLockCount(0));
 
   Index_U32 = 0;
   for (i_U32 = 0; i_U32 < NB_QUEUE_OP; i_U32++)
