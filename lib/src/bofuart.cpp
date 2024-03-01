@@ -442,7 +442,7 @@ BofUart::BofUart(const BOF_UART_PARAM &_rUartParam_X)
                 /* Setting Output buffer */
                 if (mpTxData_O)
                 {
-                  LaunchBofProcessingThread("BofUart", false, 0, _rUartParam_X.ThreadSchedulerPolicy_E, _rUartParam_X.ThreadPriority_E, _rUartParam_X.ThreadCpuCoreAffinity_U64, 1000, 0x10000);
+                  LaunchBofProcessingThread("BofUart", false, false, 0, _rUartParam_X.ThreadSchedulerPolicy_E, _rUartParam_X.ThreadPriority_E, _rUartParam_X.ThreadCpuCoreAffinity_U64, 1000, 0x10000);
                   mOpen_B = true;
                 }
               }
