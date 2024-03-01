@@ -409,7 +409,7 @@ TEST(DateTime_Test, StringDateTime)
   EXPECT_STREQ(DateTime_S.c_str(), "1971-02-08 00:00:00.0 us=0");
 
   DateTime = BofDateTime(12, 34, 56, 0);
-  
+
   DateTime_S = DateTime.ToString();
   BofDateTime DateTimeFromString1(DateTime_S);
   EXPECT_TRUE(DateTime == DateTimeFromString1);
@@ -464,8 +464,11 @@ TEST(DateTime_Test, TickSleep)
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 2);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_LT(Delta_U32, (i_U32 * 2 * 2 * 2) + 10);
+#else
   EXPECT_LT(Delta_U32, i_U32 * 2 * 2); // Win 1562 Lin 206 New Win with timeBeginPeriod:216
-
+#endif
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
   {
@@ -473,8 +476,11 @@ TEST(DateTime_Test, TickSleep)
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 5);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>((i_U32) * 5.0f * 1.5f) * 2) + 10);
+#else
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32) * 5.0f * 1.5f)); // Win 1562 Lin 506 New Win with timeBeginPeriod:517
-
+#endif
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
   {
@@ -482,7 +488,11 @@ TEST(DateTime_Test, TickSleep)
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 10);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 10) * 1.6f));
+#else
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 10) * 1.5f)); // Win 1562 Lin 1005 New Win with timeBeginPeriod:1021
+#endif
 
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
@@ -491,8 +501,11 @@ TEST(DateTime_Test, TickSleep)
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 20);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 20) * 1.6f));
+#else
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 20) * 1.5f)); // Win 3125 Lin 2005 New Win with timeBeginPeriod:2041
-
+#endif
   Start_U32 = Bof_GetMsTickCount();
   for (i_U32 = 0; i_U32 < NBLOOP; i_U32++)
   {
@@ -500,7 +513,11 @@ TEST(DateTime_Test, TickSleep)
   }
   Delta_U32 = Bof_ElapsedMsTime(Start_U32);
   EXPECT_GE(Delta_U32, i_U32 * 40);
+#if defined(__EMSCRIPTEN__)
+  EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 40) * 1.2f));
+#else
   EXPECT_LT(Delta_U32, static_cast<uint32_t>(static_cast<float>(i_U32 * 40) * 1.1f)); // Win 4688 Lin 4006 New Win with timeBeginPeriod:4074
+#endif
 
   Start_U32 = Bof_GetMsTickCount();
   Sts_E = Bof_Now(FirstDateTime);

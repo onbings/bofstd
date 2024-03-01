@@ -180,29 +180,29 @@ BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _Pri
     _rMtx_X.Recursive_B = _Recursive_B;
 #if defined(_WIN32)
 #else
-        if (_PriorityInversionAware_B)
-        {
-          // https://sakhnik.com/2017/07/16/custom-mutex.html
+    if (_PriorityInversionAware_B)
+    {
+      // https://sakhnik.com/2017/07/16/custom-mutex.html
 
-          pthread_mutexattr_t Attributes_X;
-          // Destroy the underlying mutex
-          ::pthread_mutex_destroy(_rMtx_X.Mtx.native_handle());
-          ::pthread_mutex_destroy(_rMtx_X.RecursiveMtx.native_handle());
+      pthread_mutexattr_t Attributes_X;
+      // Destroy the underlying mutex
+      ::pthread_mutex_destroy(_rMtx_X.Mtx.native_handle());
+      ::pthread_mutex_destroy(_rMtx_X.RecursiveMtx.native_handle());
 
-          // Create mutex attribute with desired protocol
-          pthread_mutexattr_init(&Attributes_X);
-          pthread_mutexattr_setprotocol(&Attributes_X, PTHREAD_PRIO_INHERIT);
-          ::pthread_mutex_init(_rMtx_X.Mtx.native_handle(), &Attributes_X);
-          ::pthread_mutexattr_destroy(&Attributes_X);
+      // Create mutex attribute with desired protocol
+      pthread_mutexattr_init(&Attributes_X);
+      pthread_mutexattr_setprotocol(&Attributes_X, PTHREAD_PRIO_INHERIT);
+      ::pthread_mutex_init(_rMtx_X.Mtx.native_handle(), &Attributes_X);
+      ::pthread_mutexattr_destroy(&Attributes_X);
 
-          pthread_mutexattr_init(&Attributes_X);
-          pthread_mutexattr_settype(&Attributes_X, PTHREAD_MUTEX_RECURSIVE);
-          pthread_mutexattr_setprotocol(&Attributes_X, PTHREAD_PRIO_INHERIT);
-          ::pthread_mutex_init(_rMtx_X.RecursiveMtx.native_handle(), &Attributes_X);
-          ::pthread_mutexattr_destroy(&Attributes_X);
-        }
-        //	BOFERR e=Bof_LockMutex(_rMtx_X);
-        //	e=Bof_LockMutex(_rMtx_X);
+      pthread_mutexattr_init(&Attributes_X);
+      pthread_mutexattr_settype(&Attributes_X, PTHREAD_MUTEX_RECURSIVE);
+      pthread_mutexattr_setprotocol(&Attributes_X, PTHREAD_PRIO_INHERIT);
+      ::pthread_mutex_init(_rMtx_X.RecursiveMtx.native_handle(), &Attributes_X);
+      ::pthread_mutexattr_destroy(&Attributes_X);
+    }
+    //	BOFERR e=Bof_LockMutex(_rMtx_X);
+    //	e=Bof_LockMutex(_rMtx_X);
 #endif
     Rts_E = BOF_ERR_NO_ERROR;
   }
@@ -841,59 +841,60 @@ BOFERR Bof_CloseSharedMemory(BOF_SHARED_MEMORY &_rSharedMemory_X, bool _RemoveIt
       }
     }
 #else
-    int Sts_i;
-    if (_rSharedMemory_X.pBaseAddress)
-    {
-      if (_rSharedMemory_X.HandleSystemV_i >= 0)
-      {
-        Rts_E = (shmdt(_rSharedMemory_X.pBaseAddress) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_UNMAP;
-//printf("==shmdt=======> %p rts %d errno %d\n",_rSharedMemory_X.pBaseAddress, Rts_E, errno);
-		Sts_E = BOF_ERR_NO_ERROR;
-		if (Rts_E != BOF_ERR_NO_ERROR)
-		{
-			Sts_E=Bof_GetLastError(false, &Sts_i);
-		}
-        if ((Rts_E == BOF_ERR_NO_ERROR) || (Sts_E == BOF_ERR_EINVAL))
+        int Sts_i;
+        if (_rSharedMemory_X.pBaseAddress)
         {
-          // NO !! Sts_i = close(_rSharedMemory_X.HandleSystemV_i);
-          //  Can fail if already _RemoveIt_B by someone else  Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
-          Rts_E = BOF_ERR_NO_ERROR;
-        }
-      }
-      else
-      {
-        Rts_E = (munmap(_rSharedMemory_X.pBaseAddress, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_UNMAP;
-        if (Rts_E == BOF_ERR_NO_ERROR)
-        {
-          // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
-        }
-      }
-      // BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
-
-      if ((Rts_E == BOF_ERR_NO_ERROR) && (_RemoveIt_B))
-      {
-        if (_rSharedMemory_X.HandleSystemV_i >= 0)
-        {
-          Rts_E = (shmctl(_rSharedMemory_X.HandleSystemV_i, IPC_RMID, nullptr) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
-          printf("Bof_CloseSharedMemory HandleSystemV shmctl errno %d Rts_E %d %s\n", errno, Rts_E, _rSharedMemory_X.PathNameSystemV_S.c_str());
-          Bof_DeleteFile(_rSharedMemory_X.PathNameSystemV_S);
-          if (Rts_E == BOF_ERR_EMLINK)
+          if (_rSharedMemory_X.HandleSystemV_i >= 0)
           {
-            // NO !! Sts_i = close(_rSharedMemory_X.HandleSystemV_i);
-            //  Can fail if already _RemoveIt_B by someone else  Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
-            Rts_E = BOF_ERR_NO_ERROR;
+            Rts_E = (shmdt(_rSharedMemory_X.pBaseAddress) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_UNMAP;
+            // printf("==shmdt=======> %p rts %d errno %d\n",_rSharedMemory_X.pBaseAddress, Rts_E, errno);
+            Sts_E = BOF_ERR_NO_ERROR;
+            if (Rts_E != BOF_ERR_NO_ERROR)
+            {
+              Sts_E = Bof_GetLastError(false, &Sts_i);
+            }
+            if ((Rts_E == BOF_ERR_NO_ERROR) || (Sts_E == BOF_ERR_EINVAL))
+            {
+              // NO !! Sts_i = close(_rSharedMemory_X.HandleSystemV_i);
+              //  Can fail if already _RemoveIt_B by someone else  Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
+              Rts_E = BOF_ERR_NO_ERROR;
+            }
+          }
+          else
+          {
+            Rts_E = (munmap(_rSharedMemory_X.pBaseAddress, _rSharedMemory_X.SizeInByte_U32) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_UNMAP;
+            if (Rts_E == BOF_ERR_NO_ERROR)
+            {
+              // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
+            }
+          }
+          // BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
+
+          if ((Rts_E == BOF_ERR_NO_ERROR) && (_RemoveIt_B))
+          {
+            if (_rSharedMemory_X.HandleSystemV_i >= 0)
+            {
+              Rts_E = (shmctl(_rSharedMemory_X.HandleSystemV_i, IPC_RMID, nullptr) != -1) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
+              printf("Bof_CloseSharedMemory HandleSystemV shmctl errno %d Rts_E %d %s\n", errno, Rts_E, _rSharedMemory_X.PathNameSystemV_S.c_str());
+              Bof_DeleteFile(_rSharedMemory_X.PathNameSystemV_S);
+              if (Rts_E == BOF_ERR_EMLINK)
+              {
+                // NO !! Sts_i = close(_rSharedMemory_X.HandleSystemV_i);
+                //  Can fail if already _RemoveIt_B by someone else  Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
+                Rts_E = BOF_ERR_NO_ERROR;
+              }
+            }
+            else
+            {
+              Rts_E = (shm_unlink(_rSharedMemory_X.Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
+
+              // Can fail if already _RemoveIt_B by someone else
+              Rts_E = BOF_ERR_NO_ERROR;
+              // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
+            }
+            printf("Bof_CloseSharedMemory--> '%s' RemoveIt %d Rts %d err %d %x:%p\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E, errno, _rSharedMemory_X.SizeInByte_U32, _rSharedMemory_X.pBaseAddress);
           }
         }
-        else
-        {
-          Rts_E = (shm_unlink(_rSharedMemory_X.Name_S.c_str()) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_EMLINK;
-
-          // Can fail if already _RemoveIt_B by someone else
-          Rts_E = BOF_ERR_NO_ERROR;
-          // close handle already made in Bof_OpenSharedMemory: After a call to mmap(2) the file descriptor may be closed without affecting the memory mapping.
-        }
-        printf("Bof_CloseSharedMemory--> '%s' RemoveIt %d Rts %d err %d %x:%p\n", _rSharedMemory_X.Name_S.c_str(), _RemoveIt_B, Rts_E, errno, _rSharedMemory_X.SizeInByte_U32, _rSharedMemory_X.pBaseAddress);      }
-    }
 #endif
 
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -954,11 +955,11 @@ BOFERR Bof_GetMemoryState(uint64_t &_rAvailableFreeMemory_U64, uint64_t &_rTotal
     _rTotalMemorySize_U64 = 0;
   }
 #else
-  int PageSize_i = static_cast<int>(sysconf(_SC_PAGE_SIZE));
+      int PageSize_i = static_cast<int>(sysconf(_SC_PAGE_SIZE));
 
-  _rAvailableFreeMemory_U64 = (get_avphys_pages() * PageSize_i);
-  _rTotalMemorySize_U64 = (get_phys_pages() * PageSize_i);
-  Rts_E = BOF_ERR_NO_ERROR;
+      _rAvailableFreeMemory_U64 = (get_avphys_pages() * PageSize_i);
+      _rTotalMemorySize_U64 = (get_phys_pages() * PageSize_i);
+      Rts_E = BOF_ERR_NO_ERROR;
 #endif
   return Rts_E;
 }
@@ -972,26 +973,26 @@ BOFERR Bof_LockMem(int _OsAdvice_i, uint64_t _SizeInByte_U64, void *_pData)
   //	Rts_E = VirtualLock(_pData, _SizeInByte_U64) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
   Rts_E = BOF_ERR_LOCK;
 #else
-  int Sts_i;
-  if (_OsAdvice_i)
-  {
-    Sts_i = madvise(_pData, _SizeInByte_U64, _OsAdvice_i);
-    Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
-    if (Rts_E == BOF_ERR_NO_ERROR)
-    {
-      Sts_i = mlock(_pData, _SizeInByte_U64);
-      Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
-    }
-  }
-  else
-  {
-    Rts_E = BOF_ERR_NO_ERROR;
-  }
-  if (Rts_E == BOF_ERR_NO_ERROR)
-  {
-    Sts_i = mlock(_pData, _SizeInByte_U64);
-    Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
-  }
+      int Sts_i;
+      if (_OsAdvice_i)
+      {
+        Sts_i = madvise(_pData, _SizeInByte_U64, _OsAdvice_i);
+        Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_SET;
+        if (Rts_E == BOF_ERR_NO_ERROR)
+        {
+          Sts_i = mlock(_pData, _SizeInByte_U64);
+          Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+        }
+      }
+      else
+      {
+        Rts_E = BOF_ERR_NO_ERROR;
+      }
+      if (Rts_E == BOF_ERR_NO_ERROR)
+      {
+        Sts_i = mlock(_pData, _SizeInByte_U64);
+        Rts_E = (Sts_i == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+      }
 #endif
   return Rts_E;
 }
@@ -1004,7 +1005,7 @@ BOFERR Bof_UnlockMem(uint64_t _SizeInByte_U64, void *_pData)
   //	Rts_E = VirtualUnlock(_pData, _SizeInByte_U64) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
   Rts_E = BOF_ERR_LOCK;
 #else
-  Rts_E = (munlock(_pData, _SizeInByte_U64) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
+      Rts_E = (munlock(_pData, _SizeInByte_U64) == 0) ? BOF_ERR_NO_ERROR : BOF_ERR_LOCK;
 #endif
   return Rts_E;
 }
@@ -1061,7 +1062,6 @@ bool Bof_AlignedMemCpy32(volatile void *_pDst, const volatile void *_pSrc, uint3
   }
   return Rts_B;
 }
-
 
 std::string Bof_DumpMemoryZone(const BOF_DUMP_MEMORY_ZONE_PARAM &_rDumpMemoryZoneParam_X)
 {
@@ -1488,7 +1488,7 @@ int32_t Bof_PriorityValueFromThreadPriority(BOF_THREAD_PRIORITY _Priority_E)
         break;
     }
 #else
-    Rts_S32 = static_cast<int32_t>(_Priority_E);
+        Rts_S32 = static_cast<int32_t>(_Priority_E);
 #endif
   }
 
@@ -1531,7 +1531,7 @@ BOF_THREAD_PRIORITY Bof_ThreadPriorityFromPriorityValue(int32_t _Priority_S32)
       break;
   }
 #else
-  Rts_E = static_cast<BOF_THREAD_PRIORITY>(_Priority_S32);
+      Rts_E = static_cast<BOF_THREAD_PRIORITY>(_Priority_S32);
 #endif
 
   return Rts_E;
@@ -1599,19 +1599,25 @@ BOFERR Bof_GetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_P
     _rPriority_E = Bof_ThreadPriorityFromPriorityValue(GetThreadPriority(_rThread_X.pThread));
     Rts_E = BOF_ERR_NO_ERROR;
 #else
-        int Status_i = 0;
-        int Policy_i = 0;
-        struct sched_param Params_X;
+#if defined(__EMSCRIPTEN__)
+        _rPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+        _rPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
+        Rts_E = BOF_ERR_NO_ERROR;
+#else
+    int Status_i = 0;
+    int Policy_i = 0;
+    struct sched_param Params_X;
 
-        Rts_E = BOF_ERR_EINVAL;
-        Status_i = pthread_getschedparam(_rThread_X.ThreadId, &Policy_i, &Params_X);
+    Rts_E = BOF_ERR_EINVAL;
+    Status_i = pthread_getschedparam(_rThread_X.ThreadId, &Policy_i, &Params_X);
 
-        if (Status_i == 0)
-        {
-          _rPolicy_E = (BOF_THREAD_SCHEDULER_POLICY)Policy_i;
-          _rPriority_E = Bof_ThreadPriorityFromPriorityValue(Params_X.sched_priority);
-          Rts_E = BOF_ERR_NO_ERROR;
-        }
+    if (Status_i == 0)
+    {
+      _rPolicy_E = (BOF_THREAD_SCHEDULER_POLICY)Policy_i;
+      _rPriority_E = Bof_ThreadPriorityFromPriorityValue(Params_X.sched_priority);
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+#endif
 #endif
   }
   return Rts_E;
@@ -1633,33 +1639,43 @@ BOFERR Bof_SetThreadPriorityLevel(BOF_THREAD &_rThread_X, BOF_THREAD_SCHEDULER_P
       Rts_E = (WndPrio_S32 == GetThreadPriority(_rThread_X.pThread)) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
     }
 #else
-        int Status_i = 0;
-        int Policy_i = (int)_ThreadSchedulerPolicy_E;
-        struct sched_param Params_X;
-        Rts_E = BOF_ERR_EINVAL;
-
-        if (_rThread_X.ThreadId != 0)
-        {
-          Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(_ThreadPriority_E);
-          // Set the priority
-          Status_i = pthread_setschedparam(_rThread_X.ThreadId, Policy_i, &Params_X);
-          // Verify
-          if (Status_i == 0)
-          {
-            Status_i = pthread_getschedparam(_rThread_X.ThreadId, &Policy_i, &Params_X);
-
-            Rts_E = ((Policy_i == (int)_ThreadSchedulerPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(_ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
-          }
-        }
-        // Thread ID does not exist. Under linux,
-        // we cannot create a suspended thread. Let's
-        // assume that the thread has simply not yet
-        // be created.
-        else
+#if defined(__EMSCRIPTEN__)
+        if ((_ThreadSchedulerPolicy_E == BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER) && (_ThreadPriority_E == BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000))
         {
           Rts_E = BOF_ERR_NO_ERROR;
         }
+        else
+        {
+          Rts_E = BOF_ERR_EINVAL;
+        }
+#else
+    int Status_i = 0;
+    int Policy_i = (int)_ThreadSchedulerPolicy_E;
+    struct sched_param Params_X;
+    Rts_E = BOF_ERR_EINVAL;
 
+    if (_rThread_X.ThreadId != 0)
+    {
+      Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(_ThreadPriority_E);
+      // Set the priority
+      Status_i = pthread_setschedparam(_rThread_X.ThreadId, Policy_i, &Params_X);
+      // Verify
+      if (Status_i == 0)
+      {
+        Status_i = pthread_getschedparam(_rThread_X.ThreadId, &Policy_i, &Params_X);
+
+        Rts_E = ((Policy_i == (int)_ThreadSchedulerPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(_ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_INTERNAL;
+      }
+    }
+    // Thread ID does not exist. Under linux,
+    // we cannot create a suspended thread. Let's
+    // assume that the thread has simply not yet
+    // be created.
+    else
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+#endif
 #endif
   }
   return Rts_E;
@@ -1697,7 +1713,7 @@ uint32_t Bof_CurrentThreadId()
 #if defined(_WIN32)
   uint32_t Rts_U32 = static_cast<uint32_t>(GetCurrentThreadId());
 #else
-  uint32_t Rts_U32 = static_cast<uint32_t>(pthread_self());
+      uint32_t Rts_U32 = static_cast<uint32_t>(pthread_self());
 #endif
   return Rts_U32;
 }
@@ -1723,15 +1739,15 @@ BOFERR Bof_SetCurrentThreadPriorityLevel(BOF_THREAD_SCHEDULER_POLICY _Policy_E, 
     }
   }
 #else
-  // if (SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS)); // Get the current process and set it to "Realtime" priority class.
-  HANDLE Thread_h = GetCurrentThread();
-  if (BOF_IS_HANDLE_VALID(Thread_h))
-  {
-    if (SetThreadPriority(Thread_h, Priority_i)) // THREAD_PRIORITY_LOWEST))// Priority_i))
-    {
-      Rts_E = BOF_ERR_NO_ERROR;
-    }
-  }
+      // if (SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS)); // Get the current process and set it to "Realtime" priority class.
+      HANDLE Thread_h = GetCurrentThread();
+      if (BOF_IS_HANDLE_VALID(Thread_h))
+      {
+        if (SetThreadPriority(Thread_h, Priority_i)) // THREAD_PRIORITY_LOWEST))// Priority_i))
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
+      }
 #endif
   return Rts_E;
 }
@@ -1829,30 +1845,34 @@ static void *S_ThreadLauncher(void *_pThreadContext)
         Sts_E = (WndPrio_S32 == GetThreadPriority(pThread_X->pThread)) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
       }
 #else
-          int Status_i = 0;
-          int Policy_i = pThread_X->ThreadSchedulerPolicy_E;
-          struct sched_param Params_X;
-          Sts_E = BOF_ERR_SCHEDULER;
-          Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E);
-          // Set the priority
-          Status_i = pthread_setschedparam(pThread_X->ThreadId, Policy_i, &Params_X);
+#if defined(__EMSCRIPTEN__)
+          Sts_E = BOF_ERR_NO_ERROR;
+#else
+      int Status_i = 0;
+      int Policy_i = pThread_X->ThreadSchedulerPolicy_E;
+      struct sched_param Params_X;
+      Sts_E = BOF_ERR_SCHEDULER;
+      Params_X.sched_priority = Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E);
+      // Set the priority
+      Status_i = pthread_setschedparam(pThread_X->ThreadId, Policy_i, &Params_X);
 
-          // printf("pthread_setschedparam sts %d err %d Pol %d Prio %d\n", Status_i, errno, Policy_i, Params_X.sched_priority);
-          BOF_THREAD_PRIORITY Min_E, Max_E;
-          BOFERR a = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
-          // printf("BOF_THREAD_SCHEDULER_POLICY_FIFO sts %d min %d max %d\n", a, Min_E, Max_E);
+      // printf("pthread_setschedparam sts %d err %d Pol %d Prio %d\n", Status_i, errno, Policy_i, Params_X.sched_priority);
+      BOF_THREAD_PRIORITY Min_E, Max_E;
+      BOFERR a = Bof_GetThreadPriorityRange(BOF_THREAD_SCHEDULER_POLICY_FIFO, Min_E, Max_E);
+      // printf("BOF_THREAD_SCHEDULER_POLICY_FIFO sts %d min %d max %d\n", a, Min_E, Max_E);
 
-          // Verify
-          if (Status_i == 0)
-          {
-            Status_i = pthread_getschedparam(pThread_X->ThreadId, &Policy_i, &Params_X);
-            // printf("status %d\n", Status_i);
+      // Verify
+      if (Status_i == 0)
+      {
+        Status_i = pthread_getschedparam(pThread_X->ThreadId, &Policy_i, &Params_X);
+        // printf("status %d\n", Status_i);
 
-            if (Status_i == 0)
-            {
-              Sts_E = ((Policy_i == pThread_X->ThreadSchedulerPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
-            }
-          }
+        if (Status_i == 0)
+        {
+          Sts_E = ((Policy_i == pThread_X->ThreadSchedulerPolicy_E) && (Params_X.sched_priority == Bof_PriorityValueFromThreadPriority(pThread_X->ThreadPriority_E))) ? BOF_ERR_NO_ERROR : BOF_ERR_PRIORITY;
+        }
+      }
+#endif
 #endif
       // printf("%u: DBG S_ThreadLauncher8 val %d ptr %p sts %d\n", Bof_GetMsTickCount(), pThread_X->ThreadRunning_B.load(), &pThread_X->ThreadRunning_B, Sts_E);
       BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
@@ -2649,12 +2669,12 @@ BOFERR Bof_GetLastError(bool _NetError_B, int32_t *_pNativeErrorCode_S32)
     }
   }
 #else
-  (void)_NetError_B;
-  if (_pNativeErrorCode_S32)
-  {
-    *_pNativeErrorCode_S32 = errno;
-  }
-  Rts_E = static_cast<BOFERR>(errno);
+      (void)_NetError_B;
+      if (_pNativeErrorCode_S32)
+      {
+        *_pNativeErrorCode_S32 = errno;
+      }
+      Rts_E = static_cast<BOFERR>(errno);
 #endif
   return Rts_E;
 }
@@ -2667,7 +2687,7 @@ bool Bof_PatternCompare(const char *_pString_c, const char *_pPattern_c)
     //		       Bof_PatternCompare(_pString_c, _pPattern_c + 1) || *_pString_c && Bof_PatternCompare(_pString_c + 1, _pPattern_c);
 
     return *_pPattern_c - '*' ? *_pString_c ? (*_pPattern_c == '?') || (((*_pString_c) == (*_pPattern_c)) && Bof_PatternCompare(_pString_c + 1, _pPattern_c + 1)) : !*_pPattern_c
-      : Bof_PatternCompare(_pString_c, _pPattern_c + 1) || (*_pString_c && Bof_PatternCompare(_pString_c + 1, _pPattern_c));
+                              : Bof_PatternCompare(_pString_c, _pPattern_c + 1) || (*_pString_c && Bof_PatternCompare(_pString_c + 1, _pPattern_c));
   }
   else
   {

@@ -43,7 +43,7 @@ BofPath::BofPath(const char *_pPath_c, const char *_pForbiddenChar_c, bool _Pure
   if (_pPath_c)
   {
     Path_S = _pPath_c;
-    InitPathField(_pForbiddenChar_c, _PureFilename_B,  Path_S);
+    InitPathField(_pForbiddenChar_c, _PureFilename_B, Path_S);
   }
   else
   {
@@ -351,14 +351,14 @@ BOFERR BofPath::CurrentDirectoryName(const std::string &_rNewCurrentDirectoryNam
   return Rts_E;
 }
 
-BOFERR BofPath::InitPathField(const char *_pForbiddenChar_c, bool _PureFilename_B,const std::string &_rPath_S)
+BOFERR BofPath::InitPathField(const char *_pForbiddenChar_c, bool _PureFilename_B, const std::string &_rPath_S)
 {
   BOFERR Rts_E;
   char LastChar_c;
   std::string ThePath_S;
   std::string::size_type ExtensionPos, FilenamePos;
 
-  mForbiddenCharacter_S = _pForbiddenChar_c ? _pForbiddenChar_c:"<>:\"\\|?*\a\f\n\r\t\v";
+  mForbiddenCharacter_S = _pForbiddenChar_c ? _pForbiddenChar_c : "<>:\"\\|?*\a\f\n\r\t\v";
   mFileNameWithExtension_S = "";
   mFileNameWithoutExtension_S = "";
   mExtension_S = "";
@@ -463,10 +463,9 @@ bool BofPath::IsWindowsDiskPath(const std::string &_rPath_S)
 bool BofPath::IsForbiddenChar(const std::string &_rPath_S)
 {
   bool Rts_B;
-
 #if defined(__EMSCRIPTEN__)
-//During file packaging under emscripten windows we can have path like /C:/pro/...
-  if ((_rPath_S[0] == '/') && (_rPath_S[2] == ':') && (_rPath_S[3] == '/'))
+  // During file packaging under emscripten windows we can have path like /C:/pro/...
+  if ((_rPath_S[0] == '/') && (std::isalpha(_rPath_S[1])) && (_rPath_S[2] == ':') && (_rPath_S[3] == '/'))
   {
     Rts_B = Bof_StringIsPresent(_rPath_S.substr(3), mForbiddenCharacter_S);
   }
@@ -475,7 +474,7 @@ bool BofPath::IsForbiddenChar(const std::string &_rPath_S)
     Rts_B = Bof_StringIsPresent(_rPath_S, mForbiddenCharacter_S);
   }
 #else
-  Rts_B=Bof_StringIsPresent(_rPath_S, mForbiddenCharacter_S);
+  Rts_B = Bof_StringIsPresent(_rPath_S, mForbiddenCharacter_S);
 #endif
   return Rts_B;
 }

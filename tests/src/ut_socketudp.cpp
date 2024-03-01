@@ -175,7 +175,8 @@ void SocketUdp_Test::TearDown()
   Sts_E = Bof_StopThread(mSeverThread_X);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 }
-
+#if defined(__EMSCRIPTEN__)
+#else
 TEST_F(SocketUdp_Test, FilterMulticastOnIpAddress)
 {
   BOF_SOCKET_PARAM BofSocketParam_X;
@@ -442,3 +443,4 @@ TEST_F(SocketUdp_Test, ChkSocketBalance)
   BOF::Bof_MsSleep(20);
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 1);
 }
+#endif // #if defined(__EMSCRIPTEN__)

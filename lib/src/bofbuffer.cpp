@@ -1,5 +1,6 @@
-#include <bofstd/bofbuffer.h>
 #include <bofstd/bofbit.h>
+#include <bofstd/bofbuffer.h>
+
 
 #include <fcntl.h>
 #if defined(_WIN32)
@@ -37,7 +38,11 @@ BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _A
 #if defined(_WIN32)
         _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(_aligned_malloc(_SizeInByte_U32, _AligmentInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
 #else
+#if defined(EMSCRIPTEN)
+        _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(memalign(_AligmentInByte_U32, _SizeInByte_U32));
+#else
         _rAllocatedBuffer_X.pData_U8 = reinterpret_cast<uint8_t *>(aligned_alloc(_AligmentInByte_U32, _SizeInByte_U32)); // malloc(size);   // TODO pChannel->getBoard()->getNUMANode() !!!
+#endif
 #endif
         break;
 

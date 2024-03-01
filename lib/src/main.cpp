@@ -1,7 +1,5 @@
 #include <bofstd/boffs.h>
-#include <bofstd/boflogger.h>
 #include <bofstd/bofsystem.h>
-// #include <bofstd/ibofloggerfactory.h>
 
 #include "../include/gtestrunner.h"
 
@@ -22,6 +20,47 @@
 #include <malloc.h>
 #endif
 
+#if 0
+//#include "asio.hpp"
+#include <bofstd/bofsocketio.h>
+//Bof_GetNetworkInterfaceInfo
+void f()
+{
+  BOFSTDPARAM StdParam_X;
+  BOF::Bof_Initialize(StdParam_X);
+  std::vector<BOF::BOF_NETWORK_INTERFACE_PARAM> NetworkInterfaceCollection;
+  BOFERR e = BOF::Bof_GetListOfNetworkInterface(NetworkInterfaceCollection);
+  printf("Bof_GetListOfNetworkInterface found %zd Network board (%s)\n", NetworkInterfaceCollection.size(), BOF::Bof_ErrorCode(e));
+  for (auto &rIt : NetworkInterfaceCollection)
+  {
+    printf("name %s ip %s msk %s brd %s %s\n", rIt.Name_S.c_str(), rIt.IpAddress_S.c_str(), rIt.IpMask_S.c_str(), rIt.IpBroadcast_S.c_str(), rIt.IpV6_B ? "IpV6":"IpV4");
+    printf("Info: flg %X Gw %s Mtu %d Mac %02X:%02X:%02X:%02X:%02X:%02X\n", rIt.Info_X.InterfaceFlag_E, rIt.Info_X.IpGateway_S.c_str(), rIt.Info_X.MtuSize_U32, 
+      rIt.Info_X.MacAddress[0], rIt.Info_X.MacAddress[1], rIt.Info_X.MacAddress[2], rIt.Info_X.MacAddress[3], rIt.Info_X.MacAddress[4], rIt.Info_X.MacAddress[5]);
+  }
+/*
+  asio::io_context io;
+  asio::ip::tcp::resolver resolver(io);
+  asio::ip::tcp::resolver::query query(asio::ip::host_name(), "");
+  asio::ip::tcp::resolver::iterator it = resolver.resolve(query);
+  while (it != asio::ip::tcp::resolver::iterator())
+  {
+    asio::ip::address addr = (it++)->endpoint().address();
+    if (addr.is_v6())
+    {
+      std::cout << "ipv6 address: ";
+    }
+    else
+      std::cout << "ipv4 address: ";
+
+    std::cout << addr.to_string() << std::endl;
+
+  }
+  */
+}
+#endif
+
+USE_BOF_NAMESPACE()
+
 BOFERR AppBofAssertCallback(const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rMasg_S)
 {
   printf("Assert in %s line %d Msg %s\n", _rFile_S.c_str(), _Line_U32, _rMasg_S.c_str());
@@ -36,30 +75,21 @@ int main(int argc, char *argv[])
 #else
   int Rts_i;
   BOFERR Sts_E;
-  BOF::BOFSTDPARAM StdParam_X;
+  BOFSTDPARAM StdParam_X;
   std::string HelpString_S, Cwd_S;
 
   StdParam_X.AssertInRelease_B = true;
   StdParam_X.AssertCallback = AppBofAssertCallback;
   Sts_E = Bof_Initialize(StdParam_X);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
-  BOF::Bof_GetCurrentDirectory(Cwd_S);
+  Bof_GetCurrentDirectory(Cwd_S);
   printf("\nPwd %s\nRunning BofStd V %s on %s under %s\n", Cwd_S.c_str(), StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str(), StdParam_X.OsName_S.c_str());
-  /*
-  BOF::BofLogger &rBofLog = BOF::BofLogger::S_Instance();
-  BOF::BOF_LOGGER_PARAM LoggerParam_X;
-  BOF::BOF_LOG_CHANNEL_PARAM LogParam_X;
-  LoggerParam_X.Name_S = "Xt Ftp Diag";
-  //			LoggerParam_X.LogPattern_S = "%i %L %^%v%$";
-  LoggerParam_X.MaxNumberOfAsyncLogQueueEntry_U32 = 0x800;
-  LoggerParam_X.AsyncAutoFushIntervalInMs_U32 = 0;
-  LoggerParam_X.FastFormat_B = true;
-  LoggerParam_X.OverflowPolicy_E = BOF::BOF_LOGGER_OVERFLOW_POLICY::DISCARD;
-  LoggerParam_X.OnError = nullptr;
-  LoggerParam_X.OnErrorCodeToString = nullptr;
-  Sts_E = rBofLog.InitializeLogger(LoggerParam_X);
-  Sts_E = rBofLog.ShutdownLogger();
-  */
+  // for (int i = 0; i < 7; i++)
+  //{
+  //   printf("hello world %d\n", i);
+  // }
+  //  const char *pp = StdParam_X.ComputerName_S.c_str();
+
 #if defined(_WIN32)
 #else
   // Ok on tge2, there is an uart  ::testing::GTEST_FLAG(filter) = "-Uart_Test.*"; // No hw
@@ -91,7 +121,6 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Queue_Test.*";
   //::testing::GTEST_FLAG(filter) = "RamDb_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*";
-  //::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "Shell_Test.*";
   //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
@@ -109,50 +138,24 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "Uart_Test.*";
   //::testing::GTEST_FLAG(filter) = "Uri_Test.*";
   //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*";
-  //::testing::GTEST_FLAG(filter) =  "Api_Test.*:Async_Test.*:AsyncMuticastDelegate_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:"
-  //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:JsonParser_Test.*:"
-  //                                 "JsonWriter_Test.*:Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
-  //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*"
-  //                                 "SocketTcp_Test.*:SocketUdp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
-  //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*:XmlParser_Test.*";
-  // Async_Test.*:SocketUdp_Test.*:AsyncMuticastDelegate_Test.*:XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:
-  //::testing::GTEST_FLAG(filter) =  "Api_Test.*:BinSerializer_Test.*:Bit_Test.*:ConIo_Test.*:CallbackCollection_Test.*:-Path_Test.PathConstructorDestructorWindows:-Path_Test.PathParsing:"
-  //                                 "CircularBuffer_Test.*:CmdLineParser_Test.*:Crypto_Test.*:DateTime_Test.*:Enum_Test.*:Fs_Test.*:Guid_Test.*:"
-  //                                 "Logger_Test.*:NaryTreeKv_Test.*:Path_Test.*:Pipe_Test.*:Pot_Test.*:Process_Test.*:Queue_Test.*:RamDb_Test.*:"
-  //                                 "RawCircularBuffer_Test.*:RawCircularBufferAlwaysContiguous_Test.*:RawCircularBufferInSlotMode_Test.*:Shell_Test.*:SocketOs_Test.*:"
-  //                                 "SocketTcp_Test.*:SockIo_Client_Server_Test.*:SockIo_Test.*:String_Test.*:StringCircularBuffer_Test.*: System_Test.*:"
-  //                                 "Threading_Test.*:BofThreadPool_Test.*:Timecode_Test.*:Uart_Test.*:Uri_Test.*";
 
-  //::testing::GTEST_FLAG(filter) = "DateTime_Test.StringDateTime:SocketTcp_Test.TcpClientTest:DateTime_Test.ValidateDateTime:SocketOs_Test.SocketAddress";
-  //  ::testing::GTEST_FLAG(filter) = "Logger_Test.*:ut_logger_ibofloggerfactory.*";
-  //  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
-  //::testing::GTEST_FLAG(filter) = "BofThread_Test.*:Threading_Test.*";
-  //  ::testing::GTEST_FLAG(filter) = "ut_spsc.*:ut_mpmc.*:CircularBuffer_Test.Perf";
-  //::testing::GTEST_FLAG(filter) = "Async_Test.OverloadCommandQueue";
-
-  //::testing::GTEST_FLAG(filter) = "XmlParser_Test.*:JsonParser_Test.*:JsonWriter_Test.*:Pipe_Test.*";
+  // Use these one
+  //::testing::GTEST_FLAG(filter) = "Path_Test.PathConstructorDestructorWindows";
+  //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*";
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
-  //::testing::GTEST_FLAG(filter) = "System_Test.Exec";
+  //::testing::GTEST_FLAG(filter) = "CmdLineParser_Test.*:U7ri_Test.*";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
-  //  ::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
+  //::testing::GTEST_FLAG(filter) = "System_Test.Rational";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
-  //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";
-  //::testing::GTEST_FLAG(filter) = "Graph_Test.*:ScopedGuard_Test.*";
-  //  ::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBufferNoSlotsize_Test.LoopByteBuffer";
+  //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
   // printf("-CrtDir_S->%s\n", CrtDir_S.c_str());
-
-  // BHALOG("! Rts_i=%d nb %d p %p !\n", 0, 7, nullptr);
-
-  //  LOG_INFO(MY_LOGGER, 0, "! Rts_i=%d nb %d p %p !\n", Rts_i, _Argc_i, _pArgv_c);
-  //  LOG_WARNING(MY_LOGGER, 0, "! This will not be logged !\n");
-  //  LOG_ERROR(MY_LOGGER, 0, "! This will not be logged !\n");
-
   Rts_i = RUN_ALL_TESTS();
 
-  Sts_E = BOF::Bof_Shutdown();
+  Sts_E = Bof_Shutdown();
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 
 #if defined(NDEBUG) // We are in Release compil
@@ -167,27 +170,17 @@ int main(int argc, char *argv[])
 }
 
 /*
-V 5.5.0.0:
+* WINDOWS
+[==========] 189 tests from 48 test suites ran. (108823 ms total)
+[  PASSED  ] 189 tests.
 
-WINDOWS
-[==========] 198 tests from 51 test suites ran. (108369 ms total)
-[  PASSED  ] 198 tests.
+  YOU HAVE 3 DISABLED TESTS
 
-  YOU HAVE 2 DISABLED TESTS
+  LINUX:
+[==========] 189 tests from 48 test suites ran. (60706 ms total)
+[  PASSED  ] 189 tests.
 
-LINUX:
-[==========] 198 tests from 51 test suites ran. (60329 ms total)
-[  PASSED  ] 198 tests.
-
-  YOU HAVE 2 DISABLED TESTS
-
-EMSCRIPTEN:
-[==========] 171 tests from 45 test suites ran. (127177 ms total)
-[  PASSED  ] 171 tests.
-
-  YOU HAVE 1 DISABLED TEST
-
-
+  YOU HAVE 3 DISABLED TESTS
 
 
 need to launch test with

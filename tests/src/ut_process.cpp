@@ -45,7 +45,8 @@ protected:
   {
   }
 };
-
+#if defined(EMSCRIPTEN)
+#else
 TEST_F(Process_Test, Execute_popen)
 {
   int ExitCode_i;
@@ -70,7 +71,6 @@ TEST_F(Process_Test, Execute_popen)
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_NE(ExitCode_i, 0);
 }
-
 TEST_F(Process_Test, Execute_vfork)
 {
   int ExitCode_i;
@@ -172,3 +172,4 @@ TEST_F(Process_Test, Process)
   EXPECT_GT(Pid_X.Pid, 0);
   EXPECT_EQ(BofProcess::S_KillProcess(Pid_X), BOF_ERR_NO_ERROR);
 }
+#endif

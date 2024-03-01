@@ -15,6 +15,7 @@
  */
 #pragma once
 #include <memory>
+#include <bofstd/bofstd.h>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -147,19 +148,19 @@ END_BOF_NAMESPACE()
 
 //Usage example:
 #if 0
-enum LOGGER_CHANNEL : uint32_t
-{
-  LOGGER_CHANNEL_INIT = 0,
-  LOGGER_CHANNEL_CODEC,
-  LOGGER_CHANNEL_DMA,
-  LOGGER_CHANNEL_MAX
-};
+//*********** In the app ******************************************************************************************
+
+#include<stdarg.h>
+#include <bofstd/ibofloggerfactory.h>
+#include <glf/glf.h>
+
+BEGIN_UCO_NAMESPACE()
 
 class Logger : public BOF::IBofLogger
 {
 public:
   Logger(const uint32_t _ChannelIndex_U32, const std::string &_rChannelName_S)
-      : BOF::IBofLogger()
+    : BOF::IBofLogger()
   {
     char pLogFile_c[256];
 
@@ -269,10 +270,45 @@ private:
   std::vector<std::shared_ptr<Logger>> mLoggerCollection;
 };
 
-#define WLOG(channel, ...) BOF_LOG_WARNING(MY_LOGGER, channel, ##__VA_ARGS__);
+END_UCO_NAMESPACE()
+
+int main(int _Argc_i, char *_pArgv_c[])
+{
+  int Rts_i = 0;
+  std::shared_ptr<UCO::LoggerFactory> psLoggerFactory = std::make_shared<UCO::LoggerFactory>();
+  GLF::GlfInit(psLoggerFactory);
+  psLoggerFactory->V_SetLogSeverityLevel(GLF::LOGGER_CHANNEL_INIT, BOF::IBofLogger::LOG_SEVERITY_DEBUG);
+  psLoggerFactory->V_SetLogSeverityLevel(GLF::LOGGER_CHANNEL_CODEC, BOF::IBofLogger::LOG_SEVERITY_DEBUG);
+  psLoggerFactory->V_SetLogSeverityLevel(GLF::LOGGER_CHANNEL_DMA, BOF::IBofLogger::LOG_SEVERITY_DEBUG);
+
+  GLF::GlfFct();
+
+  return Rts_i;
+}
+//*********** In the lib ******************************************************************************************
+//*** .h:
+BEGIN_GLF_NAMESPACE()
+enum LOGGER_CHANNEL : uint32_t
+{
+  LOGGER_CHANNEL_INIT = 0,
+  LOGGER_CHANNEL_CODEC,
+  LOGGER_CHANNEL_DMA,
+  LOGGER_CHANNEL_MAX
+};
 #define MY_LOGGER TheBhaLogger
+#define WLOG(channel, ...) BOF_LOG_WARNING(MY_LOGGER, channel, ##__VA_ARGS__);
+
+bool GlfInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
+void GlfFct();
+
+END_GLF_NAMESPACE()
+
+//*** .cpp
+BEGIN_GLF_NAMESPACE()
+
 BOF_LOGGER_DEFINE_STORAGE(MY_LOGGER, LOGGER_CHANNEL_MAX);
-bool LoggerInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
+
+bool GlfInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
 {
   bool Rts_B = false;
   std::shared_ptr<BOF::IBofLogger> psLogger;
@@ -293,14 +329,13 @@ bool LoggerInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
   return Rts_B;
 }
 
-
-  std::shared_ptr<LoggerFactory> psLoggerFactory = std::make_shared<LoggerFactory>();
-  LoggerInit(psLoggerFactory);
-  psLoggerFactory->V_SetLogSeverityLevel(LOGGER_CHANNEL_INIT, BOF::IBofLogger::LOG_SEVERITY_DEBUG);
-  psLoggerFactory->V_SetLogSeverityLevel(LOGGER_CHANNEL_CODEC, BOF::IBofLogger::LOG_SEVERITY_DEBUG);
-  psLoggerFactory->V_SetLogSeverityLevel(LOGGER_CHANNEL_DMA, BOF::IBofLogger::LOG_SEVERITY_DEBUG);
-  WLOG(LOGGER_CHANNEL_INIT, "Warning from init:\nPwd %s\nRunning BofStd V %s on %s under %s\n", Cwd_S.c_str(), StdParam_X.Version_S.c_str(), StdParam_X.ComputerName_S.c_str(), StdParam_X.OsName_S.c_str());
-  WLOG(LOGGER_CHANNEL_CODEC, "Warning from codec\n");
-  WLOG(LOGGER_CHANNEL_DMA, "Warning from dma\n");
+void GlfFct()
+{
+  int i = 1;
+  WLOG(LOGGER_CHANNEL_INIT, "Warning from init, i is %d\n", i++);
+  WLOG(LOGGER_CHANNEL_CODEC, "Warning from codec, i is %d\n", i++);
+  WLOG(LOGGER_CHANNEL_DMA, "Warning from dma, i is %d\n", i++);
+}
+END_GLF_NAMESPACE()
 
 #endif

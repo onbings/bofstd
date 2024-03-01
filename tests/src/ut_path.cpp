@@ -34,13 +34,12 @@ TEST(Path_Test, PathConstructorDestructorWindows)
   std::string Pwd_S, PwdWithoutDisk_S, PrevPwd_S, PrevPwdWithoutDisk_S;
   std::string::size_type SlashPrevDelimiterPos;
 
-
   EXPECT_EQ(Bof_GetCurrentDirectory(Pwd_S), BOF_ERR_NO_ERROR);
   Pwd_S = Bof_StringReplace(Pwd_S, "\\", '/');
   PrevPwd_S = "";
   PwdWithoutDisk_S = "";
   PrevPwdWithoutDisk_S = "";
-  if (Pwd_S.size() > 2)
+  // if (Pwd_S.size() > 2)
   {
     if (Pwd_S.find(":/") == 1)
     {
@@ -60,10 +59,10 @@ TEST(Path_Test, PathConstructorDestructorWindows)
         // Remove disk
         PrevPwdWithoutDisk_S = PrevPwd_S.substr(2);
       }
-	  else
-	  {
-		PrevPwdWithoutDisk_S = PrevPwd_S;	//linux
-	  }
+      else
+      {
+        PrevPwdWithoutDisk_S = PrevPwd_S; // linux
+      }
     }
   }
   BofPath Gbio("X:\\Id\\Lsm\\000111?");
@@ -143,7 +142,15 @@ TEST(Path_Test, PathConstructorDestructorWindows)
   EXPECT_STREQ(e.FileNameWithExtension().c_str(), "file");
   EXPECT_STREQ(e.FileNameWithoutExtension().c_str(), "file");
 
-  BofPath f("../data/dir/");
+  BofPath f;
+  if (Pwd_S == "/")
+  {
+    f = BofPath("./data/dir/");
+  }
+  else
+  {
+    f = BofPath("../data/dir/");
+  }
   EXPECT_EQ(f.IsDirectory(), true);
   EXPECT_EQ(f.IsFile(), false);
   EXPECT_STREQ(f.FullPathName(false).c_str(), (PrevPwd_S + "data/dir/").c_str());
@@ -395,6 +402,10 @@ TEST(Path_Test, PathConstructorDestructorLinux)
 TEST(Path_Test, PathParsing)
 {
   BOFERR Sts_E;
+  std::string Pwd_S;
+
+  EXPECT_EQ(Bof_GetCurrentDirectory(Pwd_S), BOF_ERR_NO_ERROR);
+  Pwd_S = Bof_StringReplace(Pwd_S, "\\", '/');
 
   BofPath Path("file.ext", true);
   EXPECT_EQ(Path.IsValid(), true);
@@ -546,7 +557,15 @@ TEST(Path_Test, PathParsing)
   Sts_E = Path.CurrentDirectoryName("C:\\tmp\\bha\\1/2/3/4/5/");
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
 
-  Path = "../babar";
+  if (Pwd_S == "/")
+  {
+    Path = "./babar";
+  }
+  else
+  {
+    Path = "../babar";
+  }
+
   EXPECT_EQ(Path.IsValid(), true);
 
   Path = "";

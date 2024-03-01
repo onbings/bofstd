@@ -144,6 +144,7 @@ public:
 #endif
 #endif
 
+  BofThread();
   BofThread(bool _PriorityInversionAware_B);
 
   //	BofThread(const std::string &_rName_S);

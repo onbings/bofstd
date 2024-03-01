@@ -377,21 +377,33 @@ TEST(System_Test, DumpMemoryZone)
   DumpMemoryZoneParam_X.ReverseEndianness_B = true;
   DumpMemoryZoneParam_X.AccessSize_E = BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_16;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
+#if defined(EMSCRIPTEN)
+  Out_S = Bof_Sprintf("0x%08X   0x0001 0x0203 0x0405 0x0607 0x0809 0x0A0B 0x0C0D 0x0E0F ????????????????\n0x%08X   0x1011 0x1213                                           ????            \n", reinterpret_cast<uint32_t>(pMemoryZone_U8), reinterpret_cast<uint32_t>(pMemoryZone_U8 + 16));
+#else
   Out_S = Bof_Sprintf("0x%016llX   0x0001 0x0203 0x0405 0x0607 0x0809 0x0A0B 0x0C0D 0x0E0F ????????????????\n0x%016llX   0x1011 0x1213                                           ????            \n", reinterpret_cast<uint64_t>(pMemoryZone_U8), reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16));
+#endif
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 5;
   DumpMemoryZoneParam_X.NbItemPerLine_U32 = 4;
   DumpMemoryZoneParam_X.AccessSize_E = BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_32;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
+#if defined(EMSCRIPTEN)
+  Out_S = Bof_Sprintf("0x%08X   0x00010203 0x04050607 0x08090A0B 0x0C0D0E0F ????????????????\n0x%08X   0x10111213                                  ????            \n", reinterpret_cast<uint32_t>(pMemoryZone_U8), reinterpret_cast<uint32_t>(pMemoryZone_U8 + 16));
+#else
   Out_S = Bof_Sprintf("0x%016llX   0x00010203 0x04050607 0x08090A0B 0x0C0D0E0F ????????????????\n0x%016llX   0x10111213                                  ????            \n", reinterpret_cast<uint64_t>(pMemoryZone_U8), reinterpret_cast<uint64_t>(pMemoryZone_U8 + 16));
+#endif
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 
   DumpMemoryZoneParam_X.NbItemToDump_U32 = 2;
   DumpMemoryZoneParam_X.NbItemPerLine_U32 = 2;
   DumpMemoryZoneParam_X.AccessSize_E = BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_64;
   Dmp_S = Bof_DumpMemoryZone(DumpMemoryZoneParam_X);
+#if defined(EMSCRIPTEN)
+  Out_S = Bof_Sprintf("0x%08X   0x0001020304050607 0x08090A0B0C0D0E0F ????????????????\n", reinterpret_cast<uint32_t>(pMemoryZone_U8));
+#else
   Out_S = Bof_Sprintf("0x%016llX   0x0001020304050607 0x08090A0B0C0D0E0F ????????????????\n", reinterpret_cast<uint64_t>(pMemoryZone_U8));
+#endif
   EXPECT_STREQ(Out_S.c_str(), Dmp_S.c_str());
 }
 
@@ -624,6 +636,8 @@ TEST(System_Test, RandomString)
   }
 }
 
+#if defined(EMSCRIPTEN)
+#else
 TEST(System_Test, Exec)
 {
   BOFERR Sts_E;
@@ -648,3 +662,4 @@ TEST(System_Test, Exec)
   EXPECT_EQ(ExitCode_S32, 0);
   EXPECT_TRUE(Output_S == "");
 }
+#endif

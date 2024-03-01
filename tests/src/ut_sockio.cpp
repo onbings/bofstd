@@ -26,7 +26,7 @@
 #define MAX_NB_CLIENT_SESSION 2  // 64
 #define MAX_IO_SIZE (128 * 1024) //(1 * 1024 * 1024)
 #define DEFAULT_LISTENING_PORT 60000
-//#define DefIoTimeout_U32 250 // Listen timeout is 100 Ms
+// #define DefIoTimeout_U32 250 // Listen timeout is 100 Ms
 #define MAX_NB_OP_PENDING 1
 #define MAX_NB_CLIENT_SESSION 2 // 64
 
@@ -106,7 +106,8 @@ TEST(SockIo_Test, CreateDelete)
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
   EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
 }
-
+#if defined(__EMSCRIPTEN__)
+#else
 TEST(SockIo_Test, ListenConnectDisconnect)
 {
   BOF::BOF_SOCKET_THREAD_PARAM SocketThreadParam_X;
@@ -1283,3 +1284,5 @@ TEST(SockIo_Test, CancelReadWrite)
   EXPECT_EQ(BOF::BofSocket::S_BofSocketBalance(), 0);
   EXPECT_EQ(BOF::BofThread::S_BofThreadBalance(), 0);
 }
+
+#endif // #if defined(__EMSCRIPTEN__)
