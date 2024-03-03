@@ -25,6 +25,8 @@
 
 #cmake --build . --config Release -j 16
 #cmake --install . --config Debug
+
+#vcpkg list --x-install-root=C:/bld/bofstd-win/vcpkg_installed/
 cmake_minimum_required(VERSION 3.25)
 
 # Paranoid check : in-source generation is forbidden
@@ -49,6 +51,7 @@ string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 string(REPLACE "-" "_" PROJECT_NAME_UNDERSCORE       ${PROJECT_NAME})
 string(REPLACE "-" "_" PROJECT_NAME_LOWER_UNDERSCORE ${PROJECT_NAME_LOWER})
 string(REPLACE "-" "_" PROJECT_NAME_UPPER_UNDERSCORE ${PROJECT_NAME_UPPER})
+file(REMOVE ${CMAKE_BINARY_DIR}/DepManifest.txt)
 
 option(BOFSTD_BUILD_EXAMPLES    "Build example of BofStd project"                                      ON)
 option(BOFSTD_BUILD_TESTS       "Build units tests of BofStd project"                                  ON)
@@ -241,14 +244,6 @@ endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${COMPILED_BINARIES_DIR}/lib)
 
-# ===============
-# == PACKAGING ==
-# ===============
-
-if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  # make package only if BofStd is the main project (not a submodule)
-  include(packaging.cmake)
-endif()
 
 # =======================
 # == POPULATE PROJECTS ==
@@ -313,6 +308,27 @@ install(
   COMPONENT   bofstd-devel
 )
 
+# ===============
+# == PACKAGING ==
+# ===============
+
+#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+#  # make package only if BofStd is the main project (not a submodule)
+#  include(packaging.cmake)
+#endif()
+if (PROJECT_IS_TOP_LEVEL)
+   include(cmake/cpack_main.cmake)
+endif()
+
+set(INTERNAL_NAMESPACE ONBINGS)
+# Create and install the cmake configuration file based on our template
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}
+)
+unset(INTERNAL_NAMESPACE)
+
 # Install dependencies
 set(INCLUDE_REGEXES "^${CMAKE_BINARY_DIR}/vcpkg_installed/")
 set(EXCLUDE_REGEXES 
@@ -334,17 +350,6 @@ install(RUNTIME_DEPENDENCY_SET bofstd-imported-runtime-set
 # Create configuration file so that find_package() from
 # our dependees can find us
 include(CMakePackageConfigHelpers)
-
-set(INTERNAL_NAMESPACE ONBINGS)
-
-# Create and install the cmake configuration file based on our template
-configure_package_config_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/bofstd-config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}
-)
-
-unset(INTERNAL_NAMESPACE)
 
 # Give the file a nice naming convention
 configure_file(
@@ -370,3 +375,11 @@ install(FILES
 )
 
 #list_cmake_vars_containing("")
+# Add a custom command to run the vcpkg list command during configuration
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -E env vcpkg list --x-install-root=./vcpkg_installed
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}  # Change to your desired working directory
+    OUTPUT_VARIABLE DepVcpkg
+)
+file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "Vcpkg Dependencies for ${PROJECT_NAME}:\n")
+file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "${DepVcpkg}")

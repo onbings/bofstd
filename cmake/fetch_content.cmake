@@ -9,6 +9,11 @@ function(fetch_external_library_add LIB_NAME LIST_OF_LIB GIT_URL GIT_TAG)
         GIT_REPOSITORY ${GIT_URL}
         GIT_TAG ${GIT_TAG}
     )
+    list(LENGTH LIST_OF_LIB LIST_SIZE)
+    if(LIST_SIZE EQUAL 0)
+        file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "FetchContent Dependencies for ${PROJECT_NAME}:\n")
+    endif()
+    file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "${LIB_NAME}\t${GIT_TAG}\t${GIT_URL}\n")
     list(APPEND LIST_OF_LIB ${LIB_NAME})  # Append library name to the provided list
     set(LIST_OF_LIB "${LIST_OF_LIB}" PARENT_SCOPE)
     message(STATUS "End of of fetch external library add '${LIB_NAME}'")
