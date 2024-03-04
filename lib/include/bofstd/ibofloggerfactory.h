@@ -14,8 +14,8 @@
  * V 1.00  Feb 19 2024  BHA : Initial release
  */
 #pragma once
-#include <memory>
 #include <bofstd/bofstd.h>
+#include <memory>
 
 BEGIN_BOF_NAMESPACE()
 
@@ -51,12 +51,6 @@ public:
     return mLogSeverityLevel_E;
   }
   // For ut
-  inline bool GetLogStat(uint32_t &_rNbLogOut_U32, uint32_t &_rNbLogRejected_U32) const
-  {
-    _rNbLogOut_U32 = mNbLogOut_U32;
-    _rNbLogRejected_U32 = mNbLogRejected_U32;
-    return true;
-  }
   uint32_t mNbLogOut_U32 = 0;
   uint32_t mNbLogRejected_U32 = 0;
 
@@ -71,7 +65,6 @@ public:
   virtual std::shared_ptr<IBofLogger> V_Create(const uint32_t _ChannelIndex_U32, const uint32_t _MaxChannelIndex_U32, const std::string &_rChannelName_S) = 0;
   virtual bool V_SetLogSeverityLevel(const uint32_t _ChannelIndex_U32, IBofLogger::LogSeverity _SeverityLevel_E) = 0;
   virtual IBofLogger::LogSeverity V_GetLogSeverityLevel(const uint32_t _ChannelIndex_U32) const = 0;
-  virtual bool V_GetLogStat(const uint32_t _ChannelIndex_U32, uint32_t &_rNbLogOut_U32, uint32_t &_rNbLogRejected_U32) const = 0;
 };
 
 struct BOF_LOGGER_FACTORY_STORAGE
@@ -110,23 +103,31 @@ struct BOF_LOGGER_FACTORY_STORAGE
   {                                                                   \
     sts = false;                                                      \
   }
-
+#define BOF_LOGGER_FACTORY_GET(name, channel, logger)                 \
+  if (channel < BOF_LOGGER_STORAGE_NAME(name).NbMaxChannel_U32)       \
+  {                                                                   \
+    logger = BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]; \
+  }                                                                   \
+  else                                                                \
+  {                                                                   \
+    logger = nullptr;                                                 \
+  }
 // The first if could be replaced by assert...???...
-#define BOF_LOGGER_LOG(name, channel, level, format, ...)                                           \
-  if (channel < BOF_LOGGER_STORAGE_NAME(name).NbMaxChannel_U32)                                     \
-  {                                                                                                 \
-    if (BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel])                                    \
-    {                                                                                               \
-      if (level <= BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->GetLogSeverityLevel())  \
-      {                                                                                             \
+#define BOF_LOGGER_LOG(name, channel, level, format, ...)                                             \
+  if (channel < BOF_LOGGER_STORAGE_NAME(name).NbMaxChannel_U32)                                       \
+  {                                                                                                   \
+    if (BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel])                                      \
+    {                                                                                                 \
+      if (level <= BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->GetLogSeverityLevel())    \
+      {                                                                                               \
         BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->V_Log(level, format, ##__VA_ARGS__); \
-        BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->mNbLogOut_U32++;                   \
-      }                                                                                             \
-      else                                                                                          \
-      {                                                                                             \
-        BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->mNbLogRejected_U32++;              \
-      }                                                                                             \
-    }                                                                                               \
+        BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->mNbLogOut_U32++;                     \
+      }                                                                                               \
+      else                                                                                            \
+      {                                                                                               \
+        BOF_LOGGER_STORAGE_NAME(name).LoggerCollection[channel]->mNbLogRejected_U32++;                \
+      }                                                                                               \
+    }                                                                                                 \
   }
 
 #ifdef BOF_LOGGER_FACTORY_DISABLE
@@ -146,13 +147,13 @@ struct BOF_LOGGER_FACTORY_STORAGE
 #endif
 END_BOF_NAMESPACE()
 
-//Usage example:
+// Usage example:
 #if 0
 //*********** In the app ******************************************************************************************
 
-#include<stdarg.h>
 #include <bofstd/ibofloggerfactory.h>
 #include <glf/glf.h>
+#include <stdarg.h>
 
 BEGIN_UCO_NAMESPACE()
 
@@ -249,21 +250,6 @@ public:
       }
     }
     return Rts_E;
-  }
-  bool V_GetLogStat(const uint32_t _ChannelIndex_U32, uint32_t &_rNbLogOut_U32, uint32_t &_rNbLogRejected_U32) const override
-  {
-    bool Rts_B = false;
-
-    _rNbLogOut_U32 = 0;
-    _rNbLogRejected_U32 = 0;
-    if (_ChannelIndex_U32 < mLoggerCollection.size())
-    {
-      if (mLoggerCollection[_ChannelIndex_U32])
-      {
-        Rts_B = mLoggerCollection[_ChannelIndex_U32]->GetLogStat(_rNbLogOut_U32, _rNbLogRejected_U32);
-      }
-    }
-    return Rts_B;
   }
 
 private:
