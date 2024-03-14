@@ -374,12 +374,14 @@ install(FILES
   COMPONENT   bofstd-devel
 )
 
-#list_cmake_vars_containing("")
+if (PROJECT_IS_TOP_LEVEL)
+   set(INSTALL_GTEST OFF)
 # Add a custom command to run the vcpkg list command during configuration
-execute_process(
-    COMMAND ${CMAKE_COMMAND} -E env vcpkg list --x-install-root=./vcpkg_installed
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}  # Change to your desired working directory
-    OUTPUT_VARIABLE DepVcpkg
-)
-file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "Vcpkg Dependencies for ${PROJECT_NAME}:\n")
-file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "${DepVcpkg}")
+	execute_process(
+		COMMAND ${CMAKE_COMMAND} -E env vcpkg list --x-install-root=./vcpkg_installed
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}  # Change to your desired working directory
+		OUTPUT_VARIABLE DepVcpkg
+	)
+	file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "Vcpkg Dependencies for ${PROJECT_NAME}:\n")
+	file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "${DepVcpkg}")
+endif()
