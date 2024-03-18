@@ -33,6 +33,15 @@ cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUI
 #include <string.h>
 #include <string>
 
+#if defined(_WIN32)
+#define NOMINMAX
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+#include <Windows.h>
+typedef bool(WINAPI *BofSignalHandler)(uint32_t);
+#else
+typedef bool (*BofSignalHandler)(uint32_t);
+#endif
 using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rMasg_S)>;
 #if defined(__EMSCRIPTEN__)
 using BofEmscriptenCallback = std::function<BOFERR(void *)>;
@@ -57,6 +66,7 @@ struct BOFSTDPARAM
   // Input Param
   bool AssertInRelease_B;
   BofAssertCallback AssertCallback;
+  BofSignalHandler SignalHandler;
 #if defined(__EMSCRIPTEN__)
   BofEmscriptenCallback EmscriptenCallback;
   void *pEmscriptenCallbackArg;
@@ -78,6 +88,7 @@ struct BOFSTDPARAM
   {
     AssertInRelease_B = false;
     AssertCallback = nullptr;
+    SignalHandler = nullptr;
 #if defined(__EMSCRIPTEN__)
     EmscriptenCallback = nullptr;
     EmscriptenCallbackFps_U32 = 0;
@@ -702,6 +713,7 @@ private:
     BOF::BofException Exception(Header, Context, Where.str(), ErrorCode); \
     throw Exception;                                                      \
   }
+//extern BOFSTDPARAM GL_BofStdParam_X;
 
 END_BOF_NAMESPACE()
 

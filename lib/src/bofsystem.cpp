@@ -111,9 +111,9 @@ extern "C"
 
 #if defined(_WIN32)
 #include <Sddl.h>
-#include <Winsock2.h>
+//#include <Winsock2.h>
 #include <conio.h>
-#include <windows.h>
+//#include <windows.h>
 
 PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurityAttribute_X)
 {
@@ -150,7 +150,7 @@ PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurity
 
 #else
 #include <fcntl.h>
-#include <signal.h>
+//#include <signal.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/shm.h>

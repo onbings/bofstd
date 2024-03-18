@@ -85,13 +85,8 @@ cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/github/vcpkg/scripts/buildsystems/vcp
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #endif
-// Just to check: see std::string Bof_GetVersion()
-// #include <libavutil/avutil.h>
-// #include <openssl/crypto.h>
-// #include <boost/version.hpp>
 
 #if defined(_WIN32)
-DWORD S_ModeIn_DW = 0, S_ModeOut_DW = 0;
 #else
 #include <signal.h>
 #include <sys/ioctl.h>
@@ -103,6 +98,41 @@ DWORD S_ModeIn_DW = 0, S_ModeOut_DW = 0;
 BOFSTD_EXPORT BOF::BOFSTDPARAM GL_BofStdParam_X;
 
 BEGIN_BOF_NAMESPACE()
+
+#if defined(_WIN32)
+static BOOL WINAPI S_SignalHandler(DWORD _CtrlType_DW)
+{
+  BOOL Rts_B = false;
+//For all  if (_CtrlType_DW == CTRL_C_EVENT || _CtrlType_DW == CTRL_BREAK_EVENT)
+  {
+    if (GL_BofStdParam_X.SignalHandler != nullptr)
+    {
+      Rts_B = GL_BofStdParam_X.SignalHandler(_CtrlType_DW);
+    }
+  }
+  return Rts_B;
+}
+#else
+static void S_SignalHandler(int _Signal_i)
+{
+  if (GL_BofStdParam_X.SignalHandler != nullptr)
+  {
+    GL_BofStdParam_X.SignalHandler(_Signal_i);
+  }
+}
+#endif
+
+static bool S_DefaultBofSignalHandler(uint32_t _Signal_U32)
+{
+  Bof_Shutdown();
+  exit(_Signal_U32);
+  return true;
+  //return (Bof_Shutdown() == BOF_ERR_NO_ERROR);
+}
+#if defined(_WIN32)
+DWORD S_ModeIn_DW = 0, S_ModeOut_DW = 0;
+#else
+#endif
 static char S_pUnknownError_c[128];
 static std::map<BOFERR, const char *> S_ErrorCodeCollection{
     {BOF_ERR_NO_ERROR, "BOF_ERR_NO_ERROR: No error"},
@@ -398,12 +428,19 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   GL_BofStdParam_X = _rStdParam_X;
   GL_BofDbgPrintfStartTime_U32 = Bof_GetMsTickCount();
 
+  if (GL_BofStdParam_X.SignalHandler == nullptr)
+  {
+    GL_BofStdParam_X.SignalHandler = S_DefaultBofSignalHandler;
+  }
   Rts_E = BofSocket::S_InitializeStack();
   /* Set the locale to the POSIX C environment */
   setlocale(LC_ALL, "C");
   _rStdParam_X.ComputerName_S = Bof_GetHostName();;
 
 #if defined(_WIN32)
+  // Register signal handler for Ctrl+C and Ctrl+Break events
+  SetConsoleCtrlHandler(S_SignalHandler, TRUE);
+
   OSVERSIONINFOEX osVersionInfo;
   ZeroMemory(&osVersionInfo, sizeof(OSVERSIONINFOEX));
   osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
@@ -445,6 +482,12 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
     }
   }
 #else
+  signal(SIGINT, S_SignalHandler);
+  signal(SIGQUIT, S_SignalHandler);
+  signal(SIGTERM, S_SignalHandler);
+  signal(SIGKILL, S_SignalHandler);
+  signal(SIGABRT, S_SignalHandler);
+
   struct utsname Si_X;
 
   _rStdParam_X.OsName_S = "Linux";
