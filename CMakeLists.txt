@@ -43,6 +43,12 @@ include(cmake/fetch_content.cmake)
 set(EXTRA_COVERAGE_EXCLUSION "\'${CMAKE_CURRENT_SOURCE_DIR}/integration/*\'")
 
 project(bofstd VERSION 5.5.3.2)
+
+if (EMSCRIPTEN)
+message("Force pthread detection for BofStd compilation under EMSCRIPTEN")
+set (THREADS_HAVE_PTHREAD_ARG ON)
+endif()
+
 # Some naming conventions either requires lower or upper case.
 # And some don't like underscore.
 # So already prepare all those variables
