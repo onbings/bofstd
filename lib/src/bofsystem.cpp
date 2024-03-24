@@ -149,7 +149,7 @@ extern "C"
 	}
 #else
 	#include <fcntl.h>
-	//#include <signal.h>
+	#include <signal.h>
 	#include <sys/mman.h>
 	#include <sys/resource.h>
 	#include <sys/shm.h>
