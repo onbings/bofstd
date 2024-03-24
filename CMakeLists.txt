@@ -11,7 +11,8 @@
 # 
 # History:		05 June 2004: BHA: Initial version 
 #compile with emscripten: 
-#cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=C:/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/emscripten.cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten -DBUILD_SHARED_LIBS=OFF -DCMAKE_GENERATOR=Ninja -DCMAKE_BUILD_TYPE=Debug -SC:/pro/github/bofstd -BC:/bld/bofstd-web -DCMAKE_CROSSCOMPILING_EMULATOR=C:/pro/emsdk/node/16.20.0_64bit/bin/node.exe -G Ninja  
+#cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=C:/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten -DBUILD_SHARED_LIBS=OFF -DRHEL:STRING="el9" -DCMAKE_GENERATOR=Ninja -DCMAKE_BUILD_TYPE=Debug -SC:/pro/github/bofstd -BC:/bld/bofstd-web -DCMAKE_CROSSCOMPILING_EMULATOR=C:/pro/emsdk/node/16.20.0_64bit/bin/node.exe -G Ninja  
+#cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/bofstd-web/binaries -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/home/bha/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten -DBUILD_SHARED_LIBS=OFF -DRHEL:STRING="el9" -DCMAKE_BUILD_TYPE=Debug -S/home/bha/pro/evs-xts -B/home/bha/bld/bofstd-web -DCMAKE_CROSSCOMPILING_EMULATOR=/home/bha/pro/emsdk/node/16.20.0_64bit/bin/node -G Ninja
 #run
 #cd C:\bld\bofstd-web\binaries\bin
 #node AppBofStd.js
@@ -21,7 +22,8 @@
 #compil windows:
 #cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=C:/pro/vcpkg/ports -DCMAKE_INSTALL_PREFIX=C:/tmp/bofstd -SC:/pro/github/bofstd -BC:/bld/bofstd-win
 #compil linux:
-#cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=/home/bha/pro/vcpkg/ports -DCMAKE_INSTALL_PREFIX=/tmp/bofstd -S/home/bha/pro/github/bofstd -B/home/bha/bld/bofstd-lin
+#cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=/home/bha/pro/vcpkg/ports -DCMAKE_INSTALL_PREFIX=/tmp/bofstd -DRHEL:STRING="el9" -S/home/bha/pro/github/bofstd -B/home/bha/bld/bofstd-lin
+
 
 #cmake --build . --config Release -j 16
 #cmake --install . --config Debug

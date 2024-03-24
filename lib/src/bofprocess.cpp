@@ -27,34 +27,33 @@
 // #include <string.h>
 
 #if defined(_WIN32)
-#define popen _popen
-#define pclose _pclose
-/* If WIFEXITED(STATUS), NOT IN WINDOWS:the low-order 8 bits of the status.*/
-#define WEXITSTATUS(status) (status)
+	#define popen _popen
+	#define pclose _pclose
+	/* If WIFEXITED(STATUS), NOT IN WINDOWS:the low-order 8 bits of the status.*/
+	#define WEXITSTATUS(status) (status)
 
-/* If WIFSIGNALED(STATUS), the terminating signal.  */
-#define WTERMSIG(status) ((status)&0x7f)
+	/* If WIFSIGNALED(STATUS), the terminating signal.  */
+	#define WTERMSIG(status) ((status)&0x7f)
 
-/* If WIFSTOPPED(STATUS), the signal that stopped the child.  */
-#define WSTOPSIG(status) WEXITSTATUS(status)
+	/* If WIFSTOPPED(STATUS), the signal that stopped the child.  */
+	#define WSTOPSIG(status) WEXITSTATUS(status)
 
-/* Nonzero if STATUS indicates normal termination.  */
-#define WIFEXITED(status) (WTERMSIG(status) == 0)
+	/* Nonzero if STATUS indicates normal termination.  */
+	#define WIFEXITED(status) (WTERMSIG(status) == 0)
 #else
-#include <fcntl.h>
-#include <poll.h>
-#include <spawn.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#if defined(__EMSCRIPTEN__)
-#else
-#include <sys/ptrace.h>
-#endif
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-extern char **environ;
+	#include <fcntl.h>
+	#include <poll.h>
+	#include <spawn.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#if defined(__EMSCRIPTEN__)
+	#else
+		#include <sys/ptrace.h>
+	#endif
+	#include <sys/types.h>
+	#include <sys/wait.h>
+	extern char **environ;
 #endif
 
 BEGIN_BOF_NAMESPACE()

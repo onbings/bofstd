@@ -110,56 +110,56 @@ extern "C"
 #endif
 
 #if defined(_WIN32)
-#include <Sddl.h>
-//#include <Winsock2.h>
-#include <conio.h>
-//#include <windows.h>
+	#include <Sddl.h>
+	//#include <Winsock2.h>
+	#include <conio.h>
+	//#include <windows.h>
 
-PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurityAttribute_X)
-{
-  PSECURITY_DESCRIPTOR pRts_X = nullptr, pSecurityDescriptor_X = nullptr;
+	PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurityAttribute_X)
+	{
+	  PSECURITY_DESCRIPTOR pRts_X = nullptr, pSecurityDescriptor_X = nullptr;
 
-  // PSID					pSid_X=nullptr;
-  // PACL					pAcl_X=nullptr;
+	  // PSID					pSid_X=nullptr;
+	  // PACL					pAcl_X=nullptr;
 
-  if ((_pSecurityAttribute_X) && ((pSecurityDescriptor_X = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)) != 0))
-  {
-    memset(_pSecurityAttribute_X, 0, sizeof SECURITY_ATTRIBUTES);
+	  if ((_pSecurityAttribute_X) && ((pSecurityDescriptor_X = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)) != 0))
+	  {
+		memset(_pSecurityAttribute_X, 0, sizeof SECURITY_ATTRIBUTES);
 
-    if ((InitializeSecurityDescriptor(pSecurityDescriptor_X, SECURITY_DESCRIPTOR_REVISION)))
-    {
-      if (SetSecurityDescriptorDacl(pSecurityDescriptor_X, true, nullptr, false))
-      {
-        _pSecurityAttribute_X->nLength = sizeof(SECURITY_ATTRIBUTES);
-        _pSecurityAttribute_X->lpSecurityDescriptor = pSecurityDescriptor_X;
-        _pSecurityAttribute_X->bInheritHandle = false;
-        pRts_X = pSecurityDescriptor_X;
-      }
-    }
-  }
+		if ((InitializeSecurityDescriptor(pSecurityDescriptor_X, SECURITY_DESCRIPTOR_REVISION)))
+		{
+		  if (SetSecurityDescriptorDacl(pSecurityDescriptor_X, true, nullptr, false))
+		  {
+			_pSecurityAttribute_X->nLength = sizeof(SECURITY_ATTRIBUTES);
+			_pSecurityAttribute_X->lpSecurityDescriptor = pSecurityDescriptor_X;
+			_pSecurityAttribute_X->bInheritHandle = false;
+			pRts_X = pSecurityDescriptor_X;
+		  }
+		}
+	  }
 
-  if (!pRts_X)
-  {
-    if (pSecurityDescriptor_X)
-    {
-      LocalFree(pSecurityDescriptor_X);
-    }
-  }
-  return pRts_X;
-}
-
+	  if (!pRts_X)
+	  {
+		if (pSecurityDescriptor_X)
+		{
+		  LocalFree(pSecurityDescriptor_X);
+		}
+	  }
+	  return pRts_X;
+	}
 #else
-#include <fcntl.h>
-//#include <signal.h>
-#include <sys/mman.h>
-#include <sys/resource.h>
-#include <sys/shm.h>
-#include <sys/statvfs.h>
-#include <sys/syscall.h>
-#include <sys/sysinfo.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
+	#include <fcntl.h>
+	//#include <signal.h>
+	#include <sys/mman.h>
+	#include <sys/resource.h>
+	#include <sys/shm.h>
+	#include <sys/statvfs.h>
+	#include <sys/syscall.h>
+	#include <sys/sysinfo.h>
+	#include <sys/time.h>
+	#include <sys/types.h>
+	#include <unistd.h>
+	#include <signal.h>
 #endif
 
 BEGIN_BOF_NAMESPACE()
