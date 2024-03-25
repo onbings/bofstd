@@ -44,11 +44,11 @@ include(cmake/fetch_content.cmake)
 # in code coverage computation as they are test programs themselves.
 set(EXTRA_COVERAGE_EXCLUSION "\'${CMAKE_CURRENT_SOURCE_DIR}/integration/*\'")
 
-project(bofstd VERSION 5.5.3.8)
+project(bofstd VERSION 5.5.3.9)
 
 if (EMSCRIPTEN)
-#message("Force pthread detection for BofStd compilation under EMSCRIPTEN")
-#set (THREADS_HAVE_PTHREAD_ARG ON)
+message("Force pthread detection for BofStd compilation under EMSCRIPTEN")
+set (THREADS_HAVE_PTHREAD_ARG ON)
 endif()
 
 # Some naming conventions either requires lower or upper case.
@@ -325,6 +325,7 @@ install(
 #  include(packaging.cmake)
 #endif()
 if (PROJECT_IS_TOP_LEVEL)
+   set(RHEL "el9")
    include(cmake/cpack_main.cmake)
 endif()
 
