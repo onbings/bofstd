@@ -1796,7 +1796,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
   if (pThread_X)
   {
     S_BofThreadBalance++;
-    printf("%u: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
+    //printf("%u: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
 
     Sts_E = BOF_ERR_NO_ERROR;
 #if defined(_WIN32)
@@ -1908,7 +1908,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
     pThread_X->ThreadRunning_B = false;
     S_BofThreadBalance--;
     // Bof_ErrorCode can fail does to app shudown (static initializer)
-    printf("%u: S_ThreadLauncher End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
+    //printf("%u: S_ThreadLauncher End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
   }
 
   return pRts;
@@ -2043,7 +2043,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
           }
         }
       }
-      printf("%u: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(), Delta_U32, ThreadStopTo_B);
+      //printf("%u: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(), Delta_U32, ThreadStopTo_B);
     }
 #if defined(_WIN32)
     bool Sts_B;

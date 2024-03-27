@@ -1,4 +1,4 @@
-/*
+/*printf
  * Copyright (c) 2000-2006, Sci. All rights reserved.
  *
  * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
@@ -789,7 +789,7 @@ void BofThread::BofThread_Thread()
   uint32_t Delta_U32;
 
   S_mBofThreadBalance++;
-  printf("%u: Start of thread '%s' BAL %d this %p\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), this);
+  //printf("%u: Start of thread '%s' BAL %d this %p\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), this);
   Sts_E = Bof_SignalEvent(mThreadEnterEvent_X, 0);
   // printf("%u: ENTER THREAD SIGNAL MTHREADENTEREVENT_X %d\n", BOF::Bof_GetMsTickCount(), Sts_E);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
@@ -904,7 +904,7 @@ void BofThread::BofThread_Thread()
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
   S_mBofThreadBalance--;
   // Bof_ErrorCode can fail does to app shudown (static initializer)
-  printf("%u: BofThread_Thread End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
+  //printf("%u: BofThread_Thread End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
   // BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()
