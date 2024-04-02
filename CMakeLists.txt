@@ -44,7 +44,7 @@ include(cmake/fetch_content.cmake)
 # in code coverage computation as they are test programs themselves.
 set(EXTRA_COVERAGE_EXCLUSION "\'${CMAKE_CURRENT_SOURCE_DIR}/integration/*\'")
 
-project(bofstd VERSION 5.5.3.10)
+project(bofstd VERSION 5.5.3.11)
 
 if (EMSCRIPTEN)
 message("Force pthread detection for BofStd compilation under EMSCRIPTEN")
@@ -66,6 +66,7 @@ option(BOFSTD_BUILD_TESTS       "Build units tests of BofStd project"           
 option(BOFSTD_BUILD_TOOLS       "Build tools of BofStd project"                                        OFF)
 option(BOFSTD_ENABLE_VERSIONING "Enable library versioning naming scheme for BofStd libraries"         ON)
 option(BOFSTD_FORCE_EXPORT_ALL  "Force exporting all symbols of BofStd libraries (for shared library)" OFF)
+option(INSTALL_GTEST  "Disable installation of gtest" OFF)
 #EMSCRIPTEN
 option(EMSCRIPTEN_GEN_HTML "EMSCRIPTEN generateq .wasm and .js file. If you set this option to ON we also generate an html container" OFF)
 set(BOFSTD_EMSCRIPTEN_MEMORY 512MB CACHE STRING "Specify emscripten default memory size")
@@ -96,6 +97,7 @@ set(CMAKE_CXX_STANDARD          17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON) 
 SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
+#SET(INSTALL_GTEST OFF)
 # set(CMAKE_DEBUG_POSTFIX _d)
 if (EMSCRIPTEN)
 #FS layout (Memory)
@@ -210,7 +212,7 @@ patch_vcpkg_installed_rpath()
 # based on detection performed by CMake. They
 # are just default that can be overriden by the user.
 include(GNUInstallDirs)
-
+include(CMakePackageConfigHelpers) 
 # It creates for example the following variables
 #  ${CMAKE_INSTALL_BINDIR}      --> bin
 #  ${CMAKE_INSTALL_LIBDIR}      --> lib, lib64, etc, ...
