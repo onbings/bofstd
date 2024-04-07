@@ -20,7 +20,6 @@
  * V 1.00  May 26 2020  BHA : Initial release
  */
 #pragma once
-
 #include <bofstd/bofstring.h>
 
 BEGIN_BOF_NAMESPACE()
@@ -36,6 +35,17 @@ enum class BOF_AUDIO_SAMPLE_FORMAT : uint32_t // See vlc_fourcc.h VLC_CODEC_S24L
 
 typedef uint64_t AudioStandardId;
 static const AudioStandardId DefaultAudioStandard = BOF_AUDIO_STANDARD_ID(16, 48000, static_cast<uint32_t>(BOF_AUDIO_SAMPLE_FORMAT::BOF_AUDIO_SAMPLE_FORMAT_S24L32));
+
+enum class BOF_WAVE_FORM_TYPE
+{
+  BOF_WAVE_FORM_TYPE_SINUS = 0,
+  BOF_WAVE_FORM_TYPE_SQUARE,
+  BOF_WAVE_FORM_TYPE_TRIANGLE,
+  BOF_WAVE_FORM_TYPE_SAW_TOOTH,
+  BOF_WAVE_FORM_TYPE_MAX
+};
+
+bool Bof_GenerateWaveform(BOF_WAVE_FORM_TYPE _WaveForm_E, float _Amplitude_f, float _Frequency_f, float _SampleRate_f, uint32_t _ChunkSize_U32, float *_pDataY_f, float &_rPhase_f);
 
 class BOFSTD_EXPORT BofAudioStandard
 {
