@@ -27,15 +27,15 @@
 #include <bofstd/bofenum.h>
 
 BEGIN_BOF_NAMESPACE()
-bool Bof_GenerateWaveform(BOF_WAVE_FORM_TYPE _WaveForm_E, float _Amplitude_f, float _Frequency_f,
-                          float _SampleRate_f, uint32_t _ChunkSize_U32, float *_pDataY_f, float &_rPhase_f)
+template <class T>
+bool Bof_GenerateWaveform(BOF_WAVE_FORM_TYPE _WaveForm_E, T _Amplitude, float _Frequency_f,  float _SampleRate_f, uint32_t _ChunkSize_U32, T *_pDataY, float &_rPhase_f)
 {
   bool Rts_B = false;
   uint32_t i_U32;
   float IncPhase_f, Phase_f, PeriodFactor_f;
 
   //_pDataX_f tested below !!
-  if ((_WaveForm_E < BOF_WAVE_FORM_TYPE::BOF_WAVE_FORM_TYPE_MAX) && (_Amplitude_f > 0.0f) && (_Frequency_f > 0.0f) && (_SampleRate_f > 0.0f) && (_ChunkSize_U32) && (_pDataY_f))
+  if ((_WaveForm_E < BOF_WAVE_FORM_TYPE::BOF_WAVE_FORM_TYPE_MAX) && (_Amplitude) && (_Frequency_f > 0.0f) && (_SampleRate_f > 0.0f) && (_ChunkSize_U32) && (_pDataY))
   {
     Rts_B = true;
     // After _SampleRate_f / _Frequency_f we have covered 2 M_PI, so for Fr 440 Fe 44100 we roll over angle after 100 sample->So for a chunk of 1024 byte we have 10 sinus
@@ -52,28 +52,28 @@ bool Bof_GenerateWaveform(BOF_WAVE_FORM_TYPE _WaveForm_E, float _Amplitude_f, fl
       case BOF_WAVE_FORM_TYPE::BOF_WAVE_FORM_TYPE_SINUS:
         for (i_U32 = 0; i_U32 < _ChunkSize_U32; i_U32++)
         {
-          _pDataY_f[i_U32] = _Amplitude_f * sin(Phase_f);
+          _pDataY[i_U32] = static_cast<T>(static_cast<float>(_Amplitude) * sin(Phase_f));
           Phase_f += IncPhase_f;
         }
         break;
       case BOF_WAVE_FORM_TYPE::BOF_WAVE_FORM_TYPE_SQUARE:
         for (i_U32 = 0; i_U32 < _ChunkSize_U32; i_U32++)
         {
-          _pDataY_f[i_U32] = (sin(Phase_f) >= 0) ? _Amplitude_f : -_Amplitude_f;
+          _pDataY[i_U32] = (sin(Phase_f) >= 0) ? static_cast<T>(_Amplitude) : static_cast<T>(-_Amplitude);
           Phase_f += IncPhase_f;
         }
         break;
       case BOF_WAVE_FORM_TYPE::BOF_WAVE_FORM_TYPE_TRIANGLE:
         for (i_U32 = 0; i_U32 < _ChunkSize_U32; i_U32++)
         {
-          _pDataY_f[i_U32] = (_Amplitude_f * fabs(fmod(Phase_f * PeriodFactor_f, 4.0f) - 2.0f)) - _Amplitude_f;
+          _pDataY[i_U32] = static_cast<T>((static_cast<float>(_Amplitude) * fabs(fmod(Phase_f * PeriodFactor_f, 4.0f) - 2.0f)) - static_cast<float>(_Amplitude));
           Phase_f += IncPhase_f;
         }
         break;
       case BOF_WAVE_FORM_TYPE::BOF_WAVE_FORM_TYPE_SAW_TOOTH:
         for (i_U32 = 0; i_U32 < _ChunkSize_U32; i_U32++)
         {
-          _pDataY_f[i_U32] = (_Amplitude_f * (2.0f * fmod(Phase_f * PeriodFactor_f * 0.25f, 1.0f)) - _Amplitude_f);
+          _pDataY[i_U32] = static_cast<T>((static_cast<float>(_Amplitude) * (2.0f * fmod(Phase_f * PeriodFactor_f * 0.25f, 1.0f)) - static_cast<float>(_Amplitude)));
           Phase_f += IncPhase_f;
         }
         break;

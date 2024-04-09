@@ -44,8 +44,8 @@ enum class BOF_WAVE_FORM_TYPE
   BOF_WAVE_FORM_TYPE_SAW_TOOTH,
   BOF_WAVE_FORM_TYPE_MAX
 };
-
-bool Bof_GenerateWaveform(BOF_WAVE_FORM_TYPE _WaveForm_E, float _Amplitude_f, float _Frequency_f, float _SampleRate_f, uint32_t _ChunkSize_U32, float *_pDataY_f, float &_rPhase_f);
+template <class T>
+bool Bof_GenerateWaveform(BOF_WAVE_FORM_TYPE _WaveForm_E, T _Amplitude_f, float _Frequency_f, float _SampleRate_f, uint32_t _ChunkSize_U32, T *_pDataY, float &_rPhase_f);
 
 class BOFSTD_EXPORT BofAudioStandard
 {
