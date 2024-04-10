@@ -171,6 +171,7 @@ set(LOG_FILES
 	include/bofstd/boflogsink_spdlog.h
 	src/boflogsink_spdlog.cpp
 	include/bofstd/ibofloggerfactory.h
+	include/bofstd/basic_loggerfactory
 	include/bofstd/boflogger.h
 	src/boflogger.cpp	
 )
