@@ -171,7 +171,7 @@ set(LOG_FILES
 	include/bofstd/boflogsink_spdlog.h
 	src/boflogsink_spdlog.cpp
 	include/bofstd/ibofloggerfactory.h
-	include/bofstd/basic_loggerfactory
+	include/bofstd/basic_loggerfactory.h
 	include/bofstd/boflogger.h
 	src/boflogger.cpp	
 )
@@ -228,6 +228,8 @@ set(SYSTEM_FILES
 	src/boftimecode.cpp
 	include/bofstd/bofvideostandard.h
 	src/bofvideostandard.cpp
+	include/bofstd/bofaudio.h
+	src/bofaudio.cpp
 	include/bofstd/bofaudiostandard.h
 	src/bofaudiostandard.cpp
 	include/bofstd/bofdatetime.h
@@ -335,6 +337,7 @@ target_include_directories(bofstd
 	#$<BUILD_INTERFACE:${FFMPEG_INCLUDE_DIRS}
 	#Header path used when installed
 	$<INSTALL_INTERFACE:include>
+	$<INSTALL_INTERFACE:${MINIAUDIO_INCLUDE_DIRS}>
 )
 
 # Link
