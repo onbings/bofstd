@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <limits>
 #include <bofstd/bofstd.h>
 #include <miniaudio.h>
 
