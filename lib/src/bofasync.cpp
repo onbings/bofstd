@@ -19,8 +19,6 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-#include <asyncmulticastdelegate/DelegateLib.h>
-#include <asyncmulticastdelegate/bofmsgthread.h>
 #include <bofstd/bofasync.h>
 
 BEGIN_BOF_NAMESPACE()

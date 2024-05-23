@@ -85,9 +85,9 @@ set(DB_FILES
 	src/ut_ramdb.cpp
 )
 
-set(DELEGATE_FILES
-	src/ut_asyncmulticastdelegate.cpp
-)
+#set(DELEGATE_FILES
+#	src/ut_asyncmulticastdelegate.cpp
+#)
 
 set(ENUM_FLAG_FILES
 	src/ut_enum.cpp
@@ -154,7 +154,7 @@ set(SOURCES_FILES
 	${CRYPTO_FILES}
 	${DAEMON_FILES}
 	${DB_FILES}
-	${DELEGATE_FILES}
+	#${DELEGATE_FILES}
 	${ENUM_FLAG_FILES}
 	${FS_FILES}
 	${IXML_FILES}
@@ -181,7 +181,7 @@ source_group("Container" FILES ${CONTAINER_FILES})
 source_group("Crypto"	 FILES ${CRYPTO_FILES})
 source_group("Daemon"	 FILES ${DAEMON_FILES})
 source_group("Db"		 FILES ${DB_FILES})
-source_group("Delegate"	 FILES ${DELEGATE_FILES})
+#source_group("Delegate"	 FILES ${DELEGATE_FILES})
 source_group("EnumFlag"	 FILES ${ENUM_FLAG_FILES})
 source_group("Fs"		 FILES ${FS_FILES})
 source_group("Xml"		 FILES ${IXML_FILES})

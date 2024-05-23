@@ -93,42 +93,42 @@ set(DB_FILES
 	include/bofstd/boframdb.h
 )
 
-set(DELEGATE_FILES
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/bofmsgthread.h
-	third/AsyncMulticastDelegate/src/bofmsgthread.cpp
-
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Allocator.h
-	third/AsyncMulticastDelegate/src/Allocator.cpp
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsync.h
-	third/AsyncMulticastDelegate/src/DelegateAsync.cpp
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateInvoker.h
-	third/AsyncMulticastDelegate/src/DelegateRemoteInvoker.cpp
-	third/AsyncMulticastDelegate/src/MulticastDelegateBase.cpp
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/LockGuard.h
-	third/AsyncMulticastDelegate/src/LockGuard.cpp
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/xallocator.h
-	third/AsyncMulticastDelegate/src/xallocator.cpp
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Semaphore.h
-	third/AsyncMulticastDelegate/src/Semaphore.cpp
-
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Delegate.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsyncWait.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateLib.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateMsg.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateOpt.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteInvoker.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteRecv.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteSend.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSp.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSpAsync.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateThread.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateTransport.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegate.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateBase.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateSafe.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/SinglecastDelegate.h
-	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/ThreadMsg.h
-)
+#set(DELEGATE_FILES
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/bofmsgthread.h
+#	third/AsyncMulticastDelegate/src/bofmsgthread.cpp
+#
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Allocator.h
+#	third/AsyncMulticastDelegate/src/Allocator.cpp
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsync.h
+#	third/AsyncMulticastDelegate/src/DelegateAsync.cpp
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateInvoker.h
+#	third/AsyncMulticastDelegate/src/DelegateRemoteInvoker.cpp
+#	third/AsyncMulticastDelegate/src/MulticastDelegateBase.cpp
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/LockGuard.h
+#	third/AsyncMulticastDelegate/src/LockGuard.cpp
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/xallocator.h
+#	third/AsyncMulticastDelegate/src/xallocator.cpp
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Semaphore.h
+#	third/AsyncMulticastDelegate/src/Semaphore.cpp
+#
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/Delegate.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateAsyncWait.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateLib.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateMsg.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateOpt.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteInvoker.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteRecv.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateRemoteSend.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSp.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateSpAsync.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateThread.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/DelegateTransport.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegate.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateBase.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/MulticastDelegateSafe.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/SinglecastDelegate.h
+#	third/AsyncMulticastDelegate/include/asyncmulticastdelegate/ThreadMsg.h
+#)
 
 set(ENUM_FLAG_FILES
 	include/bofstd/bofflag.h
@@ -259,7 +259,7 @@ set(SOURCES_FILES
 	${CRYPTO_FILES}
 	${DAEMON_FILES}
 	${DB_FILES}
-	${DELEGATE_FILES}
+	#${DELEGATE_FILES}
 	${ENUM_FLAG_FILES}
 	${FS_FILES}
 	${IXML_FILES}
@@ -286,7 +286,7 @@ source_group("Container" FILES ${CONTAINER_FILES})
 source_group("Crypto"	 FILES ${CRYPTO_FILES})
 source_group("Daemon"	 FILES ${DAEMON_FILES})
 source_group("Db"		 FILES ${DB_FILES})
-source_group("Delegate"	 FILES ${DELEGATE_FILES})
+#source_group("Delegate"	 FILES ${DELEGATE_FILES})
 source_group("EnumFlag"	 FILES ${ENUM_FLAG_FILES})
 source_group("Fs"		 FILES ${FS_FILES})
 source_group("Xml"		 FILES ${IXML_FILES})
@@ -328,7 +328,7 @@ target_include_directories(bofstd
 	#Header path used at build time
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/cpp-linenoise-master>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
+	#$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
 #	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/vld/include>
@@ -487,10 +487,10 @@ install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/bofstd_export.h
 #         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bofstd/vld
 #         COMPONENT   bofstd-devel
 #) 
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include/asyncmulticastdelegate/.	
-         DESTINATION include/asyncmulticastdelegate
-         COMPONENT   bofstd-devel
-)
+#install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include/asyncmulticastdelegate/.	
+#         DESTINATION include/asyncmulticastdelegate
+#         COMPONENT   bofstd-devel
+#)
 # install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/libyuv/include/.	
 #          DESTINATION include/libyuv
 #          COMPONENT   bofstd-devel

@@ -14,6 +14,8 @@
  * V 1.00  Apr 11 2024  BHA : Initial release
  */
 #pragma once
+#define _USE_MATH_DEFINES // https://stackoverflow.com/questions/26065359/m-pi-flagged-as-undeclared-identifier
+#include <cmath>
 #include <string>
 #include <vector>
 #include <functional>

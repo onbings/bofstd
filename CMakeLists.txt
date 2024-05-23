@@ -10,6 +10,9 @@
 # Revision:		5.0
 # 
 # History:		05 June 2004: BHA: Initial version 
+
+#git clone https://github.com/onbings/bofstd.git
+
 #compile with emscripten: 
 #cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=C:/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten -DBUILD_SHARED_LIBS=OFF -DRHEL:STRING="el9" -DCMAKE_GENERATOR=Ninja -DCMAKE_BUILD_TYPE=Debug -SC:/pro/github/bofstd -BC:/bld/bofstd-web -DCMAKE_CROSSCOMPILING_EMULATOR=C:/pro/emsdk/node/16.20.0_64bit/bin/node.exe -G Ninja  
 #cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/bofstd-web/binaries -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/home/bha/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten -DBUILD_SHARED_LIBS=OFF -DRHEL:STRING="el9" -DCMAKE_BUILD_TYPE=Debug -S/home/bha/pro/evs-xts -B/home/bha/bld/bofstd-web -DCMAKE_CROSSCOMPILING_EMULATOR=/home/bha/pro/emsdk/node/16.20.0_64bit/bin/node -G Ninja
@@ -44,7 +47,7 @@ include(cmake/fetch_content.cmake)
 # in code coverage computation as they are test programs themselves.
 set(EXTRA_COVERAGE_EXCLUSION "\'${CMAKE_CURRENT_SOURCE_DIR}/integration/*\'")
 
-project(bofstd VERSION 5.5.4.4)
+project(bofstd VERSION 5.6.0.1)
 
 if (EMSCRIPTEN)
 message("Force pthread detection for BofStd compilation under EMSCRIPTEN")
