@@ -8,7 +8,7 @@
  *
  * This module implements different Audio interface
  *
- * Author:      Bernard HARMEL: b.harmel@evs.com
+ * Author:      Bernard HARMEL: onbings@gmail.com
  *
  * History:
  * V 1.00  Apr 11 2024  BHA : Initial release
@@ -145,7 +145,7 @@ bool BofAudioDevice::InitEngineDevice(BOF_AUDIO_ENGINE_ID _AudioEngineId_E, cons
 
           mpAudioEngine_X[_AudioEngineId_E].MaConfig_X.playback.format = static_cast<ma_format>(mpAudioEngine_X[_AudioEngineId_E].AudioCbParam_X.AudioFormat_E); // ma_format_s32;
           mpAudioEngine_X[_AudioEngineId_E].MaConfig_X.playback.channels = mpAudioEngine_X[_AudioEngineId_E].AudioCbParam_X.NbChannel_U32;
-          mpAudioEngine_X[_AudioEngineId_E].MaConfig_X.sampleRate = mpAudioEngine_X[_AudioEngineId_E].AudioCbParam_X.SampleRate_U32;// APE::AUDIO_SAMPLE_RATE;
+          mpAudioEngine_X[_AudioEngineId_E].MaConfig_X.sampleRate = mpAudioEngine_X[_AudioEngineId_E].AudioCbParam_X.SampleRate_U32;
           mpAudioEngine_X[_AudioEngineId_E].MaConfig_X.dataCallback = Cb_OnNeedAudioData;                                            // This function will be called when miniaudio needs more data.
           mpAudioEngine_X[BOF_AUDIO_ENGINE_ID_PLAYBACK].AudioCbParam_X.AudioEngineId_E = _AudioEngineId_E;
           mpAudioEngine_X[BOF_AUDIO_ENGINE_ID_PLAYBACK].AudioCbParam_X.pAudioDevice = this;

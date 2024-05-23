@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2044, EVS Broadcast Equipment S.A. All rights reserved.
+ * Copyright (c) 2024-2029, Onbings. All rights reserved.
  *
  * THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
  * KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
@@ -8,7 +8,7 @@
  *
  * This module defines different audio interface
  *
- * Author:      Bernard HARMEL: b.harmel@evs.com
+ * Author:      Bernard HARMEL: onbings@gmail.com
  *
  * History:
  * V 1.00  Apr 11 2024  BHA : Initial release
