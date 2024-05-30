@@ -10,7 +10,6 @@
       "repository": "git@github.com:onbings/onbings-vcpkg-registry.git",
       "baseline": "a7f30ca407e83ef049e1f1ae5e47f03ddc5d751a",
       "packages": [
-        "linenoise-ng"
       ]
     }
   ]
