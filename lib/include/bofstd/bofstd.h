@@ -78,6 +78,7 @@ struct BOFSTDPARAM
   std::string OsName_S;
   std::string ComputerName_S;
   std::string Version_S;
+  uint32_t CpuFreqInMHz_U32;
 
   BOFSTDPARAM()
   {
@@ -99,6 +100,7 @@ struct BOFSTDPARAM
     OsName_S = "";
     ComputerName_S = "";
     Version_S = "";
+    CpuFreqInMHz_U32 = 0;
   }
 };
 template <typename T> // Can be uint8_t or float
@@ -640,6 +642,16 @@ extern uint32_t GL_BofDbgPrintfStartTime_U32;
   std::bind(&Class_ColonColon_Method, pThis, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, \
             std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7,           \
             std::placeholders::_8)
+
+// Intrinsyc fct
+inline BOFSTD_EXPORT uint64_t Bof_RdTsc()
+{
+  // uint32_t low, high;
+  // asm volatile ("rdtsc" : "=a" (low), "=d" (high));
+  // return (((uint64_t)high << 32) | low);
+  return __rdtsc();
+}
+BOFSTD_EXPORT uint32_t Bof_MeasureCpuSpeedInMHz();
 
 BOFSTD_EXPORT BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X);
 

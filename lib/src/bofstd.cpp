@@ -420,6 +420,16 @@ static void S_BofEmscriptenCallback(void *_pArg)
 }
 #endif
 
+uint32_t Bof_MeasureCpuSpeedInMHz()
+{
+  uint64_t Start_U64 = Bof_RdTsc(), Rts_U64;
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  Rts_U64 = Bof_RdTsc() - Start_U64;
+  // Since we slept for 1000 milliseconds, the frequency in MHz is:
+  return static_cast<uint32_t>(Rts_U64 / 1.0e6);
+}
+
 BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
 {
   BOFERR Rts_E;
@@ -436,6 +446,7 @@ BOFERR Bof_Initialize(BOFSTDPARAM &_rStdParam_X)
   /* Set the locale to the POSIX C environment */
   setlocale(LC_ALL, "C");
   _rStdParam_X.ComputerName_S = Bof_GetHostName();;
+  _rStdParam_X.CpuFreqInMHz_U32 = Bof_MeasureCpuSpeedInMHz();
 
 #if defined(_WIN32)
   // Register signal handler for Ctrl+C and Ctrl+Break events
