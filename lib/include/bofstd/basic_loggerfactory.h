@@ -98,7 +98,7 @@ private:
   FILE *mpLogFile_X = nullptr;
 };
 
-class BasicLoggerFactory : public BOF::ILoggerFactory
+class BasicLoggerFactory : public BOF::IBofLoggerFactory
 {
 public:
   BasicLoggerFactory(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S) : mOutputOnScreen_B(_OutputOnScreen_B), mLogFileSubDir_S(_rLogFileSubDir_S)

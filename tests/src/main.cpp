@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "JsonParser_Test.*:XmlWriter_Test.*";
   //::testing::GTEST_FLAG(filter) = "System_Test.Exec";
   //::testing::GTEST_FLAG(filter) = "Threading_Test.MultiThreadWithoutMutex";
-  //  ::testing::GTEST_FLAG(filter) = "Threading_Test.SharedMemory";
+  //  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.*:BofThread_Test.*";

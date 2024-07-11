@@ -61,11 +61,11 @@ private:
   LogSeverity mLogSeverityLevel_E = LogSeverity::LOG_SEVERITY_MAX;
 };
 
-class ILoggerFactory
+class IBofLoggerFactory
 {
 public:
-  ILoggerFactory() = default;
-  virtual ~ILoggerFactory() = default;
+  IBofLoggerFactory() = default;
+  virtual ~IBofLoggerFactory() = default;
   virtual std::shared_ptr<BOF::IBofLogger> V_Create(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) = 0;
   virtual std::shared_ptr<BOF::IBofLogger> V_GetLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) = 0;
   virtual bool V_Destroy(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) = 0;

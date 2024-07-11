@@ -291,7 +291,7 @@ enum UT_LOGGER_CHANNEL : uint32_t
 };
 static std::array<std::shared_ptr<BOF::IBofLogger>, UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_MAX> S_psLoggerCollection;
 
-void MyLibInit(std::shared_ptr<BOF::ILoggerFactory> _psLoggerFactory)
+void MyLibInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
 {
   for (auto &rpsLogger : S_psLoggerCollection)
   {
