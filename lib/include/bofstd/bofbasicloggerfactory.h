@@ -98,13 +98,13 @@ private:
   FILE *mpLogFile_X = nullptr;
 };
 
-class BasicLoggerFactory : public BOF::IBofLoggerFactory
+class BofBasicLoggerFactory : public BOF::IBofLoggerFactory
 {
 public:
-  BasicLoggerFactory(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S) : mOutputOnScreen_B(_OutputOnScreen_B), mLogFileSubDir_S(_rLogFileSubDir_S)
+  BofBasicLoggerFactory(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S) : mOutputOnScreen_B(_OutputOnScreen_B), mLogFileSubDir_S(_rLogFileSubDir_S)
   {
   }
-  virtual ~BasicLoggerFactory() = default;
+  virtual ~BofBasicLoggerFactory() = default;
 
   std::string BuildChannelName(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S)
   {

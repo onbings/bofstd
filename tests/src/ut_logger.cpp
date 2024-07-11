@@ -27,7 +27,7 @@
 #include <bofstd/boflogchannel_spdlog.h>
 #include <bofstd/boflogger.h>
 #include <bofstd/ibofloggerfactory.h>
-#include <bofstd/basic_loggerfactory.h>
+#include <bofstd/bofbasicloggerfactory.h>
 
 #include "gtestrunner.h"
 
@@ -334,7 +334,7 @@ void MyLibCode(bool _NullTestCase_B)
 
 TEST(ut_logger_ibofloggerfactory, MultipleChannel)
 {
-  std::shared_ptr<BOF::BasicLoggerFactory> psLoggerFactory = std::make_shared<BOF::BasicLoggerFactory>(true, ".");
+  std::shared_ptr<BOF::BofBasicLoggerFactory> psLoggerFactory = std::make_shared<BOF::BofBasicLoggerFactory>(true, ".");
   MyLibInit(psLoggerFactory);
   EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT] != nullptr);
   EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC] != nullptr);
