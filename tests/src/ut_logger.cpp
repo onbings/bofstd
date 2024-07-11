@@ -19,12 +19,15 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
+#include <array>
+
 #include "bofstd/boffs.h"
 #include "bofstd/bofsocket.h"
 #include <bofstd/bofdatetime.h>
 #include <bofstd/boflogchannel_spdlog.h>
 #include <bofstd/boflogger.h>
 #include <bofstd/ibofloggerfactory.h>
+#include <bofstd/basic_loggerfactory.h>
 
 #include "gtestrunner.h"
 
@@ -275,292 +278,102 @@ TEST_F(Logger_Test, LoggerInit)
 }
 
 
+ //*** External lib code *********************************************************************
 
-
-//*** External lib code *********************************************************************
-#define MY_UT_SINGLE_LOGGER MyExternalSingleChannelLibInit
-BOF_LOGGER_DEFINE_STORAGE(MY_UT_SINGLE_LOGGER, 1);
-/*
-#define WUTLOG(channel, ...) BOF_LOG_WARNING(MY_LOGGER, channel, ##__VA_ARGS__);
-#define MY_LOGGER TheBhaLogger
-LOGGER_DEFINE_STORAGE(MY_LOGGER, LOGGER_CHANNEL_MAX);
-*/
-constexpr uint32_t MAX_MULTI_CHANNEL = 3;
-#define MY_UT_MULTI_LOGGER MyExternalMultipleChannelLibLogger
-#define WUTLOG(channel, ...) BOF_LOG_WARNING(MY_UT_MULTI_LOGGER, channel, ##__VA_ARGS__);
-BOF_LOGGER_DEFINE_STORAGE(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL);
-
-void MyExternalSingleChannelLibInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
+ // Logger Channel Definition
+enum UT_LOGGER_CHANNEL : uint32_t
 {
-  uint32_t ChannelIndex_U32 = 0;
-  bool Sts_B;
-  std::shared_ptr<BOF::IBofLogger> psSingleChannelLogger;
+  UT_LOGGER_CHANNEL_INIT = 0,
+  UT_LOGGER_CHANNEL_CODEC,
+  UT_LOGGER_CHANNEL_NULLPTR,
+  UT_LOGGER_CHANNEL_DMA,
+  UT_LOGGER_CHANNEL_MAX
+};
+static std::array<std::shared_ptr<BOF::IBofLogger>, UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_MAX> S_psLoggerCollection;
 
-  psSingleChannelLogger = _psLoggerFactory->V_Create(ChannelIndex_U32, 1, "SNG");
-  EXPECT_FALSE(psSingleChannelLogger == nullptr);
-  BOF_LOGGER_FACTORY_ADD(MY_UT_SINGLE_LOGGER, psSingleChannelLogger, ChannelIndex_U32, Sts_B);
-  EXPECT_TRUE(Sts_B);
-
-  ChannelIndex_U32++;
-  psSingleChannelLogger = _psLoggerFactory->V_Create(ChannelIndex_U32, 1, "SNG");
-  EXPECT_TRUE(psSingleChannelLogger == nullptr);
-  BOF_LOGGER_FACTORY_ADD(MY_UT_SINGLE_LOGGER, psSingleChannelLogger, ChannelIndex_U32, Sts_B);
-  EXPECT_FALSE(Sts_B);
-}
-void MyExternalSingleChannelLibCode(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
+void MyLibInit(std::shared_ptr<BOF::ILoggerFactory> _psLoggerFactory)
 {
-  uint32_t ChannelIndex_U32 = 0;
-  std::shared_ptr<BOF::IBofLogger> psLogger;
-
-  BOF_LOGGER_FACTORY_GET(MY_UT_SINGLE_LOGGER, ChannelIndex_U32 + 1, psLogger);
-  EXPECT_TRUE(psLogger == nullptr);
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, ChannelIndex_U32 + 1, "! This will not be logged !\n");
-  BOF_LOGGER_FACTORY_GET(MY_UT_SINGLE_LOGGER, ChannelIndex_U32 + 1, psLogger);
-  EXPECT_TRUE(psLogger == nullptr);
-
-  BOF_LOGGER_FACTORY_GET(MY_UT_SINGLE_LOGGER, ChannelIndex_U32, psLogger);
-  EXPECT_FALSE(psLogger == nullptr);
-  EXPECT_EQ(psLogger->mNbLogOut_U32, 0);
-  EXPECT_EQ(psLogger->mNbLogRejected_U32, 0);
-  BOF_LOG_FORCE(MY_UT_SINGLE_LOGGER, ChannelIndex_U32, "This will be logged\n");
-  EXPECT_EQ(psLogger->mNbLogOut_U32, 1);
-  EXPECT_EQ(psLogger->mNbLogRejected_U32, 0);
-
-  BOF_LOG_INFO(MY_UT_SINGLE_LOGGER, ChannelIndex_U32, "! This will not be logged !\n");
-  EXPECT_EQ(psLogger->mNbLogOut_U32, 1);
-  EXPECT_EQ(psLogger->mNbLogRejected_U32, 1);
-
-  BOF_LOG_WARNING(MY_UT_SINGLE_LOGGER, ChannelIndex_U32, "This will be logged\n");
-  EXPECT_EQ(psLogger->mNbLogOut_U32, 2);
-  EXPECT_EQ(psLogger->mNbLogRejected_U32, 1);
-
-  BOF_LOG_ERROR(MY_UT_SINGLE_LOGGER, ChannelIndex_U32, "This will be logged\n");
-  EXPECT_EQ(psLogger->mNbLogOut_U32, 3);
-  EXPECT_EQ(psLogger->mNbLogRejected_U32, 1);
-}
-
-void MyExternalMultipleChannelLibInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
-{
-  bool Sts_B;
-  std::shared_ptr<BOF::IBofLogger> psMultiChannelLogger;
-
+  for (auto &rpsLogger : S_psLoggerCollection)
+  {
+    rpsLogger = nullptr;
+  }
   if (_psLoggerFactory)
   {
-    psMultiChannelLogger = _psLoggerFactory->V_Create(MAX_MULTI_CHANNEL, MAX_MULTI_CHANNEL, "MLT");
-    EXPECT_TRUE(psMultiChannelLogger == nullptr);
-    BOF_LOGGER_FACTORY_ADD(MY_UT_MULTI_LOGGER, psMultiChannelLogger, MAX_MULTI_CHANNEL, Sts_B);
-    EXPECT_FALSE(Sts_B);
-
-    psMultiChannelLogger = _psLoggerFactory->V_Create(MAX_MULTI_CHANNEL - 1, MAX_MULTI_CHANNEL, "DMA");
-    EXPECT_FALSE(psMultiChannelLogger == nullptr);
-    BOF_LOGGER_FACTORY_ADD(MY_UT_MULTI_LOGGER, psMultiChannelLogger, MAX_MULTI_CHANNEL - 1, Sts_B);
-    EXPECT_TRUE(Sts_B);
-
-    psMultiChannelLogger = _psLoggerFactory->V_Create(0, MAX_MULTI_CHANNEL, "REC");
-    EXPECT_FALSE(psMultiChannelLogger == nullptr);
-    BOF_LOGGER_FACTORY_ADD(MY_UT_MULTI_LOGGER, psMultiChannelLogger, 0, Sts_B);
-    EXPECT_TRUE(Sts_B);
-
-    /* Let a nullptr in the collection
-      psMultiChannelLogger = _psLoggerFactory->V_Create(1, MAX_MULTI_CHANNEL, "PLY");
-      EXPECT_FALSE(psMultiChannelLogger == nullptr);
-      BOF_LOGGER_FACTORY_ADD(MY_UT_MULTI_LOGGER, psMultiChannelLogger, 1, Sts_B);
-      EXPECT_TRUE(Sts_B);
-    */
+    S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT] = _psLoggerFactory->V_Create("MyLib_", "INIT");
+    S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC] = _psLoggerFactory->V_Create("MyLib_", "CODEC");
+    S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_NULLPTR] = nullptr;
+    S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA] = _psLoggerFactory->V_Create("MyLib_", "DMA");
   }
 }
-void MyExternalMultipleChannelLibCode(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
+void MyLibCode(bool _NullTestCase_B)
 {
-  std::shared_ptr<BOF::IBofLogger> psMultiChannelLogger0, psMultiChannelLogger1, psMultiChannelLoggerLast;
-
-  BOF_LOGGER_FACTORY_GET(MY_UT_MULTI_LOGGER, 0, psMultiChannelLogger0);
-  EXPECT_FALSE(psMultiChannelLogger0 == nullptr);
-  BOF_LOGGER_FACTORY_GET(MY_UT_MULTI_LOGGER, 1, psMultiChannelLogger1);
-  EXPECT_TRUE(psMultiChannelLogger1 == nullptr);
-  BOF_LOGGER_FACTORY_GET(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, psMultiChannelLoggerLast);
-  EXPECT_FALSE(psMultiChannelLoggerLast == nullptr);
-
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL, "! This will not be logged !\n");
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, 0, "This will be logged\n");
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n"); // Let a nullptr in the collection
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "This will be logged\n");
-  EXPECT_EQ(psMultiChannelLogger0->mNbLogOut_U32, 1);
-  EXPECT_EQ(psMultiChannelLogger0->mNbLogRejected_U32, 0);
-  EXPECT_EQ(psMultiChannelLoggerLast->mNbLogOut_U32, 1);
-  EXPECT_EQ(psMultiChannelLoggerLast->mNbLogRejected_U32, 0);
-
-  BOF_LOG_INFO(MY_UT_MULTI_LOGGER, 0, "! This will not be logged !\n");
-  BOF_LOG_WARNING(MY_UT_MULTI_LOGGER, 0, "This will be logged\n");
-  BOF_LOG_ERROR(MY_UT_MULTI_LOGGER, 0, "This will be logged\n");
-  EXPECT_EQ(psMultiChannelLogger0->mNbLogOut_U32, 3);
-  EXPECT_EQ(psMultiChannelLogger0->mNbLogRejected_U32, 1);
-
-  BOF_LOG_INFO(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n"); // Let a nullptr in the collection
-  BOF_LOG_WARNING(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n");
-  BOF_LOG_ERROR(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n");
-
-  BOF_LOG_VERBOSE(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "! This will not be logged !\n");
-  BOF_LOG_INFO(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "This will be logged\n");
-  BOF_LOG_ERROR(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "This will be logged\n");
-  EXPECT_EQ(psMultiChannelLoggerLast->mNbLogOut_U32, 3);
-  EXPECT_EQ(psMultiChannelLoggerLast->mNbLogRejected_U32, 1);
-}
-void MyExternalMultipleNullptrChannelLibCode()
-{
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL, "! This will not be logged !\n");
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, 0, "! This will not be logged !\n");
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n"); // Let a nullptr in the collection
-  BOF_LOG_FORCE(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "! This will not be logged !\n");
-
-  BOF_LOG_INFO(MY_UT_MULTI_LOGGER, 0, "! This will not be logged !\n");
-  BOF_LOG_WARNING(MY_UT_MULTI_LOGGER, 0, "! This will not be logged !\n");
-  BOF_LOG_ERROR(MY_UT_MULTI_LOGGER, 0, "! This will not be logged !\n");
-
-  BOF_LOG_INFO(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n"); // Let a nullptr in the collection
-  BOF_LOG_WARNING(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n");
-  BOF_LOG_ERROR(MY_UT_MULTI_LOGGER, 1, "! This will not be logged !\n");
-
-  BOF_LOG_VERBOSE(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "! This will not be logged !\n");
-  BOF_LOG_INFO(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "! This will not be logged !\n");
-  BOF_LOG_ERROR(MY_UT_MULTI_LOGGER, MAX_MULTI_CHANNEL - 1, "! This will not be logged !\n");
-}
-
-//*** Caller/User of the external lib ********************************************************
-class MyUtLogger : public BOF::IBofLogger
-{
-public:
-  MyUtLogger(const uint32_t _ChannelIndex_U32, const std::string &_rChannelName_S)
+  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
+  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_CODEC], "This will be logged\n");
+  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_NULLPTR], "! This will not be logged !\n");
+  LOG_VERBOSE(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This will not be logged !\n");
+  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This one yes !\n");
+  LOG_INFO(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This one also !\n");
+  if (!_NullTestCase_B)
   {
-    char pLogFile_c[256];
-
-    mChannelIndex_U32 = _ChannelIndex_U32;
-    mChannelName_S = _rChannelName_S;
-
-    sprintf(pLogFile_c, "%s_%03d.log", _rChannelName_S.c_str(), mChannelIndex_U32);
-    mpLogFile_X = fopen(pLogFile_c, "w+");
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT]->mNbLogOut_U32, 1);
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT]->mNbLogRejected_U32, 0);
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_CODEC]->mNbLogOut_U32, 1);
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_CODEC]->mNbLogRejected_U32, 0);
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA]->mNbLogOut_U32, 2);
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA]->mNbLogRejected_U32, 1);
   }
-  ~MyUtLogger()
+  LOG_INFO(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "! This will not be logged !\n");
+  LOG_WARNING(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
+  LOG_ERROR(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
+  if (!_NullTestCase_B)
   {
-    if (mpLogFile_X)
-    {
-      fclose(mpLogFile_X);
-      mpLogFile_X = nullptr;
-    }
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT]->mNbLogOut_U32, 3);
+    EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT]->mNbLogRejected_U32, 1);
   }
-  void V_Log(LogSeverity _SeverityLevel_E, const char *_pLogMessage_c, ...) override
-  {
-    char pLog_c[0x1000];
-    va_list VaList_X;
-
-    va_start(VaList_X, _pLogMessage_c);
-    vsnprintf(pLog_c, sizeof(pLog_c), _pLogMessage_c, VaList_X);
-    va_end(VaList_X);
-
-    pLog_c[sizeof(pLog_c) - 1] = 0;
-    printf("Sev %d Channel[%d][%s]->%s", _SeverityLevel_E, mChannelIndex_U32, mChannelName_S.c_str(), pLog_c);
-    fwrite(pLog_c, strlen(pLog_c), 1, mpLogFile_X);
-  }
-
-private:
-  uint32_t mChannelIndex_U32 = 0;
-  std::string mChannelName_S;
-  FILE *mpLogFile_X = nullptr;
-};
-
-class MyUtLoggerFactory : public BOF::IBofLoggerFactory
-{
-public:
-  std::shared_ptr<BOF::IBofLogger> V_Create(const uint32_t _ChannelIndex_U32, const uint32_t _MaxChannelIndex_U32, const std::string &_rChannelName_S) override
-  {
-    std::shared_ptr<MyUtLogger> psRts = nullptr;
-    uint32_t i_U32;
-
-    if (_ChannelIndex_U32 < _MaxChannelIndex_U32)
-    {
-      if (mLoggerCollection.size() != _MaxChannelIndex_U32)
-      {
-        mLoggerCollection.clear();
-        for (i_U32 = 0; i_U32 < _MaxChannelIndex_U32; i_U32++)
-        {
-          mLoggerCollection.push_back(nullptr);
-        }
-      }
-      psRts = std::make_shared<MyUtLogger>(_ChannelIndex_U32, _rChannelName_S);
-      mLoggerCollection[_ChannelIndex_U32] = psRts;
-    }
-    return psRts;
-  }
-  bool V_SetLogSeverityLevel(const uint32_t _ChannelIndex_U32, BOF::IBofLogger::LogSeverity _SeverityLevel_E) override
-  {
-    bool Rts_B = false;
-
-    if (_ChannelIndex_U32 < mLoggerCollection.size())
-    {
-      if (mLoggerCollection[_ChannelIndex_U32])
-      {
-        Rts_B = mLoggerCollection[_ChannelIndex_U32]->SetLogSeverityLevel(_SeverityLevel_E);
-      }
-    }
-    return Rts_B;
-  }
-  BOF::IBofLogger::LogSeverity V_GetLogSeverityLevel(const uint32_t _ChannelIndex_U32) const override
-  {
-    BOF::IBofLogger::LogSeverity Rts_E = BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX;
-    if (_ChannelIndex_U32 < mLoggerCollection.size())
-    {
-      if (mLoggerCollection[_ChannelIndex_U32])
-      {
-        Rts_E = mLoggerCollection[_ChannelIndex_U32]->GetLogSeverityLevel();
-      }
-    }
-    return Rts_E;
-  }
-
-private:
-  std::vector<std::shared_ptr<MyUtLogger>> mLoggerCollection;
-};
-//*** Caller/User of the external lib ********************************************************
-//*** Unit Test ******************************************************************************
-TEST(ut_logger_ibofloggerfactory, InjectNullptr)
-{
-  MyExternalMultipleChannelLibInit(nullptr);
-
-  MyExternalMultipleNullptrChannelLibCode();
-}
-
-TEST(ut_logger_ibofloggerfactory, SingleChannel)
-{
-  std::shared_ptr<MyUtLoggerFactory> psSingleChannelLogger = std::make_shared<MyUtLoggerFactory>();
-  MyExternalSingleChannelLibInit(psSingleChannelLogger);
-
-  EXPECT_EQ(psSingleChannelLogger->V_GetLogSeverityLevel(0), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
-  EXPECT_TRUE(psSingleChannelLogger->V_SetLogSeverityLevel(0, BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING));
-  EXPECT_EQ(psSingleChannelLogger->V_GetLogSeverityLevel(0), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING);
-
-  MyExternalSingleChannelLibCode(psSingleChannelLogger);
 }
 
 TEST(ut_logger_ibofloggerfactory, MultipleChannel)
 {
-  std::shared_ptr<MyUtLoggerFactory> psMultipleChannelLogger = std::make_shared<MyUtLoggerFactory>();
-  MyExternalMultipleChannelLibInit(psMultipleChannelLogger);
+  std::shared_ptr<BOF::BasicLoggerFactory> psLoggerFactory = std::make_shared<BOF::BasicLoggerFactory>(true, ".");
+  MyLibInit(psLoggerFactory);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT] != nullptr);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC] != nullptr);
+  EXPECT_FALSE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_NULLPTR] != nullptr);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA] != nullptr);
 
-  EXPECT_EQ(psMultipleChannelLogger->V_GetLogSeverityLevel(0), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
-  EXPECT_TRUE(psMultipleChannelLogger->V_SetLogSeverityLevel(0, BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING));
-  EXPECT_EQ(psMultipleChannelLogger->V_GetLogSeverityLevel(0), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING);
+  EXPECT_TRUE(psLoggerFactory->V_Create("MyLib_", "DMA") == nullptr);
+  EXPECT_TRUE(psLoggerFactory->V_Create("MyLib_", "DMA2") != nullptr);
+  EXPECT_TRUE(psLoggerFactory->V_Destroy("MyLib_", "DMA2"));
+  EXPECT_FALSE(psLoggerFactory->V_Destroy("MyLib_", "DMA3"));
 
-  EXPECT_EQ(psMultipleChannelLogger->V_GetLogSeverityLevel(1), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
-  EXPECT_FALSE(psMultipleChannelLogger->V_SetLogSeverityLevel(1, BOF::IBofLogger::LogSeverity::LOG_SEVERITY_FORCE));
-  EXPECT_EQ(psMultipleChannelLogger->V_GetLogSeverityLevel(1), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING);
 
-  EXPECT_EQ(psMultipleChannelLogger->V_GetLogSeverityLevel(MAX_MULTI_CHANNEL - 1), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
-  EXPECT_TRUE(psMultipleChannelLogger->V_SetLogSeverityLevel(MAX_MULTI_CHANNEL - 1, BOF::IBofLogger::LogSeverity::LOG_SEVERITY_INFO));
-  EXPECT_EQ(psMultipleChannelLogger->V_GetLogSeverityLevel(MAX_MULTI_CHANNEL - 1), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_INFO);
+  EXPECT_FALSE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING);
 
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_FORCE));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_FORCE);
 
-  MyExternalMultipleChannelLibCode(psMultipleChannelLogger);
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_INFO));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_INFO);
+
+  MyLibCode(false);
 }
 
+TEST(ut_logger_ibofloggerfactory, nullptr)
+{
+  MyLibInit(nullptr);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT] == nullptr);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC] == nullptr);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_NULLPTR] == nullptr);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA] == nullptr);
+
+  MyLibCode(true);
+}
 
 #if 0
 TEST_F(Logger_Test, LoggerFile)

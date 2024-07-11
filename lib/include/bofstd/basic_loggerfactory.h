@@ -16,19 +16,19 @@
 #pragma once
 #include <chrono>
 #include <ctime>
+#include <map>
+#include <mutex>
 #include <string.h>
-#include <evs-hwfw-logger/factory/iloggerfactory.h> 
+#include <bofstd/ibofloggerfactory.h>
 
-BEGIN_HWFWLOG_NAMESPACE()
-class BasicLogger : public HWFWLOG::ILogger
+BEGIN_BOF_NAMESPACE()
+class BasicLogger : public BOF::IBofLogger
 {
 public:
-  BasicLogger(const uint32_t _ChannelIndex_U32, const std::string &_rChannelName_S)
-      : HWFWLOG::ILogger()
+  BasicLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) : BOF::IBofLogger()
   {
-      mChannelIndex_U32 = _ChannelIndex_U32;
-      mChannelName_S = _rChannelName_S;
-      Configure(false, "");
+    mChannelName_S = _rLibNamePrefix_S + _rLoggerChannelName_S;
+    Configure(false, "");
   }
   virtual ~BasicLogger()
   {
@@ -57,7 +57,7 @@ public:
 
       t = std::time(nullptr);
       std::strftime(pDateTime_c, sizeof(pDateTime_c), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
-      sprintf(pHeader_c, "%s: %zd Channel[%d][%s]->",  pDateTime_c, DeltaInuS, mChannelIndex_U32, mChannelName_S.c_str());
+      sprintf(pHeader_c, "%s: %zd [%s]->", pDateTime_c, DeltaInuS, mChannelName_S.c_str());
       if (mOutputOnScreen_B)
       {
         printf("%s%s", pHeader_c, pLog_c);
@@ -69,8 +69,9 @@ public:
       }
     }
   }
-  void Configure(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S)
+  bool Configure(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S)
   {
+    bool Rts_B = true;
     char pLogFile_c[512];
 
     mOutputOnScreen_B = _OutputOnScreen_B;
@@ -80,82 +81,91 @@ public:
     }
     else
     {
-      sprintf(pLogFile_c, "%s/%s_%03d.log", _rLogFileSubDir_S.c_str(), mChannelName_S.c_str(), mChannelIndex_U32);
+      sprintf(pLogFile_c, "%s/%s.log", _rLogFileSubDir_S.c_str(), mChannelName_S.c_str());
       mpLogFile_X = fopen(pLogFile_c, "w+");
-    }
-  }
-
-private:
-  uint32_t mChannelIndex_U32 = 0;
-  std::string mChannelName_S;
-  const std::chrono::time_point<std::chrono::high_resolution_clock> mLogEpoch=std::chrono::high_resolution_clock::now();
-  bool mOutputOnScreen_B = false;
-  FILE *mpLogFile_X = nullptr;
-};
-
-class BasicLoggerFactory : public HWFWLOG::ILoggerFactory
-{
-public:
-  BasicLoggerFactory(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S)
-      : mOutputOnScreen_B(_OutputOnScreen_B), mLogFileSubDir_S(_rLogFileSubDir_S)
-  {
-  }
-  virtual ~BasicLoggerFactory() = default;
-
-  std::shared_ptr<HWFWLOG::ILogger> V_Create(const uint32_t _ChannelIndex_U32, const uint32_t _MaxChannelIndex_U32, const std::string &_rChannelName_S) override
-  {
-    std::shared_ptr<BasicLogger> psRts = nullptr;
-    uint32_t i_U32;
-
-    if (_ChannelIndex_U32 < _MaxChannelIndex_U32)
-    {
-      if (mLoggerCollection.size() != _MaxChannelIndex_U32)
+      if (mpLogFile_X == nullptr)
       {
-        mLoggerCollection.clear();
-        for (i_U32 = 0; i_U32 < _MaxChannelIndex_U32; i_U32++)
-        {
-          mLoggerCollection.push_back(nullptr);
-        }
-      }
-      psRts = std::make_shared<BasicLogger>(_ChannelIndex_U32, _rChannelName_S);
-      if (psRts)
-      {
-        psRts->Configure(mOutputOnScreen_B, mLogFileSubDir_S);
-        mLoggerCollection[_ChannelIndex_U32] = psRts;
-      }
-    }
-    return psRts;
-  }
-  bool V_SetLogSeverityLevel(const uint32_t _ChannelIndex_U32, HWFWLOG::ILogger::LogSeverity _SeverityLevel_E) override
-  {
-    bool Rts_B = false;
-
-    if (_ChannelIndex_U32 < mLoggerCollection.size())
-    {
-      if (mLoggerCollection[_ChannelIndex_U32])
-      {
-        Rts_B = mLoggerCollection[_ChannelIndex_U32]->SetLogSeverityLevel(_SeverityLevel_E);
+        Rts_B = false;
       }
     }
     return Rts_B;
   }
-  HWFWLOG::ILogger::LogSeverity V_GetLogSeverityLevel(const uint32_t _ChannelIndex_U32) const override
-  {
-    HWFWLOG::ILogger::LogSeverity Rts_E = HWFWLOG::ILogger::LogSeverity::LOG_SEVERITY_MAX;
 
-    if (_ChannelIndex_U32 < mLoggerCollection.size())
+private:
+  std::string mChannelName_S;
+  const std::chrono::time_point<std::chrono::high_resolution_clock> mLogEpoch = std::chrono::high_resolution_clock::now();
+  bool mOutputOnScreen_B = false;
+  FILE *mpLogFile_X = nullptr;
+};
+
+class BasicLoggerFactory : public BOF::ILoggerFactory
+{
+public:
+  BasicLoggerFactory(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S) : mOutputOnScreen_B(_OutputOnScreen_B), mLogFileSubDir_S(_rLogFileSubDir_S)
+  {
+  }
+  virtual ~BasicLoggerFactory() = default;
+
+  std::string BuildChannelName(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S)
+  {
+    return _rLibNamePrefix_S + _rLoggerChannelName_S;
+  }
+  std::shared_ptr<BOF::IBofLogger> V_Create(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) override
+  {
+    std::shared_ptr<BasicLogger> psRts = nullptr;
+    std::string ChannelName_S;
+
+    std::lock_guard<std::mutex> Lock(mLoggerCollectionMtx);
+    if (V_GetLogger(_rLibNamePrefix_S, _rLoggerChannelName_S) == nullptr)
     {
-      if (mLoggerCollection[_ChannelIndex_U32])
+      psRts = std::make_shared<BasicLogger>(_rLibNamePrefix_S, _rLoggerChannelName_S);
+      if (psRts)
       {
-        Rts_E = mLoggerCollection[_ChannelIndex_U32]->GetLogSeverityLevel();
+        if (psRts->Configure(mOutputOnScreen_B, mLogFileSubDir_S))
+        {
+          ChannelName_S = BuildChannelName(_rLibNamePrefix_S, _rLoggerChannelName_S);
+          mLoggerCollection[ChannelName_S] = psRts;
+        }
+        else
+        {
+          psRts = nullptr;
+        }
       }
     }
-    return Rts_E;
+    return psRts;
+  }
+  std::shared_ptr<BOF::IBofLogger> V_GetLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) override
+  {
+    std::shared_ptr<BasicLogger> psRts = nullptr;
+    std::string ChannelName_S;
+    // no mutex as it is used by V_Create and V_Destroy
+    ChannelName_S = BuildChannelName(_rLibNamePrefix_S, _rLoggerChannelName_S);
+    auto It = mLoggerCollection.find(ChannelName_S);
+    if (It != mLoggerCollection.end())
+    {
+      psRts = It->second;
+    }
+    return psRts;
+  }
+  bool V_Destroy(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) override
+  {
+    bool Rts_B = false;
+    std::string ChannelName_S;
+
+    std::lock_guard<std::mutex> Lock(mLoggerCollectionMtx);
+    if (V_GetLogger(_rLibNamePrefix_S, _rLoggerChannelName_S) != nullptr)
+    {
+      ChannelName_S = BuildChannelName(_rLibNamePrefix_S, _rLoggerChannelName_S);
+      mLoggerCollection.erase(ChannelName_S);
+      Rts_B = true;
+    }
+    return Rts_B;
   }
 
 private:
-  std::vector<std::shared_ptr<BasicLogger>> mLoggerCollection;
+  std::mutex mLoggerCollectionMtx;
+  std::map<std::string, std::shared_ptr<BasicLogger>> mLoggerCollection;
   bool mOutputOnScreen_B;
   const std::string mLogFileSubDir_S;
 };
-END_HWFWLOG_NAMESPACE()
+END_BOF_NAMESPACE()
