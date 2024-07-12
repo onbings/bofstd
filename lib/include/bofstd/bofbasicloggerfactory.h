@@ -28,7 +28,7 @@ public:
   BasicLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) : BOF::IBofLogger()
   {
     mChannelName_S = _rLibNamePrefix_S + _rLoggerChannelName_S;
-    Configure(false, "");
+    Open(false, false, false, "");
   }
   virtual ~BasicLogger()
   {
@@ -66,15 +66,20 @@ public:
       {
         fwrite(pHeader_c, strlen(pHeader_c), 1, mpLogFile_X);
         fwrite(pLog_c, strlen(pLog_c), 1, mpLogFile_X);
+        if (mAutoFlush_B)
+        {
+          Flush();
+        }
       }
     }
   }
-  bool Configure(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S)
+  bool Open(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, const std::string &_rLogFileSubDir_S)
   {
     bool Rts_B = true;
     char pLogFile_c[512];
 
     mOutputOnScreen_B = _OutputOnScreen_B;
+    mAutoFlush_B = _AutoFlush_B;
     if (_rLogFileSubDir_S.empty())
     {
       mpLogFile_X = nullptr;
@@ -82,26 +87,66 @@ public:
     else
     {
       sprintf(pLogFile_c, "%s/%s.log", _rLogFileSubDir_S.c_str(), mChannelName_S.c_str());
-      mpLogFile_X = fopen(pLogFile_c, "w+");
+      mpLogFile_X = _Append_B ? fopen(pLogFile_c, "w+"): fopen(pLogFile_c, "a+");
       if (mpLogFile_X == nullptr)
       {
+        V_Log(LOG_SEVERITY_FORCE, "New log session started...\n");
         Rts_B = false;
       }
     }
     return Rts_B;
   }
+  bool Close()
+  {
+    bool Rts_B = true;
 
+    if (mpLogFile_X)
+    {
+      V_Log(LOG_SEVERITY_FORCE, "Log session finished !\n");
+      fclose(mpLogFile_X);
+      mpLogFile_X = nullptr;
+    }
+    mOutputOnScreen_B = false;
+
+    return Rts_B;
+  }
+
+  uint64_t Size()
+  {
+    uint64_t Rts_U64=0; //CurrentPosition_U64
+
+    if (mpLogFile_X)
+    {
+      //CurrentPosition_U64 = ftell(mpLogFile_X);
+      //fseek(mpLogFile_X, 0, SEEK_END);
+      Rts_U64 = ftell(mpLogFile_X);
+      //fseek(mpLogFile_X, CurrentPosition_U64, SEEK_SET);
+    }
+    return Rts_U64;
+  }
+  bool Flush()
+  {
+    bool Rts_B = true;
+
+    if (mpLogFile_X)
+    {
+      fflush(mpLogFile_X);
+    }
+    return Rts_B;
+  }
 private:
   std::string mChannelName_S;
   const std::chrono::time_point<std::chrono::high_resolution_clock> mLogEpoch = std::chrono::high_resolution_clock::now();
   bool mOutputOnScreen_B = false;
+  bool mAutoFlush_B = false;
   FILE *mpLogFile_X = nullptr;
 };
 
 class BofBasicLoggerFactory : public BOF::IBofLoggerFactory
 {
 public:
-  BofBasicLoggerFactory(bool _OutputOnScreen_B, const std::string &_rLogFileSubDir_S) : mOutputOnScreen_B(_OutputOnScreen_B), mLogFileSubDir_S(_rLogFileSubDir_S)
+  BofBasicLoggerFactory(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, const std::string &_rLogFileSubDir_S) : 
+    mOutputOnScreen_B(_OutputOnScreen_B),  mAppend_B(_Append_B),  mAutoFlush_B(_AutoFlush_B),  mLogFileSubDir_S(_rLogFileSubDir_S)
   {
   }
   virtual ~BofBasicLoggerFactory() = default;
@@ -121,7 +166,7 @@ public:
       psRts = std::make_shared<BasicLogger>(_rLibNamePrefix_S, _rLoggerChannelName_S);
       if (psRts)
       {
-        if (psRts->Configure(mOutputOnScreen_B, mLogFileSubDir_S))
+        if (psRts->Open(mOutputOnScreen_B, mAppend_B, mAutoFlush_B, mLogFileSubDir_S))
         {
           ChannelName_S = BuildChannelName(_rLibNamePrefix_S, _rLoggerChannelName_S);
           mLoggerCollection[ChannelName_S] = psRts;
@@ -166,6 +211,8 @@ private:
   std::mutex mLoggerCollectionMtx;
   std::map<std::string, std::shared_ptr<BasicLogger>> mLoggerCollection;
   bool mOutputOnScreen_B;
+  bool mAppend_B;
+  bool mAutoFlush_B;
   const std::string mLogFileSubDir_S;
 };
 END_BOF_NAMESPACE()
