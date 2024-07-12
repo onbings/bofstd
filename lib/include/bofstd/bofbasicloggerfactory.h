@@ -88,9 +88,12 @@ public:
     {
       sprintf(pLogFile_c, "%s/%s.log", _rLogFileSubDir_S.c_str(), mChannelName_S.c_str());
       mpLogFile_X = _Append_B ? fopen(pLogFile_c, "w+"): fopen(pLogFile_c, "a+");
-      if (mpLogFile_X == nullptr)
+      if (mpLogFile_X)
       {
         V_Log(LOG_SEVERITY_FORCE, "New log session started...\n");
+      }
+      else
+      {
         Rts_B = false;
       }
     }
