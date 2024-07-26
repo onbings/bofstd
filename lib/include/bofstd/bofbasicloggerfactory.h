@@ -14,21 +14,22 @@
  * V 1.00  Feb 19 2024  BHA : Initial release
  */
 #pragma once
+#include <bofstd/ibofloggerfactory.h>
 #include <chrono>
 #include <ctime>
 #include <map>
 #include <mutex>
 #include <string.h>
-#include <bofstd/ibofloggerfactory.h>
 
 BEGIN_BOF_NAMESPACE()
 class BasicLogger : public BOF::IBofLogger
 {
 public:
-  BasicLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) : BOF::IBofLogger()
+  BasicLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S)
+      : BOF::IBofLogger()
   {
     mChannelName_S = _rLibNamePrefix_S + _rLoggerChannelName_S;
-    Open(false, false, false, "");
+    Open(false, false, false, 0, "");
   }
   virtual ~BasicLogger()
   {
@@ -38,11 +39,12 @@ public:
       mpLogFile_X = nullptr;
     }
   }
-  void V_Log(LogSeverity /*_SeverityLevel_E*/, const char *_pLogMessage_c, ...) override
+  void V_Log(LogSeverity /*_SeverityLevel_E*/, const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rFunc_S, const char *_pLogMessage_c, ...) override
   {
     if ((mOutputOnScreen_B) || (mpLogFile_X))
     {
       char pHeader_c[0x100], pLog_c[0x1000];
+      const char *pFile_c;
       va_list VaList_X;
       const auto Now = std::chrono::high_resolution_clock::now();
       const std::chrono::duration<double> Delta = Now - mLogEpoch;
@@ -57,40 +59,57 @@ public:
 
       t = std::time(nullptr);
       std::strftime(pDateTime_c, sizeof(pDateTime_c), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
-      sprintf(pHeader_c, "%s: %zd [%s]->", pDateTime_c, DeltaInuS, mChannelName_S.c_str());
+      BOF_GET_FILE_FROM_PATH(_rFile_S.c_str(), pFile_c)
+      sprintf(pHeader_c, "%s: %zd [%s] %s:%d (%s)->", pDateTime_c, DeltaInuS, mChannelName_S.c_str(), pFile_c, _Line_U32, _rFunc_S.c_str());
+      mNbLogLine_U32++;
       if (mOutputOnScreen_B)
       {
         printf("%s%s", pHeader_c, pLog_c);
       }
       if (mpLogFile_X)
       {
-        fwrite(pHeader_c, strlen(pHeader_c), 1, mpLogFile_X);
-        fwrite(pLog_c, strlen(pLog_c), 1, mpLogFile_X);
-        if (mAutoFlush_B)
+        if ((mNbLogLine_U32 & 0x0000000F)==0)
         {
-          Flush();
+          if (Size() > mMaxSizeInByte_U32)
+          {
+            SwapLogFile();
+          }
+        }
+        if (mpLogFile_X)
+        {
+          fwrite(pHeader_c, strlen(pHeader_c), 1, mpLogFile_X);
+          fwrite(pLog_c, strlen(pLog_c), 1, mpLogFile_X);
+          if ((mNbLogLine_U32 & 0x0000000F) == 0)
+          {
+            if (mAutoFlush_B)
+            {
+              Flush();
+            }
+          }
         }
       }
     }
   }
-  bool Open(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, const std::string &_rLogFileSubDir_S)
+  bool Open(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, uint32_t _MaxSizeInByte_U32, const std::string &_rLogFileSubDir_S)
   {
     bool Rts_B = true;
-    char pLogFile_c[512];
 
     mOutputOnScreen_B = _OutputOnScreen_B;
     mAutoFlush_B = _AutoFlush_B;
+    mMaxSizeInByte_U32 = _MaxSizeInByte_U32;
+    mLogFileSubDir_S = _rLogFileSubDir_S;
+    mNbLogLine_U32 = 0; //Not really true if append mode but not serious as it is only used to lower call frequency to SwapLogFile check and Flush
     if (_rLogFileSubDir_S.empty())
     {
       mpLogFile_X = nullptr;
     }
     else
     {
-      sprintf(pLogFile_c, "%s/%s.log", _rLogFileSubDir_S.c_str(), mChannelName_S.c_str());
-      mpLogFile_X = _Append_B ? fopen(pLogFile_c, "w+"): fopen(pLogFile_c, "a+");
+      sprintf(mpLogFilePath_c, "%s/%s.log", _rLogFileSubDir_S.c_str(), mChannelName_S.c_str());
+      mpLogFile_X = _Append_B ? fopen(mpLogFilePath_c, "w+") : fopen(mpLogFilePath_c, "a+");
       if (mpLogFile_X)
       {
-        V_Log(LOG_SEVERITY_FORCE, "New log session started...\n");
+        V_Log(LOG_SEVERITY_FORCE, __FILE__, __LINE__, __func__, "New log session started...\n");
       }
       else
       {
@@ -105,7 +124,7 @@ public:
 
     if (mpLogFile_X)
     {
-      V_Log(LOG_SEVERITY_FORCE, "Log session finished !\n");
+      V_Log(LOG_SEVERITY_FORCE, __FILE__, __LINE__, __func__, "Log session finished !\n");
       fclose(mpLogFile_X);
       mpLogFile_X = nullptr;
     }
@@ -113,17 +132,34 @@ public:
 
     return Rts_B;
   }
+  bool SwapLogFile()
+  {
+    bool Rts_B = false;
+    char pBackLogFilePath_c[1024];
 
+    //if (Close()) //No because never ending loop (Close call V_Log) and modify var mOutputOnScreen_B
+    if (mpLogFile_X)
+    {
+      fclose(mpLogFile_X);
+      sprintf(pBackLogFilePath_c, "%s.back", mpLogFilePath_c);
+      Bof_DeleteFile(pBackLogFilePath_c);
+      if (Bof_RenameFile(mpLogFilePath_c, pBackLogFilePath_c) == BOF_ERR_NO_ERROR)
+      {
+        Rts_B = Open(mOutputOnScreen_B, false, mAutoFlush_B, mMaxSizeInByte_U32, mLogFileSubDir_S);
+      }
+    }
+    return Rts_B;
+  }
   uint64_t Size()
   {
-    uint64_t Rts_U64=0; //CurrentPosition_U64
+    uint64_t Rts_U64 = 0, CurrentPosition_U64;
 
     if (mpLogFile_X)
     {
-      //CurrentPosition_U64 = ftell(mpLogFile_X);
-      //fseek(mpLogFile_X, 0, SEEK_END);
+      CurrentPosition_U64 = ftell(mpLogFile_X);
+      fseek(mpLogFile_X, 0, SEEK_END);
       Rts_U64 = ftell(mpLogFile_X);
-      //fseek(mpLogFile_X, CurrentPosition_U64, SEEK_SET);
+      fseek(mpLogFile_X, CurrentPosition_U64, SEEK_SET);
     }
     return Rts_U64;
   }
@@ -137,19 +173,24 @@ public:
     }
     return Rts_B;
   }
+
 private:
   std::string mChannelName_S;
   const std::chrono::time_point<std::chrono::high_resolution_clock> mLogEpoch = std::chrono::high_resolution_clock::now();
   bool mOutputOnScreen_B = false;
   bool mAutoFlush_B = false;
   FILE *mpLogFile_X = nullptr;
+  std::string mLogFileSubDir_S;
+  char mpLogFilePath_c[1024];
+  uint32_t mMaxSizeInByte_U32 = 0;
+  uint32_t mNbLogLine_U32 = 0;
 };
 
 class BofBasicLoggerFactory : public BOF::IBofLoggerFactory
 {
 public:
-  BofBasicLoggerFactory(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, const std::string &_rLogFileSubDir_S) : 
-    mOutputOnScreen_B(_OutputOnScreen_B),  mAppend_B(_Append_B),  mAutoFlush_B(_AutoFlush_B),  mLogFileSubDir_S(_rLogFileSubDir_S)
+  BofBasicLoggerFactory(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, const std::string &_rLogFileSubDir_S)
+      : mOutputOnScreen_B(_OutputOnScreen_B), mAppend_B(_Append_B), mAutoFlush_B(_AutoFlush_B), mLogFileSubDir_S(_rLogFileSubDir_S)
   {
   }
   virtual ~BofBasicLoggerFactory() = default;
@@ -169,7 +210,7 @@ public:
       psRts = std::make_shared<BasicLogger>(_rLibNamePrefix_S, _rLoggerChannelName_S);
       if (psRts)
       {
-        if (psRts->Open(mOutputOnScreen_B, mAppend_B, mAutoFlush_B, mLogFileSubDir_S))
+        if (psRts->Open(mOutputOnScreen_B, mAppend_B, mAutoFlush_B, (1024*1024), mLogFileSubDir_S))
         {
           ChannelName_S = BuildChannelName(_rLibNamePrefix_S, _rLoggerChannelName_S);
           mLoggerCollection[ChannelName_S] = psRts;

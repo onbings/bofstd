@@ -25,28 +25,51 @@
 
 #include <atomic>
 USE_BOF_NAMESPACE()
-/*
-TEST(BofThreadPool_Test, Constructor)
+
+#if 1
+static bool S_pDispatchDone_B[16];
+void PoolDispatch(void *_pArg)
 {
-  BOF_THREAD_PARAM ThreadParam_X;
-
-  ThreadParam_X.Name_S = "ThreadPoolErrUt";
-  ThreadParam_X.SignalEvent_B = false;
-  ThreadParam_X.StackSize_U32 = 0;
-  ThreadParam_X.StartStopTimeoutInMs_U32 = 2000;
-  ThreadParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
-  ThreadParam_X.ThreadPriority_E = BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
-  ThreadParam_X.ThreadSchedulerPolicy_E = BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
-  ThreadParam_X.WakeUpIntervalInMs_U32 = 1000;//!!!! no, see below !!!!
-  BofThreadPool PoolErr(8, ThreadParam_X);
-  EXPECT_NE(PoolErr.InitThreadPoolErrorCode(), BOF_ERR_NO_ERROR);
-
-  ThreadParam_X.Name_S = "ThreadPoolUt";
-  ThreadParam_X.WakeUpIntervalInMs_U32 = 0;//!!!! important !!!!
-  BofThreadPool Pool(8, ThreadParam_X);
-  EXPECT_EQ(Pool.InitThreadPoolErrorCode(), BOF_ERR_NO_ERROR);
+  uint64_t Id_U64 = (uint64_t)_pArg;
+  uint32_t SleepTime_U32 = 500 + (Id_U64 * 100);
+  printf("%u: PoolDispatch[%zu] starts for %d ms...\n", BOF::Bof_GetMsTickCount(), Id_U64, SleepTime_U32);
+  BOF::Bof_MsSleep(SleepTime_U32);
+  printf("%u: PoolDispatch[%zu] ends.\n", BOF::Bof_GetMsTickCount(), Id_U64);
+  S_pDispatchDone_B[Id_U64] = true;
 }
-*/
+TEST(BofThreadPool_Test, Dispatch)
+{
+  BOF_THREAD_POOL_PARAM ThreadPoolParam_X;
+  std::unique_ptr<BofThreadPool> puThreadPool;
+  uint64_t i_U64;
+
+  ThreadPoolParam_X.PoolSize_U32 = 8;
+  ThreadPoolParam_X.MaxQueuedRequests_U32 = (ThreadPoolParam_X.PoolSize_U32 / 2);
+  ThreadPoolParam_X.BaseName_S = "BofThreadPool_Test";
+  ThreadPoolParam_X.PriorityInversionAware_B = false;
+  ThreadPoolParam_X.ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_OTHER;
+  ThreadPoolParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
+  ThreadPoolParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
+  ThreadPoolParam_X.StackSize_U32 = 0;
+  puThreadPool = std::make_unique<BofThreadPool>(ThreadPoolParam_X);
+  EXPECT_TRUE(puThreadPool!=nullptr);
+  for (i_U64 = 0; i_U64 < ThreadPoolParam_X.MaxQueuedRequests_U32; i_U64++)
+  {
+    S_pDispatchDone_B[i_U64] = false;
+    EXPECT_TRUE(puThreadPool->Enqueue(PoolDispatch, (void *)i_U64));
+  }
+  EXPECT_FALSE(puThreadPool->Enqueue(PoolDispatch, (void *)i_U64));
+  for (i_U64 = 0; i_U64 < ThreadPoolParam_X.MaxQueuedRequests_U32; i_U64++)
+  {
+    while (S_pDispatchDone_B[i_U64] == false)
+    {
+      printf("Wait end of processing of thread %zu...\n", i_U64);
+      Bof_MsSleep(100);
+    }
+  }
+}
+#else
+
 BOFERR PoolDispatch1()
 {
   printf("%u: PoolDispatch1 starts for 1000 ms...\n", BOF::Bof_GetMsTickCount());
@@ -215,7 +238,7 @@ TEST(BofThreadPool_Test, Dispatch)
     } while (pDispatchTicket == nullptr);
   }
 }
-
+#endif
 class BofThread_Test : public ::testing::Test
 {
 public:

@@ -47,7 +47,7 @@ include(cmake/fetch_content.cmake)
 # in code coverage computation as they are test programs themselves.
 set(EXTRA_COVERAGE_EXCLUSION "\'${CMAKE_CURRENT_SOURCE_DIR}/integration/*\'")
 
-project(bofstd VERSION 5.7.1.5)
+project(bofstd VERSION 5.7.2.1)
 
 if (EMSCRIPTEN)
 message("Force pthread detection for BofStd compilation under EMSCRIPTEN")

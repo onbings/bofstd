@@ -57,9 +57,9 @@ typedef struct tagTHREADNAME_INFO
 BEGIN_BOF_NAMESPACE()
 std::atomic<int32_t> BofThread::S_mBofThreadBalance = 0;
 
-BofThread::BofThread(): BofThread(false)
+BofThread::BofThread()
+    : BofThread(false)
 {
- 
 }
 BofThread::BofThread(bool _PriorityInversionAware_B)
 {
@@ -79,7 +79,7 @@ BOFERR BofThread::InitializeThread(const std::string &_rName_S, bool _PriorityIn
   mThreadErrorCode_E = Bof_CreateMutex(_rName_S + "_mtx", false, false, mThreadMtx_X);
   if (mThreadErrorCode_E == BOF_ERR_NO_ERROR)
   {
-    mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_wakeup_evt", false, 1, false, false, _PriorityInversionAware_B,mWakeUpEvent_X);
+    mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_wakeup_evt", false, 1, false, false, _PriorityInversionAware_B, mWakeUpEvent_X);
     if (mThreadErrorCode_E == BOF_ERR_NO_ERROR)
     {
       mThreadErrorCode_E = Bof_CreateEvent(_rName_S + "_enter_evt", false, 1, true, false, _PriorityInversionAware_B, mThreadEnterEvent_X);
@@ -789,7 +789,7 @@ void BofThread::BofThread_Thread()
   uint32_t Delta_U32;
 
   S_mBofThreadBalance++;
-  //printf("%u: Start of thread '%s' BAL %d this %p\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), this);
+  // printf("%u: Start of thread '%s' BAL %d this %p\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), this);
   Sts_E = Bof_SignalEvent(mThreadEnterEvent_X, 0);
   // printf("%u: ENTER THREAD SIGNAL MTHREADENTEREVENT_X %d\n", BOF::Bof_GetMsTickCount(), Sts_E);
   BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
@@ -904,14 +904,85 @@ void BofThread::BofThread_Thread()
   Sts_E = Bof_SignalEvent(mThreadExitEvent_X, 0);
   S_mBofThreadBalance--;
   // Bof_ErrorCode can fail does to app shudown (static initializer)
-  //printf("%u: BofThread_Thread End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
+  // printf("%u: BofThread_Thread End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), mThreadParam_X.Name_S.c_str(), S_mBofThreadBalance.load(), Sts_E, mThreadMustStop_B.load());
   // BOF_ASSERT(Sts_E == BOF_ERR_NO_ERROR);
 }
 int BofThread::S_BofThreadBalance()
 {
   return S_mBofThreadBalance.load();
 }
+#if 1
+BofThreadPool::BofThreadPool(const BOF_THREAD_POOL_PARAM &_rThreadPoolParam_X)
+{
+  uint32_t i_U32;
 
+  mThreadPoolParam_X = _rThreadPoolParam_X;
+  for (i_U32 = 0; i_U32 < mThreadPoolParam_X.PoolSize_U32; i_U32++)
+  {
+    std::unique_ptr<BOF::BofThread> puThread = std::make_unique<BOF::BofThread>();
+    puThread->SetThreadCallback(nullptr, BOF_BIND_0_ARG_TO_METHOD(this, BofThreadPool::OnProcessing), nullptr);
+    puThread->LaunchBofProcessingThread(mThreadPoolParam_X.BaseName_S + "_" + std::to_string(i_U32), mThreadPoolParam_X.PriorityInversionAware_B, false, 0,
+                                        mThreadPoolParam_X.ThreadSchedulerPolicy_E, mThreadPoolParam_X.ThreadPriority_E,
+                                        mThreadPoolParam_X.ThreadCpuCoreAffinityMask_U64, 1000, mThreadPoolParam_X.StackSize_U32);
+    mThreadCollection.emplace_back(std::move(puThread));
+  }
+}
+
+BofThreadPool::~BofThreadPool()
+{
+  // Stop all worker threads...
+  {
+    std::unique_lock<std::mutex> Lock(mMtx);
+    mDoShutdown_B = true;
+  }
+  mDoShedulCv.notify_all();
+  // Join...
+  for (auto &puThread : mThreadCollection)
+  {
+    puThread.reset(nullptr);
+  }
+}
+bool BofThreadPool::Enqueue(std::function<void(void *)> _Fn, void *_pArg)
+{
+  bool Rts_B = false;
+  THREAD_PARAM ThreadParam_X;
+  {
+    ThreadParam_X.Fn = _Fn;
+    ThreadParam_X.pArg = _pArg;
+    std::unique_lock<std::mutex> Lock(mMtx);
+    if ((mThreadPoolParam_X.MaxQueuedRequests_U32 == 0) || (mJobCollection.size() < mThreadPoolParam_X.MaxQueuedRequests_U32))
+    {
+      mJobCollection.push_back(ThreadParam_X);
+      Rts_B = true;
+    }
+  }
+  mDoShedulCv.notify_one();
+  return Rts_B;
+}
+
+BOFERR BofThreadPool::OnProcessing()
+{
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+
+  while (1)
+  {
+    THREAD_PARAM ThreadParam_X;
+    {
+      std::unique_lock<std::mutex> Lock(mMtx);
+      mDoShedulCv.wait(Lock, [&] { return ((!mJobCollection.empty()) || (mDoShutdown_B)); });
+      if ((mDoShutdown_B) && (mJobCollection.empty()))
+      {
+        break;
+      }
+      ThreadParam_X = mJobCollection.front();
+      mJobCollection.pop_front();
+    }
+    // assert(true == static_cast<bool>(Fn));
+    ThreadParam_X.Fn(ThreadParam_X.pArg);
+  }
+  return Rts_E;
+}
+#else
 class ThreadPoolExecutor
 {
 public:
@@ -1187,5 +1258,5 @@ BOFERR BofThreadPool::ReleaseDispatch(BOFERR _Sts_E, BOF_THREAD_POOL_ENTRY *_pTh
   BOF_SAFE_DELETE(_pThreadPoolExecutor);
   return Rts_E;
 }
-
+#endif
 END_BOF_NAMESPACE()

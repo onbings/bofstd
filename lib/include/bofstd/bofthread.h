@@ -208,7 +208,60 @@ struct BOF_THREAD_POOL_ENTRY
     FctToExec = nullptr;
   }
 };
+#if 1
+struct BOF_THREAD_POOL_PARAM
+{
+  uint32_t PoolSize_U32;
+  uint32_t MaxQueuedRequests_U32;
+  std::string BaseName_S;
+  bool PriorityInversionAware_B;
+  BOF::BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
+  BOF::BOF_THREAD_PRIORITY ThreadPriority_E;
+  uint64_t ThreadCpuCoreAffinityMask_U64;
+  uint32_t StackSize_U32;
 
+  BOF_THREAD_POOL_PARAM()
+  {
+    Reset();
+  }
+
+  void Reset()
+  {
+    PoolSize_U32 = 0;
+    MaxQueuedRequests_U32 = 0;
+    BaseName_S = "";
+    PriorityInversionAware_B = false;
+    ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
+    ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
+    ThreadCpuCoreAffinityMask_U64 = 0;
+    StackSize_U32 = 0;
+  }
+};
+class BofThreadPool
+{
+public:
+  BofThreadPool(const BOF_THREAD_POOL_PARAM &_rThreadPoolParam_X);
+  BofThreadPool(const BofThreadPool &) = delete;
+  ~BofThreadPool();
+
+  bool Enqueue(std::function<void(void *)> _Fn, void *_pArg);
+ 
+private:
+  BOFERR OnProcessing();
+
+  struct THREAD_PARAM
+  {
+    std::function<void(void *)> Fn;
+    void *pArg;
+  };
+  BOF_THREAD_POOL_PARAM mThreadPoolParam_X;
+  std::vector<std::unique_ptr<BOF::BofThread>> mThreadCollection;
+  std::list<THREAD_PARAM> mJobCollection;
+  bool mDoShutdown_B = false;
+  std::condition_variable mDoShedulCv;
+  std::mutex mMtx;
+};
+#else
 class ThreadPoolExecutor;
 class BOFSTD_EXPORT BofThreadPool
 {
@@ -234,5 +287,5 @@ public:
 
   BOFERR ReleaseDispatch(BOFERR _Sts_E, BOF_THREAD_POOL_ENTRY *_pThreadPoolEntry_X, ThreadPoolExecutor *_pThreadPoolExecutor);   //Called internally, do not call this method (ThreadPoolExecutor is internal)
 };
-
+#endif
 END_BOF_NAMESPACE()
