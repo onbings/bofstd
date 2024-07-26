@@ -602,7 +602,7 @@ void MyLibCode(bool _NullTestCase_B)
 
 TEST(ut_logger_ibofloggerfactory, MultipleChannel)
 {
-  std::shared_ptr<BOF::BofBasicLoggerFactory> psLoggerFactory = std::make_shared<BOF::BofBasicLoggerFactory>(true, false, false, ".");
+  std::shared_ptr<BOF::BofBasicLoggerFactory> psLoggerFactory = std::make_shared<BOF::BofBasicLoggerFactory>(true, false, false,(1024*1024), ".");
   MyLibInit(psLoggerFactory);
   EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT] != nullptr);
   EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC] != nullptr);

@@ -190,8 +190,8 @@ private:
 class BofBasicLoggerFactory : public BOF::IBofLoggerFactory
 {
 public:
-  BofBasicLoggerFactory(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, const std::string &_rLogFileSubDir_S)
-      : mOutputOnScreen_B(_OutputOnScreen_B), mAppend_B(_Append_B), mAutoFlush_B(_AutoFlush_B), mLogFileSubDir_S(_rLogFileSubDir_S)
+  BofBasicLoggerFactory(bool _OutputOnScreen_B, bool _Append_B, bool _AutoFlush_B, uint32_t _MaxSize_U32, const std::string &_rLogFileSubDir_S)
+      : mOutputOnScreen_B(_OutputOnScreen_B), mAppend_B(_Append_B), mAutoFlush_B(_AutoFlush_B), mMaxSize_U32(_MaxSize_U32), mLogFileSubDir_S(_rLogFileSubDir_S)
   {
   }
   virtual ~BofBasicLoggerFactory() = default;
@@ -211,7 +211,7 @@ public:
       psRts = std::make_shared<BasicLogger>(_rLibNamePrefix_S, _rLoggerChannelName_S);
       if (psRts)
       {
-        if (psRts->Open(mOutputOnScreen_B, mAppend_B, mAutoFlush_B, (1024*1024), mLogFileSubDir_S))
+        if (psRts->Open(mOutputOnScreen_B, mAppend_B, mAutoFlush_B, mMaxSize_U32, mLogFileSubDir_S))
         {
           ChannelName_S = BuildChannelName(_rLibNamePrefix_S, _rLoggerChannelName_S);
           mLoggerCollection[ChannelName_S] = psRts;
@@ -258,6 +258,7 @@ private:
   bool mOutputOnScreen_B;
   bool mAppend_B;
   bool mAutoFlush_B;
+  uint32_t mMaxSize_U32;
   const std::string mLogFileSubDir_S;
 };
 END_BOF_NAMESPACE()
