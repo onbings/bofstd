@@ -15,6 +15,7 @@
  */
 #pragma once
 #include <bofstd/ibofloggerfactory.h>
+#include <bofstd/boffs.h>
 #include <chrono>
 #include <ctime>
 #include <map>
