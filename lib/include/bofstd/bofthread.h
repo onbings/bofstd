@@ -31,6 +31,7 @@
 
 #include <thread>
 #include <vector>
+#include <list>
 
 BEGIN_BOF_NAMESPACE()
 struct BOF_THREAD_PARAM
