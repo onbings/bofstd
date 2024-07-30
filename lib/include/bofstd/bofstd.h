@@ -36,15 +36,15 @@ cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUI
 #if defined(_WIN32)
 #define NOMINMAX
 #include <WinSock2.h>
-#include <ws2tcpip.h>
 #include <Windows.h>
+#include <ws2tcpip.h>
 typedef bool(WINAPI *BofSignalHandler)(uint32_t);
 #else
 #if defined(__EMSCRIPTEN__)
 #include <emscripten/html5.h> //for emscripten_performance_now in Bof_RdTsc
 using BofEmscriptenCallback = std::function<BOFERR(void *)>;
 #else
-#include <x86intrin.h> 	//for __rdtsc in Bof_RdTsc
+#include <x86intrin.h> //for __rdtsc in Bof_RdTsc
 #endif
 typedef bool (*BofSignalHandler)(uint32_t);
 #endif
@@ -350,8 +350,17 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
   {                                          \
     pFile = strrchr(pPath, '/');             \
     if (!pFile)                              \
+    {                                        \
       pFile = strrchr(pPath, '\\');          \
-    pFile = pFile ? ++pFile : pPath;         \
+    }                                        \
+    if (pFile)                               \
+    {                                        \
+      pFile++;                               \
+    }                                        \
+    else                                     \
+    {                                        \
+      pFile = pPath;                         \
+    }                                        \
   }
 #define BOF_COMPUTE_DELTA(start, end, delta)               \
   {                                                        \
@@ -656,7 +665,7 @@ inline BOFSTD_EXPORT uint64_t Bof_RdTsc()
   asm volatile ("rdtsc" : "=a" (Low_U32), "=d" (High_U32));
   return (((uint64_t)High_U32 << 32) | Low_U32);
   */
-  return static_cast<uint64_t>(emscripten_performance_now() * 1000000.0);  //Calls JavaScript performance.now(), returns a high precision wallclock time value in msecs.
+  return static_cast<uint64_t>(emscripten_performance_now() * 1000000.0); // Calls JavaScript performance.now(), returns a high precision wallclock time value in msecs.
 #else
   return __rdtsc();
 #endif
@@ -735,7 +744,7 @@ private:
     BOF::BofException Exception(Header, Context, Where.str(), ErrorCode); \
     throw Exception;                                                      \
   }
-//extern BOFSTDPARAM GL_BofStdParam_X;
+// extern BOFSTDPARAM GL_BofStdParam_X;
 
 END_BOF_NAMESPACE()
 

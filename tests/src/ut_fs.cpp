@@ -756,8 +756,8 @@ TEST(Fs_Test, ResetFileContent)
   NewLine_S = Line_S + Line_S;
   EXPECT_STREQ(LineRead_S.c_str(), NewLine_S.c_str());
 
-#if defined(_WIN32)
-#else
+//#if defined(_WIN32)
+//#else
   EXPECT_EQ(Bof_ResetFileContent(Path, false, Line_S.size()), BOF_ERR_NO_ERROR);
 
   EXPECT_EQ(Bof_ReadFile(Path, LineRead_S), BOF_ERR_NO_ERROR);
@@ -772,5 +772,5 @@ TEST(Fs_Test, ResetFileContent)
   EXPECT_EQ(Bof_ReadFile(Path, LineRead_S), BOF_ERR_NO_ERROR);
   //	EXPECT_STREQ(LineRead_S.c_str(), (Line_S + LineWrt_S).c_str());
   EXPECT_STREQ(LineRead_S.c_str(), Line_S.c_str()); // Extra zero are inserted at the beginning as Io has an offset of Line_S.size() but the file has been shrinked to O byte->write add extra 0 upp to crt file pos LineWrt_S.c_str());
-#endif
+//#endif
 }

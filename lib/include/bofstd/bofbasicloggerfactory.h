@@ -23,16 +23,16 @@
 #include <string.h>
 
 BEGIN_BOF_NAMESPACE()
-class BasicLogger : public BOF::IBofLogger
+class BofBasicLogger : public BOF::IBofLogger
 {
 public:
-  BasicLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S)
+  BofBasicLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S)
       : BOF::IBofLogger()
   {
     mChannelName_S = _rLibNamePrefix_S + _rLoggerChannelName_S;
     Open(false, false, false, 0, "");
   }
-  virtual ~BasicLogger()
+  virtual ~BofBasicLogger()
   {
     if (mpLogFile_X)
     {
@@ -60,7 +60,7 @@ public:
 
       t = std::time(nullptr);
       std::strftime(pDateTime_c, sizeof(pDateTime_c), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
-      BOF_GET_FILE_FROM_PATH(_rFile_S.c_str(), pFile_c)
+      BOF_GET_FILE_FROM_PATH(_rFile_S.c_str(), pFile_c);
       sprintf(pHeader_c, "%s: %zd [%s] %s:%d (%s)->", pDateTime_c, DeltaInuS, mChannelName_S.c_str(), pFile_c, _Line_U32, _rFunc_S.c_str());
       mNbLogLine_U32++;
       if (mOutputOnScreen_B)
@@ -136,7 +136,7 @@ public:
   bool SwapLogFile()
   {
     bool Rts_B = false;
-    char pBackLogFilePath_c[1024];
+    char pBackLogFilePath_c[1024+32];
 
     //if (Close()) //No because never ending loop (Close call V_Log) and modify var mOutputOnScreen_B
     if (mpLogFile_X)
@@ -202,13 +202,13 @@ public:
   }
   std::shared_ptr<BOF::IBofLogger> V_Create(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) override
   {
-    std::shared_ptr<BasicLogger> psRts = nullptr;
+    std::shared_ptr<BofBasicLogger> psRts = nullptr;
     std::string ChannelName_S;
 
     std::lock_guard<std::mutex> Lock(mLoggerCollectionMtx);
     if (V_GetLogger(_rLibNamePrefix_S, _rLoggerChannelName_S) == nullptr)
     {
-      psRts = std::make_shared<BasicLogger>(_rLibNamePrefix_S, _rLoggerChannelName_S);
+      psRts = std::make_shared<BofBasicLogger>(_rLibNamePrefix_S, _rLoggerChannelName_S);
       if (psRts)
       {
         if (psRts->Open(mOutputOnScreen_B, mAppend_B, mAutoFlush_B, mMaxSize_U32, mLogFileSubDir_S))
@@ -226,7 +226,7 @@ public:
   }
   std::shared_ptr<BOF::IBofLogger> V_GetLogger(const std::string &_rLibNamePrefix_S, const std::string &_rLoggerChannelName_S) override
   {
-    std::shared_ptr<BasicLogger> psRts = nullptr;
+    std::shared_ptr<BofBasicLogger> psRts = nullptr;
     std::string ChannelName_S;
     // no mutex as it is used by V_Create and V_Destroy
     ChannelName_S = BuildChannelName(_rLibNamePrefix_S, _rLoggerChannelName_S);
@@ -254,7 +254,7 @@ public:
 
 private:
   std::mutex mLoggerCollectionMtx;
-  std::map<std::string, std::shared_ptr<BasicLogger>> mLoggerCollection;
+  std::map<std::string, std::shared_ptr<BofBasicLogger>> mLoggerCollection;
   bool mOutputOnScreen_B;
   bool mAppend_B;
   bool mAutoFlush_B;
