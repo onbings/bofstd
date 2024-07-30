@@ -107,7 +107,7 @@ public:
     else
     {
       sprintf(mpLogFilePath_c, "%s/%s.log", _rLogFileSubDir_S.c_str(), mChannelName_S.c_str());
-      mpLogFile_X = _Append_B ? fopen(mpLogFilePath_c, "w+") : fopen(mpLogFilePath_c, "a+");
+      mpLogFile_X = _Append_B ? fopen(mpLogFilePath_c, "a+") : fopen(mpLogFilePath_c, "w+");
       if (mpLogFile_X)
       {
         V_Log(LOG_SEVERITY_FORCE, __FILE__, __LINE__, __func__, "New log session started...\n");
