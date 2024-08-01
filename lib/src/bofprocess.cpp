@@ -161,8 +161,8 @@ int KillSubProcess(BOF_PROCESS _Pid_X, int _Options_i)
 #if defined(_WIN32)
     Rts_i = (TerminateProcess(_Pid_X.Pi_X.hProcess, -1)) ? 0 : -1;
 #else
-    char pCommand_c[256];
-    char pResult_c[256];
+    char pCommand_c[0x1000];
+    char pResult_c[0x1000];
     char *pLine_c;
     BOF_PROCESS Pid_X, ChildPid_X;
     BOFERR Sts_E;
@@ -616,8 +616,8 @@ BOFERR BofProcess::S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const c
   BOFERR Rts_E = BOF_ERR_EINVAL;
   FILE *pPipe_X = nullptr;
   int Len_i = 0;
-  char pCommand_c[256];
-  char pBuf_c[128];
+  char pCommand_c[0x1000];
+  char pBuf_c[0x1000];
 
   _rExitCode_i = 127;
   if (_pCommand_c != nullptr)
@@ -755,7 +755,7 @@ BOFERR BofProcess::S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, c
     int I_S32 = 0;
     bool Read_B = false;
     char *Args_c[] = {(char *)"sh", (char *)"-c", (char *)_pCommand_c, nullptr};
-    char pBuf_c[128];
+    char pBuf_c[0x1000];
     posix_spawn_file_actions_t Actions_X;
     posix_spawnattr_t Attributes_X;
     int Policy_i = 0;
@@ -961,8 +961,8 @@ BOFERR BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const c
     int File_i = 0;
     char *Args_c[] = {(char *)"/bin/sh", (char *)"-c", (char *)_pCommand_c, nullptr};
     ssize_t Read_i = 0;
-    char pTempFileName_c[256];
-    char pRedirect_c[512];
+    char pTempFileName_c[0x1000];
+    char pRedirect_c[0x1000];
     bool CaptureOutput_B = (_pOutput_c != nullptr) && (_Size_U32 > 0);
 
     if (CaptureOutput_B)
@@ -1041,8 +1041,8 @@ BOFERR BofProcess::S_ReadU32FromFile(const char *_pFile_c, uint32_t *_pValue_U32
   BOFERR Rts_E = BOF_ERR_EINVAL;
   int ExitCode_i;
   BOF_PROCESS Pid_X;
-  char pResult_c[256];
-  char pCmd_c[256];
+  char pResult_c[0x1000];
+  char pCmd_c[0x1000];
 
   if ((_pFile_c != nullptr) && (_pValue_U32 != nullptr))
   {
@@ -1080,8 +1080,8 @@ BOFERR BofProcess::S_WriteU32ToFile(const char *_pFile_c, uint32_t _Value_U32)
   BOFERR Rts_E = BOF_ERR_EINVAL;
   int ExitCode_i;
   BOF_PROCESS Pid_X;
-  char pResult_c[256];
-  char pCmd_c[256];
+  char pResult_c[0x1000];
+  char pCmd_c[0x1000];
 
   if (_pFile_c != nullptr)
   {
@@ -1163,7 +1163,7 @@ BOFERR BofProcess::S_SpawnProcess(const char *_pProgram_c, const char *_pArgumen
       _rPid_X.Pid = -1;
     }
 #else
-    char *ppArgs_c[64];
+    char *ppArgs_c[128];
     char pArgZero_c[0x1000];
     int NbArgs_i;
     char *pPtr_c;
