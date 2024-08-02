@@ -53,6 +53,7 @@ TEST_F(Process_Test, Execute_popen)
   BOFERR Sts_E;
   BOF_PROCESS Pid_X;
   char pResult_c[256];
+  std::string Output_S;
 
   memset(pResult_c, 0x00, sizeof(pResult_c));
 
@@ -70,6 +71,18 @@ TEST_F(Process_Test, Execute_popen)
   Sts_E = BofProcess::S_Execute(pResult_c, sizeof(pResult_c), "ThisCommandDoesNotExist", Pid_X, ExitCode_i);
   EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
   EXPECT_NE(ExitCode_i, 0);
+
+  Sts_E = BofProcess::S_Execute_popen("alsfkdjlkjs", Output_S, ExitCode_i);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(ExitCode_i, 0);
+
+  Sts_E = BofProcess::S_Execute_popen("ls -alsfkdjlkjs", Output_S, ExitCode_i);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_NE(ExitCode_i, 0);
+
+  Sts_E = BofProcess::S_Execute_popen("echo Babar", Output_S, ExitCode_i);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_EQ(ExitCode_i, 0);
 }
 TEST_F(Process_Test, Execute_vfork)
 {

@@ -539,6 +539,49 @@ BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_
 {
   return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, _Mode_E, _rPid_X, _rExitCode_i);
 }
+//More secure than the next one
+BOFERR BofProcess::S_Execute_popen(const std::string &_rCommand_S, std::string &_rOutput_S, int &_rExitCode_i)
+{
+  BOFERR Rts_E = BOF_ERR_EINVAL;
+  FILE *pPipe_X = nullptr;
+  int Len_i;
+  std::string Command_S;
+  char pBuffer_c[0x1000];
+  std::stringstream Output_S;
+
+  _rOutput_S = "";
+  _rExitCode_i = 127;
+
+  Rts_E = BOF_ERR_NOT_OPENED;
+  // Redirect stderr to sdout to catch all error
+  Command_S = _rCommand_S + " 2>&1";
+  // Open pipe in read mode
+  pPipe_X = popen(Command_S.c_str(), "r");
+  if (pPipe_X != nullptr)
+  {
+    while (!feof(pPipe_X))
+    {
+      Len_i = fread(pBuffer_c, 1, sizeof(pBuffer_c) - 1, pPipe_X); //-1 for extra 0
+      if (Len_i > 0)
+      {
+        pBuffer_c[Len_i] = 0;
+        Output_S << pBuffer_c;
+      }
+    }
+    _rOutput_S = Output_S.str();
+    //printf("Output: %zd:%s\n", _rOutput_S.size(), _rOutput_S.c_str());
+    // Grab the forked status
+    _rExitCode_i = pclose(pPipe_X);
+    Rts_E = (_rExitCode_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
+    // Convert it to get application return code
+    _rExitCode_i = WEXITSTATUS(_rExitCode_i);
+  }
+  else
+  {
+    Rts_E = BOF_ERR_CREATE;
+  }
+  return Rts_E;
+}
 
 /*!
    Description
@@ -578,7 +621,16 @@ BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_
       }
     case BofProcess::EXECUTE_POPEN:
       {
-        Rts_E = BofProcess::S_Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, _rPid_X, _rExitCode_i);
+        std::string Output_S;
+        uint32_t Len_U32;
+        //More secure than the next one
+        Rts_E=S_Execute_popen(_pCommand_c, Output_S, _rExitCode_i);
+        if (_pOutput_c)
+        {
+          Len_U32 = (Output_S.size() > _Size_U32) ? _Size_U32:Output_S.size();
+          memcpy(_pOutput_c, Output_S.c_str(), Len_U32);
+        }
+        //Rts_E = BofProcess::S_Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, _rPid_X, _rExitCode_i);
         break;
       }
 
@@ -1282,7 +1334,10 @@ BOFERR BofProcess::S_KillProcess(const char *_pProcessName_c)
     const char *pProcessname_c = strrchr(_pProcessName_c, '/');
     snprintf(pCmd_c, sizeof(pCmd_c), "pkill %s", pProcessname_c ? pProcessname_c + 1 : _pProcessName_c);
 #endif
-    Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
+    std::string Output_S;
+    //More secure than the next one
+    Rts_E = S_Execute_popen(pCmd_c, Output_S, ExitCode_i);
+    //Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (ExitCode_i)
@@ -1291,7 +1346,9 @@ BOFERR BofProcess::S_KillProcess(const char *_pProcessName_c)
 #if defined(_WIN32)
 #else
         snprintf(pCmd_c, sizeof(pCmd_c), "killall %s", pProcessname_c ? pProcessname_c + 1 : _pProcessName_c);
-        Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
+        //More secure than the next one
+        Rts_E = S_Execute_popen(pCmd_c, Output_S, ExitCode_i);
+        //Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
           if (ExitCode_i)

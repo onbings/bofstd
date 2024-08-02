@@ -88,6 +88,8 @@ public:
   static BOFERR S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
   static BOFERR S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
   static BOFERR S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, ExecuteMode _Mode_E, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
+  //More secure than the next one
+  static BOFERR S_Execute_popen(const std::string &_rCommand_S, std::string &_rOutput_S, int &_rExitCode_i);
   static BOFERR S_Execute_popen(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
   static BOFERR S_Execute_posix_spawn(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
   static BOFERR S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const char *_pCommand_c, uint32_t _Timeout_U32, BOF_PROCESS &_rPid_X, int &_rExitCode_i);
