@@ -165,6 +165,7 @@ BOFERR Bof_GetNetworkInterfaceInfo(const std::string _rInterfaceName_S, BOF_INTE
     {
       free(pAdapterAddressArray_X);
       pAdapterAddressArray_X = nullptr;
+      OutputBufferLen_UL *= 2;
     }
     else
     {
@@ -585,8 +586,7 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
   BOF_NETWORK_INTERFACE_PARAM NetworkInterfaceParam_X;
 
 #if defined(_WIN32)
-  // TODO: Implement IpV6 BofSocket support
-  ULONG AddressSize_U32 = 0;
+  ULONG AddressSize_U32 = 0, i_U32, Family_U32;
   DWORD rc;
   int NbIter_i = 0;
   IP_ADAPTER_ADDRESSES *pIpAddresses_X, *pCrtIpAddress_X;
@@ -596,69 +596,99 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
   size_t AsciiSize;
   char *pAsciiFriendlyName_c, pText_c[NI_MAXHOST];
   bool Valid_B;
-  BOF_SOCKADDR_IN IpAddress_X, NetMask_X, Broadcast_X;
+  BOF_SOCKADDR_IN IpAddress4_X, NetMask4_X, Broadcast4_X;
+  BOF_SOCKADDR_IN6 IpAddress6_X, NetMask6_X, Broadcast6_X;
 
-  rc = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, nullptr, nullptr, &AddressSize_U32);
-  if (rc == ERROR_BUFFER_OVERFLOW)
+  for (i_U32 = 0; i_U32 < 2; i_U32++)
   {
-    do
+    Family_U32 = (i_U32 == 0) ? AF_INET:AF_INET6;
+    rc = GetAdaptersAddresses(Family_U32, GAA_FLAG_INCLUDE_PREFIX, nullptr, nullptr, &AddressSize_U32);
+    if (rc == ERROR_BUFFER_OVERFLOW)
     {
-      pIpAddresses_X = (IP_ADAPTER_ADDRESSES *)malloc(AddressSize_U32);
-      rc = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, nullptr, pIpAddresses_X, &AddressSize_U32);
-      if (rc == ERROR_BUFFER_OVERFLOW)
+      do
       {
+        pIpAddresses_X = (IP_ADAPTER_ADDRESSES *)malloc(AddressSize_U32);
+        rc = GetAdaptersAddresses(Family_U32, GAA_FLAG_INCLUDE_PREFIX, nullptr, pIpAddresses_X, &AddressSize_U32);
+        if (rc == ERROR_BUFFER_OVERFLOW)
+        {
+          BOF_SAFE_FREE(pIpAddresses_X);
+          AddressSize_U32 *= 2;
+        }
+        else
+        {
+          break;
+        }
+        ++NbIter_i;
+      }
+      while ((rc == ERROR_BUFFER_OVERFLOW) && (NbIter_i < 3));
+
+      if (rc == NO_ERROR)
+      {
+        Rts_E = BOF_ERR_NO_ERROR;
+        pCrtIpAddress_X = pIpAddresses_X;
+        while ((pCrtIpAddress_X) && (Rts_E == BOF_ERR_NO_ERROR))
+        {
+          pUnicastAddress_X = pCrtIpAddress_X->FirstUnicastAddress;
+          pAdapterPrefix_X = pCrtIpAddress_X->FirstPrefix;
+
+          pFriendlyName_wc = pCrtIpAddress_X->FriendlyName;
+          AsciiSize = wcstombs(0, pFriendlyName_wc, 0) + 1;
+          pAsciiFriendlyName_c = (char *)malloc(AsciiSize);
+          wcstombs(pAsciiFriendlyName_c, pFriendlyName_wc, AsciiSize);
+
+          Valid_B = (pCrtIpAddress_X->OperStatus == IfOperStatusUp) && (pUnicastAddress_X) && (pAdapterPrefix_X) && ((pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET)
+                                                                                                                     || (pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET6)) &&
+            (pAdapterPrefix_X->PrefixLength <= 64);  //32 ipv4 64 ipv6
+
+          if (Valid_B)
+          {
+            NetworkInterfaceParam_X.IpV6_B = (pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET6);
+            if (NetworkInterfaceParam_X.IpV6_B)
+            {
+              IpAddress6_X = *(BOF_SOCKADDR_IN6 *)pUnicastAddress_X->Address.lpSockaddr;
+              NetworkInterfaceParam_X.SockAddr6_X = IpAddress6_X;
+              //IpAddress6_X.sin6_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
+              // Calculate the IPv6 netmask
+              memset(&NetMask6_X.sin6_addr, 0, sizeof(NetMask6_X.sin6_addr));
+              for (int i = 0; i < pAdapterPrefix_X->PrefixLength / 8; ++i)
+              {
+                NetMask6_X.sin6_addr.s6_addr[i] = 0xff;
+              }
+              if (pAdapterPrefix_X->PrefixLength % 8)
+              {
+                NetMask6_X.sin6_addr.s6_addr[pAdapterPrefix_X->PrefixLength / 8] = (0xff << (8 - (pAdapterPrefix_X->PrefixLength % 8)));
+              }
+              NetMask6_X.sin6_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
+              Broadcast6_X = IpAddress6_X;
+              for (int i = 0; i < 16; ++i)
+              {
+                Broadcast6_X.sin6_addr.s6_addr[i] |= ~NetMask6_X.sin6_addr.s6_addr[i];
+              }
+
+              Rts_E = Bof_GetIpMaskGw(pAsciiFriendlyName_c, (BOF_SOCKADDR *)&IpAddress6_X, (BOF_SOCKADDR *)&NetMask6_X, (BOF_SOCKADDR *)&Broadcast6_X, NetworkInterfaceParam_X);
+            }
+            else
+            {
+              IpAddress4_X = *(BOF_SOCKADDR_IN *)pUnicastAddress_X->Address.lpSockaddr;
+              NetworkInterfaceParam_X.SockAddr4_X = IpAddress4_X;
+              //IpAddress4_X.sin_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
+              NetMask4_X.sin_addr.s_addr = htonl((0xffffffffU) << (32 - pAdapterPrefix_X->PrefixLength));
+              NetMask4_X.sin_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
+              Broadcast4_X = IpAddress4_X;
+              Broadcast4_X.sin_addr.s_addr |= ~(NetMask4_X.sin_addr.s_addr);
+
+              Rts_E = Bof_GetIpMaskGw(pAsciiFriendlyName_c, (BOF_SOCKADDR *)&IpAddress4_X, (BOF_SOCKADDR *)&NetMask4_X, (BOF_SOCKADDR *)&Broadcast4_X, NetworkInterfaceParam_X);
+            }
+            if (Rts_E == BOF_ERR_NO_ERROR)
+            {
+              _rListOfNetworkInterface_X.push_back(NetworkInterfaceParam_X);
+            }
+          }
+          BOF_SAFE_FREE(pAsciiFriendlyName_c);
+          pCrtIpAddress_X = pCrtIpAddress_X->Next;
+        }
         BOF_SAFE_FREE(pIpAddresses_X);
       }
-      else
-      {
-        break;
-      }
-      ++NbIter_i;
-    } while ((rc == ERROR_BUFFER_OVERFLOW) && (NbIter_i < 3));
-
-    if (rc == NO_ERROR)
-    {
-      Rts_E = BOF_ERR_NO_ERROR;
-      pCrtIpAddress_X = pIpAddresses_X;
-      while ((pCrtIpAddress_X) && (Rts_E == BOF_ERR_NO_ERROR))
-      {
-        pUnicastAddress_X = pCrtIpAddress_X->FirstUnicastAddress;
-        pAdapterPrefix_X = pCrtIpAddress_X->FirstPrefix;
-
-        pFriendlyName_wc = pCrtIpAddress_X->FriendlyName;
-        AsciiSize = wcstombs(0, pFriendlyName_wc, 0) + 1;
-        pAsciiFriendlyName_c = (char *)malloc(AsciiSize);
-        wcstombs(pAsciiFriendlyName_c, pFriendlyName_wc, AsciiSize);
-
-        Valid_B = (pCrtIpAddress_X->OperStatus == IfOperStatusUp) && (pUnicastAddress_X) && (pAdapterPrefix_X) && ((pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET) || (pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET6)) &&
-                  (pAdapterPrefix_X->PrefixLength <= 32);
-
-        if (Valid_B)
-        {
-          IpAddress_X = *(BOF_SOCKADDR_IN *)pUnicastAddress_X->Address.lpSockaddr;
-          IpAddress_X.sin_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
-          NetMask_X.sin_addr.s_addr = htonl((0xffffffffU) << (32 - pAdapterPrefix_X->PrefixLength));
-          NetMask_X.sin_family = pUnicastAddress_X->Address.lpSockaddr->sa_family;
-          Broadcast_X = IpAddress_X;
-          if (pUnicastAddress_X->Address.lpSockaddr->sa_family == AF_INET)
-          {
-            Broadcast_X.sin_addr.s_addr |= ~(NetMask_X.sin_addr.s_addr);
-          }
-          else
-          {
-            Broadcast_X.sin_addr.s_addr |= ~(NetMask_X.sin_addr.s_addr);
-          }
-
-          Rts_E = Bof_GetIpMaskGw(pAsciiFriendlyName_c, (BOF_SOCKADDR *)&IpAddress_X, (BOF_SOCKADDR *)&NetMask_X, (BOF_SOCKADDR *)&Broadcast_X, NetworkInterfaceParam_X);
-          if (Rts_E == BOF_ERR_NO_ERROR)
-          {
-            _rListOfNetworkInterface_X.push_back(NetworkInterfaceParam_X);
-          }
-        }
-        BOF_SAFE_FREE(pAsciiFriendlyName_c);
-        pCrtIpAddress_X = pCrtIpAddress_X->Next;
-      }
-      BOF_SAFE_FREE(pIpAddresses_X);
     }
   }
 #else
@@ -693,7 +723,15 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
           if (Sts_i == 0)
           {
             IpV6_B = (Family_i == AF_INET6);
-
+            NetworkInterfaceParam_X.IpV6_B = IpV6_B;
+            if (NetworkInterfaceParam_X.IpV6_B)
+            {
+              NetworkInterfaceParam_X.SockAddr6_X = *(BOF_SOCKADDR_IN6 *)pInterface_X->ifa_addr;
+            }
+            else
+            {
+              NetworkInterfaceParam_X.SockAddr4_X = *(BOF_SOCKADDR_IN *)pInterface_X->ifa_addr;
+            }
             printf("Address: %s\n", pHost_c);
             printf("Family: %s\n", IpV6_B ? "IPv6" : "IPv4");
             inet_ntop(Family_i, pInterface_X->ifa_addr->sa_data, pIp_c, INET6_ADDRSTRLEN);
@@ -970,65 +1008,145 @@ BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string &_rIpOrUrlAddre
   }
   return Rts_E;
 }
+bool Bof_IsItAnIpV6Address(const std::string &_rIpPortV6Address_S, std::string &_rIpAddress_S, uint16_t &_rPort_U16)
+{
+  bool Rts_B = false;
+  // Regex pattern for IPv6 with optional zone index and port
+  std::regex RegExIpV6(R"(\[?([a-fA-F0-9:]+(?:%[0-9a-zA-Z]+)?)\]?(?::(\d+))?)");
+  std::smatch Match;
+  int Port_i;
+
+  if (std::regex_match(_rIpPortV6Address_S, Match, RegExIpV6))
+  {
+    if (Match.size() > 1)
+    {
+      _rIpAddress_S = Match[1].str();
+      Rts_B = true;
+    }
+    if ((Match.size() > 2) && (Match[2].matched))
+    {
+      Rts_B = false;
+      try
+      {
+        Port_i = std::stoi(Match[2].str());
+        if ((Port_i >= 0) && (Port_i < 0x10000))
+        {
+          _rPort_U16 = static_cast<uint16_t>(Port_i);
+          Rts_B = true;
+        }
+      }
+      catch (const std::exception &)
+      {
+      }
+    }
+  }
+  return Rts_B;
+}
+// 
+  // Test cases
+// std::vector<std::string> test_cases = {
+//   "fe80::9136:38a1:c8cb:1c8f",
+//   "fe80::9136:38a1:c8cb:1c8f%27",
+//   "[fe80::9136:38a1:c8cb:1c8f]:8080",
+//   "[fe80::9136:38a1:c8cb:1c8f%27]:8080",
+//   "invalid_address",
+//   "fe80::9136:38a1:c8cb:1c8f:99999" // Invalid port
+// };
+//
+// for (const auto &test_case : test_cases)
+// {
+//   std::smatch match;
+//   if (std::regex_match(test_case, match, ipv6_regex))
+//   {
+//     std::cout << "Valid IPv6: " << match[1].str();
+//     if (match[2].matched)
+//     {
+//       std::cout << " with port: " << match[2].str();
+//     }
+//     std::cout << std::endl;
+//   }
+//   else
+//   {
+//     std::cout << "Invalid IPv6: " << test_case << std::endl;
+//   }
+// }
+
+
 BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
-  std::string::size_type PosColon, PosStartBracket, PosEndBracket, PosProtocol;
-  std::string IpAddress_S;
+  std::string::size_type PosColon, PosProtocol; // PosStartBracket, PosEndBracket, PosProtocol;
+  std::string IpAddress_S, IpV6Address_S;
   uint16_t Port_U16;
   BOF_SOCKET_ADDRESS Ip_X;
   int Port_i;
   std::vector<BOF_SOCKET_ADDRESS> ListOfIpAddress_X;
   //uint32_t ProtoNameSize_U32;
-
+/*
+std::vector<std::string> TstCaseCollection = {
+   "fe80::9136:38a1:c8cb:1c8f",
+   "fe80::9136:38a1:c8cb:1c8f%27",
+   "[fe80::9136:38a1:c8cb:1c8f]:8080",
+   "[fe80::9136:38a1:c8cb:1c8f%27]:8080",
+   "[fe80::9136:38a1:c8cb:1c8f%27]:99999",
+   "invalid_address"
+};
+bool Sts_B;
+for (const auto &rTstCase_S : TstCaseCollection)
+{
+  IpV6Address_S = "";
+  Port_U16 = 0;
+  Sts_B=Bof_IsItAnIpV6Address(rTstCase_S, IpV6Address_S, Port_U16);
+  printf("in %s sts %d add %s p %d\n", rTstCase_S.c_str(), Sts_B, IpV6Address_S.c_str(), Port_U16);
+}
+*/
   IpAddress_S = Bof_StringTrim(_rIpAddress_S);
   if (IpAddress_S != "")
   {
     Rts_E = BOF_ERR_NO_ERROR;
     Port_U16 = 0;
-    PosColon = IpAddress_S.rfind(':');
-    PosStartBracket = IpAddress_S.find('[');
-    PosEndBracket = IpAddress_S.rfind(']');
+    Ip_X.IpV6_B = false;
+    //Standard Representation: const char *ipv6_address = "fe80::9136:38a1:c8cb:1c8f";
+//URL/URI Representation: const char *url = "http://[fe80::9136:38a1:c8cb:1c8f]:8080/";
 
-    if ((PosColon != std::string::npos) && ((PosColon > PosEndBracket) || (PosEndBracket == std::string::npos)))
+    if (Bof_IsItAnIpV6Address(_rIpAddress_S, IpV6Address_S, Port_U16))
     {
-      if (PosColon == IpAddress_S.size() - 1)
+      IpAddress_S = IpV6Address_S;
+      Ip_X.IpV6_B = true;
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+    else
+    {
+      PosColon = IpAddress_S.rfind(':');
+      if (PosColon != std::string::npos)
       {
-        Rts_E = BOF_ERR_EINVAL;
-      }
-      else
-      {
-        Rts_E = BOF_ERR_NO_ERROR;
-        try
+        if (PosColon == IpAddress_S.size() - 1)
         {
-          //          Port_U16 = static_cast<uint16_t> (std::atoi(IpAddress_S.substr(PosColon + 1).c_str()));
-          Port_i = std::stoi(IpAddress_S.substr(PosColon + 1));
-          if ((Port_i >= 0) && (Port_i < 0x10000))
-          {
-            IpAddress_S = IpAddress_S.substr(0, PosColon);
-            Port_U16 = static_cast<uint16_t>(Port_i);
-          }
+          Rts_E = BOF_ERR_EINVAL;
         }
-        catch (const std::exception &)
+        else
         {
+          Rts_E = BOF_ERR_NO_ERROR;
+          try
+          {
+            //          Port_U16 = static_cast<uint16_t> (std::atoi(IpAddress_S.substr(PosColon + 1).c_str()));
+            Port_i = std::stoi(IpAddress_S.substr(PosColon + 1));
+            if ((Port_i >= 0) && (Port_i < 0x10000))
+            {
+              IpAddress_S = IpAddress_S.substr(0, PosColon);
+              Port_U16 = static_cast<uint16_t>(Port_i);
+            }
+          }
+          catch (const std::exception &)
+          {
+          }
         }
       }
     }
     if ((Rts_E == BOF_ERR_NO_ERROR) && (IpAddress_S != ""))
     {
       //"tcp://[102:3c0:405:6a8:708:901:a0b:c01]:1234"->IpAddress_S=tcp://[102:3c0:405:6a8:708:901:a0b:c01]
-      Ip_X.IpV6_B = false;
       Ip_X.SocketType_E = BOF_SOCK_TYPE::BOF_SOCK_UNKNOWN;
-
-      if (IpAddress_S.back() == ']')
-      {
-        if ((PosStartBracket != std::string::npos) && (PosEndBracket != std::string::npos) && (PosStartBracket + 2 < PosEndBracket)) // At least [::]
-        {
-          Ip_X.IpV6_B = true;
-          IpAddress_S = IpAddress_S.substr(PosStartBracket + 1, PosEndBracket - PosStartBracket - 1);
-        }
-      }
-
       PosProtocol = IpAddress_S.find("://");
       if (PosProtocol != std::string::npos)
       {

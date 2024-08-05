@@ -826,7 +826,7 @@ void TestListAndSetupInterface(bool _IsIpV6_B)
   {
     EXPECT_FALSE(ListOfNetworkInterface_X[i_U32].IpAddress_S == "");
     EXPECT_FALSE(ListOfNetworkInterface_X[i_U32].IpMask_S == "");
-    EXPECT_FALSE(ListOfNetworkInterface_X[i_U32].IpV6_B);
+    //We detect also ipv6 EXPECT_FALSE(ListOfNetworkInterface_X[i_U32].IpV6_B);
     if (ListOfNetworkInterface_X[i_U32].Info_X.MtuSize_U32 != 0xFFFFFFFF)
     {
       EXPECT_EQ(ListOfNetworkInterface_X[i_U32].Info_X.MacAddress.size(), 6);

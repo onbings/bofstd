@@ -33,7 +33,7 @@
 #include <ws2tcpip.h>
 #define BOF_POLL_RDHUP 0 // does not exist in _WIN32
 #define socklen_t int
-#define ifaddrs BOF::BOF_NETWORK_INTERFACE_PARAM
+//#define ifaddrs BOF::BOF_NETWORK_INTERFACE_PARAM
 #else
 #define SOCKET_ERROR -1
 
@@ -159,6 +159,7 @@ typedef struct in_addr BOF_IN_ADDR;
 typedef struct in6_addr BOF_IN_ADDR6;
 
 struct BOF_SOCKET_ADDRESS;
+BOFSTD_EXPORT bool Bof_IsItAnIpV6Address(const std::string &_rIpPortV6Address_S, std::string &_rIpAddress_S, uint16_t &_Port_U16);
 BOFSTD_EXPORT BOFERR Bof_IpAddressToSocketAddress(const std::string &_rIpAddress_S, BOF_SOCKET_ADDRESS &_rIpAddress_X);
 BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowProtocol_B, bool _ShowPortNumber_B);
 
@@ -734,7 +735,8 @@ struct BOF_NETWORK_INTERFACE_PARAM
   std::string IpAddress_S;
   std::string IpMask_S;
   std::string IpBroadcast_S;
-
+  BOF_SOCKADDR_IN  SockAddr4_X;
+  BOF_SOCKADDR_IN6 SockAddr6_X;
   BOF_INTERFACE_INFO Info_X;
 
   BOF_NETWORK_INTERFACE_PARAM()
@@ -749,6 +751,8 @@ struct BOF_NETWORK_INTERFACE_PARAM
     IpAddress_S = "";
     IpMask_S = "";
     IpBroadcast_S = "";
+    memset(&SockAddr4_X, 0, sizeof(SockAddr4_X));
+    memset(&SockAddr6_X, 0, sizeof(SockAddr6_X));
   }
 };
 
