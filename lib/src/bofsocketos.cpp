@@ -2238,7 +2238,7 @@ BOFERR Bof_BinToSocketAddress(std::vector<uint16_t> &_rBinFormat, BOF_SOCKET_ADD
   return Rts_E;
 }
 
-BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32)
+BOFERR Bof_PollFdSocket(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
   uint32_t i_U32, NbREvent_U32;
@@ -2282,6 +2282,8 @@ BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POL
       _rNbPollSet_U32 = static_cast<uint32_t>(Sts_i);
     }
 #endif
+
+#if 0
     // Sometime under windows at least in an ever looping BofIo_Test.OpenCloseSession test the _rNbPollSet_U32 (sts_i) value in not equal to the number of mpPollOp_X[i].Revent_U16 entries != from 0
     // We check it here and adjust
     if (Rts_E == BOF_ERR_NO_ERROR)
@@ -2306,23 +2308,26 @@ BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POL
       }
       if (NbREvent_U32 != _rNbPollSet_U32)
       {
-        ////BOF_DBG_PRINTF("@@@%s Bof_Poll WARNING %d returned but %d set->Adjust to %d !!!\n", _rName_S.c_str(), _rNbPollSet_U32, NbREvent_U32, NbREvent_U32);
+        ////BOF_DBG_PRINTF("@@@%s Bof_PollFdSocket WARNING %d returned but %d set->Adjust to %d !!!\n", _rName_S.c_str(), _rNbPollSet_U32, NbREvent_U32, NbREvent_U32);
         _rNbPollSet_U32 = NbREvent_U32;
       }
     }
+#endif
   }
 
+#if 0
   if (NbREvent_U32)
   {
-    // BOF_DBG_PRINTF("@@@%s Bof_Poll %d/%d poll set->rts %X\n", _rName_S.c_str(), _rNbPollSet_U32, NbREvent_U32, Rts_E);
+    // BOF_DBG_PRINTF("@@@%s Bof_PollFdSocket %d/%d poll set->rts %X\n", _rName_S.c_str(), _rNbPollSet_U32, NbREvent_U32, Rts_E);
     for (i_U32 = 0; i_U32 < _NbPollOpInList_U32; i_U32++)
     {
       if (_pListOfPollOp_X[i_U32].Revent_U16)
       {
-        // BOF_DBG_PRINTF("@@@%s Bof_Poll Fd[%d]=%08X evt %X\n", _rName_S.c_str(), i_U32, _pListOfPollOp_X[i_U32].Fd, _pListOfPollOp_X[i_U32].Revent_U16);
+        // BOF_DBG_PRINTF("@@@%s Bof_PollFdSocket Fd[%d]=%08X evt %X\n", _rName_S.c_str(), i_U32, _pListOfPollOp_X[i_U32].Fd, _pListOfPollOp_X[i_U32].Revent_U16);
       }
     }
   }
+#endif
   return Rts_E;
 }
 END_BOF_NAMESPACE()

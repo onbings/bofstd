@@ -786,6 +786,6 @@ BOFSTD_EXPORT bool Bof_IsIpAddressNull(const std::string &_rIpAddress_S);
 BOFSTD_EXPORT bool Bof_IsIpAddressLocalHost(const BOF_SOCKET_ADDRESS &_rIpAddress_X);
 BOFSTD_EXPORT bool Bof_IsIpAddressLocalHost(const std::string &_rIpAddress_S);
 BOFSTD_EXPORT BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rCompatibleIpAddress_X);
-BOFSTD_EXPORT BOFERR Bof_Poll(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32);
+BOFSTD_EXPORT BOFERR Bof_PollFdSocket(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32);
 
 END_BOF_NAMESPACE()
