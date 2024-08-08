@@ -21,6 +21,7 @@
  */
 #include "gtestrunner.h"
 #include <bofstd/bofstd.h>
+#include <bofstd/bofsystem.h>
 
 TEST(Api_Test, Version)
 {
@@ -55,4 +56,13 @@ TEST(Api_Test, Exception)
     EXPECT_STREQ(Msg_S.substr(0, 84).c_str(), "[BofException]: 10001: BOF_ERR_ALREADY_OPENED >File '/tmp/log' is already opened< @ "); // The rest of the txt is os and file dependant
   }
   EXPECT_TRUE(ExceptionThrown_B);
+}
+
+TEST(Api_Test, PatternCompare)
+{
+  EXPECT_TRUE(BOF::Bof_PatternCompare("abcd-osnj-hello", "abc*"));
+  EXPECT_TRUE(BOF::Bof_PatternCompare("abcd-osnj-hello", "*llo"));
+  EXPECT_FALSE(BOF::Bof_PatternCompare("abcd-osnj-hello", "*sn"));
+  EXPECT_FALSE(BOF::Bof_PatternCompare("abcd-osnj-hello", "sn*"));
+  EXPECT_FALSE(BOF::Bof_PatternCompare("abcd-osnj-hello", "*sk*"));
 }

@@ -110,7 +110,7 @@ public:
       mpLogFile_X = _Append_B ? fopen(mpLogFilePath_c, "a+") : fopen(mpLogFilePath_c, "w+");
       if (mpLogFile_X)
       {
-        V_Log(LOG_SEVERITY_FORCE, __FILE__, __LINE__, __func__, "New log session started...\n");
+        V_Log(BOF_LOG_SEVERITY_FORCE, __FILE__, __LINE__, __func__, "New log session started...\n");
       }
       else
       {
@@ -125,7 +125,7 @@ public:
 
     if (mpLogFile_X)
     {
-      V_Log(LOG_SEVERITY_FORCE, __FILE__, __LINE__, __func__, "Log session finished !\n");
+      V_Log(BOF_LOG_SEVERITY_FORCE, __FILE__, __LINE__, __func__, "Log session finished !\n");
       fclose(mpLogFile_X);
       mpLogFile_X = nullptr;
     }

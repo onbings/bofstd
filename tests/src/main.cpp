@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 
   //::testing::GTEST_FLAG(filter) = "DateTime_Test.StringDateTime:SocketTcp_Test.TcpClientTest:DateTime_Test.ValidateDateTime:SocketOs_Test.SocketAddress";
   //  ::testing::GTEST_FLAG(filter) = "Logger_Test.*:ut_logger_ibofloggerfactory.*";
-  //  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*";
+  //  ::testing::GTEST_FLAG(filter) = "ut_logger_ibofloggerfactory.*:Logger_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThread_Test.*:Threading_Test.*";
   //  ::testing::GTEST_FLAG(filter) = "ut_spsc.*:ut_mpmc.*:CircularBuffer_Test.Perf";
   //::testing::GTEST_FLAG(filter) = "Async_Test.OverloadCommandQueue";
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.FillWrapOverwrite";
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.Dispatch";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.ListAndSetupInterface";
+  //::testing::GTEST_FLAG(filter) = "Api_Test.PatternCompare";
   //  ::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);

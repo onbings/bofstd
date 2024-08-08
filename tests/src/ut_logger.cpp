@@ -575,12 +575,12 @@ void MyLibInit(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
 }
 void MyLibCode(bool _NullTestCase_B)
 {
-  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
-  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_CODEC], "This will be logged\n");
-  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_NULLPTR], "! This will not be logged !\n");
-  LOG_VERBOSE(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This will not be logged !\n");
-  LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This one yes !\n");
-  LOG_INFO(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This one also !\n");
+  BOF_LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
+  BOF_LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_CODEC], "This will be logged\n");
+  BOF_LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_NULLPTR], "! This will not be logged !\n");
+  BOF_LOG_VERBOSE(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This will not be logged !\n");
+  BOF_LOG_FORCE(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This one yes !\n");
+  BOF_LOG_INFO(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA], "! This one also !\n");
   if (!_NullTestCase_B)
   {
     EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT]->mNbLogOut_U32, 1);
@@ -590,9 +590,9 @@ void MyLibCode(bool _NullTestCase_B)
     EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA]->mNbLogOut_U32, 2);
     EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_DMA]->mNbLogRejected_U32, 1);
   }
-  LOG_INFO(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "! This will not be logged !\n");
-  LOG_WARNING(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
-  LOG_ERROR(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
+  BOF_LOG_INFO(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "! This will not be logged !\n");
+  BOF_LOG_WARNING(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
+  BOF_LOG_ERROR(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT], "This will be logged\n");
   if (!_NullTestCase_B)
   {
     EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL_INIT]->mNbLogOut_U32, 3);
@@ -614,20 +614,20 @@ TEST(ut_logger_ibofloggerfactory, MultipleChannel)
   EXPECT_TRUE(psLoggerFactory->V_Destroy("MyLib_", "DMA2"));
   EXPECT_FALSE(psLoggerFactory->V_Destroy("MyLib_", "DMA3"));
 
-  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
-  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING));
-  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING);
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_MAX);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_WARNING));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_WARNING);
 
-  EXPECT_FALSE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX));
-  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_WARNING);
+  EXPECT_FALSE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_MAX));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_INIT]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_WARNING);
 
-  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
-  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_FORCE));
-  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_FORCE);
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_MAX);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_FORCE));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_CODEC]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_FORCE);
 
-  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_MAX);
-  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::LOG_SEVERITY_INFO));
-  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::LOG_SEVERITY_INFO);
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_MAX);
+  EXPECT_TRUE(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->SetLogSeverityLevel(BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_INFO));
+  EXPECT_EQ(S_psLoggerCollection[UT_LOGGER_CHANNEL::UT_LOGGER_CHANNEL_DMA]->GetLogSeverityLevel(), BOF::IBofLogger::LogSeverity::BOF_LOG_SEVERITY_INFO);
 
   MyLibCode(false);
 }
