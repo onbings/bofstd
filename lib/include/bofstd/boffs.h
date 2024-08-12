@@ -181,6 +181,7 @@ BOFSTD_EXPORT int64_t Bof_SetFileIoPosition(uintptr_t _Io, int64_t _Offset_S64, 
 BOFSTD_EXPORT int64_t Bof_GetFileIoPosition(uintptr_t _Io);
 
 BOFSTD_EXPORT BOFERR Bof_ReadLine(uintptr_t _Io, uint32_t &_rNb_U32, char *_pBuffer_c);
+BOFSTD_EXPORT BOFERR Bof_ReadLine(const BOF::BofPath &_rPath, std::vector<std::string> &_rLineCollection);
 BOFSTD_EXPORT BOFERR Bof_ReadLine(uintptr_t _Io, std::string &_rLine_S);
 BOFSTD_EXPORT BOFERR Bof_WriteLine(uintptr_t _Io, const std::string &_rLine_S);
 

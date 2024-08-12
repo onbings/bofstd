@@ -157,7 +157,24 @@ std::string Bof_StringReplace(const std::string &_rStr_S, const std::string &_rS
   }
   return Rts_S;
 }
+//_rTokenKey_S = "{reqNum}";
+std::string Bof_StringTokenReplace(const std::string &_rStr_S, const std::string &_rTokenKey_S, const std::string &_rTokenValue_S)
+{
+  std::string Rts_S, Tag_S;
+  size_t Pos, LenTag, LenValue;
 
+  Rts_S = _rStr_S;
+  LenTag = _rTokenKey_S.size();
+  LenValue = _rTokenValue_S.size();
+
+  Pos = 0;
+  while ((Pos = Rts_S.find(_rTokenKey_S, Pos)) != std::string::npos)
+  {
+    Rts_S.replace(Pos, LenTag, _rTokenValue_S);
+    Pos += LenValue;
+  }
+  return Rts_S;
+}
 bool Bof_StringIsPresent(const std::string &_rStr_S, const std::string &_rCharToLookFor_S)
 {
   return (_rStr_S.find_first_of(_rCharToLookFor_S) != std::string::npos);
@@ -701,4 +718,7 @@ std::string Bof_Sprintf(const char *_pFormat_c, ...)
   }
   return Rts_S;
 }
+
+
+
 END_BOF_NAMESPACE()

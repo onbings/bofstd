@@ -133,6 +133,8 @@ BOFSTD_EXPORT std::string Bof_StringReplace(const std::string &_rStr_S, const st
 // @return The new string with the 'replaced' substring
 // @remarks None
 BOFSTD_EXPORT std::string Bof_StringReplace(const std::string &_rStr_S, const std::string &_rStringToReplace_S, const std::string &_rReplaceString_S);
+//_rTokenKey_S = "{reqNum}";
+BOFSTD_EXPORT std::string Bof_StringTokenReplace(const std::string &_rStr_S, const std::string &_rTokenKey_S, const std::string &_rTokenValue_S);
 
 // @brief Check if a string contains some specific characters
 // @param _rStr_S : Specifies the string to process

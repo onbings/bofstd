@@ -547,7 +547,7 @@ BOFERR BofProcess::S_Execute_popen(const std::string &_rCommand_S, std::string &
   int Len_i;
   std::string Command_S;
   char pBuffer_c[0x1000];
-  std::stringstream Output_S;
+  std::stringstream Output;
 
   _rOutput_S = "";
   _rExitCode_i = 127;
@@ -565,10 +565,10 @@ BOFERR BofProcess::S_Execute_popen(const std::string &_rCommand_S, std::string &
       if (Len_i > 0)
       {
         pBuffer_c[Len_i] = 0;
-        Output_S << pBuffer_c;
+        Output << pBuffer_c;
       }
     }
-    _rOutput_S = Output_S.str();
+    _rOutput_S = Output.str();
     //printf("Output: %zd:%s\n", _rOutput_S.size(), _rOutput_S.c_str());
     // Grab the forked status
     _rExitCode_i = pclose(pPipe_X);

@@ -781,6 +781,34 @@ BOFERR Bof_ReadLine(uintptr_t _Io, uint32_t &_rNb_U32, char *_pBuffer_c)
   return (Rts_E);
 }
 
+
+BOFERR Bof_ReadLine(const BOF::BofPath &_rPath, std::vector<std::string> &_rLineCollection)
+{
+  BOFERR Rts_E = BOF_ERR_ENOENT;
+  FILE *pIo_X;
+  int Len_i;
+  char pBuffer_c[0x1000];
+  std::stringstream Output;
+
+  pIo_X = fopen(_rPath.FullPathName(false).c_str(), "rb");
+  if (pIo_X != nullptr)
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+    while (!feof(pIo_X))
+    {
+      Len_i = fread(pBuffer_c, 1, sizeof(pBuffer_c) - 1, pIo_X); //-1 for extra 0
+      if (Len_i > 0)
+      {
+        pBuffer_c[Len_i] = 0;
+        Output << pBuffer_c;
+      }
+    }
+    fclose(pIo_X);
+    _rLineCollection = BOF::Bof_StringSplit(Output.str(), "\n");
+  }
+  return (Rts_E);
+}
+
 BOFERR Bof_ReadLine(uintptr_t _Io, std::string &_rLine_S)
 {
   BOFERR Rts_E;
