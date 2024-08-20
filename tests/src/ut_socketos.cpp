@@ -28,6 +28,23 @@
 USE_BOF_NAMESPACE()
 
 // #define BOF_UT_INTERNET_AVAILABLE
+TEST(SocketOs_Test, IsIpAddressOpened)
+{
+  EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "tcp://10.129.170.15:7"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
+  EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "tcp://10.129.170.15:8"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
+  EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "udp://10.129.170.15:7"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
+  EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "udp://10.129.170.15:8"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
+}
+
+TEST(SocketOs_Test, Ping)
+{
+  EXPECT_FALSE(Bof_IsIpAddressPingable(1000, "10.129.170.250"));
+  EXPECT_FALSE(Bof_IsIpAddressPingable(1000, "1.2.3.4"));
+  EXPECT_FALSE(Bof_IsIpAddressPingable(1000, "1.2.3.400"));
+  EXPECT_TRUE(Bof_IsIpAddressPingable(1000, "127.0.0.1"));
+  EXPECT_TRUE(Bof_IsIpAddressPingable(1000, "10.129.170.14"));
+  EXPECT_TRUE(Bof_IsIpAddressPingable(1000, "10.129.170.15"));
+}
 
 void TestSocketAddress(bool _IsIpV6_B)
 {

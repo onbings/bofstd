@@ -22,6 +22,7 @@
 #include <bofstd/bofsocketos.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/bofsystem.h>
+#include <bofstd/bofsocket.h>
 
 #include <map>
 #include <regex>
@@ -2347,48 +2348,58 @@ bool Bof_IsIpAddressPingable(uint32_t _TimeoutInMs_U32, const std::string &_rIpA
   }
   return Rts_B;
 }
+
 bool Bof_IsIpAddressOpened(uint32_t _TimeoutInMs_U32, const std::string &_rIpAddress_S)
 {
   bool Rts_B = false;
-#if 0  
   uint32_t Nb_U32;
   char pMsg_c[0x100];
   std::unique_ptr<BofSocket> puSocket;
   BOF_SOCKET_PARAM SocketParams_X;
+  BOF_SOCKET_ADDRESS IpAddress_X;
+  bool IsUdp_B;
 
-  SocketParams_X.BroadcastPort_U16 = 0;
-  SocketParams_X.MulticastSender_B = false;
-  SocketParams_X.Ttl_U32 = 8;
-  SocketParams_X.KeepAlive_B = false;
-  SocketParams_X.ReUseAddress_B = true;
-  SocketParams_X.BaseChannelParam_X.Blocking_B = true;
-  SocketParams_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
-  SocketParams_X.NoDelay_B = true;
-  SocketParams_X.BaseChannelParam_X.RcvBufferSize_U32 = 0;
-  SocketParams_X.BaseChannelParam_X.SndBufferSize_U32 = 0;
-  SocketParams_X.BindIpAddress_S = "";
-
-  puSocket = std::make_unique<BofSocket>(SocketParams_X);
-  if ((puSocket) && (puSocket->LastErrorCode() == BOF_ERR_NO_ERROR))
+  if (Bof_IpAddressToSocketAddress(_rIpAddress_S, IpAddress_X) == BOF_ERR_NO_ERROR)
   {
-    if (puSocket->IsUdp())
+    IsUdp_B = (IpAddress_X.SocketType_E == BOF_SOCK_TYPE::BOF_SOCK_UDP);
+
+    SocketParams_X.BroadcastPort_U16 = 0;
+    SocketParams_X.MulticastSender_B = false;
+    SocketParams_X.Ttl_U32 = 0;
+    SocketParams_X.KeepAlive_B = false;
+    SocketParams_X.ReUseAddress_B = true;
+    SocketParams_X.BaseChannelParam_X.Blocking_B = true;
+    SocketParams_X.BaseChannelParam_X.ListenBackLog_U32 = 0;
+    SocketParams_X.NoDelay_B = true;
+    SocketParams_X.BaseChannelParam_X.RcvBufferSize_U32 = 0;
+    SocketParams_X.BaseChannelParam_X.SndBufferSize_U32 = 0;
+    SocketParams_X.BindIpAddress_S = IsUdp_B ? "udp://0.0.0.0:0": "tcp://0.0.0.0:0";
+
+    puSocket = std::make_unique<BofSocket>(SocketParams_X);
+    if ((puSocket) && (puSocket->LastErrorCode() == BOF_ERR_NO_ERROR))
     {
-      strcpy(pMsg_c, "Hello");
-      Nb_U32 = strlen(pMsg_c);
-      if (puSocket->V_WriteData(_TimeoutInMs_U32, Nb_U32, reinterpret_cast<uint8_t *>(pMsg_c)) == BOF_ERR_NO_ERROR)
+      if (IsUdp_B)
       {
-        Rts_B = true;
+        if (puSocket->SetDstIpAddress(IpAddress_X) == BOF_ERR_NO_ERROR)
+        {
+          strcpy(pMsg_c, "Hello");
+          Nb_U32 = strlen(pMsg_c);
+          if (puSocket->V_WriteData(_TimeoutInMs_U32, Nb_U32, reinterpret_cast<uint8_t *>(pMsg_c)) == BOF_ERR_NO_ERROR)
+          {
+            Nb_U32 = 1;
+            Rts_B = (puSocket->V_ReadData(_TimeoutInMs_U32, Nb_U32, reinterpret_cast<uint8_t *>(pMsg_c)) == BOF_ERR_NO_ERROR);
+          }
+        }
       }
-    }
-    else
-    {
-      if (puSocket->V_Connect(_TimeoutInMs_U32, _rIpAddress_S, "") == BOF_ERR_NO_ERROR)
+      else
       {
-        Rts_B = true;
+        if (puSocket->V_Connect(_TimeoutInMs_U32, _rIpAddress_S, "") == BOF_ERR_NO_ERROR)
+        {
+          Rts_B = true;
+        }
       }
     }
   }
-#endif
   return Rts_B;
 }
 END_BOF_NAMESPACE()
