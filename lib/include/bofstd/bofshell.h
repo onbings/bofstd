@@ -39,9 +39,16 @@ ls(true,false,false)
 #include <map>
 
 BEGIN_BOF_NAMESPACE()
+enum class SHELL_OUTPUT_STREAM
+{
+  SHELL_OUTPUT_STREAM_INPUT,
+  SHELL_OUTPUT_STREAM_OUTPUT,
+  SHELL_OUTPUT_STREAM_ERROR,
+  SHELL_OUTPUT_STREAM_MAX
+};
 
 using BOF_SHELL_INPUT_CMD = std::function<BOFERR(const std::string &_rPrompt_S, std::string &_rShellCmd_S)>;
-using BOF_SHELL_OUTPUT_RES = std::function<BOFERR(bool _Error_B, const std::string &_rShellRes_S)>;
+using BOF_SHELL_OUTPUT_RES = std::function<BOFERR(SHELL_OUTPUT_STREAM _OutputStream_E, const std::string &_rShellRes_S)>;
 using BOF_SHELL_CMD_CALLBACK = std::function<BOFERR(void *_pArg, std::string &_rShellRes_S)>; // const std::vector<std::string> &_rCmdArgCollection) > ;
 
 struct BOF_SHELL_CMD
@@ -162,6 +169,7 @@ private:
   BOFERR ShellCmdArg(void *_pArg, std::string &_rShellResult_S);
   std::string mEchoText_S;
   BOFERR ShellEcho(void *_pArg, std::string &_rShellResult_S);
+  BOFERR ShellGetCh(void *_pArg, std::string &_rShellResult_S);
   BOFERR ShellDoYouWantToContinue(void *_pArg, std::string &_rShellResult_S);
   BOF_SHELL_SPAWN_PARAM mSpawnParam_X;
   BOFERR ShellSpawn(void *_pArg, std::string &_rShellResult_S);
@@ -179,6 +187,7 @@ private:
 
 class BOFSTD_EXPORT BofShellConsole
 {
+
 private:
   BOF_SHELL_CONSOLE_PARAM mShellConsoleParam_X;
 
@@ -187,9 +196,8 @@ public:
   virtual ~BofShellConsole();
 
   BOFERR InputStream(const std::string &_rPrompt_S, std::string &_rShellCmd_S);
-  BOFERR OutputStream(bool _Error_B, const std::string &_rShellRes_S);
+  BOFERR OutputStream(SHELL_OUTPUT_STREAM _ShellOutputStream_E, const std::string &_rShellRes_S);
 
 private:
-  std::unique_ptr<BOF::BofConio> mpuConio = nullptr;
 };
 END_BOF_NAMESPACE()

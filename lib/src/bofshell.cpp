@@ -44,15 +44,20 @@ BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X)
   AddCommand("sleep", BOF_SHELL_CMD("Sleep the script for a given number of ms.", {"SleepTimeInMs"}, &mSleepTime_U32, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellSleep)));
   AddCommandArgument("sleep", "SleepTimeInMs",
                      BOF::BOFPARAMETER(nullptr, "", "Specify the number of millisecond to sleep", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mSleepTime_U32, UINT32, 0, 0)));
+
   AddCommand("exec", BOF_SHELL_CMD("Execute a script from a script.", {"ScripFilename"}, &mScriptPath, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellExec)));
   AddCommandArgument("exec", "ScripFilename",
                      BOF::BOFPARAMETER(nullptr, "", "Specify the script to execute", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST, BOF_PARAM_DEF_VARIABLE(mScriptPath, PATH, 0, 0)));
 
   AddCommand("echo", BOF_SHELL_CMD("Display the argument string in the output channel.", {"EchoText"}, &mEchoText_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellEcho)));
   AddCommandArgument("echo", "EchoText",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify which shell command must show its argument", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the text to display", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
 
-  AddCommand("dywtc?", BOF_SHELL_CMD("Ask if the user want to continue.", {}, &mEchoText_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellDoYouWantToContinue)));
+  AddCommand("getch", BOF_SHELL_CMD("Wait for a key press.", {"EchoText"}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellGetCh)));
+  AddCommandArgument("getch", "EchoText",
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the text to display before waiting for a key", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
+
+  AddCommand("dywtc?", BOF_SHELL_CMD("Ask if the user want to continue.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellDoYouWantToContinue)));
 }
 BofShell::~BofShell()
 {
@@ -195,11 +200,25 @@ BOFERR BofShell::ShellCmdArg(void *_pArg, std::string &_rShellResult_S)
 BOFERR BofShell::ShellEcho(void *_pArg, std::string &_rShellResult_S)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  std::string Cmd_S, Prefix_S, ArgName_S;
-  int Index_i;
 
   mEchoText_S = Bof_StringTrim(mEchoText_S);
-  _rShellResult_S = mEchoText_S;
+  _rShellResult_S = mEchoText_S + "\n";
+  return Rts_E;
+}
+BOFERR BofShell::ShellGetCh(void *_pArg, std::string &_rShellResult_S)
+{
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+
+  if ((mShellParam_X.OutputStream) && (mEchoText_S != ""))
+  {
+    if (mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT, mEchoText_S + '\n') == BOF_ERR_NO_ERROR)
+    {
+    }
+  }
+
+  BOF::BofConio::S_GetCh(false);
+  _rShellResult_S = "";
+
   return Rts_E;
 }
 
@@ -238,7 +257,7 @@ BOFERR BofShell::ShellDoYouWantToContinue(void *_pArg, std::string &_rShellResul
 
   if ((mShellParam_X.InputStream) && (mShellParam_X.OutputStream))
   {
-    if (mShellParam_X.OutputStream(false, "Are you sure you want to continue (Y/N) ?\n") == BOF_ERR_NO_ERROR)
+    if (mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_OUTPUT, "Are you sure you want to continue (Y/N) ?\n") == BOF_ERR_NO_ERROR)
     {
       if (mShellParam_X.InputStream("", _rShellResult_S) == BOF_ERR_NO_ERROR)
       {
@@ -386,7 +405,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
     CmdLine_S = _rFirstCommand_S;
     if (mShellParam_X.OutputStream)
     {
-      mShellParam_X.OutputStream(false, (mExecuteOnlyOneCommand_B ? "EXEC: " : "FIRST: ") + CmdLine_S + '\n');
+      mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT, (mExecuteOnlyOneCommand_B ? "EXEC: " : "FIRST: ") + CmdLine_S + '\n');
       // std::string Cwd_S;
       // Bof_GetCurrentDirectory(Cwd_S);
       // printf("cwd %s\n", Cwd_S.c_str());
@@ -409,7 +428,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
       Rts_E = Parser(CmdLine_S.c_str(), ShellRes_S);
       if ((ShellRes_S != "") && (mShellParam_X.OutputStream))
       {
-        mShellParam_X.OutputStream(false, ShellRes_S + '\n');
+        mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_OUTPUT, ShellRes_S + '\n');
       }
     }
     else
@@ -420,7 +439,7 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
     {
       if (mShellParam_X.OutputStream)
       {
-        mShellParam_X.OutputStream(true, BOF::Bof_Sprintf("Error %d -> %s\n", Rts_E, Bof_ErrorCode(Rts_E)));
+        mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_ERROR, BOF::Bof_Sprintf("Error %d -> %s\n", Rts_E, Bof_ErrorCode(Rts_E)));
       }
       if (mExecScript_B)
       {
@@ -439,14 +458,14 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
           Bof_GetCurrentDirectory(Pwd_S);
           if (mShellParam_X.OutputStream)
           {
-            mShellParam_X.OutputStream(false, BOF::Bof_Sprintf("Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str()));
+            mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT, BOF::Bof_Sprintf("Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str()));
           }
           Rts_E = Bof_OpenFile(mScriptPath, true, false, mIoScript);
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             if (mShellParam_X.OutputStream)
             {
-              mShellParam_X.OutputStream(true, BOF::Bof_Sprintf("Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E)));
+              mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_ERROR, BOF::Bof_Sprintf("Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E)));
             }
             mIoScript = BOF_INVALID_HANDLE_VALUE;
             mExecScript_B = false;
@@ -460,7 +479,8 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
             ScriptLine_S = Bof_StringTrim(ScriptLine_S);
             if (mShellParam_X.OutputStream)
             {
-              mShellParam_X.OutputStream(false, BOF::Bof_Sprintf("[%s]: %s\n", mScriptFilename_S.c_str(), ScriptLine_S.c_str()));
+              mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT, BOF::Bof_Sprintf("[%s]: %s\n", mScriptFilename_S.c_str(), ScriptLine_S.c_str()));
+              // BofConio::S_PrintLineColorAt(mShellConsoleParam_X.ShellCmdInputColor_E, 0, 0, "%s", "");
             }
             CmdLine_S = ScriptLine_S;
           }
@@ -485,28 +505,29 @@ BofShellConsole::BofShellConsole(BOF_SHELL_CONSOLE_PARAM &_rShellConsoleParam_X)
 
   if (mShellConsoleParam_X.AnsiMode_B)
   {
-    mpuConio = std::make_unique<BofConio>(mShellConsoleParam_X.ConioParam_X);
+    BofConio::S_Initialize(mShellConsoleParam_X.ConioParam_X);
     if (mShellConsoleParam_X.ShellCmdInputColor_E != CONIO_TEXT_COLOR_NONE)
     {
-      mpuConio->SetForegroundTextColor(mShellConsoleParam_X.ShellCmdInputColor_E);
+      BofConio::S_SetForegroundTextColor(mShellConsoleParam_X.ShellCmdInputColor_E);
     }
     if (mShellConsoleParam_X.ShellBackColor_E != CONIO_TEXT_COLOR_NONE)
     {
-      mpuConio->SetBackgroundTextColor(mShellConsoleParam_X.ShellBackColor_E);
+      BofConio::S_SetBackgroundTextColor(mShellConsoleParam_X.ShellBackColor_E);
     }
     if (mShellConsoleParam_X.ClearScreen_B)
     {
-      mpuConio->Clear(CONIO_CLEAR::CONIO_CLEAR_ALL);
-      mpuConio->SetTextCursorPosition(1, 1);
+      BofConio::S_Clear(CONIO_CLEAR::CONIO_CLEAR_ALL);
+      BofConio::S_SetTextCursorPosition(1, 1);
     }
     if (mShellConsoleParam_X.WindowTitle_S != "")
     {
-      mpuConio->SetTextWindowTitle(mShellConsoleParam_X.WindowTitle_S);
+      BofConio::S_SetTextWindowTitle(mShellConsoleParam_X.WindowTitle_S.c_str());
     }
   }
 }
 BofShellConsole::~BofShellConsole()
 {
+  BofConio::S_Shutdown();
 }
 BOFERR BofShellConsole::InputStream(const std::string &_rPrompt_S, std::string &_rShellCmd_S)
 {
@@ -515,8 +536,9 @@ BOFERR BofShellConsole::InputStream(const std::string &_rPrompt_S, std::string &
 
   if (mShellConsoleParam_X.AnsiMode_B)
   {
-    mpuConio->PrintfColor(mShellConsoleParam_X.ShellCmdInputColor_E, "%s", "");
-    Rts_E = mpuConio->Readline(_rPrompt_S, _rShellCmd_S);
+    //    mpuConio->PrintfColor(mShellConsoleParam_X.ShellCmdInputColor_E, "%s", "");
+    BofConio::S_PrintLineColorAt(mShellConsoleParam_X.ShellCmdInputColor_E, 0, 0, "%s", "");
+    Rts_E = BofConio::S_Readline(_rPrompt_S, _rShellCmd_S);
   }
   else
   {
@@ -533,13 +555,27 @@ BOFERR BofShellConsole::InputStream(const std::string &_rPrompt_S, std::string &
   return Rts_E;
 }
 
-BOFERR BofShellConsole::OutputStream(bool _Error_B, const std::string &_rShellRes_S)
+BOFERR BofShellConsole::OutputStream(SHELL_OUTPUT_STREAM _ShellOutputStream_E, const std::string &_rShellRes_S)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
+  CONIO_TEXT_COLOR ForegroundColor_E;
 
   if (mShellConsoleParam_X.AnsiMode_B)
   {
-    mpuConio->PrintfColor(_Error_B ? mShellConsoleParam_X.ShellErrorColor_E : mShellConsoleParam_X.ShellCmdOutputColor_E, "%s", _rShellRes_S.c_str());
+    switch (_ShellOutputStream_E)
+    {
+      default:
+      case SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT:
+        ForegroundColor_E = mShellConsoleParam_X.ShellCmdInputColor_E;
+        break;
+      case SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_OUTPUT:
+        ForegroundColor_E = mShellConsoleParam_X.ShellCmdOutputColor_E;
+        break;
+      case SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_ERROR:
+        ForegroundColor_E = mShellConsoleParam_X.ShellErrorColor_E;
+        break;
+    }
+    BofConio::S_PrintLineColorAt(ForegroundColor_E, 0, 0, "%s", _rShellRes_S.c_str());
   }
   else
   {

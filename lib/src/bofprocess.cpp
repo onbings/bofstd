@@ -27,34 +27,34 @@
 // #include <string.h>
 
 #if defined(_WIN32)
-	#define popen _popen
-	#define pclose _pclose
-	/* If WIFEXITED(STATUS), NOT IN WINDOWS:the low-order 8 bits of the status.*/
-	#define WEXITSTATUS(status) (status)
+#define popen _popen
+#define pclose _pclose
+/* If WIFEXITED(STATUS), NOT IN WINDOWS:the low-order 8 bits of the status.*/
+#define WEXITSTATUS(status) (status)
 
-	/* If WIFSIGNALED(STATUS), the terminating signal.  */
-	#define WTERMSIG(status) ((status)&0x7f)
+/* If WIFSIGNALED(STATUS), the terminating signal.  */
+#define WTERMSIG(status) ((status) & 0x7f)
 
-	/* If WIFSTOPPED(STATUS), the signal that stopped the child.  */
-	#define WSTOPSIG(status) WEXITSTATUS(status)
+/* If WIFSTOPPED(STATUS), the signal that stopped the child.  */
+#define WSTOPSIG(status) WEXITSTATUS(status)
 
-	/* Nonzero if STATUS indicates normal termination.  */
-	#define WIFEXITED(status) (WTERMSIG(status) == 0)
+/* Nonzero if STATUS indicates normal termination.  */
+#define WIFEXITED(status) (WTERMSIG(status) == 0)
 #else
-	#include <fcntl.h>
-	#include <poll.h>
-	#include <spawn.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-  #include <string.h>
-  #include <signal.h>
+#include <fcntl.h>
+#include <poll.h>
+#include <signal.h>
+#include <spawn.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #if defined(__EMSCRIPTEN__)
-	#else
-		#include <sys/ptrace.h>
-	#endif
-	#include <sys/types.h>
-	#include <sys/wait.h>
-	extern char **environ;
+#else
+#include <sys/ptrace.h>
+#endif
+#include <sys/types.h>
+#include <sys/wait.h>
+extern char **environ;
 #endif
 
 BEGIN_BOF_NAMESPACE()
@@ -539,7 +539,7 @@ BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_
 {
   return BofProcess::S_Execute(_pOutput_c, _Size_U32, _pCommand_c, BofProcess::S_mDefaultTimeout_U32, _Mode_E, _rPid_X, _rExitCode_i);
 }
-//More secure than the next one
+// More secure than the next one
 BOFERR BofProcess::S_Execute_popen(const std::string &_rCommand_S, std::string &_rOutput_S, int &_rExitCode_i)
 {
   BOFERR Rts_E = BOF_ERR_EINVAL;
@@ -569,8 +569,8 @@ BOFERR BofProcess::S_Execute_popen(const std::string &_rCommand_S, std::string &
       }
     }
     _rOutput_S = Output.str();
-    //printf("Output: %zd:%s\n", _rOutput_S.size(), _rOutput_S.c_str());
-    // Grab the forked status
+    // printf("Output: %zd:%s\n", _rOutput_S.size(), _rOutput_S.c_str());
+    //  Grab the forked status
     _rExitCode_i = pclose(pPipe_X);
     Rts_E = (_rExitCode_i >= 0) ? BOF_ERR_NO_ERROR : BOF_ERR_CLOSE;
     // Convert it to get application return code
@@ -623,14 +623,14 @@ BOFERR BofProcess::S_Execute(char *_pOutput_c, uint32_t _Size_U32, const char *_
       {
         std::string Output_S;
         uint32_t Len_U32;
-        //More secure than the next one
-        Rts_E=S_Execute_popen(_pCommand_c, Output_S, _rExitCode_i);
+        // More secure than the next one
+        Rts_E = S_Execute_popen(_pCommand_c, Output_S, _rExitCode_i);
         if (_pOutput_c)
         {
-          Len_U32 = (Output_S.size() > _Size_U32) ? _Size_U32:Output_S.size();
+          Len_U32 = (Output_S.size() > _Size_U32) ? _Size_U32 : Output_S.size();
           memcpy(_pOutput_c, Output_S.c_str(), Len_U32);
         }
-        //Rts_E = BofProcess::S_Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, _rPid_X, _rExitCode_i);
+        // Rts_E = BofProcess::S_Execute_popen(_pOutput_c, _Size_U32, _pCommand_c, _Timeout_U32, _rPid_X, _rExitCode_i);
         break;
       }
 
@@ -1013,7 +1013,7 @@ BOFERR BofProcess::S_Execute_vfork(char *_pOutput_c, uint32_t _Size_U32, const c
     int File_i = 0;
     char *Args_c[] = {(char *)"/bin/sh", (char *)"-c", (char *)_pCommand_c, nullptr};
     ssize_t Read_i = 0;
-    char pTempFileName_c[0x1000];
+    char pTempFileName_c[0x980];
     char pRedirect_c[0x1000];
     bool CaptureOutput_B = (_pOutput_c != nullptr) && (_Size_U32 > 0);
 
@@ -1335,9 +1335,9 @@ BOFERR BofProcess::S_KillProcess(const char *_pProcessName_c)
     snprintf(pCmd_c, sizeof(pCmd_c), "pkill %s", pProcessname_c ? pProcessname_c + 1 : _pProcessName_c);
 #endif
     std::string Output_S;
-    //More secure than the next one
+    // More secure than the next one
     Rts_E = S_Execute_popen(pCmd_c, Output_S, ExitCode_i);
-    //Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
+    // Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
     if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (ExitCode_i)
@@ -1346,9 +1346,9 @@ BOFERR BofProcess::S_KillProcess(const char *_pProcessName_c)
 #if defined(_WIN32)
 #else
         snprintf(pCmd_c, sizeof(pCmd_c), "killall %s", pProcessname_c ? pProcessname_c + 1 : _pProcessName_c);
-        //More secure than the next one
+        // More secure than the next one
         Rts_E = S_Execute_popen(pCmd_c, Output_S, ExitCode_i);
-        //Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
+        // Rts_E = S_Execute_popen(nullptr, 0, pCmd_c, 0, Pid_X, ExitCode_i);
         if (Rts_E == BOF_ERR_NO_ERROR)
         {
           if (ExitCode_i)

@@ -27,8 +27,8 @@ USE_BOF_NAMESPACE()
 
 TEST(String_Test, StrToBin)
 {
-//Trig an assert in c lib   EXPECT_EQ(Bof_StrToBin(1, "111"), 0);
-//Trig an assert in c lib   EXPECT_EQ(Bof_StrToBin(60, "111"), 0);
+  // Trig an assert in c lib   EXPECT_EQ(Bof_StrToBin(1, "111"), 0);
+  // Trig an assert in c lib   EXPECT_EQ(Bof_StrToBin(60, "111"), 0);
   EXPECT_EQ(Bof_StrToBin(10, "0x111"), 0);
 
   EXPECT_EQ(Bof_StrToBin(0, "111"), 111);
@@ -231,6 +231,13 @@ TEST(String_Test, StringIsAllTheSameChar)
 TEST(String_Test, StringSplit)
 {
   std::vector<std::string> SplittedStr_S;
+  SplittedStr_S = Bof_StringSplit("AB\nC\n\ndernier\n", "\n");
+  EXPECT_EQ(SplittedStr_S.size(), 5);
+  EXPECT_EQ(SplittedStr_S[0], "AB");
+  EXPECT_EQ(SplittedStr_S[1], "C");
+  EXPECT_EQ(SplittedStr_S[2], "");
+  EXPECT_EQ(SplittedStr_S[3], "dernier");
+  EXPECT_EQ(SplittedStr_S[4], "");
 
   SplittedStr_S = Bof_StringSplit("  AB  ", " \a\f\n\r\t\v");
   EXPECT_EQ(SplittedStr_S.size(), 5);
@@ -423,8 +430,9 @@ TEST(String_Test, MultipleKeyValueString)
   EXPECT_EQ(Bof_GetUnsignedIntegerFromMultipleKeyValueString("AA=1;\r\nBB=2;\nCC=3;\n\rDD=", ";\r\n", "CC", '=', Val_U32), 0);
   EXPECT_EQ(Val_U32, 3);
 
+  EXPECT_EQ(Bof_GetUnsignedIntegerFromMultipleKeyValueString("AA=1;\r\nBB=2;\nCC=3;\n\rDD=4", ";\r\n", "DD", '=', Val_U32), 0);
+  EXPECT_EQ(Val_U32, 4);
   EXPECT_EQ(Bof_GetUnsignedIntegerFromMultipleKeyValueString("AA=1;\r\nBB=2;\nCC=3;\n\rDD=", ";\r\n", "DD", '=', Val_U32), 0);
-  EXPECT_EQ(Val_U32, 0);
 
   EXPECT_EQ(Bof_GetUnsignedIntegerFromMultipleKeyValueString("TO=100;CON=HELLO WORLD", ";", "TO", '=', Val_U32), 0);
   EXPECT_EQ(Val_U32, 100);

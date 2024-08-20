@@ -18,8 +18,8 @@
  *
  * V 1.00  Jan 19 2017  BHA : Initial release
  */
-//https://codingtidbit.com/2020/02/09/c17-codecvt_utf8-is-deprecated/
-//not working #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 
+// https://codingtidbit.com/2020/02/09/c17-codecvt_utf8-is-deprecated/
+// not working #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #if defined(__EMSCRIPTEN__) || defined(__linux__)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -221,6 +221,12 @@ std::vector<std::string> Bof_StringSplit(const std::string &_rStr_S, const std::
       if (EndPos == std::string::npos)
       {
         Rts.push_back(_rStr_S.substr(StartPos, _rStr_S.length()));
+        /*Regression dans path combine,findfile,...
+                if (StartPos < _rStr_S.length())
+                {
+                  Rts.push_back(_rStr_S.substr(StartPos, _rStr_S.length()));
+                }
+        */
       }
     } while (EndPos != std::string::npos);
   }
@@ -718,7 +724,5 @@ std::string Bof_Sprintf(const char *_pFormat_c, ...)
   }
   return Rts_S;
 }
-
-
 
 END_BOF_NAMESPACE()

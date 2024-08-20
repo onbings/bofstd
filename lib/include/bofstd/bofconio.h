@@ -24,8 +24,8 @@
 #include <bofstd/bofpath.h>
 
 BEGIN_BOF_NAMESPACE()
-#define PrintfAt(x, y, pFormat, ...) PrintfAtColor(mForeColor_E, x, y, pFormat, ##__VA_ARGS__)
-#define PrintfColor(Color, pFormat, ...) PrintfAtColor(Color, 0, 0, pFormat, ##__VA_ARGS__)
+// #define PrintfAt(x, y, pFormat, ...) PrintfAtColor(mForeColor_E, x, y, pFormat, ##__VA_ARGS__)
+// #define PrintfColor(Color, pFormat, ...) PrintfAtColor(Color, 0, 0, pFormat, ##__VA_ARGS__)
 
 enum CONIO_MODIFIER_KEY_FLAG : uint32_t
 {
@@ -159,54 +159,50 @@ struct BOF_CONIO_PARAM
 
 class BOFSTD_EXPORT BofConio final
 {
-private:
-  BOF_CONIO_PARAM mBofConioParam_X;
-  uint32_t mConsoleWidth_U32 = 0;
-  uint32_t mConsoleHeight_U32 = 0;
 
 public:
-  BofConio(const BOF_CONIO_PARAM &_rBofConioParam_X);
-  virtual ~BofConio();
-
-  // delete copy and move constructors and assign operators
-  BofConio(BofConio const &) = delete;            // Copy construct
-  BofConio(BofConio &&) = delete;                 // Move construct
-  BofConio &operator=(BofConio const &) = delete; // Copy assign
-  BofConio &operator=(BofConio &&) = delete;      // Move assign
-
-  uint32_t KbHit(uint32_t _TimeOutInMs_U32);
-  uint32_t GetCh(bool _OnlyModifier_B);
-  std::string KeyToString(uint32_t _Key_U32);
-
-  BOFERR Readline(const std::string &_rPrompt_S, std::string &_rInputLine_S);
-
-  BOFERR SetTextAttribute(uint32_t _TextAttributeFlag_U32); // Use CONIO_TEXT_ATTRIBUTE_FLAG enum ored value
-  BOFERR SetForegroundTextColor(CONIO_TEXT_COLOR _ForegroundColor_E);
-  BOFERR SetBackgroundTextColor(CONIO_TEXT_COLOR _BackgroundColor_E);
-  BOFERR SetForegroundTextColor(BOF_RGBA<uint8_t> _ForegroundColor_E);
-  BOFERR SetBackgroundTextColor(BOF_RGBA<uint8_t> _BackgroundColor_X);
-
-  BOFERR SetTextCursorState(CONIO_TEXT_CURSOR_STATE _CursorState_E);
-  BOFERR SetTextCursorPosition(uint32_t _x_U32, uint32_t _y_U32);
-  BOFERR GetTextCursorPosition(uint32_t &_rX_U32, uint32_t &_rY_U32);
-  BOFERR SetTextWindowTitle(const std::string &_rTitle_S);
-  BOFERR Clear(CONIO_CLEAR _ClearType_E);
   /*
-  create 24 bit color
-    position cursor
-    erase terminal
-    erale line
-    */
+    BofConio(const BOF_CONIO_PARAM &_rBofConioParam_X);
+    virtual ~BofConio();
 
-  BOFERR Printf(const char *_pFormat_c, ...);
-  void PrintfAtColor(CONIO_TEXT_COLOR _ForeColor_E, uint32_t _x_U32, uint32_t _y_U32, const char *_pFormat_c, ...);
+    // delete copy and move constructors and assign operators
+    BofConio(BofConio const &) = delete;            // Copy construct
+    BofConio(BofConio &&) = delete;                 // Move construct
+    BofConio &operator=(BofConio const &) = delete; // Copy assign
+    BofConio &operator=(BofConio &&) = delete;      // Move assign
+  */
+  static bool S_Initialize(const BOF_CONIO_PARAM &_rBofConioParam_X);
+  static bool S_Shutdown();
+  static uint32_t S_KbHit(uint32_t _TimeOutInMs_U32);
+  static uint32_t S_GetCh(bool _OnlyModifier_B);
+  static std::string S_KeyToString(uint32_t _Key_U32);
 
-  BOFERR Reset();
+  static BOFERR S_Readline(const std::string &_rPrompt_S, std::string &_rInputLine_S);
+
+  static BOFERR S_SetTextAttribute(uint32_t _TextAttributeFlag_U32); // Use CONIO_TEXT_ATTRIBUTE_FLAG enum ored value
+  static BOFERR S_SetForegroundTextColor(CONIO_TEXT_COLOR _ForegroundColor_E);
+  static BOFERR S_SetBackgroundTextColor(CONIO_TEXT_COLOR _BackgroundColor_E);
+  static BOFERR S_SetForegroundTextColor(BOF_RGBA<uint8_t> _ForegroundColor_E);
+  static BOFERR S_SetBackgroundTextColor(BOF_RGBA<uint8_t> _BackgroundColor_X);
+
+  static BOFERR S_SetTextCursorState(CONIO_TEXT_CURSOR_STATE _CursorState_E);
+  static BOFERR S_SetTextCursorPosition(uint32_t _x_U32, uint32_t _y_U32);
+  static BOFERR S_GetTextCursorPosition(uint32_t &_rX_U32, uint32_t &_rY_U32);
+  static BOFERR S_SetTextWindowTitle(const char *_pTitle_c);
+  static BOFERR S_Clear(CONIO_CLEAR _ClearType_E);
+
+  static BOFERR S_PrintLine(const char *_pFormat_c, ...);
+  static void S_PrintLineColorAt(CONIO_TEXT_COLOR _ForegroundColor_E, uint32_t _x_U32, uint32_t _y_U32, const char *_pFormat_c, ...);
 
 private:
-  uint32_t GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c);
+  static uint32_t S_GetChAfterOneChar(bool _OnlyModifier_B, char _FirstChar_c);
 
-  CONIO_TEXT_COLOR mForeColor_E = CONIO_TEXT_COLOR::CONIO_TEXT_COLOR_BLACK;
+  static BOF_CONIO_PARAM S_mBofConioParam_X;
+  static uint32_t S_mConsoleWidth_U32;
+  static uint32_t S_mConsoleHeight_U32;
+  static char S_mpTextForeAttribute_c[0x40];
+  static char S_mpTextBackAttribute_c[0x40];
+  static char S_mpTextAttribute_c[0x40];
 };
 
 END_BOF_NAMESPACE()

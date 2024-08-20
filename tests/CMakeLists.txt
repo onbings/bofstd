@@ -217,13 +217,13 @@ target_include_directories(ut_bofstd
 )
 
 ### VLD ###########################################
-set(CMAKE_VLD_TARGET ut_bofstd)
-configure_file(
-  ${CMAKE_SOURCE_DIR}/vld.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vld.cmake
-  @ONLY
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/vld.cmake)
+#set(CMAKE_VLD_TARGET ut_bofstd)
+#configure_file(
+#  ${CMAKE_SOURCE_DIR}/vld.cmake.in
+#  ${CMAKE_CURRENT_BINARY_DIR}/vld.cmake
+#  @ONLY
+#)
+#include(${CMAKE_CURRENT_BINARY_DIR}/vld.cmake)
 ### VLD ########################################
 
 target_link_libraries(ut_bofstd
