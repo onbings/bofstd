@@ -33,7 +33,7 @@
 #include <ws2tcpip.h>
 #define BOF_POLL_RDHUP 0 // does not exist in _WIN32
 #define socklen_t int
-//#define ifaddrs BOF::BOF_NETWORK_INTERFACE_PARAM
+// #define ifaddrs BOF::BOF_NETWORK_INTERFACE_PARAM
 #else
 #define SOCKET_ERROR -1
 
@@ -735,7 +735,7 @@ struct BOF_NETWORK_INTERFACE_PARAM
   std::string IpAddress_S;
   std::string IpMask_S;
   std::string IpBroadcast_S;
-  BOF_SOCKADDR_IN  SockAddr4_X;
+  BOF_SOCKADDR_IN SockAddr4_X;
   BOF_SOCKADDR_IN6 SockAddr6_X;
   BOF_INTERFACE_INFO Info_X;
 
@@ -787,5 +787,6 @@ BOFSTD_EXPORT bool Bof_IsIpAddressLocalHost(const BOF_SOCKET_ADDRESS &_rIpAddres
 BOFSTD_EXPORT bool Bof_IsIpAddressLocalHost(const std::string &_rIpAddress_S);
 BOFSTD_EXPORT BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X, const BOF_SOCKET_ADDRESS &_rIpAddress_X, BOF_SOCKET_ADDRESS &_rCompatibleIpAddress_X);
 BOFSTD_EXPORT BOFERR Bof_PollFdSocket(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32);
-
+BOFSTD_EXPORT bool Bof_IsIpAddressPingable(uint32_t _TimeoutInMs_U32, const std::string &_rIpAddress_S);
+BOFSTD_EXPORT bool Bof_IsIpAddressOpened(uint32_t _TimeoutInMs_U32, const std::string &_rIpAddress_S);
 END_BOF_NAMESPACE()
