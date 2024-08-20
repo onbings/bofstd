@@ -319,6 +319,7 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
   bool EntryOk_B, Finish_B, ItIsADirectory_B, DotDotDir_B, DotDir_B; // , EmptyDir_B;
   BOF_FILE_FOUND FileFound_X;                                        // , DotFileFound_X;
   uint64_t Time_U64;
+  std::string DirName_S;
 
 #if defined(_WIN32)
   HANDLE FindFirstFile_h;
@@ -439,9 +440,25 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
               FileFound_X.FileType_E = BOF_FILE_TYPE::BOF_FILE_REG;
               EntryOk_B = ((Bof_IsAnyBitFlagSet(_FileTypeToFind_E, FileFound_X.FileType_E) && (!ItIsADirectory_B)));
             }
-            if ((EntryOk_B) && (!ItIsADirectory_B))
+            if (EntryOk_B)
             {
-              EntryOk_B = (Bof_PatternCompare(FileFound_X.Path.FileNameWithExtension().c_str(), _rPattern_S.c_str()));
+              if (ItIsADirectory_B)
+              {
+                EntryOk_B = false;
+                if (FileFound_X.Path.NumberOfSubDirectory())
+                {
+                  DirName_S = FileFound_X.Path.SubDirectory(FileFound_X.Path.NumberOfSubDirectory() - 1, false);
+                  if (DirName_S.size() > 2)
+                  {
+                    DirName_S = DirName_S.substr(1, DirName_S.size() - 2);
+                    EntryOk_B = (Bof_PatternCompare(DirName_S.c_str(), _rPattern_S.c_str()));
+                  }
+                }
+              }
+              else
+              {
+                EntryOk_B = (Bof_PatternCompare(FileFound_X.Path.FileNameWithExtension().c_str(), _rPattern_S.c_str()));
+              }
             }
             if (EntryOk_B)
             {
