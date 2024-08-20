@@ -14,7 +14,7 @@
 #if defined(NDEBUG) // We are in Release compil
 #else
 #if defined(_WIN32)
-#include <vld.h>
+//#include <vld.h>
 #endif
 #endif
 

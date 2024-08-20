@@ -117,8 +117,8 @@ bool BofConio::S_Initialize(const BOF_CONIO_PARAM &_rBofConioParam_X)
   if (BOF_IS_HANDLE_VALID(Out_h))
   {
     GetConsoleScreenBufferInfo(Out_h, &ScreenBufferInfo_X);
-    mConsoleWidth_U32 = ScreenBufferInfo_X.srWindow.Right - ScreenBufferInfo_X.srWindow.Left + 1;
-    mConsoleHeight_U32 = ScreenBufferInfo_X.srWindow.Bottom - ScreenBufferInfo_X.srWindow.Top + 1;
+    S_mConsoleWidth_U32 = ScreenBufferInfo_X.srWindow.Right - ScreenBufferInfo_X.srWindow.Left + 1;
+    S_mConsoleHeight_U32 = ScreenBufferInfo_X.srWindow.Bottom - ScreenBufferInfo_X.srWindow.Top + 1;
   }
 #else
   // struct winsize ScreenBufferInfo_X;
