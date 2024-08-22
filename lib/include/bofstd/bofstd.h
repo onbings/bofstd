@@ -424,13 +424,32 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
   ((((v) % (a)) != 0) ? ((a) - ((v) % (a))) : a) // If aligned add a zone of a byte before the next one
 #define BOF_ALIGN_ADD_NB_PADDING_BYTE(v, a) \
   ((((v) % (a)) != 0) ? ((a) - ((v) % (a))) : 0) // If aligned add a zone of a byte before the next one
-#define BOF_ALIGN_VALUE_ON(v, a) (((v) + (a)-1) & ~((a)-1))
-#define BOF_SNPRINTF_NULL_CLIPPED(pBuffer, MaxBufferSize, Format, ...) \
+#define BOF_ALIGN_VALUE_ON(v, a) (((v) + (a) - 1) & ~((a) - 1))
+// #define BOF_SNPRINTF_NULL_CLIPPED(pBuffer, MaxBufferSize, Format, ...)
+//   {
+//     snprintf(pBuffer, MaxBufferSize, Format, ##__VA_ARGS__);
+//     pBuffer[MaxBufferSize - 1] = 0;
+//   }
+//  Use Bof_StrNCpy #define BOF_STRNCPY_NULL_CLIPPED(pDst, pSrc, Count) {strncpy(pDst, pSrc, Count);pDst[Count-1]=0;}
+#define BOF_SPRINTF(Txt, Format, ...)                                  \
   {                                                                    \
-    snprintf(pBuffer, MaxBufferSize, Format, ##__VA_ARGS__);           \
-    pBuffer[MaxBufferSize - 1] = 0;                                    \
+    if (Format)                                                        \
+    {                                                                  \
+      std::va_list Arg;                                                \
+      int SizeBuffer_i, Size_i;                                        \
+      va_start(Arg, Format);                                           \
+      SizeBuffer_i = vsnprintf(nullptr, 0, Format, Arg);               \
+      va_end(Arg);                                                     \
+      if (SizeBuffer_i >= 0)                                           \
+      {                                                                \
+        Txt.resize(SizeBuffer_i + 4);                                  \
+        va_start(Arg, Format);                                         \
+        Size_i = vsnprintf(Txt.data(), SizeBuffer_i + 1, Format, Arg); \
+        va_end(Arg);                                                   \
+        BOF_ASSERT(Size_i == SizeBuffer_i);                            \
+      }                                                                \
+    }                                                                  \
   }
-// Use Bof_StrNCpy #define BOF_STRNCPY_NULL_CLIPPED(pDst, pSrc, Count) {strncpy(pDst, pSrc, Count);pDst[Count-1]=0;}
 #define BOF_SET_ADDRESS_MAGIC_NUMBER(p, mn)                                             \
   {                                                                                     \
     (p)->MagicNumber_U64 = (reinterpret_cast<uint64_t>(p) ^ static_cast<uint64_t>(mn)); \
@@ -527,7 +546,7 @@ extern uint32_t GL_BofDbgPrintfStartTime_U32;
   {                                                                                  \
     unsigned int i;                                                                  \
     bool StsBit;                                                                     \
-    U32 FoundBitNum = (U32)-1;                                                       \
+    U32 FoundBitNum = (U32) - 1;                                                     \
     uint8_t MaskOfFirstByte, Val;                                                    \
     MaskOfFirstByte = 0xFF ^ ((1 << (BitNum & 0x07)) - 1);                           \
     if (SetOrReset)                                                                  \

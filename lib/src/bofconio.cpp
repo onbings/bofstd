@@ -1115,44 +1115,25 @@ BOFERR BofConio::S_Clear(CONIO_CLEAR _ClearType_E)
 BOFERR BofConio::S_PrintLine(const char *_pFormat_c, ...)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
-  char pText_c[0x1000];
-  va_list Arg;
+  std::string Txt_S;
 
-  va_start(Arg, _pFormat_c);
-  vsnprintf(pText_c, sizeof(pText_c), _pFormat_c, Arg);
-  va_end(Arg);
-  printf("%s%s%sm%s", S_mpTextAttribute_c, S_mpTextForeAttribute_c, S_mpTextBackAttribute_c, pText_c);
-  // printf("%s%sm%s", S_mpTextAttribute_c, S_mpTextForeAttribute_c, pText_c);
-  // printf("%s", pText_c);
-  /*
-  printf("\033[0;95;40m%s", pText_c);
-  printf("\033[0;95;41m%s", pText_c);
-  printf("\033[0;95;42m%s", pText_c);
-  printf("\033[0;95;43m%s", pText_c);
-  printf("\033[0;95;44m%s", pText_c);
-  printf("\033[0;95;45m%s", pText_c);
-  printf("\033[0;95;46m%s", pText_c);
-  printf("\033[0;95;47m%s", pText_c);
-  printf("\033[0;95;100m%s", pText_c);
-  printf("\033[0;95;101m%s", pText_c);
-  */
+  BOF_SPRINTF(Txt_S, _pFormat_c);
+  printf("%s%s%sm%s", S_mpTextAttribute_c, S_mpTextForeAttribute_c, S_mpTextBackAttribute_c, Txt_S.c_str());
+  // printf("\033[0;95;40m%s", pText_c);
   return Rts_E;
 }
 void BofConio::S_PrintLineColorAt(CONIO_TEXT_COLOR _ForegroundColor_E, uint32_t _x_U32, uint32_t _y_U32, const char *_pFormat_c, ...)
 {
   uint32_t x_U32, y_U32;
-  char pText_c[0x1000];
+  std::string Txt_S;
 
   if ((_x_U32) && (_y_U32))
   {
     S_SetTextCursorPosition(_x_U32, _y_U32);
   }
   S_SetForegroundTextColor(_ForegroundColor_E);
-  va_list Arg;
-  va_start(Arg, _pFormat_c);
-  vsnprintf(pText_c, sizeof(pText_c), _pFormat_c, Arg);
-  va_end(Arg);
-  S_PrintLine(pText_c);
+  BOF_SPRINTF(Txt_S, _pFormat_c);
+  S_PrintLine(Txt_S.c_str());
 }
 
 END_BOF_NAMESPACE()

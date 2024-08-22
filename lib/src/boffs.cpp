@@ -404,9 +404,11 @@ BOFERR Bof_DirectoryParser(const BofPath &_rPath, const std::string &_rPattern_S
           {
             EntryOk_B = true;
             ItIsADirectory_B = (S_ISDIR(FileStat_X.st_mode)) ? true : false;
-            FileFound_X.Path = _rPath;
-            FileFound_X.Path.Combine(pDirEntry_X->d_name);
-            // pr6intf("2:EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
+            //            FileFound_X.Path = _rPath;
+            //            FileFound_X.Path.Combine(pDirEntry_X->d_name);
+            FileFound_X.Path = pPath_c;
+            // printf("2:EntryOk %d ItIsADirectory %d Path %s PathComb %s\n", EntryOk_B, ItIsADirectory_B, _rPath.FullPathName(false).c_str(), FileFound_X.Path.FullPathName(false).c_str());
+            // printf("==>pPath_c %s Size %zu\n", pPath_c, FileStat_X.st_size);
           }
           // printf("3:EntryOk_B %d ItIsADirectory_B %d\n",EntryOk_B,ItIsADirectory_B);
         }
