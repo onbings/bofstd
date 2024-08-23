@@ -1,6 +1,6 @@
 {
   "name": "bofstd",
-  "version": "5.7.4.3",
+  "version": "5.8.1.2",
   "description": "The onbings general purpose C++ Multiplatform library",
   "dependencies": [
     {

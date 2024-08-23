@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <string.h>
 #include <vector>
+#include <set>
 
 #if defined(_WIN32)
 #define NOMINMAX
@@ -789,4 +790,6 @@ BOFSTD_EXPORT BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_IN
 BOFSTD_EXPORT BOFERR Bof_PollFdSocket(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32);
 BOFSTD_EXPORT bool Bof_IsIpAddressPingable(uint32_t _TimeoutInMs_U32, const std::string &_rIpAddress_S);
 BOFSTD_EXPORT bool Bof_IsIpAddressOpened(uint32_t _TimeoutInMs_U32, const std::string &_rIpAddress_S);
+
+
 END_BOF_NAMESPACE()

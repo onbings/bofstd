@@ -139,7 +139,8 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "RawCircularBuffer_Test.*:CircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   //::testing::GTEST_FLAG(filter) = "BofThreadPool_Test.Dispatch";
   //::testing::GTEST_FLAG(filter) = "ConIo_Test.*";
-  //::testing::GTEST_FLAG(filter) = "SocketOs_Test.*";
+//  ::testing::GTEST_FLAG(filter) = "ServiceEndPoint_Test.*:SocketOs_Test.*:Uri_Test.*";
+  //::testing::GTEST_FLAG(filter) = "ServiceEndPoint_Test.*";
   //  ::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);

@@ -335,11 +335,13 @@ std::string BofUri::Authority() const
 
   return Rts_X.ToString(true, true, true, true);
 }
+
 const BOF_SOCKET_ADDRESS &BofUri::IpAddress(std::string &_rIpAddress_S) const
 {
   _rIpAddress_S = mSchemeAuthority_X.Protocol_S + "://" + Bof_SocketAddressToString(mSchemeAuthority_X.Ip_X, false, true);
   return mSchemeAuthority_X.Ip_X;
 }
+
 const BofPath &BofUri::Path(std::string &_rPath_S) const
 {
   _rPath_S = mPath.FullPathName(false);
@@ -423,6 +425,7 @@ BOFERR BofUri::InitUriField(const std::string &_rUri_S)
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
     mSchemeAuthority_X = Uri_X;
+    Bof_IpAddressToSocketAddress(mSchemeAuthority_X.ToString(true,false,false,true), mSchemeAuthority_X.Ip_X);
     mPath = BofPath(Path_S);
     mFragment_S = Fragment_S;
     if (mPath.IsValid())

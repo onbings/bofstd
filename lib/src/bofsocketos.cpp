@@ -23,6 +23,7 @@
 #include <bofstd/bofstring.h>
 #include <bofstd/bofsystem.h>
 #include <bofstd/bofsocket.h>
+#include <bofstd/bofuri.h>
 
 #include <map>
 #include <regex>
@@ -1495,13 +1496,45 @@ var regexMailto = / ^ (mailto) : ((? : [a - z0 - 9 - ._~!$ & '()*+,;=:@]|%[0-9A-
 BOFERR Bof_SplitUri(const std::string &_rUri_S, BOF_SOCKET_ADDRESS_COMPONENT &_rUri_X, std::string &_rPath_S, std::string &_rQuery_S, std::string &_rFragment_S)
 {
   BOFERR Rts_E = BOF_ERR_FORMAT;
+  
   static const std::regex S_RegExUri(
       "^([a-z][a-z0-9+.-]*):(?:\\/\\/((?:(?=((?:[a-z0-9-._~!$&'()*+,;=:]|%[0-9A-F]{2})*))(\\3)@)?(?=(\\[[0-9A-F:.]{2,}\\]|(?:[a-z0-9-._~!$&'()*+,;=]|%[0-9A-F]{2})*))\\5(?::(?=(\\d*))\\6)?)(\\/(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/]|%[0-9A-F]{2})*))\\8)?|(\\/"
       "?(?!\\/)(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/]|%[0-9A-F]{2})*))\\10)?)(?:\\?(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9A-F]{2})*))\\11)?(?:#(?=((?:[a-z0-9-._~!$&'()*+,;=:@\\/?]|%[0-9A-F]{2})*))\\12)?$"); // Static as it can takes time (on gcc 4.9 for
-                                                                                                                                                                                                               // example)
+  
   std::smatch MatchString;
   std::string::size_type PosColumn;
   std::vector<BOF_SOCKET_ADDRESS> ListOfIpAddress_X;
+
+  /*
+{ size=13 }
+[0]	 "myprotocol://john.doe:password@1.2.3.4:123/forum/questions/file.txt?justkey&order=newest;tag=networking#top"
+[1]	 "myprotocol"
+[2]	 "john.doe:password@1.2.3.4:123"
+[3]	 "john.doe:password"
+[4]	 "john.doe:password"
+[5]	 "1.2.3.4"
+[6]	 "123"
+[7]	 "/forum/questions/file.txt"
+[8]	 "forum/questions/file.txt"
+[9]	 false
+[10] false
+[11] "justkey&order=newest;tag=networking"
+[12] "top"
+
+[0]	 "protocol:/forum/questions/thefile.txt?justkey;order=newest&tag=networking#top"
+[1]	 "protocol"
+[2]	 false
+[3]	 false
+[4]	 false
+[5]	 false
+[6]	 false
+[7]	 false
+[8]	 false
+[9]	 "/forum/questions/thefile.txt"
+[10] "forum/questions/thefile.txt"
+[11] "justkey;order=newest&tag=networking"
+[12] "top"
+  */
 
   _rUri_X.Reset();
   if (std::regex_search(_rUri_S, MatchString, S_RegExUri))
@@ -2338,6 +2371,37 @@ bool Bof_IsIpAddressPingable(uint32_t _TimeoutInMs_U32, const std::string &_rIpA
   int ExitCode_i;
 
 #if defined(_WIN32)
+  /*
+  https://stackoverflow.com/questions/9329749/batch-errorlevel-ping-response
+  ping errorlevel (exit code) is always 0 and in case of bad ip address it need a n value of 2 to "see" the problem....
+
+  Problem:
+  C:\tmp>ping -n 1 -w 1000 1.2.3.4
+  Pinging 1.2.3.4 with 32 bytes of data:
+  Reply from 194.42.74.25: Destination net unreachable.
+  Ping statistics for 1.2.3.4:
+    Packets: Sent = 1, Received = 1, Lost = 0 (0% loss),<=====!!!!
+
+  Batch example:
+  set error=failure
+  ping -n 2 -w 1000 1.2.3.4 2>&1 && set error=success
+  REM ping -n 2 -w 1000 10.129.170.14 2>&1 && set error=success
+  echo %errorlevel%
+  echo %error%
+
+  Case Ok in ipv4:
+  C:\tmp>ping 10.129.170.14
+  Pinging 10.129.170.14 with 32 bytes of data:
+  Reply from 10.129.170.14: bytes=32 time=1ms TTL=63
+  Reply from 10.129.170.14: bytes=32 time=1ms TTL=63
+
+  Ping statistics for 10.129.170.14:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+  Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 1ms, Average = 1ms
+
+  =>Check that TTL= is present in output
+  */
   snprintf(pPingCmd_c, sizeof(pPingCmd_c), "ping -n 1 -w %d %s", _TimeoutInMs_U32, _rIpAddress_S.c_str());
 #else
   snprintf(pPingCmd_c, sizeof(pPingCmd_c), "ping -c 1 -w %d %s", _TimeoutInMs_U32 / 1000, _rIpAddress_S.c_str());
@@ -2345,6 +2409,15 @@ bool Bof_IsIpAddressPingable(uint32_t _TimeoutInMs_U32, const std::string &_rIpA
   if (BofProcess::S_Execute_popen(pPingCmd_c, Output_S, ExitCode_i) == BOF_ERR_NO_ERROR)
   {
     Rts_B = (ExitCode_i == 0);
+#if defined(_WIN32)
+    if (Rts_B)
+    {
+      if (Output_S.find("TTL=") == std::string::npos)
+      {
+        Rts_B = false;
+      }
+    }
+#endif
   }
   return Rts_B;
 }
@@ -2402,4 +2475,6 @@ bool Bof_IsIpAddressOpened(uint32_t _TimeoutInMs_U32, const std::string &_rIpAdd
   }
   return Rts_B;
 }
+
+
 END_BOF_NAMESPACE()

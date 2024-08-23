@@ -31,9 +31,9 @@ USE_BOF_NAMESPACE()
 TEST(SocketOs_Test, IsIpAddressOpened)
 {
   EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "tcp://10.129.170.15:7"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
-  EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "tcp://10.129.170.15:8"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
+  EXPECT_FALSE(Bof_IsIpAddressOpened(1000, "tcp://10.129.170.15:8"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
   EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "udp://10.129.170.15:7"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
-  EXPECT_TRUE(Bof_IsIpAddressOpened(1000, "udp://10.129.170.15:8"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
+  EXPECT_FALSE(Bof_IsIpAddressOpened(1000, "udp://10.129.170.15:8"));  // Echo protocol: https://medium.com/@bzami.ayman/echo-protocol-4cb25db9ae28
 }
 
 TEST(SocketOs_Test, Ping)

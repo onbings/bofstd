@@ -96,6 +96,7 @@ set(ENUM_FLAG_FILES
 set(FS_FILES
 	src/ut_path.cpp
 	src/ut_uri.cpp
+	src/ut_serviceendpoint.cpp
 	src/ut_fs.cpp
 )
 

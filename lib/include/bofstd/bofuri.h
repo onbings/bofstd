@@ -330,4 +330,5 @@ private:
   /// @remarks None
   BOFERR ExtractQueryParamIntoCollection(const std::string &_rQueryParam_S, std::map<std::string, std::string> &_rQueryParamCollection);
 };
+
 END_BOF_NAMESPACE()

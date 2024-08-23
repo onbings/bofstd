@@ -140,6 +140,8 @@ set(FS_FILES
 	src/bofpath.cpp
 	include/bofstd/bofuri.h
 	src/bofuri.cpp
+	include/bofstd/bofserviceendpoint.h
+	src/bofserviceendpoint.cpp
 	include/bofstd/bofhttprequest.h
 	src/bofhttprequest.cpp
 	include/bofstd/boffs.h
