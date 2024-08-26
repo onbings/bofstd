@@ -52,6 +52,12 @@ std::string BofServiceEndpoint::ToString(bool _ShowName_B)
   Rts += mUri.ToString();
   return Rts;
 }
+bool BofServiceEndpoint::SetUserArg(bool _UserMaster_B, const std::string &_rUserArg_S)
+{
+  mUserArg_S = _UserMaster_B;
+  mUserMaster_B = _UserMaster_B;
+  return true;
+}
 bool BofServiceEndpoint::SetServiceName(const std::string &_rServiceName_S)
 {
   mServiceName_S = _rServiceName_S;
@@ -74,7 +80,11 @@ bool BofServiceEndpoint::SetServiceTagCollection(const std::set<std::string> &_r
   mServiceTagCollection = _rServiceTagCollection;
   return true;
 }
-
+const std::string BofServiceEndpoint::GetUserArg(bool &_rUserMaster_B)
+{
+  _rUserMaster_B = mUserMaster_B;
+  return mUserArg_S;
+}
 const std::string BofServiceEndpoint::GetServiceName() const
 {
   return mServiceName_S;

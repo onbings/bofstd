@@ -36,11 +36,13 @@ public:
   bool IsValid();
   std::string ToString(bool _ShowName_B);
 
+  bool SetUserArg(bool _UserMaster_B, const std::string &_rUserArg_S);
   bool SetServiceName(const std::string &_rServiceName_S);
   bool SetServiceInstance(const std::string &_rServiceInstance_S);
   bool SetServiceUrl(const std::string &_rServiceUrl_S);
   bool SetServiceTagCollection(const std::set<std::string> &_rServiceTagCollection);
 
+  const std::string GetUserArg(bool &_rUserMaster_B);
   const std::string GetServiceName() const;
   const std::string GetServiceInstance() const;
   const std::string GetServiceUrl() const;
@@ -51,6 +53,8 @@ private:
   std::string mServiceName_S;
   std::string mServiceInstance_S;
   std::set<std::string> mServiceTagCollection;
+  bool mUserMaster_B = false;
+  std::string mUserArg_S;
 };
 
 END_BOF_NAMESPACE()
