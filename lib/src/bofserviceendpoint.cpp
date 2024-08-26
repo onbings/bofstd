@@ -52,10 +52,9 @@ std::string BofServiceEndpoint::ToString(bool _ShowName_B)
   Rts += mUri.ToString();
   return Rts;
 }
-bool BofServiceEndpoint::SetUserArg(bool _UserMaster_B, const std::string &_rUserArg_S)
+bool BofServiceEndpoint::SetServiceMetaData(const BOF_SERVICE_ENPOINT_META_DATA &_rServiceEndpointMetaData_X)
 {
-  mUserArg_S = _UserMaster_B;
-  mUserMaster_B = _UserMaster_B;
+  mServiceEndpointMetaData_X = _rServiceEndpointMetaData_X;
   return true;
 }
 bool BofServiceEndpoint::SetServiceName(const std::string &_rServiceName_S)
@@ -80,22 +79,21 @@ bool BofServiceEndpoint::SetServiceTagCollection(const std::set<std::string> &_r
   mServiceTagCollection = _rServiceTagCollection;
   return true;
 }
-const std::string BofServiceEndpoint::GetUserArg(bool &_rUserMaster_B)
+BOF_SERVICE_ENPOINT_META_DATA BofServiceEndpoint::GetServiceMetaData() const
 {
-  _rUserMaster_B = mUserMaster_B;
-  return mUserArg_S;
+  return mServiceEndpointMetaData_X;
 }
-const std::string BofServiceEndpoint::GetServiceName() const
+std::string BofServiceEndpoint::GetServiceName() const
 {
   return mServiceName_S;
 }
 
-const std::string BofServiceEndpoint::GetServiceInstance() const
+std::string BofServiceEndpoint::GetServiceInstance() const
 {
   return mServiceInstance_S;
 }
 
-const std::string BofServiceEndpoint::GetServiceUrl() const
+std::string BofServiceEndpoint::GetServiceUrl() const
 {
   std::string Rts_S;
   BOF::BOF_SOCKET_ADDRESS SocketAddress_X;
@@ -104,7 +102,7 @@ const std::string BofServiceEndpoint::GetServiceUrl() const
   return Rts_S;
 }
 
-const std::set<std::string> BofServiceEndpoint::GetServiceTagCollection() const
+std::set<std::string> BofServiceEndpoint::GetServiceTagCollection() const
 {
   return mServiceTagCollection;
 }

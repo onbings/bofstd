@@ -25,6 +25,23 @@
 
 BEGIN_BOF_NAMESPACE()
 
+struct BOF_SERVICE_ENPOINT_META_DATA
+{
+  bool UserMaster_B;
+  std::string UserArg_S;
+  void *pUser;
+
+  BOF_SERVICE_ENPOINT_META_DATA()
+  {
+    Reset();
+  }
+  void Reset()
+  {
+    UserMaster_B = false;
+    UserArg_S = "";
+    pUser = nullptr;
+  }
+};
 class BOFSTD_EXPORT BofServiceEndpoint
 {
 public:
@@ -36,25 +53,24 @@ public:
   bool IsValid();
   std::string ToString(bool _ShowName_B);
 
-  bool SetUserArg(bool _UserMaster_B, const std::string &_rUserArg_S);
+  bool SetServiceMetaData(const BOF_SERVICE_ENPOINT_META_DATA &_rServiceEndpointMetaData_X);
   bool SetServiceName(const std::string &_rServiceName_S);
   bool SetServiceInstance(const std::string &_rServiceInstance_S);
   bool SetServiceUrl(const std::string &_rServiceUrl_S);
   bool SetServiceTagCollection(const std::set<std::string> &_rServiceTagCollection);
 
-  const std::string GetUserArg(bool &_rUserMaster_B);
-  const std::string GetServiceName() const;
-  const std::string GetServiceInstance() const;
-  const std::string GetServiceUrl() const;
-  const std::set<std::string> GetServiceTagCollection() const;
+  BOF_SERVICE_ENPOINT_META_DATA GetServiceMetaData() const;
+  std::string GetServiceName() const;
+  std::string GetServiceInstance() const;
+  std::string GetServiceUrl() const;
+  std::set<std::string> GetServiceTagCollection() const;
 
 private:
   BofUri mUri;
   std::string mServiceName_S;
   std::string mServiceInstance_S;
   std::set<std::string> mServiceTagCollection;
-  bool mUserMaster_B = false;
-  std::string mUserArg_S;
+  BOF_SERVICE_ENPOINT_META_DATA mServiceEndpointMetaData_X;
 };
 
 END_BOF_NAMESPACE()
