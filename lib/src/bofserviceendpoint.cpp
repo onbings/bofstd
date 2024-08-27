@@ -52,9 +52,9 @@ std::string BofServiceEndpoint::ToString(bool _ShowName_B)
   Rts += mUri.ToString();
   return Rts;
 }
-bool BofServiceEndpoint::SetServiceMetaData(const BOF_SERVICE_ENPOINT_META_DATA &_rServiceEndpointMetaData_X)
+bool BofServiceEndpoint::SetServiceMetaData(void *_pServiceEndpointMetaData)
 {
-  mServiceEndpointMetaData_X = _rServiceEndpointMetaData_X;
+  mpServiceEndpointMetaData = _pServiceEndpointMetaData;
   return true;
 }
 bool BofServiceEndpoint::SetServiceName(const std::string &_rServiceName_S)
@@ -79,9 +79,9 @@ bool BofServiceEndpoint::SetServiceTagCollection(const std::set<std::string> &_r
   mServiceTagCollection = _rServiceTagCollection;
   return true;
 }
-BOF_SERVICE_ENPOINT_META_DATA BofServiceEndpoint::GetServiceMetaData() const
+void *BofServiceEndpoint::GetServiceMetaData() const
 {
-  return mServiceEndpointMetaData_X;
+  return mpServiceEndpointMetaData;
 }
 std::string BofServiceEndpoint::GetServiceName() const
 {

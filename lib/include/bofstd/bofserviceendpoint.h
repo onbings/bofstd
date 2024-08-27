@@ -53,13 +53,13 @@ public:
   bool IsValid();
   std::string ToString(bool _ShowName_B);
 
-  bool SetServiceMetaData(const BOF_SERVICE_ENPOINT_META_DATA &_rServiceEndpointMetaData_X);
+  bool SetServiceMetaData(void *_pServiceEndpointMetaData);
   bool SetServiceName(const std::string &_rServiceName_S);
   bool SetServiceInstance(const std::string &_rServiceInstance_S);
   bool SetServiceUrl(const std::string &_rServiceUrl_S);
   bool SetServiceTagCollection(const std::set<std::string> &_rServiceTagCollection);
 
-  BOF_SERVICE_ENPOINT_META_DATA GetServiceMetaData() const;
+  void  *GetServiceMetaData() const;
   std::string GetServiceName() const;
   std::string GetServiceInstance() const;
   std::string GetServiceUrl() const;
@@ -70,7 +70,7 @@ private:
   std::string mServiceName_S;
   std::string mServiceInstance_S;
   std::set<std::string> mServiceTagCollection;
-  BOF_SERVICE_ENPOINT_META_DATA mServiceEndpointMetaData_X;
+  void *mpServiceEndpointMetaData=nullptr;
 };
 
 END_BOF_NAMESPACE()
