@@ -230,8 +230,8 @@ set(SYSTEM_FILES
 	src/boftimecode.cpp
 	include/bofstd/bofvideostandard.h
 	src/bofvideostandard.cpp
-	include/bofstd/bofaudio.h
-	src/bofaudio.cpp
+	#include/bofstd/bofaudio.h
+	#src/bofaudio.cpp
 	include/bofstd/bofaudiostandard.h
 	src/bofaudiostandard.cpp
 	include/bofstd/bofdatetime.h

@@ -40,13 +40,13 @@ cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUI
 #include <ws2tcpip.h>
 typedef bool(WINAPI *BofSignalHandler)(uint32_t);
 #else
-#if defined(__EMSCRIPTEN__)
-#include <emscripten/html5.h> //for emscripten_performance_now in Bof_RdTsc
-using BofEmscriptenCallback = std::function<BOFERR(void *)>;
-#else
-#include <x86intrin.h> //for __rdtsc in Bof_RdTsc
-#endif
-typedef bool (*BofSignalHandler)(uint32_t);
+# if defined(__EMSCRIPTEN__)
+#   include <emscripten/html5.h> //for emscripten_performance_now in Bof_RdTsc
+    using BofEmscriptenCallback = std::function<BOFERR(void *)>;
+# elif defined(__x86_64__) or defined(__i386__)
+#   include <x86intrin.h> //for __rdtsc in Bof_RdTsc
+# endif
+  typedef bool (*BofSignalHandler)(uint32_t);
 #endif
 
 using BofAssertCallback = std::function<BOFERR(const std::string &_rFile_S, uint32_t _Line_U32, const std::string &_rMasg_S)>;
@@ -425,7 +425,7 @@ const uintptr_t BOF_INVALID_HANDLE_VALUE = ((uintptr_t)-1);
 #define BOF_ALIGN_ADD_NB_PADDING_BYTE(v, a) \
   ((((v) % (a)) != 0) ? ((a) - ((v) % (a))) : 0) // If aligned add a zone of a byte before the next one
 #define BOF_ALIGN_VALUE_ON(v, a) (((v) + (a) - 1) & ~((a) - 1))
-// #define BOF_SNPRINTF_NULL_CLIPPED(pBuffer, MaxBufferSize, Format, ...)
+// #define snprintf(pBuffer, MaxBufferSize, Format, ...)
 //   {
 //     snprintf(pBuffer, MaxBufferSize, Format, ##__VA_ARGS__);
 //     pBuffer[MaxBufferSize - 1] = 0;
@@ -685,8 +685,10 @@ inline BOFSTD_EXPORT uint64_t Bof_RdTsc()
   return (((uint64_t)High_U32 << 32) | Low_U32);
   */
   return static_cast<uint64_t>(emscripten_performance_now() * 1000000.0); // Calls JavaScript performance.now(), returns a high precision wallclock time value in msecs.
-#else
+#elif defined(__x86_64__) or defined(__i386__)
   return __rdtsc();
+#else
+  return 0;
 #endif
 }
 BOFSTD_EXPORT uint32_t Bof_MeasureCpuSpeedInMHz();
