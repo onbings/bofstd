@@ -52,6 +52,14 @@ std::string BofServiceEndpoint::ToString(bool _ShowName_B)
   Rts += mUri.ToString();
   return Rts;
 }
+void BofServiceEndpoint::Reset()
+{
+  mUri.Reset();
+  mServiceName_S="";
+  mServiceInstance_S="";
+  mServiceTagCollection.clear();
+  mpServiceEndpointMetaData = nullptr;
+}
 bool BofServiceEndpoint::SetServiceMetaData(void *_pServiceEndpointMetaData)
 {
   mpServiceEndpointMetaData = _pServiceEndpointMetaData;

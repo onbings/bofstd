@@ -149,7 +149,16 @@ bool BofUri::operator!=(const BofUri &_rOther_O) const
 {
   return !(*this == _rOther_O);
 }
+void BofUri::Reset()
+{
+  mSchemeAuthority_X.Reset();
+  mPath="";
+  mQueryParamCollection.clear();
+  mFragment_S="";
 
+  mQueryParamDelimiter_c = '&';
+  mValid_B = false;
+}
 bool BofUri::IsValid() const
 {
   return (mValid_B);

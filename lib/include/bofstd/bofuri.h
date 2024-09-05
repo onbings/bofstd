@@ -173,6 +173,8 @@ public:
   /// @remarks Different operator.
   bool operator!=(const BofUri &_rOther_O) const;
 
+  void Reset();
+
   /// @brief Check if the uri instance is well formed.
   /// @return true if the uri is valid.
   /// @remarks None

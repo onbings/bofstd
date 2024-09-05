@@ -23,7 +23,7 @@
 #emrun --browser chrome --port 8080 --serve_after_close --serve_after_exit C:\bld\bofstd-web\binaries\bin
 #select .html file 
 #compil windows:
-#cmake -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=C:/pro/vcpkg/ports -DCMAKE_INSTALL_PREFIX=C:/tmp/bofstd -SC:/pro/github/bofstd -BC:/bld/bofstd-win
+#cmake -DCMAKE_INSTALL_PREFIX=C:/tmp/bofstd -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=C:/pro/vcpkg/ports  -SC:/pro/github/bofstd -BC:/bld/bofstd-win
 #compil linux:
 #cmake -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DVCPKG_OVERLAY_PORTS=/home/bha/pro/vcpkg/ports -DCMAKE_INSTALL_PREFIX=/tmp/bofstd -DRHEL:STRING="el9" -S/home/bha/pro/github/bofstd -B/home/bha/bld/bofstd-lin
 

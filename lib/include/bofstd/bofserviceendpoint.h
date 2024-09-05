@@ -25,23 +25,6 @@
 
 BEGIN_BOF_NAMESPACE()
 
-struct BOF_SERVICE_ENPOINT_META_DATA
-{
-  bool UserMaster_B;
-  std::string UserArg_S;
-  void *pUser;
-
-  BOF_SERVICE_ENPOINT_META_DATA()
-  {
-    Reset();
-  }
-  void Reset()
-  {
-    UserMaster_B = false;
-    UserArg_S = "";
-    pUser = nullptr;
-  }
-};
 class BOFSTD_EXPORT BofServiceEndpoint
 {
 public:
@@ -52,6 +35,7 @@ public:
   ~BofServiceEndpoint();
   bool IsValid();
   std::string ToString(bool _ShowName_B);
+  void Reset();
 
   bool SetServiceMetaData(void *_pServiceEndpointMetaData);
   bool SetServiceName(const std::string &_rServiceName_S);
