@@ -47,7 +47,7 @@ include(cmake/fetch_content.cmake)
 # in code coverage computation as they are test programs themselves.
 set(EXTRA_COVERAGE_EXCLUSION "\'${CMAKE_CURRENT_SOURCE_DIR}/integration/*\'")
 
-project(bofstd VERSION 5.7.3.3)
+project(bofstd VERSION 5.7.3.4)
 
 if (EMSCRIPTEN)
 message("Force pthread detection for BofStd compilation under EMSCRIPTEN")
@@ -163,6 +163,8 @@ if (EMSCRIPTEN)
   endif ()
   message("===EMSCRIPTEN=== CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 endif()
+#  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /utf-8")
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 
 # For shared libraries we need to compile with "-fPIC"
 # But for static libraries user can choose
@@ -280,7 +282,7 @@ endif()
 # build in manifest mode 
 message("==============================================start fetch=========================")
 fetch_external_library_add(googletest "${LIST_OF_LIB}" https://github.com/google/googletest release-1.12.1)
-fetch_external_library_add(spdlog "${LIST_OF_LIB}" https://github.com/gabime/spdlog v1.12.0)
+#fetch_external_library_add(spdlog "${LIST_OF_LIB}" https://github.com/gabime/spdlog v1.12.0)
 make_external_library_available("${LIST_OF_LIB}")
 #target_compile_definitions(spdlog PUBLIC SPDLOG_HEADER_ONLY)
 message("==============================================END fetch=========================")
@@ -307,6 +309,7 @@ endif()
 if(BOFSTD_BUILD_TOOLS)
   add_subdirectory(tools)
 endif()
+add_subdirectory(lib/third/spdlog)
 
 # ==========================
 # == PACKAGE INSTALLATION ==

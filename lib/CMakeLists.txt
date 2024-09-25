@@ -170,7 +170,7 @@ set(LOG_FILES
 	src/iboflogchannel.cpp	
 	include/bofstd/boflogchannel_spdlog.h
 	src/boflogchannel_spdlog.cpp	
-	include/bofstd/boflogsink_spdlog.h
+	src/boflogsink_spdlog.h
 	src/boflogsink_spdlog.cpp
 	include/bofstd/ibofloggerfactory.h
 	include/bofstd/bofbasicloggerfactory.h
@@ -331,12 +331,11 @@ target_include_directories(bofstd
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/cpp-linenoise-master>
 	#$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
 #	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/vld/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below) and bofversioninfo.h (above)
-	#$<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}
-	#$<BUILD_INTERFACE:${FFMPEG_INCLUDE_DIRS}
 	#Header path used when installed
 	$<INSTALL_INTERFACE:include>
 	$<INSTALL_INTERFACE:${MINIAUDIO_INCLUDE_DIRS}>
@@ -352,7 +351,7 @@ target_link_libraries(bofstd
   PRIVATE
 	jsoncpp::jsoncpp 
 	#spdlog::spdlog
-    $<BUILD_INTERFACE:spdlog::spdlog> #https://discourse.cmake.org/t/using-a-header-only-library-with-fetchcontents-while-build-a-static-lib/2711/2
+ #   $<BUILD_INTERFACE:spdlog::spdlog> #https://discourse.cmake.org/t/using-a-header-only-library-with-fetchcontents-while-build-a-static-lib/2711/2
 #    spdlog::spdlog
 )
 if(WIN32)
@@ -398,7 +397,7 @@ target_compile_definitions(bofstd
 	-DCRT_NONSTDC_NO_DEPRECATE
 	-DWINSOCK_DEPRECATED_NO_WARNINGS
 	-DIXML_STATIC_LIB
-	-DSPDLOG_HEADER_ONLY
+	-D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING
 )
 
 # Features (We need at least C++11 support)

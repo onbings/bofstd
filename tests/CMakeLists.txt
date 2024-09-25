@@ -240,7 +240,14 @@ target_compile_definitions(ut_bofstd
   PRIVATE
     -DBOFSTD_STATIC_DEFINE=1
 )
-
+if (MSVC)
+    # warning level 4 and all warnings as errors
+#    add_compile_options(/bigobj)
+#    add_compile_options(/utf-8)
+else()
+    # lots of warnings and all warnings as errors
+#    add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
 # Add test and allow them to run in //
 gtest_discover_tests(ut_bofstd
   XML_OUTPUT_DIR     ${CMAKE_BINARY_DIR}/GTestReports/

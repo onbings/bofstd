@@ -1,0 +1,1008 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Process*",
+                    "endsPattern": "^.*Listening*"
+                }
+            },
+            "label": "VcTsk:Web:Html:ut_bofstd",
+            "detail": "Debug ut_bofstd in chrome web browser",
+            "type": "shell",
+            "command": "echo Chrome",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Web"
+            ],
+            "isBackground": false
+        },
+        {
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Process*",
+                    "endsPattern": "^.*Listening*"
+                }
+            },
+            "label": "VcTsk:Web:Node:ut_bofstd",
+            "detail": "Debug ut_bofstd with node",
+            "type": "shell",
+            "command": "echo Node",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Web"
+            ],
+            "isBackground": false
+        },
+        {
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ".*"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^null",
+                    "endsPattern": "^null"
+                }
+            },
+            "label": "VcTsk:Xts:Gdb:ut_bofstd",
+            "detail": "Debug ut_bofstd with VSCode under windows",
+            "type": "shell",
+            "command": "cd /tmp/vcprj/bofstd-lin/bin",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Win"
+            ],
+            "isBackground": true
+        },
+        {
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Process*",
+                    "endsPattern": "^.*Listening*"
+                }
+            },
+            "label": "VcTsk:Xts:Gdb:ut_bofstd",
+            "detail": "Debug ut_bofstd with gdb on Xts system",
+            "type": "shell",
+            "command": "ssh",
+            "args": [
+                "-t",
+                "root@10.129.171.112",
+                "cd /tmp/vcprj/bofstd-lin/bin && gdbserver localhost:8080 /tmp/vcprj/bofstd-lin/bin/ut"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Lin",
+                "VcTsk:Setup:Rem:KillAll:gdbserver",
+                "VcTsk:Deploy:Rsync:evs-xts"
+            ],
+            "isBackground": true
+        },
+        {
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^(Starting QEMU)",
+                    "line": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^(Starting QEMU)",
+                    "endsPattern": "^(Starting QEMU)"
+                }
+            },
+            "label": "VcTsk:Dok:Gdb:ut_bofstd",
+            "detail": "Debug ut_bofstd with gdb and qemu-aarch64 on docker system",
+            "type": "shell",
+            "command": "echo Starting QEMU && cd ${userHome}/bld/bofstd-lin/binaries/bin && qemu-aarch64 -g 8080 ${userHome}/bld/bofstd-lin/binaries/bin/ut",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Lin"
+            ],
+            "isBackground": true
+        },
+        {
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Process*",
+                    "endsPattern": "^.*Listening*"
+                }
+            },
+            "label": "VcTsk:Web:Html:app_bofstd",
+            "detail": "Debug app_bofstd in chrome web browser",
+            "type": "shell",
+            "command": "echo Chrome",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Web"
+            ],
+            "isBackground": false
+        },
+        {
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Process*",
+                    "endsPattern": "^.*Listening*"
+                }
+            },
+            "label": "VcTsk:Web:Node:app_bofstd",
+            "detail": "Debug app_bofstd with node",
+            "type": "shell",
+            "command": "echo Node",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Web"
+            ],
+            "isBackground": false
+        },
+        {
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ".*"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^null",
+                    "endsPattern": "^null"
+                }
+            },
+            "label": "VcTsk:Xts:Gdb:app_bofstd",
+            "detail": "Debug app_bofstd with VSCode under windows",
+            "type": "shell",
+            "command": "cd /tmp/vcprj/bofstd-lin/bin",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Win"
+            ],
+            "isBackground": true
+        },
+        {
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Process*",
+                    "endsPattern": "^.*Listening*"
+                }
+            },
+            "label": "VcTsk:Xts:Gdb:app_bofstd",
+            "detail": "Debug app_bofstd with gdb on Xts system",
+            "type": "shell",
+            "command": "ssh",
+            "args": [
+                "-t",
+                "root@10.129.171.112",
+                "cd /tmp/vcprj/bofstd-lin/bin && gdbserver localhost:8080 /tmp/vcprj/bofstd-lin/bin/app"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Lin",
+                "VcTsk:Setup:Rem:KillAll:gdbserver",
+                "VcTsk:Deploy:Rsync:evs-xts"
+            ],
+            "isBackground": true
+        },
+        {
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^(Starting QEMU)",
+                    "line": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^(Starting QEMU)",
+                    "endsPattern": "^(Starting QEMU)"
+                }
+            },
+            "label": "VcTsk:Dok:Gdb:app_bofstd",
+            "detail": "Debug app_bofstd with gdb and qemu-aarch64 on docker system",
+            "type": "shell",
+            "command": "echo Starting QEMU && cd ${userHome}/bld/bofstd-lin/binaries/bin && qemu-aarch64 -g 8080 ${userHome}/bld/bofstd-lin/binaries/bin/app",
+            "args": [],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:CMake:Build:Lin"
+            ],
+            "isBackground": true
+        },
+        {
+            "label": "VcTsk:CMake:Build:Web",
+            "detail": "Launch cmake to build the configured Web target",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "."
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:Build:Win",
+            "detail": "Launch cmake to build the configured Win target",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "."
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-win"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:Build:Lin",
+            "detail": "Launch cmake to build the configured Lin target",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "."
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${userHome}/bld/bofstd-lin"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:ReBuildAll:Lin",
+            "detail": "Launch cmake to re build all the files of the Web project",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".",
+                "--clean-first"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:ReBuildAll:Win",
+            "detail": "Launch cmake to re build all the files of the Win project",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".",
+                "--clean-first"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-win"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:ReBuildAll:Lin",
+            "detail": "Launch cmake to re build all the files of the Lin project",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".",
+                "--clean-first"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${userHome}/bld/bofstd-lin"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Setup:Loc:GdbInit",
+            "detail": "Setup gdb with gdbinit to be able to see std::string and std::vector under linux",
+            "type": "shell",
+            "command": "cp",
+            "args": [
+                "setup_gdb.vcprj",
+                "${workspaceFolder}/.gdbinit"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/vcprj"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Setup:Loc:Web",
+            "detail": "Create local directory to build for Web",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "New-Item -Path C:/bld/bofstd-web -ItemType Directory -Force"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Setup:Loc:Win",
+            "detail": "Create local directory to build for Win",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "New-Item -Path C:/bld/bofstd-win -ItemType Directory -Force"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Setup:Loc:Lin",
+            "detail": "Create local directory to build for Lin",
+            "type": "shell",
+            "command": "mkdir",
+            "args": [
+                "-p",
+                "${userHome}/bld/bofstd-lin"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Deploy:Scp:bofstd",
+            "detail": "Copy package to remote directory using scp",
+            "type": "shell",
+            "command": "scp",
+            "args": [
+                "-rp",
+                "${userHome}/bld/bofstd-lin/binaries/*",
+                "root@10.129.171.112:/tmp/vcprj/bofstd-lin"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Deploy:Rsync:bofstd",
+            "detail": "Copy package to remote directory using rsync",
+            "type": "shell",
+            "command": "rsync",
+            "args": [
+                "-av",
+                "--exclude='*.core'",
+                "--exclude='*.a'",
+                "${userHome}/bld/bofstd-lin/binaries/.",
+                "root@10.129.171.112:/tmp/vcprj/bofstd-lin"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Setup:Rem:Lin",
+            "detail": "Create remote directories to deploy package and ut data under linux",
+            "type": "shell",
+            "command": "ssh",
+            "args": [
+                "root@10.129.171.112",
+                "mkdir -p /tmp/vcprj/bofstd-lin/lib && mkdir -p /tmp/vcprj/bofstd-lin/bin"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": ".*"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^null",
+                    "endsPattern": "^null"
+                }
+            },
+            "label": "VcTsk:Setup:Rem:KillAll:gdbserver",
+            "detail": "Kill pending zombie gdbserver",
+            "type": "shell",
+            "command": "ssh",
+            "args": [
+                "root@10.129.171.112",
+                "killall gdbserver"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": true
+        },
+        {
+            "label": "VcTsk:CMake:Conf:del-cache",
+            "detail": "Delete cmake cache",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "if (Test-Path C:/bld/bofstd-web) { Get-ChildItem C:/bld/bofstd-web | ForEach-Object { Remove-Item $_.FullName -Recurse -Force } } else { exit 0 }"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:EmCMake:Conf:Web:Html:bofstd",
+            "detail": "Launch Cmake to configure build system to target emscripten",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
+                "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=C:/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/emscripten.cmake",
+                "-DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "-DVCPKG_TARGET_TRIPLET=wasm32-emscripten",
+                "-DBUILD_SHARED_LIBS=OFF",
+                "-DCMAKE_GENERATOR=Ninja",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_CROSSCOMPILING_EMULATOR=C:/pro/emsdk/node/16.20.0_64bit/bin/node.exe",
+                "-DFETCHCONTENT_QUIET=OFF",
+                "-DCMAKE_VERBOSE_MAKEFILE=ON",
+                "-DEMSCRIPTEN_GEN_HTML=ON",
+                "-SC:/pro/github/bofstd",
+                "-BC:/bld/bofstd-web"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:EmCMake:Conf:Web:Node:bofstd",
+            "detail": "Launch Cmake to configure build system to target emscripten",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
+                "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=C:/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/emscripten.cmake",
+                "-DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "-DVCPKG_TARGET_TRIPLET=wasm32-emscripten",
+                "-DBUILD_SHARED_LIBS=OFF",
+                "-DCMAKE_GENERATOR=Ninja",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_CROSSCOMPILING_EMULATOR=C:/pro/emsdk/node/16.20.0_64bit/bin/node.exe",
+                "-DFETCHCONTENT_QUIET=OFF",
+                "-DCMAKE_VERBOSE_MAKEFILE=ON",
+                "-DEMSCRIPTEN_GEN_HTML=OFF",
+                "-SC:/pro/github/bofstd",
+                "-BC:/bld/bofstd-web"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": ""
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:Web:Serve:bofstd",
+            "detail": "Launch WebServer",
+            "type": "shell",
+            "command": "emrun",
+            "args": [
+                "--browser",
+                "chrome",
+                "--port",
+                "8080",
+                "--serve_after_close",
+                "--serve_after_exit",
+                "."
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:Setup:Loc:Web"
+            ],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:Conf:Web:Html:bofstd",
+            "detail": "Configure build system to target html emscripten and launch WebServer",
+            "type": "shell",
+            "command": "emrun",
+            "args": [
+                "--browser",
+                "chrome",
+                "--port",
+                "8080",
+                "--serve_after_close",
+                "--serve_after_exit",
+                "."
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:Setup:Loc:Web",
+                "VcTsk:EmCMake:Conf:Web:Html:bofstd"
+            ],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:Conf:Web:Node:bofstd",
+            "detail": "Configure build system to target node emscripten",
+            "type": "shell",
+            "command": "echo",
+            "args": [
+                "Node"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:Setup:Loc:Web",
+                "VcTsk:EmCMake:Conf:Web:Node:bofstd"
+            ],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:Conf:Win:bofstd",
+            "detail": "Launch cmake to configure build system to target Windows",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "-DVCPKG_TARGET_TRIPLET=x64-windows-static",
+                "-DBUILD_SHARED_LIBS=OFF",
+                "-DCMAKE_GENERATOR=Visual Studio 17 2022",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-SC:/pro/github/bofstd",
+                "-BC:/bld/bofstd-win"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-win"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:Setup:Loc:Win"
+            ],
+            "isBackground": false
+        },
+        {
+            "label": "VcTsk:CMake:Conf:Lin:bofstd",
+            "detail": "Launch cmake to configure build system to target linux",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=C:/pro/emsdk/upstream/emscripten/cmake/Modules/Platform/emscripten.cmake",
+                "-DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "-DVCPKG_TARGET_TRIPLET=wasm32-emscripten",
+                "-DBUILD_SHARED_LIBS=OFF",
+                "-DCMAKE_GENERATOR=Ninja",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-SC:/pro/github/bofstd",
+                "-BC:/bld/bofstd-web"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "C:/bld/bofstd-web"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "VcTsk:Setup:Loc:Lin",
+                "VcTsk:Setup:Rem:Lin"
+            ],
+            "isBackground": false
+        }
+    ]
+}

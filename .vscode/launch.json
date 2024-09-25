@@ -1,0 +1,233 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "VcRun:Web:Html:ut_bofstd",
+            "preLaunchTask": "VcTsk:Web:Html:ut_bofstd",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/binaries/bin/ut_bofstd.html",
+            "webRoot": "C:/pro/github/bofstd",
+            "trace": true,
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "wasm:///": "${workspaceFolder}"
+            },
+            "userDataDir": "C:/pro/github/bofstd/chrome",
+            "pathMapping": {
+                "/": "C:/pro/github/bofstd"
+            }
+        },
+        {
+            "name": "VcRun:Web:Node:ut_bofstd",
+            "preLaunchTask": "VcTsk:Web:Node:ut_bofstd",
+            "type": "node",
+            "request": "launch",
+            "program": "C:/bld/bofstd-web/binaries/bin/ut_bofstd.js",
+            "args": [],
+            "cwd": "",
+            "stopOnEntry": false,
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--inspect-brk"
+            ],
+            "restart": true,
+            "sourceMaps": true,
+            "outFiles": [
+                "C:/bld/bofstd-web/binaries/bin/ut_bofstd.js"
+            ],
+            "smartStep": true,
+            "skipFiles": [],
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std"
+        },
+        {
+            "name": "VcRun:Win:VsC:ut_bofstd",
+            "preLaunchTask": "VcTsk:CMake:Build:Win",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "C:/bld/bofstd-win/binaries/bin/Debug/ut_bofstd.exe",
+            "args": [
+                "-d15"
+            ],
+            "stopAtEntry": false,
+            "cwd": "C:/bld/bofstd-win/binaries/bin",
+            "environment": [],
+            "externalConsole": true
+        },
+        {
+            "name": "VcRun:Xts:Gdb:ut_bofstd",
+            "preLaunchTask": "VcTsk:Xts:Gdb:ut_bofstd",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${userHome}/bld/bofstd-lin/binaries/bin/ut",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${userHome}/bld/bofstd-lin/binaries",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerServerAddress": "10.129.171.112:8080",
+            "miDebuggerPath": "/opt/evs/sdk/host/bin/aarch64-linux-gnu-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Load .gdbinit file",
+                    "text": "source ${workspaceFolder}/.gdbinit"
+                }
+            ]
+        },
+        {
+            "name": "VcRun:Dok:Gbd:ut_bofstd",
+            "preLaunchTask": "VcTsk:Dok:Gdb:ut_bofstd",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${userHome}/bld/bofstd-lin/binaries/bin/ut",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${userHome}/bld/bofstd-lin/binaries",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerServerAddress": "localhost:8080",
+            "miDebuggerPath": "/opt/evs/sdk/host/bin/aarch64-linux-gnu-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Load .gdbinit file",
+                    "text": "source ${workspaceFolder}/.gdbinit"
+                }
+            ]
+        },
+        {
+            "name": "VcRun:Web:Html:app_bofstd",
+            "preLaunchTask": "VcTsk:Web:Html:app_bofstd",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/binaries/bin/app_bofstd.html",
+            "webRoot": "C:/pro/github/bofstd",
+            "trace": true,
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "wasm:///": "${workspaceFolder}"
+            },
+            "userDataDir": "C:/pro/github/bofstd/chrome",
+            "pathMapping": {
+                "/": "C:/pro/github/bofstd"
+            }
+        },
+        {
+            "name": "VcRun:Web:Node:app_bofstd",
+            "preLaunchTask": "VcTsk:Web:Node:app_bofstd",
+            "type": "node",
+            "request": "launch",
+            "program": "C:/bld/bofstd-web/binaries/bin/app_bofstd.js",
+            "args": [],
+            "cwd": "",
+            "stopOnEntry": false,
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--inspect-brk"
+            ],
+            "restart": true,
+            "sourceMaps": true,
+            "outFiles": [
+                "C:/bld/bofstd-web/binaries/bin/app_bofstd.js"
+            ],
+            "smartStep": true,
+            "skipFiles": [],
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std"
+        },
+        {
+            "name": "VcRun:Win:VsC:app_bofstd",
+            "preLaunchTask": "VcTsk:CMake:Build:Win",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "C:/bld/bofstd-win/binaries/bin/Debug/app_bofstd.exe",
+            "args": [
+                "-d15"
+            ],
+            "stopAtEntry": false,
+            "cwd": "C:/bld/bofstd-win/binaries/bin",
+            "environment": [],
+            "externalConsole": true
+        },
+        {
+            "name": "VcRun:Xts:Gdb:app_bofstd",
+            "preLaunchTask": "VcTsk:Xts:Gdb:app_bofstd",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${userHome}/bld/bofstd-lin/binaries/bin/app",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${userHome}/bld/bofstd-lin/binaries",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerServerAddress": "10.129.171.112:8080",
+            "miDebuggerPath": "/opt/evs/sdk/host/bin/aarch64-linux-gnu-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Load .gdbinit file",
+                    "text": "source ${workspaceFolder}/.gdbinit"
+                }
+            ]
+        },
+        {
+            "name": "VcRun:Dok:Gbd:app_bofstd",
+            "preLaunchTask": "VcTsk:Dok:Gdb:app_bofstd",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${userHome}/bld/bofstd-lin/binaries/bin/app",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${userHome}/bld/bofstd-lin/binaries",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerServerAddress": "localhost:8080",
+            "miDebuggerPath": "/opt/evs/sdk/host/bin/aarch64-linux-gnu-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Load .gdbinit file",
+                    "text": "source ${workspaceFolder}/.gdbinit"
+                }
+            ]
+        },
+        {
+            "name": "VcRun:All:Pyt:vcprj:settings",
+            "preLaunchTask": "",
+            "type": "python",
+            "request": "launch",
+            "justMyCode": false,
+            "program": "./vcprj.py",
+            "args": [
+                "--jsonin=vcprj_settings.json",
+                "--jsonout=../.vscode/settings.json",
+                "--verbose",
+                "--sys=Win"
+            ],
+            "cwd": "${workspaceFolder}/vcprj",
+            "console": "integratedTerminal"
+        }
+    ]
+}

@@ -42,7 +42,7 @@ endif()
 #just above find_package_dependency(jsoncpp REQUIRED)
 
 ####find_package_dependency(spdlog REQUIRED)
-find_package_dependency(fmt REQUIRED)
+#find_package_dependency(fmt REQUIRED)
 find_package_dependency(date REQUIRED)
 
 #if you want to use readerwriterqueue or concurrentqueue add the following to vcpkg.json

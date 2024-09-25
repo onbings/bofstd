@@ -1,13 +1,10 @@
 {
   "name": "bofstd",
-  "version": "5.8.1.5",
+  "version": "5.7.3.4",
   "description": "The onbings general purpose C++ Multiplatform library",
   "dependencies": [
     {
       "name": "date"
-    },
-    {
-      "name": "fmt"
     },
     {
       "name": "jsoncpp"

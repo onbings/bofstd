@@ -20,7 +20,7 @@
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
 #include <bofstd/boflogger.h>
-#include <bofstd/boflogsink_spdlog.h>
+#include "boflogsink_spdlog.h"
 
 #include <spdlog/details/fmt_helper.h>
 

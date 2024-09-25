@@ -22,7 +22,7 @@
 #include <bofstd/boffs.h>
 #include <bofstd/boflogchannel_spdlog.h>
 #include <bofstd/boflogger.h>
-#include <bofstd/boflogsink_spdlog.h>
+#include "boflogsink_spdlog.h"
 
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"

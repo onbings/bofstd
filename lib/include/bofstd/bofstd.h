@@ -685,7 +685,7 @@ inline BOFSTD_EXPORT uint64_t Bof_RdTsc()
   return (((uint64_t)High_U32 << 32) | Low_U32);
   */
   return static_cast<uint64_t>(emscripten_performance_now() * 1000000.0); // Calls JavaScript performance.now(), returns a high precision wallclock time value in msecs.
-#elif defined(__x86_64__) or defined(__i386__)
+#elif defined(__x86_64__) || defined(__i386__)
   return __rdtsc();
 #else
   return 0;
