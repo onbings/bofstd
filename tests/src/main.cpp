@@ -5,7 +5,7 @@
 
 #include "../include/gtestrunner.h"
 
-#include "fmt/format.h"
+#include <spdlog/fmt/bundled/format.h>
 #include <iostream>
 #if defined(_WIN32)
 // #define _CRTDBG_MAP_ALLOC

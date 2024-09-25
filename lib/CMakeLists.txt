@@ -332,6 +332,7 @@ target_include_directories(bofstd
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/cpp-linenoise-master>
 	#$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog/include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog/fmt>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
 #	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/vld/include>

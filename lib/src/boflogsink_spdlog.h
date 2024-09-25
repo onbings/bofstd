@@ -30,7 +30,7 @@
 #include <spdlog/sinks/null_sink.h>
 #include <spdlog/sinks/sink.h>
 
-#include <fmt/format.h>
+#include <spdlog/fmt/bundled/format.h>
 BEGIN_BOF_NAMESPACE()
 
 bool CheckIfLimitedSizeIsReached(spdlog::details::file_helper &_rFileHelper, uint32_t _LogLineSiwze_U32, uint32_t &_rCrtFileSizeInByte_U32, uint32_t _MaxLogSizeInByte_U32);

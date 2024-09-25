@@ -22,8 +22,7 @@
 #include <type_traits> // std::is_default_constructible
 // #include <xmemory>
 
-#include "fmt/os.h"
-
+#include <spdlog/fmt/bundled/os.h>
 // Captures file output by redirecting it to a pipe.
 // The output it can handle is limited by the pipe capacity.
 class output_redirect
