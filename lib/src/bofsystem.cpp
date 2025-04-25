@@ -203,7 +203,7 @@ BOFERR Bof_CreateTimer(const std::string &_rName_S, BOF_TIMER &_rTimer_X)
 
     /* Call function */
     Rts_E = BOF_ERR_EINVAL;
-    if (timer_create(CLOCK_REALTIME, &sev, &_rTimer_X->TimerId) == 0)
+    if (timer_create(CLOCK_REALTIME, &sev, &_rTimer_X.TimerId) == 0)
     {
       Rts_E = BOF_ERR_NO_ERROR;
     }

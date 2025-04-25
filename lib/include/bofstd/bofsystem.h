@@ -26,6 +26,7 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
+#include <time.h>
 
 BEGIN_BOF_NAMESPACE()
 #define BOF_MS_TO_S(v) (static_cast<uint32_t>((v) / 1e3))
@@ -101,7 +102,7 @@ struct BOF_TIMER
 #if defined(_WIN32)
     TimerId = nullptr;
 #else
-    TimerId = -1;
+    TimerId = nullptr;
 #endif
   }
 
