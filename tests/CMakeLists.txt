@@ -135,12 +135,12 @@ set(SYSTEM_FILES
         src/ut_timecode.cpp
         src/ut_guid.cpp
         src/ut_datetime.cpp
+        src/ut_system.cpp
 )
 
 set(THREADING_FILES
 	src/ut_threading.cpp
     src/ut_process.cpp
-    src/ut_system.cpp
 )
 
 

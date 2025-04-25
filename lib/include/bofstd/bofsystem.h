@@ -29,14 +29,14 @@
 
 BEGIN_BOF_NAMESPACE()
 #define BOF_MS_TO_S(v) (static_cast<uint32_t>((v) / 1e3))
-#define BOF_MS_TO_US(v) (static_cast<uint32_t>((v)*1e3))
+#define BOF_MS_TO_US(v) (static_cast<uint32_t>((v) * 1e3))
 #define BOF_NS_TO_MS(v) (static_cast<uint64_t>((v) / 1e6))
 #define BOF_NS_TO_S(v) (static_cast<uint64_t>((v) / 1e9))
 
-#define BOF_S_TO_MS(v) (static_cast<uint32_t>((v)*1e3))
-#define BOF_MS_TO_US(v) (static_cast<uint32_t>((v)*1e3))
-#define BOF_MS_TO_NS(v) (static_cast<uint64_t>((v)*1e6))
-#define BOF_S_TO_NS(v) (static_cast<uint64_t>((v)*1e9))
+#define BOF_S_TO_MS(v) (static_cast<uint32_t>((v) * 1e3))
+#define BOF_MS_TO_US(v) (static_cast<uint32_t>((v) * 1e3))
+#define BOF_MS_TO_NS(v) (static_cast<uint64_t>((v) * 1e6))
+#define BOF_S_TO_NS(v) (static_cast<uint64_t>((v) * 1e9))
 #define BOF_INFINITE_TIMEOUT ((uint32_t)-1)
 
 #if defined(_WIN32)
@@ -76,6 +76,38 @@ struct BOF_MUTEX
   bool IsValid()
   {
     return (Magic_U32 == BOF_MUTEX_MAGIC);
+  }
+};
+
+constexpr uint32_t BOF_TIMER_MAGIC = 0xEAF65466;
+struct BOF_TIMER
+{
+  uint32_t Magic_U32;
+  std::string Name_S;
+#if defined(_WIN32)
+  HANDLE TimerId;
+#else
+  timer_t TimerId
+#endif
+  BOF_TIMER()
+  {
+    Reset();
+  }
+
+  void Reset()
+  {
+    Magic_U32 = 0;
+    Name_S = "";
+#if defined(_WIN32)
+    TimerId = nullptr;
+#else
+    TimerId = -1;
+#endif
+  }
+
+  bool IsValid()
+  {
+    return (Magic_U32 == BOF_TIMER_MAGIC);
   }
 };
 
@@ -480,9 +512,16 @@ struct BOF_DUMP_MEMORY_ZONE_PARAM
     AccessSize_E = BOF_ACCESS_SIZE::BOF_ACCESS_SIZE_8;
   }
 };
+BOFSTD_EXPORT BOFERR Bof_CreateTimer(const std::string &_rName_S, BOF_TIMER &_rTimer_X);
+BOFSTD_EXPORT BOFERR Bof_DestroyTimer(BOF_TIMER &_rTimer_X);
+BOFSTD_EXPORT BOFERR Bof_StartTimer(BOF_TIMER &_rTimer_X, uint32_t _TimeoutInMs_U32);
+BOFSTD_EXPORT BOFERR Bof_StopTimer(BOF_TIMER &_rTimer_X);
+
 BOFSTD_EXPORT BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _PriorityInversionAware_B, BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT bool Bof_IsMutexValid(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X);
+BOFSTD_EXPORT BOFERR Bof_TryLockMutex(BOF_MUTEX &_rMtx_X);
+BOFSTD_EXPORT BOFERR Bof_WaitLockMutex(BOF_MUTEX &_rMtx_X, uint32_t _TimeOutInMs_U32);
 BOFSTD_EXPORT BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X);
 BOFSTD_EXPORT BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X);
 

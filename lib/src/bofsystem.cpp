@@ -69,12 +69,12 @@ extern "C"
   }
   void *shmat(int shmid, const void *shmaddr, int shmflg)
   {
-    return NULL;
+    return nullptr;
   }
   void *shmat(int shmid, const void *shmaddr, int shmflg);
   int shmdt(const void *shmaddr)
   {
-    return NULL;
+    return nullptr;
   }
   int shmctl(int shmid, int cmd, struct shmid_ds *buf)
   {
@@ -110,56 +110,55 @@ extern "C"
 #endif
 
 #if defined(_WIN32)
-	#include <Sddl.h>
-	//#include <Winsock2.h>
-	#include <conio.h>
-	//#include <windows.h>
+#include <Sddl.h>
+// #include <Winsock2.h>
+#include <conio.h>
+// #include <windows.h>
 
-	PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurityAttribute_X)
-	{
-	  PSECURITY_DESCRIPTOR pRts_X = nullptr, pSecurityDescriptor_X = nullptr;
+PSECURITY_DESCRIPTOR CreateWinSecurityDescriptor(SECURITY_ATTRIBUTES *_pSecurityAttribute_X)
+{
+  PSECURITY_DESCRIPTOR pRts_X = nullptr, pSecurityDescriptor_X = nullptr;
 
-	  // PSID					pSid_X=nullptr;
-	  // PACL					pAcl_X=nullptr;
+  // PSID					pSid_X=nullptr;
+  // PACL					pAcl_X=nullptr;
 
-	  if ((_pSecurityAttribute_X) && ((pSecurityDescriptor_X = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)) != 0))
-	  {
-		memset(_pSecurityAttribute_X, 0, sizeof SECURITY_ATTRIBUTES);
+  if ((_pSecurityAttribute_X) && ((pSecurityDescriptor_X = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)) != 0))
+  {
+    memset(_pSecurityAttribute_X, 0, sizeof SECURITY_ATTRIBUTES);
 
-		if ((InitializeSecurityDescriptor(pSecurityDescriptor_X, SECURITY_DESCRIPTOR_REVISION)))
-		{
-		  if (SetSecurityDescriptorDacl(pSecurityDescriptor_X, true, nullptr, false))
-		  {
-			_pSecurityAttribute_X->nLength = sizeof(SECURITY_ATTRIBUTES);
-			_pSecurityAttribute_X->lpSecurityDescriptor = pSecurityDescriptor_X;
-			_pSecurityAttribute_X->bInheritHandle = false;
-			pRts_X = pSecurityDescriptor_X;
-		  }
-		}
-	  }
+    if ((InitializeSecurityDescriptor(pSecurityDescriptor_X, SECURITY_DESCRIPTOR_REVISION)))
+    {
+      if (SetSecurityDescriptorDacl(pSecurityDescriptor_X, true, nullptr, false))
+      {
+        _pSecurityAttribute_X->nLength = sizeof(SECURITY_ATTRIBUTES);
+        _pSecurityAttribute_X->lpSecurityDescriptor = pSecurityDescriptor_X;
+        _pSecurityAttribute_X->bInheritHandle = false;
+        pRts_X = pSecurityDescriptor_X;
+      }
+    }
+  }
 
-	  if (!pRts_X)
-	  {
-		if (pSecurityDescriptor_X)
-		{
-		  LocalFree(pSecurityDescriptor_X);
-		}
-	  }
-	  return pRts_X;
-	}
+  if (!pRts_X)
+  {
+    if (pSecurityDescriptor_X)
+    {
+      LocalFree(pSecurityDescriptor_X);
+    }
+  }
+  return pRts_X;
+}
 #else
-	#include <fcntl.h>
-	#include <signal.h>
-	#include <sys/mman.h>
-	#include <sys/resource.h>
-	#include <sys/shm.h>
-	#include <sys/statvfs.h>
-	#include <sys/syscall.h>
-	#include <sys/sysinfo.h>
-	#include <sys/time.h>
-	#include <sys/types.h>
-	#include <unistd.h>
-	#include <signal.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/mman.h>
+#include <sys/resource.h>
+#include <sys/shm.h>
+#include <sys/statvfs.h>
+#include <sys/syscall.h>
+#include <sys/sysinfo.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
 BEGIN_BOF_NAMESPACE()
@@ -167,6 +166,107 @@ BEGIN_BOF_NAMESPACE()
 static std::mt19937 S_RandomGenerator(std::random_device{}());
 static std::uniform_real_distribution<float> S_RandomFloatDistribution(0.0, 1.0f);
 static std::atomic<int32_t> S_BofThreadBalance = 0;
+
+
+BOFERR Bof_CreateTimer(const std::string &_rName_S, BOF_TIMER &_rTimer_X)
+{
+  BOFERR Rts_E = BOF_ERR_EEXIST;
+
+  if (_rTimer_X.Magic_U32 != BOF_TIMER_MAGIC)
+  {
+    _rTimer_X.Reset();
+#if defined(_WIN32)
+    _rTimer_X.TimerId = CreateWaitableTimer(nullptr, TRUE, _rName_S.c_str());
+    if (_rTimer_X.TimerId)
+    {
+      if (GetLastError() == ERROR_ALREADY_EXISTS)
+      {
+        Rts_E = BOF_ERR_EEXIST;
+      }
+      else
+      {
+        _rTimer_X.Name_S = _rName_S;
+        _rTimer_X.Magic_U32 = BOF_TIMER_MAGIC;
+        Rts_E = BOF_ERR_NO_ERROR;
+      }
+    }
+#else
+    struct sigevent sev;
+
+    /* Create the timer */
+    sev.sigev_notify = SIGEV_THREAD_ID; // SIGEV_SIGNAL; //SIGEV_THREAD_ID ;
+                                        //    sev.sigev_signo = signalNumber;
+                                        //    sev._sigev_un._tid = tid;
+
+    /* Data associated with signal */
+    sev.sigev_value.sival_ptr = (void *)&_rTimer_X; // change that data to structure
+
+    /* Call function */
+    Rts_E = BOF_ERR_EINVAL;
+    if (timer_create(CLOCK_REALTIME, &sev, &_rTimer_X->TimerId) == 0)
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+#endif
+  }
+  return Rts_E;
+}
+
+BOFERR Bof_DestroyTimer(BOF_TIMER &_rTimer_X)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+
+  if (_rTimer_X.Magic_U32 == BOF_TIMER_MAGIC)
+  {
+    _rTimer_X.Reset();
+    Rts_E = BOF_ERR_NO_ERROR;
+  }
+  return Rts_E;
+}
+
+BOFERR Bof_StartTimer(BOF_TIMER &_rTimer_X, uint32_t _TimeoutInMs_U32)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+
+  if (_rTimer_X.Magic_U32 == BOF_TIMER_MAGIC)
+  {
+    Rts_E = BOF_ERR_EINVAL;
+#if defined(_WIN32)
+    LARGE_INTEGER DueTime_X;
+
+    DueTime_X.QuadPart = -(int64_t)_TimeoutInMs_U32 * 10 * 1000; // In 100 nS
+    if (SetWaitableTimer(_rTimer_X.TimerId, &DueTime_X, 0, nullptr, nullptr, FALSE))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+#else
+#endif
+  }
+  return Rts_E;
+}
+
+BOFERR Bof_StopTimer(BOF_TIMER &_rTimer_X)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+
+  if (_rTimer_X.Magic_U32 == BOF_TIMER_MAGIC)
+  {
+    Rts_E = BOF_ERR_EINVAL;
+#if defined(_WIN32)
+    if (CancelWaitableTimer(_rTimer_X.TimerId))
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+#else
+    struct itimerspec Its_X = {};
+    if (timer_settime(_rTimer_X.TimerId, 0, &Its_X, nullptr) == 0)
+    {
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+#endif
+  }
+  return Rts_E;
+}
 
 BOFERR Bof_CreateMutex(const std::string &_rName_S, bool _Recursive_B, bool _PriorityInversionAware_B, BOF_MUTEX &_rMtx_X)
 {
@@ -234,6 +334,54 @@ BOFERR Bof_LockMutex(BOF_MUTEX &_rMtx_X)
   return Rts_E;
 }
 
+BOFERR Bof_TryLockMutex(BOF_MUTEX &_rMtx_X)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+  bool Sts_B;
+
+  if (_rMtx_X.Magic_U32 == BOF_MUTEX_MAGIC)
+  {
+    Rts_E = BOF_ERR_NO_ERROR;
+    try
+    {
+      Sts_B = _rMtx_X.Recursive_B ? _rMtx_X.RecursiveMtx.try_lock() : _rMtx_X.Mtx.try_lock();
+      if (!Sts_B)
+      {
+        Rts_E = BOF_ERR_LOCK;
+      }
+    }
+    catch (const std::exception &e)
+    {
+      // printf("mutex exception %s\n", e.what());
+      Rts_E = BOF_ERR_OPERATION_FAILED;
+    }
+  }
+  return Rts_E;
+}
+BOFERR Bof_WaitLockMutex(BOF_MUTEX &_rMtx_X, uint32_t _TimeOutInMs_U32)
+{
+  BOFERR Rts_E = BOF_ERR_INIT;
+  uint32_t Start_U32, Delta_U32 = 0;
+
+  if (_rMtx_X.Magic_U32 == BOF_MUTEX_MAGIC)
+  {
+    Start_U32 = Bof_GetMsTickCount();
+    do
+    {
+      Rts_E = Bof_TryLockMutex(_rMtx_X);
+      if ((Rts_E == BOF_ERR_NO_ERROR) || (Rts_E == BOF_ERR_OPERATION_FAILED))
+      {
+        break;
+      }
+      else
+      {
+        Bof_MsSleep(0); // Sleep for a short while to avoid busy waiting
+      }
+      Delta_U32 = Bof_ElapsedMsTime(Start_U32);
+    } while (Delta_U32 < _TimeOutInMs_U32);
+  }
+  return Rts_E;
+}
 BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
@@ -253,7 +401,6 @@ BOFERR Bof_UnlockMutex(BOF_MUTEX &_rMtx_X)
   }
   return Rts_E;
 }
-
 BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X)
 {
   BOFERR Rts_E = BOF_ERR_INIT;
@@ -265,6 +412,7 @@ BOFERR Bof_DestroyMutex(BOF_MUTEX &_rMtx_X)
   }
   return Rts_E;
 }
+
 
 BOFERR Bof_CreateEvent(const std::string &_rName_S, bool _InitialState_B, uint32_t _MaxNumberToNotify_U32, bool _WaitKeepSignaled_B, bool _NotifyAll_B, bool _PriorityInversionAware_B, BOF_EVENT &_rEvent_X)
 {
@@ -1796,7 +1944,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
   if (pThread_X)
   {
     S_BofThreadBalance++;
-    //printf("%u: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
+    // printf("%u: Start of thread '%s' BAL %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load());
 
     Sts_E = BOF_ERR_NO_ERROR;
 #if defined(_WIN32)
@@ -1908,7 +2056,7 @@ static void *S_ThreadLauncher(void *_pThreadContext)
     pThread_X->ThreadRunning_B = false;
     S_BofThreadBalance--;
     // Bof_ErrorCode can fail does to app shudown (static initializer)
-    //printf("%u: S_ThreadLauncher End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
+    // printf("%u: S_ThreadLauncher End of thread '%s' BAL %d, ExitCode %d MustStop %d\n", Bof_GetMsTickCount(), pThread_X->Name_S.c_str(), S_BofThreadBalance.load(), pThread_X->ThreadExitCode_E, pThread_X->ThreadMustStop_B.load());
   }
 
   return pRts;
@@ -2043,7 +2191,7 @@ BOFERR Bof_StopThread(BOF_THREAD &_rThread_X)
           }
         }
       }
-      //printf("%u: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(), Delta_U32, ThreadStopTo_B);
+      // printf("%u: Bof_StopThread: End '%s' BAL %d, ExitCode %d MustStop %d Delta %d ThreadStopTo %d\n", Bof_GetMsTickCount(), _rThread_X.Name_S.c_str(), S_BofThreadBalance.load(), _rThread_X.ThreadExitCode_E, _rThread_X.ThreadMustStop_B.load(), Delta_U32, ThreadStopTo_B);
     }
 #if defined(_WIN32)
     bool Sts_B;

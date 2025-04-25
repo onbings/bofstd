@@ -30,7 +30,34 @@
 #endif
 
 USE_BOF_NAMESPACE()
+TEST(System_Test, Mutex)
+{
+  BOF_MUTEX Mtx_X;
 
+  EXPECT_NE(Bof_DestroyMutex(Mtx_X), BOF_ERR_NO_ERROR);
+  EXPECT_FALSE(Bof_IsMutexValid(Mtx_X));
+
+  EXPECT_EQ(Bof_CreateMutex("Mtx", false, false, Mtx_X), BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(Bof_IsMutexValid(Mtx_X));
+  EXPECT_EQ(Bof_TryLockMutex(Mtx_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_UnlockMutex(Mtx_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_LockMutex(Mtx_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(Bof_TryLockMutex(Mtx_X), BOF_ERR_NO_ERROR);
+  EXPECT_NE(Bof_WaitLockMutex(Mtx_X, 1000), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_UnlockMutex(Mtx_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_WaitLockMutex(Mtx_X, 1000), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_DestroyMutex(Mtx_X), BOF_ERR_NO_ERROR);
+}
+TEST(System_Test, Timer)
+{
+  BOF_TIMER Timer_X;
+
+  EXPECT_NE(Bof_DestroyTimer(Timer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_CreateTimer("Timer", Timer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_StartTimer(Timer_X, 5000), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_StopTimer(Timer_X), BOF_ERR_NO_ERROR);
+  EXPECT_EQ(Bof_DestroyTimer(Timer_X), BOF_ERR_NO_ERROR);
+}
 TEST(System_Test, Buffer)
 {
   BOF_BUFFER Buffer_X(true, true), OtherBuffer_X(true, true);
