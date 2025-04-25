@@ -70,7 +70,7 @@ BofSocket::BofSocket(BOFSOCKET _Socket_h, const BOF_SOCKET_PARAM &_rBofSocketPar
 BofSocket::~BofSocket()
 {
   S_mBofSocketBalance--;
-  //BOF_DBG_PRINTF("@@@%s ~BofSocket %zX Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket, S_mBofSocketBalance.load());
+  // BOF_DBG_PRINTF("@@@%s ~BofSocket %zX Bal %04d\n", mBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket, S_mBofSocketBalance.load());
   ShutdownSocket();
 }
 
@@ -291,7 +291,7 @@ BOFERR BofSocket::InitializeSocket(const BOF_SOCKET_PARAM &_rBofSocketParam_X)
   }
   mErrorCode_E = Rts_E;
   S_mBofSocketBalance++;
-  //BOF_DBG_PRINTF("@@@%s InitializeSocket %zX Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
+  // BOF_DBG_PRINTF("@@@%s InitializeSocket %zX Bal %04d Sts %08X Ip %s\n", _rBofSocketParam_X.BaseChannelParam_X.ChannelName_S.c_str(), (uintptr_t)mSocket, S_mBofSocketBalance.load(), Rts_E, mBofSocketParam_X.BindIpAddress_S.c_str());
   return Rts_E;
 }
 
@@ -1073,7 +1073,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
         }
         else
         {
-          printf("[CON] %d->true V_CON %s\n", mConnected_B, ToString().c_str());
+          // printf("[CON] %d->true V_CON %s\n", mConnected_B, ToString().c_str());
           mConnected_B = true;
         }
       }
@@ -1086,7 +1086,7 @@ BOFERR BofSocket::V_Connect(uint32_t _TimeoutInMs_U32, const std::string &_rTarg
         }
         else
         {
-          printf("[CON] %d->true UDP %s\n", mConnected_B, ToString().c_str());
+          // printf("[CON] %d->true UDP %s\n", mConnected_B, ToString().c_str());
           mConnected_B = true;
         }
       }
@@ -1628,7 +1628,7 @@ BOFERR BofSocket::ComputeScatterGatherList(const std::vector<BOF_BUFFER> &_rBuff
                 NbBuffer_U32++;
               }
             } // if ((Index_U32 + NbLoop_U32 + (LastOne_U32) ? 1 : 0) < BOF_MAX_NUMBER_OF_SCATTER_GATHER_SOCKET_BUFFER)
-          }   // if ((Nb_U32) && (_rBufferCollection[i_U32].pData_U8))
+          } // if ((Nb_U32) && (_rBufferCollection[i_U32].pData_U8))
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             break;
@@ -2070,7 +2070,7 @@ BOFERR BofSocket::SetDstIpAddress(BOF_SOCKET_ADDRESS &_rDstIpAddress_X)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   mDstIpAddress_X = _rDstIpAddress_X;
-  printf("[CON] %d->%d %s\n", mConnected_B, (!_rDstIpAddress_X.IsNull()), ToString().c_str());
+  // printf("[CON] %d->%d %s\n", mConnected_B, (!_rDstIpAddress_X.IsNull()), ToString().c_str());
   mConnected_B = (!_rDstIpAddress_X.IsNull());
   return Rts_E;
 }
@@ -2098,7 +2098,7 @@ BOFERR BofSocket::SetReadTimeout(uint32_t _TimeoutInMs_U32)
 #if defined(_WIN32)
     PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {
@@ -2186,7 +2186,7 @@ BOFERR BofSocket::SetReadOrWriteTimeout(uint32_t _TimeoutInMs_U32, bool &_ReadDa
 #if defined(_WIN32)
     PollStatus_i = WSAPoll(&Fds_X, 1, _TimeoutInMs_U32); // == 1); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #else
-    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32);        // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
+    PollStatus_i = poll(&Fds_X, 1, _TimeoutInMs_U32); // Better than select (==1 can also be BOF_POLL_ERR, BOF_POLL_HUP, or BOF_POLL_NVAL)
 #endif
     if (PollStatus_i > 0)
     {

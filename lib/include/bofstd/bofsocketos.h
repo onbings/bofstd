@@ -24,9 +24,9 @@
 #include <bofstd/bofflag.h>
 
 #include <cstdint>
+#include <set>
 #include <string.h>
 #include <vector>
-#include <set>
 
 #if defined(_WIN32)
 #define NOMINMAX
@@ -540,7 +540,7 @@ struct BOF_IPV4_ADDR_U32
     {
       //      IpAddress_U32 = ntohl(_rBofSocketAddress_X.ToBinary());
       IpAddress_U32 = htonl(_rBofSocketAddress_X.ToBinary());
-      printf("BOF_IPV4_ADDR_U32 from BOF_SOCKET_ADDRESS %08X->%08X->%s\r\n", _rBofSocketAddress_X.ToBinary(), htonl(_rBofSocketAddress_X.ToBinary()), ToString().c_str());
+      // printf("BOF_IPV4_ADDR_U32 from BOF_SOCKET_ADDRESS %08X->%08X->%s\r\n", _rBofSocketAddress_X.ToBinary(), htonl(_rBofSocketAddress_X.ToBinary()), ToString().c_str());
     }
   }
 
@@ -790,6 +790,5 @@ BOFSTD_EXPORT BOFERR Bof_GetCompatibleIpAddress(const std::vector<BOF_NETWORK_IN
 BOFSTD_EXPORT BOFERR Bof_PollFdSocket(uint32_t _TimeoutInMs_U32, uint32_t _NbPollOpInList_U32, BOF_POLL_SOCKET *_pListOfPollOp_X, uint32_t &_rNbPollSet_U32);
 BOFSTD_EXPORT bool Bof_IsIpAddressPingable(uint32_t _TimeoutInMs_U32, const std::string &_rIpAddress_S);
 BOFSTD_EXPORT bool Bof_IsIpAddressOpened(uint32_t _TimeoutInMs_U32, const std::string &_rIpAddress_S);
-
 
 END_BOF_NAMESPACE()

@@ -17,11 +17,17 @@
 BEGIN_BOF_NAMESPACE()
 constexpr uint32_t PUSH_POP_TIMEOUT = 150; // Global To for getting command out of incoming queue, in ListeningMode_B it is half of the To specified for listen
 constexpr uint32_t DEF_IO_TIMEOUT = 2000;
-
-#define SOCK_IO_DBG(pFormat,...) {printf("%d: " pFormat,Bof_GetMsTickCount(), ##__VA_ARGS__);}
-#define SOCK_THREAD_PROGRAM_OPERATION(Field, Operation)                                              \
+#if defined(NDEBUG) // We are in Release compil
+#define SOCK_IO_DBG(pFormat, ...)
+#else
+#define SOCK_IO_DBG(pFormat, ...)                                \
+  {                                                              \
+    printf("%d: " pFormat, Bof_GetMsTickCount(), ##__VA_ARGS__); \
+  }
+#endif
+#define SOCK_THREAD_PROGRAM_OPERATION(Field, Operation)                                          \
   BOFERR Rts_E;                                                                                  \
-  BOF_SOCKET_OPERATION_PARAM Param_X;                                                        \
+  BOF_SOCKET_OPERATION_PARAM Param_X;                                                            \
   Param_X.Ticket_U32 = mTicket_U32;                                                              \
   BOF_INC_TICKET_NUMBER(mTicket_U32);                                                            \
   Param_X.TimeOut_U32 = _TimeOut_U32;                                                            \
@@ -298,8 +304,8 @@ BOFERR BofSocketThread::V_OnProcessing()
       Result_X.Sts_E = BOF_ERR_NO_ERROR;
       Result_X.Operation_E = mCurrentOpParam_X.Operation_E;
       Result_X.OpTicket_U32 = mCurrentOpParam_X.Ticket_U32;
-      Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOpParam_X.Timer_U32);  //Time to get the command in processing thread
-      mCurrentOpParam_X.Timer_U32 = BOF::Bof_GetMsTickCount();  //Restart op timer to have the time to execute this one
+      Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOpParam_X.Timer_U32); // Time to get the command in processing thread
+      mCurrentOpParam_X.Timer_U32 = BOF::Bof_GetMsTickCount();                 // Restart op timer to have the time to execute this one
       // So ListeningMode_B is perhaps true, but nevertheless a new command must be processed
       SendResult_B = false;
       if (NewCommandRcv_B)
@@ -508,7 +514,7 @@ BOFERR BofSocketThread::V_OnProcessing()
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_READ:
               Size_U32 = Remain_U32;
               Result_X.Sts_E = pIoSocket_O->V_ReadData(mSocketThreadParam_X.SubPacketTimeout_U32, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max mSocketThreadParam_X.SubPacketTimeout_U32 ms
-              //SOCK_IO_DBG("BOF_SOCKET_OPERATION_READ LstIoBuf %d:%p Ticket %d Op %d END Sts %s Sz %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Size_U32, Remain_U32 - Size_U32);
+              // SOCK_IO_DBG("BOF_SOCKET_OPERATION_READ LstIoBuf %d:%p Ticket %d Op %d END Sts %s Sz %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Size_U32, Remain_U32 - Size_U32);
               Delta_U32 = Bof_ElapsedMsTime(Start_U32);
               KBPerS_U32 = Delta_U32 ? (Size_U32 * 1000) / (Delta_U32 * 1024) : 99999999;
               break;
@@ -516,7 +522,7 @@ BOFERR BofSocketThread::V_OnProcessing()
             case BOF_SOCKET_OPERATION::BOF_SOCKET_OPERATION_WRITE:
               Size_U32 = Remain_U32;
               Result_X.Sts_E = pIoSocket_O->V_WriteData(mSocketThreadParam_X.SubPacketTimeout_U32, /*mCurrentOpParam_X.TimeOut_U32*/ Size_U32, pCrtBuf_U8); // To be able to cancel a very long socket operation (read,write,..) we split it in segment of max mSocketThreadParam_X.SubPacketTimeout_U32 ms
-              //SOCK_IO_DBG("BOF_SOCKET_OPERATION_WRITE LstIoBuf %d:%p Ticket %d Op %d END Sts %s Sz %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Size_U32, Remain_U32 - Size_U32);
+              // SOCK_IO_DBG("BOF_SOCKET_OPERATION_WRITE LstIoBuf %d:%p Ticket %d Op %d END Sts %s Sz %d Rem %d\n", Size_U32, pCrtBuf_U8, mCurrentOpParam_X.Ticket_U32, mCurrentOpParam_X.Operation_E, Bof_ErrorCode(Result_X.Sts_E), Size_U32, Remain_U32 - Size_U32);
               Delta_U32 = Bof_ElapsedMsTime(Start_U32);
               KBPerS_U32 = Delta_U32 ? (Size_U32 * 1000) / (Delta_U32 * 1024) : 99999999;
               break;
