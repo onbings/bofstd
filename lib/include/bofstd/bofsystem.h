@@ -88,7 +88,7 @@ struct BOF_TIMER
 #if defined(_WIN32)
   HANDLE TimerId;
 #else
-  timer_t TimerId
+  timer_t TimerId;
 #endif
   BOF_TIMER()
   {
