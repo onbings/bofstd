@@ -148,23 +148,30 @@ set(FS_FILES
 	src/boffs.cpp
 )
 
-set(IXML_FILES
-	third/ixml/inc/ixml.h
-	third/ixml/inc/ixmldebug.h
-	third/ixml/src/attr.c
-	third/ixml/src/document.c
-	third/ixml/src/element.c
-	third/ixml/src/ixml.c
-	third/ixml/src/ixmldebug.c
-	third/ixml/src/ixmlmembuf.c
-	third/ixml/src/ixmlparser.c
-	third/ixml/src/namedNodeMap.c
-	third/ixml/src/node.c
-	third/ixml/src/nodeList.c
-	third/ixml/src/inc/ixmlmembuf.h
-	third/ixml/src/inc/ixmlparser.h	
+##set(IXML_FILES
+##	third/ixml/inc/ixml.h
+##	third/ixml/inc/ixmldebug.h
+##	third/ixml/src/attr.c
+##	third/ixml/src/document.c
+##	third/ixml/src/element.c
+##	third/ixml/src/ixml.c
+##	third/ixml/src/ixmldebug.c
+##	third/ixml/src/ixmlmembuf.c
+##	third/ixml/src/ixmlparser.c
+##	third/ixml/src/namedNodeMap.c
+##	third/ixml/src/node.c
+##	third/ixml/src/nodeList.c
+##	third/ixml/src/inc/ixmlmembuf.h
+##	third/ixml/src/inc/ixmlparser.h	
+##)
+set(DATE_FILES
+	third/HowardHinnant/date/date.h
+	third/HowardHinnant/date/islamic.h
+	third/HowardHinnant/date/iso_week.h
+	third/HowardHinnant/date/julian.h
+	third/HowardHinnant/date/solar_hijri.h
+	third/HowardHinnant/date/tz.h
 )
-
 set(LOG_FILES
 	include/bofstd/iboflogchannel.h
 	src/iboflogchannel.cpp	
@@ -193,14 +200,14 @@ set(SERDER_FILES
 	include/bofstd/bofbinserializer.h
 	include/bofstd/bofparameter.h
 	src/bofparameter.cpp	
-	include/bofstd/bofxmlparser.h
-	src/bofxmlparser.cpp	
-	include/bofstd/bofxmlwriter.h
-	src/bofxmlwriter.cpp		
-	include/bofstd/bofjsonparser.h
-	src/bofjsonparser.cpp	
-	include/bofstd/bofjsonwriter.h
-	src/bofjsonwriter.cpp	
+##	include/bofstd/bofxmlparser.h
+##	src/bofxmlparser.cpp	
+##	include/bofstd/bofxmlwriter.h
+##	src/bofxmlwriter.cpp		
+##	include/bofstd/bofjsonparser.h
+##	src/bofjsonparser.cpp	
+##	include/bofstd/bofjsonwriter.h
+##	src/bofjsonwriter.cpp	
 )
 
 set(SOCKIO_FILES
@@ -264,7 +271,8 @@ set(SOURCES_FILES
 	#${DELEGATE_FILES}
 	${ENUM_FLAG_FILES}
 	${FS_FILES}
-	${IXML_FILES}
+##	${IXML_FILES}
+	${DATE_FILES}
 	${LOG_FILES}
 #	${OBSERVER_FILES}
 	${PROTOCOL_FILES}
@@ -291,7 +299,8 @@ source_group("Db"		 FILES ${DB_FILES})
 #source_group("Delegate"	 FILES ${DELEGATE_FILES})
 source_group("EnumFlag"	 FILES ${ENUM_FLAG_FILES})
 source_group("Fs"		 FILES ${FS_FILES})
-source_group("Xml"		 FILES ${IXML_FILES})
+##source_group("Xml"		 FILES ${IXML_FILES})
+source_group("Date"		 FILES ${DATE_FILES})
 source_group("Log"		 FILES ${LOG_FILES})
 #source_group("Observer"	 FILES ${OBSERVER_FILES})
 source_group("Protocol"	 FILES ${PROTOCOL_FILES})
@@ -330,27 +339,28 @@ target_include_directories(bofstd
 	#Header path used at build time
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/cpp-linenoise-master>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/HowardHinnant>
 	#$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/AsyncMulticastDelegate/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog/include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/spdlog/fmt>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
+##	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/inc>
+##	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/ixml/src/inc>
 #	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third/vld/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofstd_export.h install (below) and bofversioninfo.h (above)
 	#Header path used when installed
 	$<INSTALL_INTERFACE:include>
-	$<INSTALL_INTERFACE:${MINIAUDIO_INCLUDE_DIRS}>
+##	$<INSTALL_INTERFACE:${MINIAUDIO_INCLUDE_DIRS}>
 )
 
 # Link
 target_link_libraries(bofstd
   PUBLIC
     #ONBINGS::onbings-another-lib
-	date::date 
+	##date::date 
 	#date::date-tz
 
   PRIVATE
-	jsoncpp::jsoncpp 
+#	jsoncpp::jsoncpp 
 	#spdlog::spdlog
  #   $<BUILD_INTERFACE:spdlog::spdlog> #https://discourse.cmake.org/t/using-a-header-only-library-with-fetchcontents-while-build-a-static-lib/2711/2
 #    spdlog::spdlog
@@ -397,7 +407,7 @@ target_compile_definitions(bofstd
 	-DCRT_SECURE_NO_WARNINGS
 	-DCRT_NONSTDC_NO_DEPRECATE
 	-DWINSOCK_DEPRECATED_NO_WARNINGS
-	-DIXML_STATIC_LIB
+	##-DIXML_STATIC_LIB
 	-D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING
 )
 

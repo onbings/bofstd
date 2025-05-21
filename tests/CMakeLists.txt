@@ -5,21 +5,21 @@ include(GoogleTest)
 # =============
   
 set(DATA_FILES
-  ./data/xmlparser.xml
-  ./data/xmlvectorparser.xml
-  ./data/jsonparser.json
-  ./data/colorbar_1920x1080p59_8bit_captured_by_sdk.422
-  ./data/colorbar.jpg
-  ./data/colorbar.png
-  ./data/football_seal.tga
-  ./data/colorbar_in_raw_32b_194x259.raw
-  ./data/colorbar_jpg_with_bad_ext.png
-  ./data/colorbar_jpg_with_no_ext
-  ./data/colorbar_png_with_bad_ext.jpg
-  ./data/colorbar_png_with_no_ext
-  ./data/colorbar_uncompress_32b.tga
-  ./data/colorbar_rle_32b.tga
-  ./data/sample-mp4-file.mp4
+##  ./data/xmlparser.xml
+##  ./data/xmlvectorparser.xml
+##  ./data/jsonparser.json
+## ./data/colorbar_1920x1080p59_8bit_captured_by_sdk.422
+## ./data/colorbar.jpg
+## ./data/colorbar.png
+## ./data/football_seal.tga
+## ./data/colorbar_in_raw_32b_194x259.raw
+## ./data/colorbar_jpg_with_bad_ext.png
+## ./data/colorbar_jpg_with_no_ext
+## ./data/colorbar_png_with_bad_ext.jpg
+## ./data/colorbar_png_with_no_ext
+## ./data/colorbar_uncompress_32b.tga
+## ./data/colorbar_rle_32b.tga
+##  ./data/sample-mp4-file.mp4
   ./data/shell_script_1_lin.bof
   ./data/shell_script_1_win.bof
   ./data/shell_script_2.bof
@@ -115,11 +115,11 @@ set(PROTOCOL_FILES
 )
 
 set(SERDER_FILES
-	include/ut_parser.h
-	src/ut_xmlparserwriter.cpp
-	data/xmlparser.xml
-	src/ut_jsonparserwriter.cpp	
-	data/jsonparser.json	
+##	include/ut_parser.h
+##	src/ut_xmlparserwriter.cpp
+##	data/xmlparser.xml
+##	src/ut_jsonparserwriter.cpp	
+##	data/jsonparser.json	
 	src/ut_binserializer.cpp	
 )
 
