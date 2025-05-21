@@ -173,6 +173,7 @@ else()
 endif()
 
 add_library(spdlog::spdlog ALIAS spdlog)
+target_compile_options(spdlog PRIVATE -D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1)
 
 set(SPDLOG_INCLUDES_LEVEL "")
 if(SPDLOG_SYSTEM_INCLUDES)

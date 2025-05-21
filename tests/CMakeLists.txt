@@ -239,6 +239,7 @@ target_link_libraries(ut_bofstd
 target_compile_definitions(ut_bofstd
   PRIVATE
     -DBOFSTD_STATIC_DEFINE=1
+	-D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1
 )
 if (MSVC)
     # warning level 4 and all warnings as errors
