@@ -356,7 +356,7 @@ target_include_directories(bofstd
 target_link_libraries(bofstd
   PUBLIC
     #ONBINGS::onbings-another-lib
-	date::date 
+	#date::date 
 	#date::date-tz
 
   PRIVATE
@@ -487,6 +487,13 @@ install(FILES       ${CMAKE_CURRENT_BINARY_DIR}/bofstd_export.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         COMPONENT   bofstd-devel
 )
+# Install Howard Hinnant date headers
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/HowardHinnant/date/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/date
+  COMPONENT bofstd-devel
+)
+
 # install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third/fmt-5.3.0/include/fmt/.		
 # 		 DESTINATION include/fmt-5.3.0
 #          COMPONENT   bofstd-devel
