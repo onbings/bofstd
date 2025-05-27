@@ -356,7 +356,7 @@ target_include_directories(bofstd
 target_link_libraries(bofstd
   PUBLIC
     #ONBINGS::onbings-another-lib
-	##date::date 
+	date::date 
 	#date::date-tz
 
   PRIVATE
