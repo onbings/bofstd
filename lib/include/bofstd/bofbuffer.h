@@ -459,6 +459,8 @@ struct BOF_BUFFER
     }
   }
 };
+BOFSTD_EXPORT void *Bof_AlignedMemAlloc(uint32_t _Alignment_U32, uint32_t _SizeInByte_U32);
+BOFSTD_EXPORT void Bof_AlignedMemFree(void *_pMemory);
 BOFSTD_EXPORT BOFERR Bof_AlignedMemAlloc(BOF_BUFFER_ALLOCATE_ZONE _AllocateZone_E, uint32_t _AligmentInByte_U32, uint32_t _SizeInByte_U32, bool _LockIt_B, int _OsAdvice_i, bool _ClearIt_B, BOF_BUFFER &_rAllocatedBuffer_X);
 BOFSTD_EXPORT BOFERR Bof_AlignedMemFree(BOF::BOF_BUFFER &_rBuffer_X);
 

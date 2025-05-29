@@ -235,12 +235,12 @@ set(SYSTEM_FILES
 	include/bofstd/bofstatistics.h
 	include/bofstd/boftimecode.h
 	src/boftimecode.cpp
-	include/bofstd/bofvideostandard.h
-	src/bofvideostandard.cpp
-	#include/bofstd/bofaudio.h
-	#src/bofaudio.cpp
-	include/bofstd/bofaudiostandard.h
-	src/bofaudiostandard.cpp
+	include/bofstd/bofvideo.h
+	src/bofvideo.cpp
+	include/bofstd/bofaudio.h
+	src/bofaudio.cpp
+	#include/bofstd/bofaudiostandard.h
+	#src/bofaudiostandard.cpp
 	include/bofstd/bofdatetime.h
 	src/bofdatetime.cpp
 	include/bofstd/bofrational.h

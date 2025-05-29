@@ -8,7 +8,7 @@
  *
  * This module defines video standard class manipulation
  *
- * Name:        bofvideostandard.h
+ * Name:        bofvideo.h
  * Author:      Bernard HARMEL: onbings@dscloud.me
  * Web:			    onbings.dscloud.me
  * Revision:    1.0

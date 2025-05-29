@@ -11,12 +11,12 @@
  *
  * V 1.00  November 15 2016  BHA : Initial release
  */
-#include <bofstd/bofaudiostandard.h>
+#include <bofstd/bofaudio.h>
 #include <bofstd/boffs.h>
 #include <bofstd/bofrational.h>
 #include <bofstd/bofstring.h>
 #include <bofstd/bofsystem.h>
-#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofvideo.h>
 
 #include "gtestrunner.h"
 

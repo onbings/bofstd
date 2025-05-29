@@ -10,6 +10,30 @@
 #endif
 
 BEGIN_BOF_NAMESPACE()
+void *Bof_AlignedMemAlloc(uint32_t _Alignment_U32, uint32_t _SizeInByte_U32)
+{
+  void *pRts;
+#if defined(_WIN32)
+  pRts = _aligned_malloc(_SizeInByte_U32, _Alignment_U32);
+#else
+  pRts = std::aligned_alloc(_Alignment_U32, _SizeInByte_U32);
+#endif
+  return pRts;
+}
+
+void Bof_AlignedMemFree(void *_pMemory)
+{
+#if defined(_WIN32)
+  if (_pMemory)
+  {
+    _aligned_free(_pMemory);
+  }
+#else
+  std::free(_pMemory);
+#endif
+}
+
+
 // https://stackoverflow.com/questions/32652833/how-to-allocate-huge-pages-for-c-application-on-linux
 // constexpr char MMGW_HUGE_PAGE_PATH[]="/sys/kernel/mm/hugepages/hugepages-2048kB/page_%08X";  //"/var/lib/hugetlbfs/global/pagesize-2MB/page_%08X";
 constexpr char BOF_HUGE_PAGE_PATH[] = "/tmp/hugepages/page_%08X";

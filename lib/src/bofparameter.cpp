@@ -19,13 +19,13 @@
  *
  * V 1.00  Dec 26 2013  BHA : Initial release
  */
-#include <bofstd/bofaudiostandard.h>
+#include <bofstd/bofaudio.h>
 #include <bofstd/bofguid.h>
 #include <bofstd/bofparameter.h>
 #include <bofstd/bofsystem.h>
 #include <bofstd/boftimecode.h>
 #include <bofstd/bofuri.h>
-#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofvideo.h>
 
 #include <regex>
 #include <stdlib.h>

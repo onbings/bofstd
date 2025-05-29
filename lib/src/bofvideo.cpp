@@ -8,7 +8,7 @@
  *
  * This module implements videostandard class
  *
- * Name:        bofvideostandard.cpp
+ * Name:        bofvideo.cpp
  * Author:      Bernard HARMEL: onbings@dscloud.me
  * Web:			    onbings.dscloud.me
  * Revision:    1.0
@@ -19,7 +19,7 @@
  *
  * V 1.00  May 26 2020  BHA : Initial release
  */
-#include <bofstd/bofvideostandard.h>
+#include <bofstd/bofvideo.h>
 
 #include <regex>
 

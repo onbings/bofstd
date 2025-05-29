@@ -8,7 +8,7 @@
  *
  * This module defines rational class manipulation
  *
- * Name:        bofvideostandard.h
+ * Name:        bofrational.h
  * Author:      Bernard HARMEL: onbings@dscloud.me
  * Web:			    onbings.dscloud.me
  * Revision:    1.0
