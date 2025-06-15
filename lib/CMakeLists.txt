@@ -356,38 +356,58 @@ target_include_directories(bofstd
 ##	$<INSTALL_INTERFACE:${MINIAUDIO_INCLUDE_DIRS}>
 )
 
-# Link
-target_link_libraries(bofstd
-  PUBLIC
-    #ONBINGS::onbings-another-lib
-	#date::date 
-	#date::date-tz
-
-  PRIVATE
-#	jsoncpp::jsoncpp 
-	#spdlog::spdlog
- #   $<BUILD_INTERFACE:spdlog::spdlog> #https://discourse.cmake.org/t/using-a-header-only-library-with-fetchcontents-while-build-a-static-lib/2711/2
-#    spdlog::spdlog
-)
 if(WIN32)
-target_link_libraries(bofstd
-  PUBLIC
-	Ws2_32
-	Iphlpapi
-	Winmm
-	Rpcrt4
-)
-else()
-  if( ANDROID )
-  else()
-    if(UNIX)
-       target_link_libraries(bofstd
-         PRIVATE
-	       rt
-       )
+    # Windows-specific libraries
+    target_link_libraries(bofstd
+        PUBLIC
+        Ws2_32   # Winsock 2 (networking)
+        Iphlpapi # IP Helper API (network configuration info)
+        Winmm    # Windows Multimedia (timers, sounds)
+        Rpcrt4   # RPC Runtime (for UUID generation, etc.)
+    )
+elseif(UNIX)
+    # This 'elseif' covers all Unix-like systems (Linux, macOS, Android, FreeBSD, etc.)
+
+    if(ANDROID)
+        # Android-specific linking.
+        # On Android (using Bionic libc), functions typically found in librt
+        # are usually part of libc itself, so 'rt' is generally not linked explicitly.
+        # Similarly, 'atomic' is often not needed explicitly for std::atomic on modern NDKs.
+        # Add any specific Android libraries needed by bofstd here.
+        # Example:
+        # target_link_libraries(bofstd
+        #     PRIVATE
+        #     log # For Android logging (e.g., __android_log_print)
+        # )
+    elseif(APPLE) # Covers macOS, iOS, watchOS, tvOS
+        # Apple-specific linking.
+        # 'rt' functions are typically integrated into the standard C library (libc) on Apple platforms.
+        # 'atomic' (libatomic) is generally not required for std::atomic on Apple platforms
+        # as the Clang compiler emits native instructions directly.
+        # Add any specific Apple frameworks or libraries bofstd needs here.
+        # Example:
+        # target_link_libraries(bofstd
+        #     PRIVATE
+        #     CoreFoundation  # Example for macOS/iOS frameworks
+        #     # Add other Apple-specific libraries if bofstd uses them
+        # )
+    else()
+        # This 'else' branch now specifically targets generic Linux distributions
+        # and other Unix-like systems where 'rt' and 'atomic' are typically separate libraries.
+        target_link_libraries(bofstd
+            PRIVATE
+            rt     # Real-time extensions (e.g., for clock_gettime, semaphores, message queues)
+            atomic # GNU libatomic, needed if the compiler generates calls to __atomic_* functions
+                   # that require an external library (e.g., for 128-bit atomics on some CPUs/compilers).
+                   # Often not strictly needed on x86-64 Linux for std::atomic, but safe to include.
+        )
     endif()
-  endif()
-endif()	
+else()
+    # This 'else' branch will catch any other system not explicitly handled above
+    # (e.g., less common Unix-like systems, or embedded/bare-metal targets without a recognized OS name).
+    message(WARNING "bofstd: Unhandled system for linking. CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+endif()
+
 if (EMSCRIPTEN)
   target_include_directories(bofstd 
     PUBLIC
