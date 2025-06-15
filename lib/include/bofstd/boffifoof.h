@@ -162,11 +162,6 @@ public:
   }
 
 private:
-#if defined(_WIN32)
-#else
-  pthread_cond_t mWakeUpCondition;
-  pthread_mutex_t mFifoMtx;
-#endif
   std::mutex mFifoMtx;
   std::condition_variable mWakeUpCondition;
   BofDoubleListOf<T> mFifoItemList;
