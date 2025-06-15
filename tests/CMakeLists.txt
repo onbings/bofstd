@@ -70,6 +70,9 @@ set(CONTAINER_FILES
 	src/ut_rawcircularbuffer.cpp
 	src/ut_stringcircularbuffer.cpp
 	src/ut_pot.cpp
+	src/ut_listof.cpp
+	src/ut_poolof.cpp
+	src/ut_fifoof.cpp
 	src/ut_queue.cpp
 )
 

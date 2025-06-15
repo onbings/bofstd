@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
   //  LOG_WARNING(MY_LOGGER, 0, "! This will not be logged !\n");
   //  LOG_ERROR(MY_LOGGER, 0, "! This will not be logged !\n");
 
+  //::testing::GTEST_FLAG(filter) = "ListOf_Test.*:FifoOf_Test.*:PoolOf_Test.*";
   Rts_i = RUN_ALL_TESTS();
 
   Sts_E = BOF::Bof_Shutdown();

@@ -75,6 +75,10 @@ set(CONTAINER_FILES
 	include/bofstd/boflist.h
 	include/bofstd/bofqueue.h
 	include/bofstd/bofstream.h
+	include/bofstd/boflistof.h
+	include/bofstd/bofpoolof.h
+	include/bofstd/boffifoof.h
+
 )
 
 set(CRYPTO_FILES

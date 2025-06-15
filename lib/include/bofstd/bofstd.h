@@ -472,11 +472,8 @@ struct container {
 And a pointer int *my_ptr to the this_data member you'd use the macro to get a pointer to struct container *my_container
 by using: struct container *my_container;	my_container = container_of(my_ptr, struct container, this_data);
 */
-#define BOF_CONTAINER_OF(ptr, type, member)            \
-  ({                                                   \
-    const typeof(((type *)0)->member) *__mptr = (ptr); \
-    (type *)((char *)__mptr - offsetof(type, member)); \
-  })
+#define BOF_CONTAINER_OF(ptr, type, member) (reinterpret_cast<type *>(reinterpret_cast<char *>(ptr) - offsetof(type, member)))
+
 
 // https://riptutorial.com/cplusplus/example/15335/casting-std--shared-ptr-pointers*/
 // Note that std::reinterpret_pointer_cast is not available in C++11 and C++14, as it was only proposed by N3920 and
