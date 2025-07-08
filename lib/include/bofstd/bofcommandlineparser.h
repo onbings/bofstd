@@ -39,7 +39,7 @@ public:
 
   BOFERR ToByte(const std::string &_rOption_S, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O);
 
-  BOFERR BofCommandLineParser::ToByte(const std::vector<std::string> &_rOptionCollection_S, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O);
+  BOFERR ToByte(const std::vector<std::string> &_rOptionCollection_S, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O);
 
   BOFERR ToByte(const int _Argc_i, char *const *_ppArgv_c, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O);
 
