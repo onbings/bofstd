@@ -70,7 +70,29 @@ BOFERR BofCommandLineParser::ToByte(const std::string &_rOption_S, const std::ve
   }
   return Rts_E;
 }
+BOFERR BofCommandLineParser::ToByte(const std::vector<std::string> &_rOptionCollection_S, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O)
+{
+  BOFERR Rts_E = BOF_ERR_NO_ERROR;
+  BOF::BofCommandLineParser OptionParser;
+  int Argc_i, i;
+  char **ppArgv_c;
 
+  Argc_i = static_cast<int>(_rOptionCollection_S.size());
+  if (Argc_i)
+  {
+    ppArgv_c = new char *[Argc_i];
+    if (ppArgv_c)
+    {
+      for (i = 0; i < Argc_i; i++)
+      {
+        ppArgv_c[i] = (char *)_rOptionCollection_S[i].c_str();
+      }
+      Rts_E = ToByte(Argc_i, ppArgv_c, _rCommandLineOption_X, _ParseCallback_O, _ErrorCallback_O);
+      BOF_SAFE_DELETE_ARRAY(ppArgv_c);
+    }
+  }
+  return Rts_E;
+}
 BOFERR BofCommandLineParser::ToByte(const int _Argc_i, char *const *_ppArgv_c, const std::vector<BOFPARAMETER> &_rCommandLineOption_X, const BOFPARAMETER_PARSE_CALLBACK _ParseCallback_O, const BOFCOMMANDLINEPARSER_ERROR_CALLBACK _ErrorCallback_O)
 {
   BOFERR Rts_E = BOF_ERR_PARSER;
