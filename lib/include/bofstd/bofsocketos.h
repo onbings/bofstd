@@ -765,6 +765,7 @@ BOFSTD_EXPORT BOFERR Bof_SetNetworkInterfaceParam(const std::string _rInterfaceN
 BOFSTD_EXPORT BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_rListOfNetworkInterface_X);                   // TODO IpV6 version
 BOFSTD_EXPORT int32_t Bof_Compute_CidrMask(const std::string &_rIpV4Address_S);                                                             // TODO IpV6 version
 // Defined above BOF_SOCKET_ADDRESS BOFSTD_EXPORT std::string Bof_SocketAddressToString(const BOF_SOCKET_ADDRESS &_rIpAddress_X, bool _ShowType_B, bool _ShowPortNumber_B);
+BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF::BOF_SOCKADDR_STORAGE &_rSockAddrStorage_X, bool _ShowPortNumber_B);
 BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN &_rSockAddressIn_X, bool _ShowPortNumber_B);
 BOFSTD_EXPORT std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN6 &_rSockAddressIn_X, bool _ShowPortNumber_B);
 BOFSTD_EXPORT BOFERR Bof_UrlAddressToSocketAddressCollection(const std::string &_rIpOrUrlAddress_S, std::vector<BOF_SOCKET_ADDRESS> &_rListOfIpAddress_X);

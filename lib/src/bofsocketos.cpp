@@ -900,6 +900,28 @@ std::string Bof_SockAddrInToString(const struct sockaddr &_rSockAddress_X, bool 
   return (Bof_SockAddrInToString(SockAddressIn_X, _ShowPortNumber_B));
 }
 */
+std::string Bof_SockAddrInToString(const BOF::BOF_SOCKADDR_STORAGE &_rSockAddrStorage_X, bool _ShowPortNumber_B)
+{
+  std::string Rts_S;
+
+  // Direct access to sa_family from sockaddr_storage via a temporary sockaddr pointer
+  // This is safe because sa_family is at the beginning of all sockaddr structures.
+  const BOF::BOF_SOCKADDR *pSockAddr = reinterpret_cast<const BOF::BOF_SOCKADDR *>(&_rSockAddrStorage_X);
+
+  if (pSockAddr->sa_family == AF_INET6)
+  {
+    // Directly cast from BOF_SOCKADDR_STORAGE to BOF_SOCKADDR_IN6
+    const BOF::BOF_SOCKADDR_IN6 *pSockAddrIn6 = reinterpret_cast<const BOF::BOF_SOCKADDR_IN6 *>(&_rSockAddrStorage_X);
+    Rts_S = BOF::Bof_SockAddrInToString(*pSockAddrIn6, _ShowPortNumber_B);
+  }
+  else // Assuming AF_INET if not AF_INET6
+  {
+    // Directly cast from BOF_SOCKADDR_STORAGE to BOF_SOCKADDR_IN
+    const BOF::BOF_SOCKADDR_IN *pSockAddrIn = reinterpret_cast<const BOF::BOF_SOCKADDR_IN *>(&_rSockAddrStorage_X);
+    Rts_S = BOF::Bof_SockAddrInToString(*pSockAddrIn, _ShowPortNumber_B);
+  }
+  return Rts_S;
+}
 std::string Bof_SockAddrInToString(const BOF_SOCKADDR_IN &_rSockAddressIn_X, bool _ShowPortNumber_B)
 {
   std::string Rts_S;
