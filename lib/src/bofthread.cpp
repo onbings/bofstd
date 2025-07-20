@@ -278,12 +278,12 @@ BOFERR BofThread::DestroyBofProcessingThread(const char * /*_pUser_c*/)
     }
     else
     {
-      printf("%u: THREAD NEVER BEEN STARTED\n", BOF::Bof_GetMsTickCount());
+      //printf("%u: THREAD NEVER BEEN STARTED\n", BOF::Bof_GetMsTickCount());
     }
   }
   else
   {
-    printf("%u: DESTROYBOFPROCESSINGTHREAD: DELETE ALREADY DONE\n", BOF::Bof_GetMsTickCount());
+    //printf("%u: DESTROYBOFPROCESSINGTHREAD: DELETE ALREADY DONE\n", BOF::Bof_GetMsTickCount());
   }
   // printf("%u: JOINABLE ? %d\n", Bof_GetMsTickCount(), mThread.joinable());
   if (mThread.joinable()) // Needed to clanup std::thread if launch failed
@@ -1142,7 +1142,7 @@ BOFERR BofThreadPool::Dispatch(uint32_t TimeoutInMs_U32, BOF_THREAD_CALLBACK _Fc
       if (Rts_E == BOF_ERR_NO_ERROR)
       {
         pThreadPoolEntry_X->Running_B = true;
-        printf("Dispatch ptr %p running ...\n", pThreadPoolEntry_X);
+        //printf("Dispatch ptr %p running ...\n", pThreadPoolEntry_X);
         *_ppDispatchTicket = pThreadPoolEntry_X;
       }
       else

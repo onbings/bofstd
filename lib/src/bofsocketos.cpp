@@ -713,14 +713,14 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
       if (pInterface_X->ifa_addr)
       {
         Family_i = pInterface_X->ifa_addr->sa_family;
-        printf("--- Interface: %s Family is %d, accept only %d or %d-----------------------------\n", pInterface_X->ifa_name, Family_i, AF_INET, AF_INET6);
+        //printf("--- Interface: %s Family is %d, accept only %d or %d-----------------------------\n", pInterface_X->ifa_name, Family_i, AF_INET, AF_INET6);
         if ((Family_i == AF_INET) || (Family_i == AF_INET6))
         {
           Sts_i = getnameinfo(pInterface_X->ifa_addr,
                               (Family_i == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6),
                               pHost_c, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
 
-          printf("getnameinfo sts %d\n", Sts_i);
+          //printf("getnameinfo sts %d\n", Sts_i);
           if (Sts_i == 0)
           {
             IpV6_B = (Family_i == AF_INET6);
@@ -733,27 +733,27 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
             {
               NetworkInterfaceParam_X.SockAddr4_X = *(BOF_SOCKADDR_IN *)pInterface_X->ifa_addr;
             }
-            printf("Address: %s\n", pHost_c);
-            printf("Family: %s\n", IpV6_B ? "IPv6" : "IPv4");
+            //printf("Address: %s\n", pHost_c);
+            //printf("Family: %s\n", IpV6_B ? "IPv6" : "IPv4");
             inet_ntop(Family_i, pInterface_X->ifa_addr->sa_data, pIp_c, INET6_ADDRSTRLEN);
-            printf("ifa_addr: %s\n", pIp_c);
+            //printf("ifa_addr: %s\n", pIp_c);
 
             // Display ifa_netmask
             if (pInterface_X->ifa_netmask)
             {
               inet_ntop(Family_i, pInterface_X->ifa_netmask->sa_data, pIp_c, INET6_ADDRSTRLEN);
-              printf("ifa_netmask: %s\n", pIp_c);
+              //printf("ifa_netmask: %s\n", pIp_c);
             }
 
             // Display ifu_broadaddr
             if (pInterface_X->ifa_broadaddr)
             {
               inet_ntop(Family_i, pInterface_X->ifa_broadaddr->sa_data, pIp_c, INET6_ADDRSTRLEN);
-              printf("ifu_broadaddr: %s\n", pIp_c);
+              //printf("ifu_broadaddr: %s\n", pIp_c);
             }
             // Display ifa_flags
             printf("ifa_flags: 0x%X ", pInterface_X->ifa_flags);
-
+            /*
             if (pInterface_X->ifa_flags & IFF_UP)
               printf("UP ");
             if (pInterface_X->ifa_flags & IFF_BROADCAST)
@@ -773,19 +773,19 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
             if (pInterface_X->ifa_flags & IFF_MULTICAST)
               printf("MULTICAST ");
             printf("\n");
-
+            */
             // if (IsFlagValid(pInterface_X->ifa_flags, IpV6_B))
             MskNetIfOk_U32 = IFF_UP | IFF_BROADCAST | IFF_MULTICAST;
             MskNetIfBad_U32 = IFF_LOOPBACK | IFF_SLAVE | IFF_POINTOPOINT;
-            printf("  ->Check flag for bad capabilities  %08X AND %08X, result is %08X and should be 00000000\n", pInterface_X->ifa_flags, MskNetIfBad_U32, pInterface_X->ifa_flags & MskNetIfBad_U32);
+            //printf("  ->Check flag for bad capabilities  %08X AND %08X, result is %08X and should be 00000000\n", pInterface_X->ifa_flags, MskNetIfBad_U32, pInterface_X->ifa_flags & MskNetIfBad_U32);
             if ((pInterface_X->ifa_flags & MskNetIfBad_U32) == 0)
             {
-              printf("  ->Check flag for good capabilities %08X AND %08X, result is %08X and should be %08X\n", pInterface_X->ifa_flags, MskNetIfOk_U32, pInterface_X->ifa_flags & MskNetIfOk_U32, MskNetIfOk_U32);
+              //printf("  ->Check flag for good capabilities %08X AND %08X, result is %08X and should be %08X\n", pInterface_X->ifa_flags, MskNetIfOk_U32, pInterface_X->ifa_flags & MskNetIfOk_U32, MskNetIfOk_U32);
 
               if ((pInterface_X->ifa_flags & MskNetIfOk_U32) == MskNetIfOk_U32)
               {
                 Sts_E = Bof_GetIpMaskGw(pInterface_X->ifa_name, pInterface_X->ifa_addr, pInterface_X->ifa_netmask, pInterface_X->ifa_broadaddr, NetworkInterfaceParam_X);
-                printf("  ->Final interface status: %s\n", (Rts_E == BOF_ERR_NO_ERROR) ? "validated" : "rejected");
+                //printf("  ->Final interface status: %s\n", (Rts_E == BOF_ERR_NO_ERROR) ? "validated" : "rejected");
                 if (Sts_E == BOF_ERR_NO_ERROR)
                 {
                   _rListOfNetworkInterface_X.push_back(NetworkInterfaceParam_X);

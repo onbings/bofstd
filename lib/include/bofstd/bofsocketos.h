@@ -156,6 +156,7 @@ enum class BOF_SOCK_TYPE : int32_t
 typedef struct sockaddr BOF_SOCKADDR;
 typedef struct sockaddr_in BOF_SOCKADDR_IN;
 typedef struct sockaddr_in6 BOF_SOCKADDR_IN6;
+typedef struct sockaddr_storage BOF_SOCKADDR_STORAGE; 
 typedef struct in_addr BOF_IN_ADDR;
 typedef struct in6_addr BOF_IN_ADDR6;
 
@@ -622,7 +623,7 @@ struct BOF_SOCKET_ADDRESS_COMPONENT
   /*
   inline BOF_SOCKET_ADDRESS_COMPONENT operator=(BOF_SOCKET_ADDRESS_COMPONENT _Other)
   {
-    printf("InCopy from %p to %p\n", &_Other, this);
+    //printf("InCopy from %p to %p\n", &_Other, this);
 
     Protocol_S = _Other.Protocol_S;
     IpAddress_S = _Other.IpAddress_S;
