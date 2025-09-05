@@ -26,36 +26,48 @@
 
 BEGIN_BOF_NAMESPACE()
 
-BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X)
-    : mShellParam_X(_rShellParam_X)
+BofShell::BofShell(BOF_SHELL_PARAM &_rShellParam_X) : mShellParam_X(_rShellParam_X)
 {
   AddCommand("q", BOF_SHELL_CMD("Leave shell console.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellQuit)));
   AddCommand("?", BOF_SHELL_CMD("Show the list of commands.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellHelp)));
 
-  AddCommand("arg", BOF_SHELL_CMD("Show descrition of the args of a command.", {"ShellCmd"}, &mArgShellCmd_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellCmdArg)));
+  AddCommand("arg",
+             BOF_SHELL_CMD("Show descrition of the args of a command.", {"ShellCmd"}, &mArgShellCmd_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellCmdArg)));
   AddCommandArgument("arg", "ShellCmd",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify which shell command must show its argument", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mArgShellCmd_S, STDSTRING, 0, 0)));
-  AddCommand("spawn", BOF_SHELL_CMD("Spawn a process given in argument.", {"ProcessPath", "ProcessArg"}, &mSpawnParam_X, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellSpawn)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify which shell command must show its argument", "", "",
+                                       BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mArgShellCmd_S, STDSTRING, 0, 0)));
+  AddCommand("spawn", BOF_SHELL_CMD("Spawn a process given in argument.", {"ProcessPath", "ProcessArg"}, &mSpawnParam_X,
+                                    BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellSpawn)));
   AddCommandArgument("spawn", "ProcessPath",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify the process to spawn", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST, BOF_PARAM_DEF_VARIABLE(mSpawnParam_X.ProcessPath, PATH, 0, 0)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the process to spawn", "", "",
+                                       BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST,
+                                       BOF_PARAM_DEF_VARIABLE(mSpawnParam_X.ProcessPath, PATH, 0, 0)));
   AddCommandArgument("spawn", "ProcessArg",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify the argument of the spawned process", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mSpawnParam_X.ProcessArg_S, STDSTRING, 0, 0)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the argument of the spawned process", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,
+                                       BOF_PARAM_DEF_VARIABLE(mSpawnParam_X.ProcessArg_S, STDSTRING, 0, 0)));
 
-  AddCommand("sleep", BOF_SHELL_CMD("Sleep the script for a given number of ms.", {"SleepTimeInMs"}, &mSleepTime_U32, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellSleep)));
+  AddCommand("sleep", BOF_SHELL_CMD("Sleep the script for a given number of ms.", {"SleepTimeInMs"}, &mSleepTime_U32,
+                                    BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellSleep)));
   AddCommandArgument("sleep", "SleepTimeInMs",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify the number of millisecond to sleep", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mSleepTime_U32, UINT32, 0, 0)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the number of millisecond to sleep", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,
+                                       BOF_PARAM_DEF_VARIABLE(mSleepTime_U32, UINT32, 0, 0)));
 
   AddCommand("exec", BOF_SHELL_CMD("Execute a script from a script.", {"ScripFilename"}, &mScriptPath, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellExec)));
   AddCommandArgument("exec", "ScripFilename",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify the script to execute", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST, BOF_PARAM_DEF_VARIABLE(mScriptPath, PATH, 0, 0)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the script to execute", "", "",
+                                       BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG | BOF::BOFPARAMETER_ARG_FLAG::PATH_MUST_EXIST,
+                                       BOF_PARAM_DEF_VARIABLE(mScriptPath, PATH, 0, 0)));
 
-  AddCommand("echo", BOF_SHELL_CMD("Display the argument string in the output channel.", {"EchoText"}, &mEchoText_S, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellEcho)));
+  AddCommand("echo", BOF_SHELL_CMD("Display the argument string in the output channel.", {"EchoText"}, &mEchoText_S,
+                                   BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellEcho)));
   AddCommandArgument("echo", "EchoText",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify the text to display", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the text to display", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG,
+                                       BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
 
   AddCommand("getch", BOF_SHELL_CMD("Wait for a key press.", {"EchoText"}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellGetCh)));
   AddCommandArgument("getch", "EchoText",
-                     BOF::BOFPARAMETER(nullptr, "", "Specify the text to display before waiting for a key", "", "", BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
+                     BOF::BOFPARAMETER(nullptr, "", "Specify the text to display before waiting for a key", "", "",
+                                       BOF::BOFPARAMETER_ARG_FLAG::CMDLINE_LONGOPT_NEED_ARG, BOF_PARAM_DEF_VARIABLE(mEchoText_S, STDSTRING, 0, 0)));
 
   AddCommand("dywtc?", BOF_SHELL_CMD("Ask if the user want to continue.", {}, nullptr, BOF_BIND_2_ARG_TO_METHOD(this, BofShell::ShellDoYouWantToContinue)));
 }
@@ -124,8 +136,12 @@ BOFERR BofShell::ExecScript(const BofPath &_rScriptPath)
   }
   return Rts_E;
 }
+bool BofShell::IsItFinished()
+{
+  return mFinish_B;
+}
 
-BOFERR BofShell::ShellHelp(void *_pArg, std::string &_rShellRes_S)
+BOFERR BofShell::ShellHelp(void * /*_pArg*/, std::string &_rShellRes_S)
 {
   uint32_t i_U32;
 
@@ -150,29 +166,26 @@ BOFERR BofShell::ShellHelp(void *_pArg, std::string &_rShellRes_S)
   }
   return BOF_ERR_NO_ERROR;
 }
-BOFERR BofShell::ShellQuit(void *_pArg, std::string &_rShellRes_S)
+BOFERR BofShell::ShellQuit(void * /*_pArg*/, std::string & /*_rShellRes_S*/)
 {
   mFinish_B = true;
   return BOF_ERR_NO_ERROR;
 }
-BOFERR BofShell::ShellExec(void *_pArg, std::string &_rShellRes_S)
+BOFERR BofShell::ShellExec(void * /*_pArg*/, std::string & /*_rShellRes_S*/)
 {
-  BOFERR Rts_E;
-
   if (BOF_IS_HANDLE_VALID(mIoScript))
   {
     Bof_CloseFile(mIoScript);
     mIoScript = BOF_INVALID_HANDLE_VALUE;
     mExecScript_B = false;
   }
-  Rts_E = ExecScript(mScriptPath);
+  ExecScript(mScriptPath);
   return BOF_ERR_NO_ERROR;
 }
-BOFERR BofShell::ShellCmdArg(void *_pArg, std::string &_rShellResult_S)
+BOFERR BofShell::ShellCmdArg(void * /*_pArg*/, std::string &_rShellResult_S)
 {
   BOFERR Rts_E = BOF_ERR_DONT_EXIST;
   std::string Cmd_S, Prefix_S, ArgName_S;
-  int Index_i;
 
   mArgShellCmd_S = Bof_StringTrim(mArgShellCmd_S);
   _rShellResult_S = "Argument of command '" + mArgShellCmd_S + "' are:\n";
@@ -197,7 +210,7 @@ BOFERR BofShell::ShellCmdArg(void *_pArg, std::string &_rShellResult_S)
   }
   return Rts_E;
 }
-BOFERR BofShell::ShellEcho(void *_pArg, std::string &_rShellResult_S)
+BOFERR BofShell::ShellEcho(void * /*_pArg*/, std::string &_rShellResult_S)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
@@ -205,7 +218,7 @@ BOFERR BofShell::ShellEcho(void *_pArg, std::string &_rShellResult_S)
   _rShellResult_S = mEchoText_S + "\n";
   return Rts_E;
 }
-BOFERR BofShell::ShellGetCh(void *_pArg, std::string &_rShellResult_S)
+BOFERR BofShell::ShellGetCh(void * /*_pArg*/, std::string &_rShellResult_S)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
@@ -251,7 +264,7 @@ BOFERR BofShell::ShellSpawn(void *_pArg, std::string &_rShellResult_S)
   return Rts_E;
 }
 
-BOFERR BofShell::ShellDoYouWantToContinue(void *_pArg, std::string &_rShellResult_S)
+BOFERR BofShell::ShellDoYouWantToContinue(void * /*_pArg*/, std::string &_rShellResult_S)
 {
   BOFERR Rts_E = BOF_ERR_NO;
 
@@ -272,7 +285,7 @@ BOFERR BofShell::ShellDoYouWantToContinue(void *_pArg, std::string &_rShellResul
   return Rts_E;
 }
 
-BOFERR BofShell::ShellSleep(void *_pArg, std::string &_rShellResult_S)
+BOFERR BofShell::ShellSleep(void * /*_pArg*/, std::string & /*_rShellResult_S*/)
 {
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
 
@@ -285,7 +298,6 @@ BOFERR BofShell::Parser(const std::string &_rShellCmd_S, std::string &_rShellRes
   static const std::regex S_RegExFnArg("^(.*)\\((.*)\\)");
   std::smatch MatchString;
   std::string Cmd_S, CmdArg_S, Prefix_S;
-  const char *pBofDefaultTrimCharList_c = " \a\f\n\r\t\v\"";
   std::vector<std::string> CmdArgCollection;
   uint32_t i_U32;
 
@@ -390,8 +402,6 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
   BOFERR Rts_E = BOF_ERR_NO_ERROR;
   std::string Pwd_S, ScriptLine_S, CmdLine_S;
   bool FirstCommand_B = false;
-
-  uint32_t i_U32;
   std::string ShellRes_S;
 
   mFinish_B = mShellParam_X.InputStream ? false : true;
@@ -443,13 +453,20 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
       }
       if (mExecScript_B)
       {
-        Bof_CloseFile(mIoScript);
-        mIoScript = BOF_INVALID_HANDLE_VALUE;
-        mExecScript_B = false;
-        break;
+        if (mShellParam_X.ScriptStopOnError_B)
+        {
+          Bof_CloseFile(mIoScript);
+          mIoScript = BOF_INVALID_HANDLE_VALUE;
+          mExecScript_B = false;
+          break;
+        }
+        else
+        {
+          Rts_E = BOF_ERR_NO_ERROR;
+        }
       }
     }
-    else
+    if (Rts_E == BOF_ERR_NO_ERROR)
     {
       if (mExecScript_B)
       {
@@ -458,14 +475,16 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
           Bof_GetCurrentDirectory(Pwd_S);
           if (mShellParam_X.OutputStream)
           {
-            mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT, BOF::Bof_Sprintf("Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str()));
+            mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT,
+                                       BOF::Bof_Sprintf("Execute '%s' script from '%s'\n", mScriptPath.FullPathName(false).c_str(), Pwd_S.c_str()));
           }
           Rts_E = Bof_OpenFile(mScriptPath, true, false, mIoScript);
           if (Rts_E != BOF_ERR_NO_ERROR)
           {
             if (mShellParam_X.OutputStream)
             {
-              mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_ERROR, BOF::Bof_Sprintf("Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E)));
+              mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_ERROR,
+                                         BOF::Bof_Sprintf("Cannot open script file (%s)\n", Bof_ErrorCode(Rts_E)));
             }
             mIoScript = BOF_INVALID_HANDLE_VALUE;
             mExecScript_B = false;
@@ -479,7 +498,8 @@ BOFERR BofShell::Interpreter(const std::string &_rFirstCommand_S)
             ScriptLine_S = Bof_StringTrim(ScriptLine_S);
             if (mShellParam_X.OutputStream)
             {
-              mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT, BOF::Bof_Sprintf("[%s]: %s\n", mScriptFilename_S.c_str(), ScriptLine_S.c_str()));
+              mShellParam_X.OutputStream(SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT,
+                                         BOF::Bof_Sprintf("[%s]: %s\n", mScriptFilename_S.c_str(), ScriptLine_S.c_str()));
               // BofConio::S_PrintLineColorAt(mShellConsoleParam_X.ShellCmdInputColor_E, 0, 0, "%s", "");
             }
             CmdLine_S = ScriptLine_S;
@@ -565,6 +585,7 @@ BOFERR BofShellConsole::OutputStream(SHELL_OUTPUT_STREAM _ShellOutputStream_E, c
     switch (_ShellOutputStream_E)
     {
       default:
+      case SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_MAX:
       case SHELL_OUTPUT_STREAM::SHELL_OUTPUT_STREAM_INPUT:
         ForegroundColor_E = mShellConsoleParam_X.ShellCmdInputColor_E;
         break;

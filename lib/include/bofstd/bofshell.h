@@ -113,6 +113,7 @@ struct BOF_SHELL_PARAM
   BOF_SHELL_INPUT_CMD InputStream;
   BOF_SHELL_OUTPUT_RES OutputStream;
   std::string Prompt_S;
+  bool ScriptStopOnError_B;
 
   BOF_SHELL_PARAM()
   {
@@ -124,6 +125,7 @@ struct BOF_SHELL_PARAM
     InputStream = nullptr;
     OutputStream = nullptr;
     Prompt_S = "";
+    ScriptStopOnError_B = false;
   }
 };
 
@@ -159,6 +161,7 @@ public:
   BOFERR Interpreter(const std::string &_rFirstCommand_S);
   BOFERR Execute(const std::string &_rShellCmd_S);
   BOFERR ExecScript(const BofPath &_rScriptPath);
+  bool IsItFinished();
 
 private:
   BOFERR ShellHelp(void *_pArg, std::string &_rShellResult_S);
