@@ -124,6 +124,11 @@ BOFSTD_EXPORT BOFERR Bof_GetCurrentDirectory(BofPath &_rPath);
 
 BOFSTD_EXPORT BOFERR Bof_GetCurrentDirectory(std::string &_rPath_S);
 
+/// @brief Get the path of the executable 
+/// @param _rPath : Returns the directory of the app.
+/// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)
+BOFSTD_EXPORT BOFERR Bof_GetCurrentAppDirectory(BofPath &_rPath);
+
 /// @brief Change current directory and returns its permissions
 /// @param _rNewDirectory_S : Specifies the new current directory
 /// @return A BOFERR value (0 or BOF_ERR_NO_ERROR if successful)

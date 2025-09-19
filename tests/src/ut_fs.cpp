@@ -38,6 +38,9 @@ TEST(Fs_Test, DirectoryManagement)
   BOF_FILE_TYPE FileType_E;
   uint64_t Size_U64;
 
+  Sts_E = Bof_GetCurrentAppDirectory(CrtDir);
+  EXPECT_EQ(Sts_E, BOF_ERR_NO_ERROR);
+  EXPECT_TRUE(CrtDir.IsDirectory());
 #if defined(_WIN32)
 #else
   std::string Cwd_S;

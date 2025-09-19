@@ -752,8 +752,8 @@ BOFERR Bof_GetListOfNetworkInterface(std::vector<BOF_NETWORK_INTERFACE_PARAM> &_
               //printf("ifu_broadaddr: %s\n", pIp_c);
             }
             // Display ifa_flags
-            printf("ifa_flags: 0x%X ", pInterface_X->ifa_flags);
             /*
+            printf("ifa_flags: 0x%X ", pInterface_X->ifa_flags);
             if (pInterface_X->ifa_flags & IFF_UP)
               printf("UP ");
             if (pInterface_X->ifa_flags & IFF_BROADCAST)

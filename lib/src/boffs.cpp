@@ -268,7 +268,42 @@ BOFERR Bof_SetCurrentDirectory(const BofPath &_rPath)
   }
   return Rts_E;
 }
+BOFERR Bof_GetCurrentAppDirectory(BofPath &_rPath)
+{
+  BOFERR Rts_E = BOF_ERR_INTERNAL;
+  char pDir_c[0x1000], *pLastDelimiter_c;
 
+#if defined(_WIN32)
+
+  if (GetModuleFileName(NULL, pDir_c, sizeof(pDir_c)-1))
+  {
+    // Find the last backslash to get the directory
+    pLastDelimiter_c = strrchr(pDir_c, '\\');
+    if (pLastDelimiter_c != nullptr)
+    {
+      pLastDelimiter_c[1] = '\0';
+      _rPath = pDir_c;
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+  }
+
+#else
+  ssize_t Len = readlink("/proc/self/exe", pDir_c, sizeof(pDir_c) - 1);
+
+  if (Len != -1)
+  {
+    pDir_c[Len] = '\0';             // Null-terminate the string
+    pLastDelimiter_c = strrchr(pDir_c, '/');
+    if (pLastDelimiter_c != nullptr)
+    {
+      pLastDelimiter_c[1] = '\0';
+      _rPath = pDir_c;
+      Rts_E = BOF_ERR_NO_ERROR;
+    }
+  }
+#endif
+  return (Rts_E);
+}
 BOFERR Bof_CreateDirectory(const BOF_FILE_PERMISSION _Permission_E, const BofPath &_rPath)
 {
   BOFERR Rts_E = BOF_ERR_EACCES;

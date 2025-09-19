@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
   //::testing::GTEST_FLAG(filter) = "ConIo_Test.*";
   // ::testing::GTEST_FLAG(filter) = "System_Test.Mutex:System_Test.Timer";
   //::testing::GTEST_FLAG(filter) = "ServiceEndPoint_Test.*";
+  //::testing::GTEST_FLAG(filter) = "Fs_Test.DirectoryManagement";
   //  ::testing::GTEST_FLAG(filter) = "RawCircularBufferAlwaysContiguous_Test.*:RawCircularBuffer_Test.*:RawCircularBufferInSlotMode_Test.*";
   // std::string CrtDir_S;
   // BOF::Bof_GetCurrentDirectory(CrtDir_S);
